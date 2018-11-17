@@ -2184,37 +2184,50 @@ class Service_centers extends CI_Controller {
         
         if(!empty($booking_address)){
             
-            foreach ($booking_address as $partner_id=> $spare_id_array) {
-                $wh_entity_details = explode('-', $partner_id);
-                switch ($wh_entity_details[1]) {
-                    case _247AROUND_PARTNER_STRING:
-                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];
-                        break;
-                    case _247AROUND_SF_STRING:
-                        $select = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]))[0];
-                        break;
-                }
-                foreach ($spare_id_array as $spare_id) {
-                    $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+           foreach ($booking_address as $partner_id=> $spare_id_array) {
+                $wh_entity_details = explode('-', $partner_id);              
+                foreach ($spare_id_array as $spare_id) {          
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
+                        . "service_centres.address,service_centres.pincode, service_centres.state, "
+                        . "service_centres.district, service_centres.primary_contact_name,"
+                        . "service_centres.primary_contact_phone_1,booking_details.partner_id as booking_partner_id";
+                    $vendor_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' =>$spare_id ), true, true);                   
+                                                         
+                      $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                         . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                         . "warehouse_details.warehouse_pincode as pincode,"
-                        . "warehouse_details.warehouse_state as state";
-                
-                    $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
-
-                    $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
+                        . "warehouse_details.warehouse_state as state";         
+                    switch ($wh_entity_details[1]) {
+                    case _247AROUND_PARTNER_STRING:
+                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];                         
+                        break;
+                    case _247AROUND_SF_STRING:                        
+                        if($vendor_details[0]['partner_id'] == $vendor_details[0]['service_center_id']){
+                            $defected_parts_deatils = $this->partner_model->getpartner($vendor_details[0]['booking_partner_id']); 
+                            if($defected_parts_deatils[0]['is_defective_part_return_wh']==0){
+                                $booking_details = $defected_parts_deatils[0];    
+                            }else{                               
+                                $where1 = array('warehouse_state_relationship.state' => $defected_parts_deatils[0]['state'],'warehouse_details.entity_id' => _247AROUND, 'warehouse_details.entity_type' => _247AROUND_EMPLOYEE_STRING);
+                                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where1,true);
+                                $booking_details = $this->partner_model->getpartner(_247AROUND)[0];                               
+                            } 
+                        }else{
+                            $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
+                            $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $wh_entity_details[0]))[0];
+                        }             
+                        break;
+                    }
+                    if(empty($wh_address_details)){                       
+                        $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
+                        $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,true);
+                    }
+                    
                     if(!empty($wh_address_details)){
                         $wh_address_details[0]['company_name'] = $booking_details['company_name'];
                         $booking_history['details'][$i] = $wh_address_details[0];
                     }else{
                         $booking_history['details'][$i] = $booking_details;
                     }
-                    $v_select = "spare_parts_details.booking_id, service_centres.name, service_centres.id, company_name, "
-                        . "service_centres.address,service_centres.pincode, service_centres.state, "
-                        . "service_centres.district, service_centres.primary_contact_name,"
-                        . "service_centres.primary_contact_phone_1 ";
-                    $vendor_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' =>$spare_id ), false, true);
                     $booking_history['details'][$i]['vendor'] = $vendor_details[0];
                     $booking_history['details'][$i]['booking_id'] = $vendor_details[0]['booking_id'];
                     $i++;
@@ -3699,7 +3712,7 @@ class Service_centers extends CI_Controller {
      */
     function check_WH_UserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_wh'))) {
+                && !empty($this->session->userdata('service_center_id')) && (!empty($this->session->userdata('is_wh')) || !empty($this->session->userdata('is_micro_wh')))) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");

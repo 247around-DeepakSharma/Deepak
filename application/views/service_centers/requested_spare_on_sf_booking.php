@@ -68,11 +68,9 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Inventory Stock</th>
-                                    <th class="text-center">Update</th>
+                                    <th class="text-center">Used</th>
                                     <th class="text-center">Reject</th>
-                                    <th class="text-center">SF GST Declaration</th>
-                                    <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
-                                    <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
+                                                                                                           
                                 </tr>
                             </thead>
                             <tbody>
@@ -116,29 +114,14 @@ if ($this->uri->segment(3)) {
                                         </td>
 
                                         <td>
-                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Used" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-arrows-alt" aria-hidden="true"></i></a>
                                         </td>
                                         <td>
                                             <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
                                             <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
                                             <?php } ?>
-                                        </td>
-                                        <td>
-                                            <?php if(!empty($row['is_gst_doc'])){ ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else if(empty ($row['signature_file'])) { ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else{ ?>
-                                                <a class="btn btn-sm btn-success" href="<?php echo base_url();?>service_center/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
-
+                                        </td>                                        
+                                        
                                     </tr>
                                     <?php
                                     $sn_no++;
@@ -153,37 +136,14 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                        
                     </form>
                 </div>
             </div>
         </div>
-<?php if(empty($is_ajax)) { ?> 
-    </div>
-    
-    <div id="myModal2" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title" id="modal-title">Reject Parts</h4>
-                </div>
-                <div class="modal-body">
-                    <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
-                </div>
-                <input type="hidden" id="url">
-                <input type="hidden" id="modal_partner_id">
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="reject_parts()">Send</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<?php } ?>
+
 <div class="clearfix"></div>
+
 <script>
     $(document).ready(function () {
         $('body').popover({
@@ -225,41 +185,9 @@ if ($this->uri->segment(3)) {
         });
     }
 
-    $("#selectall_address").change(function () {
-        var d_m = $('input[name="download_courier_manifest[]"]:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_manifest').prop('checked', false);
-            $('#selectall_manifest').prop('checked', false);
-        }
-        $(".checkbox_address").prop('checked', $(this).prop("checked"));
-    });
-    $("#selectall_manifest").change(function () {
-        var d_m = $('input[name="download_address[]"]:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_address').prop('checked', false);
-            $('#selectall_address').prop('checked', false);
-        }
-        $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
-    });
+    
 
-    function check_checkbox(number) {
-
-        if (number === 1) {
-            var d_m = $('input[name="download_courier_manifest[]"]:checked');
-            if (d_m.length > 0) {
-                $('.checkbox_manifest').prop('checked', false);
-                $('#selectall_manifest').prop('checked', false);
-            }
-
-        } else if (number === 0) {
-            var d_m = $('input[name="download_address[]"]:checked');
-            if (d_m.length > 0) {
-                $('.checkbox_address').prop('checked', false);
-                $('#selectall_address').prop('checked', false);
-            }
-        }
-
-    }
+    
 
     function open_upcountry_model(booking_id, amount_due) {
 
@@ -312,19 +240,9 @@ if ($this->uri->segment(3)) {
             alert("Please Enter Remarks");
         }
     }
-    
-    function checkValidationForBlank(){
-        var address = $('.checkbox_address:checkbox:checked');
-        var manifest = $('.checkbox_manifest:checkbox:checked');
-        if(address.length != 0 || manifest.length !=0){
-            return true;
-        }
-        else{
-            alert("Please Select any checkbox");
-            return false;
-        }
-   }
+        
 </script>
+
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>

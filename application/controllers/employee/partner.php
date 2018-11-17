@@ -894,10 +894,12 @@ class Partner extends CI_Controller {
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
+                    
        $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
        $auual_charges = $this->invoices_model->get_variable_charge('fixed_charges, validity_in_month', array('entity_type'=>'partner', 'entity_id'=>$id));
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'annual_charges'=>$auual_charges));
+        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($id); 
+       $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'annual_charges'=>$auual_charges, 'micro_wh_lists'=>$micro_wh_lists));
     }
 
     /**
@@ -6213,5 +6215,123 @@ function update_channel($id) {
             echo false;
         }
     }
+ 
+     /*
+     * @desc - This function is used to get the list of service centers by state.
+     * @param - get post state val
+     * @retun - Json
+     */
+       
+     function get_state_waise_service_centers() { 
+         $state = $this->input->post("state");
+         if (!empty($state)) {
+             $where = array('state' => $state);
+             $select = "service_centres.id,service_centres.name,service_centres.state";
+             $service_centres_list = $this->vendor_model->getVendorDetails($select, $where, 'state', '');
+             if (!empty($service_centres_list)) {
+                 echo json_encode($service_centres_list);
+             } else {
+                 echo json_encode(array('status' => 'fail'));
+
+             }
+
+         }
+     
+    }
+    /*
+     * @desc - This function is used to get partner service center where partner serivce valum high.
+     * @param - get post multiple parameter
+     * @render on same pages
+     */    
+    function process_partner_warehouse_config(){   
+        
+        $is_wh = $this->input->post('is_wh');
+        $partner_id = $this->input->post('partner_id');
+        $micro = $this->input->post('micro');
+        $is_micro_wh = $this->input->post('is_micro_wh');
+        $is_defective_part_return_wh = $this->input->post('is_defective_part_return_wh');         
+              
+        if($is_micro_wh == 1){
+           
+            foreach($micro as $key =>  $value){
+                $data = array();
+                $wh_on_of_data =array();
+                
+                $data =array(
+                    'partner_id'=>$partner_id,
+                    'state'=>$value['micro_wh_state']
+                );
+                
+                $wh_on_of_data =array(
+                    'partner_id'=>$partner_id,
+                    'agent_id'=> $this->session->userdata('id'),
+                    'active'=>1
+                 ); 
+                
+                foreach($value['sf_id'] as $vendor_id){
+                    $data['vendor_id'] = $vendor_id;
+                    $wh_on_of_data['vendor_id'] = $vendor_id;  
+                    $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
+                    if(empty($micro_wh_mapping_list)){
+                        $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
+                        $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data); 
+                    }                            
+                }    
+            }            
+            $partner = array(               
+               'is_micro_wh'=>1                            
+            );
+          $this->partner_model->edit_partner($partner,  $partner_id);             
+        }       
+             
+        if($is_wh==1){          
+           $partner = array(
+               'is_wh'=>1,
+               'is_defective_part_return_wh'=>$is_defective_part_return_wh               
+           );
+          $this->partner_model->edit_partner($partner,  $partner_id);           
+        }elseif ($is_wh==1 && $is_micro_wh == 1) {           
+           $partner = array(
+               'is_wh'=>1,
+               'is_micro_wh'=>1,
+               'is_defective_part_return_wh'=>$is_defective_part_return_wh
+           );
+          $this->partner_model->edit_partner($partner,  $partner_id);  
+        }
+       
+         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);              
+    }
+    
+    /*
+     * @desc - This function is used to remove service center from partner valum area.
+     * @param -  get id
+     * @render on same pages
+     */ 
+    
+    function manage_micro_warehouse_by_status() {
+        $micro_wh_mp_id = $this->input->post('micro_wh_mp_id');
+        $wh_on_of_id = $this->input->post('wh_on_of_id');
+        $active_status = $this->input->post('active_status');        
+        if (!empty($micro_wh_mp_id)) {
+            $return_type = $this->inventory_model->manage_micro_wh_from_list_by_id($micro_wh_mp_id, $active_status);
+            if (!empty($return_type)) {
+                $where = array('id' => $wh_on_of_id);
+                $warehouse_on_off_list = $this->inventory_model->get_warehouse_on_of_status_list($where, '*');
+                if (!empty($warehouse_on_off_list)) {                    
+                    unset($warehouse_on_off_list[0]['id']);
+                    unset($warehouse_on_off_list[0]['active']);
+                    $wh_on_of_data = $warehouse_on_off_list[0];
+                    $wh_on_of_data['active'] = $active_status;                    
+                    $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
+                    if (!empty($inserted_id)) {
+                        echo json_encode(array('status' => 'success'));
+                    } else {
+                        echo json_encode(array('status' => 'failed'));
+                    }
+                }
+            }
+        }
+    }
+
 }
 

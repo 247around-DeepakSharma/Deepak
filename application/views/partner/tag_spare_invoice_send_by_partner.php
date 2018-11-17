@@ -59,6 +59,7 @@
                             </div>
                         </div>
                         <div class="form-box">
+                            
                             <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                                 <div class="static-form-box">
                                     <div class="form-group">
@@ -398,6 +399,7 @@
         });
         
         get_vendor();
+        get_vendor_by_booking_id();
         get_appliance(0);
         
         $('[data-toggle="popover"]').popover(); 
@@ -620,19 +622,29 @@
             }
         });
     }
-    
+        
     function get_vendor() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
-            success: function (response) {
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'is_wh' : 1,'partner_id':<?php echo $this->session->userdata('partner_id'); ?>},
+            success: function (response) {                
                 $('#wh_id').html(response);
-                $("#on_wh_id").html(response);
             }
         });
     }
     
+    function get_vendor_by_booking_id() {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            data:{'is_wh' : 1},
+            success: function (response) {                
+                $("#on_wh_id").html(response);
+            }
+        });
+    }
+        
     function get_appliance(index){
         $.ajax({
             type: 'GET',
