@@ -6274,7 +6274,9 @@ function update_channel($id) {
                     $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
                     if(empty($micro_wh_mapping_list)){
                         $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
-                        $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data); 
+                        $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data);
+                        $service_center = array('is_micro_wh'=>1);
+                        $this->vendor_model->edit_vendor($service_center, $vendor_id); 
                     }                            
                 }    
             }            
