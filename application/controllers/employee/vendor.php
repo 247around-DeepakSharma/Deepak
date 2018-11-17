@@ -4015,7 +4015,7 @@ class vendor extends CI_Controller {
             }
         }
 
-        $micro_wh_state_mapp_data_list = $this->vendor_model->get_micro_wh_state_mapping_partner_id($partner_id);
+        $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
 
         if (!empty($micro_wh_state_mapp_data_list)) {
             foreach ($micro_wh_state_mapp_data_list as $value) {

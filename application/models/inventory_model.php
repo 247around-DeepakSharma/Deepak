@@ -1700,5 +1700,15 @@ class Inventory_model extends CI_Model {
         $query =  $this->db->get("warehouse_on_of_status");
         return $query->result_array();
     }
-        
+     
+    function get_micro_wh_state_mapping_partner_id($partner_id) {
+        $this->db->select('m.*, s.name,s.district');
+        $this->db->from('micro_warehouse_state_mapping as m');
+        $where =array('m.active'=>1,'partner_id'=>$partner_id,'s.active'=>1,'s.on_off'=>1);      
+        $this->db->join('service_centres as s', 's.id = m.vendor_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }    
+    
 }
