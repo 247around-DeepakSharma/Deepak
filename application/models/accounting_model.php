@@ -463,5 +463,27 @@ class accounting_model extends CI_Model {
         $query = $this->db->get();
         return $query->num_rows();
     }
+
+    function get_variable_charge($select='*', $where=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('variable_charges_type');
+
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+    
+    /**
+     * @desc This function is used to insert variable charges type
+     * @param String $data
+     * @return insert_id
+     */
+    function insert_into_variable_charge($data){
+        $this->db->insert('variable_charges_type', $data);
+         log_message("info", $this->db->last_query());
+        return $this->db->insert_id();
+    }
 }
 
