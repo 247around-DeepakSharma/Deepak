@@ -3988,6 +3988,48 @@ class vendor extends CI_Controller {
         echo $option;
     }
     
+    /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_service_center_with_micro_wh() {
+        log_message('info', __METHOD__ . json_encode($_POST, true));
+
+        $partner_id = $this->input->post('partner_id');
+
+        $partner_data = $this->partner_model->getpartner($partner_id);
+
+        $option = '<option selected="" disabled="">Select Warehouse</option>';
+        if ($partner_data[0]['is_wh'] == 1) {
+            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $where = array('is_wh' => 1, 'active' => 1);
+
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+
+            foreach ($data as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .= " > ";
+
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+            }
+        }
+
+        $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
+        if (!empty($micro_wh_state_mapp_data_list)) {
+            foreach ($micro_wh_state_mapp_data_list as $value) {
+                $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
+                $option .= " > ";
+                $option .= $value['name'] . "</option>";
+                $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+            }
+        }
+
+        echo $option;
+    }
+
     function upload_signature_file() {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
