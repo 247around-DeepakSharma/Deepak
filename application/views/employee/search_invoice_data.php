@@ -89,7 +89,7 @@
          <th>Remarks</th> 
          <th>Update</th>
          <th>Resend</th>
-         <th>GST CreditNote</th>
+<!--         <th>GST CreditNote</th>-->
          
       </tr>
    </thead>
