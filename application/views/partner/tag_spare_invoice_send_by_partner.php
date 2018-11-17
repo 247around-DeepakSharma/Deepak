@@ -75,7 +75,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Invoice Number" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
+                                            <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
@@ -627,7 +627,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
-            data:{'is_wh' : 1,'partner_id':<?php echo $this->session->userdata('partner_id'); ?>},
+            data:{'partner_id':<?php echo $this->session->userdata('partner_id'); ?>},
             success: function (response) {                
                 $('#wh_id').html(response);
             }

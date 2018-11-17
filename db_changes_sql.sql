@@ -9322,5 +9322,10 @@ ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyba
 ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 
 
+ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE trigger_service_centres ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`
+
+
 
 	
