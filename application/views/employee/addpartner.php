@@ -890,32 +890,31 @@
                             <div class="panel-body">
                                 <div class="col-md-6">
                                     <div class="form-group ">
-                                        <label for="is_wh" class="col-md-6" style="width: 47%;"> Micro Warehouse</label>
+                                        <label for="is_wh" class="col-md-6" style="width: 40%;"> Micro Warehouse</label>
                                         <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
                                             <input  type="checkbox" class="form-control" id="is_micro_wh"  name="is_micro_wh"  value = "1" <?php if (isset($query[0])) {
                                                 if($query[0]['is_micro_wh'] == '1'){ echo "checked"; }
                                                 } ?> >
                                         </div>
                                     </div>
-                                </div>
-                                
+                                </div>                                
                                 <div class="col-md-12">
-                                    <div id="micro_warehouse_details" style="display: none;">                                         
+                                    <div id="micro_warehouse_details" style="display:<?php if ($query[0]['is_micro_wh'] == '1'){ echo "block"; }else{ echo "none"; } ?>">                                         
                                         <div style="padding:5px;">
                                          <span id="is_defected_part_err"></span>
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="is_wh" class="col-md-4" style="width:23%;">Defective Part Return to Warehouse</label>
+                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Warehouse</label>
                                                 <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 23%; height: 23px;">
+                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 23%; height: 23px;" <?php  if( $query[0]['is_defective_part_return_wh']=='1'){ echo "checked"; } ?>>
                                                 </div>
                                             </div>
                                         </div>                                
                                         <div class="col-md-12">
                                             <div class="form-group ">
-                                                <label for="is_wh" class="col-md-4" style="width: 23%;">Defective Part Return to Partner</label>
+                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Partner</label>
                                                 <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;">
+                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php  if( $query[0]['is_defective_part_return_wh']=='0'){ echo "checked"; } ?>>
                                                 </div>
                                             </div>
                                         </div>
