@@ -876,11 +876,11 @@ class Accounting extends CI_Controller {
         
         $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
         $row[] = $resend_invoice;
-        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
-            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
-        } else {
-            $row[] = "";
-        }
+//        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
+//            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
+//        } else {
+//            $row[] = "";
+//        }
         return $row;
     }
     /**
