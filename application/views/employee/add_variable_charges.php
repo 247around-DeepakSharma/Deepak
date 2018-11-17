@@ -11,7 +11,7 @@
 </style>
 <div id="page-wrapper">
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading">Add Variable Charges</div>
+        <div class="panel-heading">Add Variable Charges <a href="<?php echo base_url(); ?>employee/accounting/add_charges_type" class="btn btn-primary btn-sm pull-right">Add Charges Type</a></div>
             <div class="panel-body">
             <div class="row">
                  <?php
@@ -32,7 +32,7 @@
                     </div>';
                 }
                 ?>
-                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_variable_charges"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_charges_type"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                          <div class="col-md-12">
                             <div class="col-md-6">
@@ -80,28 +80,13 @@
                                             <select  id="charges_type" name="charges_type" class="form-control">
                                             <option selected disabled>Select Charges Type</option>
                                                <?php foreach ($charges_type as $charges_type) { ?>
-                                                <option value="<?php echo $charges_type['charges_type'] ?>"><?php echo $charges_type['charges_type'] ?></option> 
+                                                <option value="<?php echo $charges_type['id'] ?>"><?php echo $charges_type['name'] ?></option> 
                                                 <?php } ?>
                                             </select>
                                             <?php echo form_error('charges_type'); ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div  class="form-group <?php
-                                        if (form_error('description')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="name" class="col-md-4">Description </label>
-                                        <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="description" name="description" value = "" placeholder="Enter Description">
-                                            <?php echo form_error('description'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('fixed_charges')) {
@@ -115,47 +100,19 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+<!--                                <div class="col-md-6">
                                     <div  class="form-group <?php
-                                        if (form_error('percentage_charge')) {
-                                            echo 'has-error';
-                                        }
+                                        //if (form_error('description')) {
+                                            //echo 'has-error';
+                                        //}
                                         ?>">
-                                        <label  for="percentage_charge" class="col-md-4">Percentage Charge</label>
+                                        <label  for="name" class="col-md-4">Description </label>
                                         <div class="col-md-8">
-                                            <input  type="number" class="form-control" id="percentage_charge" name="percentage_charge" value = "" placeholder="Enter Percentage Charge">
-                                            <?php echo form_error('percentage_charge'); ?>
+                                            <input  type="text" class="form-control" id="description" name="description" value = "" placeholder="Enter Description">
+                                            <?php //echo form_error('description'); ?>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-6">
-                                    <div  class="form-group <?php
-                                        if (form_error('hsn_code')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="hsn_code" class="col-md-4">HSN Code</label>
-                                        <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="hsn_code" name="hsn_code" value = "" placeholder="Enter HSN Code">
-                                            <?php echo form_error('hsn_code'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div  class="form-group <?php
-                                        if (form_error('gst_rate')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label  for="gst_rate" class="col-md-4">GST Rate</label>
-                                        <div class="col-md-8">
-                                            <input  type="number" class="form-control" id="gst_rate" name="gst_rate" value = "18" placeholder="Enter GST Rate">
-                                            <?php echo form_error('gst_rate'); ?>
-                                        </div>
-                                    </div>
-                                </div>
+                                </div>-->
                             </div>
                         <div class="form-group col-md-12">
                             <center>
@@ -178,7 +135,6 @@
                             <th>Name</th>
                             <th>Charges Type</th>
                             <th>Fixed Charges</th>
-                            <th>Percentage Charges</th>
                             <th>HSN Code</th>
                             <th>GST Rate</th>
                             <th>Description</th>
@@ -196,7 +152,6 @@
                             <td entity_id='<?php echo $value['entity_id']; ?>'><?php echo $value['name']; ?></td>
                             <td><?php echo $value['charges_type']; ?></td>
                             <td><?php echo $value['fixed_charges']; ?></td>
-                            <td><?php echo $value['percentage_charge']; ?></td>
                             <td><?php echo $value['hsn_code']; ?></td>
                             <td><?php echo $value['gst_rate']; ?></td>
                             <td><?php echo $value['description']; ?></td>
@@ -258,8 +213,16 @@
     }
     
     function update_charge(id, button){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/accounting/getVendorPartnerVariableChargesType',
+            data: {type:$(button).closest('tr').find('td').eq(3).text()},
+            success: function (data) {
+                $("#charges_type").html(data);
+            }
+        });
+    
         $("#vendor_partner").val($(button).closest('tr').find('td').eq(1).text()).trigger('change');
-        $("#charges_type").val($(button).closest('tr').find('td').eq(3).text()).trigger('change');
         $("#fixed_charges").val($(button).closest('tr').find('td').eq(4).text());
         $("#percentage_charge").val($(button).closest('tr').find('td').eq(5).text());
         $("#hsn_code").val($(button).closest('tr').find('td').eq(6).text());
@@ -268,6 +231,7 @@
         $("#clear_btn").show();
         $("#variable_charges_id").val(id);
         setTimeout(function(){
+            $("#charges_type").val($("#charges_type option:selected" ).val()).trigger('change');
             $("#vendor_partner_id").val($(button).closest('tr').find('td').eq(2).attr('entity_id')).trigger('change');
         }, 500);
     }
