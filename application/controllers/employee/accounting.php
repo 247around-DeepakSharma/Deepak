@@ -1388,6 +1388,7 @@ class Accounting extends CI_Controller {
                             'sgst_amount' => $sgst_val,
                             'invoice_date' => $date,
                             'checksum' => $checksum,
+                            'gstr2a_period' => $ret_period,
                             'create_date' => date('Y-m-d H:i:s')
                         );
                         $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
@@ -1436,7 +1437,7 @@ class Accounting extends CI_Controller {
         $data = array();
         $no = $post['start'];
         foreach ($list as $data_list) {
-            $array_val = $data_list['gst_no']."_".$data_list['invoice_number'];
+            $array_val = $data_list['checksum'];
             if(in_array($array_val, $color_array)){
                 $data_list['duplicate_entry'] = 1;
             }
