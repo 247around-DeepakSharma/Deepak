@@ -1631,4 +1631,74 @@ class Inventory_model extends CI_Model {
         return $query->num_rows();
     }
     
+    
+       
+    /**
+     * @desc This is used to Insert Data In Table     
+     * @table String $table
+     * @return last inserted id
+     */
+    
+    function insert_query($table,$data){
+        if(!empty($table) && !empty($data)){
+          $this->db->insert($table,$data);
+          return $this->db->insert_id();   
+        }        
+    }
+    
+    /**
+     * @desc This is used to get list of micro warehouse using vendor id     
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_micro_wh_mapping_list($where, $select){
+        $this->db->where($where);
+        $this->db->select($select);
+        $query =  $this->db->get("micro_warehouse_state_mapping");
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to get the micro warehouse lists by partner id     
+     * @table multiple tables 
+     * @return array list
+     */
+    
+    function get_micro_wh_lists_by_partner_id($partner_id) {
+        $this->db->select('micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.id as wh_on_of_id,service_centres.name,micro_wh_mp.id as micro_wh_mp_id');
+        $this->db->from('micro_warehouse_state_mapping AS micro_wh_mp');        
+        $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');       
+        $where['micro_wh_mp.partner_id']= $partner_id;        
+        $this->db->where($where);
+        $query = $this->db->get();        
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to  inactive of active value in wh_on_of_status table     
+     * @table only one
+     * @return Json
+     */
+    function manage_micro_wh_from_list_by_id($id,$status) {
+        $this->db->set('micro_warehouse_state_mapping.active', $status);
+        $this->db->where('micro_warehouse_state_mapping.id', $id);
+        $this->db->update('micro_warehouse_state_mapping');
+        $afftected_row = $this->db->affected_rows();
+        if(!empty($afftected_row)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_warehouse_on_of_status_list($where, $select){
+        $this->db->where($where);
+        $this->db->select($select);
+        $query =  $this->db->get("warehouse_on_of_status");
+        return $query->result_array();
+    }
+        
 }

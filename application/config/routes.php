@@ -110,6 +110,7 @@ $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employ
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
+$route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
 
@@ -215,6 +216,10 @@ $route['upload_inventory_details_file'] = 'employee/inventory/upload_inventory_d
 
 $route['check_booking_id_exists/(:any)'] = 'employee/inventory/check_booking_id_exists/$1';
 $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_exists/$1';
+
+$route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
+$route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
+$route['service_center/warehouse/warehouse_task_list'] = 'employee/service_centers/warehouse_task_list';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

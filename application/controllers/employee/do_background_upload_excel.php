@@ -747,6 +747,14 @@ class Do_background_upload_excel extends CI_Controller {
                             }
                             break;
                     }
+                    
+                    if($partner_booking['partner_id'] == JEEVES_ID && $partner_booking['current_status'] == _247AROUND_CANCELLED){
+                        if($partner_booking['type'] == _247AROUND_QUERY){
+                            $this->open_cancelled_query($partner_booking['booking_id'], $partner_booking['partner_id']);
+                        } else {
+                            $this->miscelleneous->reopen_booking($partner_booking['booking_id'], _247AROUND_CANCELLED);
+                        }
+                    }
                 }
             }
         }
@@ -769,6 +777,37 @@ class Do_background_upload_excel extends CI_Controller {
         }
  
     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
+    }
+    /**
+     * @desc This function is used to open cancelled Query
+     * @param String $booking_id
+     * @param int $partner_id
+     * @return true
+     */
+    function open_cancelled_query($booking_id, $partner_id){
+        $status = array("current_status" => "FollowUp",
+            "internal_status" => "Cancelled Query to FollowUp",
+            "cancellation_reason" => NULL,
+            "closed_date" => NULL);
+        
+        $actor = $next_action = 'not_define';
+        if ($partner_id) {
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $status['partner_current_status'] = $partner_status[0];
+                $status['partner_internal_status'] = $partner_status[1];
+                $actor = $status['actor'] = $partner_status[2];
+                $next_action = $status['next_action'] = $partner_status[3];
+            }
+        }
+        
+        $this->booking_model->update_booking($booking_id, $status);
+        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));    
+
+        //Log this state change as well for this booking
+        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", _247AROUND_DEFAULT_AGENT, 
+                _247AROUND_DEFAULT_AGENT_NAME,$actor,$next_action, _247AROUND);
+        return TRUE;
     }
 
     /**

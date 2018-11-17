@@ -401,8 +401,9 @@ class Service_centers extends CI_Controller {
 
                         $sp['status'] = DEFECTIVE_PARTS_PENDING;
                         $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+                        $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
                     }
-                    $this->invoice_lib->generate_challan_file($booking_id, $this->session->userdata('service_center_id'));
+                    
                     $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                     
                     redirect(base_url() . "service_center/get_defective_parts_booking");
@@ -1922,14 +1923,15 @@ class Service_centers extends CI_Controller {
             
         );
         
-        $select = "booking_details.service_center_closed_date, CONCAT( '', GROUP_CONCAT((parts_shipped ) SEPARATOR ' / <br/> ' ) , '' ) as parts_shipped, "
+        $select = "booking_details.service_center_closed_date, parts_shipped, "
                 . " spare_parts_details.booking_id, users.name, "
-                . "CONCAT( '', GROUP_CONCAT((sf_challan_file ) SEPARATOR ',' ) , '' ) as challan_file, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_defective_part_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_defective_part_by_partner, "
-                . "CONCAT( '', GROUP_CONCAT((remarks_by_partner ) SEPARATOR ' / <br/> ' ) , '' ) as remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type";
+                . " sf_challan_file as challan_file, "
+                . " remarks_defective_part_by_partner, "
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type,"
+                . " spare_parts_details.id";
         
-        $group_by = "spare_parts_details.booking_id";
-        $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC";
+        $group_by = "spare_parts_details.id";
+        $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
        
           
         $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
@@ -1979,17 +1981,17 @@ class Service_centers extends CI_Controller {
     }
     /**
      * @desc: This method is used to load update form(defective shipped parts)
-     * @param String $id
+     * @param String $sp_id
      */
-    function update_defective_parts($booking_id) {
+    function update_defective_parts($sp_id) {
         $this->checkUserSession();
-        if (!empty($booking_id) || $booking_id != '' || $booking_id != 0) {
+        if (!empty($sp_id) || $sp_id != '' || $sp_id != 0) {
             log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
            
             $service_center_id = $this->session->userdata('service_center_id');
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
-                    . " AND spare_parts_details.booking_id = '" . $booking_id . "' AND spare_parts_details.defective_part_required = 1 "
+                    . " AND spare_parts_details.id = '" . $sp_id . "' AND spare_parts_details.defective_part_required = 1 "
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
             
@@ -2008,14 +2010,15 @@ class Service_centers extends CI_Controller {
 
     /**
      * @desc: Process to update defective spare parts
-     * @param type $booking_id
+     * @param type $sp_id
      */
-    function process_update_defective_parts($booking_id) {
-        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " booking id " . $booking_id );
+    function process_update_defective_parts($sp_id) {
+        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " Spare id " . $sp_id );
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         
         $this->form_validation->set_rules('remarks_defective_part', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
@@ -2024,8 +2027,8 @@ class Service_centers extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
-                    " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-            $this->update_defective_parts($booking_id);
+                    " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
+            $this->update_defective_parts($sp_id);
         } else {
             
             $defective_courier_receipt = $this->input->post("sp_parts");
@@ -2037,6 +2040,7 @@ class Service_centers extends CI_Controller {
                 $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
+                $booking_id = $this->input->post('booking_id');
                 $k =0;
                
                 $partner_id = $this->input->post('booking_partner_id');
@@ -2070,7 +2074,7 @@ class Service_centers extends CI_Controller {
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
                 if(!empty($email_template)){
-                    $wh_email = '';
+                    //$wh_email = '';
                     //get warehouse incharge email
                     //for now we add manish ji as a default warehouse
                     //when in spare parts table we start inserting wh_id as a seperate column then we have to 
@@ -2180,35 +2184,52 @@ class Service_centers extends CI_Controller {
         
         if(!empty($booking_address)){
             
-            foreach ($booking_address as $partner_id=> $booking_ids_array) {
-                $wh_entity_details = explode('-', $partner_id);
-                switch ($wh_entity_details[1]) {
-                    case _247AROUND_PARTNER_STRING:
-                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];
-                        break;
-                    case _247AROUND_SF_STRING:
-                        $select = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select, array('id' => $wh_entity_details[0]))[0];
-                        break;
-                }
-                foreach ($booking_ids_array as $booking_id) {
-                    $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+           foreach ($booking_address as $partner_id=> $spare_id_array) {
+                $wh_entity_details = explode('-', $partner_id);              
+                foreach ($spare_id_array as $spare_id) {          
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
+                        . "service_centres.address,service_centres.pincode, service_centres.state, "
+                        . "service_centres.district, service_centres.primary_contact_name,"
+                        . "service_centres.primary_contact_phone_1,booking_details.partner_id as booking_partner_id";
+                    $vendor_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' =>$spare_id ), true, true);                   
+                                                         
+                      $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                         . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                         . "warehouse_details.warehouse_pincode as pincode,"
-                        . "warehouse_details.warehouse_state as state";
-                
-                    $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
-
-                    $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,FALSE);
+                        . "warehouse_details.warehouse_state as state";         
+                    switch ($wh_entity_details[1]) {
+                    case _247AROUND_PARTNER_STRING:
+                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];                         
+                        break;
+                    case _247AROUND_SF_STRING:                        
+                        if($vendor_details[0]['partner_id'] == $vendor_details[0]['service_center_id']){
+                            $defected_parts_deatils = $this->partner_model->getpartner($vendor_details[0]['booking_partner_id']); 
+                            if($defected_parts_deatils[0]['is_defective_part_return_wh']==0){
+                                $booking_details = $defected_parts_deatils[0];    
+                            }else{                               
+                                $where1 = array('warehouse_state_relationship.state' => $defected_parts_deatils[0]['state'],'warehouse_details.entity_id' => _247AROUND, 'warehouse_details.entity_type' => _247AROUND_EMPLOYEE_STRING);
+                                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where1,true);
+                                $booking_details = $this->partner_model->getpartner(_247AROUND)[0];                               
+                            } 
+                        }else{
+                            $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
+                            $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $wh_entity_details[0]))[0];
+                        }             
+                        break;
+                    }
+                    if(empty($wh_address_details)){                       
+                        $where = array('contact_person.entity_id' => $wh_entity_details[0], 'contact_person.entity_type' => $wh_entity_details[1]);
+                        $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,true);
+                    }
+                    
                     if(!empty($wh_address_details)){
                         $wh_address_details[0]['company_name'] = $booking_details['company_name'];
                         $booking_history['details'][$i] = $wh_address_details[0];
                     }else{
                         $booking_history['details'][$i] = $booking_details;
                     }
-
-                    $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
-                    $booking_history['details'][$i]['booking_id'] = $booking_id;
+                    $booking_history['details'][$i]['vendor'] = $vendor_details[0];
+                    $booking_history['details'][$i]['booking_id'] = $vendor_details[0]['booking_id'];
                     $i++;
                 }
             }
@@ -3691,7 +3712,7 @@ class Service_centers extends CI_Controller {
      */
     function check_WH_UserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') 
-                && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_wh'))) {
+                && !empty($this->session->userdata('service_center_id')) && (!empty($this->session->userdata('is_wh')) || !empty($this->session->userdata('is_micro_wh')))) {
             return TRUE;
         } else {
             log_message('info', __FUNCTION__. " Session Expire for Service Center");
@@ -4384,7 +4405,7 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);

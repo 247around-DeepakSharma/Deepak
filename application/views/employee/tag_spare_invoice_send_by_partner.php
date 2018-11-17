@@ -53,22 +53,23 @@
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" id="wh_id" required="">
+                                                <select class="form-control" name="wh_id" id="wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                                                                        
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
+                                                <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" autocomplete="off"/>
                                             </div>
-                                            <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
+                                             <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <input type="text" placeholder="Enter Invoice Number" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">               
                                             <label class="col-xs-2 control-label">Invoice Amount * </label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Eneter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
@@ -78,17 +79,19 @@
                                                 <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                            
                                             <label class="col-xs-2 control-label">AWB Number *</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
                                             </div>
-                                            <label class="col-xs-2 control-label">Courier Name *</label>
+                                             <label class="col-xs-2 control-label">Courier Name *</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                           
                                             <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
@@ -98,6 +101,7 @@
                                                 <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                             </div>
                                         </div>
+                                        
                                     </div>
                                     <hr>
                                     <div class="dynamic-form-box">
@@ -235,12 +239,14 @@
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id" required="">
+                                                <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
                                                 </select>
                                             </div>
                                     </div>
-                                    <div class="form-group">
+                                    
+                                      <div class="form-group">                       
+                                                                                    
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
@@ -250,17 +256,21 @@
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="on_invoice_number" required="" onblur="check_invoice_id(this.id, true)"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="col-xs-2 control-label">Invoice Amount * </label>
+                                    <div class="form-group">                                        
+                                       
+                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
                                         </div>
+                                         
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
                                         </div>
+                                        
                                     </div>
                                     <div class="form-group">
+                                       
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>
@@ -271,15 +281,18 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-xs-2 control-label">Courier Shipment Date</label>
+                                        
+                                        
+                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
                                         </div>
-                                        <label class="col-xs-2 control-label">Courier File</label>
+                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -382,6 +395,8 @@
             placeholder:"Select Warehouse"
         });
        
+        
+       
         $('#serviceId_0').select2({
             placeholder:'Select Appliance'
         });
@@ -397,9 +412,21 @@
         $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
-        
+            
         get_partner_list();
-        get_vendor();
+       // get_vendor('','');        
+        $("#partner_id").on('change',function(){
+            var partner_id = $("#partner_id").val();
+              get_vendor('1',partner_id);              
+        });
+        
+        
+         $("#on_partner_id").on('change',function(){
+            var partner_id = $("#partner_id").val();              ;   
+              get_vendor_by_booking('1',partner_id);
+        });
+        
+        
         
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
@@ -558,19 +585,28 @@
     $('#partner_id').on('change',function(){
         get_appliance(0);
     });
-    
-    function get_vendor() {
+      
+    function get_vendor(is_wh,partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{is_wh:is_wh,partner_id:partner_id},
             success: function (response) {
-                $('#wh_id').html(response);
-                $('#on_wh_id').html(response);
+                $('#wh_id').html(response);                
             }
         });
     }
     
+    function get_vendor_by_booking(is_wh,partner_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            data:{is_wh:is_wh,partner_id:partner_id},
+            success: function (response) {               
+                $('#on_wh_id').html(response);
+            }
+        });
+    }
     function get_partner_list(){
         $.ajax({
             type: 'POST',

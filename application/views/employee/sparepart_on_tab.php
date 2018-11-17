@@ -892,7 +892,7 @@
                          $("#hsn_code").val("");
                          $("#remarks").val("");
                          swal("Thanks!", "Booking updated successfully!", "success");
-                         oow_part_shipped_table.ajax.reload(null);
+                         oow_part_shipped_table.ajax.reload(null, false);
     
                      } else {
                          swal("Oops", data, "error");

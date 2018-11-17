@@ -619,11 +619,12 @@ class Invoice_lib {
         $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
-        if(!empty($service_center_closed_date)){
-            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
-        } else {
-            $excel_data['excel_data']['date'] = date('Y-m-d');
-        }
+//        if(!empty($service_center_closed_date)){
+//            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
+//        } else {
+//            $excel_data['excel_data']['date'] = date('Y-m-d');
+//        }
+        $excel_data['excel_data']['date'] = "";
         
         $booking_id  = $spare_details[0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
@@ -699,10 +700,10 @@ class Invoice_lib {
      * @param type $booking_id
      * @return boolean
      */
-    function generate_challan_file($booking_id, $service_center_id, $service_center_closed_date = ""){
+    function generate_challan_file($spare_id, $service_center_id,$service_center_closed_date = ""){
         
         $select = 'spare_parts_details.*';
-        $where =  array('spare_parts_details.booking_id' => $booking_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
+        $where =  array('spare_parts_details.id' => $spare_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
         
         
         $spare_parts_details  = $this->ci->partner_model->get_spare_parts_by_any($select,$where );
