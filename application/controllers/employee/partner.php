@@ -2606,4 +2606,1627 @@ exit();
         $this->load->view('partner/contacts', $data);
         $this->load->view('partner/partner_footer');
     }
+
+    
+    function get_partner_roles($department){
+       $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department,"entity_type"=>"partner"),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
+       $option = "<option value='' disabled selected>Select Role</option>";
+       foreach($data as $roles){
+           $option = $option."<option value = '".$roles['id']."'>".$roles['role']."</option>";
+       }
+       echo $option;
+    }
+    
+    function get_partner_roles_filters(){
+       $data =  $this->reusable_model->get_search_result_data("entity_role","is_filter_applicable",array('id'=>$this->input->post('role')),NULL,
+               NULL,array('role'=>"ASC"),NULL,NULL,array());
+       echo  $data[0]['is_filter_applicable'];
+    }
+    
+    /*
+     * This function is used to add partner contact persons
+     */
+    function process_partner_contacts(){
+        if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id'); 
+            foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
+                $agent_id = NULL;
+                $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name')[$index];
+                $data['official_email'] = $loginData['email'] =  $contactEmails;
+                $data['alternate_email'] = $this->input->post('contact_person_alt_email')[$index];
+                $data['official_contact_number'] = $this->input->post('contact_person_contact')[$index];
+                $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact')[$index];
+                $data['permanent_address'] = $this->input->post('contact_person_address')[$index];
+                $data['correspondence_address'] = $this->input->post('contact_person_c_address')[$index];
+                $data['role'] = $this->input->post('contact_person_role')[$index];
+                $data['entity_id'] = $loginData['entity_id'] = $stateData['entity_id'] = $partnerID;
+                $data['entity_type'] = $loginData['entity'] = $stateData['entity_type'] = "partner";
+                $data['agent_id'] = $this->session->userdata('id');
+                $id = $this->reusable_model->insert_into_table("contact_person",$data);
+                $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
+                // Create Login If Checkbox Checked
+                if($this->input->post('checkbox_value_holder')[$index] == 'true'){
+                        $password = mt_rand(100000, 999999);
+                        $loginData['user_id'] = str_replace(" ","_",$data['name']."_".mt_rand(1,5));
+                        $loginData['password'] = md5($password);
+                        $loginData['clear_password'] = $password;
+                        $loginData['active'] = 1;
+                        $agent_id = $this->miscelleneous->create_entity_login($loginData);
+                    }
+                    if($agent_id){
+                        // Map States in agent_filters table 
+                        // If state is not selected then add all states
+                        $stateString =  $this->input->post('states_value_holder')[$index];
+                        if(!$stateString){
+                            $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                            $all =1;
+                        }
+                        else{
+                            $states = explode(",",$stateString);
+                             $all =0; 
+                        }
+                        foreach ($states as $state){
+                            $stateData['agent_id'] = $agent_id;
+                            if($all ==  1){
+                                $stateData['state'] = $state['state'];
+                            }
+                            else{
+                                $stateData['state'] = $state;
+                            }
+                            $stateData['is_active'] = 1;
+                            $finalStateData[] = $stateData; 
+                        }
+                        $this->reusable_model->insert_batch('agent_filters',$finalStateData);
+                    }
+            }
+            if($id){
+                $msg =  "Contact Persons has been Added successfully ";
+            }
+            else{
+                $msg =  "Something went Wrong Please try again or contact to admin";
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+       $this->session->set_userdata('success', $msg);
+       if($this->session->userdata('partner_id')){
+           redirect(base_url() . 'partner/contacts');
+       }
+       else{
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
+    }
+    
+    function process_booking_internal_conversation_email() {
+        log_message('info', __FUNCTION__ . " Booking ID: " . $this->input->post('booking_id'));
+        if ($this->session->userdata('partner_id')) {
+            if ($this->input->post('booking_id')) {
+                $to = explode(",", $this->input->post('to'));
+                $join['entity_login_table'] = "entity_login_table.contact_person_id = contact_person.id";
+                $from_email = $this->reusable_model->get_search_result_data("contact_person", "official_email", array("entity_login_table.agent_id" => $this->session->userdata('agent_id')), $join, NULL, NULL, NULL, NULL, array())[0]['official_email'];
+                $cc = $this->input->post('cc') . "," . $from_email;
+                $row_id = $this->miscelleneous->send_and_save_booking_internal_conversation_email("Partner", $this->input->post('booking_id'), implode(",", $to), $cc
+                        , $from_email, $this->input->post('subject'), $this->input->post('msg'), $this->session->userdata('agent_id'), $this->session->userdata('partner_id'));
+                if ($row_id) {
+                    echo "Successfully Sent";
+                } else {
+                    echo "Please Try Again";
+                }
+            } else {
+                echo "Please Try Again";
+            }
+        }
+    }
+
+    function get_partner_tollfree_numbers() {
+        $data = $this->partner_model->get_tollfree_and_contact_persons();
+        $this->miscelleneous->multi_array_sort_by_key($data, "name", "ASC");
+        echo json_encode($data);
+    }
+
+      /**
+     * @desc: This function is used to get display the warehouse information of a partner
+     * @params: void
+     * @return: warehouse details from table
+     * 
+     */
+       function get_warehouse_details(){
+        
+        $id = $this->input->post('partner_id');
+        $select = "warehouse_details.id as 'wh_id',warehouse_address_line1, warehouse_address_line2, warehouse_city, warehouse_region, warehouse_pincode, warehouse_state, name,contact_person.id as 'contact_person_id'";
+        $where1 = array("warehouse_details.entity_id" => $id, "warehouse_details.entity_type" => "partner");
+        $data= $this->inventory_model->get_warehouse_details($select, $where1,false);
+        echo json_encode($data);
+
+        
+    }
+    /**
+     * @desc: This function is used to insert new warehouse information in the table
+     * @params: void
+     * @return: prints message if data inserted correctly or not
+     * 
+     */
+    public function process_add_warehouse_details() {
+        log_message('info',__METHOD__.' add warehouse details');
+        $this->form_validation->set_rules('warehouse_address_line1', 'warehouse_address_line1', 'required|trim');
+        $this->form_validation->set_rules('warehouse_city','warehouse_city', 'required|trim');
+        $this->form_validation->set_rules('warehouse_region', 'warehouse_region','required|trim');
+        $this->form_validation->set_rules('warehouse_pincode', 'warehouse_pincode','required|trim');
+        $this->form_validation->set_rules('warehouse_state', 'warehouse_state','required|trim');
+        $this->form_validation->set_rules('contact_person_id', 'Contact Person','required|trim');
+        $this->form_validation->set_rules('warehouse_state_mapping', 'Wareshoue State','required');
+
+        if ($this->form_validation->run() == TRUE) {
+            $wh_data = array(
+                'warehouse_address_line1' => $this->input->post('warehouse_address_line1'),
+                'warehouse_address_line2' => $this->input->post('warehouse_address_line2'),
+                'warehouse_city' => $this->input->post('warehouse_city'),
+                'warehouse_region' => $this->input->post('warehouse_region'),
+                'warehouse_pincode' => $this->input->post('warehouse_pincode'),
+                'warehouse_state' => $this->input->post('warehouse_state'),
+                'entity_id' => $this->input->post('partner_id'),
+                'entity_type' => _247AROUND_PARTNER_STRING,
+                'create_date' => date('Y-m-d H:i:s')
+               
+            );
+            
+            if(in_array('All', $this->input->post('warehouse_state_mapping'))){
+                $state = array_column($this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array()), 'state');
+            }else{
+                $state = $this->input->post('warehouse_state_mapping');
+            }
+            
+            $wh_contact_person_mapping_data['contact_person_id'] = $this->input->post('contact_person_id');
+            $wh_state_mapping_data = $state;
+            $status = $this->inventory_model->insert_warehouse_details($wh_data,$wh_contact_person_mapping_data,$wh_state_mapping_data);
+            if (!empty($status)) {
+                log_message("info", __METHOD__ . " Data Entered Successfully");
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/partner/get_add_partner_form');
+            } else {
+                log_message("info", __METHOD__ . " Error in adding details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+                redirect(base_url() . 'employee/partner/get_add_partner_form');
+            }
+        }else{
+            $this->session->set_userdata('error', 'Please Select All Field');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        } 
+    }  
+    //update a single contact
+    function edit_partner_contacts(){
+       if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id');
+            $pid = $this->input->post('contact_id');
+            $agent_id = $this->input->post('agentid');
+            $data['name'] = $loginData['agent_name']  =  $this->input->post('contact_person_name');
+            $data['official_email'] = $loginData['email'] =  $this->input->post('contact_person_email');
+            $data['alternate_email'] = $this->input->post('contact_person_alt_email');
+            $data['official_contact_number'] = $this->input->post('contact_person_contact');
+            $data['alternate_contact_number'] = $this->input->post('contact_person_alt_contact');
+            $data['permanent_address'] = $this->input->post('contact_person_address');
+            $data['correspondence_address'] = $this->input->post('contact_person_c_address');
+            $data['role'] = $this->input->post('contact_person_role');
+            $data['entity_id'] = $loginData['entity_id'] = $stateData['entity_id'] = $partnerID;
+            $data['entity_type'] = $loginData['entity'] = $stateData['entity_type'] = "partner";
+            $data['agent_id'] = $this->session->userdata('id');
+            $where = array('id' =>$pid);
+            $update_data1 = $this->reusable_model->update_table("contact_person",$data,$where);
+            $loginData['contact_person_id'] = $stateData['contact_person_id'] = $pid;
+            // Create Login If Checkbox Checked
+            if($this->input->post('checkbox_value_holder') == true && !$agent_id){
+                    $password = mt_rand(100000, 999999);
+                    $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
+                    $loginData['password'] = md5($password);
+                    $loginData['clear_password'] = $password;
+                    $loginData['active'] = 1;
+                    $agent_id = $this->miscelleneous->create_entity_login($loginData);
+             }
+                // If state is not selected then add all states
+                if($agent_id){
+                        $stateString =  $this->input->post('states_value_holder');
+                        if(!$stateString){
+                            $states = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                            $all =1;
+                        }
+                        else{
+                            $states = explode(",",$stateString);
+                             $all =0; 
+                        }
+                        foreach ($states as $state){
+                            $stateData['agent_id'] = $agent_id;
+                            if($all ==  1){
+                                $stateData['state'] = $state['state'];
+                            }
+                            else{
+                                $stateData['state'] = $state;
+                            }
+                            $stateData['is_active'] = 1;
+                            $finalStateData[]= $stateData; 
+                        }
+                        $where= array('contact_person_id' =>$pid);
+                        if($where)
+                            $this->reusable_model->delete_from_table('agent_filters',$where);
+                            $update_data2 = $this->reusable_model->insert_batch('agent_filters',$finalStateData);
+                         }
+            if($update_data1 || $update_data2){
+                $msg =  "Contact Persons has been Updated successfully ";
+            }
+            else{
+                $msg =  "No update done";
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+        if($this->session->userdata('partner_id')){
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'partner/contacts');
+        }
+        else{
+            $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+        }
+    }
+    
+    function delete_partner_contacts($contact_id,$partnerID){
+        $where["entity_id"] = $partnerID;
+        $where["contact_person_id"] = $contact_id;
+        if(!empty($where)){
+            //Update Entity Login Table
+            $this->reusable_model->update_table("entity_login_table",array("active"=>0),array("entity_id"=>$partnerID,"contact_person_id"=>$contact_id));
+            //Update Agent Filter Table 
+            $this->reusable_model->update_table('agent_filters',array("is_active"=>0),$where);
+            //Update Contact Person Table
+            $this->reusable_model->update_table('contact_person',array('is_active'=>0),array('id'=>$contact_id,'entity_id'=>$partnerID));
+            $msg = "Contact deleted successfully";
+            $this->session->set_userdata('success', $msg);
+        }
+        else{
+            $msg = "Something Went Wrong , Please Try Again";
+            $this->session->set_userdata('error', $msg);
+        }
+        if($this->session->userdata('partner_id')){
+            redirect(base_url() . 'partner/contacts');
+        }
+       else{
+             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+       }
+    }
+    
+    /**
+     * @desc: This Function is used to search the docket number
+     * @param: void
+     * @return : void
+     */
+    function search_docket_number() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/search_docket_number');
+        $this->load->view('partner/partner_footer');
+    }
+    function partner_dashboard() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $serviceWhere['isBookingActive'] =1;
+        $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+            $this->load->view('partner/partner_default_page_cc');
+        }
+        else{
+            $this->load->view('partner/partner_dashboard',array('services'=>$services));
+        }
+        $this->load->view('partner/partner_footer');
+        if(!$this->session->userdata("login_by")){
+            $this->load->view('employee/header/push_notification');
+        }
+    }
+    
+    
+    /**
+     * @desc: This Function is used to edit warehouse deatails
+     * @param: void
+     * @return : JSON
+     */
+    function edit_warehouse_details() {
+        log_message('info', 'edit warehouse details updated data ' . print_r($_POST, true));
+        $wh_id = $this->input->post('wh_id');
+        if (!empty($wh_id)) {
+            $res = array();
+            $wh_data = array(
+                'warehouse_address_line1' => $this->input->post('wh_address_line1'),
+                'warehouse_address_line2' => $this->input->post('wh_address_line2'),
+                'warehouse_city' => $this->input->post('wh_city'),
+                'warehouse_region' => $this->input->post('wh_region'),
+                'warehouse_pincode' => $this->input->post('wh_pincode'),
+                'warehouse_state' => $this->input->post('wh_state')
+            );
+
+            $update_wh = $this->inventory_model->edit_warehouse_details(array('id' => $wh_id), $wh_data);
+
+            $updated_contact_person_id = $this->input->post('wh_contact_person_id');
+            $old__contact_person_id = $this->input->post('old_contact_person_id');
+
+            //if contact person change then update the contact person mapping in the warehouse_contact_person_mapping table
+            //here we assume that every wh have only one contact person
+            //if there are more than two contact person for the same warehouse than please change this logic
+            if ($updated_contact_person_id !== $old__contact_person_id) {
+                $update_wh_contact_pesron_mapping = $this->inventory_model->update_warehouse_contact_person_mapping(array('warehouse_id' => $wh_id), array('contact_person_id' => $updated_contact_person_id));
+                if ($update_wh_contact_pesron_mapping) {
+                    $res['status'] = true;
+                    $res['msg'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = false;
+                    $res['msg'] = 'Details not updated. Please Try Again...';
+                }
+            }
+
+
+            if (!empty(array_diff($this->input->post('wh_state_mapping'), explode(',', $this->input->post('old_mapped_state_data'))))) {
+                $data['wh_id'] = $wh_id;
+                $data['new_wh_state_mapping'] = $this->input->post('wh_state_mapping');
+                $update_state_mapping = $this->inventory_model->update_wh_state_mapping_data($data);
+
+                if ($update_state_mapping) {
+                    $res['status'] = true;
+                    $res['msg'] = 'Details Updated Successfully';
+                } else {
+                    $res['status'] = true;
+                    $res['msg'] = 'State Mapping Not Updated . Please try again...';
+                }
+            }
+            
+            if(!empty($res)){
+                $res = $res;
+            }else if ($update_wh) {
+                $res['status'] = true;
+                $res['msg'] = 'Details Updated Successfully';
+            } else {
+                $res['status'] = false;
+                $res['msg'] = 'Details not updated. Please Try Again...';
+            }
+        } else {
+            $res['status'] = false;
+            $res['msg'] = 'Warehouse Id can not be empty';
+        }
+
+        echo json_encode($res);
+    }
+
+    function get_warehouse_state_mapping(){
+        $wh_id = $this->input->post('wh_id');
+        if(!empty(trim($wh_id))){
+            $wh_state_mapping_datails = $this->reusable_model->get_search_query('warehouse_state_relationship','state',array('warehouse_state_relationship.warehouse_id' => $wh_id),NULL,NULL,array('state'=>'ASC'),NULL,NULL)->result_array();
+            if(!empty($wh_state_mapping_datails)){
+                $res['status'] = TRUE;
+                $res['msg'] = array_map(function($val){ return strtoupper($val);}, array_column($wh_state_mapping_datails, 'state'));
+            }else{
+                $res['status'] = FALSE;
+                $res['msg'] = 'No Data Found';
+            }
+            
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'Warehouse ID can not be empty';
+        }
+        
+        echo json_encode($res);
+    }
+    function download_real_time_summary_report($partnerID){
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+         unlink($csv);
+    }
+      function checked_complete_review_booking() {
+        $requested_bookings = $this->input->post('approved_booking');
+        if($requested_bookings){
+            $where['is_in_process'] = 0;
+            $whereIN['booking_id'] = $requested_bookings; 
+            $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+            foreach($tempArray as $values){
+                $approved_booking[] = $values['booking_id'];
+            }
+            $inProcessBookings = array_diff($requested_bookings,$approved_booking);
+            $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
+            $url = base_url() . "employee/do_background_process/complete_booking";
+            if (!empty($approved_booking)) {
+                $this->booking_model->mark_booking_in_process($approved_booking);
+                $data['booking_id'] = $approved_booking;
+                $data['agent_id'] = $this->session->userdata('agent_id');
+                $data['agent_name'] = $this->session->userdata('partner_name');
+                $data['partner_id'] = $this->input->post('partner_id');
+                $data['approved_by'] = $this->input->post('approved_by'); 
+                $this->asynchronous_lib->do_background_process($url, $data);
+                $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
+            } else {
+                //Logging
+                log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+            }
+        }
+       redirect(base_url() . 'partner/home'); 
+    }
+    function reject_booking_from_review(){
+        if($this->input->post('booking_id')){
+        $postArray = $this->input->post();
+        $where['is_in_process'] = 0;
+        $whereIN['booking_id'] = $postArray['booking_id']; 
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        if(!empty($tempArray)){
+            $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
+            echo "Booking Updated Successfully";
+            $postArray = $this->input->post();
+            $this->miscelleneous->reject_booking_from_review($postArray);
+        }
+        else{
+            echo "Someone Else is Updating the booking , Please check updated booking and try again";
+        }
+    }
+    }
+    function partner_review_bookings($offset = 0, $all = 0) {
+        $this->checkUserSession();
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/get_waiting_to_review');
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/get_waiting_to_review');
+        }
+    }
+    
+    function download_partner_review_bookings($partnerID){
+        ob_start();
+        $finalArray = array();
+        $data = $this->miscelleneous->get_review_bookings_for_partner($partnerID);
+        foreach($data as $key => $values){
+            $values['Booking_ID'] = $key;
+            unset($values['booking_jobcard_filename']);
+            unset($values['amount_due']);
+            unset($values['partner_id']);
+            ksort($values);
+            $finalArray[] = $values;
+        }
+        if(!empty($finalArray)){
+            $headings = array_keys($finalArray[0]);
+            $this->miscelleneous->downloadCSV(array_values($finalArray), $headings, "Review_bookings");
+        }
+    }
+    function get_pending_bookings(){
+        $this->checkUserSession();
+          $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
+                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+        $order['column'] = $columnMappingArray["column_10"];
+        $order['sorting'] = "desc";
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+        }
+        $postData = $this->input->post();
+        if(array_key_exists("order", $postData)){
+            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            $order['sorting'] = $postData['order'][0]['dir'];
+        }
+        $bookingID = $this->input->post('booking_id');
+        $finalArray = array();
+        $partner_id = $this->session->userdata('partner_id');
+        $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation ";
+        $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
+        $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
+        $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
+        $sn_no = $this->input->post('start')+1;
+        $upcountryString = "";
+        foreach ($bookings as $key => $row) { 
+             $tempArray = array();
+             $upcountryString = $tempString = "";
+             $tempString = "'".$row->booking_id."'";
+             $tempString2 = "'".$row->amount_due."'";
+              if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
+                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.')"
+                    class="fa fa-road" aria-hidden="true"></i>';
+               } 
+             $tempArray[] = $sn_no . $upcountryString;
+             $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
+            $requestType =  $row->request_type;
+            if (strpos($row->request_type, 'Installation') !== false) {
+                $requestType =  "Installation";
+            }
+            else if(strpos($row->request_type, 'Repair') !== false){
+                $requestType =  "Repair";
+            }
+            $tempArray[] = $row->services . "<br>". $requestType;
+            $tempArray[]  = $row->appliance_brand; 
+            $is_escalation = "";
+             if ($row->count_escalation>0) {
+                  $is_escalation =  '<i data-toggle="tooltip" title="Escalation" style="color:red; font-size:13px;" onclick="" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></i>';
+            } 
+            $tempArray[] =  $is_escalation.$row->partner_internal_status;
+            $tempArray[] = $row->customername;
+            $tempArray[] = $row->booking_primary_contact_no;
+            $tempArray[] = $row->city;
+            $tempArray[] = $row->state;
+            $tempArray[] = $row->booking_date;
+            $tempArray[] = $row->aging;
+            $bookingIdTemp = "'".$row->booking_id."'";
+            $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+            if ($row->type == _247AROUND_QUERY) { 
+                $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
+            } 
+            else { 
+                $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
+            }
+            if ($row->type != _247AROUND_QUERY) { 
+                $tempArray[]= '<div class="dropdown">
+                                                    <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
+                                                    <span class="caret"></span></button>
+                                                    <ul class="dropdown-menu" style="padding: 5px 5px 5px 5px;margin: 0px;min-width: 95px;position: inherit;z-index: 100;">
+                                                        <li style="color: #fff;"><a class="btn btn-sm btn-primary" href="'.base_url().'partner/update_booking/'.$row->booking_id.'"  title="View" 
+                                                            style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
+        margin: 0px;">Update</a></li>
+                                                        <li style="color: #fff;margin-top:5px;">
+                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                        </li>
+                                                         <li style="color: #fff;margin-top:5px;">
+                                                             <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                         </li>
+                                                    </ul>
+                                                </div>';
+            }
+            else{
+              $tempArray[] =  "";
+            }
+            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
+            $initialBooking = strtotime($row->initial_booking_date);
+            $now = time();
+            $datediff = $now - $initialBooking;
+            $days= $datediff / (60 * 60 * 24);
+            $futureBookingDateMsg = "'Booking has future booking date so you can not escalate the booking'";
+            $partnerDependencyMsg = "'Escalation can not be Processed, Because booking in ".$row->partner_internal_status." state'";
+            if ($row->type == "Query") {
+                $helperText_2 = 'style="pointer-events: none;background: #ccc;border-color:#ccc;"'; 
+            }
+            if($row->actor != 'Partner' && $days>=0){
+               $helperText_2 =  'data-target="#myModal"';
+            } 
+            else if($days<0){  
+              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
+            }
+            else{
+              $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
+              }
+            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+            $finalArray[] = $tempArray;
+             $sn_no++;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingsCount,
+            "recordsFiltered" =>  $bookingsCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function get_spare_bookings(){
+      $agent_id = $this->session->userdata('agent_id');
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
+          "column_4"=>"GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested)","column_7"=>"booking_details.state");    
+      $order['column'] =$columnMappingArray["column_3"];
+      $order['sorting'] = "desc";
+      if(array_key_exists("order", $postData)){
+            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            $order['sorting'] = $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_PARTNER_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+                . " AND wh_ack_received_part != 0 ";
+       if($this->input->post('state')){
+           $state = $this->input->post('state');
+           $where = $where." AND booking_details.state = '$state'";
+       }
+       if($this->input->post('booking_id')){
+           $booking_id = $this->input->post('booking_id');
+           $where = $where." AND booking_details.booking_id = '$booking_id'";
+       }
+       if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+            $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
+        }
+        $select = "spare_parts_details.booking_id, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
+                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic ";
+        $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order);
+         $bookingCount = $this->service_centers_model->get_spare_parts_on_group($where, "count( Distinct spare_parts_details.booking_id) AS total_rows","spare_parts_details.booking_id", FALSE,-1,-1,1)[0]['total_rows'];
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $sn++;
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 ="";
+                    if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
+                       $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].')" class="fa fa-road" aria-hidden="true"></i>';
+                    }
+                    $tempArray[] =  $sn. $tempString;
+                    $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] =  $row['name'];
+                    $tempArray[] =  $row['age_of_request'];
+                    $tempArray[] =  $row['parts_requested'];
+                    $tempArray[] =  $row['model_number'];
+                    $tempArray[] =  $row['serial_number'];
+                    $tempArray[] =  $row['state'];
+                    $tempArray[] =  $row['remarks_by_sc'];
+                    $bookingIdTemp = "'".$row['booking_id']."'";
+                    $tempArray[] =  '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+                    $tempString2 =  '<div class="dropdown">
+                            <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="    border: 1px solid #2a3f54;background: #2a3f54;">Action
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu" style="border: none;background: none;z-index: 100;position: inherit;min-width: 70px;">
+                                <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                <li style="color: #fff;"><a href='.base_url().'partner/update_spare_parts_form/'.$row['booking_id'].' class="btn btn-sm btn-success" title="Update" style="color:#fff;margin: 0px;padding: 5px 12px;" ></i>Update</a></li>';
+                    $explode = explode(",", $row['spare_id']);
+                    if(count($explode) == 1){ 
+                     $tempString3 =  '<li style="color: #fff;margin-top:5px;"><a href="#" data-toggle="modal" id="spare_parts"'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a></li>';
+                    }
+                     $tempString4 = '</ul>';
+                     $tempArray[] =  $tempString2 . $tempString3 .$tempString4;
+                     if(!empty($row['is_gst_doc'])){
+                         $tempString5 = '<a class="btn btn-sm btn-success" href="#" title="GST number not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>';
+                     }
+                     else if(empty ($row['signature_file'])) {
+                           $tempString5 = '<a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-times"></i></a>';
+                      }
+                      else{
+                            $tempString5 = '<a class="btn btn-sm btn-success" href='.base_url().'partner/download_sf_declaration/'.rawurlencode($row['sf_id']).'  title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>';
+                        }
+                      $tempArray[] = $tempString5;
+                      $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
+                      $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
+                      $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+     function get_defactive_part_shipped_by_sf_bookings(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      $where_internal_status = array("page" => "defective_parts", "active" => '1');
+      $internal_status = $this->booking_model->get_internal_status($where_internal_status);
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
+          "column_4"=>"courier_name_by_sf","column_9"=>"spare_parts_details.defective_part_shipped_date");    
+      $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+            if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+         }
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+        );
+       if($this->input->post('state')){
+           $where['booking_details.state'] = $this->input->post('state');
+       }
+       if($this->input->post('booking_id')){
+           $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
+       }
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
+                . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number, spare_parts_details.id";
+        $group_by = "spare_parts_details.id";
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
+         $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
+         $sn = $postData['start'];
+         foreach ($bookingData as  $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a target="_blank"  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = $row['courier_name_by_sf'];
+                    $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
+                    $awb_by_sf = "'".$row['awb_by_sf']."'";
+                    $spareStatus = "'".DELIVERED_SPARE_STATUS."'";
+                    if(!$row['defactive_part_received_date_by_courier_api']){
+                        $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
+                    }
+                    $container = "'awb_loader_".$row['awb_by_sf']."'";
+                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_sf.','.$awb_by_sf.','.$spareStatus.','.$container.')">'.$row['awb_by_sf'].'</a> 
+                                            <span id='.$container.' style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>';
+                    $tempArray[] = $awbString;
+                    if(!empty($row['sf_challan_file'])) {  
+                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['sf_challan_file'].'" target="_blank">'.$row["sf_challan_number"].'</a>';
+                    }
+                    $tempArray[] = $tempString;
+                     if(!empty($row['partner_challan_file'])) {
+                        $tempString2 = '<a href="https://s3.amazonaws.com/'. BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].'" target="_blank">'.$row["partner_challan_number"].'</a>';
+                     }
+                     else if(!empty($row['partner_challan_number'])) {
+                         $tempString2 = $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString2;
+                     $bookingIdTemp = "'".$row['booking_id']."'";
+                     $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
+                     if (!is_null($row['defective_part_shipped_date'])) {
+                         $tempString3 =  date("d-m-Y", strtotime($row['defective_part_shipped_date']));
+                     }
+                    $tempArray[] = $tempString3;
+                    $tempArray[] = $row['remarks_defective_part_by_sf'];
+                     if (!empty($row['defective_part_shipped'])) {
+                            if(empty($row['defective_part_shipped'])){
+                             $tempString5 = 'disabled="disabled"';
+                            }
+                        $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                     }
+                     $tempArray[] = $tempString4;
+                     if (!empty($row['defective_part_shipped'])) {
+                            foreach ($internal_status as $value) {
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li class="divider"></li>';
+                             } 
+                              $tempString6 = '<div class="dropdown">
+                                            <a href="#" class="dropdown-toggle btn btn-sm btn-danger" type="button" data-toggle="dropdown">Reject<span class="caret"></span></a>
+                                            <ul class="dropdown-menu" style="right: 0px;left: auto;">'.$tempString7.'</ul> </div>';
+                       }
+                       $tempArray[] = $tempString6;
+                       $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function get_waiting_upcountry_charges(){
+        $where = array();
+        $finalArray = array();
+        $postData = $this->input->post();
+        $state = 0;
+         $columnMappingArray = array("column_1"=>"bd.booking_id","column_2"=>"request_type","column_4"=>"services","column_5"=>"appliance_brand","column_6"=>"appliance_category","column_7"=>"appliance_capacity"
+             ,"column_10"=>"bd.upcountry_distance","column_11"=>"bd.partner_upcountry_rate");    
+         $order_by = "bd.booking_id";
+         if($this->session->userdata('is_filter_applicable') == 1){
+              $state = 1;
+           }  
+        if(array_key_exists("order", $postData)){
+              $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+          }
+         $partner_id = $this->session->userdata('partner_id');
+         if($this->input->post('state')){
+             $where['bd.state'] = $this->input->post('state');
+         }
+         if($this->input->post('booking_id')){
+             $where['bd.booking_id'] = $this->input->post('booking_id');
+         }
+          $bookingCount = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state,1,$where)[0]['count'];
+          $bookingData = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id,$state,0,$where,$order_by,$postData['length'],$postData['start']);
+           $sn = $postData['start'];
+           foreach ($bookingData as $key => $row) {
+                      $tempArray = array();
+                      $tempString = "";
+                      $sn++;
+                      $tempArray[] = $sn;
+                      $tempArray[] = '<a style="color:blue;" href='. base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                      $tempArray[] = $row['request_type'];
+                      $tempArray[] = $row['name'];
+                      $tempArray[] = $row['services'];
+                      $tempArray[] = $row['appliance_brand'];
+                      $tempArray[] = $row['appliance_category'];
+                      $tempArray[] = $row['appliance_capacity'];
+                      $tempArray[] = $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state'];
+                      $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today'));
+                      $tempArray[] = $age_requested->days ." Days";
+                      $tempArray[] = $row['upcountry_distance'] . " KM";
+                      $tempArray[] = sprintf("%0.2f",$row['upcountry_distance'] * $row['partner_upcountry_rate']);
+                      $tempString = '<div class="dropdown">
+                                                <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;">Action
+                                                <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" style="border: none;background: none;position: inherit;z-index: 100;min-width: 70px;">
+                                                    <div class="action_holder" style="background: #fff;border: 1px solid #2c9d9c;padding: 1px;">
+                                                    <li style="color: #fff;">
+                                                        <a href='.base_url().'partner/upcountry_charges_approval/'.$row['booking_id'].'/1 class="btn btn-md btn-success" style="color:#fff;margin: 0px;padding: 5px 5.5px;">Approve</a></li>
+                                                    <li style="color: #fff;margin-top:5px;">
+                                                        <a style="color:#fff;margin: 0px;padding: 5px 11px;" href='.base_url().'partner/reject_upcountry_charges/'.$row['booking_id'].'/1 class="btn btn-md btn-danger">Reject</a>
+                                                    </li>
+                                           </div>
+                                                </ul>
+                                            </div>';
+                      $tempArray[] = $tempString;
+                      $finalArray[] = $tempArray;
+             }
+          $output = array(
+              "draw" => $this->input->post('draw'),
+              "recordsTotal" => $bookingCount,
+              "recordsFiltered" =>  $bookingCount,
+              "data" => $finalArray,
+          );
+          echo json_encode($output);
+    }
+    function get_review_booking_data(){
+        $finalArray = array();
+        $postData = $this->input->post();
+        $columnMappingArray = array("column_2"=>"booking_details.request_type","column_3"=>"sc.cancellation_reason",
+            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')",
+            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");    
+        $order_by = "ORDER BY booking_details.booking_id DESC";
+        if(array_key_exists("order", $postData)){
+               $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+          }
+         $partner_id = $this->session->userdata('partner_id');
+         $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+         $whereIN['booking_details.partner_id'] = array($partner_id);
+         $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+         if($this->input->post('booking_id')){
+             $whereIN['booking_details.booking_id'] = array($this->input->post('booking_id'));
+         }
+           $bookingCount = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,-1,-1,$where,0,NULL,"COUNT(DISTINCT sc.booking_id) as count")[0]['count'];
+           $bookingData = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,$postData['start'],$postData['length'],$where,1,$order_by);
+           $sn = $postData['start'];
+           foreach ($bookingData as $key => $row) {
+                $tempArray = array();
+                $tempString = $tempString2 = $tempString3 = $tempString4 = "";
+                $sn++;
+                if ($row['is_upcountry'] == 1) {
+                      $tempString2 = '"'. $row['booking_id'].'"';
+                      $tempString3 = '"'. $row['amount_due'].'"';
+                      $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.')"class="fa fa-road" aria-hidden="true"></i>';
+                 }
+                $tempArray[] = $sn.$tempString;
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].' target="_blank" title="View">'.$row['booking_id'].'</a>';
+                $tempString4 =  $row['request_type'];
+                if (strpos($row['request_type'], 'Installation') !== false) {
+                    $tempString4 =  "Installation";
+                }
+                else if(strpos($row['request_type'], 'Repair') !== false){
+                    $tempString4 =  "Repair";
+                }
+                 $tempArray[] = $row['services']."</br>".$tempString4;
+                 $tempArray[] = $row['cancellation_reason'];
+                 $tempArray[] = $row['name'];
+                 $tempArray[] = $row['booking_primary_contact_no'];
+                 $tempArray[] = $row['city'];
+                 $tempArray[] = $row['state'];
+                 $tempArray[] = $row['booking_date'];
+                 $tempArray[] = $row['age'];
+                 $tempString5  = "'".$row['booking_id']."'";
+                 $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
+                                      <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
+                                      <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
+                 $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                                                                               data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
+                $finalArray[] = $tempArray;
+             }
+          $output = array(
+              "draw" => $this->input->post('draw'),
+              "recordsTotal" => $bookingCount,
+              "recordsFiltered" =>  $bookingCount,
+              "data" => $finalArray,
+          );
+          echo json_encode($output);
+    }
+    function get_shipped_spare_waiting_for_confirmation(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+      }
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"parts_shipped",
+          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"shipped_date");    
+     $order_by = "ORDER BY shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+        $partner_id = $this->session->userdata('partner_id');
+        //Parts Shipped by Partner But Did'nt Get by SF
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "'AND status IN ( '".SPARE_SHIPPED_BY_PARTNER."')  ";
+       if($this->input->post('state')){
+           $where = $where." AND booking_details.state = '".$this->input->post('state')."'";
+       }
+       if($this->input->post('booking_id')){
+           $where = $where." AND spare_parts_details.booking_id = '".$this->input->post('booking_id')."'";
+       }
+       $bookingCount = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state)[0]['total_rows'];
+       $bookingData = $this->partner_model->get_spare_parts_booking_list($where, $postData['start'], $postData['length'], true,$state,NULL,FALSE,$order_by);
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = ' <a style="color:blue;"  href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['parts_shipped'];
+                    $tempArray[] = $row['courier_name_by_partner'];
+                    $tempArray[] = $row['awb_by_partner'];
+                    if(!empty($row['partner_challan_file'])) {
+                          $tempString = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+                    }
+                    else if(!empty($row['partner_challan_number'])) {
+                          $tempString =  $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString;
+                    $tempArray[] = date("d-m-Y", strtotime($row['shipped_date']));
+                    $tempArray[] = $row['remarks_by_partner'];
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function get_sf_needs_to_send_spare(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+          $state = 1;
+        }
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((parts_shipped ) ))",
+          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))");    
+      $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+               $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+        );
+       if($this->input->post('state')){
+           $where['booking_details.state'] = $this->input->post('state');
+       }
+       if($this->input->post('booking_id')){
+           $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
+       }
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
+                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number";
+        $group_by = "spare_parts_details.booking_id";
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],$state);
+        $bookingCount =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = $row['courier_name_by_partner'];
+                    $tempArray[] = $row['awb_by_partner'];
+                    if(!empty($row['partner_challan_file'])) {
+                         $tempString ='<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+                    }
+                     else if(!empty($row['partner_challan_number'])) {
+                          $tempString =  $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString;
+                    $tempArray[] = $row['aging'];
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+    function received_defactive_parts_by_partner(){
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+          $state = 1;
+        }
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"defective_part_shipped",
+          "column_4"=>"received_defective_part_date","column_5"=>"awb_by_partner","column_6"=>"courier_name_by_partner");    
+      $order_by = "ORDER BY spare_parts_details.defective_part_shipped_date DESC";
+      if(array_key_exists("order", $postData)){
+            $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND approved_defective_parts_by_partner = '1' AND status != '"._247AROUND_CANCELLED."'";
+       if($this->input->post('state')){
+           $where =  $where.' AND booking_details.state = "' .$this->input->post('state').'"';
+       }
+       if($this->input->post('booking_id')){
+           $where =  $where.' AND booking_details.booking_id = "' .$this->input->post('booking_id').'"';
+       }
+        $bookingData = $this->partner_model->get_spare_parts_booking_list($where, $postData['start'], $postData['length'], true,$state,NULL,FALSE,$order_by);
+        $bookingCount =  $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state)[0]['total_rows'];
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+                    $sn++;
+                    $tempArray[] = $sn;
+                    $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
+                    $tempArray[] = $row['name'];
+                    $tempArray[] = $row['defective_part_shipped'];
+                    if (!is_null($row['received_defective_part_date'])) {
+                         $tempString2 =   date("d-m-Y", strtotime($row['received_defective_part_date']));
+                    }
+                    $tempArray[] = $tempString2;
+                    $tempArray[] = $row['awb_by_partner'];
+                    $tempArray[] = $row['courier_name_by_partner'];
+                    if(!empty($row['partner_challan_file'])) {
+                         $tempString ='<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+                    }
+                     else if(!empty($row['partner_challan_number'])) {
+                          $tempString =  $row['partner_challan_number'];
+                    }
+                    $tempArray[] = $tempString;
+                    $tempArray[] = $row['remarks_defective_part_by_sf'];
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+     
+    /**
+     * @desc: This is used to show the partner contract list
+     * @param void
+     * @return void
+     */
+    function show_contract_list(){
+        $select = 'partners.public_name, collateral.file, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date';
+        $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND collateral.collateral_id = "7" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
+        $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id';
+        
+        $data['data'] = $this->partner_model->get_partner_contract_detail($select, null, $join, 'left');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_contract_list', $data);
+    }
+    
+ 
+    function update_spare_estimate_quote(){
+        $response = $unit_response = $booking_response = FALSE;
+        $booking_id = $this->input->post("booking_id");
+        $vendor_id = $this->input->post("vendor_id");
+        $amount_due = $this->input->post("amount_due");
+        $spare_id = $this->input->post("spare_id");
+        $updated_price = $this->input->post("updated_price");
+        $partner_id = $this->input->post("partner_id");
+        $agent_id = $this->input->post("agent_id");
+        $booking_unit_id = $this->input->post("booking_unit_id");
+        if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
+            //Update Spare Table
+            $where = array('id' => $spare_id);
+            $data['purchase_price'] = $updated_price;
+            $data['sell_price'] = ($updated_price + $updated_price *SPARE_OOW_EST_MARGIN );
+            $data['estimate_cost_given_date'] = date('Y-m-d');
+            $response = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($response) {
+                //Update Booking_unit_details_table
+                $unit['vendor_basic_percentage'] = ($updated_price * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
+                $unit['customer_total'] = $data['sell_price'];
+                $unit['ud_update_date'] = date("Y-m-d H:i:s");
+                $unit_where = array('id' => $booking_unit_id);
+                $unit_response = $this->booking_model->update_booking_unit_details_by_any($unit_where,$unit);
+            }
+            if($unit_response){
+                //Update Booking_details table
+                $booking['amount_due'] = ($amount_due + $data['sell_price']);
+                $booking_response = $this->booking_model->update_booking($booking_id, $booking);
+            }
+            if($booking_response){
+                //Update Booking_History Table
+                if($this->session->userdata('partner_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, $agent_id, "", $actor,$next_action,$partner_id);
+                }else if($this->session->userdata('service_center_id')){
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, $agent_id, "", $actor,$next_action,NULL,$this->session->userdata('service_center_id'));
+                } else {
+                    $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_UPDATED, SPARE_OOW_EST_GIVEN, "UPDATED Price - ".$updated_price, _247AROUND_DEFAULT_AGENT, "", $actor,$next_action, _247AROUND);
+                }
+            }
+            if($response && $unit_response && $booking_response){
+                //Update Job Card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                //Send Price Updation Email
+                $template = $this->booking_model->get_booking_email_template("oow_estimate_updated");
+                if (!empty($template)) {
+                    $to = "";
+                    $am_data = $this->miscelleneous->get_am_data($partner_id);
+                    if(!empty($am_data)){
+                        $to = $am_data[0]['official_email'];
+                    }
+                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                    if(!empty($rm_details)){
+                        $to = (!empty($to))? $to.", ".$rm_details[0]['official_email']: $rm_details[0]['official_email'];
+                    }
+                    if (!empty($to)) {
+                        $to = $am_data[0]['official_email'];
+                        $subject = vsprintf($template[4], $booking_id);
+                        $emailBody = vsprintf($template[0], $updated_price);
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated');
+                    }
+                }
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+    
+    /*
+     * @desc - This function is used to save bank detail for partner
+     * @param - form post
+     * @retun - void
+     */
+    function process_add_bank_detail_details(){
+        $check_file = '';
+        $this->form_validation->set_rules('bank_name', 'bank_name', 'required|trim');
+        $this->form_validation->set_rules('account_type','account_type', 'required|trim');
+        $this->form_validation->set_rules('account_number', 'account_number','required|trim');
+        $this->form_validation->set_rules('ifsc_code', 'ifsc_code', 'required|trim');
+        $this->form_validation->set_rules('beneficiary_name', 'beneficiary_name','required|trim');
+        if ($this->form_validation->run() == TRUE) { 
+            //Processing cancelled check file
+            if (($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])) {
+                $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
+                $check_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_id'))) . '-CANCELLED-CHECK' . "." . explode(".", $_FILES['cancelled_cheque_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $check_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $check_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $check_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                unlink(TMP_FOLDER . $check_file);
+
+                //Logging success for file uppload
+                log_message('info', __FUNCTION__ . ' CHECK FILE is being uploaded sucessfully.');
+            } 
+            $bank_data = array(
+                'entity_id' => $this->input->post('partner_id'),
+                'entity_type' => _247AROUND_PARTNER_STRING,
+                'bank_name' => $this->input->post('bank_name'),
+                'account_type' => $this->input->post('account_type'),
+                'bank_account' => $this->input->post('account_number'),
+                'ifsc_code' => $this->input->post('ifsc_code'),
+                'cancelled_cheque_file' => $check_file,
+                'beneficiary_name' => $this->input->post('beneficiary_name'),
+                'agent_id' => $this->session->userdata('id'),
+                'is_active' => '0'
+            );
+            if($this->input->post('BD_action') > 0 && $this->input->post('BD_action') != NULL){
+                unset($bank_data['is_active']);
+                if(!$check_file){
+                    unset($bank_data['cancelled_cheque_file']);   
+                }
+                $action = $this->reusable_model->update_table('account_holders_bank_details', $bank_data, array('id'=>$this->input->post('BD_action')));
+                $msg = "Data Updated Successfully";
+            }
+            else{
+                $action = $this->reusable_model->insert_into_table('account_holders_bank_details', $bank_data);
+                $msg = "Data Entered Successfully";
+            }
+            if($action){
+                log_message("info", __METHOD__ .$msg);
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            } else {
+                log_message("info", __METHOD__ . " Error in adding details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
+        }else{
+            $this->session->set_userdata('error', 'Please Fill All Bank Detail');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        } 
+    }
+    
+    /*
+     * @desc - This function is used to save bank detail for partner
+     * @param - form post
+     * @retun - void
+     */
+    function process_add_annual_charges(){
+            $partner_id = $this->input->post('partner_id');
+            $data = array(
+                'entity_type' => 'partner',
+                'entity_id' => $partner_id,
+                'charges_type' => 'annual-charges',
+                'description' => 'Partner annual charges',
+                'fixed_charges' => $this->input->post('annual_amount'),
+                'validity_in_month' => $this->input->post('validity'),
+                'hsn_code' => '123',
+                'gst_rate' => '18'
+            );
+            $charge_exist = $this->invoices_model->get_variable_charge('id', array('entity_type' => 'partner', 'entity_id' => $partner_id));
+            if(empty($charge_exist)){
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $result = $this->invoices_model->insert_into_variable_charge($data);
+            }
+            else{
+               $data['update_date'] = date('Y-m-d H:i:s');
+               $result = $this->invoices_model->update_into_variable_charge(array('id'=>$charge_exist[0]['id']), $data); 
+            }
+            if($result){
+                log_message("info", __METHOD__ .$msg);
+                $this->session->set_userdata('success', 'Data Saved Successfully');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            } else {
+                log_message("info", __METHOD__ . " Error in Saving details");
+                $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
+    }
+    
+     /*
+     * @desc - This function is used to Active/Inactive bank detail for partner(only one bank detail active at a time)
+     * @param - form post
+     * @retun - void
+     */
+    function process_active_inactive_bank_detail(){
+        if($this->input->post('is_active') == 0){
+            if(!empty($this->input->post('partner_id'))){
+                $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('entity_id'=>$this->input->post('partner_id')));
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 1), array('id'=>$this->input->post('id')));  
+            }
+        }
+        else{
+            if(!empty($this->input->post('partner_id'))){
+                $update = $this->reusable_model->update_table('account_holders_bank_details', array('is_active'=> 0), array('id'=>$this->input->post('id'))); 
+            }
+        }
+        if($update){
+            $this->session->set_userdata('success', 'Bank Data Updated Successfully');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
+        else{
+            $this->session->set_userdata('failed', 'Data can not be updated. Please Try Again...');
+            redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+        }
+    }
+    /*
+     * This function extracts channels list and partner name from database and loads it to the view in tabular format.
+     */
+    public function get_channels(){
+        $select = 'partner_channel.*,partners.public_name';
+        $fetch_data = $this->partner_model->get_channels($select);
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/get_channel_list", array('fetch_data' => $fetch_data));
+    }
+    
+    public function get_partner_channel() {
+         log_message('info', __FUNCTION__ . print_r($_POST, true));
+        $select = 'partner_channel.id, partner_channel.channel_name';
+        if(!empty($this->input->post('partner_id'))){ 
+            $where = array(
+                'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
+            );
+            
+        }
+        else{
+            $where = array('is_default' => 1);
+        }
+        
+        $channel = $this->input->post('channel');
+        $fetch_data = $this->partner_model->get_channels($select, $where);
+        $html = '<option value="" selected disabled>Please select seller channel</option>';
+        foreach ($fetch_data as $key => $value) {
+           $html .= '<option ';
+           if($channel ==$value['channel_name'] ){
+               $html .= " selected ";
+           }
+           $html .=' >'.$value['channel_name'].'</option>'; 
+        }
+        echo $html;
+    }
+    
+   /*
+    * This function displays channel form in the browser.
+    */
+    public function add_channel(){ 
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/channel_form');
+    }
+    /*
+     * This performs the process of adding channels to the form and submiting it to the database table.
+     */
+    public function process_add_channel(){
+        $this->form_validation->set_rules('channel','Channel','required');
+        $is_default = 0;
+        if ($this->form_validation->run() == FALSE) {
+            $this->add_channel();
+        } else {
+            $channel = $this->input->post("channel");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+                );
+          
+            $is_exist = $this->partner_model->get_channels('*', $data);
+            
+            if (empty($is_exist)) {
+                $data['create_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
+                $channel_id = $this->partner_model->insert_new_channels($data);
+                if ($channel_id){
+                    $output = "Your data inserted successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }else{
+                    $output = "Failed! Data did not insert";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/add_channel");
+                }
+            }
+            else {
+                $output = "This Data already exist";
+                $userSession = array('error' => $output);
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/partner/add_channel");
+            }
+    }
+}
+/*
+ * This function loads the tabular format of the view of update channel form 
+ */
+function update_channel($id) {
+        $data = array(
+            'partner_channel.id' => $id
+        );
+        
+        $channel['fetch_data'] = $this->partner_model->get_channels(' partner_channel.* ', $data);
+        //print_r($channel); die();
+      
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_channel', $channel);
+        
+       
+    }
+    /*
+     * This function supports in performing update functionalties to the form and further submiting it to the database. 
+     */
+    function process_update_channel($id) {
+        $this->form_validation->set_rules('channel', 'Channel', 'required');
+        $is_default = 0;
+        if ($this->form_validation->run() == FALSE) {
+            $this->update_channel($id);
+        } else {
+            $channel = $this->input->post("channel");
+            if($this->input->post("partner_id") === 'All'){
+                $partner_id = NULL;
+                $is_default = 1;
+            }
+            else{
+                $partner_id = $this->input->post("partner_id");
+            }
+            $data = array(
+                'channel_name' => $channel,
+                'partner_id' => $partner_id
+            );
+            $is_exist = $this->partner_model->get_channels('partner_channel.id', $data);
+            if (empty($is_exist)) {
+                $data['update_date'] = date('Y-m-d H:i:s');
+                $data['is_default'] = $is_default;
+                $status = $this->partner_model->update_channel($id, $data);
+                if ($status) {
+                    $output = "Your data updated successfully";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                } else {
+                    $output = "Failed! Data did not update";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }  else {
+                    $output = "This Data already exist";
+                    $userSession = array('error' => $output);
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/update_channel/" . $id);
+                }
+            }
+        }
+        /**
+     *  @desc : This function is to create Repeat booking
+     *  We have already made a function to get_edit_booking_form, this method use that function to insert booking by parent booking
+     *  @param : Parent booking ID
+     */
+    function get_repeat_booking_form($booking_id) {
+         log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        if(empty($openBookings)){
+            $this->get_editbooking_form($booking_id,"Repeat");
+        }
+        else{
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+        }
+    }
+    function get_booking_relatives($booking_id){
+        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+        if(!empty($relativeData)){
+            echo  json_encode($relativeData[0]);
+        }
+        else{
+            echo false;
+        }
+    }
+ 
+     /*
+     * @desc - This function is used to get the list of service centers by state.
+     * @param - get post state val
+     * @retun - Json
+     */
+       
+     function get_state_waise_service_centers() { 
+         $state = $this->input->post("state");
+         if (!empty($state)) {
+             $where = array('state' => $state);
+             $select = "service_centres.id,service_centres.name,service_centres.state";
+             $service_centres_list = $this->vendor_model->getVendorDetails($select, $where, 'state', '');
+             if (!empty($service_centres_list)) {
+                 echo json_encode($service_centres_list);
+             } else {
+                 echo json_encode(array('status' => 'fail'));
+
+             }
+
+         }
+     
+    }
+    /*
+     * @desc - This function is used to get partner service center where partner serivce valum high.
+     * @param - get post multiple parameter
+     * @render on same pages
+     */    
+    function process_partner_warehouse_config(){   
+        
+        $is_wh = $this->input->post('is_wh');
+        $partner_id = $this->input->post('partner_id');
+        $micro = $this->input->post('micro');
+        $is_micro_wh = $this->input->post('is_micro_wh');
+        $is_defective_part_return_wh = $this->input->post('is_defective_part_return_wh');         
+              
+        if($is_micro_wh == 1){
+           
+            foreach($micro as $key =>  $value){
+                $data = array();
+                $wh_on_of_data =array();
+                
+                $data =array(
+                    'partner_id'=>$partner_id,
+                    'state'=>$value['micro_wh_state']
+                );
+                
+                $wh_on_of_data =array(
+                    'partner_id'=>$partner_id,
+                    'agent_id'=> $this->session->userdata('id'),
+                    'active'=>1
+                 ); 
+                
+                foreach($value['sf_id'] as $vendor_id){
+                    $data['vendor_id'] = $vendor_id;
+                    $wh_on_of_data['vendor_id'] = $vendor_id;  
+                    $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
+                    if(empty($micro_wh_mapping_list)){
+                        $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
+                        $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data);
+                        $service_center = array('is_micro_wh'=>1);
+                        $this->vendor_model->edit_vendor($service_center, $vendor_id); 
+                    }                            
+                }    
+            }            
+            $partner = array(               
+               'is_micro_wh'=>1                            
+            );
+          $this->partner_model->edit_partner($partner,  $partner_id);             
+        }       
+             
+        if($is_wh==1){          
+           $partner = array(
+               'is_wh'=>1,
+               'is_defective_part_return_wh'=>$is_defective_part_return_wh               
+           );
+          $this->partner_model->edit_partner($partner,  $partner_id);           
+        }elseif ($is_wh==1 && $is_micro_wh == 1) {           
+           $partner = array(
+               'is_wh'=>1,
+               'is_micro_wh'=>1,
+               'is_defective_part_return_wh'=>$is_defective_part_return_wh
+           );
+          $this->partner_model->edit_partner($partner,  $partner_id);  
+        }
+       
+         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);              
+    }
+    
+    /*
+     * @desc - This function is used to remove service center from partner valum area.
+     * @param -  get id
+     * @render on same pages
+     */ 
+    
+    function manage_micro_warehouse_by_status() {
+        $micro_wh_mp_id = $this->input->post('micro_wh_mp_id');
+        $wh_on_of_id = $this->input->post('wh_on_of_id');
+        $active_status = $this->input->post('active_status');        
+        if (!empty($micro_wh_mp_id)) {
+            $return_type = $this->inventory_model->manage_micro_wh_from_list_by_id($micro_wh_mp_id, $active_status);
+            if (!empty($return_type)) {
+                $where = array('id' => $wh_on_of_id);
+                $warehouse_on_off_list = $this->inventory_model->get_warehouse_on_of_status_list($where, '*');
+                if (!empty($warehouse_on_off_list)) {                    
+                    unset($warehouse_on_off_list[0]['id']);
+                    unset($warehouse_on_off_list[0]['active']);
+                    $wh_on_of_data = $warehouse_on_off_list[0];
+                    $wh_on_of_data['active'] = $active_status;                    
+                    $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
+                    if (!empty($inserted_id)) {
+                        echo json_encode(array('status' => 'success'));
+                    } else {
+                        echo json_encode(array('status' => 'failed'));
+                    }
+                }
+            }
+        }
+    }
+
 }
