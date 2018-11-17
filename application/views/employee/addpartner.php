@@ -863,6 +863,182 @@
                 </form>
             </div>
             <div class="clear"></div>
+
+            <div id="container_12" class="form_container" style="display:none;">
+                <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Warehouse Details</b></div>
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="is_wh" class="col-md-6" style="width: 40%;">Warehouse</label>
+                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                            <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
+                                                if($query[0]['is_wh'] == '1'){ echo "checked"; }
+                                                } ?> >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Micro Warehouse Details</b></div>
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="is_wh" class="col-md-6" style="width: 40%;"> Micro Warehouse</label>
+                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                            <input  type="checkbox" class="form-control" id="is_micro_wh"  name="is_micro_wh"  value = "1" <?php if (isset($query[0])) {
+                                                if($query[0]['is_micro_wh'] == '1'){ echo "checked"; }
+                                                } ?> >
+                                        </div>
+                                    </div>
+                                </div>                                
+                                <div class="col-md-12">
+                                    <div id="micro_warehouse_details" style="display:<?php if ($query[0]['is_micro_wh'] == '1'){ echo "block"; }else{ echo "none"; } ?>">                                         
+                                        <div style="padding:5px;">
+                                         <span id="is_defected_part_err"></span>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Warehouse</label>
+                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 23%; height: 23px;" <?php  if( $query[0]['is_defective_part_return_wh']=='1'){ echo "checked"; } ?>>
+                                                </div>
+                                            </div>
+                                        </div>                                
+                                        <div class="col-md-12">
+                                            <div class="form-group ">
+                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Partner</label>
+                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
+                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php  if( $query[0]['is_defective_part_return_wh']=='0'){ echo "checked"; } ?>>
+                                                </div>
+                                            </div>
+                                        </div>
+                                       </div>
+                                        <br><br><br><br><br><br><br>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="col-md-8">
+                                                    <select class="form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
+                                                        <option selected="" value="" disabled="">Select State</option>
+                                                        <?php foreach ($results['select_state'] as $value) { ?>
+                                                        <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group ">
+                                                <div class="col-md-8">
+                                                    <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0"  multiple>
+                                                        <option value="" selected disabled="">Select SF</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                   
+                                        <div class="col-md-2">
+                                            <div class="form-group ">
+                                                <div class="col-md-8">                                                    
+                                                    <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>                                
+                                        <div id="stat_waise_sf_template" class="template_s hide">                                        
+                                      <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="col-md-8">
+                                                    <select class="form-control micro_wh_state"  id='micro_wh_state' required>
+                                                        <option selected="" value="" disabled="">Select State</option>
+                                                        <?php foreach ($results['select_state'] as $value) { ?>
+                                                        <option value = "<?php echo $value['state'] ?>"> <?php echo $value['state']; ?> </option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group ">
+                                                <div class="col-md-8">
+                                                    <select class="form-control valid sf_id"  id="sf_id" multiple>
+                                                        <option value="" selected disabled="">Select SF</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group ">
+                                                <div class="col-md-8">                                                  
+                                                    <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                               </div>                                 
+                                <div class="col-md-12">
+                                    <center>
+                                        <input type="hidden" name="partner_id" value="<?php echo $this->uri->segment(4); ?>">    
+                                        <input type="submit" id="micro_wh_sttng" class="btn btn-primary btn-md">
+                                    </center>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><b>Micro Warehouse List</b></div>
+                            <div class="panel-body">
+                                <div class="col-md-12">                                    
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>S.N</th>
+                                                <th>State Name</th>
+                                                <th>Vendor Name </th>
+                                                <th>Status</th>                                         
+                                                <th class="col-md-1">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> 
+                                           <?php
+                                            if(!empty($micro_wh_lists)){                                                
+                                            $i=1;
+                                            foreach ($micro_wh_lists as $key=>$val){
+                                            ?>                                           
+                                            <tr>
+                                                <td><?php echo $i."."; ?></td>
+                                                <td><?php echo $val['state']; ?></td>
+                                                <td><?php echo $val['name']; ?></td>
+                                                <td>
+                                                    <a href="#" id="status_<?php echo $val['wh_on_of_id']; ?>">
+                                                        <?php if( $val['active']==1){ echo 'Active'; }else{ echo 'Inactive'; }?>
+                                                    </a>
+                                                    
+                                                </td>                                      
+                                                <td>    
+                                                    <?php if( $val['active']==1){ ?> 
+                                                    <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
+                                                    <?php }else{ ?>
+                                                    <button type="button" class="btn btn-default" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)"><span id="add_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-plus"></i></span></button>
+                                                   <?php } ?>                                         
+                                                </td>
+                                            </tr>
+                                            <?php $i++; } } ?> 
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+               </div>
+            </div>
+            <div class="clear"></div>
+
             <div id="container_2" style="display:none" class="form_container">
                 <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
                     <?php
