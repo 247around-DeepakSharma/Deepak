@@ -994,7 +994,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         $this->checkUserSession();
         if(!empty($booking_id)){
-            $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
