@@ -1231,9 +1231,23 @@ class Accounting extends CI_Controller {
     function add_variable_charges(){ 
         $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
         $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
-        $variable_charges['charges_type'] = $this->invoices_model->get_variable_charge("DISTINCT(charges_type)", array(), false);
+        $variable_charges['charges_type'] = $this->accounting_model->get_variable_charge("id, name");
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges', $variable_charges);  
+    }
+    
+    
+    function getVendorPartnerVariableChargesType(){
+        $variable_charge_detail = $this->accounting_model->get_variable_charge("*");
+        $html = '';
+        foreach($variable_charge_detail as $charges){
+            $selected = "";
+            if($charges['type'] == $this->input->post('type')){
+                $selected = "selected";
+            }
+            $html .= '<option value="'.$charges['id'].'" '.$selected.'>'.$charges['name'].'</option>';
+        }
+        echo $html;
     }
     
      /**
@@ -1245,12 +1259,12 @@ class Accounting extends CI_Controller {
         $data = array();
         $data['entity_type'] = $this->input->post('vendor_partner');
         $data['entity_id'] = $this->input->post('vendor_partner_id');
-        $data['charges_type'] = $this->input->post('charges_type');
-        $data['description'] = $this->input->post('description');
         $data['fixed_charges'] = $this->input->post('fixed_charges');
-        $data['percentage_charge'] = $this->input->post('percentage_charge');
-        $data['hsn_code'] = $this->input->post('hsn_code');
-        $data['gst_rate'] = $this->input->post('gst_rate');
+        $variable_charge_detail = $this->accounting_model->get_variable_charge("*", array('id'=>$this->input->post('charges_type')));
+        $data['charges_type'] = $variable_charge_detail[0]['type'];
+        $data['description'] = $variable_charge_detail[0]['description'];
+        $data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
+        $data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
 
         if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
            $data['update_date'] = date("Y-m-d H:i:s");
@@ -1529,5 +1543,35 @@ class Accounting extends CI_Controller {
         $id = $this->input->post('id');
         $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
+    }
+    
+    function add_charges_type(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_variable_charges_type_form');  
+    }
+    
+    function process_charges_type(){
+        $data = array();
+//        if($this->input->post('fixed_charge') == 'on'){
+//            $data['is_fixed'] = 1;
+//        }
+//        else{
+//            $data['is_fixed'] = 0;
+//        }
+        $data['name'] =  $this->input->post('charges_name');
+        $data['type'] =  $this->input->post('charges_type');
+        $data['description'] = $this->input->post('description');
+        $data['hsn_code'] = $this->input->post('hsn_code');
+        $data['gst_rate'] = $this->input->post('gst_rate');
+        $data['created_date'] = date("Y-m-d H:i:s");
+        $result = $this->accounting_model->insert_into_variable_charge($data);
+        if(!empty($result)){
+            $this->session->set_userdata('success', 'Data Entered Successfully');
+            redirect(base_url() . 'employee/accounting/add_charges_type'); 
+        }
+        else{
+            $this->session->set_userdata('error', 'Data Not Saved Try Again!');
+            redirect(base_url() . 'employee/accounting/add_charges_type'); 
+        }
     }
 }
