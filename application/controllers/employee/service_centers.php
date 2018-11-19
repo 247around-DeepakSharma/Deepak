@@ -1221,7 +1221,7 @@ class Service_centers extends CI_Controller {
         $f_status = $this->checkvalidation_for_update_by_service_center();
         if ($f_status) {
             $reason = $this->input->post('reason');
-
+            
             switch ($reason) {
                 
                  CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
@@ -3637,14 +3637,15 @@ class Service_centers extends CI_Controller {
     function send_reschedule_confirmation_sms($booking_id){
         $join["users"] = "users.user_id = booking_details.user_id";
         $join["services"] = "services.id = booking_details.service_id";
-        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date",array("booking_details.booking_id"=>$booking_id),
+        $join["service_center_booking_action"] = "service_center_booking_action.booking_id = booking_details.booking_id";
+        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date, service_center_booking_action.booking_date as reschedual_date",array("booking_details.booking_id"=>$booking_id),
                 $join,NULL,NULL,NULL,NULL,array());
         if(!empty($data[0])){
             $sms['tag'] = BOOKING_RESCHEDULED_CONFIRMATION_SMS;
             $sms['phone_no'] = $data[0]['phone_number'];
             $sms['smsData']['service'] = $data[0]['services'];
             $sms['smsData']['booking_id'] = $booking_id;
-            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['booking_date']));
+            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['reschedual_date']));
             $sms['booking_id'] = $booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];
