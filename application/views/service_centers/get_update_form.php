@@ -566,15 +566,14 @@
        }
     }
     
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
     $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
                 minDate: 0, 
                 maxDate:+7
     });
-    
-    function booking_calendar(){
+     function booking_calendar(){
       
         $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
     }
