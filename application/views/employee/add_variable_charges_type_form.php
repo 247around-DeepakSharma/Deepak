@@ -71,7 +71,7 @@
                                     ?>">
                                     <label  for="hsn_code" class="col-md-4">HSN Code* </label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control" id="hsn_code" name="hsn_code" value = "" placeholder="Enter HSN Code">
+                                        <input  type="number" class="form-control" id="hsn_code" name="hsn_code" value = "<?php echo HSN_CODE; ?>" placeholder="Enter HSN Code">
                                         <?php echo form_error('hsn_code'); ?>
                                     </div>
                                 </div>
@@ -84,7 +84,7 @@
                                     ?>">
                                     <label  for="gst_rate" class="col-md-4">GST Rate* </label>
                                     <div class="col-md-8">
-                                        <input  type="text" class="form-control" id="gst_rate" name="gst_rate" value = "" placeholder="Enter GST Rate">
+                                        <input  type="number" class="form-control" id="gst_rate" name="gst_rate" value = "18" placeholder="Enter GST Rate">
                                         <?php echo form_error('gst_rate'); ?>
                                     </div>
                                 </div>
@@ -104,19 +104,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div  class="form-group <?php
+<!--                            <div class="col-md-6">
+                                <div  class="form-group <?php /*
                                     if (form_error('fixed_charge')) {
                                         echo 'has-error';
-                                    }
+                                    } */
                                     ?>">
                                     <label  for="gst_rate" class="col-md-4">Fixed Charge* </label>
                                     <div class="col-md-8">
                                         <input  type="checkbox" class="" id="fixed_charge" name="fixed_charge">
-                                        <?php echo form_error('fixed_charge'); ?>
+                                        <?php //echo form_error('fixed_charge'); ?>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                         <div class="form-group col-md-12">
                             <center>

@@ -32,7 +32,7 @@
                     </div>';
                 }
                 ?>
-                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_charges_type"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="charges_form" novalidate="novalidate" action="<?php echo base_url()?>employee/accounting/process_variable_charges"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                          <div class="col-md-12">
                             <div class="col-md-6">

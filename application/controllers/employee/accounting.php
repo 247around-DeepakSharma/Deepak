@@ -1552,12 +1552,12 @@ class Accounting extends CI_Controller {
     
     function process_charges_type(){
         $data = array();
-        if($this->input->post('fixed_charge') == 'on'){
-            $data['is_fixed'] = 1;
-        }
-        else{
-            $data['is_fixed'] = 0;
-        }
+//        if($this->input->post('fixed_charge') == 'on'){
+//            $data['is_fixed'] = 1;
+//        }
+//        else{
+//            $data['is_fixed'] = 0;
+//        }
         $data['name'] =  $this->input->post('charges_name');
         $data['type'] =  $this->input->post('charges_type');
         $data['description'] = $this->input->post('description');
