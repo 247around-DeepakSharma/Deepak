@@ -748,7 +748,7 @@ class invoices_model extends CI_Model {
                     $c_data = array();
                     $c_data[0]['description'] = $value['description'];
                     $c_data[0]['hsn_code'] = $value['hsn_code'];
-                    $c_data[0]['qty'] = 0;
+                    $c_data[0]['qty'] = 1;
                     $c_data[0]['rate'] = $value['fixed_charges'];
                     $c_data[0]['gst_rate'] = $value['gst_rate'];
                     $c_data[0]['product_or_services'] = $value['description'];
@@ -759,7 +759,29 @@ class invoices_model extends CI_Model {
                 
             }
             
-
+            $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "charges_type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+            
+            if (!empty($micro_charges)) {
+                foreach ($micro_charges as $key => $value) {
+                    $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($partner_id); 
+                   
+                    if(!empty($micro_wh_lists)){
+                        $c_data = array();
+                        $c_data[0]['description'] = $value['description'];
+                        $c_data[0]['hsn_code'] = $value['hsn_code'];
+                        $c_data[0]['qty'] = count($micro_wh_lists);
+                        $c_data[0]['rate'] = $value['fixed_charges'];
+                        $c_data[0]['gst_rate'] = $value['gst_rate'];
+                        $c_data[0]['product_or_services'] = $value['description'];
+                        $c_data[0]['taxable_value'] = count($micro_wh_lists) * $value['fixed_charges'];
+                        $result['result'] = array_merge($result['result'], $c_data);
+                       
+                    //$result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+                    }
+                }
+                
+            }
             return $result;
         } else {
             return false;
