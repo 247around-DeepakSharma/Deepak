@@ -2138,9 +2138,14 @@ class Booking_model extends CI_Model {
             $this->db->where_in('booking_details.partner_id', $partnerIDArray);
             $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
         }
-         if($is_download){
-             $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
-         }
+        if($is_download){
+            if($is_download == 2){
+               
+            }
+            else{
+                $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
+            }
+        }
         $query = $this->db->get();
         if($is_download){
             

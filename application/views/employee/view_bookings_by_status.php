@@ -67,7 +67,9 @@
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 <div id="page-wrapper" >
     <div class="row">
-        <h1> <?php echo ucfirst($booking_status);?> Bookings</h1>
+        <h1 style="float:left;"> <?php echo ucfirst($booking_status);?> Bookings</h1>
+        <a href="<?php echo  base_url()?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 21px;">Download</a>
+        <div class="clear"></div>
         <hr>
         <?php
         if ($this->session->userdata('success')) {
