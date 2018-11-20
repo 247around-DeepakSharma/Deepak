@@ -521,7 +521,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></td>
+                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -595,15 +595,15 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Part Shipped By Partner/Warehouse</th>
-                                        <th >Shipped Parts </th>
-                                        <th >Courier Name</th>
-                                        <th >AWB </th>
-                                        <th >Shipped date </th>
-                                        <th >EDD </th>
-                                        <th >Remarks By Partner</th>
-                                        <th >Challan Number </th>
-                                        <th >Challan approx Value </th>
+                                        <th>Part Shipped By Partner/Warehouse</th>
+                                        <th>Shipped Parts </th>
+                                        <th>Courier Name</th>
+                                        <th>AWB </th>
+                                        <th>Shipped date </th>
+                                        <th>EDD </th>
+                                        <th>Remarks By Partner</th>
+                                        <th>Challan Number </th>
+                                        <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
                                         
@@ -613,11 +613,17 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
-                                        <td><?php echo $sp['parts_shipped']; ?></td>
-                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php echo $sp['shipped_date']; ?></td>
+                                        <td><?php echo $sp['parts_shipped']; ?></td>                                        
+                                        <td>                                            
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|courier_name_by_partner";?>"><?php echo str_replace(array('-','_'), ' ', $sp['courier_name_by_partner']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['courier_name_by_partner'];  ?>" id="<?php echo $sp['id']."_courier_name_by_partner";?>" />
+                                        </td>                                        
+                                        <td>
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_partner";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></span> 
+                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                        </td>                                       
+                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
                                         <td><?php echo $sp['partner_challan_number']; ?></td>
@@ -1587,7 +1593,7 @@ function uploadfile(){
 $(".serial_no_edit").click(function() {
     if ($(this).siblings(".serial_no_text").is(":hidden")) {
         var prethis = $(this);
-        var text_id = $(this).siblings(".serial_no_text").attr('id');
+        var text_id = $(this).siblings(".serial_no_text").attr('id');       
         var split = text_id.split('|');
         var line_item_id = split[0];
         var column = split[1];
@@ -1608,6 +1614,17 @@ $(".serial_no_edit").click(function() {
                     prethis.siblings("input").remove();
                     prethis.siblings(".serial_no_text").show();
                     prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                    
+                    if(column === "awb_by_partner"){
+                        var c_name = $('#'+line_item_id+"_courier_name_by_partner").val();
+                        var status = $("#"+line_item_id+"_status").val();
+                       prethis.siblings(".serial_no_text").attr('onclick', 'get_awb_details("'+c_name+'", "'+data_value+'", "'+status+'", "awb_loader_'+data_value+'")');
+                    } else if(column === "courier_name_by_partner"){
+                        $('#'+line_item_id+"_courier_name_by_partner").val(data_value);
+                        var status = $("#"+line_item_id+"_status").val();
+                        var awb = $("#"+line_item_id+"|awb_by_partner").text();
+                        $("#"+line_item_id+"|awb_by_partner").attr('onclick', 'get_awb_details("'+c_name+'", "'+awb+'", "'+status+'", "awb_loader_'+awb+'")');
+                    }
                 } else {
                     alert("There is a problem to update");
                     alert(data);
