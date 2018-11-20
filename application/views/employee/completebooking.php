@@ -277,7 +277,7 @@
                                                                         ?>
                                                                     <div class="form-group">
                                                                         <div class="col-md-12 ">
-                                                                                            <select class="form-control model_number" id="<?php echo "model_number_" . ($keys + 1) ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
+                                                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
                                                                                                 <option value="" selected="" disabled="">Model Number</option>
                                                                                                 <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
                                                                                                 <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>  
