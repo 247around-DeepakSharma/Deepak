@@ -59,6 +59,24 @@
 }
 </style>
 <div id="page-wrapper">
+    <?php
+        if ($this->session->userdata('success')) {
+            echo '<div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+        }
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                        </div>';
+        }
+    ?>
     <div class="row">
         <div class="clear"></div>
         <div class="panel panel-info">
@@ -109,11 +127,8 @@
                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
-
-                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
-
+                        <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
-
                         <?php
                             }
                             ?>
@@ -121,24 +136,7 @@
                 </div>
             </div>
             <div class="clear"></div>
-            <?php
-                if ($this->session->userdata('success')) {
-                    echo '<div class="alert alert-success alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>' . $this->session->userdata('success') . '</strong>
-                    </div>';
-                }
-                if ($this->session->userdata('error')) {
-                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>' . $this->session->userdata('error') . '</strong>
-                    </div>';
-                }
-                ?>
+           
             <div id="container_1" class="form_container">
                 <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
                     <div>
@@ -691,7 +689,7 @@
                                         <div class="form-group ">
                                             <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
                                             <div class="col-md-1">
-                                                <input  type="checkbox" class="form-control"  name="is_prepaid" id="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                                <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
                                                     } ?> >
                                             </div>
@@ -703,7 +701,7 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
@@ -753,7 +751,7 @@
                                             <div class="form-group ">
                                                 <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
                                                 <div class="col-md-1">
-                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" id="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
                                                         if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
                                                         } ?> >
                                                 </div>
@@ -765,7 +763,7 @@
                                                 } ?>">
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                         echo $query[0]['postpaid_credit_period'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
@@ -779,7 +777,7 @@
                                                 } ?>">
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                         echo $query[0]['postpaid_notification_limit'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
@@ -787,7 +785,9 @@
                                                 </div>
                                             </div>
                                         </div>
-                                         <div class="col-md-6">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group <?php if (form_error('postpaid_grace_period')) {
                                                 echo 'has-error';
                                                 } ?>">
@@ -863,182 +863,6 @@
                 </form>
             </div>
             <div class="clear"></div>
-
-            <div id="container_12" class="form_container" style="display:none;">
-                <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Warehouse Details</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="is_wh" class="col-md-6" style="width: 40%;">Warehouse</label>
-                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                            <input  type="checkbox" class="form-control"  name="is_wh" value = "1" <?php if (isset($query[0])) {
-                                                if($query[0]['is_wh'] == '1'){ echo "checked"; }
-                                                } ?> >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Micro Warehouse Details</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="is_wh" class="col-md-6" style="width: 40%;"> Micro Warehouse</label>
-                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                            <input  type="checkbox" class="form-control" id="is_micro_wh"  name="is_micro_wh"  value = "1" <?php if (isset($query[0])) {
-                                                if($query[0]['is_micro_wh'] == '1'){ echo "checked"; }
-                                                } ?> >
-                                        </div>
-                                    </div>
-                                </div>                                
-                                <div class="col-md-12">
-                                    <div id="micro_warehouse_details" style="display:<?php if ($query[0]['is_micro_wh'] == '1'){ echo "block"; }else{ echo "none"; } ?>">                                         
-                                        <div style="padding:5px;">
-                                         <span id="is_defected_part_err"></span>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Warehouse</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 23%; height: 23px;" <?php  if( $query[0]['is_defective_part_return_wh']=='1'){ echo "checked"; } ?>>
-                                                </div>
-                                            </div>
-                                        </div>                                
-                                        <div class="col-md-12">
-                                            <div class="form-group ">
-                                                <label for="is_wh" class="col-md-4" style="width:228px;">Defective Part Return to Partner</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php  if( $query[0]['is_defective_part_return_wh']=='0'){ echo "checked"; } ?>>
-                                                </div>
-                                            </div>
-                                        </div>
-                                       </div>
-                                        <br><br><br><br><br><br><br>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <div class="col-md-8">
-                                                    <select class="form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
-                                                        <option selected="" value="" disabled="">Select State</option>
-                                                        <?php foreach ($results['select_state'] as $value) { ?>
-                                                        <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group ">
-                                                <div class="col-md-8">
-                                                    <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0"  multiple>
-                                                        <option value="" selected disabled="">Select SF</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                   
-                                        <div class="col-md-2">
-                                            <div class="form-group ">
-                                                <div class="col-md-8">                                                    
-                                                    <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>                                
-                                        <div id="stat_waise_sf_template" class="template_s hide">                                        
-                                      <div class="col-md-4">
-                                            <div class="form-group">
-                                                <div class="col-md-8">
-                                                    <select class="form-control micro_wh_state"  id='micro_wh_state' required>
-                                                        <option selected="" value="" disabled="">Select State</option>
-                                                        <?php foreach ($results['select_state'] as $value) { ?>
-                                                        <option value = "<?php echo $value['state'] ?>"> <?php echo $value['state']; ?> </option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group ">
-                                                <div class="col-md-8">
-                                                    <select class="form-control valid sf_id"  id="sf_id" multiple>
-                                                        <option value="" selected disabled="">Select SF</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group ">
-                                                <div class="col-md-8">                                                  
-                                                    <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>                                        
-                                    </div>
-                                </div>
-                               </div>                                 
-                                <div class="col-md-12">
-                                    <center>
-                                        <input type="hidden" name="partner_id" value="<?php echo $this->uri->segment(4); ?>">    
-                                        <input type="submit" id="micro_wh_sttng" class="btn btn-primary btn-md">
-                                    </center>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Micro Warehouse List</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-12">                                    
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>S.N</th>
-                                                <th>State Name</th>
-                                                <th>Vendor Name </th>
-                                                <th>Status</th>                                         
-                                                <th class="col-md-1">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                           <?php
-                                            if(!empty($micro_wh_lists)){                                                
-                                            $i=1;
-                                            foreach ($micro_wh_lists as $key=>$val){
-                                            ?>                                           
-                                            <tr>
-                                                <td><?php echo $i."."; ?></td>
-                                                <td><?php echo $val['state']; ?></td>
-                                                <td><?php echo $val['name']; ?></td>
-                                                <td>
-                                                    <a href="#" id="status_<?php echo $val['wh_on_of_id']; ?>">
-                                                        <?php if( $val['active']==1){ echo 'Active'; }else{ echo 'Inactive'; }?>
-                                                    </a>
-                                                    
-                                                </td>                                      
-                                                <td>    
-                                                    <?php if( $val['active']==1){ ?> 
-                                                    <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
-                                                    <?php }else{ ?>
-                                                    <button type="button" class="btn btn-default" id="<?php echo $val['wh_on_of_id']."-".$val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)"><span id="add_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-plus"></i></span></button>
-                                                   <?php } ?>                                         
-                                                </td>
-                                            </tr>
-                                            <?php $i++; } } ?> 
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-               </div>
-            </div>
-            <div class="clear"></div>
-
             <div id="container_2" style="display:none" class="form_container">
                 <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
                     <?php
@@ -1708,6 +1532,7 @@
 
              </div>
             </div>
+        
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
@@ -1717,11 +1542,10 @@
                             if($query[0]['id']){
                             ?>
                     <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
-                    <?php
+                            <?php
                         }
-                        }
-
-                        ?>
+                    }
+                    ?>
 
                 <div class="clonedInput panel panel-info " id="clonedInput1">
                     <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
@@ -1740,19 +1564,51 @@
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Name *</label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-contact-name"  name="contact_person_name[]" id="contact_person_name_1" value = "" placeholder="Enter Name">
+                                            <input  type="text" class="form-control input-contact-name"  name="contact_person_name[]" id="contact_person_name_1" value = "" placeholder="Enter Name" required="">
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Email *</label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_email[]" id="contact_person_email_1" value = "" placeholder="Enter Email" required="">
+                                        </div>
+                                    </div> 
+                                    <div class="form-group">
+                                        <label for="service_name" class="col-md-4">Alternate Contact Number</label>
+                                        <div class="col-md-6">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_contact[]" id="contact_person_alt_contact_1" value = "" placeholder="Alternative Contact">
+                                        </div>
+                                    </div>                                      
+                                    <div class="form-group ">
+                                        <label for="service_name" class="col-md-4">Department *</label>
+                                        <div class="col-md-6">
+                                            <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
+                                                <option value="" disabled="" selected="" required="">Select Department</option>
+                                                <?php
+                                                foreach ($department as $value) {
+                                                    ?> 
+                                                    <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group ">
+                                        <label for="service_name" class="col-md-4">Role *</label>
+                                        <div class="col-md-6">
+                                            <select disabled="" type="text" class="form-control"  id="contact_person_role_1" name="contact_person_role[]" onChange="getFilters(this.value,this.id)" required="">
+                                                <option value = "">Select Roles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                </div> 
+                                <div class="col-md-6">                          
+                                    <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Contact Number *</label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_contact[]" id="contact_person_contact_1" value = "" placeholder="Enter Contact">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_contact[]" id="contact_person_contact_1" value = "" placeholder="Enter Contact" required="">
                                         </div>
                                     </div>
                                     <div class="form-group ">
@@ -1761,89 +1617,91 @@
                                             <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
                                         </div>
                                     </div>
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4">Alternate Contact Number</label>
-                                        <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_contact[]" id="contact_person_alt_contact_1" value = "" placeholder="Alternative Contact">
-                                        </div>
-                                        <div class="form-group ">
-                                            <label for="service_name" class="col-md-4">Alternate Contact Number</label>
-                                            <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="contact_person_alt_contact[]" id="contact_person_alt_contact_1" value = "" placeholder="Alternative Contact">
-                                            </div>
-                                        </div> 
-                                        <div class="form-group "> 
-                                            <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
-                                              <div class="col-md-6"> 
-                                                  <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]" checked="">
-                                            </div>   
-                                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4">Department *</label>
-                                        <div class="col-md-6">
-                                            <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
-                                                <option value="" disabled="" selected="">Select Department</option>
-                                                <?php
-                                                    foreach ($department as $value){
-                                                    ?> 
-                                                <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                <?php
-                                                    }
-                                                    ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4">Role *</label>
-                                        <div class="col-md-6">
-                                            <select disabled="" type="text" class="form-control"  id="contact_person_role_1" name="contact_person_role[]" onChange="getFilters(this.value,this.id)" >
-                                                <option value = "">Select Roles</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group ">
-                                        <input type="hidden" value="" id="states_value_holder_1" name="states_value_holder[]">
-                                        <label for="service_name" class="col-md-4">States <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
-                                            color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Applicable only for roles, where state filter is required eg - Area Sales Manager">?</button> </label>
-                                        <div class="col-md-6">
-                                            <div class="filter_holder" id="filter_holder_1">
-                                                <select multiple="" class=" form-control contact_person_states" name ="contact_person_states[0][]" id="contact_person_states_1" disabled="">
-                                                    <option value = "">Select States</option>
-                                                    <?php
-                                                        foreach ($results['select_state'] as $state) {
-                                                            ?>
-                                                    <option value = "<?php echo $state['state'] ?>">
-                                                        <?php echo $state['state']; ?>
-                                                    </option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                                         
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Permanent Address</label>
                                         <div class="col-md-6">
-                                            <textarea  type="text" rows="1" class="form-control input-model"  name="contact_person_address[]" id="contact_person_address_1" value = "" placeholder="Enter Address"></textarea>
+                                            <textarea type="text" rows="2" class="form-control input-model" name="contact_person_address[]" id="contact_person_address_1" value="" placeholder="Enter Address"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Correspondence Address</label>
                                         <div class="col-md-6">
-                                            <textarea  type="text" rows="1" class="form-control input-model"  name="contact_person_c_address[]" id="contact_person_c_address_1" value = "" placeholder="Enter Address"></textarea>
+                                            <textarea type="text" rows="2" class="form-control input-model" name="contact_person_c_address[]" id="contact_person_c_address_1" value="" placeholder="Enter Address"></textarea>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="col-md-12" style="display: none;" id="warehouse_office">
+                                <b>Warehouse Office Address</b>
+                                    <hr>
+                                <div class="col-md-6">                         
+                                    <div class="form-group ">
+                                        <label for="service_name" class="col-md-4"> Address</label>
+                                        <div class="col-md-6">
+                                            <textarea  type="text" rows="3" class="form-control input-model"  name="warehouse_office_contact_person_address[]" id="p_contact_person_address_1" value = "" placeholder="Enter Address"></textarea>
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom: 31px;" class="form-group <?php
+                                    if (form_error('state')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                        <label for="state" class="col-md-4">State *</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control" name ="warehouse_office_address[]" id="states_value_holder_1" onChange="get_Permanent_District(this.value)">
+                                                <option  selected="selected" value=""> Select State</option>
+                                                <?php
+                                                foreach ($results['select_state'] as $state) {
+                                                    ?>
+                                                    <option value = "<?php echo $state['state'] ?>">
+                                                                <?php echo $state['state']; ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('state'); ?>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div style="margin-bottom: 31px;" class="form-group">
+                                        <label for="state" class="col-md-4">District *</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control" name ="warehouse_office_district[]" id="permanent_district" onChange="get_Permanent_Pincode(this.value)">
+                                                <option value="">Select City</option>
+                                            </select>
+                                            <?php echo form_error('district'); ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group " style="margin-bottom: 31px;">
+                                        <label for="state" class="col-md-4">Pincode</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control" name ="warehouse_office_pincode[]"  id="parmanent_pincode">
+                                                <option value="">Select Pin</option>
+                                            </select>
+                                        </div>
+                                    </div>                                   
+                                </div>
+                            </div>           
+                            <div class="col-md-12">
+                                <div class="form-group "> 
+                                    <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
+                                    <div class="col-md-6"> 
+                                        <label style="margin-left: 12px;"><b>Create Login</b></label><input style="margin-left: 165px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]" checked="">
+                                    </div>   
+                                </div> 
                             </div>
-                        </div>
                     </div>
                 </div>
+                    
                 <div class="cloned"></div>
+                
                 <div class="form-group " style="text-align:center">
                     <input type="submit" class="btn btn-primary" value="Save Contacts">
                 </div>
             </form>
+            <hr>
             <?php
                 if(!empty($results['contact_persons'])){
                     ?>
@@ -1896,6 +1754,7 @@
                 ?>
         </div>
         </div>
+             
         <div class="clear"></div>
         <div id="container_9"  style="display:none;margin: 30px 10px;" class="form_container">
             <button class="btn btn-primary" onclick="show_add_warehouse_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Warehouse</button>
@@ -2792,6 +2651,7 @@
        cloneIndex++;
        return false;
     }
+    
     function remove(){
        $(this).parents(".clonedInput").remove();
        final_price();
@@ -2972,6 +2832,44 @@
             return false;
         }
     }
+    
+    function get_Permanent_District(state){
+       get_city(state,'permanent_district');        
+    }  
+
+    function get_Permanent_Pincode(district){
+       get_pincode(district,'parmanent_pincode');
+    }
+   
+    function get_city(state,html_div_id){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
+            data: {state: state, district: ''},
+            success: function (data) {
+                $("#"+html_div_id).html(data);                   
+            }
+        });
+    }
+    function get_pincode(district,html_div_id){
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
+                data: {pincode: '', district: district},
+                success: function (data) {
+                    $("#"+html_div_id).html(data);
+                }
+           });
+    } 
+    $("#contact_person_department_1,#contact_person_role_1").on('click',function(){        
+       var department = $("#contact_person_department_1").val();
+       var role = $("#contact_person_role_1").val();
+       if(department=='Warehouse' && role=='3'){
+           $("#warehouse_office").css({'display':'block'});
+       }else{
+            $("#warehouse_office").css({'display':'none'})
+       }
+    });
     
 </script>
 <script type="text/javascript">
@@ -3671,46 +3569,8 @@
             $("#contact_person_role").val();
             //$('#contact_person_states option:selected').removeAttr('selected');
         });
-        check_postpaid_partner($("#is_postpaid")); 
-        check_postpaid_partner($("#is_prepaid"));
+        
     });
-    
-    $("#is_postpaid").click(function(){
-        check_postpaid_partner($("#is_postpaid"));
-    });
-    
-    $("#is_prepaid").click(function(){
-        check_postpaid_partner($("#is_prepaid"));
-    });
-    
-    function check_postpaid_partner(checkbox){
-        var checkbox_id = $(checkbox).attr('id');
-        if(checkbox_id === "is_postpaid"){
-            if($(checkbox).is(':checked')){
-                $("#postpaid_credit_period").attr("readonly", false);
-                $("#postpaid_notification_limit").attr("readonly", false);
-                $("#postpaid_grace_period_date").attr("readonly", false);
-            }
-            else{
-               $("#postpaid_credit_period").attr("readonly", true);
-               $("#postpaid_notification_limit").attr("readonly", true);
-               $("#postpaid_grace_period_date").attr("readonly", true); 
-            }
-        }
-        else if(checkbox_id === "is_prepaid"){
-            if($(checkbox).is(':checked')){
-                $("#prepaid_amount_limit").attr("readonly", false);
-                $("#prepaid_notification_amount").attr("readonly", false);
-                $("#grace_period_date").attr("readonly", false);
-            }
-            else{
-               $("#prepaid_amount_limit").attr("readonly", true);
-               $("#prepaid_notification_amount").attr("readonly", true);
-               $("#grace_period_date").attr("readonly", true); 
-            }
-        }
-    }
-    
    function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";

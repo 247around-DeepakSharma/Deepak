@@ -1420,7 +1420,6 @@ class Service_centers extends CI_Controller {
                 $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh", array('partners.id' => $partner_id));
 
                 if (stristr($price_tags, "Out Of Warranty")) {
-
                     $data['defective_part_required'] = 0;
                     $status = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
@@ -3728,7 +3727,7 @@ class Service_centers extends CI_Controller {
     }
     
     
-    /**
+     /**
      *  @desc : This function is used to show the current stock of partner inventory.
      *          By using this method SF can can only see their current stock of their warehouses.
      *  @param : void
@@ -4370,7 +4369,7 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to display list of booking which received by Partner
      * @param Integer $offset
      */
-    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {
+    function get_approved_defective_parts_booking_by_warehouse($offset = 0) {        
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         
@@ -4403,10 +4402,52 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
-
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+         
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+        } else {            
+            $this->load->view('service_centers/approved_defective_parts_by_warehouse', $data);
+        }
+        
+    }
+       
+     /**
+     * @desc: This method is used to display list of Received Defective Parts by Partner id
+     * @param Integer $offset
+     */
+    function warehouse_task_list_tab_send_to_partner($offset = 0) {        
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        
+        //check if call from form submission or direct url
+        //used to filter the page by partner id
+        
+        if($this->input->post('partner_id')){
+            $this->session->set_userdata(array("filtered_partner"=> $this->input->post('partner_id')));
+            $data['filtered_partner'] = $this->input->post('partner_id');
+        }
+        
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
+                . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
+        
+        
+        if($this->session->userdata('filtered_partner')){
+            $where .= " AND booking_details.partner_id = " . $this->session->userdata('filtered_partner');
+            $data['filtered_partner'] = $this->session->userdata('filtered_partner');
+        }
+        
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+         
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/warehouse_task_list_tab_send_to_partner', $data);
+        } else {            
+            $this->load->view('service_centers/warehouse_task_list_tab_send_to_partner', $data);
+        }
+        
     }
     
     /**
@@ -4944,6 +4985,7 @@ class Service_centers extends CI_Controller {
         }
         return $array;
     }
+
       /**
      * @desc: This function is used to show the payment details page to Service Centers
      * @params: void
@@ -4955,4 +4997,67 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('paytm_gateway/sf_payment_details');
     }
+    
+    
+    /**
+     * @desc This function is used to display the list of spare parts in current stock.
+     * get details using partner id
+     * @return Array 
+     */
+    
+//    function requested_spare_on_sf(){
+//        $this->load->view('service_centers/header');      
+//        $this->load->view('service_centers/requested_spare_on_sf');
+//    }
+
+    /**
+     * @desc: This function is used to get those booking who has request to ship spare parts to SF
+     * @param: void
+     * @return void
+     */
+    
+//    function get_spare_requested_spare_on_sf($offset = 0){
+//       
+//        log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
+//        $this->check_WH_UserSession();
+//        $sf_id = $this->session->userdata('service_center_id');
+//        $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_SF_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+//                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+//                . " AND wh_ack_received_part != 0 ";
+//        
+//        $select = "spare_parts_details.booking_id, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+//                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, "
+//                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
+//                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
+//                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+//                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+//                . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+//                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
+//                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+//                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
+//                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking ";
+//
+//        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $sf_id);             
+//        if(!empty($data)){
+//             $this->load->view('service_centers/requested_spare_on_sf_booking', $data);
+//        }
+//      
+//    }
+    
+    /**
+     * @desc: This function is used to get micro warehouse history details
+     * @param: void
+     * @return void
+     */    
+    function micro_warehouse_history_list() {        
+        $micro_wh_mp_id = $this->input->post("micro_wh_mp_id");
+        if(!empty($micro_wh_mp_id)){
+          $micro_warehouse = $this->vendor_model->get_micro_warehouse_history($micro_wh_mp_id);
+          if(!empty($micro_warehouse)){
+             echo json_encode($micro_warehouse); 
+          }
+        }
+               
+    }
+
 }
