@@ -219,7 +219,7 @@ $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_
 
 $route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
 $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
-$route['service_center/warehouse/warehouse_task_list'] = 'employee/service_centers/warehouse_task_list';
+$route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
