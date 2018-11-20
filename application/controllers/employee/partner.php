@@ -6317,13 +6317,12 @@ function update_channel($id) {
         if (!empty($micro_wh_mp_id)) {
             $return_type = $this->inventory_model->manage_micro_wh_from_list_by_id($micro_wh_mp_id, $active_status);
             if (!empty($return_type)) {
-                $where = array('id' => $wh_on_of_id);
-                $warehouse_on_off_list = $this->inventory_model->get_warehouse_on_of_status_list($where, '*');
-                if (!empty($warehouse_on_off_list)) {                    
-                    unset($warehouse_on_off_list[0]['id']);
-                    unset($warehouse_on_off_list[0]['active']);
+                $where = array('m.id' => $wh_on_of_id);
+                $warehouse_on_off_list = $this->inventory_model->get_warehouse_on_of_status_list($where, 'w_on_off.partner_id,w_on_off.vendor_id');
+                if (!empty($warehouse_on_off_list)) {                   
                     $wh_on_of_data = $warehouse_on_off_list[0];
-                    $wh_on_of_data['active'] = $active_status;                    
+                    $wh_on_of_data['active'] = $active_status; 
+                    $wh_on_of_data['agent_id'] = $this->session->userdata('id');
                     $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
                     if (!empty($inserted_id)) {
                         echo json_encode(array('status' => 'success'));
