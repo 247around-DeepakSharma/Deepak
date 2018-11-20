@@ -1221,7 +1221,7 @@ class Service_centers extends CI_Controller {
         $f_status = $this->checkvalidation_for_update_by_service_center();
         if ($f_status) {
             $reason = $this->input->post('reason');
-
+            
             switch ($reason) {
                 
                  CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
@@ -1440,6 +1440,7 @@ class Service_centers extends CI_Controller {
 
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
+                $delivered_sp = array();
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
@@ -1477,7 +1478,7 @@ class Service_centers extends CI_Controller {
 
                             if ($warehouse_details['entity_type'] == _247AROUND_PARTNER_STRING) {
                                 array_push($parts_stock_not_found, array('model_number' => $data['model_number'], 'part_type' => $data['parts_requested_type'], 'part_name' => $value['parts_name']));
-                            }
+                            } 
                         } else {
                             $data['partner_id'] = $this->input->post('partner_id');
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -1496,6 +1497,13 @@ class Service_centers extends CI_Controller {
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
+                    
+                    if ( isset($data['entity_type']) &&($data['entity_type'] == _247AROUND_SF_STRING) && 
+                            $data['partner_id'] == $this->session->userdata('service_center_id') &&
+                            !stristr($price_tags, "Out Of Warranty"))  {
+                        $data['spare_id'] = $spare_id;
+                        array_push($delivered_sp, $data);
+                    }
 
                     //send email to partner,sf and 247around that inventory out of stock for this inventory
                     if (!empty($parts_stock_not_found)) {
@@ -1541,14 +1549,18 @@ class Service_centers extends CI_Controller {
                             $pcb['partner_id'] = $partner_id;
                             $pcb['sp_id'] = $spare_id;
                             $pcb['gst_rate'] = $warehouse_details['gst_rate'];
-                            ;
+
                             $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
                             $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
 
                             $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                         }
                     }
-
+                    
+                    if(!empty($delivered_sp)){
+                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                    }
+                    
                     $userSession = array('success' => 'Booking Updated');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/pending_booking");
@@ -1577,7 +1589,49 @@ class Service_centers extends CI_Controller {
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
-
+    /**
+     * @desc this function is used to auto shipped for micro warehouse
+     * @param Array $delivered_sp
+     * @param int $partner_id
+     */
+    function auto_delivered_for_micro_wh($delivered_sp, $partner_id){
+        log_message('info', __METHOD__);
+        foreach ($delivered_sp as $value) {
+            $data = array();
+            $data['model_number_shipped'] = $value['model_number'];
+            $data['parts_shipped'] = $value['parts_requested'];
+            $data['shipped_parts_type'] = $value['parts_requested_type'];
+            $data['shipped_date'] = $value['date_of_request'];
+            $data['shipped_date'] = $value['date_of_request'];
+            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+            $data['shipped_inventory_id'] = $value['requested_inventory_id'];
+            
+            $where = array('id' => $value['spare_id']);
+            $this->service_centers_model->update_spare_parts($where, $data);
+            
+            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['service_center_id'], $value['requested_inventory_id'], -1);
+            
+            $in['receiver_entity_id'] = $value['service_center_id'];
+            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+            $in['sender_entity_id'] = $value['service_center_id'];
+            $in['sender_entity_type'] = _247AROUND_SF_STRING;
+            $in['stock'] = -1;
+            $in['booking_id'] = $value['booking_id'];
+            $in['agent_id'] = $this->session->userdata('agent_id');
+            $in['agent_type'] = _247AROUND_SF_STRING;
+            $in['is_wh'] = TRUE;
+            $in['inventory_id'] = $data['shipped_inventory_id'];
+            $this->miscelleneous->process_inventory_stocks($in);
+            
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, TRUE);
+        }
+    }
+    /**
+     * @desc this function is used to trigger mail to partner(Invenotry Out of stock)
+     * @param Array $parts_stock_not_found
+     * @param Array $value1
+     * @param Array $data
+     */
     function send_out_of_stock_mail($parts_stock_not_found, $value1, $data) {
         if (!empty($parts_stock_not_found)) {
             //Getting template from Database
@@ -1708,8 +1762,9 @@ class Service_centers extends CI_Controller {
                     }
                 } else {
                     
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $entity_id, NULL, NULL, $entity_id);
-
+                    
+                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, 
+                                "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
@@ -1730,7 +1785,7 @@ class Service_centers extends CI_Controller {
         }
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $service_center_id);
         if ($this->session->userdata('service_center_id')) {
-            redirect(base_url() . "service_center/pending_booking");
+            //redirect(base_url() . "service_center/pending_booking");
         }
     }
 
@@ -3649,14 +3704,15 @@ class Service_centers extends CI_Controller {
     function send_reschedule_confirmation_sms($booking_id){
         $join["users"] = "users.user_id = booking_details.user_id";
         $join["services"] = "services.id = booking_details.service_id";
-        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date",array("booking_details.booking_id"=>$booking_id),
+        $join["service_center_booking_action"] = "service_center_booking_action.booking_id = booking_details.booking_id";
+        $data = $this->reusable_model->get_search_result_data("booking_details","users.user_id,users.phone_number,services.services,booking_details.booking_date, service_center_booking_action.booking_date as reschedual_date",array("booking_details.booking_id"=>$booking_id),
                 $join,NULL,NULL,NULL,NULL,array());
         if(!empty($data[0])){
             $sms['tag'] = BOOKING_RESCHEDULED_CONFIRMATION_SMS;
             $sms['phone_no'] = $data[0]['phone_number'];
             $sms['smsData']['service'] = $data[0]['services'];
             $sms['smsData']['booking_id'] = $booking_id;
-            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['booking_date']));
+            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($data[0]['reschedual_date']));
             $sms['booking_id'] = $booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $data[0]['user_id'];
@@ -4298,48 +4354,12 @@ class Service_centers extends CI_Controller {
      */
     function get_warehouse_details($data, $partner_id){
         $response = array();
-        $post['length'] = -1;
-    
+        
         $inventory_part_number = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number, '
                 . 'inventory_master_list.inventory_id, price, gst_rate',array('model_number_id' => $data['model_number_id'],'part_name' => $data['part_name']));
 
         if(!empty($inventory_part_number)){
-            $post['where'] = array('part_number' => $inventory_part_number[0]['part_number'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
-            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
-            $inventory_stock_details = $this->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-            
-            if(!empty($inventory_stock_details)){
-                if(count($inventory_stock_details) > 1){
-                    $warehouse_details = $this->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',array('warehouse_state_relationship.state' => $data['state'],'contact_person.entity_type' => _247AROUND_SF_STRING));
-                    if(!empty($warehouse_details)){
-                        $response['entity_id'] = $warehouse_details[0]['entity_id'];
-                        $response['entity_type'] = _247AROUND_SF_STRING;
-                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                        $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_stock_details[array_search($warehouse_details[0]['entity_id'], array_column($inventory_stock_details, 'entity_id'))]['inventory_id'];
-                    }else{
-                        $response = array();
-                        $response['entity_id'] = $partner_id;
-                        $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                        $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                    }
-                }else{
-                    $response['entity_id'] = $inventory_stock_details[0]['entity_id'];
-                    $response['entity_type'] = $inventory_stock_details[0]['entity_type'];
-                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                    $response['inventory_id'] = $inventory_stock_details[0]['inventory_id'];
-                }
-            }else{
-                $response = array();
-                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                $response['entity_id'] = $partner_id;
-                $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-            }
+            return $this->miscelleneous->check_inventory_stock($inventory_part_number[0]['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'));
         }else{
             $response = array();
         }

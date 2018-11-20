@@ -1033,6 +1033,7 @@ class Miscelleneous {
             $dealer_data['dealer_name'] = $dealer_name;
             $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
             $dealer_data['city'] = $requestData['city'];
+            $dealer_data['state'] = $requestData['state'];
             $dealer_data['create_date'] = date('Y-m-d H:i:s');
 
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
@@ -3087,19 +3088,74 @@ function generate_image($base64, $image_name,$directory){
         return $data;
     }
     
-    function check_inventory_stock($inventory_id, $partner_id, $state){
+    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
+        $response = array();
+
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
+        
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh", array('partners.id' => $partner_id));
+        $is_partner_wh = $partner_details[0]['is_wh'];
+        $is_micro_wh = $partner_details[0]['is_micro_wh'];
+        if (!empty($inventory_part_number)) {
+
+            if ($is_micro_wh == 1) {
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
+                if (empty($response)) {
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    if (empty($response)) {
+                        $response['stock'] = false;
+                        $response['entity_id'] = $partner_id;
+                        $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                        $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
+                        $response['inventory_id'] = $inventory_id;
+                    }
+                }
+                return $response;
+            } else if ($is_partner_wh == 1) {
+
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                if (empty($response)) {
+                    $response['stock'] = false;
+                    $response['entity_id'] = $partner_id;
+                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
+                    $response['inventory_id'] = $inventory_id;
+                }
+                return $response;
+            } else {
+                return $response;
+            }
+        } else {
+            return false;
+        }
+        
+        return $response;
+    }
+
+    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
-    
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate',array('inventory_id' => $inventory_id));
-       
-        if(!empty($inventory_part_number)){
-            $post['where'] = array('inventory_stocks.inventory_id' => $inventory_id,'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
-            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
-            $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-            
-            if(!empty($inventory_stock_details)){
+        
+        $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+        if (!empty($service_center_id)) {
+            $post['where']['inventory_stocks.entity_id'] = $service_center_id;
+        }
+        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+        
+        if(!empty($inventory_stock_details)){
+            if(!empty($service_center_id)){
+                $response = array();
+                $response['stock'] = TRUE;
+                $response['entity_id'] = $service_center_id;
+                $response['entity_type'] = _247AROUND_SF_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+            } else {
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
@@ -3112,37 +3168,15 @@ function generate_image($base64, $image_name,$directory){
                         $response['entity_type'] = _247AROUND_SF_STRING;
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_id;
+                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         break;
                     }
                 }
-     
-                if(empty($response)){
-                   
-                    $response['stock'] = false;
-                    $response['entity_id'] = $partner_id;
-                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                    $response['inventory_id'] = $inventory_id;
-                }
-                
-            }else{
-                $response = array();
-                $response['stock'] = false;
-                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                $response['entity_id'] = $partner_id;
-                $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                $response['inventory_id'] = $inventory_id;
             }
-         
-            return $response;
+        } 
+        
+        return $response;
             
-        } else {
-            return false;
-        }
     }
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
@@ -3615,7 +3649,7 @@ function generate_image($base64, $image_name,$directory){
                         
                         if(!empty($sp['requested_inventory_id'])){
                             $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state']);
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id);
                             if(!empty($stock)){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 

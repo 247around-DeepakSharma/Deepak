@@ -86,13 +86,12 @@ class Booking extends CI_Controller {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
-                if ($status) {
+                if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
-
                     $this->addbooking($primary_contact_no);
                 }
             } else {
@@ -448,7 +447,7 @@ class Booking extends CI_Controller {
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
-            $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id']);
+            $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
            
             if(!empty($is_dealer)){
                 $booking['dealer_id'] = $is_dealer;
@@ -544,11 +543,12 @@ class Booking extends CI_Controller {
         }
     }
     
-    function dealer_process($city, $partner_id, $service_id){
+    function dealer_process($city, $partner_id, $service_id, $state){
         $dealer_phone_number = $this->input->post("dealer_phone_number");
         $dealer_id = "";
         if(!empty($dealer_phone_number)){
             $data['city'] = $city;
+            $data['state'] = $state;
             $data['dealer_id'] = $this->input->post("dealer_id");
             $data['dealer_name'] = $this->input->post("dealer_name");
             $data['dealer_phone_number'] = $dealer_phone_number;
@@ -4526,19 +4526,37 @@ class Booking extends CI_Controller {
                 $partnerArray[] = $partner_ID['id'];
             }
         }
-        $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
-            services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
-            booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
-            booking_details.booking_remarks,service_centres.name as service_centre_name,booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
-             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+        
         $post['length'] = -1;
         $post['start'] = NULL;
         $post['search_value'] = NULL;
         $post['order'] = NULL;
         $post['draw'] = NULL;
-        $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1);
-        $newCSVFileName = "Pending_booking" . date('j-M-Y-H-i-s') . ".csv";
+        if($booking_status == 'Pending'){
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
+            services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
+            booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
+            booking_details.booking_remarks,service_centres.name as service_centre_name,booking_details.is_upcountry, service_centres.primary_contact_name,
+             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
+             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+            
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1); 
+        }
+        else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
+            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking'); 
+            
+            $select = "booking_details.booking_id, users.name as customername, users.phone_number, "
+                    . "services.services, service_centres.name as service_centre_name, "
+                    . "service_centres.district as city, service_centres.primary_contact_name,"
+                    . " service_centres.primary_contact_phone_1,
+                       STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+                       STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
+                       STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+            
+            $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray, 2); 
+        }
+        
+        $newCSVFileName = $booking_status."_booking_".date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
         $newline = "\r\n";
