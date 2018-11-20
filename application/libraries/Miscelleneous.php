@@ -1033,6 +1033,7 @@ class Miscelleneous {
             $dealer_data['dealer_name'] = $dealer_name;
             $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
             $dealer_data['city'] = $requestData['city'];
+            $dealer_data['state'] = $requestData['state'];
             $dealer_data['create_date'] = date('Y-m-d H:i:s');
 
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);

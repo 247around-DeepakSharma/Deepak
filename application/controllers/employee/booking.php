@@ -86,13 +86,12 @@ class Booking extends CI_Controller {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
                 $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
-                if ($status) {
+                if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
-
                     $this->addbooking($primary_contact_no);
                 }
             } else {
@@ -448,7 +447,7 @@ class Booking extends CI_Controller {
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
-            $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id']);
+            $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
            
             if(!empty($is_dealer)){
                 $booking['dealer_id'] = $is_dealer;
@@ -544,11 +543,12 @@ class Booking extends CI_Controller {
         }
     }
     
-    function dealer_process($city, $partner_id, $service_id){
+    function dealer_process($city, $partner_id, $service_id, $state){
         $dealer_phone_number = $this->input->post("dealer_phone_number");
         $dealer_id = "";
         if(!empty($dealer_phone_number)){
             $data['city'] = $city;
+            $data['state'] = $state;
             $data['dealer_id'] = $this->input->post("dealer_id");
             $data['dealer_name'] = $this->input->post("dealer_name");
             $data['dealer_phone_number'] = $dealer_phone_number;
