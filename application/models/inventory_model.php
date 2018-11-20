@@ -1695,12 +1695,19 @@ class Inventory_model extends CI_Model {
      * @return array
      */    
     function get_warehouse_on_of_status_list($where, $select){
-        $this->db->where($where);
         $this->db->select($select);
-        $query =  $this->db->get("warehouse_on_of_status");
+        $this->db->from('micro_warehouse_state_mapping as m');            
+        $this->db->join('warehouse_on_of_status as w_on_off', 'm.vendor_id = w_on_off.vendor_id');
+        $this->db->group_by('m.vendor_id');     
+        $this->db->where($where);        
+        $query = $this->db->get();        
         return $query->result_array();
     }
-     
+     /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */   
     function get_micro_wh_state_mapping_partner_id($partner_id) {
         $this->db->select('m.*, s.name,s.district');
         $this->db->from('micro_warehouse_state_mapping as m');

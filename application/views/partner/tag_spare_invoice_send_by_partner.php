@@ -21,6 +21,13 @@
     }
     .form-horizontal .control-label {
     text-align: left;
+    }    
+    .isDisabled {
+        pointer-events: none;
+        color: currentColor;
+        cursor: not-allowed;
+        opacity: 0.5;
+        text-decoration: none;
     }
 </style>
 <div class="right_col" role="main">
@@ -28,7 +35,7 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
         <ul class="nav nav-tabs" role="tablist" >
             <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-            <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+            <li role="presentation" ><a href="#onBooking" class="isDisabled" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
         </ul>
     </div>
 </div>
