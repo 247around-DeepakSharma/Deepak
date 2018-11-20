@@ -37,19 +37,6 @@
                          <div class="col-md-12">
                             <div class="col-md-6">
                                 <div  class="form-group <?php
-                                    if (form_error('charges_name')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <label  for="name" class="col-md-4">Charges Name* </label>
-                                    <div class="col-md-8">
-                                        <input  type="text" class="form-control" id="charges_name" name="charges_name" value = "" placeholder="Enter Charges Name">
-                                        <?php echo form_error('charges_name'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div  class="form-group <?php
                                     if (form_error('charges_type')) {
                                         echo 'has-error';
                                     }
@@ -58,6 +45,19 @@
                                     <div class="col-md-8">
                                         <input  type="text" class="form-control" id="charges_type" name="charges_type" value = "" placeholder="Enter Charges Type">
                                         <?php echo form_error('charges_type'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div  class="form-group <?php
+                                    if (form_error('description')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                    <label  for="hsn_code" class="col-md-4">Description* </label>
+                                    <div class="col-md-8">
+                                        <input  type="text" class="form-control" id="description" name="description" value = "" placeholder="Enter description">
+                                        <?php echo form_error('description'); ?>
                                     </div>
                                 </div>
                             </div>
@@ -90,34 +90,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="col-md-6">
-                                <div  class="form-group <?php
-                                    if (form_error('description')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <label  for="hsn_code" class="col-md-4">Description* </label>
-                                    <div class="col-md-8">
-                                        <input  type="text" class="form-control" id="description" name="description" value = "" placeholder="Enter description">
-                                        <?php echo form_error('description'); ?>
-                                    </div>
-                                </div>
-                            </div>
-<!--                            <div class="col-md-6">
-                                <div  class="form-group <?php /*
-                                    if (form_error('fixed_charge')) {
-                                        echo 'has-error';
-                                    } */
-                                    ?>">
-                                    <label  for="gst_rate" class="col-md-4">Fixed Charge* </label>
-                                    <div class="col-md-8">
-                                        <input  type="checkbox" class="" id="fixed_charge" name="fixed_charge">
-                                        <?php //echo form_error('fixed_charge'); ?>
-                                    </div>
-                                </div>
-                            </div>-->
-                        </div>
                         <div class="form-group col-md-12">
                             <center>
                                 <input type="submit" id="submit_btn" name="submit_btn" class="btn btn-info" value="Submit"/>
@@ -137,14 +109,12 @@
         JQUERY4U.UTIL = { setupFormValidation: function (){
                 $("#charges_form").validate({
                 rules: {
-                    charges_name: "required",
                     charges_type: "required",
                     hsn_code: "required",
                     gst_rate: "required",
                     description: "required",
                 },
                 messages: {
-                    charges_name: "Please enter charges name",
                     charges_type: "Please enter charges type",
                     hsn_code: "Please enter HSN code",
                     gst_rate: "Please enter GST rate",
