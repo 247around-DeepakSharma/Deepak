@@ -93,7 +93,7 @@
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
-                        <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Annual Charges</span></a></li>
+                        <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
                         <?php
                             }
@@ -110,7 +110,7 @@
                         <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
 
-                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Annual Charges</span></a></li>
+                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
 
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
 
@@ -2006,42 +2006,93 @@
             </div>
             <div class="clear"></div>
             <div id="container_11"  style="display:none;margin: 30px 10px;" class="form_container">
-                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_add_annual_charges" method="POST" enctype="multipart/form-data" >
+                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_variable_charges" method="POST" enctype="multipart/form-data" >
                     <?php if(isset($query[0]['id'])){ ?>
                         <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
                     <?php } ?>
                         <div class="clonedInput panel panel-info " id="clonedInput1">
                             <div class="panel-heading" style=" background-color: #f5f5f5;">
-                                <p style="color: #000;"><b>Annual Charges</b></p> 
+                                <p style="color: #000;"><b>Variable Charges</b></p> 
                             </div> 
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="annual_amount" class="col-md-4">Amount *</label>
+                                            <label for="annual_amount" class="col-md-4">Charge Type *</label>
                                             <div class="col-md-6">
-                                                <input  type="number" rows="1" class="form-control input-contact-name"  name="annual_amount" id="annual_amount" value = "<?php if(!empty($annual_charges)){ echo $annual_charges[0]['fixed_charges']; } ?>" placeholder="Enter annual amount" required="" />
+                                                <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
+                                                    <option selected disabled>Select Charge Type</option>
+                                                    <?php foreach ($charges_type as $charges){ ?> 
+                                                    <option value="<?php echo $charges['id'] ?>" data-charge-type="<?php echo $charges['type'];  ?>"><?php echo $charges['description']; ?></option>
+                                                    <?php } ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>    
                                      <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="validity" class="col-md-4">Validity<small> ( In Months ) </small> *</label>
+                                            <label for="validity" class="col-md-4">Fixed Charge*</label>
                                             <div class="col-md-6">
-                                                <input type="number" name="validity" class="form-control input-contact-name" value="<?php if(!empty($annual_charges)){ echo $annual_charges[0]['validity_in_month']; } ?>" placeholder="Enter validity in months" required="">
+                                                <input type="number" name="fixed_charges" id="fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed charge amount" required>
                                             </div>
                                         </div>
                                     </div>    
                                 </div>
+                                <div class="col-md-12" id="validity_section" style="display:none">
+                                     <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="validity" class="col-md-4">Validity<small>(In Months)</small></label>
+                                        <div class="col-md-6">
+                                            <input type="number" name="validity" id="validity" class="form-control input-contact-name" value="" placeholder="Enter validity in months">
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                             <div class="form-group " style="text-align:center">
-                                <input type="submit" class="btn btn-primary" value="Save Annual Detail">
+                                <input type="hidden" id="variable_charges_id" name="variable_charges_id" value="">
+                                <input type="submit" class="btn btn-primary" value="Save">
                             </div>
                         </div>
                 </form>
-
+                <div id="variable_charges_section">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S. No.</th>
+                            <th>Description</th>
+                            <th>Fixed Charges</th>
+                            <th>HSN Code</th>
+                            <th>GST Rate</th>
+                            <th style="display:none">Charge Type</th>
+                            <th style="display:none">Validity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="VC_table_body">
+                       <?php 
+                           $i = 0;
+                           foreach($results['variable_charges'] as $variable_charges){
+                               $i++;
+                        ?>
+                        <tr>
+                            <td><?php echo $i; ?></td>
+                            <td><?php echo $variable_charges['description']; ?></td>
+                            <td><?php echo $variable_charges['fixed_charges'];  ?></td>
+                            <td><?php echo $variable_charges['hsn_code'];  ?></td>
+                            <td><?php echo $variable_charges['gst_rate']; ?></td>
+                            <td style="display:none"><?php echo $variable_charges['type']; ?> </td> 
+                            <td style="display:none"><?php echo $variable_charges['validity_in_month']; ?></td> 
+                            <td><button type="button" class="btn btn-info btn-xs" onclick="update_variable_charge(<?php echo $variable_charges['partner_charge_id']; ?>, this)">Update</button></td>
+                        </tr>
+                        <?php
+                           }
+                       ?>
+                    </tbody>
+                    </table>
+                </div>
             </div>
              <div class="clear"></div>
             <div id="container_12" class="form_container" style="display:none;">
@@ -3466,6 +3517,7 @@
     });
     
     $("#sf_id_0").select2();
+    $("#charges_type").select2();
     
     function get_vendor_state_wise(state_id, sf_id){
         var state_name = $("#"+state_id).val();       
@@ -3563,4 +3615,33 @@
     
         
     });
+    
+    function update_variable_charge(id, button){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/accounting/getVendorPartnerVariableChargesType',
+            data: {type:$(button).closest('tr').find('td').eq(5).text()},
+            success: function (data) {
+                $("#charges_type").html(data);
+            }
+        });
+    
+        $("#fixed_charges").val($(button).closest('tr').find('td').eq(2).text());
+        $("#variable_charges_id").val(id);
+        $("#validity").val($(button).closest('tr').find('td').eq(6).text());
+        setTimeout(function(){
+            $("#charges_type").val($("#charges_type option:selected" ).val()).trigger('change');
+        }, 500);
+    }
+    
+    function variable_charges_change(select){
+        if($('option:selected', select).attr('data-charge-type') == 'annual-charges'){
+            $("#validity_section").show();
+            $("#validity").attr('required', true);
+        }
+        else{
+            $("#validity_section").hide();
+            $("#validity").attr('required', false);
+        }
+    }
 </script>

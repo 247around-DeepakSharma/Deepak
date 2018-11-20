@@ -459,5 +459,23 @@ class accounting_model extends CI_Model {
         );
         $invoices = $this->invoices_model->getInvoicingData($where, false);
     }
-}
+     /**
+     * @desc This function is used to get variable charges type
+     * @param String $select
+     * @param Array $where 
+     * @return Array
+     */
+    function get_vendor_partner_variable_charges($select, $where=array(), $join=false){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if($join == true){
+            $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
+        }
+        $this->db->from('vendor_partner_variable_charges');
 
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+}
