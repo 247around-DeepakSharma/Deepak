@@ -844,7 +844,7 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, "
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.gst_no, "
@@ -1590,7 +1590,7 @@ function get_data_for_partner_callback($booking_id) {
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
-            name As 'Customer', 
+            name As 'Customer', users.phone_number as 'Phone Number',
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
