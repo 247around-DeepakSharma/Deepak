@@ -2347,6 +2347,166 @@ class Partner extends CI_Controller {
             return $workingDate;
        }
     }
+
+    function create_and_save_partner_report($partnerID){
+            log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
+            $postArray = $this->input->post();
+            //Create Summary Report
+            $newCSVFileName = $this->create_custom_summary_report($partnerID,$postArray);
+             //Save File on AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "summary-excels/" . $newCSVFileName;
+            $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            unlink(TMP_FOLDER . $newCSVFileName);
+            if($is_upload == 1){
+                //Save File log in report log table
+                $data['entity_type'] = "Partner";
+                $data['entity_id'] = $partnerID;
+                $data['report_type'] = "partner_custom_summary_report";
+                $data['filters'] = json_encode($postArray);
+                $data['url'] =$directory_xls;
+                $data['agent_id'] =$this->session->userdata('agent_id');
+                $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
+                if($is_save){
+                   $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
+                   echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
+                }
+                else{
+                    echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
+                }
+            }
+    }
+    function download_upcountry_report(){
+        log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $upcountryCsv;
+        $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        log_message('info', __FUNCTION__ . ' Function End');
+        //unlink($csv);
+    }
+    function download_waiting_defective_parts(){
+         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.partner_id" => $partner_id,
+            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
+            "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
+        );
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, "
+                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
+                . "defective_part_shipped_date,remarks_defective_part_by_sf";
+        $group_by = "spare_parts_details.booking_id";
+        $order_by = "spare_parts_details.defective_part_shipped_date DESC";
+        $newCSVFileName = "Waiting_Spare_Parts_".date("Y-m-d").".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,FALSE,FALSE,0,1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        unlink($csv);
+    }
+    function download_waiting_upcountry_bookings(){
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $data = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($this->session->userdata('partner_id'));
+        $headings = array("Booking ID","Call Type","Customer Name","Customer Contact Number","Appliance","Brand","Category","Capacity","Address","City","Pincode","State","Upcountry Distance","Upcountry Charges");
+        foreach($data as $upcountryBookings){
+            $upcountryCharges = round($upcountryBookings['upcountry_distance'] * $upcountryBookings['partner_upcountry_rate'], 2);
+            $tempArray = array_values($upcountryBookings);
+            array_pop($tempArray);
+            array_push($tempArray,$upcountryCharges);
+            $CSVData[]  = $tempArray;
+        }
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
+    }
+    function download_spare_part_shipped_by_partner(){
+        ob_start();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $CSVData = array();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "booking_details.partner_id = '" . $partner_id . "' "
+                . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+        $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
+        $headings = array("Booking ID",
+            "SF City",
+            "Courier Name",
+            "Courier Price",
+            "Partner AWB Number",
+            "SF AWB Number",
+            "Part Shipped By Partner",
+            "Part Partner Shipped Date",
+            "Partner Challan Number",
+            "SF Challan Number",
+            "Part Shipped By SF",
+            "Part Type",
+            "Parts Charge",
+            "New Spare Part Received Date",
+            "Defective Spare Part Received Date",
+            "Booking Status",
+            "Spare Status",
+            "Is Spare Auto Acknowledge",
+            "Remarks");
+        
+        foreach($data as $sparePartBookings){
+            $tempArray = array();            
+            $tempArray[] = $sparePartBookings['booking_id'];            
+            $tempArray[] = $sparePartBookings['sf_city'];              
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['awb_by_sf'];
+            $tempArray[] = $sparePartBookings['parts_shipped'];    
+            $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['sf_challan_number'];            
+            $tempArray[] = $sparePartBookings['defective_part_shipped'];            
+            $tempArray[] = $sparePartBookings['shipped_parts_type'];
+            $tempArray[] = $sparePartBookings['challan_approx_value'];                   
+            $tempArray[] = $sparePartBookings['acknowledge_date'];
+            $tempArray[] = $sparePartBookings['received_defective_part_date'];
+            $tempArray[] = $sparePartBookings['current_status'];     
+            $tempArray[] = $sparePartBookings['status'];
+            if($sparePartBookings['auto_acknowledeged']==1){
+            $tempArray[] = "Yes";   
+             }else{
+            $tempArray[] = "No";   
+             }                        
+            $tempArray[] = $sparePartBookings['remarks_by_partner'];
+            $CSVData[]  = $tempArray;            
+        }  
+        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
+
+    }
     function download_price_sheet(){
         $partnerID = $this->session->userdata('partner_id');
         $where['partner_id'] = $partnerID;
