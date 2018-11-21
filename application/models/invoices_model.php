@@ -2117,8 +2117,9 @@ class invoices_model extends CI_Model {
     }
     
     function get_fixed_variable_charge($where){
-        $this->db->select('*');
+        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate');
         $this->db->where($where);
+        $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();
     }
