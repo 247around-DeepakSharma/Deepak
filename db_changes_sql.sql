@@ -9298,3 +9298,75 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
 
 UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
+
+
+--Gorakh 14 Nov -2018
+
+CREATE TABLE `warehouse_on_of_status` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `vendor_id` varchar(100) DEFAULT NULL,
+  `active` tinyint(11) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `warehouse_on_of_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `warehouse_on_of_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+CREATE TABLE `micro_warehouse_state_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `vendor_id` int(11) DEFAULT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `micro_warehouse_state_mapping`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `micro_warehouse_state_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `warehouse_on_of_status` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+ALTER TABLE `micro_warehouse_state_mapping` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `vendor_id`, ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+ALTER TABLE `micro_warehouse_state_mapping` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`;
+ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `active`;
+ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
+ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+
+
+ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE trigger_service_centres ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`
+
+--Kalyani 19-Nov-2018
+
+CREATE TABLE `variable_charges_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `hsn_code` int(11) DEFAULT NULL,
+  `gst_rate` int(11) DEFAULT NULL,
+  `is_fixed` tinyint(1) DEFAULT '1',
+  `updated_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `variable_charges_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `variable_charges_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Kalyani 20-Nov-2018
+ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
+ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
+
