@@ -9347,4 +9347,6 @@ ALTER TABLE `variable_charges_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-	
+--Kalyani 20-Nov-2018
+ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
+ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
