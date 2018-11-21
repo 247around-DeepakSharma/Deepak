@@ -9300,7 +9300,7 @@ ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_i
 UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
 
 
---Gorakh 14 Nov -2018
+--Gorakh 14 Nov -2018---
 
 CREATE TABLE `warehouse_on_of_status` (
   `id` int(11) NOT NULL,
@@ -9369,4 +9369,7 @@ COMMIT;
 --Kalyani 20-Nov-2018
 ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
 ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
+
+------Gorakh 21 Nov 2018------
+ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
 
