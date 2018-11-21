@@ -4297,7 +4297,7 @@ function update_channel($id) {
      * @param - get post multiple parameter
      * @render on same pages
      */    
-    function process_partner_warehouse_config(){   
+    function process_partner_warehouse_config(){ 
         
         $is_wh = $this->input->post('is_wh');
         $partner_id = $this->input->post('partner_id');
@@ -4313,7 +4313,8 @@ function update_channel($id) {
                 
                 $data =array(
                     'partner_id'=>$partner_id,
-                    'state'=>$value['micro_wh_state']
+                    'state'=>$value['micro_wh_state'],
+                     'micro_warehouse_charges'=>$value['sf_amount']
                 );
                 
                 $wh_on_of_data =array(
@@ -4327,6 +4328,7 @@ function update_channel($id) {
                     $wh_on_of_data['vendor_id'] = $vendor_id;  
                     $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
                     if(empty($micro_wh_mapping_list)){
+                        
                         $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
                         $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data);
                         $service_center = array('is_micro_wh'=>1);
