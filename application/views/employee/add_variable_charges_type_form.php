@@ -131,5 +131,3 @@
         });
     })(jQuery, window, document);
 </script> 
-
-    
