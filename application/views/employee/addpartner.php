@@ -94,7 +94,7 @@
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
                         <?php
                             }
                             else{
@@ -112,7 +112,7 @@
 
                          <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
 
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
 
                         <?php
                             }
@@ -2098,7 +2098,7 @@
             <div id="container_12" class="form_container" style="display:none;">
                 <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
                     <div class="panel panel-default">
-                        <div class="panel-heading"><b>Micro Warehouse  Details</b></div>
+                        <div class="panel-heading"><b>Micro Warehouse Details</b></div>
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
@@ -2176,19 +2176,28 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group ">
                                             <label for="micro" class="col-md-8">Select Micro Warehouse</label>
                                             <div class="col-md-8">
-                                                <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0"  multiple>
+                                                <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0">
                                                     <option value="" selected disabled="">Select SF</option>
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
-
+                                    </div>                               
+                                     
+                                       <div class="col-md-2">
+                                        <div class="form-group "> 
+                                            <label for="micro" class="col-md-8">Amount</label>
+                                            <div class="col-md-8">                                                    
+                                                <input type="text" class="form-control" name="micro[0][sf_amount]" id="sf_amount_0" value="">
+                                            </div>
+                                        </div>
+                                    </div>   
+                                   
                                     <div class="col-md-2">
-                                        <div class="form-group ">
+                                        <div class="form-group ">                                             
                                             <div class="col-md-8">                                                    
                                                 <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                             </div>
@@ -2207,15 +2216,23 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group ">
                                                 <div class="col-md-8">
-                                                    <select class="form-control valid sf_id"  id="sf_id" multiple>
+                                                    <select class="form-control valid sf_id"  id="sf_id">
                                                         <option value="" selected disabled="">Select SF</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <div class="col-md-8">                                                  
+                                                    <input type="text" id="sf_amount" class="form-control" value="">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <div class="col-md-8">                                                  
@@ -3595,6 +3612,7 @@
             // Update the name attributes
             $clone
                 .find('[id="micro_wh_state"]').attr('name', 'micro[' + partIndex + '][micro_wh_state]').attr('onchange', "get_vendor_state_wise('micro_wh_state_"+partIndex+"','sf_id_"+partIndex+"' )").attr('id','micro_wh_state_'+partIndex).select2({placeholder:'Select State'}).end() 
+                .find('[id="sf_amount"]').attr('name', 'micro[' + partIndex + '][sf_amount]').attr('id','sf_amount_'+partIndex).end()
                 .find('[id="sf_id"]').attr('name', 'micro[' + partIndex + '][sf_id][]').attr('id','sf_id_'+partIndex).select2({placeholder:'Select SF'}).end()                
             //get_appliance(partIndex);
            })
