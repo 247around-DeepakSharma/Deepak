@@ -667,7 +667,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($warehouse_courier)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
@@ -742,7 +742,7 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "is_fixed" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
@@ -760,7 +760,7 @@ class invoices_model extends CI_Model {
             }
             
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "charges_type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
             
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
@@ -2117,7 +2117,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_fixed_variable_charge($where){
-        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate');
+        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate, variable_charges_type.is_fixed');
         $this->db->where($where);
         $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
         $query = $this->db->get('vendor_partner_variable_charges');
