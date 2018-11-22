@@ -64,6 +64,7 @@
                         <th class="text-center">Action</th>
                         <th class="text-center">JobCard</th>
                         <th class="text-center">Escalate</th>
+                        <th class="text-center">Helper <br> Docs</th>
                     </tr>
                 </thead>
             </table>
@@ -198,7 +199,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,5,6,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,5,6,11,12,13,14,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

@@ -5351,6 +5351,7 @@ class Partner extends CI_Controller {
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
               }
             $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning btn-sm" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick=get_brand_collateral("'.$row->booking_id.'")><i class="fa fa-file-text-o" aria-hidden="true"></i></a>';
             $finalArray[] = $tempArray;
              $sn_no++;
            }
