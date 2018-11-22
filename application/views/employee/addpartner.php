@@ -689,7 +689,7 @@
                                         <div class="form-group ">
                                             <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
                                             <div class="col-md-1">
-                                                <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                                <input  type="checkbox" class="form-control"  name="is_prepaid" id="is_prepaid" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
                                                     } ?> >
                                             </div>
@@ -701,7 +701,7 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
@@ -751,7 +751,7 @@
                                             <div class="form-group ">
                                                 <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
                                                 <div class="col-md-1">
-                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" id="is_postpaid" value = "1" <?php if (isset($query[0])) {
                                                         if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
                                                         } ?> >
                                                 </div>
@@ -763,7 +763,7 @@
                                                 } ?>">
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                         echo $query[0]['postpaid_credit_period'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
@@ -777,7 +777,7 @@
                                                 } ?>">
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                         echo $query[0]['postpaid_notification_limit'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
@@ -785,9 +785,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="col-md-6">
+                                         <div class="col-md-6">
                                             <div class="form-group <?php if (form_error('postpaid_grace_period')) {
                                                 echo 'has-error';
                                                 } ?>">
@@ -3569,8 +3567,46 @@
             $("#contact_person_role").val();
             //$('#contact_person_states option:selected').removeAttr('selected');
         });
-        
+        check_postpaid_partner($("#is_postpaid")); 
+        check_postpaid_partner($("#is_prepaid"));
     });
+    
+    $("#is_postpaid").click(function(){
+        check_postpaid_partner($("#is_postpaid"));
+    });
+    
+    $("#is_prepaid").click(function(){
+        check_postpaid_partner($("#is_prepaid"));
+    });
+    
+    function check_postpaid_partner(checkbox){
+        var checkbox_id = $(checkbox).attr('id');
+        if(checkbox_id === "is_postpaid"){
+            if($(checkbox).is(':checked')){
+                $("#postpaid_credit_period").attr("readonly", false);
+                $("#postpaid_notification_limit").attr("readonly", false);
+                $("#postpaid_grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#postpaid_credit_period").attr("readonly", true);
+               $("#postpaid_notification_limit").attr("readonly", true);
+               $("#postpaid_grace_period_date").attr("readonly", true); 
+            }
+        }
+        else if(checkbox_id === "is_prepaid"){
+            if($(checkbox).is(':checked')){
+                $("#prepaid_amount_limit").attr("readonly", false);
+                $("#prepaid_notification_amount").attr("readonly", false);
+                $("#grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#prepaid_amount_limit").attr("readonly", true);
+               $("#prepaid_notification_amount").attr("readonly", true);
+               $("#grace_period_date").attr("readonly", true); 
+            }
+        }
+    }
+    
    function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
