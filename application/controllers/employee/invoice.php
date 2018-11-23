@@ -3630,12 +3630,12 @@ class Invoice extends CI_Controller {
      * It will generate for both party(SF/Partner)
      * @param String $booking_id
      */
-    function generate_reverse_oow_invoice($booking_id){
-        log_message('info', __METHOD__. " Booking ID ".$booking_id);
+    function generate_reverse_oow_invoice($spare_id){
+        log_message('info', __METHOD__. " Spare ID ".$spare_id);
         $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
                 . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
                 . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
+                    array('spare_parts_details.id' => $spare_id, 
                         'booking_unit_details_id IS NOT NULL' => NULL,
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
@@ -3726,7 +3726,7 @@ class Invoice extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'B',
-                    'type' => "Part",
+                    'type' => "Parts",
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoice_details[0]['vendor_partner_id'],
                     'invoice_file_main' => $response['meta']['invoice_file_main'],
@@ -3963,7 +3963,7 @@ class Invoice extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'A',
-                    'type' => "Part",
+                    'type' => "Parts",
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $partner_details[0]['id'],
                     'invoice_file_main' => $response['meta']['invoice_file_main'],
@@ -4478,8 +4478,8 @@ class Invoice extends CI_Controller {
                     $email_from = $email_template[2];
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
-                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email');
-                    $cc = ANUJ_EMAIL_ID.", ".$email_template[3].", ".$get_rm_email[0]['official_email'];
+                    $to = $get_owner_email[0]['owner_email'];
+                    $cc = $email_template[3].", ".$get_rm_email[0]['official_email'];
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
@@ -4758,7 +4758,7 @@ class Invoice extends CI_Controller {
 
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');
-        $html = "<option selected disabled>Select Vertical</option>";
+        $html = "<option value='' selected disabled>Select Vertical</option>";
         $select = 'distinct(vertical)';
         $vertical = $this->invoices_model->get_invoice_tag($select);
         foreach ($vertical as $vertical) {
@@ -4774,7 +4774,7 @@ class Invoice extends CI_Controller {
     function get_invoice_category(){
         $vertical = $this->input->post('vertical');
         $category_input = $this->input->post('category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(category)';
         $where = array('vertical'=>$vertical);
         $category = $this->invoices_model->get_invoice_tag($select, $where);
@@ -4792,7 +4792,7 @@ class Invoice extends CI_Controller {
         $vertical = $this->input->post('vertical');
         $category = $this->input->post('category');
         $sub_category_input = $this->input->post('sub_category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(sub_category), accounting';
         $where = array('vertical'=>$vertical, 'category'=>$category);
         $sub_category = $this->invoices_model->get_invoice_tag($select, $where);

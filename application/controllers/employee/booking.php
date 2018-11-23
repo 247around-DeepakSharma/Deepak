@@ -2152,7 +2152,7 @@ class Booking extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
             }
             
-            $this->invoice_lib->generate_challan_file($booking_id, $service_center_details[0]['service_center_id']);
+            $this->invoice_lib->generate_challan_file($sp_id, $service_center_details[0]['service_center_id']);
         }
         
         if ($status == 0) {
@@ -4526,19 +4526,37 @@ class Booking extends CI_Controller {
                 $partnerArray[] = $partner_ID['id'];
             }
         }
-        $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
-            services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
-            booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
-            booking_details.booking_remarks,service_centres.name as service_centre_name,booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
-             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+        
         $post['length'] = -1;
         $post['start'] = NULL;
         $post['search_value'] = NULL;
         $post['order'] = NULL;
         $post['draw'] = NULL;
-        $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1);
-        $newCSVFileName = "Pending_booking" . date('j-M-Y-H-i-s') . ".csv";
+        if($booking_status == 'Pending'){
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
+            services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
+            booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
+            booking_details.booking_remarks,service_centres.name as service_centre_name,booking_details.is_upcountry, service_centres.primary_contact_name,
+             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
+             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+            
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1); 
+        }
+        else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
+            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking'); 
+            
+            $select = "booking_details.booking_id, users.name as customername, users.phone_number, "
+                    . "services.services, service_centres.name as service_centre_name, "
+                    . "service_centres.district as city, service_centres.primary_contact_name,"
+                    . " service_centres.primary_contact_phone_1,
+                       STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+                       STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
+                       STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+            
+            $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray, 2); 
+        }
+        
+        $newCSVFileName = $booking_status."_booking_".date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
         $newline = "\r\n";
@@ -4650,10 +4668,10 @@ class Booking extends CI_Controller {
     
     function testDefective(){
        $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NOT NULL ' => NULL);
-        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
+        $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, service_center_id, service_center_closed_date",
                 $where, true);
         foreach ($data as $value) {
-            $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $data['service_center_closed_date']);
+            $this->invoice_lib->generate_challan_file($value['id'], $value['service_center_id'], $data['service_center_closed_date']);
         }
     }
     

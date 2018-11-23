@@ -886,6 +886,7 @@ function get_data_for_partner_callback($booking_id) {
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
             else{
+                
                 $sql =   $select
                     ." FROM spare_parts_details,booking_details,users, "
                     . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"

@@ -758,7 +758,6 @@ class invoices_model extends CI_Model {
                 }
                 
             }
-            
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
             
