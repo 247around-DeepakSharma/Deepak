@@ -2004,7 +2004,7 @@
             </div>
             <div class="clear"></div>
             <div id="container_11"  style="display:none;margin: 30px 10px;" class="form_container">
-                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_variable_charges" method="POST" enctype="multipart/form-data" >
+                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/accounting/process_partner_variable_charges" method="POST" enctype="multipart/form-data" >
                     <?php if(isset($query[0]['id'])){ ?>
                         <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
                     <?php } ?>
@@ -3735,6 +3735,7 @@
         }
         else{
             $("#validity_section").hide();
+            $("#validity").val(null);
             $("#validity").attr('required', false);
         }
     }

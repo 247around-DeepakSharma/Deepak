@@ -6384,43 +6384,4 @@ function update_channel($id) {
         }
     }
     
-    /*
-     * @desc - This function is used to add and update partner variable charges.
-     * @param -  get form
-     * @render on same page
-     */ 
-    function process_variable_charges(){
-            $data = array();
-            $data['entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['entity_id'] = $this->input->post('partner_id');
-            $data['fixed_charges'] = $this->input->post('fixed_charges');
-            $data['charges_type'] = $this->input->post('charges_type');
-            $data['validity_in_month'] = $this->input->post('validity');
-            $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type'=>$this->input->post('charges_type'), 'entity_type'=>_247AROUND_PARTNER_STRING, 'entity_id'=>$this->input->post('partner_id')));
-            if(!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))){
-                if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
-                   $data['update_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
-                   $this->session->set_userdata('success', 'Data Updated Successfully');
-                }else{
-                   $data['create_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->insert_into_variable_charge($data);
-                   $this->session->set_userdata('success', 'Data Entered Successfully');
-                }
-                if($result){
-                    log_message("info", __METHOD__ .$msg);
-                    $this->session->set_userdata('success', 'Data Saved Successfully');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                } else {
-                    log_message("info", __METHOD__ . " Error in Saving details");
-                    $this->session->set_userdata('error', 'Data can not be inserted. Please Try Again...');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                }
-            }
-            else{
-                $this->session->set_userdata('error', 'Charge Type Already Exist.');
-                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-            }
-    }
-
 }
