@@ -188,6 +188,27 @@
             </div>
         </div>
     </div>
+    
+    <div id="showBrandCollateral" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Brand Collateral</h4>
+      </div>
+        <div class="modal-body" id="collatral_container">
+             <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+    
 </div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
@@ -508,6 +529,18 @@
             alert("Please Enter Remarks");
         }
     }
+    
+    function  get_brand_collateral(booking_id){
+       $.ajax({
+         type: 'POST',
+         data: {booking_id: booking_id},
+         url: '<?php echo base_url(); ?>employee/service_centers/get_learning_collateral_for_bookings/',
+         success: function (data) {
+             $('#collatral_container').html(data);
+         }
+       });
+   }
+    
 </script>
 <style>
     #datatable1 td{

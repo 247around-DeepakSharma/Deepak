@@ -1,4 +1,4 @@
-<!-- Kalyani 23-07-2018  --->
+
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST?) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -7583,7 +7583,7 @@ ALTER TABLE `inventory_ledger` ADD `courier_id` INT NULL DEFAULT NULL AFTER `par
 -- Table structure for table `vendor_partner_varialble_charges`
 --
 
-CREATE TABLE `vendor_partner_varialble_charges` (
+CREATE TABLE `vendor_partner_variable_charges` (
   `id` int(11) NOT NULL,
   `entity_type` varchar(28) NOT NULL,
   `entity_id` varchar(11) NOT NULL,
@@ -7604,7 +7604,7 @@ CREATE TABLE `vendor_partner_varialble_charges` (
 --
 -- Indexes for table `vendor_partner_varialble_charges`
 --
-ALTER TABLE `vendor_partner_varialble_charges`
+ALTER TABLE `vendor_partner_variable_charges`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -7614,7 +7614,7 @@ ALTER TABLE `vendor_partner_varialble_charges`
 --
 -- AUTO_INCREMENT for table `vendor_partner_varialble_charges`
 --
-ALTER TABLE `vendor_partner_varialble_charges`
+ALTER TABLE `vendor_partner_variable_charges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 -- Released 28 June
@@ -7996,9 +7996,8 @@ INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_de
 ALTER TABLE `log_partner_table` ADD `entity_type` VARCHAR(65) NOT NULL DEFAULT 'partner' AFTER `id`;
 
 --Abhay 14 Aug 2018
-ALTER TABLE `vendor_partner_invoices` ADD `credit_debit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`;
-
-ALTER TABLE `vendor_partner_invoices` CHANGE `credit_debit_generated` `credit_generated` INT(1) NOT NULL DEFAULT '1';
+ALTER TABLE `vendor_partner_invoices` ADD `credit_generated` INT(1) NOT NULL DEFAULT '1' AFTER `create_date`;
+ALTER TABLE `trigger_vendor_partner_invoices` ADD `credit_generated` INT(1) NOT NULL DEFAULT '0' AFTER `create_date`
 
 
 ---Chhavi
@@ -8097,7 +8096,6 @@ ALTER TABLE `trigger_service_centres` ADD `is_buyback_gst_invoice` INT(1) NOT NU
 ALTER TABLE `booking_tat` ADD `sf_closed_date` DATETIME NULL AFTER `booking_id`, ADD `around_closed_date` DATETIME NULL AFTER `sf_closed_date`;
 
 
-
 --Abhay 08 Sept
 ALTER TABLE `partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
 ALTER TABLE `trigger_partners` ADD `postpaid_credit_period` INT(11) NULL DEFAULT NULL AFTER `review_time_limit`, ADD `postpaid_notification_limit` INT(11) NULL DEFAULT NULL AFTER `postpaid_credit_period`;
@@ -8109,13 +8107,11 @@ ALTER TABLE `trigger_partners` ADD `postpaid_grace_period` DATE NULL DEFAULT NUL
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_with_in_due_date_invoice_notification', NULL, 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'postpaid_above_due_date_invoice_notification', '%s', 'Dear Partner,\r\n<br/>\r\n%s<br/>\r\n%s\r\n', 'bill@247around.com', '', 'anuj@247around.com', 'abhaya@247around.com', '1', '2018-09-11 00:00:00');
-
 --Kalyani 
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (null, '247Around', 'Upload Docket Number', NULL, 'employee/inventory/upload_docket_number', '2', '89', 'admin,closure,developer,regionalmanager,accountmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_vendor_poc', '%s', '', '1', CURRENT_TIMESTAMP);
 
 --Kalyani 17-sept
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search Bank Transactions', NULL, 'employee/accounting/bank_transactions', '2', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 18th Sep
 ALTER TABLE `booking_tat` ADD `request_type` VARCHAR(128) NULL AFTER `around_closed_date`;
 
@@ -8126,8 +8122,7 @@ ALTER TABLE `spare_parts_details` ADD `reverse_sale_invoice_id` VARCHAR(128) NUL
 --Chhavi 21st Nov
 ALTER TABLE `spare_parts_details` ADD `defactive_part_received_date_by_courier_api` DATETIME NULL AFTER `defective_part_shipped_date`;
 --Kalyani 22 Sep 
-ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;
---Chhavi 24th november
+ALTER TABLE `courier_company_invoice_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `courier_charge`, ADD `billable_weight` INT NOT NULL AFTER `invoice_id`, ADD `actual_weight` INT NOT NULL AFTER `billable_weight`;--Chhavi 24th november
 ALTER TABLE `employee_relation` ADD `region` VARCHAR(128) NULL AFTER `state_code`;
 UPDATE employee_relation SET state_code = "North" WHERE employee_id = '36'
 UPDATE employee_relation SET state_code = "West" WHERE employee_id = '38'
@@ -8139,8 +8134,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 (NULL, 'oow_estimate_updated', 'Repair OOW Parts Estimate Updated By Partner For Booking ID %s', 'Updated Spare Estimate Amount: Rs. %s', 'noreply@247around.com', '', 'chhavid@247around, anuj@247around.com', '', '1', '2018-09-25 18:26:57');
 
 
---Chhavi 14th Sep
- UPDATE `email_template` SET `template` = 'Below bookings are pending for you action, Please review these bookings else these will be automatically approved after %s \r\n days <br>' WHERE `email_template`.`tag` = 'notify_partner_to_review_bookings';
+--Kalyani
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search GSTIN', NULL, 'employee/vendor/seach_gst_number', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('', '247Around', 'Partner Contract List', NULL, 'employee/partner/show_contract_list', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 
 -- Abhay 26 Sept
@@ -8211,14 +8207,16 @@ ALTER TABLE `tat_invoice_condition`
 ALTER TABLE `tat_invoice_condition`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
---Kalyani
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search GSTIN', NULL, 'employee/vendor/seach_gst_number', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('', '247Around', 'Partner Contract List', NULL, 'employee/partner/show_contract_list', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
 UPDATE tat_defactive_booking_criteria SET entity_id = '247001';
+
 -- Abhay
 
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
 
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
 --kalyani
 CREATE TABLE `gstin_detail` (
   `id` int(11) NOT NULL,
@@ -8237,14 +8235,12 @@ ALTER TABLE `gstin_detail` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `gstin_detail` ADD `nature_of_business` VARCHAR(255) NOT NULL AFTER `company_name`;
 
 
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'missed_upcountry_booking', 'Upcountry Booking Missed - Need To Take Action', 'Booking should be upcountry but not marked properly. AM need to take action to update their below bookings<br>%s', 'noreply@247around.com', '', '', '', '1', '', CURRENT_TIMESTAMP);
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Upload Service Center Payment', NULL, 'file_upload/upload_payment_file', '2', '56', 'admin,developer', 'main_nav', '1', '2018-09-28 10:37:02');
-
---Chhavi
-INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_id) FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
+-- Abhay 29 Sept
+ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NULL DEFAULT '0' AFTER `wh_ack_received_part`, ADD `around_pickup_from_service_center` INT(1) NOT NULL DEFAULT '0' AFTER `around_pickup_from_partner`;
 
 --Kalyani 01-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GST Report', NULL, 'employee/accounting/show_gst_report', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
 
 
 -- Abhay 29 Sept
@@ -8253,6 +8249,12 @@ ALTER TABLE `spare_parts_details` ADD `around_pickup_from_partner` INT(1) NOT NU
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'missing_in_booking_tat', '', '', 'SELECT COUNT(booking_details.booking_id)as count FROM `booking_details` LEFT JOIN booking_tat ON booking_tat.booking_id = booking_details.booking_id WHERE DATE(booking_details.closed_date)>\'2018-03-31\' AND booking_tat.booking_id IS NULL AND booking_details.type != \'Query\'', '', 'developer', '1', 'service', '1', NULL, '2018-09-28 05:03:42');
 
+--Abhay 04 Sept
+ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEFAULT '1' AFTER `update_date`;
+
+--Abhay 06 Sept
+ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
+ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
 
 --Chhavi
 UPDATE email_template SET subject = 'Delivered Defactive Parts',template = 'Dear Partner,<br><br>
@@ -8264,12 +8266,10 @@ Thanks. <br> 247around Team' WHERE tag = 'defective_parts_acknowledge_reminder';
 --Kalyani 06-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Add variable charges', NULL, 'employee/accounting/add_variable_charges', '10', '56', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
---Abhay 04 Sept
-ALTER TABLE `vendor_partner_variable_charges` ADD `is_fixed` INT(1) NOT NULL DEFAULT '1' AFTER `update_date`;
+ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Recheck Docket Number', NULL, 'employee/inventory/recheck_docket_number', '2', '164', 'employee/inventory/recheck_docket_number', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Bulk Search Docket Number', NULL, 'employee/inventory/search_courier_invoices', '2', '164', 'accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
 
---Abhay 06 Sept
-ALTER TABLE `courier_company_invoice_details` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `update_date`, ADD `partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `partner_id`, ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `partner_invoice_id`;
-ALTER TABLE `courier_company_invoice_details` ADD `basic_billed_charge_to_partner` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `partner_id`;
 
 --Shraddhanand 08-10-2018
 -- phpMyAdmin SQL Dump
@@ -8400,10 +8400,6 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-ALTER TABLE `courier_company_invoice_details` ADD `is_exist` TINYINT(1) NOT NULL AFTER `actual_weight`;
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Recheck Docket Number', NULL, 'employee/inventory/recheck_docket_number', '2', '164', 'employee/inventory/recheck_docket_number', 'main_nav', '1', CURRENT_TIMESTAMP);
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Bulk Search Docket Number', NULL, 'employee/inventory/search_courier_invoices', '2', '164', 'accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
-
 --Kalyani 09-Oct
 UPDATE partner_file_upload_header_mapping set `brand` = 'brand' where`partner_id` = '247010'
 
@@ -8475,36 +8471,29 @@ ALTER TABLE `partner_channel` ADD `set_default` TINYINT(1) NOT NULL AFTER `chann
 -- Kalyani 15-Oct
 ALTER TABLE `partner_channel` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT NULL;
 
+
+--Abhay - Released - 15 OCT-2018
+ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(64) NULL DEFAULT NULL AFTER `update_date`, ADD `delivery_end_date` VARCHAR(64) NULL DEFAULT NULL AFTER `type_of_data`;
 ALTER TABLE `partner_file_upload_header_mapping` ADD `type_of_data` VARCHAR(100) NOT NULL DEFAULT 'type_of_data' AFTER `update_date`, ADD `delivery_end_date` VARCHAR(100) NOT NULL DEFAULT 'delivery_end_date' AFTER `type_of_data`, ADD `expected_delivery_date` VARCHAR(100) NOT NULL DEFAULT 'expected_delivery_date' AFTER `delivery_end_date`;
 
 ALTER TABLE `account_holders_bank_details` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `is_rejected` INT(10) NOT NULL DEFAULT '0' AFTER `is_verified`;
 
 UPDATE `email_template` SET `subject` = '247around GST Credit Note against invoice %s', `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Which is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
-<br/><br/>Thanks,<br/>247around Team', `from` = 'pankajk@247around.com', `cc` = 'pankajk@247around.com,arunk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';--Chhavi 23rd Oct
 
+<br/><br/>Thanks,<br/>247around Team', `from` = 'pankajk@247around.com', `cc` = 'pankajk@247around.com,arunk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';--Chhavi 23rd Oct
 --Chhavi 23rd Oct
 ALTER TABLE `collateral` ADD `model` VARCHAR(256) NOT NULL AFTER `capacity`;
 ALTER TABLE `collateral` CHANGE `model` `model` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
 ALTER TABLE `collateral` ADD `is_url` INT(1) NOT NULL DEFAULT '0' AFTER `end_date`;
 ALTER TABLE `collateral` CHANGE `is_url` `is_file` INT(1) NOT NULL DEFAULT '0';
 
-
 ALTER TABLE `courier_company_invoice_details` ADD `pickup_from` VARCHAR(255) NOT NULL AFTER `actual_weight`;
 
 --Kalyani 23-Oct
-
 ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;
 --Abhay 23 August
 ALTER TABLE `invoice_details` ADD `spare_id` INT(11) NULL DEFAULT NULL AFTER `is_settle`;
-
---Chhavi 24rth oct
-ALTER TABLE `collateral` ADD `create_date` TIMESTAMP NOT NULL AFTER `is_valid`;
-INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'TV Demo', 'pdf');
-INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software Upgrade', 'pdf');
-INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Factory Settings', 'pdf');
-INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'User Manual', 'pdf');
-
 --Kalyani 25-Oct
 CREATE TABLE `partner_code` (
   `id` int(11) NOT NULL,
@@ -9215,7 +9204,6 @@ ALTER TABLE `partner_code`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=677;
 COMMIT;
 
-
 --Chhavi 24rth oct
 ALTER TABLE `collateral` ADD `create_date` TIMESTAMP NOT NULL AFTER `is_valid`;
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'TV Demo', 'pdf');
@@ -9226,9 +9214,6 @@ INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `docum
 --Kalyani 26-Oct
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'qwikcilver_transaction_detail', '%s transaction detail', 'Dear Partner<br/><br> Your transaction detail is following - <br/>%s<br/><br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'validity_expiry_warning_for_partner', '%s Your 247around validity will be expire.', 'Dear Partner<br/><br> Your 247around validity will be expire on %s <br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', '1', '', CURRENT_TIMESTAMP);
-
---Abhay 29 Oct
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 
 --Kalyani 30-10-2018
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GSTR2a Report', NULL, NULL, '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
@@ -9257,7 +9242,7 @@ CREATE TABLE `taxpro_gstr2a_data` (
 --
 -- Indexes for table `taxpro_GSTR2a_data`
 --
-ALTER TABLE `taxpro_gstr2a_data`
+ALTER TABLE `taxpro_GSTR2a_data`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -9267,7 +9252,7 @@ ALTER TABLE `taxpro_gstr2a_data`
 --
 -- AUTO_INCREMENT for table `taxpro_GSTR2a_data`
 --
-ALTER TABLE `taxpro_gstr2a_data`
+ALTER TABLE `taxpro_GSTR2a_data`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
@@ -9275,19 +9260,13 @@ ALTER TABLE `vendor_partner_invoices` ADD `taxpro_checksum` TEXT NOT NULL AFTER 
 ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '0' AFTER `checksum`;
 ALTER TABLE `taxpro_gstr2a_data` ADD `is_mapped` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_rejected`;
 
+
 --Abhay 29 Oct
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 
 --Kalyani 01-Nov
 UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
 ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
-
-ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;
-
-
---Chhavi 1st November
-ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
-
 
 --Kalyani 02-Nov
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Send Broadcast SMS', NULL, 'employee/vendor/send_broadcast_sms_to_vendors', '2', '36', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
@@ -9299,17 +9278,10 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 --Chhavi 1st November
 ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
 
-UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
 
+UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
 
 --Gorakh 14 Nov -2018---
-
-
-
-UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
-
---Gorakh 14 Nov -2018
-
 
 CREATE TABLE `warehouse_on_of_status` (
   `id` int(11) NOT NULL,
@@ -9375,6 +9347,11 @@ ALTER TABLE `variable_charges_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+
+--Abhay 21 NOv
+ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
+ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;
+
 --Kalyani 20-Nov-2018
 ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
 ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
@@ -9382,6 +9359,3 @@ ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_typ
 ------Gorakh 21 Nov 2018------
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
 
---Abhay 21 NOv
-ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
-ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;

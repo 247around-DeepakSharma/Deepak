@@ -679,8 +679,7 @@ class Notify {
         ));
         $response = curl_exec($session);
         $responseAarray = json_decode($response);
-
-        $data['content'] = $responseAarray->status;
+        $data['content'] = $responseAarray->status;      
         return $data;
     }
     function send_sms_using_msg91($phone_number,$body){

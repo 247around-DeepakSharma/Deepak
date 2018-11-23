@@ -3667,7 +3667,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         
                         if(!empty($sp['requested_inventory_id'])){
                             $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state']);
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id);
                             if(!empty($stock)){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
