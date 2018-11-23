@@ -9371,3 +9371,6 @@ ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_typ
 ------Gorakh 21 Nov 2018------
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
 
+--Abhay 21 NOv
+ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
+ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;

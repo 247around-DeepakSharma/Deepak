@@ -3975,11 +3975,13 @@ class vendor extends CI_Controller {
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            
             
             if(!empty($is_wh)){
+                $option .= " data-warehose='1' > ";
                 $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
             }else{
+                $option .= " > ";
                 $option .= $value['name'] . "</option>";
             }
         }
@@ -4008,7 +4010,7 @@ class vendor extends CI_Controller {
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
 
             foreach ($data as $value) {
-                $option .= "<option value='" . $value['id'] . "'";
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
 
                 $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";

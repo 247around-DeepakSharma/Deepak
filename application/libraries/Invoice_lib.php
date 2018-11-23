@@ -8,6 +8,7 @@ class Invoice_lib {
         $this->ci->load->library('PHPReport');
         $this->ci->load->library("miscelleneous");
         $this->ci->load->library('s3');
+        $this->ci->load->library('table');
     }
     
     function create_invoice_id($start_name){
@@ -733,6 +734,194 @@ class Invoice_lib {
         } 
         
         return true;
+    }
+    /**
+     * @desc This function is used to get settle inventory data
+     * @param Array $postData
+     * @param String $invoice_id
+     * @return boolean
+     */
+    function settle_inventory_invoice_annexure($postData, $invoice_id) {
+        $processPostData = array();
+        $not_updated = array();
+       
+        foreach ($postData as $value) {
+            if (!empty($value['inventory_id'])) {
+                $where = array('inventory_id' => $value['inventory_id'],
+                    'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+
+                $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+                if (!empty($unsettle)) {
+                    $qty = 1;
+                    $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
+ 
+                    foreach ($unsettle as $key => $b) {
+                        
+                        $restQty = $b['qty'] - $b['settle_qty'];
+                        if ($restQty == $qty) {
+
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            
+                            
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+
+
+                            $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
+
+
+                            array_push($processPostData, $s);
+                            log_message('info', __METHOD__ . " Settle " . print_r($s, true));
+                            $qty = 0;
+                            break;
+                        } else if ($restQty < $qty) {
+                           
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+
+
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+                            
+                            $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
+                            
+                          
+                            array_push($processPostData, $s);
+                            $qty = $qty - $restQty;
+                        } else if ($restQty > $qty) {
+
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
+                            
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            
+                            $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+
+                            array_push($processPostData, $s);
+                            $qty = 0;
+
+                            break;
+                        } else {
+                            if ($qty > 0) {
+                                $this->invoices_not_found($value);
+                                array_push($not_updated, $value['booking_id']);
+                                log_message('info', __METHOD__. " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+                            }
+                        }
+                    }
+                } else {
+                    $this->invoices_not_found($value);
+                    array_push($not_updated, $value['booking_id']);
+                    log_message('info', __METHOD__. " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+                }
+            } else {
+                $this->invoices_not_found($value);
+                array_push($not_updated, $value['booking_id']);
+                log_message('info', __METHOD__. " Inventory ID Missing. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+            }
+        }
+        return array(
+            'processData' => $processPostData,
+            'not_update_booking_id' => $not_updated);
+    }
+    
+    function get_array_settle_data($b, $inventory_details, $restQty, $value){
+        return array(
+            'incoming_invoice_id' => $b['invoice_id'], 
+            "qty" => $restQty, 
+            "part_name" => $inventory_details[0]['part_name'],
+            "part_number" => $inventory_details[0]['part_number'],
+            "booking_id" => $value['booking_id'],
+            "rate" => $b['rate'],
+            "spare_id" => $value['spare_id'],
+            "booking_partner_id" => $value['booking_partner_id'],
+            "inventory_id" => $value['inventory_id'],
+            "hsn_code" => $inventory_details[0]['hsn_code'],
+            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+    }
+    
+    /**
+     * @desc If there is no any un-settle invoice available then it will send a mail to developer or accountant
+     * @param Array $data
+     */
+    function invoices_not_found($data) {
+        log_message('info', __METHOD__ . " Invoice Qty Not found " . print_r($data, true));
+
+        $template1 = array(
+            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+        );
+
+        $this->ci->table->set_template($template1);
+
+        $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
+        
+        $this->ci->table->add_row($data['part_name'], $data['booking_id'], $data['inventory_id']);
+        
+
+        $this->ci->table->set_template($template1);
+        $html_table = $this->ci->table->generate();
+
+        $email_template = $this->ci->booking_model->get_booking_email_template("spare_invoice_not_found");
+        $subject = $email_template[4];
+        $message = vsprintf($email_template[0], array($html_table,json_encode($data, true)));
+        $email_from = $email_template[2];
+
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $bcc = $email_template[5];
+
+        $this->ci->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
+    }
+    
+    /**
+     * @desc this is used to insert invoice break up in the new invoice table
+     * @param Array $response
+     * @return boolean
+     */
+    function insert_def_invoice_breakup($response, $is_settle = 1){
+        log_message('info', __METHOD__. " Insert invoice breakup");
+        $a = array();
+        foreach ($response['booking'] as $value) {
+            $invoice = array();
+            $invoice['invoice_id'] = $value['invoice_id'];
+            $invoice['description'] = $value['description'];
+            $invoice['product_or_services'] = "Product";
+            $invoice['hsn_code'] = $value['hsn_code'];
+            $invoice['qty'] = $value['qty'];
+            $invoice['rate'] = $value['rate'];
+            $invoice['inventory_id'] = $value['inventory_id'];
+            $invoice['taxable_value'] = $value['taxable_value'];
+            
+            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = isset($value['sgst_tax_amount']) ?$value['sgst_tax_amount']:0;
+            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = isset($value['cgst_rate']) ?$value['cgst_rate']:0;
+            $invoice['igst_tax_amount'] = isset($value['igst_tax_amount']) ?$value['igst_tax_amount']:0;
+            $invoice['igst_tax_rate'] = isset($value['igst_rate']) ?$value['igst_rate']:0;
+            if($is_settle == 1){
+                $invoice['is_settle'] = $is_settle;
+                $invoice['settle_qty'] = $value['qty'];
+            } else {
+                $invoice['is_settle'] = 0;
+                $invoice['settle_qty'] = 0;
+            }
+            if(isset($value['spare_id'])){
+                $invoice['spare_id'] = $value['spare_id'];
+            }
+            $invoice['total_amount'] = $value['total_amount'];
+            $invoice['create_date'] = date('Y-m-d H:i:s');
+            
+            array_push($a, $invoice);
+
+        }
+        
+        return $this->ci->invoices_model->insert_invoice_breakup($a);
+        
     }
 
 }

@@ -3091,19 +3091,88 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         return $data;
     }
     
-    function check_inventory_stock($inventory_id, $partner_id, $state){
+
+    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
+        $response = array();
+
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
+
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+        $is_partner_wh = $partner_details[0]['is_wh'];
+        $is_micro_wh = $partner_details[0]['is_micro_wh'];
+        if (!empty($inventory_part_number)) {
+
+            if ($is_micro_wh == 1) {
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
+                if (empty($response) && $is_partner_wh == 1) {
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                } else if (!empty($response)) {
+                    if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                        $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                    } else {
+                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['defective_return_to_entity_id'] = $partner_id;
+                    }
+                }
+            } else if ($is_partner_wh == 1) {
+
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+            }
+        } else {
+            return false;
+        }
+
+        if (empty($response) && !empty($inventory_part_number)) {
+            $response['stock'] = false;
+            $response['entity_id'] = $partner_id;
+            $response['entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+            $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
+            $response['inventory_id'] = $inventory_id;
+            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+            } else {
+                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                $response['defective_return_to_entity_id'] = $partner_id;
+            }
+        }
+        return $response;
+    }
+
+    function get_247aroud_warehouse_in_sf_state($state){
+        $select = "contact_person.entity_id, contact_person.entity_type";
+        $where1 = array('warehouse_state_relationship.state' => $state,'warehouse_details.entity_id' => _247AROUND, 
+            'warehouse_details.entity_type' => _247AROUND_PARTNER_STRING);
+        return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
+    }
+
+    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
-    
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate',array('inventory_id' => $inventory_id));
-       
-        if(!empty($inventory_part_number)){
-            $post['where'] = array('inventory_stocks.inventory_id' => $inventory_id,'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
-            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
-            $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-            
-            if(!empty($inventory_stock_details)){
+        
+        $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+        if (!empty($service_center_id)) {
+            $post['where']['inventory_stocks.entity_id'] = $service_center_id;
+        }
+        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+        
+        if(!empty($inventory_stock_details)){
+            if(!empty($service_center_id)){
+                $response = array();
+                $response['stock'] = TRUE;
+                $response['entity_id'] = $service_center_id;
+                $response['entity_type'] = _247AROUND_SF_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                
+            } else {
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
@@ -3116,37 +3185,15 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         $response['entity_type'] = _247AROUND_SF_STRING;
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_id;
+                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         break;
                     }
                 }
-     
-                if(empty($response)){
-                   
-                    $response['stock'] = false;
-                    $response['entity_id'] = $partner_id;
-                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                    $response['inventory_id'] = $inventory_id;
-                }
-                
-            }else{
-                $response = array();
-                $response['stock'] = false;
-                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                $response['entity_id'] = $partner_id;
-                $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                $response['inventory_id'] = $inventory_id;
             }
-         
-            return $response;
+        } 
+        
+        return $response;
             
-        } else {
-            return false;
-        }
     }
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
