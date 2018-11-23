@@ -4758,7 +4758,7 @@ class Invoice extends CI_Controller {
 
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');
-        $html = "<option selected disabled>Select Vertical</option>";
+        $html = "<option value='' selected disabled>Select Vertical</option>";
         $select = 'distinct(vertical)';
         $vertical = $this->invoices_model->get_invoice_tag($select);
         foreach ($vertical as $vertical) {
@@ -4774,7 +4774,7 @@ class Invoice extends CI_Controller {
     function get_invoice_category(){
         $vertical = $this->input->post('vertical');
         $category_input = $this->input->post('category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(category)';
         $where = array('vertical'=>$vertical);
         $category = $this->invoices_model->get_invoice_tag($select, $where);
@@ -4792,7 +4792,7 @@ class Invoice extends CI_Controller {
         $vertical = $this->input->post('vertical');
         $category = $this->input->post('category');
         $sub_category_input = $this->input->post('sub_category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(sub_category), accounting';
         $where = array('vertical'=>$vertical, 'category'=>$category);
         $sub_category = $this->invoices_model->get_invoice_tag($select, $where);

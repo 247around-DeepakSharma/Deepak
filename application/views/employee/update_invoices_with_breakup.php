@@ -180,26 +180,24 @@
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Vertical</label>
+                                    <label for="Due Date" class="col-md-4">Vertical*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')" required>
                                           
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Category</label>
+                                    <label for="Due Date" class="col-md-4">Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
-                                           <option>select</option>
+                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')" required>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Sub Category</label>
+                                    <label for="Due Date" class="col-md-4">Sub Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="sub_category" id="sub_category">
-                                           <option>select</option>
+                                        <select class="form-control" name="sub_category" id="sub_category" required>
                                         </select>
                                     </div>
                                 </div>

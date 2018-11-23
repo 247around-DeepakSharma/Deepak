@@ -4585,21 +4585,53 @@ class Partner extends CI_Controller {
         $where = "booking_details.partner_id = '" . $partner_id . "' "
                 . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
-        $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Partner Shipped Date","SF Received Date","Price","Remarks");
+        $headings = array("Booking ID",
+            "SF City",
+            "Courier Name",
+            "Courier Price",
+            "Partner AWB Number",
+            "SF AWB Number",
+            "Part Shipped By Partner",
+            "Part Partner Shipped Date",
+            "Partner Challan Number",
+            "SF Challan Number",
+            "Part Shipped By SF",
+            "Part Type",
+            "Parts Charge",
+            "New Spare Part Received Date",
+            "Defective Spare Part Received Date",
+            "Booking Status",
+            "Spare Status",
+            "Is Spare Auto Acknowledge",
+            "Remarks");
+        
         foreach($data as $sparePartBookings){
-            $tempArray = array();
-            $tempArray[] = $sparePartBookings['name'];
-            $tempArray[] = $sparePartBookings['booking_id'];
-            $tempArray[] = $sparePartBookings['parts_shipped'];
+            $tempArray = array();            
+            $tempArray[] = $sparePartBookings['booking_id'];            
+            $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
             $tempArray[] = $sparePartBookings['awb_by_partner'];
-            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['awb_by_sf'];
+            $tempArray[] = $sparePartBookings['parts_shipped'];    
             $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['sf_challan_number'];            
+            $tempArray[] = $sparePartBookings['defective_part_shipped'];            
+            $tempArray[] = $sparePartBookings['shipped_parts_type'];
+            $tempArray[] = $sparePartBookings['challan_approx_value'];                   
             $tempArray[] = $sparePartBookings['acknowledge_date'];
-            $tempArray[] = $sparePartBookings['challan_approx_value'];
+            $tempArray[] = $sparePartBookings['received_defective_part_date'];
+            $tempArray[] = $sparePartBookings['current_status'];     
+            $tempArray[] = $sparePartBookings['status'];
+            if($sparePartBookings['auto_acknowledeged']==1){
+            $tempArray[] = "Yes";   
+             }else{
+            $tempArray[] = "No";   
+             }                        
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
-            $CSVData[]  = $tempArray;
-        }
+            $CSVData[]  = $tempArray;            
+        }  
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
     }
     function download_spare_part_shipped_by_partner_not_acknowledged(){
@@ -5354,6 +5386,7 @@ class Partner extends CI_Controller {
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
               }
             $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning btn-sm" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick=get_brand_collateral("'.$row->booking_id.'")><i class="fa fa-file-text-o" aria-hidden="true"></i></a>';
             $finalArray[] = $tempArray;
              $sn_no++;
            }
@@ -6258,7 +6291,7 @@ function update_channel($id) {
      * @param - get post multiple parameter
      * @render on same pages
      */    
-    function process_partner_warehouse_config(){   
+    function process_partner_warehouse_config(){ 
         
         $is_wh = $this->input->post('is_wh');
         $partner_id = $this->input->post('partner_id');
@@ -6274,7 +6307,8 @@ function update_channel($id) {
                 
                 $data =array(
                     'partner_id'=>$partner_id,
-                    'state'=>$value['micro_wh_state']
+                    'state'=>$value['micro_wh_state'],
+                     'micro_warehouse_charges'=>$value['sf_amount']
                 );
                 
                 $wh_on_of_data =array(
@@ -6288,6 +6322,7 @@ function update_channel($id) {
                     $wh_on_of_data['vendor_id'] = $vendor_id;  
                     $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id'=>$vendor_id), '*');
                     if(empty($micro_wh_mapping_list)){
+                        
                         $last_inserted_id = $this->inventory_model->insert_query('micro_warehouse_state_mapping',$data);  
                         $inserted_id = $this->inventory_model->insert_query('warehouse_on_of_status',$wh_on_of_data);
                         $service_center = array('is_micro_wh'=>1);

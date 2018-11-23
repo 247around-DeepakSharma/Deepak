@@ -1,4 +1,4 @@
-﻿<!-- Kalyani 23-07-2018  --->
+<<<<<< HEAD﻿<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9281,7 +9281,7 @@ ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_i
 
 UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
 
---Gorakh 14 Nov -2018
+--Gorakh 14 Nov -2018---
 
 CREATE TABLE `warehouse_on_of_status` (
   `id` int(11) NOT NULL,
@@ -9351,3 +9351,11 @@ COMMIT;
 --Abhay 21 NOv
 ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
 ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;
+
+--Kalyani 20-Nov-2018
+ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
+ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
+
+------Gorakh 21 Nov 2018------
+ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
+

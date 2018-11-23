@@ -94,7 +94,7 @@
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
                         <?php
                             }
                             else{
@@ -112,7 +112,7 @@
 
                          <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
 
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse Setting </span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
 
                         <?php
                             }
@@ -691,7 +691,7 @@
                                         <div class="form-group ">
                                             <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
                                             <div class="col-md-1">
-                                                <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                                <input  type="checkbox" class="form-control"  name="is_prepaid" id="is_prepaid" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
                                                     } ?> >
                                             </div>
@@ -703,7 +703,7 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
@@ -753,7 +753,7 @@
                                             <div class="form-group ">
                                                 <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
                                                 <div class="col-md-1">
-                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" id="is_postpaid" value = "1" <?php if (isset($query[0])) {
                                                         if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
                                                         } ?> >
                                                 </div>
@@ -765,7 +765,7 @@
                                                 } ?>">
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                         echo $query[0]['postpaid_credit_period'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
@@ -779,7 +779,7 @@
                                                 } ?>">
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                         echo $query[0]['postpaid_notification_limit'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
@@ -787,9 +787,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="col-md-6">
+                                         <div class="col-md-6">
                                             <div class="form-group <?php if (form_error('postpaid_grace_period')) {
                                                 echo 'has-error';
                                                 } ?>">
@@ -2098,7 +2096,7 @@
             <div id="container_12" class="form_container" style="display:none;">
                 <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
                     <div class="panel panel-default">
-                        <div class="panel-heading"><b>Micro Warehouse  Details</b></div>
+                        <div class="panel-heading"><b>Micro Warehouse Details</b></div>
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
@@ -2176,19 +2174,28 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group ">
                                             <label for="micro" class="col-md-8">Select Micro Warehouse</label>
                                             <div class="col-md-8">
-                                                <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0"  multiple>
+                                                <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0">
                                                     <option value="" selected disabled="">Select SF</option>
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
-
+                                    </div>                               
+                                     
+                                       <div class="col-md-2">
+                                        <div class="form-group "> 
+                                            <label for="micro" class="col-md-8">Amount</label>
+                                            <div class="col-md-8">                                                    
+                                                <input type="text" class="form-control" name="micro[0][sf_amount]" id="sf_amount_0" value="">
+                                            </div>
+                                        </div>
+                                    </div>   
+                                   
                                     <div class="col-md-2">
-                                        <div class="form-group ">
+                                        <div class="form-group ">                                             
                                             <div class="col-md-8">                                                    
                                                 <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
                                             </div>
@@ -2207,15 +2214,23 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group ">
                                                 <div class="col-md-8">
-                                                    <select class="form-control valid sf_id"  id="sf_id" multiple>
+                                                    <select class="form-control valid sf_id"  id="sf_id">
                                                         <option value="" selected disabled="">Select SF</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <div class="col-md-8">                                                  
+                                                    <input type="text" id="sf_amount" class="form-control" value="">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <div class="col-md-8">                                                  
@@ -3480,8 +3495,46 @@
             $("#contact_person_role").val();
             //$('#contact_person_states option:selected').removeAttr('selected');
         });
-        
+        check_postpaid_partner($("#is_postpaid")); 
+        check_postpaid_partner($("#is_prepaid"));
     });
+    
+    $("#is_postpaid").click(function(){
+        check_postpaid_partner($("#is_postpaid"));
+    });
+    
+    $("#is_prepaid").click(function(){
+        check_postpaid_partner($("#is_prepaid"));
+    });
+    
+    function check_postpaid_partner(checkbox){
+        var checkbox_id = $(checkbox).attr('id');
+        if(checkbox_id === "is_postpaid"){
+            if($(checkbox).is(':checked')){
+                $("#postpaid_credit_period").attr("readonly", false);
+                $("#postpaid_notification_limit").attr("readonly", false);
+                $("#postpaid_grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#postpaid_credit_period").attr("readonly", true);
+               $("#postpaid_notification_limit").attr("readonly", true);
+               $("#postpaid_grace_period_date").attr("readonly", true); 
+            }
+        }
+        else if(checkbox_id === "is_prepaid"){
+            if($(checkbox).is(':checked')){
+                $("#prepaid_amount_limit").attr("readonly", false);
+                $("#prepaid_notification_amount").attr("readonly", false);
+                $("#grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#prepaid_amount_limit").attr("readonly", true);
+               $("#prepaid_notification_amount").attr("readonly", true);
+               $("#grace_period_date").attr("readonly", true); 
+            }
+        }
+    }
+    
    function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
@@ -3595,6 +3648,7 @@
             // Update the name attributes
             $clone
                 .find('[id="micro_wh_state"]').attr('name', 'micro[' + partIndex + '][micro_wh_state]').attr('onchange', "get_vendor_state_wise('micro_wh_state_"+partIndex+"','sf_id_"+partIndex+"' )").attr('id','micro_wh_state_'+partIndex).select2({placeholder:'Select State'}).end() 
+                .find('[id="sf_amount"]').attr('name', 'micro[' + partIndex + '][sf_amount]').attr('id','sf_amount_'+partIndex).end()
                 .find('[id="sf_id"]').attr('name', 'micro[' + partIndex + '][sf_id][]').attr('id','sf_id_'+partIndex).select2({placeholder:'Select SF'}).end()                
             //get_appliance(partIndex);
            })

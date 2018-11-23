@@ -848,10 +848,10 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
-                    . "booking_details.amount_due,booking_details.state, "
-                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.gst_no, "
+                    . "booking_details.amount_due,booking_details.state, booking_details.current_status,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             if($end){
@@ -894,7 +894,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);
+        $query = $this->db->query($sql);        
         return $query->result_array();
     }
 
@@ -1595,11 +1595,10 @@ function get_data_for_partner_callback($booking_id) {
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
-            name As 'Customer', 
+            name As 'Customer', users.phone_number as 'Phone Number',
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
-            booking_primary_contact_no AS Phone, 
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
