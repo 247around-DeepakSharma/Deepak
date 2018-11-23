@@ -6397,7 +6397,7 @@ function update_channel($id) {
             $data['charges_type'] = $this->input->post('charges_type');
             $data['validity_in_month'] = $this->input->post('validity');
             $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type'=>$this->input->post('charges_type'), 'entity_type'=>_247AROUND_PARTNER_STRING, 'entity_id'=>$this->input->post('partner_id')));
-            if(!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))){
+            if((!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))) || empty($variable_charge_detail)){
                 if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
                    $data['update_date'] = date("Y-m-d H:i:s");
                    $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
