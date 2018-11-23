@@ -1,4 +1,4 @@
-<<<<<< HEAD﻿<!-- Kalyani 23-07-2018  --->
+<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9356,6 +9356,9 @@ ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DAT
 ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
 ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
 
+
 ------Gorakh 21 Nov 2018------
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Admin', NULL, NULL, '1', NULL, '', 'main_nav', '1', CURRENT_TIMESTAMP);
+
 
