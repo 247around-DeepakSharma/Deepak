@@ -88,7 +88,7 @@
                                 </td>
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a>
+                                    <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a>
                                 <?php } ?>
                                 </td>
                                 <td>
@@ -98,7 +98,7 @@
                                                 <span class="caret"></span></a>
                                             <ul class="dropdown-menu" style="right: 0px;left: auto;">
                                                 <?php foreach ($internal_status as $value) { ?>
-                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>"><?php echo $value->status; ?></a></li>
+                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>"><?php echo $value->status; ?></a></li>
                                                     <li class="divider"></li>
                                                 <?php } ?>
 

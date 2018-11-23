@@ -3093,46 +3093,58 @@ function generate_image($base64, $image_name,$directory){
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
                 . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
-        
-        $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh", array('partners.id' => $partner_id));
+
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = $partner_details[0]['is_wh'];
         $is_micro_wh = $partner_details[0]['is_micro_wh'];
         if (!empty($inventory_part_number)) {
 
             if ($is_micro_wh == 1) {
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
-                if (empty($response)) {
+                if (empty($response) && $is_partner_wh == 1) {
                     $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
-                    if (empty($response)) {
-                        $response['stock'] = false;
-                        $response['entity_id'] = $partner_id;
-                        $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                        $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                        $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
-                        $response['inventory_id'] = $inventory_id;
+                } else if (!empty($response)) {
+                    if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                        $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                    } else {
+                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['defective_return_to_entity_id'] = $partner_id;
                     }
                 }
-                return $response;
             } else if ($is_partner_wh == 1) {
 
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
-                if (empty($response)) {
-                    $response['stock'] = false;
-                    $response['entity_id'] = $partner_id;
-                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
-                    $response['inventory_id'] = $inventory_id;
-                }
-                return $response;
-            } else {
-                return $response;
             }
         } else {
             return false;
         }
-        
+
+        if (empty($response) && !empty($inventory_part_number)) {
+            $response['stock'] = false;
+            $response['entity_id'] = $partner_id;
+            $response['entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+            $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
+            $response['inventory_id'] = $inventory_id;
+            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+            } else {
+                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                $response['defective_return_to_entity_id'] = $partner_id;
+            }
+        }
         return $response;
+    }
+
+    function get_247aroud_warehouse_in_sf_state($state){
+        $select = "contact_person.entity_id, contact_person.entity_type";
+        $where1 = array('warehouse_state_relationship.state' => $state,'warehouse_details.entity_id' => _247AROUND, 
+            'warehouse_details.entity_type' => _247AROUND_PARTNER_STRING);
+        return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
     }
 
     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
@@ -3155,6 +3167,7 @@ function generate_image($base64, $image_name,$directory){
                 $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                
             } else {
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
