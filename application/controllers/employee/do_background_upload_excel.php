@@ -751,6 +751,9 @@ class Do_background_upload_excel extends CI_Controller {
                                 log_message('info', __FUNCTION__ . ' => EDD update for shipped booking NOT required');
 
                                 $count_booking_not_updated++;
+                                $tmp['order_id'] = $value['sub_order_id'];
+                                $tmp['booking_id'] = $partner_booking['booking_id'];
+                                array_push($this->send_file_back_data, $tmp);
                             }
                             break;
                     }
