@@ -2,7 +2,9 @@
     <div id="page-wrapper" >
         <div class="container-fluid" >
             <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading"><h3>Show Partner Price </h3> </div>
+                <div class="panel-heading">
+                    <h3>Show Partner Price </h3> 
+                </div>
                 <div class="panel-body">
                     <table class="table  table-striped table-bordered">
                         <tr>
@@ -127,6 +129,7 @@
                         $('#loader_gif').attr('src', "");
                         $('#loader_gif').css('display', 'none');
                         $("#partners_price").html(data);
+                       
                     }
                 });
             }
@@ -139,7 +142,8 @@
 <?php if (isset($price_data)) {
     if (!empty($price_data)) { ?>
 
-        <table class="table table-striped table-bordered" >
+        <table class="table table-striped table-bordered"  id="partner_price_data">
+            <thead>
             <th>No.</th>
             <th>Service Category</th>
             <th>Brand</th>
@@ -152,6 +156,7 @@
             <th>Vendor Basic Percentage</th>
             <th>POD</th>
             <th>Upcountry</th>
+            </thead>
             <tbody>
                 <?php $i = 1;
                 foreach ($price_data as $key => $value) { ?>
@@ -180,4 +185,20 @@
         <div class="alert alert-danger text-center" id="data-not-found" style="margin: 10px;"> No data found</div>
     <?php }
 } ?> 
-
+<script>
+    $(document).ready(function(){
+        
+        $('#partner_price_data').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    title: 'price'
+                }
+            ]
+        });
+        
+        $("#partner_price_data_filter").css("float", "right");
+    });
+</script>
