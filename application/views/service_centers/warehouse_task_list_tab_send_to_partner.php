@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="container-fluid">
-    <input type="hidden" value="<?php echo T_SERIES_PARTNER_ID;?>" name="receiver_partner_id" id="receiver_partner_id">
+    <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
           <h2>Received Defective Parts</h2>
@@ -104,7 +104,7 @@
                                     </td>
                                     <td>
                                         
-                                        <input type="checkbox" class="check_single_row" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
+                                        <input type="checkbox" class="check_single_row" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -114,7 +114,7 @@
                 <?php }else { ?>
                 
                 <div class="alert alert-danger">
-                    <div class="text-center">No Data Found</div>
+                    <div class="text-center"><?php if(isset($filtered_partner)) { echo "No Data Found "; }else { echo "Please Select Partner";}?></div>
                 </div>
                 <?php } ?>
                </div>
@@ -273,7 +273,7 @@
     });
     
     $('document').ready(function(){
-        get_partner();
+        get_partner_ack();
     });
     
     var postData = {};
@@ -300,6 +300,8 @@
             tmp_arr[key]['partner_id'] = $(this).attr('data-partner_id');
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
+            tmp_arr[key]['service_center_id'] = $(this).attr('data-service_center_id');
+            tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');
             tmp_arr[key]['model'] = $(this).attr('data-model');
             tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
             flag = true;
@@ -382,17 +384,23 @@
         
     });
     
-    function get_partner(){
+    function get_partner_ack(){
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            url:'<?php echo base_url();?>employee/service_centers/warehouse_ack_partner_list',
             data:{is_wh:true},
             success:function(response){
-                $('#partner_id').html(response);
-                <?php if(isset($filtered_partner)) { ?> 
+                if(response === 'Error'){
+                    
+                } else {
+                    $('#partner_id').html(response);
+                     <?php if(isset($filtered_partner)) { ?> 
                     $('#partner_id').val('<?php echo $filtered_partner?>'); 
                     $('#partner_id').trigger('change');
-                <?php } ?>
+                    <?php } ?>
+                }
+                
+               
             }
         });
     }
