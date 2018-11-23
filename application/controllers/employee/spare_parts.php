@@ -801,7 +801,7 @@ class Spare_parts extends CI_Controller {
         $post['type'] = $this->input->post('type');
         $post['where']['is_shipped'] = $this->input->post("is_shipped");
         $post['where']['is_received'] = $this->input->post("is_received");
-        if ($this->input->post("sf_id")) {
+        if (!empty($this->input->post("sf_id")) && !empty($this->input->post("sf_role"))) {
             $sf_role = $this->input->post("sf_role");
             $post['where'][$sf_role] = $this->input->post("sf_id");
         }        
@@ -919,7 +919,7 @@ class Spare_parts extends CI_Controller {
             $re = "received_order";
         }
         $row[] = "<span class='" . $re . "'>" . $no . "</span>";
-        $row[] = $brackets_list->order_id;
+        $row[] ='<a href="' . base_url() . 'employee/service_centers/show_brackets_order_history/' . $brackets_list->order_id . '" target="_blank">'.$brackets_list->order_id.'</a>';        
         $row[] = $brackets_list->owner_name . "<br>" . $brackets_list->name;
         $row[] = ($brackets_list->brackets_26_32_requested + $brackets_list->brackets_19_24_requested);
         $row[] = ($brackets_list->brackets_36_42_requested + $brackets_list->brackets_43_requested);
@@ -932,8 +932,35 @@ class Spare_parts extends CI_Controller {
         $row[] = $brackets_list->total_received;
         $date_timestamp = strtotime($date);
         $new_date = date('j M, Y g:i A', $date_timestamp);
-        $row[] = $new_date;       
+        $row[] = $new_date;     
+       
+        $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested"';
+        if ($brackets_list->is_shipped == 1 || $brackets_list->active == 0) {
+            $update_request_link .= 'disabled';
+        }
+        $update_request_link .= '><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
 
+        
+        $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment"';
+        if ($brackets_list->active == 0) {
+            $update_shipment_link .= 'disabled';
+        }
+        $update_shipment_link .= 'style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
+
+       
+        $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"';
+        if ($brackets_list->is_shipped != 1 || $brackets_list->active == 0) {
+            $update_receiving_link .= 'disabled';
+        }
+        $update_receiving_link .= '> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
+        
+        $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"';
+        if ($brackets_list->active == 1) {
+            $un_cancel_request_link .= 'disabled';
+        }
+        $un_cancel_request_link .= '><i class="fa fa-undo" aria-hidden="true"></i></a>';
+
+        /*   
         if ($brackets_list->is_shipped == 1 || $brackets_list->active == 0) {
             $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested" disabled=TRUE><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
             $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"disabled=TRUE> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
@@ -949,7 +976,7 @@ class Spare_parts extends CI_Controller {
             $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment" style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
             $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"><i class="fa fa-undo" aria-hidden="true"></i></a>';
         }
-
+    */
         $row[] = $update_request_link . "&nbsp;" . $update_shipment_link . " " . $update_receiving_link . " " . $un_cancel_request_link;
 
         return $row;

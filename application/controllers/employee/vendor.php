@@ -994,7 +994,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         $this->checkUserSession();
         if(!empty($booking_id)){
-            $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
@@ -3028,10 +3028,9 @@ class vendor extends CI_Controller {
                     $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required');
                     break;
              case 'gst_file': 
-
-                $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|required');
-                break;
-         }
+                    $this->form_validation->set_rules('gst_no', 'GST Number', 'trim|required');
+                    break;
+        }
          return $this->form_validation->run();
      }
 
@@ -3372,8 +3371,7 @@ class vendor extends CI_Controller {
                 $insert_data['to_date'] = $data['to_date'];
                 $insert_data['active'] = $data['active'];
                 $insert_data['create_date'] = date('Y-m-d H:i:s');
-                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);
-                print_r($insert_id);
+                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);                
                 if ($insert_id) {
                     log_message('info', __FUNCTION__ . ' New Tax Rate Template has been added with ID ' . $insert_id);
                 } else {
@@ -3946,6 +3944,7 @@ class vendor extends CI_Controller {
         }
     }
     
+    
     /**
      * @Desc: This function is used to get the service center for filtered brackets list
      * @param void
@@ -3976,11 +3975,13 @@ class vendor extends CI_Controller {
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            
             
             if(!empty($is_wh)){
+                $option .= " data-warehose='1' > ";
                 $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
             }else{
+                $option .= " > ";
                 $option .= $value['name'] . "</option>";
             }
         }
@@ -3988,6 +3989,51 @@ class vendor extends CI_Controller {
         echo $option;
     }
     
+    /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_service_center_with_micro_wh() {
+        log_message('info', __METHOD__ );
+
+        $partner_id = $this->input->post('partner_id');
+
+        $partner_data = $this->partner_model->getpartner($partner_id);
+
+        $option = '<option selected="" disabled="">Select Warehouse</option>';
+        if ($partner_data[0]['is_wh'] == 1) {
+            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $where = array('is_wh' => 1, 'active' => 1);
+
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+
+            foreach ($data as $value) {
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
+                $option .= " > ";
+
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+            }
+        }
+        if ($partner_data[0]['is_micro_wh'] == 1) {
+             $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
+
+            if (!empty($micro_wh_state_mapp_data_list)) {
+                foreach ($micro_wh_state_mapp_data_list as $value) {
+                    $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['name'] . "</option>";
+                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+                }
+            }
+        }
+        
+
+        echo $option;
+    }
+
     function upload_signature_file() {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
@@ -4541,6 +4587,7 @@ class vendor extends CI_Controller {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_bank_details', $data);
         }
+        
     }
     
     /**
@@ -4795,15 +4842,14 @@ class vendor extends CI_Controller {
           echo $api_response;
         }
     }
-
-    function save_vendor_documents(){ 
+        function save_vendor_documents(){
             $this->checkUserSession();
             $vendor = [];
             $data = $this->input->post();
             $vendorArray = $this->reusable_model->get_search_result_data("service_centres", "name", array("id"=>$data['id']), NULL, NULL, NULL, NULL, NULL, array());
             $_POST['name'] = $vendorArray[0]['name'];
             //Start  Processing PAN File Upload
-            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {  
+            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('pan_file');
                 if ($checkfilevalidation) {
@@ -4859,6 +4905,7 @@ class vendor extends CI_Controller {
                     //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
+
                     if (!empty($_POST['id'])) {
                         $this->editvendor($data['id']);
                     } else {
@@ -4899,8 +4946,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {  
-            
+            if (($_FILES['gst_file']['error'] != 4) && !empty($_FILES['gst_file']['tmp_name'])) {
                 $attachment_gst = $this->upload_gst_file($data);
                 if($attachment_gst){} else {
                     return FALSE;
@@ -5237,7 +5283,7 @@ class vendor extends CI_Controller {
             $this->load->view("employee/search_gst_number");
         }
     }
-
+    
     function send_broadcast_sms_to_vendors(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/send_broadcast_sms_to_vendors_form');

@@ -201,8 +201,8 @@
     function get_vendor() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>},
             success: function (response) {
                 $('#wh_id').html(response);
             }

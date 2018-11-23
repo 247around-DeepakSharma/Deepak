@@ -2,21 +2,11 @@
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <div class="container-fluid">
-    <input type="hidden" value="<?php echo T_SERIES_PARTNER_ID;?>" name="receiver_partner_id" id="receiver_partner_id">
+    <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
-      
-         <div class="panel panel-default">
-            <div class="panel-heading">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Received Defective Parts</h1>
-                    </div>
-                    <div class="approved col-md-6">
-                        <div class="btn btn-info btn-sm send_all_spare pull-right" onclick="process_send_all_spare();">Send spare to partner</div>
-                    </div>
-                </div>
-            </div>
+          <h2>Received Defective Parts</h2>
+         <div class="panel panel-default">            
             <div class="panel-body">
                 <div class="success_msg_div" style="display:none;">
                     <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
@@ -34,22 +24,36 @@
                         <strong><span id="error_msg"></span></strong>
                     </div>
                 </div>
-                <div class="search-form">
-                    <form class="form-inline" action="<?php echo base_url();?>service_center/approved_defective_parts_booking_by_warehouse" method="POST">
-                        <div class="form-group">
-                            <label for="partner_id">Select Partner</label>
-                            <select class="form-control" id="partner_id" name="partner_id" required="">
-                                <option value="" disabled="">Select Partner</option>
-                            </select>
+                
+                <div class="x_content_header">
+                    <section class="fetch_inventory_data">
+                        <div class="row">
+                            <div class="form-inline">
+                                <div class="form-group col-md-4">
+                                    <form class="form-inline" action="#" method="POST">
+
+                                        <label for="partner_id">Select Partner</label>
+                                        <select class="form-control" id="partner_id" name="partner_id" required="">
+                                            <option value="" disabled="">Select Partner</option>
+                                        </select>
+                                        <div id="partner_err"></div>
+                                </div>                              
+                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search" style="margin-top: 22px;">Submit</button>                          
+                                
+                                   </form>                                
+                            </div>
+                            <div class="approved pull-right">
+                                <div class="btn btn-info btn-sm send_all_spare pull-right" style="margin-top: 11px;" onclick="process_send_all_spare();">Send spare to partner</div>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-success">Submit</button>
-                    </form>
+                    </section>
                 </div>
+                <div class="clearfix"></div>
                 <hr>
                 
                 <?php if(!empty($spare_parts)) { ?>
                 <div class="table-responsive">
-                   <table class="table table-bordered table-hover table-striped">
+                    <table class="table table-bordered table-hover table-striped" id="defective_parts_send_to_partner">
                         <thead>
                            <tr>
                             <th class="text-center">No</th>
@@ -193,8 +197,74 @@
           </div>
     </div>
    </div>
-<div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
 
+<script>
+    $('#defective_parts_send_to_partner').DataTable({
+        pageLength:20,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excel',
+                text: 'Export',
+                exportOptions: {
+                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+                },
+                title: 'defective_parts_send_to_partner'
+            }
+        ]
+    });
+    
+     $("#partner_search").click(function(){         
+         var partner_id = $("#partner_id").val();
+         if(partner_id==null){
+            $("#partner_err").html('Please Select Partner.').css({'color':'red'});
+            return false;
+         }else{
+             $("#partner_err").html('');
+             load_view_send_to_partner('service_center/send_to_partner_list', '#tabs-5',partner_id);
+         }
+         
+     });
+   
+   function load_view_send_to_partner(url, tab,partner_id){
+    
+       //Enabling loader
+        $('#loading_image').show();
+        //Loading view with Ajax data
+        $(tab).html("<center>  <img style='width: 46px;' src='<?php echo base_url(); ?>images/loader.gif'/> </center>");
+        $.ajax({
+            type: "POST",
+            url: "<?php echo base_url() ?>" + url,
+            data: {is_ajax:true,partner_id:partner_id},
+            success: function (data) {
+                $(tab).html(data);                
+                if(tab === '#tabs-2'){
+                    //Adding Validation   
+                    $("#selectall_address").change(function(){
+                        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_manifest').prop('checked', false); 
+                            $('#selectall_manifest').prop('checked', false); 
+                        }
+                    $(".checkbox_address").prop('checked', $(this).prop("checked"));
+                    });
+    
+                    $("#selectall_manifest").change(function(){
+                        var d_m = $('input[name="download_address[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_address').prop('checked', false); 
+                            $('#selectall_address').prop('checked', false); 
+                        }
+                    $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
+                    }); 
+                }
+            },
+            complete: function () {
+                $('#loading_image').hide();
+            }
+        });
+    }
+</script>
 <script>
     
     $('#partner_id').select2({
@@ -203,7 +273,7 @@
     });
     
     $('document').ready(function(){
-        get_partner();
+        get_partner_ack();
     });
     
     var postData = {};
@@ -314,7 +384,7 @@
         
     });
     
-    function get_partner(){
+    function get_partner_ack(){
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/service_centers/warehouse_ack_partner_list',
@@ -387,3 +457,4 @@
             
         }
 </script>
+

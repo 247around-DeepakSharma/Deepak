@@ -496,6 +496,9 @@ class Invoice extends CI_Controller {
             $penalty_booking_count = (array_sum(array_column($misc_data['penalty_discount'], 'booking_failed')));
             $c_files_name = $this->generate_partner_penalty_excel($misc_data['penalty_discount'], $misc_data['penalty_tat_count'], $meta['invoice_id']);
             array_push($files, $c_files_name);
+            
+            $c_files_name1 = $this->generate_partner_penalty__tat_breakup_excel($misc_data['penalty_booking_data'], $meta['invoice_id']);
+            array_push($files, $c_files_name1);
         }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
@@ -754,6 +757,13 @@ class Invoice extends CI_Controller {
         $template = 'partner_penalty_discount.xlsx';
         $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $tat_count, $tat_data, $output_file_excel, true);
+        return $output_file_excel;
+    }
+    
+    function generate_partner_penalty__tat_breakup_excel($tat_breakup, $invoice_id){
+        $template = 'Penatly_tat_breakup-v1.xlsx';
+        $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-tat-breakup-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, array(), $tat_breakup, $output_file_excel, true);
         return $output_file_excel;
     }
 
@@ -3620,12 +3630,12 @@ class Invoice extends CI_Controller {
      * It will generate for both party(SF/Partner)
      * @param String $booking_id
      */
-    function generate_reverse_oow_invoice($booking_id){
-        log_message('info', __METHOD__. " Booking ID ".$booking_id);
+    function generate_reverse_oow_invoice($spare_id){
+        log_message('info', __METHOD__. " Spare ID ".$spare_id);
         $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
                 . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
                 . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
-                    array('spare_parts_details.booking_id' => $booking_id, 
+                    array('spare_parts_details.id' => $spare_id, 
                         'booking_unit_details_id IS NOT NULL' => NULL,
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
@@ -3716,7 +3726,7 @@ class Invoice extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'B',
-                    'type' => "Part",
+                    'type' => "Parts",
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoice_details[0]['vendor_partner_id'],
                     'invoice_file_main' => $response['meta']['invoice_file_main'],
@@ -3755,6 +3765,138 @@ class Invoice extends CI_Controller {
             
             return true;
     }
+    /**
+     * @desc This function is used to generate Micro Spare purchase invoice  
+     * @param int $spare_id
+     */
+    function generate_micro_reverse_sale_invoice() {
+        log_message('info', __METHOD__ . " Spare ID " . json_encode($this->input->post('spare_id'), true));
+        $array = $this->input->post('spare_id');
+        if (!empty($array)) {
+            foreach ($array as $vsp) {
+                $spare_id = $vsp['spare_id'];
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, service_centres.gst_no as gst_number,service_centres.sc_code,"
+                        . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
+                        . "service_centres.district, service_centres.pincode, service_centres.is_wh ", array('spare_parts_details.id' => $spare_id), false, TRUE);
+                if (!empty($spare)) {
+                    if ($spare[0]['partner_id'] == $spare[0]['service_center_id'] && $spare[0]['entity_type'] == _247AROUND_SF_STRING && empty($spare[0]['reverse_sale_invoice_id'])) {
+                        if ($spare[0]['is_wh'] == 0) {
+                            if (!empty($spare[0]['shipped_inventory_id'])) {
+                                if (empty($spare[0]['gst_number'])) {
+                                    $spare[0]['gst_number'] = TRUE;
+                                }
+                                $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                                $spare[0]['spare_id'] = $spare_id;
+                                $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
+                                $spare[0]['booking_partner_id'] = $spare[0]['partner_id'];
+                                $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare, $invoice_id);
+                                if (!empty($unsettle['processData'])) {
+                                    $data = array();
+                                    $data[0]['description'] = ucwords($unsettle['processData'][0]['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
+                                    $data[0]['taxable_value'] = $unsettle['processData'][0]['rate'];
+                                    $data[0]['product_or_services'] = "Product";
+                                    $data[0]['gst_number'] = $spare[0]['gst_number'];
+                                    $data[0]['invoice_id'] = $invoice_id;
+                                    $data[0]['spare_id'] = $spare_id;
+                                    $data[0]['inventory_id'] = $spare[0]['inventory_id'];
+                                    $data[0]['company_name'] = $spare[0]['company_name'];
+                                    $data[0]['company_address'] = $spare[0]['company_address'];
+                                    $data[0]['district'] = $spare[0]['district'];
+                                    $data[0]['pincode'] = $spare[0]['pincode'];
+                                    $data[0]['state'] = $spare[0]['state'];
+                                    $data[0]['rate'] = $unsettle['processData'][0]['rate'];
+                                    $data[0]['qty'] = 1;
+                                    $data[0]['hsn_code'] = $unsettle['processData'][0]['rate'];
+                                    $sd = $ed = $invoice_date = date("Y-m-d");
+                                    $data[0]['gst_rate'] = $unsettle['processData'][0]['gst_rate'];
+
+                                    $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
+                                    $response['meta']['invoice_id'] = $invoice_id;
+                                    $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                                    if ($status) {
+                                        log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $spare[0]['service_center_id']);
+
+                                        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                                        $output_pdf_file_name = $convert['main_pdf_file_name'];
+                                        $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                                        $response['meta']['copy_file'] = $convert['copy_file'];
+
+                                        $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
+                                        $subject = vsprintf($email_template[4], array($spare[0]['company_name'], $spare[0]['booking_id']));
+                                        $message = $email_template[0];
+                                        $email_from = $email_template[2];
+
+                                        $to = $email_template[3];
+                                        $cc = "";
+
+                                        $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+
+                                        $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                                        exec($cmd);
+                                        $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "", SPARE_INVOICE_EMAIL_TAG);
+
+                                        unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                                        unlink(TMP_FOLDER . $output_pdf_file_name);
+                                        unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+
+                                        $invoice_details = array(
+                                            'invoice_id' => $response['meta']['invoice_id'],
+                                            'type_code' => 'B',
+                                            'type' => "Parts",
+                                            'vendor_partner' => 'vendor',
+                                            'vendor_partner_id' => $spare[0]['service_center_id'],
+                                            'invoice_file_main' => $response['meta']['invoice_file_main'],
+                                            'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                                            'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
+                                            'to_date' => date("Y-m-d", strtotime($ed)),
+                                            'parts_cost' => $response['meta']['total_taxable_value'],
+                                            'parts_count' => 1,
+                                            'total_amount_collected' => $response['meta']['sub_total_amount'],
+                                            'invoice_date' => date("Y-m-d"),
+                                            'around_royalty' => 0,
+                                            'due_date' => date("Y-m-d"),
+                                            //Amount needs to be collected from Vendor
+                                            'amount_collected_paid' => -$response['meta']['sub_total_amount'],
+                                            //add agent_id
+                                            'agent_id' => _247AROUND_DEFAULT_AGENT,
+                                            "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
+                                            "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
+                                            "igst_tax_rate" => $response['meta']['igst_tax_rate'],
+                                            "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                                            "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                                            "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                                            "hsn_code" => SPARE_HSN_CODE,
+                                            "invoice_file_pdf" => $response['meta']['copy_file'],
+                                            "remarks" => $data[0]['description']
+                                        );
+
+                                        $this->invoices_model->insert_new_invoice($invoice_details);
+                                        log_message('info', __METHOD__ . ": Invoice ID inserted");
+
+                                        $this->service_centers_model->update_spare_parts(array('id' => $spare[0]['id']), array("reverse_sale_invoice_id" => $response['meta']['invoice_id']));
+                                        log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
+
+                                        $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+                                    }
+                                }
+                            } else {
+                                log_message('info', __METHOD__ . " Shipped inventory Id is empty " . $spare_id);
+                            }
+                        } else {
+                            log_message('info', __METHOD__ . " Warehouse flag is ON " . $spare_id);
+                        }
+                    } else {
+                        log_message('info', __METHOD__ . " Partner ID ans sf id is not same dor spare id " . $spare_id);
+                    }
+                } else {
+                    log_message('info', __METHOD__ . " Spare ID is not exit " . $spare_id);
+                }
+            }
+        } else {
+            log_message('info', __METHOD__ . " Empty Spare " );
+        }
+    }
+
     /**
      * @desc This function is used to generate reverse purchase invoice means sale invoice to Partner 
      * @param Array $spare_data
@@ -3821,7 +3963,7 @@ class Invoice extends CI_Controller {
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'A',
-                    'type' => "Part",
+                    'type' => "Parts",
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $partner_details[0]['id'],
                     'invoice_file_main' => $response['meta']['invoice_file_main'],
@@ -4336,8 +4478,8 @@ class Invoice extends CI_Controller {
                     $email_from = $email_template[2];
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
-                    $to = $get_owner_email[0]['owner_email'].",".$this->session->userdata('official_email');
-                    $cc = ANUJ_EMAIL_ID.", ".$email_template[3].", ".$get_rm_email[0]['official_email'];
+                    $to = $get_owner_email[0]['owner_email'];
+                    $cc = $email_template[3].", ".$get_rm_email[0]['official_email'];
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
@@ -4616,7 +4758,7 @@ class Invoice extends CI_Controller {
 
     function get_all_invoice_vertical(){ 
         $vertical_input = $this->input->post('vertical_input');
-        $html = "<option selected disabled>Select Vertical</option>";
+        $html = "<option value='' selected disabled>Select Vertical</option>";
         $select = 'distinct(vertical)';
         $vertical = $this->invoices_model->get_invoice_tag($select);
         foreach ($vertical as $vertical) {
@@ -4632,7 +4774,7 @@ class Invoice extends CI_Controller {
     function get_invoice_category(){
         $vertical = $this->input->post('vertical');
         $category_input = $this->input->post('category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(category)';
         $where = array('vertical'=>$vertical);
         $category = $this->invoices_model->get_invoice_tag($select, $where);
@@ -4650,7 +4792,7 @@ class Invoice extends CI_Controller {
         $vertical = $this->input->post('vertical');
         $category = $this->input->post('category');
         $sub_category_input = $this->input->post('sub_category_input');
-        $html = "<option selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Category</option>";
         $select = 'distinct(sub_category), accounting';
         $where = array('vertical'=>$vertical, 'category'=>$category);
         $sub_category = $this->invoices_model->get_invoice_tag($select, $where);

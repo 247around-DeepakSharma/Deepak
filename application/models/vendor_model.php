@@ -1915,4 +1915,26 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    /**
+     * @desc This is used to select data from vendor  pincode mappping and service center table
+     * @param Array $where
+     * @param String $select
+     * @return Array
+     */
+    
+    
+  
+            
+    function get_micro_warehouse_history($id) {
+        $this->db->select('w_on_off.partner_id,w_on_off.vendor_id,w_on_off.active,w_on_off.create_date,s.name,s.district');
+        $this->db->from('micro_warehouse_state_mapping as m');
+        $where = array('m.id'=>$id); 
+        $this->db->join('warehouse_on_of_status as w_on_off', 'm.vendor_id = w_on_off.vendor_id');
+        $this->db->join('service_centres as s', 's.id = w_on_off.vendor_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 }

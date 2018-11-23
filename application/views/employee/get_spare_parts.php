@@ -121,7 +121,8 @@
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
-                    location.reload();
+                    defective_part_shipped_by_sf_table.ajax.reload(null, false);
+                    //location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }

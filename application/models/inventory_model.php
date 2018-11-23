@@ -46,7 +46,7 @@ class Inventory_model extends CI_Model {
         if($start !== "All"){
             $add_limit = " limit $start, $limit ";
         }
-        $sql = "SELECT * FROM brackets "
+      $sql = "SELECT * FROM brackets "
                 . $where.""
                 . " ORDER BY order_id Desc $add_limit";
         $query = $this->db->query($sql);
@@ -562,7 +562,7 @@ class Inventory_model extends CI_Model {
                     $query[$key]['part_name'] = "";
                     $query[$key]['part_number'] = "";
                 }
-                //get agent name
+                //get agent name 
                 if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
                     $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
                     $query[$key]['agent_name'] = $employe_details[0]['full_name'];
@@ -1127,7 +1127,7 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $this->db->update('courier_details',$data);
     }
-    
+
      /**
      * @desc: This function is used to update spare parts courier details in spare_parts_details table
      * @params: Array $id
@@ -1155,7 +1155,7 @@ class Inventory_model extends CI_Model {
     
     function update_pending_inventory_stock_request($entity_type, $entity_id, $inventory_id, $qty){
         $sql = "Update inventory_stocks set pending_request_count = pending_request_count+ $qty WHERE "
-                . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND (pending_request_count+ $qty) > -1  ";
+                . "inventory_id = '".$inventory_id."' AND entity_type = '".$entity_type."' AND entity_id = '".$entity_id."' AND (pending_request_count+ $qty) > -1 ";
         $result = $this->db->query($sql);
         log_message('info', __METHOD__. " ".$this->db->last_query());
         return $result;
@@ -1186,6 +1186,7 @@ class Inventory_model extends CI_Model {
                 $where";
 
         $query = $this->db->query($sql)->result_array();
+
         return $query;
     }
     
@@ -1279,7 +1280,9 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
-   function get_spare_consolidated_data($select,$where){
+    
+   
+    function get_spare_consolidated_data($select,$where){
         $this->db->select($select,false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
@@ -1290,6 +1293,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         
         return $query;
+
     }
     
     /**
@@ -1307,6 +1311,7 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
+    
     
     /**
      * @desc: This function is used to get awb number details from database
@@ -1385,7 +1390,7 @@ class Inventory_model extends CI_Model {
             return TRUE;
         }
     }
-
+    
      /**
      * @Desc: This function is used to get the courier company invoice details
      * @params: $select string
@@ -1404,7 +1409,7 @@ class Inventory_model extends CI_Model {
         if(!empty($where_in)){
             $this->db->where_in(key($where_in), $where_in[key($where_in)]);
         }
-        
+
         $query = $this->db->get('courier_company_invoice_details');
         return $query->result_array();
     }
@@ -1626,4 +1631,90 @@ class Inventory_model extends CI_Model {
         return $query->num_rows();
     }
     
+    
+       
+    /**
+     * @desc This is used to Insert Data In Table     
+     * @table String $table
+     * @return last inserted id
+     */
+    
+    function insert_query($table,$data){
+        if(!empty($table) && !empty($data)){
+          $this->db->insert($table,$data);
+          return $this->db->insert_id();   
+        }        
+    }
+    
+    /**
+     * @desc This is used to get list of micro warehouse using vendor id     
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_micro_wh_mapping_list($where, $select){
+        $this->db->where($where);
+        $this->db->select($select);
+        $query =  $this->db->get("micro_warehouse_state_mapping");
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to get the micro warehouse lists by partner id     
+     * @table multiple tables 
+     * @return array list
+     */
+    
+    function get_micro_wh_lists_by_partner_id($partner_id) {
+        $this->db->select('micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.id as wh_on_of_id,service_centres.name,micro_wh_mp.id as micro_wh_mp_id');
+        $this->db->from('micro_warehouse_state_mapping AS micro_wh_mp');        
+        $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');       
+        $where['micro_wh_mp.partner_id']= $partner_id;        
+        $this->db->where($where);
+        $query = $this->db->get();        
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to  inactive of active value in wh_on_of_status table     
+     * @table only one
+     * @return Json
+     */
+    function manage_micro_wh_from_list_by_id($id,$status) {
+        $this->db->set('micro_warehouse_state_mapping.active', $status);
+        $this->db->where('micro_warehouse_state_mapping.id', $id);
+        $this->db->update('micro_warehouse_state_mapping');
+        $afftected_row = $this->db->affected_rows();
+        if(!empty($afftected_row)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_warehouse_on_of_status_list($where, $select){
+        $this->db->select($select);
+        $this->db->from('micro_warehouse_state_mapping as m');            
+        $this->db->join('warehouse_on_of_status as w_on_off', 'm.vendor_id = w_on_off.vendor_id');
+        $this->db->group_by('m.vendor_id');     
+        $this->db->where($where);        
+        $query = $this->db->get();        
+        return $query->result_array();
+    }
+     /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */   
+    function get_micro_wh_state_mapping_partner_id($partner_id) {
+        $this->db->select('m.*, s.name,s.district');
+        $this->db->from('micro_warehouse_state_mapping as m');
+        $where =array('m.active'=>1,'partner_id'=>$partner_id,'s.active'=>1,'s.on_off'=>1);      
+        $this->db->join('service_centres as s', 's.id = m.vendor_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }    
 }

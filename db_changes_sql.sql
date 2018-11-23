@@ -9284,8 +9284,10 @@ ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT N
 
 ALTER TABLE `invoice` ADD `vertical` VARCHAR(255) NOT NULL AFTER `remarks`, ADD `category` VARCHAR(255) NOT NULL AFTER `vertical`, ADD `sub_category` VARCHAR(255) NOT NULL AFTER `category`, ADD `accounting` TINYINT(1) NOT NULL AFTER `sub_category`;
 
+
 --Chhavi 1st November
 ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+
 
 --Kalyani 02-Nov
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Send Broadcast SMS', NULL, 'employee/vendor/send_broadcast_sms_to_vendors', '2', '36', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
@@ -9301,6 +9303,13 @@ UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit not
 
 
 --Gorakh 14 Nov -2018---
+
+
+
+UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
+
+--Gorakh 14 Nov -2018
+
 
 CREATE TABLE `warehouse_on_of_status` (
   `id` int(11) NOT NULL,
@@ -9373,3 +9382,6 @@ ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_typ
 ------Gorakh 21 Nov 2018------
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
 
+--Abhay 21 NOv
+ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
+ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;

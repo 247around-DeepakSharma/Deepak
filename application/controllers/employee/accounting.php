@@ -876,11 +876,11 @@ class Accounting extends CI_Controller {
         
         $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
         $row[] = $resend_invoice;
-        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
-            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
-        } else {
-            $row[] = "";
-        }
+//        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
+//            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
+//        } else {
+//            $row[] = "";
+//        }
         return $row;
     }
     /**
@@ -1236,6 +1236,7 @@ class Accounting extends CI_Controller {
         $this->load->view('employee/add_variable_charges', $variable_charges);  
     }
     
+
     /**
      * @desc This function form select box of charges type for variable charges
      * @param void
@@ -1254,7 +1255,7 @@ class Accounting extends CI_Controller {
         echo $html;
     }
     
-    /**
+     /**
      * @desc This is used to add and update fixed variable charges for vendor partner
      * @param void
      * @return view
@@ -1406,6 +1407,7 @@ class Accounting extends CI_Controller {
                             'sgst_amount' => $sgst_val,
                             'invoice_date' => $date,
                             'checksum' => $checksum,
+                            'gstr2a_period' => $ret_period,
                             'create_date' => date('Y-m-d H:i:s')
                         );
                         $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
@@ -1442,20 +1444,27 @@ class Accounting extends CI_Controller {
      * @return boolean message
      */
     function get_gst2ra_mapped_data(){
-        
+        $color_array = array();
         $post = $this->get_gst2ra_post_data();
         $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
-        $post['column_order'] = array('taxpro_gstr2a_data.invoice_date',NULL);
-        $post['column_search'] = array('service_centres.company_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+        $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
         
         $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
         $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
-        //log_message("info", __METHOD__." query ". json_encode($this->db->last_query(), TRUE));
         $data = array();
         $no = $post['start'];
         foreach ($list as $data_list) {
+            $array_val = $data_list['checksum'];
+            if(in_array($array_val, $color_array)){
+                $data_list['duplicate_entry'] = 1;
+            }
+            else{
+                array_push($color_array, $array_val);
+                $data_list['duplicate_entry'] = 0;
+            }
+            
             $no++;
             $inv_where = array(
                 'vendor_partner'=>'vendor',
@@ -1469,11 +1478,10 @@ class Accounting extends CI_Controller {
         }
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', $post['where'])[0]['total'],
-            "recordsFiltered" => $this->accounting_model->get_taxpro_gstr2a_data('count(id) as total', $post['where'])[0]['total'],
+            "recordsTotal" => $this->accounting_model->count_all_taxpro_gstr2a_data($post['where']),
+            "recordsFiltered" => $this->accounting_model->count_filtered_taxpro_gstr2a_data($post, 'taxpro_gstr2a_data.id'),
             "data" => $data,
         );
-        
         echo json_encode($output); 
     }
     
@@ -1491,7 +1499,12 @@ class Accounting extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = $data_list['invoice_number'];
-        $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
+        if($data_list['duplicate_entry'] == 1){
+            $row[] = "<a class='duplicate_row' href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
+        }
+        else{
+            $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
+        }
         $row[] = $data_list['gst_no'];
         $row[] = $data_list['invoice_date'];
         $row[] = $data_list['igst_amount'];
@@ -1571,5 +1584,6 @@ class Accounting extends CI_Controller {
             $this->session->set_userdata('error', 'Charge Type Already Exist!');
             redirect(base_url() . 'employee/accounting/add_charges_type'); 
         }
+        
     }
 }

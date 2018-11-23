@@ -6,7 +6,7 @@
                 Update Invoice (<?php echo $invoice_details[0]['invoice_id'];?>)
             </div>
             <div class="panel-body">
-                <form class="form-horizontal" method="post" action="<?php echo base_url();?>employee/invoice/update_invoice_with_breakup/<?php echo $vendor_partner;?>/<?php echo $invoice_details[0]['vendor_partner_id'];?>/<?php echo $invoice_breakup[0]['invoice_id'];?>">
+                <form enctype="multipart/form-data"  class="form-horizontal" method="post" action="<?php echo base_url();?>employee/invoice/update_invoice_with_breakup/<?php echo $vendor_partner;?>/<?php echo $invoice_details[0]['vendor_partner_id'];?>/<?php echo $invoice_breakup[0]['invoice_id'];?>">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['vertical'])){ echo $invoice_details[0]['vertical'];  } ?>" id="vertical_input">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['category'])){ echo $invoice_details[0]['category'];  } ?>" id="category_input">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['sub_category'])){ echo $invoice_details[0]['sub_category'];  } ?>" id="sub_category_input">
@@ -180,26 +180,24 @@
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Vertical</label>
+                                    <label for="Due Date" class="col-md-4">Vertical*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')" required>
                                           
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Category</label>
+                                    <label for="Due Date" class="col-md-4">Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
-                                           <option>select</option>
+                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')" required>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Sub Category</label>
+                                    <label for="Due Date" class="col-md-4">Sub Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="sub_category" id="sub_category">
-                                           <option>select</option>
+                                        <select class="form-control" name="sub_category" id="sub_category" required>
                                         </select>
                                     </div>
                                 </div>
