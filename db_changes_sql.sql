@@ -9364,3 +9364,6 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 --Kalyani 23-Nov 2018
 ALTER TABLE `partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `gst_number`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
 ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_defective_part_return_wh`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+
+UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service was good, give miss call 01139588220. If not, 01139588224. 247Around%s.' WHERE `sms_template`.`tag` = 'complete_booking';
+
