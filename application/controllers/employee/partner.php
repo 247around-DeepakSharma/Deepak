@@ -6301,7 +6301,6 @@ function update_channel($id) {
      */    
     function process_partner_warehouse_config(){ 
         
-        $is_wh = $this->input->post('is_wh');
         $partner_id = $this->input->post('partner_id');
         $micro = $this->input->post('micro');
         $is_micro_wh = $this->input->post('is_micro_wh');
@@ -6343,22 +6342,7 @@ function update_channel($id) {
             );
           $this->partner_model->edit_partner($partner,  $partner_id);             
         }       
-             
-        if($is_wh==1){          
-           $partner = array(
-               'is_wh'=>1,
-               'is_defective_part_return_wh'=>$is_defective_part_return_wh               
-           );
-          $this->partner_model->edit_partner($partner,  $partner_id);           
-        }elseif ($is_wh==1 && $is_micro_wh == 1) {           
-           $partner = array(
-               'is_wh'=>1,
-               'is_micro_wh'=>1,
-               'is_defective_part_return_wh'=>$is_defective_part_return_wh
-           );
-          $this->partner_model->edit_partner($partner,  $partner_id);  
-        }
-       
+                    
          redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);              
     }
     
