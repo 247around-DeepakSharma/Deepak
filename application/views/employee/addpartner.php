@@ -109,10 +109,10 @@
                         <li><a id="6" href="#tabs-6" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
-                        <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Warehouse Details</span></a></li>
+                        <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Central Warehouse</span></a></li>
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
                         <?php
                             }
                             else{
@@ -125,10 +125,10 @@
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
-                        <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Warehouse Details</span></a></li>
+                        <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Central Warehouse</span></a></li>
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Warehouse</span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
                         <?php
                             }
                             ?>
@@ -281,7 +281,7 @@
                                         } ?>">
                                         <label for="state" class="col-md-4">State *</label>
                                         <div class="col-md-8">
-                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict()" >
+                                            <select class="micro_warehouse_state form-control" name ="state" id="state" onChange="getDistrict()" >
                                                 <option disabled="disabled" selected="selected"> Select State</option>
                                                 <?php
                                                     foreach ($results['select_state'] as $state) {
@@ -806,7 +806,7 @@
                     </div>
                     <div class="col-md-12">
                         <div class="panel panel-default">
-                            <div class="panel-heading"><b>Warehouse Details</b></div>
+                            <div class="panel-heading"><b>Central Warehouse</b></div>
                             <div class="panel-body">
                                 <div class="col-md-6">
                                     <div class="form-group ">
@@ -1539,8 +1539,9 @@
                 </div>
 
              </div>
-            </div>
-        
+
+            </div>    
+
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
@@ -1555,9 +1556,7 @@
                     }
                     ?>
 
-                <div class="clonedInput panel panel-info " id="clonedInput1">
-                    <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                        <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
+                <div class="clonedInput panel panel-info " id="clonedInput1">                   
                     <div class="panel-heading" style=" background-color: #f5f5f5;">
                         <p style="color: #000;"><b>Contact Persons</b></p>
                         <div class="clone_button_holder" style="float:right;margin-top: -31px;">
@@ -1627,6 +1626,13 @@
                                     </div>
                                                                          
                                     <div class="form-group ">
+                                        <label for="service_name" class="col-md-4">Alternate Email </label>
+                                        <div class="col-md-6">
+                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
+                                        </div>
+                                    </div>
+                                                                         
+                                    <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Permanent Address</label>
                                         <div class="col-md-6">
                                             <textarea type="text" rows="2" class="form-control input-model" name="contact_person_address[]" id="contact_person_address_1" value="" placeholder="Enter Address"></textarea>
@@ -1639,59 +1645,7 @@
                                         </div>
                                     </div>
                                 </div> 
-                            </div>
-
-                            <div class="col-md-12" style="display: none;" id="warehouse_office">
-                                <b>Warehouse Office Address</b>
-                                    <hr>
-                                <div class="col-md-6">                         
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4"> Address</label>
-                                        <div class="col-md-6">
-                                            <textarea  type="text" rows="3" class="form-control input-model"  name="warehouse_office_contact_person_address[]" id="p_contact_person_address_1" value = "" placeholder="Enter Address"></textarea>
-                                        </div>
-                                    </div>
-                                    <div style="margin-bottom: 31px;" class="form-group <?php
-                                    if (form_error('state')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                        <label for="state" class="col-md-4">State *</label>
-                                        <div class="col-md-6">
-                                            <select class="form-control" name ="warehouse_office_address[]" id="states_value_holder_1" onChange="get_Permanent_District(this.value)">
-                                                <option  selected="selected" value=""> Select State</option>
-                                                <?php
-                                                foreach ($results['select_state'] as $state) {
-                                                    ?>
-                                                    <option value = "<?php echo $state['state'] ?>">
-                                                                <?php echo $state['state']; ?>
-                                                    </option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('state'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div style="margin-bottom: 31px;" class="form-group">
-                                        <label for="state" class="col-md-4">District *</label>
-                                        <div class="col-md-6">
-                                            <select class="form-control" name ="warehouse_office_district[]" id="permanent_district" onChange="get_Permanent_Pincode(this.value)">
-                                                <option value="">Select City</option>
-                                            </select>
-                                            <?php echo form_error('district'); ?>
-                                        </div>
-                                    </div>
-                                    <div class="form-group " style="margin-bottom: 31px;">
-                                        <label for="state" class="col-md-4">Pincode</label>
-                                        <div class="col-md-6">
-                                            <select class="form-control" name ="warehouse_office_pincode[]"  id="parmanent_pincode">
-                                                <option value="">Select Pin</option>
-                                            </select>
-                                        </div>
-                                    </div>                                   
-                                </div>
-                            </div>           
+                            </div>                                   
                             <div class="col-md-12">
                                 <div class="form-group "> 
                                     <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
@@ -1701,12 +1655,11 @@
                                 </div> 
                             </div>
                     </div>
-                </div>
-                    
+                </div>                    
                 <div class="cloned"></div>
                 
                 <div class="form-group " style="text-align:center">
-                    <input type="submit" class="btn btn-primary" value="Save Contacts">
+                    <input type="submit" class="btn btn-primary" id="save_contact" value="Save Contacts">
                 </div>
             </form>
             <hr>
@@ -2143,7 +2096,7 @@
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="is_wh" class="col-md-6" style="width: 40%;"> Micro Warehouse</label>
+                                    <label for="is_wh" class="col-md-6" style="width: 39%; margin-left:8px;"> Micro Warehouse</label>
                                     <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
                                         <input  type="checkbox" class="form-control" id="is_micro_wh"  name="is_micro_wh"  value = "1" <?php
                                         if (isset($query[0])) {
@@ -2183,37 +2136,22 @@
                                                 </div>
                                                 <span id="errmsg1"></span>
                                             </div>
-                                            
-<!--                                            <label for="defective_part" class="col-md-4" style="width:228px;">Defective Part Return to </label>                            
-                                            <div class="form-group">
-                                                <label for="defective_part" class="col-md-4" style="width:90px;">Warehouse</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    
-                                                </div>                                            
-                                                <label for="defective_part" class="col-md-4" style="width:65px;"> Partner</label>
-                                                <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                                    <input  type="radio" class="form-control" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 23%; height: 23px;"<?php
-                                                    if ($query[0]['is_defective_part_return_wh'] == '0') {
-                                                        echo "checked";
-                                                    }
-                                                    ?>>
-                                                </div>
-                                            </div>-->
                                         </div>
                                     </div>                                        
                                     <br><br><br>
-                                    <b>Add Micro Warehouse</b>                               
+                                    <b style="margin-left: 8px;">Add Micro Warehouse</b>                               
                                     <hr>
+                                    <div>                                        
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="micro" class="col-md-8">Select State</label>
                                             <div class="col-md-8">
-                                                <select class="form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
+                                                <select class="state_type form-control micro_wh_state" name="micro[0][micro_wh_state]" onchange="get_vendor_state_wise('micro_wh_state_0','sf_id_0' )" id="micro_wh_state_0" required>
                                                     <option selected="" value="" disabled="">Select State</option>
                                                     <?php foreach ($results['select_state'] as $value) { ?>
                                                         <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
                                                     <?php } ?>
-                                                </select>
+                                                </select>                                    
                                             </div>
                                         </div>
                                     </div>
@@ -2221,66 +2159,66 @@
                                         <div class="form-group ">
                                             <label for="micro" class="col-md-8">Select Micro Warehouse</label>
                                             <div class="col-md-8">
-                                                <select class="form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0">
+                                                <select class="sf_type form-control valid sf_id"  name="micro[0][sf_id][]" id="sf_id_0">
                                                     <option value="" selected disabled="">Select SF</option>
-                                                </select>
+                                                </select>                            
                                             </div>
                                         </div>
                                     </div>                               
                                      
-                                       <div class="col-md-2">
+                                    <div class="col-md-2">
                                         <div class="form-group "> 
-                                            <label for="micro" class="col-md-8">Amount</label>
+                                            <label for="micro" class="col-md-8">Payout Amount</label>
                                             <div class="col-md-8">                                                    
-                                                <input type="text" class="form-control" name="micro[0][sf_amount]" id="sf_amount_0" value="">
+                                                <input type="text" class="form-control" style="height: 28px;" name="micro[0][sf_amount]" id="sf_amount_0" value="" placeholder="Payout Amount">
                                             </div>
                                         </div>
                                     </div>   
-                                   
+
                                     <div class="col-md-2">
                                         <div class="form-group ">                                             
                                             <div class="col-md-8">                                                    
-                                                <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                                <button type="button" class="btn btn-default addButton" id="add_section" style="margin-top: 24px;"><i class="fa fa-plus"></i></button>
                                             </div>
                                         </div>
-                                    </div>                                
-                                    <div id="stat_waise_sf_template" class="template_s hide">                                        
+                                    </div>                                         
+                                    </div>
+                                    <div id="stat_waise_sf_template" class="template_s hide">                                         
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <div class="col-md-8">
-                                                    <select class="form-control micro_wh_state"  id='micro_wh_state' required>
+                                                    <select class="form-control micro_wh_state"  id='micro_wh_state' required="">
                                                         <option selected="" value="" disabled="">Select State</option>
                                                         <?php foreach ($results['select_state'] as $value) { ?>
                                                             <option value = "<?php echo $value['state'] ?>"> <?php echo $value['state']; ?> </option>
                                                         <?php } ?>
-                                                    </select>
+                                                    </select>                                                    
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group ">
                                                 <div class="col-md-8">
-                                                    <select class="form-control valid sf_id"  id="sf_id">
+                                                    <select class="form-control valid sf_id"  id="sf_id" required="">
                                                         <option value="" selected disabled="">Select SF</option>
-                                                    </select>
+                                                    </select>                                                    
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <div class="col-md-8">                                                  
-                                                    <input type="text" id="sf_amount" class="form-control" value="">
+                                                    <input type="text" id="sf_amount" class="form-control" value="" placeholder="Payout Amount">
                                                 </div>
                                             </div>
-                                        </div> 
-                                        
+                                        </div>                                         
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <div class="col-md-8">                                                  
                                                     <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                                 </div>
                                             </div>
-                                        </div>                                        
+                                        </div>                                                           
                                     </div>
                                 </div>
                             </div>                                 
@@ -2303,8 +2241,9 @@
                                         <th>S.N</th>
                                         <th>State Name</th>
                                         <th>Vendor Name </th>                                                
-                                        <th>view</th>
+                                        <th>History</th>
                                         <th>Status</th> 
+                                        <th>Last Updated</th> 
                                         <th class="col-md-1">Action</th>
                                     </tr>
                                 </thead>
@@ -2330,7 +2269,8 @@
                                                         ?>
                                                     </a>
 
-                                                </td>                                               
+                                                </td> 
+                                                <td><?php echo $val['update_date']; ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?> 
                                                         <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
@@ -2352,7 +2292,6 @@
          </div>
        </div>
     </div>
-</div>
 </div>
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
@@ -2658,8 +2597,8 @@
              $("#contact_person_c_address"+cloneIndex).val("");
        cloneIndex++;
        return false;
-    }
-    
+    }  
+
     function remove(){
        $(this).parents(".clonedInput").remove();
        final_price();
@@ -2840,6 +2779,15 @@
             return false;
         }
     }
+    $("#contact_person_department_1,#contact_person_role_1").on('click',function(){        
+       var department = $("#contact_person_department_1").val();
+       var role = $("#contact_person_role_1").val();
+       if(department=='Warehouse' && role=='3'){
+           $("#warehouse_office").css({'display':'block'});
+       }else{
+            $("#warehouse_office").css({'display':'none'})
+       }
+    });
     
     function get_Permanent_District(state){
        get_city(state,'permanent_district');        
@@ -3714,11 +3662,10 @@
     
     var partIndex = 0;
      $(document).ready(function () {
-        partIndex = partIndex +1;
+        partIndex = partIndex +1;        
     // Add button click handler
         $('#warehouse_setting_form').on('click', '.addButton', function () {
            partIndex++;
-            
             var $template = $('#stat_waise_sf_template'),
                 $clone = $template
                         .clone()
@@ -3729,9 +3676,9 @@
     
             // Update the name attributes
             $clone
-                .find('[id="micro_wh_state"]').attr('name', 'micro[' + partIndex + '][micro_wh_state]').attr('onchange', "get_vendor_state_wise('micro_wh_state_"+partIndex+"','sf_id_"+partIndex+"' )").attr('id','micro_wh_state_'+partIndex).select2({placeholder:'Select State'}).end() 
+                .find('[id="micro_wh_state"]').attr('name', 'micro[' + partIndex + '][micro_wh_state]').attr('onchange', "get_vendor_state_wise('micro_wh_state_"+partIndex+"','sf_id_"+partIndex+"' )").addClass('state_type').attr('id','micro_wh_state_'+partIndex).select2({placeholder:'Select State'}).end() 
                 .find('[id="sf_amount"]').attr('name', 'micro[' + partIndex + '][sf_amount]').attr('id','sf_amount_'+partIndex).end()
-                .find('[id="sf_id"]').attr('name', 'micro[' + partIndex + '][sf_id][]').attr('id','sf_id_'+partIndex).select2({placeholder:'Select SF'}).end()                
+                .find('[id="sf_id"]').attr('name', 'micro[' + partIndex + '][sf_id][]').addClass('sf_type').attr('id','sf_id_'+partIndex).select2({placeholder:'Select SF'}).end()                
             //get_appliance(partIndex);
            })
     
@@ -3779,19 +3726,41 @@
         }     
     }
     
-    $("#micro_wh_sttng").click(function(){    
+    $("#micro_wh_sttng").click(function(){
+        var state_value=1;
+        var sf_value=1;
         var checkbox_staus =$("#is_micro_wh").is(":checked");
         if(checkbox_staus==true){
            var is_defective_part_return_status = $('input[name=is_defective_part_return_wh]:checked').val();     
             if((is_defective_part_return_status=='') || (is_defective_part_return_status==undefined)){
                 $("#is_defected_part_err").html('Defective Parts Return One Option is mandatory.').css('color','red');
                 return false;
-             } 
+             }     
     }
-    
-        
+    $('.state_type').each(function() {               
+        if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+            alert('Please Select state');
+            state_value = 0;
+           return false;
+        }                
     });
 
+    $('.sf_type').each(function() {               
+        if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+            alert('Please Select SF');
+            sf_value = 0;
+           return false;
+        }                
+    }); 
+    
+    if(sf_value==1 && state_value==1){
+        return true;
+    }else{
+        return false;
+    }
+    
+    });
+               
     function update_variable_charge(id, button){
         $.ajax({
             type: 'POST',
