@@ -689,7 +689,7 @@
                                         <div class="form-group ">
                                             <label for="is prepaid" class="col-md-4">Is Prepaid Account</label>
                                             <div class="col-md-1">
-                                                <input  type="checkbox" class="form-control"  name="is_prepaid" value = "1" <?php if (isset($query[0])) {
+                                                <input  type="checkbox" class="form-control"  name="is_prepaid" id="is_prepaid" value = "1" <?php if (isset($query[0])) {
                                                     if($query[0]['is_prepaid'] == '1'){ echo "checked"; }
                                                     } ?> >
                                             </div>
@@ -701,7 +701,7 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
                                                     echo $query[0]['prepaid_amount_limit'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
@@ -751,7 +751,7 @@
                                             <div class="form-group ">
                                                 <label for="is prepaid" class="col-md-4">Is Postpaid Account</label>
                                                 <div class="col-md-1">
-                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" value = "1" <?php if (isset($query[0])) {
+                                                    <input  type="checkbox" class="form-control"  name="is_postpaid" id="is_postpaid" value = "1" <?php if (isset($query[0])) {
                                                         if($query[0]['is_prepaid'] == '0'){ echo "checked"; }
                                                         } ?> >
                                                 </div>
@@ -763,7 +763,7 @@
                                                 } ?>">
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
                                                         echo $query[0]['postpaid_credit_period'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
@@ -777,7 +777,7 @@
                                                 } ?>">
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
-                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
+                                                    <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
                                                         echo $query[0]['postpaid_notification_limit'];
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
@@ -785,9 +785,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="col-md-6">
+                                         <div class="col-md-6">
                                             <div class="form-group <?php if (form_error('postpaid_grace_period')) {
                                                 echo 'has-error';
                                                 } ?>">
@@ -864,7 +862,7 @@
             </div>
             <div class="clear"></div>
             <div id="container_2" style="display:none" class="form_container">
-                <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
+                <form name="document_form" class="form-horizontal" onsubmit="return validate_partner_document()" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
                     <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1031,9 +1029,19 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
-                                                } ?>" placeholder="GST Number">
+                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="gst_type" id="gst_type" placeholder="Enter GST Number Type" value = "<?php if (isset($query[0]['gst_type'])) {
+                                                echo $query[0]['gst_type'];
+                                                } ?>" readonly="readonly">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="gst_status" id="gst_status" placeholder="Enter GST Number Status" value = "<?php if (isset($query[0]['gst_status'])) {
+                                                echo $query[0]['gst_status'];
+                                                } ?>" readonly="readonly">
+                                        </div>
+                                        <div class="col-md-3">
                                             <input type="file" class="form-control"  name="gst_number_file">
                                         </div>
                                         <div class="col-md-1">
@@ -1983,7 +1991,7 @@
             </div>
             <div class="clear"></div>
             <div id="container_11"  style="display:none;margin: 30px 10px;" class="form_container">
-                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_variable_charges" method="POST" enctype="multipart/form-data" >
+                    <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/accounting/process_partner_variable_charges" method="POST" enctype="multipart/form-data" >
                     <?php if(isset($query[0]['id'])){ ?>
                         <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
                     <?php } ?>
@@ -3470,8 +3478,46 @@
             $("#contact_person_role").val();
             //$('#contact_person_states option:selected').removeAttr('selected');
         });
-        
+        check_postpaid_partner($("#is_postpaid")); 
+        check_postpaid_partner($("#is_prepaid"));
     });
+    
+    $("#is_postpaid").click(function(){
+        check_postpaid_partner($("#is_postpaid"));
+    });
+    
+    $("#is_prepaid").click(function(){
+        check_postpaid_partner($("#is_prepaid"));
+    });
+    
+    function check_postpaid_partner(checkbox){
+        var checkbox_id = $(checkbox).attr('id');
+        if(checkbox_id === "is_postpaid"){
+            if($(checkbox).is(':checked')){
+                $("#postpaid_credit_period").attr("readonly", false);
+                $("#postpaid_notification_limit").attr("readonly", false);
+                $("#postpaid_grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#postpaid_credit_period").attr("readonly", true);
+               $("#postpaid_notification_limit").attr("readonly", true);
+               $("#postpaid_grace_period_date").attr("readonly", true); 
+            }
+        }
+        else if(checkbox_id === "is_prepaid"){
+            if($(checkbox).is(':checked')){
+                $("#prepaid_amount_limit").attr("readonly", false);
+                $("#prepaid_notification_amount").attr("readonly", false);
+                $("#grace_period_date").attr("readonly", false);
+            }
+            else{
+               $("#prepaid_amount_limit").attr("readonly", true);
+               $("#prepaid_notification_amount").attr("readonly", true);
+               $("#grace_period_date").attr("readonly", true); 
+            }
+        }
+    }
+    
    function create_edit_form(json){
         var value = JSON.parse(json);
         var data="";
@@ -3693,6 +3739,7 @@
         }
         else{
             $("#validity_section").hide();
+            $("#validity").val(null);
             $("#validity").attr('required', false);
         }
     }
@@ -3738,4 +3785,64 @@
             });  
       }
     });
+    
+    function validateGSTNo(){ 
+        var gstin = $("#gst_number").val();
+        gstin = gstin.trim().toUpperCase();
+        $("#gst_number").val(gstin);
+        var partner_id="";
+        if($("#partner_id").val()){
+            partner_id = "/"+$("#partner_id").val();
+        }
+        if(gstin.length == '15'){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin+partner_id,
+                success: function (response) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    if(response.status_cd != '0'){
+                        $("#gst_type").val(response.dty);
+                        $("#gst_status").val(response.sts);
+                        $("#gst_type").attr("readonly", "readonly");
+                        $("#gst_status").attr("readonly", "readonly");
+                        if(response.dty !== 'Regular' || response.sts !== 'Active'){
+                            alert('Filled GST number detail - \n GST Type - '+response.dty+' \n GST Status - '+ response.sts);
+                        }
+                    }
+                    else{
+                        $("#gst_type, #gst_status").val("");
+                        if(response.errorMsg){
+                           alert("Error occured while checking GST number try again");
+                        }
+                        else if(response.error.message){
+                            if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
+                                alert("<?php echo INVALID_GSTIN_MSG; ?>");
+                            }else{
+                                alert("Error occured while checking GST number try again");
+                            }
+                        }
+                        else{
+                           alert("API unable to work contact tech team!"); 
+                        }
+                    }
+                }
+            });
+        }
+        else{
+            $("#gst_type, #gst_status").val("");
+        }
+    }
+    
+    function validate_partner_document(){
+        if($("#gst_number").val()){
+            if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
+                alert('Please Enter Valid GST Number');
+                return false;
+            }
+        }
+        else{
+           
+        }
+    }
 </script>

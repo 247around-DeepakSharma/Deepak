@@ -667,7 +667,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($warehouse_courier)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
@@ -742,7 +742,7 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "is_fixed" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
@@ -760,7 +760,7 @@ class invoices_model extends CI_Model {
             }
             
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "charges_type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
             
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
@@ -815,7 +815,6 @@ class invoices_model extends CI_Model {
             if(!empty($anx_data)){
                 $result_data['penalty_discount'] = array();
                 $penalty_data = $this->get_partner_invoice_tat_data($anx_data, $partner_id);
-                
                 if (!empty($penalty_data)) {
                     $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
                     $penalty_tat = $penalty_data['tat'];
@@ -852,6 +851,7 @@ class invoices_model extends CI_Model {
             $data['annexure'] = $anx_data;
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
+            $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
             $data['pickup_courier'] = $result_data['pickup_courier'];
           
             return $data;
@@ -2117,7 +2117,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_fixed_variable_charge($where){
-        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate');
+        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate, variable_charges_type.is_fixed');
         $this->db->where($where);
         $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
         $query = $this->db->get('vendor_partner_variable_charges');
@@ -2489,6 +2489,7 @@ class invoices_model extends CI_Model {
         $w = array('entity_id'=> $partner_id, "entity" => _247AROUND_PARTNER_STRING, "active" => 1);
         $tat_condition = $this->get_tat_invoicing_codition($w);
         $booking_tat_type = array();
+        $penalty_tata_booking_details = array();
         if(!empty($tat_condition)){
             foreach ($tat_condition as $key => $value) {
                 $request_type = ($value['installation_repair'] == 0)?"Installation":"Repair";
@@ -2499,10 +2500,14 @@ class invoices_model extends CI_Model {
                     'leg_1 >="0" ' => NULL,
                     'leg_1 <"'.($value['tat_with_in_days']).'" ' => NULL);
                 
-                $b_data = $this->get_booking_tat_data("*", $b_w, array('booking_id' => $booking_id));
+                $b_data = $this->get_booking_tat_data("*, Case WHEN `request_type` = 0 THEN 'Installation' ELSE 'Repair' END as 'type',"
+                        . " case WHEN `is_upcountry` = 0 THEN 'No' ELSE 'Yes' END as 'upcountry_status'", 
+                        $b_w, array('booking_id' => $booking_id));
+                
+                array_push($penalty_tata_booking_details, $b_data);
+                
                 $tat_condition[$key]['achieved_count'] = count($b_data);
-                
-                
+
                 $b_w1 = array('is_upcountry' => $value['local_upcountry'],
                     'request_type' => $value['installation_repair']);
                 
@@ -2525,10 +2530,18 @@ class invoices_model extends CI_Model {
                 array_push($booking_tat_type, array('booking_type' => $request_type." ".$l_u, "booking_count" => $tat_condition[$key]['total_booking']));
 
             }
-            
+            $i = 0;
+            $a = array();
+            foreach ($penalty_tata_booking_details as $value) {
+                foreach ($value as $value1) {
+                    array_push($a, array('booking_id' => $value1['booking_id'], "type" => $value1['type'], 
+                        "upcountry_status" => $value1['upcountry_status'],"leg_1" => $value1['leg_1'] ));
+                }
+            }
+           
             $tat['tat_count'] = array_map("unserialize", array_unique(array_map("serialize", $booking_tat_type)));
             $tat['tat'] = $tat_condition;
-            
+            $tat['penalty_booking_data'] = $a;
             return $tat;
             
         } else {
@@ -2557,7 +2570,7 @@ class invoices_model extends CI_Model {
      */
     function get_booking_tat_data($select, $where, $where_in){
         log_message('info', __METHOD__ );
-        $this->db->select($select);
+        $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
         }

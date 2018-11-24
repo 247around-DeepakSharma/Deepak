@@ -2180,9 +2180,13 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             
+            $sendUrl = base_url().'employee/invoice/generate_micro_reverse_sale_invoice/'.$spare_id;
+            $this->asynchronous_lib->do_background_process($sendUrl, array());
+            
             $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", 
                     array('spare_parts_details.booking_id' => $booking_id, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
+            
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
@@ -2239,6 +2243,34 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_defective_parts");
             }
+        }
+    }
+    /**
+     * @desc This function is used when partner acknowledge to receive part from Warehouse.
+     * @param int $spare_id
+     * @param String $booking_id
+     * @param int $partner_id
+     * @param int $is_cron
+     */
+    function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = ""){
+        if (empty($is_cron)) {
+            $this->checkUserSession();
+        }
+
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,
+            
+            'received_defective_part_date' => date("Y-m-d H:i:s")));
+        if($response){
+            $agent_id = $this->session->userdata('agent_id');
+            $agent_name = $this->session->userdata('partner_name');
+            $actor = ACTOR_NOT_DEFINE;
+            $next_action = NEXT_ACTION_NOT_DEFINE;
+
+            $this->notify->insert_state_change($booking_id, PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, "", PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, $agent_id, $agent_name, $actor, $next_action, $partner_id);
+            $userSession = array('success' => ' Received Defective Spare Parts');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
+               
         }
     }
 
@@ -3406,9 +3438,10 @@ class Partner extends CI_Controller {
         foreach ($partners as $partner) {
 
             $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
-            $where = array('spare_parts_details.partner_id' => $partner['id'],
+            $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
+                'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
                 'DATEDIFF(defactive_part_received_date_by_courier_api,now()) <= -7' => null,
-                "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
             if (!empty($defective_parts_acknowledge_data)) {
@@ -3805,6 +3838,14 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' GST Number FILE is being uploaded sucessfully.');
         }
         $return_data['partner']['gst_number'] = trim($this->input->post("gst_number"));
+        if($this->input->post("gst_number")){
+            $return_data['partner']['gst_type'] = trim($this->input->post("gst_type"));
+            $return_data['partner']['gst_status'] = trim($this->input->post("gst_status"));
+        }
+        else{
+            $return_data['partner']['gst_type'] = "";
+            $return_data['partner']['gst_status'] = "";
+        }
         $return_data['partner']['pan'] = trim($this->input->post("pan"));
         $return_data['partner']['registration_no'] = trim($this->input->post("registration_no"));
         $return_data['partner']['tin'] = trim($this->input->post("tin"));
@@ -4500,7 +4541,8 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
+            "spare_parts_details.defective_return_to_entity_id" => $partner_id,
+            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
             "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL,
             "defactive_part_received_date_by_courier_api IS NOT NULL" => NULL
         );
@@ -4652,7 +4694,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' "
+        $where = "spare_parts_details.defective_return_to_entity_id = '" . $partner_id . "' "
+                . " AND defective_return_to_entity_type = '"._247AROUND_PARTNER_STRING."' "
                 . " AND approved_defective_parts_by_partner = '1' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
         $headings = array("Name","Booking ID","Received Parts","Received Date","AWB","Courier Name","Challan","SF Remarks");
@@ -4663,8 +4706,8 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
-            $tempArray[] = $sparePartBookings['	courier_name_by_partner'];
-            $tempArray[] = $sparePartBookings['	partner_challan_number'];
+            $tempArray[] = $sparePartBookings[' courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings[' partner_challan_number'];
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }
@@ -4875,7 +4918,7 @@ class Partner extends CI_Controller {
         
         $id = $this->input->post('partner_id');
         $select = "warehouse_details.id as 'wh_id',warehouse_address_line1, warehouse_address_line2, warehouse_city, warehouse_region, warehouse_pincode, warehouse_state, name,contact_person.id as 'contact_person_id'";
-        $where1 = array("warehouse_details.entity_id" => $id, "warehouse_details.entity_type" => "partner");
+        $where1 = array("warehouse_details.entity_id" => $id, "warehouse_details.entity_type" => _247AROUND_PARTNER_STRING);
         $data= $this->inventory_model->get_warehouse_details($select, $where1,false);
         echo json_encode($data);
 
@@ -5351,6 +5394,7 @@ class Partner extends CI_Controller {
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
               }
             $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning btn-sm" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick=get_brand_collateral("'.$row->booking_id.'")><i class="fa fa-file-text-o" aria-hidden="true"></i></a>';
             $finalArray[] = $tempArray;
              $sn_no++;
            }
@@ -5476,8 +5520,13 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            '(spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+            . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
+            . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
+            . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
+            . 'AND booking_details.partner_id = "'.$partner_id.'" '
+            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'")' => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -5534,9 +5583,18 @@ class Partner extends CI_Controller {
                             if(empty($row['defective_part_shipped'])){
                              $tempString5 = 'disabled="disabled"';
                             }
-                        $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            
+                        if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                                               href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                    
+                            
+                        } else {
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
                                                href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
-                     }
+                    
+                        }
+                    }
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
@@ -5735,7 +5793,7 @@ class Partner extends CI_Controller {
             "draw" => $this->input->post('draw'),
             "recordsTotal" => $bookingCount,
             "recordsFiltered" =>  $bookingCount,
-            "data" => $finalArray,
+            "data" => $finalArray
         );
         echo json_encode($output);
     }
@@ -5755,7 +5813,7 @@ class Partner extends CI_Controller {
        $partner_id = $this->session->userdata('partner_id');
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.partner_id" => $partner_id,
+            "booking_details.partner_id" => $partner_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
         );
        if($this->input->post('state')){
@@ -5813,7 +5871,7 @@ class Partner extends CI_Controller {
             $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
         }
        $partner_id = $this->session->userdata('partner_id');
-       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND approved_defective_parts_by_partner = '1' AND status != '"._247AROUND_CANCELLED."'";
+       $where = "spare_parts_details.defective_return_to_entity_id = '" . $partner_id . "' AND spare_parts_details.defective_return_to_entity_id = '"._247AROUND_PARTNER_STRING."'  AND approved_defective_parts_by_partner = '1' AND status != '"._247AROUND_CANCELLED."'";
        if($this->input->post('state')){
            $where =  $where.' AND booking_details.state = "' .$this->input->post('state').'"';
        }
@@ -6318,44 +6376,4 @@ function update_channel($id) {
         }
     }
     
-    /*
-     * @desc - This function is used to add and update partner variable charges.
-     * @param -  get form
-     * @render on same page
-     */ 
-    function process_variable_charges(){
-            $data = array();
-            $data['entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['entity_id'] = $this->input->post('partner_id');
-            $data['fixed_charges'] = $this->input->post('fixed_charges');
-            $data['charges_type'] = $this->input->post('charges_type');
-            $data['validity_in_month'] = $this->input->post('validity');
-            $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type'=>$this->input->post('charges_type'), 'entity_type'=>_247AROUND_PARTNER_STRING, 'entity_id'=>$this->input->post('partner_id')));
-            if(!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))){
-                if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
-                   $data['update_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
-                   $this->session->set_userdata('success', 'Data Updated Successfully');
-                }else{
-                   $data['create_date'] = date("Y-m-d H:i:s");
-                   $result = $this->invoices_model->insert_into_variable_charge($data);
-                   $this->session->set_userdata('success', 'Data Entered Successfully');
-                }
-                if($result){
-                    log_message("info", __METHOD__ .$msg);
-                    $this->session->set_userdata('success', 'Data Saved Successfully');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                } else {
-                    log_message("info", __METHOD__ . " Error in Saving details");
-                    $this->session->set_userdata('error', 'Data can not be inserted. Please Try Again...');
-                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-                }
-            }
-            else{
-                $this->session->set_userdata('error', 'Charge Type Already Exist.');
-                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
-            }
-    }
-
 }
-

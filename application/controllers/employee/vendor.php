@@ -3975,11 +3975,13 @@ class vendor extends CI_Controller {
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            
             
             if(!empty($is_wh)){
+                $option .= " data-warehose='1' > ";
                 $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
             }else{
+                $option .= " > ";
                 $option .= $value['name'] . "</option>";
             }
         }
@@ -4008,7 +4010,7 @@ class vendor extends CI_Controller {
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
 
             foreach ($data as $value) {
-                $option .= "<option value='" . $value['id'] . "'";
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
 
                 $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
@@ -4760,7 +4762,17 @@ class vendor extends CI_Controller {
                 $html  .= "<th>SF Earning</th>";
             }
             
+            if($is_partner){
+                $html .=  "<th>Partner Invoice Id</th>";
+            }
+            if($is_sf){
+                $html  .= "<th>Vendor Invoice Id</th>";
+            }
             $html .=  "<th>Approval File</th><th>Remarks</th>";
+            
+            if($this->session->userdata('userType') == 'employee'){ 
+                $html .=  "<th>Action</th>";
+            }
             $html .= "</tr></thead><tbody>";
            foreach ($data as $value) {
                $html .= "<tr>";
@@ -4771,6 +4783,14 @@ class vendor extends CI_Controller {
                if($is_sf){
                    $html .= '<td>'.($value['vendor_basic_charges'] + $value['vendor_tax']).'</td>';
                }
+               
+               if($is_partner){
+                    $html .= '<td>'.$value['partner_invoice_id'].'</td>';
+                }
+               if($is_sf){
+                   $html .= '<td>'.$value['vendor_invoice_id'].'</td>';
+               }
+               
                if(!empty($value['approval_file'])){
                    $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
                } else {

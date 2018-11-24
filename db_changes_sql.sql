@@ -1,4 +1,4 @@
-﻿<!-- Kalyani 23-07-2018  --->
+<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9347,9 +9347,20 @@ ALTER TABLE `variable_charges_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+
+--Abhay 21 NOv
+ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
+ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;
+
 --Kalyani 20-Nov-2018
 ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
 ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
 
+
 ------Gorakh 21 Nov 2018------
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Admin', NULL, NULL, '1', NULL, '', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Kalyani 23-Nov 2018
+ALTER TABLE `partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `gst_number`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_defective_part_return_wh`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
