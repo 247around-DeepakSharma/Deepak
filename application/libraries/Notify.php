@@ -368,12 +368,26 @@ class Notify {
                                                // $this->My_CI->miscelleneous->send_completed_booking_email_to_customer(array($email['booking_id']));
 		    //Send internal mails now
 		    $this->send_email($email);
-
-	            $sms['tag'] = "complete_booking";
+                    
+                    $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$query1[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
+                    
+                    $sms['tag'] = "complete_booking";
 		    $call_type = explode(" ", $query1[0]['request_type']);
 		    $sms['smsData']['service'] = $query1[0]['services'];
                     $sms['smsData']['call_type'] = $call_type[0];
                     $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                    if ($query1[0]['partner_id'] == JEEVES_ID) {
+                        $sms['smsData']['public_name'] = "";
+                    } 
+                    else if($partner_type === OEM){ 
+                        $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$booking_id), false, 'appliance_brand');
+                        if(!empty($brand_name)){
+                            $sms['smsData']['public_name'] = ",".$brand_name[0]['appliance_brand']." partner";
+                        }
+                    }
+                    else { 
+                        $sms['smsData']['public_name'] = ",".$query1[0]['public_name']." partner";
+                    }
                     $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                     $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
 		    $sms['booking_id'] = $query1[0]['booking_id'];
