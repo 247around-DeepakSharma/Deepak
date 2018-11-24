@@ -864,7 +864,7 @@
             </div>
             <div class="clear"></div>
             <div id="container_2" style="display:none" class="form_container">
-                <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
+                <form name="document_form" class="form-horizontal" onsubmit="return validate_partner_document()" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
                     <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1031,9 +1031,19 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
-                                                } ?>" placeholder="GST Number">
+                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="gst_type" id="gst_type" placeholder="Enter GST Number Type" value = "<?php if (isset($query[0]['gst_type'])) {
+                                                echo $query[0]['gst_type'];
+                                                } ?>" readonly="readonly">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="gst_status" id="gst_status" placeholder="Enter GST Number Status" value = "<?php if (isset($query[0]['gst_status'])) {
+                                                echo $query[0]['gst_status'];
+                                                } ?>" readonly="readonly">
+                                        </div>
+                                        <div class="col-md-3">
                                             <input type="file" class="form-control"  name="gst_number_file">
                                         </div>
                                         <div class="col-md-1">
@@ -3781,4 +3791,64 @@
             });  
       }
     });
+    
+    function validateGSTNo(){ 
+        var gstin = $("#gst_number").val();
+        gstin = gstin.trim().toUpperCase();
+        $("#gst_number").val(gstin);
+        var partner_id="";
+        if($("#partner_id").val()){
+            partner_id = "/"+$("#partner_id").val();
+        }
+        if(gstin.length == '15'){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/check_GST_number/'+gstin+partner_id,
+                success: function (response) {
+                    console.log(response);
+                    response = JSON.parse(response);
+                    if(response.status_cd != '0'){
+                        $("#gst_type").val(response.dty);
+                        $("#gst_status").val(response.sts);
+                        $("#gst_type").attr("readonly", "readonly");
+                        $("#gst_status").attr("readonly", "readonly");
+                        if(response.dty !== 'Regular' || response.sts !== 'Active'){
+                            alert('Filled GST number detail - \n GST Type - '+response.dty+' \n GST Status - '+ response.sts);
+                        }
+                    }
+                    else{
+                        $("#gst_type, #gst_status").val("");
+                        if(response.errorMsg){
+                           alert("Error occured while checking GST number try again");
+                        }
+                        else if(response.error.message){
+                            if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
+                                alert("<?php echo INVALID_GSTIN_MSG; ?>");
+                            }else{
+                                alert("Error occured while checking GST number try again");
+                            }
+                        }
+                        else{
+                           alert("API unable to work contact tech team!"); 
+                        }
+                    }
+                }
+            });
+        }
+        else{
+            $("#gst_type, #gst_status").val("");
+        }
+    }
+    
+    function validate_partner_document(){
+        if($("#gst_number").val()){
+            if($('#gst_type').val() == '' || $('#gst_status').val() == ''){
+                alert('Please Enter Valid GST Number');
+                return false;
+            }
+        }
+        else{
+           
+        }
+    }
 </script>

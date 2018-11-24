@@ -3838,6 +3838,14 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' GST Number FILE is being uploaded sucessfully.');
         }
         $return_data['partner']['gst_number'] = trim($this->input->post("gst_number"));
+        if($this->input->post("gst_number")){
+            $return_data['partner']['gst_type'] = trim($this->input->post("gst_type"));
+            $return_data['partner']['gst_status'] = trim($this->input->post("gst_status"));
+        }
+        else{
+            $return_data['partner']['gst_type'] = "";
+            $return_data['partner']['gst_status'] = "";
+        }
         $return_data['partner']['pan'] = trim($this->input->post("pan"));
         $return_data['partner']['registration_no'] = trim($this->input->post("registration_no"));
         $return_data['partner']['tin'] = trim($this->input->post("tin"));
