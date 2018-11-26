@@ -161,6 +161,7 @@ $route['partner/get_pending_part_on_sf/(:any)'] = 'employee/partner/get_pending_
 $route['partner/get_pending_part_on_sf/(:any)/(:any)'] = 'employee/partner/get_pending_part_on_sf/$1/$2';
 $route['partner/acknowledge_received_defective_parts/(:any)/(:any)'] = 'employee/partner/acknowledge_received_defective_parts/$1/$2';
 $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject_defective_part/$1/$2';
+$route['partner/reject_defective_part_sent_by_wh/(:any)/(:any)'] = 'employee/partner/reject_defective_part_sent_by_wh/$1/$2';
 $route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
 $route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
 $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner/get_waiting_for_approval_upcountry_charges';

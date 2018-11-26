@@ -2716,7 +2716,7 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res JSON // consist response message and response status
      */
-    function process_spare_invoice_tagging() {
+    function process_spare_invoice_tagging() {       
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
 //        $_POST = json_decode($str, true);
@@ -2903,6 +2903,9 @@ class Inventory extends CI_Controller {
                                     if (empty($not_updated_data)) {
                                         $res['status'] = TRUE;
                                         $res['message'] = 'Details Updated Successfully';
+                                        $res['warehouse_id']=$wh_id;
+                                        $res['total_quantity']=$tqty;
+                                        $res['partner_id']=$partner_id;
                                     } else {
                                         $res['status'] = false;
                                         $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
@@ -4919,4 +4922,31 @@ class Inventory extends CI_Controller {
             echo json_encode($returndata);
         }
     }
+    
+      /**
+     * @desc: This Function is print warehouse address from tag page using MSL.
+     * @param: void
+     * @return : view
+     */
+      function print_warehouse_address() {
+          $partner_id = $this->uri->segment(4);
+          $warehouse_id = $this->uri->segment(5);
+          $total_quantity = $this->uri->segment(6);          
+            if(!empty($warehouse_id)) {
+                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                  . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                  . "warehouse_details.warehouse_pincode as pincode,"
+                  . "warehouse_details.warehouse_state as state"; 
+                $where = array('warehouse_details.entity_type' => _247AROUND_SF_STRING,
+                  'warehouse_details.entity_id' => $warehouse_id);
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true); 
+                $wh_address_details[0]['total_quantity'] = $total_quantity;
+                if(!empty($partner_id)){
+                    $booking_details = $this->partner_model->getpartner($partner_id);
+                }  
+                 $wh_address_details[0]['vendor'] =$booking_details[0];
+           }          
+        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details,'total_quantiry'=>$total_quantity));
+    }
+
 }

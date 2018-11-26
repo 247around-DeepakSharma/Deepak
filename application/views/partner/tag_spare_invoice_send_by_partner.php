@@ -29,13 +29,22 @@
         opacity: 0.5;
         text-decoration: none;
     }
+    #print_warehouse_addr{
+    background-color: blue;
+    color: white;
+    padding: 5px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    text-decoration: none;
+    }
 </style>
 <div class="right_col" role="main">
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <ul class="nav nav-tabs" role="tablist" >
             <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-            <li role="presentation" ><a href="#onBooking" class="isDisabled" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+            <li role="presentation" ><a href="#onBooking" class="<?php if(!empty($this->session->userdata('is_micro_wh'))){ echo 'isDisabled'; } ?>" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
         </ul>
     </div>
 </div>
@@ -44,11 +53,17 @@
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
-                    <!--                    <div class="x_title">
-                        <h2>Spare Dispatched by Partner</h2>
-                        <div class="clearfix"></div>
-                        </div>-->
+                   
                     <div class="x_content">
+                        <div class="warehouse_print_address" style="display:none;">                                    
+                            <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                Do You Want to Print Warehouse Address
+                                <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>                                        
+                            </div>
+                        </div>
                         <div class="success_msg_div" style="display:none;">
                             <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -624,6 +639,8 @@
                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                     $('#success_msg').html(obj.message);
                     $("#spareForm")[0].reset();
+                    $(".warehouse_print_address").css({'display':'block'});
+                                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                 }else{
                     showConfirmDialougeBox(obj.message, 'warning');
                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});

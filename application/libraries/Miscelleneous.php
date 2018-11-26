@@ -3129,6 +3129,7 @@ function generate_image($base64, $image_name,$directory){
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
             $response['inventory_id'] = $inventory_id;
+            $response['is_micro_wh'] = 0;
             if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                 $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                 $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3155,6 +3156,8 @@ function generate_image($base64, $image_name,$directory){
         $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
         if (!empty($service_center_id)) {
             $post['where']['inventory_stocks.entity_id'] = $service_center_id;
+        } else {
+            $post['where']['service_centres.is_wh'] = 1;
         }
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
@@ -3168,6 +3171,7 @@ function generate_image($base64, $image_name,$directory){
                 $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                $response['is_micro_wh'] = 1;
                 
             } else {
                 foreach($inventory_stock_details as $value){
@@ -3183,7 +3187,7 @@ function generate_image($base64, $image_name,$directory){
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                        break;
+                        $response['is_micro_wh'] = 2;
                     }
                 }
             }
@@ -3668,6 +3672,9 @@ function generate_image($base64, $image_name,$directory){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
                                         array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
+                                            'is_micro_wh' => $stock['is_micro_wh'],
+                                            'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
+                                            'defective_return_to_entity_to' => $stock['defective_return_to_entity_to'],
                                             'partner_id' => $stock['entity_id']));
                                 if($stock['entity_type'] == _247AROUND_SF_STRING){
                                     $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
