@@ -89,7 +89,7 @@
                                                     <div class="clearfix"></div>
                                                     <hr>
                                                     <div class="inventory_spare_list">
-                                                        <table id="inventory_spare_table" class="table table-bordered table-responsive" style="width:100%">
+                                                        <table id="inventory_spare_table" class="table table-bordered table-responsive" style="width: 100%;">
                                                             <thead>
                                                                 <tr>
                                                                     <th>No</th>

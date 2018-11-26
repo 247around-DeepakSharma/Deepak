@@ -3874,6 +3874,14 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . ' GST Number FILE is being uploaded sucessfully.');
         }
         $return_data['partner']['gst_number'] = trim($this->input->post("gst_number"));
+        if($this->input->post("gst_number")){
+            $return_data['partner']['gst_type'] = trim($this->input->post("gst_type"));
+            $return_data['partner']['gst_status'] = trim($this->input->post("gst_status"));
+        }
+        else{
+            $return_data['partner']['gst_type'] = "";
+            $return_data['partner']['gst_status'] = "";
+        }
         $return_data['partner']['pan'] = trim($this->input->post("pan"));
         $return_data['partner']['registration_no'] = trim($this->input->post("registration_no"));
         $return_data['partner']['tin'] = trim($this->input->post("tin"));
@@ -6334,7 +6342,6 @@ class Partner extends CI_Controller {
      */    
     function process_partner_warehouse_config(){ 
         
-        $is_wh = $this->input->post('is_wh');
         $partner_id = $this->input->post('partner_id');
         $micro = $this->input->post('micro');
         $is_micro_wh = $this->input->post('is_micro_wh');
@@ -6376,22 +6383,7 @@ class Partner extends CI_Controller {
             );
           $this->partner_model->edit_partner($partner,  $partner_id);             
         }       
-             
-        if($is_wh==1){          
-           $partner = array(
-               'is_wh'=>1,
-               'is_defective_part_return_wh'=>$is_defective_part_return_wh               
-           );
-          $this->partner_model->edit_partner($partner,  $partner_id);           
-        }elseif ($is_wh==1 && $is_micro_wh == 1) {           
-           $partner = array(
-               'is_wh'=>1,
-               'is_micro_wh'=>1,
-               'is_defective_part_return_wh'=>$is_defective_part_return_wh
-           );
-          $this->partner_model->edit_partner($partner,  $partner_id);  
-        }
-       
+                    
          redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);              
     }
     

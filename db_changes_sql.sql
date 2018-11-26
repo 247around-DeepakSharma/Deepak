@@ -9361,6 +9361,11 @@ ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_typ
 ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Admin', NULL, NULL, '1', NULL, '', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+--Kalyani 23-Nov 2018
+ALTER TABLE `partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `gst_number`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_defective_part_return_wh`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+
+UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service was good, give miss call 01139588220. If not, 01139588224. 247Around%s.' WHERE `sms_template`.`tag` = 'complete_booking';
 
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
