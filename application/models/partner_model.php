@@ -1274,6 +1274,20 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     /**
+     * @Desc: This function is used to update values in file uploads table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function update_file_upload_details($where, $data){
+        if(!empty($where)){
+            $this->db->where($where);
+            return $this->db->update("file_uploads",$data);
+        }
+        return TRUE;
+    }
+    
+    /**
      * @desc: This method is used to search booking by phone number or booking id
      * this is called by Partner panel
      * @param String $searched_text_tmp
