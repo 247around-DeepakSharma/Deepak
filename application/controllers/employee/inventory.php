@@ -2716,7 +2716,7 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res JSON // consist response message and response status
      */
-    function process_spare_invoice_tagging() {
+    function process_spare_invoice_tagging() {       
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
 //        $_POST = json_decode($str, true);
@@ -2903,6 +2903,9 @@ class Inventory extends CI_Controller {
                                     if (empty($not_updated_data)) {
                                         $res['status'] = TRUE;
                                         $res['message'] = 'Details Updated Successfully';
+                                        $res['warehouse_id']=$wh_id;
+                                        $res['total_quantity']=$tqty;
+                                        $res['partner_id']=$partner_id;
                                     } else {
                                         $res['status'] = false;
                                         $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
@@ -3119,7 +3122,7 @@ class Inventory extends CI_Controller {
                 );
             $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->invoice_lib->insert_def_invoice_breakup($response, 0);
+            $this->ci->insert_def_invoice_breakup($response, 0);
         }
     }
 
@@ -3477,14 +3480,16 @@ class Inventory extends CI_Controller {
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
             $exist_courier_image = $this->input->post("exist_courier_image");
             if (!empty($exist_courier_image)) {
                 $courier_file['status'] = true;
                 $courier_file['message'] = $exist_courier_image;
             } else {
-                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                //$courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
             }
+            $courier_file['status'] = 1;
+            $courier_file['message'] = 1;
             if ($courier_file['status']) {
                 $courier_details['sender_entity_id'] = $sender_entity_id;
                 $courier_details['sender_entity_type'] = $sender_entity_type;
@@ -3608,6 +3613,7 @@ class Inventory extends CI_Controller {
     function inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $courier_id){
         $postData1 = json_decode($this->input->post('data'), true);
         $partner_spare = array();
+        $micro_spare = array();
         $warehouse_spare = array();
         
         foreach ($postData1 as $value){
@@ -3618,7 +3624,7 @@ class Inventory extends CI_Controller {
                     && $value['sent_entity_type'] == _247AROUND_SF_STRING 
                     && $value['partner_id'] != $this->session->userdata('service_center_id')){
                 
-                array_push($partner_spare, $value);
+                array_push($micro_spare, $value);
                 
             } else if($this->session->userdata('service_center_id') == $value['partner_id'] && $value['sent_entity_type'] == _247AROUND_SF_STRING){
                 array_push($warehouse_spare, $value);
@@ -3626,7 +3632,7 @@ class Inventory extends CI_Controller {
         }
         $booking_id_array = array();
         if(!empty($partner_spare)){
-            $m = $this->update_partner_sent_spare_to_warehouse($partner_spare);
+            $m = $this->update_partner_sent_spare_to_warehouse($partner_spare, $micro_spare);
             $booking_id_array = $m;
 
         }
@@ -3652,9 +3658,10 @@ class Inventory extends CI_Controller {
     /**
      * @desc Update spare status when warehouse sent defective part to Partner
      * @param Array $partner_spare
+     * @param Array $micro_spare
      * @return Array
      */
-    function update_partner_sent_spare_to_warehouse($partner_spare){
+    function update_partner_sent_spare_to_warehouse($partner_spare, $micro_spare){
         log_message('info', __METHOD__);
         $booking_id_array = array();
         foreach ($partner_spare as $value) {
@@ -3663,6 +3670,18 @@ class Inventory extends CI_Controller {
                                 array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH));
             array_push($booking_id_array, $value['booking_id']);
              
+        }
+        
+        if(!empty($micro_spare)){
+            foreach ($micro_spare as $value) {
+
+            $this->service_centers_model->update_spare_parts(array('id' =>$value['spare_id']), 
+                                array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH));
+            array_push($booking_id_array, $value['booking_id']);  
+        }
+        
+        $sendUrl = base_url().'employee/invoice/generate_micro_reverse_sale_invoice';
+        $this->asynchronous_lib->do_background_process($sendUrl, array('spare_id' => $micro_spare));
         }
         
         return $booking_id_array;
@@ -4903,4 +4922,31 @@ class Inventory extends CI_Controller {
             echo json_encode($returndata);
         }
     }
+    
+      /**
+     * @desc: This Function is print warehouse address from tag page using MSL.
+     * @param: void
+     * @return : view
+     */
+      function print_warehouse_address() {
+          $partner_id = $this->uri->segment(4);
+          $warehouse_id = $this->uri->segment(5);
+          $total_quantity = $this->uri->segment(6);          
+            if(!empty($warehouse_id)) {
+                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                  . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
+                  . "warehouse_details.warehouse_pincode as pincode,"
+                  . "warehouse_details.warehouse_state as state"; 
+                $where = array('warehouse_details.entity_type' => _247AROUND_SF_STRING,
+                  'warehouse_details.entity_id' => $warehouse_id);
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true); 
+                $wh_address_details[0]['total_quantity'] = $total_quantity;
+                if(!empty($partner_id)){
+                    $booking_details = $this->partner_model->getpartner($partner_id);
+                }  
+                 $wh_address_details[0]['vendor'] =$booking_details[0];
+           }          
+        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details,'total_quantiry'=>$total_quantity));
+    }
+
 }

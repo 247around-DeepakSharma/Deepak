@@ -8,6 +8,15 @@
     .col-md-2 {
     width: 12.666667%;
     }
+    #print_warehouse_addr{
+    background-color: blue;
+    color: white;
+    padding: 5px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    text-decoration: none;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper" role="main">
@@ -26,8 +35,17 @@
                     <div class="x_panel" style="margin-top: 0px;">
                        
                         <div class="x_content">
-                            <div class="loader"></div>
+                            <div class="loader"></div>                            
                             <div class="form-box">
+                                <div class="warehouse_print_address" style="display:none;">                                    
+                                    <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                        Do You Want to Print Warehouse Address
+                                        <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>                                        
+                                    </div>
+                                </div>
                                 <div class="success_msg_div" style="display:none;">
                                     <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -522,14 +540,21 @@
                             contentType: false,
                             processData: false,
                             success:function(response){
-                                //console.log(response);
                                 obj = JSON.parse(response);
+//                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
+//                                    var confirmation = confirm("Want to Print Warehouse Address");
+//                                    if (confirmation){
+//                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
+//                                    }
+//                                }                                
                                 $('#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Submit");
+                                $('#submit_btn').html("Submit");                               
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $(".warehouse_print_address").css({'display':'block'});
+                                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
