@@ -9362,3 +9362,5 @@ ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMA
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Admin', NULL, NULL, '1', NULL, '', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 
+--Abhay 
+ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;

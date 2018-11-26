@@ -2183,6 +2183,9 @@ class Partner extends CI_Controller {
             $sendUrl = base_url().'employee/invoice/generate_micro_reverse_sale_invoice/'.$spare_id;
             $this->asynchronous_lib->do_background_process($sendUrl, array());
             
+            $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
+            $this->asynchronous_lib->do_background_process($psendUrl, array());
+            
             $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", 
                     array('spare_parts_details.booking_id' => $booking_id, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
@@ -2253,6 +2256,7 @@ class Partner extends CI_Controller {
      * @param int $is_cron
      */
     function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = ""){
+        log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         if (empty($is_cron)) {
             $this->checkUserSession();
         }
@@ -2261,6 +2265,10 @@ class Partner extends CI_Controller {
             
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if($response){
+            
+            $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
+            $this->asynchronous_lib->do_background_process($psendUrl, array());
+            
             $agent_id = $this->session->userdata('agent_id');
             $agent_name = $this->session->userdata('partner_name');
             $actor = ACTOR_NOT_DEFINE;
@@ -2271,6 +2279,34 @@ class Partner extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
                
+        }
+    }
+    /**
+     * @desc: Partner rejected Defective Parts with reason (Part sent By warehouse).
+     * @param Sting $booking_id
+     * @param Urlencoded $status (Rejection Reason)
+     */
+    function reject_defective_part_sent_by_wh($spare_id, $booking_id, $status){
+        log_message('info', __METHOD__ . " Spare ID ".$spare_id);
+        $this->checkUserSession();
+        $rejection_reason = base64_decode(urldecode($status));
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
+            'remarks_defective_part_by_partner' => $rejection_reason,
+            'approved_defective_parts_by_partner' => '0'));
+        if ($response) {
+           
+            $actor = ACTOR_NOT_DEFINE;
+            $next_action = NEXT_ACTION_NOT_DEFINE;
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
+            $userSession = array('success' => 'Defective Parts Rejected To SF');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
+        } else {
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by Partner' . $this->session->userdata('partner_id') .
+                    " booking id " . $booking_id);
+            $userSession = array('success' => 'There is some error. Please try again.');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
         }
     }
 
@@ -5529,7 +5565,7 @@ class Partner extends CI_Controller {
         $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number, spare_parts_details.id";
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -5571,7 +5607,7 @@ class Partner extends CI_Controller {
                      }
                     $tempArray[] = $tempString3;
                     $tempArray[] = $row['remarks_defective_part_by_sf'];
-                     if (!empty($row['defective_part_shipped'])) {
+                    if (!empty($row['defective_part_shipped'])) {
                             if(empty($row['defective_part_shipped'])){
                              $tempString5 = 'disabled="disabled"';
                             }
@@ -5590,8 +5626,13 @@ class Partner extends CI_Controller {
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
-                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
+                                } else {
+                                    $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li class="divider"></li>';
+                                }
                              } 
                               $tempString6 = '<div class="dropdown">
                                             <a href="#" class="dropdown-toggle btn btn-sm btn-danger" type="button" data-toggle="dropdown">Reject<span class="caret"></span></a>
@@ -6178,10 +6219,10 @@ class Partner extends CI_Controller {
             }
     }
 }
-/*
- * This function loads the tabular format of the view of update channel form 
- */
-function update_channel($id) {
+    /*
+     * This function loads the tabular format of the view of update channel form 
+     */
+    function update_channel($id) {
         $data = array(
             'partner_channel.id' => $id
         );
