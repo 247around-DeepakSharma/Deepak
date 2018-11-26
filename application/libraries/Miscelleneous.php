@@ -1316,8 +1316,9 @@ class Miscelleneous {
 
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
+        return $insert_id;
     }
-
+    
     /**
      * @desc This is used to get the balance of partner account
      * @param int $partner_id

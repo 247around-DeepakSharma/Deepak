@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -9369,3 +9369,7 @@ UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service wa
 
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
+
+--Kalyani 26-Nov-2018
+ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_type`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
+
