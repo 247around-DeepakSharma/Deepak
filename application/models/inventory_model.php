@@ -1717,5 +1717,16 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }    
-    
+        
+    /**
+     * @desc This is used to get list of inventory stock count from inventory_stocks     
+     * @table inventory_stocks 
+     * @return array
+     */    
+    function get_inventory_stock_count_details($select,$where){       
+        $this->db->select($select);
+         $this->db->where($where);
+        $query =  $this->db->get("inventory_stocks");
+        return $query->result_array();
+    }
 }
