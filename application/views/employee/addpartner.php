@@ -2240,7 +2240,8 @@
                                     <tr>
                                         <th>S.N</th>
                                         <th>State Name</th>
-                                        <th>Vendor Name </th>                                                
+                                        <th>Vendor Name </th>  
+                                        <th>Payout Amount</th>
                                         <th>History</th>
                                         <th>Status</th> 
                                         <th>Last Updated</th> 
@@ -2256,7 +2257,8 @@
                                             <tr>
                                                 <td><?php echo $i . "."; ?></td>
                                                 <td><?php echo $val['state']; ?></td>
-                                                <td><?php echo $val['name']; ?></td>
+                                                <td><?php echo $val['name']; ?></td>                                                
+                                                <td><?php echo $val['micro_warehouse_charges']; ?></td>
                                                 <td><a href="#" class="micro_warehouse_view" id="<?php echo $val['micro_wh_mp_id']; ?>">View</a></td>
                                                 <td>
                                                     <a href="#" id="status_<?php echo $val['wh_on_of_id']; ?>">
