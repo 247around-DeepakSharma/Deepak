@@ -9367,5 +9367,9 @@ ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_de
 
 UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service was good, give miss call 01139588220. If not, 01139588224. 247Around%s.' WHERE `sms_template`.`tag` = 'complete_booking';
 
+--Kalyani 26-Nov-2018
+ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_type`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
+
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
+

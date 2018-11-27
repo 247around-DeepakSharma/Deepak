@@ -1460,15 +1460,18 @@ class Do_background_upload_excel extends CI_Controller {
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
                     log_message("info", "File Uploaded successfully");
+                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
                     //now send back file with updated booking id to partner
                     if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data) && $this->is_send_file_back !== "null"){
+                        $header_data['file_upload_id'] = $file_upload_id;
+                        $header_data['file_email_subject'] = $this->input->post('file_email_subject');
                         $this->revert_file_to_partner($header_data);
                     }else{
                         log_message("info", "unable to send file back to partner");
                     }
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+                    
                 } else {
                     
                     //save file and upload on s3
@@ -1810,8 +1813,29 @@ class Do_background_upload_excel extends CI_Controller {
                 $body = $template[0];
                 $to = $this->revert_file_email;
                 $cc = $template[3] . "," .$from.','. $this->email_send_to;
-                $subject = $template[4];
+                $subject = $template[4].":".$data['file_email_subject'];
                 $attachment = $file_name;
+                
+                //upload and save file to s3
+                $revertData = array(
+                    'revert_file_subject' => $subject,
+                    'revert_file_from' => $from,
+                    'revert_file_to' => $to,
+                    'revert_file_cc' => $cc,
+                    'revert_file_name' => "Updated_file_with_booking_id_" .pathinfo($data['file_name'], PATHINFO_FILENAME). ".xls",
+                );
+                
+                $revertDataWhere = array(
+                    'id' => $data['file_upload_id'],
+                );
+                
+                $this->partner_model->update_file_upload_details($revertDataWhere, $revertData);
+                
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . "Updated_file_with_booking_id_" .pathinfo($data['file_name'], PATHINFO_FILENAME). ".xls";
+                $this->s3->putObjectFile($file_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                
                 
                 //send email
                 $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'revert_upload_file_to_partner');

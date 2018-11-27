@@ -1290,11 +1290,17 @@ class Upload_booking_file extends CI_Controller {
         $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
         $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
+        $row[] = '<button type="button" onclick="view_revert_file('.$file_list->id.')" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#revert_file_model">View Revert File</button>';
         $row[] = $result;
         
         return $row;
     }
     
-    
+    public function get_revert_file_details(){
+        $id = $this->input->post('id');
+        $select = "revert_file_name, revert_file_subject, revert_file_from, revert_file_to, revert_file_cc";
+        $data = $this->reusable_model->get_search_result_data('file_uploads', $select, array('id'=>$id), '', '', '', '', '');
+        echo json_encode($data);
+    }
     
 }
