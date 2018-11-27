@@ -2425,7 +2425,7 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.service_id'] = $this->input->post('service_id');
         }
         
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name',$where);
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id',$where);
         
         if($this->input->post('is_option_selected')){
             $option = '<option selected disabled>Select Part Name</option>';
@@ -2434,7 +2434,7 @@ class Inventory extends CI_Controller {
         }
 
         foreach ($inventory_type as $value) {
-            $option .= "<option value='" . $value['part_name'] . "'";
+            $option .= "<option data-inventory='".$value['inventory_id']."' value='" . $value['part_name'] . "'";
             $option .=" > ";
             $option .= $value['part_name'] . "</option>";
         }
@@ -4948,5 +4948,27 @@ class Inventory extends CI_Controller {
            }          
         $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details,'total_quantiry'=>$total_quantity));
     }
-
+    
+      /**
+     * @desc: This Function is print warehouse address from tag page using MSL.
+     * @param: void
+     * @return : view
+     */
+    
+    function get_inventory_stock_count(){
+        $service_centres_id = $this->input->post('service_centres_id');
+        $inventory_id = $this->input->post('inventory_id');
+        $entity_type = $this->input->post('entity_type');
+        if(!empty($inventory_id)){
+            $select = '*';
+            $where = array('entity_id'=>$service_centres_id,'entity_type'=>$entity_type,'inventory_id'=>$inventory_id);
+            $inventory_stocks = $this->inventory_model->get_inventory_stock_count_details($select,$where);
+            if(!empty($inventory_stocks)){
+                $data['total_stock']=($inventory_stocks[0]['stock']-$inventory_stocks[0]['pending_request_count']);                
+            } else {
+                $data['total_stock']=0;
+            }
+            echo json_encode($data);
+        }   
+    }
 }

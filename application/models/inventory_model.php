@@ -1664,7 +1664,7 @@ class Inventory_model extends CI_Model {
      */
     
     function get_micro_wh_lists_by_partner_id($partner_id) {
-        $this->db->select('micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id');
+        $this->db->select('micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,micro_wh_mp.micro_warehouse_charges,service_centres.name,micro_wh_mp.id as micro_wh_mp_id');
         $this->db->from('micro_warehouse_state_mapping AS micro_wh_mp');        
         $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');       
         $where['micro_wh_mp.partner_id']= $partner_id;        
@@ -1717,5 +1717,16 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }    
-    
+        
+    /**
+     * @desc This is used to get list of inventory stock count from inventory_stocks     
+     * @table inventory_stocks 
+     * @return array
+     */    
+    function get_inventory_stock_count_details($select,$where){       
+        $this->db->select($select);
+         $this->db->where($where);
+        $query =  $this->db->get("inventory_stocks");
+        return $query->result_array();
+    }
 }
