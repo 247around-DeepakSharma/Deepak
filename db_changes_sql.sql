@@ -9373,3 +9373,8 @@ ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMM
 --Kalyani 26-Nov-2018
 ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_type`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
 
+--Kalyani 27-Nov-2018
+ALTER TABLE `courier_company_invoice_details` ADD `is_reject` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_exist`;
+ALTER TABLE `courier_company_invoice_details` ADD `reject_remarks` VARCHAR(255) NOT NULL AFTER `is_reject`;
+
+
