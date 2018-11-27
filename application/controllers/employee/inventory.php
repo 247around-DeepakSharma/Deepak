@@ -2395,7 +2395,7 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->part_name;
         $row[] = $inventory_list->part_number;
         $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
-        $row[] = $inventory_list->price;
+        $row[] = round($inventory_list->price *( 1 + REPAIR_OOW_AROUND_PERCENTAGE),0);
         $row[] = $inventory_list->gst_rate;
         $row[] = number_format((float)($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate/100))), 2, '.', '');
 
