@@ -4853,7 +4853,7 @@ class Inventory extends CI_Controller {
      */
     function recheck_docket_number() { 
         $this->checkUserSession();
-        $data['courier_company_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_exist'=>0));
+        $data['courier_company_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_exist'=>0, 'is_reject'=>0));
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/recheck_docket_number', $data);
     }
@@ -4879,6 +4879,30 @@ class Inventory extends CI_Controller {
             }        
         }
         
+    }
+    
+    /**
+     * @desc: This Function is used to reject courier invoice with reject remark
+     * @param: void
+     * @return : boolean
+     */
+    function reject_courier_invoice(){
+        if(!empty($this->input->post('id'))){  
+            $data = array(
+               'is_reject' => 1,
+               'reject_remarks'=> $this->input->post('reject_remark'),
+            );
+            $where = array(
+                'id'=>$this->input->post('id')
+            );
+            $return = $this->inventory_model->update_courier_company_invoice_details($where, $data);
+            if($return){
+                echo true;
+            }
+            else{
+                echo false;
+            }        
+        }
     }
     
      /**
