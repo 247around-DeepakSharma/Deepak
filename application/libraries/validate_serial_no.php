@@ -25,8 +25,11 @@ class Validate_serial_no {
                 if($method == 'jvc_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$applianceID);
                 }
-                 if($method == 'lemon_serialNoValidation'){
+                if($method == 'lemon_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$modelNumber);
+                }
+                if($method == 'jeeves_serialNoValidation'){
+                    return $this->$method($partnerID, $serialNo, $booking_id);
                 }
                 return $this->$method($partnerID, $serialNo);
             } else{
@@ -50,6 +53,7 @@ class Validate_serial_no {
         $logic[QFX_ID] = 'qfx_serialNoValidation';
         $logic[JVC_ID] = 'jvc_serialNoValidation';
         $logic[LEMON_ID] = 'lemon_serialNoValidation';
+        $logic[JEEVES_ID] = 'jeeves_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -59,6 +63,72 @@ class Validate_serial_no {
 	    return false;
 	}
     }
+    
+    /**
+     * @desc This method is used to validate serial number for jeeves partner and micromax partner.
+     * Serial number starting with 00.
+     * then next 3 digit will be integer.
+     * then next 1 digit will be character
+     * then next 9 digit will be integer
+     * and total length is 15.
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $booking_id
+     * @return Int
+     */
+    function jeeves_serialNoValidation($partnerID, $serialNo, $booking_id){
+        log_message('info', __METHOD__ . " Enterring... Partner ID " . $partnerID . " Srial No " . $serialNo . " Booking Id ". $booking_id);
+        $where = array(
+                    'booking_id' =>$booking_id, 
+                    'appliance_brand' => 'Micromax', 
+                    'partner_id' => $partnerID);
+        $result = $this->MY_CI->booking_model->get_unit_details($where, FALSE, 'id');
+        if(!empty($result)){
+            $flag = true;
+            $failure_msg = "";
+            $digit1to2 = substr($serialNo, 0, 2);
+            $digit3to5 = substr($serialNo, 2, 3);
+            $digit6 = substr($serialNo, 5, 1);
+            $digit7to15 = substr($serialNo, 6, 9);
+            if(strlen($serialNo) != 15){
+               log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " not 15 digit number ");
+               $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+               $flag = false;
+            }
+            else if ($digit1to2 != JEEVES_FIRST_TWO_DIGIT) {
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " First two digit is not 00 ".$digit1to2);
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                $flag = false;
+            } 
+            else if (!is_numeric($digit3to5)) {
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 3 to 5 is not integer ".$digit3to5);
+                $flag = false;
+            }
+            else if(!ctype_alpha($digit6)){
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 6 is not character ".$digit6);
+                $flag = false; 
+            }
+            else if (!is_numeric($digit7to15)) {
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 7 to 15 is not integer ".$digit7to15);
+                $flag = false;
+            }
+            
+            if ($flag) {
+                return array('code' => SUCCESS_CODE);
+            }
+            else{
+                return array('code' => FAILURE_CODE, "message" => $failure_msg);
+            }
+            
+        } else {
+            log_message('info', __METHOD__. 'No need to apply serial no checking....');
+            return array('code' => SUCCESS_CODE);
+        }
+    }
+    
     /**
      * @desc This method is used to validate serial number.
      * Serial number should be alpha numeric with 19 character

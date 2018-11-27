@@ -37,3 +37,11 @@ define('JVC_WM_SN_START_POSIBLE_VALUES','H2,H1');
 define('LEMON_SN_START_POSIBLE_VALUES','I,C');
 define('LEMON_SN_VENDOR_POSIBLE_VALUES','VE,AD');
 define('LEMON_SN_MODEL_POSIBLE_VALUES','24LL,24LS,32LL,32LS,40LL,40LS');
+
+//JEEVES(MICROMAX) Serial number possible values
+define('JEEVES_FIRST_TWO_DIGIT', 00);
+define('JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG', 'Serial No should be alphanumeric 15 digit no.');
+define('JEEVES_SERIAL_NO_START_VALIDATION_FAILED_MSG', 'Serial No should be start with 00');
+define('JEEVES_SERIAL_NO_MID_VALIDATION_FAILED_MSG', 'Serial No should be alphanumeric');
+define('JEEVES_SERIAL_NO_LAST_VALIDATION_FAILED_MSG', 'Serial No last 9 digit should be numeric');
+
