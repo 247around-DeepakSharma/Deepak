@@ -3122,7 +3122,7 @@ class Inventory extends CI_Controller {
                 );
             $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->ci->insert_def_invoice_breakup($response, 0);
+            $this->invoice_lib->insert_def_invoice_breakup($response, 0);
         }
     }
 
