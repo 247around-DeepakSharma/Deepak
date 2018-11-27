@@ -99,22 +99,26 @@ function open_reject_remark_model(id){
 }
 
 function reject_courier_invoice(){
-    $.ajax({
-        url: "<?php echo base_url() ?>employee/inventory/reject_courier_invoice",
-        type: "POST",
-        data: {id:$("#courier_invoice_id").val(), reject_remark:$("#reject_remarks").val()}
-    }).done(function(response){
-        if(response){
-            $('#rejectInvoiceModal').modal('hide');
-            alert("Courier invoice successfully rejected");
-            location.reload();
-        }
-        else{
-            console.log(response);
-            alert("Error occured while rejecting courier invoice");
-        }
-        
-    });
+    if($("#reject_remarks").val()){
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/inventory/reject_courier_invoice",
+            type: "POST",
+            data: {id:$("#courier_invoice_id").val(), reject_remark:$("#reject_remarks").val()}
+        }).done(function(response){
+            if(response){
+                $('#rejectInvoiceModal').modal('hide');
+                alert("Courier invoice successfully rejected");
+                location.reload();
+            }
+            else{
+                console.log(response);
+                alert("Error occured while rejecting courier invoice");
+            }
+        });
+    }
+    else{
+        alert("Please Enter Reject Remark");
+    }
 }
 </script>
 
