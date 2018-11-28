@@ -382,11 +382,13 @@ class Notify {
                     else if($partner_type === OEM){ 
                         $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$booking_id), false, 'appliance_brand');
                         if(!empty($brand_name)){
-                            $sms['smsData']['public_name'] = ",".$brand_name[0]['appliance_brand']." partner";
+                            $sms['smsData']['public_name'] = $brand_name[0]['appliance_brand'];
+                        } else {
+                            $sms['smsData']['public_name'] = $query1[0]['public_name'];
                         }
                     }
                     else { 
-                        $sms['smsData']['public_name'] = ",".$query1[0]['public_name']." partner";
+                        $sms['smsData']['public_name'] = $query1[0]['public_name'];
                     }
                     $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                     $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
