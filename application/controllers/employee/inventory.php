@@ -576,7 +576,7 @@ class Inventory extends CI_Controller {
     function get_vendor_inventory_list_form(){
         $sf_list = "";
         //Getting ID of logged in user
-        $id = $this->session->userdata('id');
+         $id = $this->session->userdata('id');
             //Getting employee relation if present
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
@@ -2282,7 +2282,7 @@ class Inventory extends CI_Controller {
     function get_inventory_stocks_details(){
         $post = $this->get_post_data();
         
-        
+         
         if(($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))){
             $post[''] = array();
             $post['column_order'] = array();
@@ -2310,27 +2310,31 @@ class Inventory extends CI_Controller {
             $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
             //RM Specific stocks
-            $sfIDArray =array();
-            if($this->session->userdata('user_group') == 'regionalmanager'){
-                $rm_id = $this->session->userdata('id');
-                $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
-                $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
-                $sfIDArray = explode(",",$sfIDList);
-            }
+//            $sfIDArray =array();
+//            if($this->session->userdata('user_group') == 'regionalmanager'){
+//                $rm_id = $this->session->userdata('id');
+//                $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+//                $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+//                $sfIDArray = explode(",",$sfIDList);
+//            }
 
-            $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
+            $list = $this->inventory_model->get_inventory_stock_list($post,$select);
+            
             $data = array();
             $no = $post['start'];
-            foreach ($list as $inventory_list) {
+            foreach ($list as $inventory_list) {               
                 $no++;
                 $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
                 $data[] = $row;
             }
-
+            $post['length'] = -1;
+            $countlist = $this->inventory_model->get_inventory_stock_list($post,"sum(inventory_stocks.stock) as stock");
+           
             $output = array(
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
                 "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+                'stock' => $countlist[0]->stock,
                 "data" => $data,
             );
         }else{
@@ -2338,11 +2342,10 @@ class Inventory extends CI_Controller {
                 "draw" => $this->input->post('draw'),
                 "recordsTotal" => 0,
                 "recordsFiltered" =>  0,
+                'stock' => 0,
                 "data" => array(),
             );
         }
-        
-        
         echo json_encode($output);
     }
     

@@ -2093,10 +2093,10 @@ class Service_centers extends CI_Controller {
      * @param type $sp_id
      */
     function process_update_defective_parts($sp_id) {
-        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " Spare id " . $sp_id );
+        log_message('info', __FUNCTION__ . ' sf_id: ' . $this->session->userdata('service_center_id') . " Spare id " . $sp_id);
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
-        
+
         $this->form_validation->set_rules('remarks_defective_part', 'Remarks', 'trim|required');
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
@@ -2110,9 +2110,9 @@ class Service_centers extends CI_Controller {
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($sp_id);
         } else {
-            
+
             $defective_courier_receipt = $this->input->post("sp_parts");
-           
+
             if (!empty($defective_courier_receipt)) {
                 $data['defective_courier_receipt'] = $this->input->post("sp_parts");
                 $service_center_id = $this->session->userdata('service_center_id');
@@ -2121,39 +2121,54 @@ class Service_centers extends CI_Controller {
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $booking_id = $this->input->post('booking_id');
-                $k =0;
-               
+                $k = 0;
+
                 $partner_id = $this->input->post('booking_partner_id');
-                
-    
+
+
                 //update each spare line item one by one
                 foreach ($defective_part_shipped as $id => $value) {
-                    if($k ==0){
+                    if ($k == 0) {
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
-                        
                     } else {
                         $data['courier_charges_by_sf'] = 0;
-                        
                     }
                     $data['awb_by_sf'] = $this->input->post('awb_by_sf');
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $value;
-                    
-                    $where = array('id' => $id); 
+
+                    $where = array('id' => $id);
                     $this->service_centers_model->update_spare_parts($where, $data);
                     $k++;
                 }
-                //insert details into state change table
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'],"not_define","not_define");
+                //insert details into state change table                                
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
-                $this->update_booking_internal_status($booking_id,  DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+
+                if (!empty($this->input->post("shipped_inventory_id"))) {
+                    $ledger_data = array(
+                        "receiver_entity_id" => $this->input->post("defective_return_to_entity_id"),
+                        "receiver_entity_type" => $this->input->post('defective_return_to_entity_type'),
+                        "sender_entity_id" => $this->session->userdata('service_center_id'),
+                        "sender_entity_type" => _247AROUND_SF_STRING,
+                        "quantity" => 1,
+                        "inventory_id" => $this->input->post("shipped_inventory_id"),
+                        "agent_id" => $this->session->userdata('service_center_agent_id'),
+                        "agent_type" => _247AROUND_SF_STRING,
+                        "booking_id" => $this->input->post("booking_id"),
+                        "active" => 1,
+                        "is_defective" => 1
+                    );
+
+                    $this->inventory_model->insert_inventory_ledger($ledger_data);
+                }
                 //send email
                 $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
-                if(!empty($email_template)){
+                if (!empty($email_template)) {
                     //$wh_email = '';
                     //get warehouse incharge email
                     //for now we add manish ji as a default warehouse
@@ -2169,16 +2184,16 @@ class Service_centers extends CI_Controller {
 //                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
 //                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
 //                    }
-                    
+
                     $rm_email = $this->get_rm_email($service_center_id);
 
-                    $attachment = S3_WEBSITE_URL."misc-images/".$defective_courier_receipt;
+                    $attachment = S3_WEBSITE_URL . "misc-images/" . $defective_courier_receipt;
 
                     $subject = vsprintf($email_template[4], array($this->session->userdata('service_center_name'), $booking_id));
-                    
-                    $message = vsprintf($email_template[0], array($data['awb_by_sf'], 
-                       $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
-                    
+
+                    $message = vsprintf($email_template[0], array($data['awb_by_sf'],
+                        $data['courier_name_by_sf'], $this->input->post('courier_charges_by_sf'), $data['defective_part_shipped_date']));
+
                     $email_from = $email_template[2];
 
                     $to = $email_template[1];
@@ -2187,12 +2202,11 @@ class Service_centers extends CI_Controller {
 
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
                 }
-                
+
                 $userSession = array('success' => 'Parts Updated.');
 
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/get_defective_parts_booking");
-
             } else {
                 log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
