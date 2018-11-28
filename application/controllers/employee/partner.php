@@ -899,7 +899,7 @@ class Partner extends CI_Controller {
        $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
        $results['variable_charges'] = $this->accounting_model->get_vendor_partner_variable_charges("fixed_charges, vendor_partner_variable_charges.validity_in_month, vendor_partner_variable_charges.id as partner_charge_id, variable_charges_type.*", array('entity_type'=>'partner', 'entity_id'=>$id), true);
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
-       $select = 'micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id';
+       $select = 'micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
        $this->miscelleneous->load_nav_header();
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists));
@@ -4824,7 +4824,8 @@ class Partner extends CI_Controller {
     function tag_spare_invoice(){
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $this->load->view("partner/tag_spare_invoice_send_by_partner");
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view("partner/tag_spare_invoice_send_by_partner",$data);
         $this->load->view('partner/partner_footer');
     }
     

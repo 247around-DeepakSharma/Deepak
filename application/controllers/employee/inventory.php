@@ -2687,7 +2687,8 @@ class Inventory extends CI_Controller {
     function tag_spare_invoice_send_by_partner(){
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/tag_spare_invoice_send_by_partner");
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view("employee/tag_spare_invoice_send_by_partner",$data);
     }
     
     /**
