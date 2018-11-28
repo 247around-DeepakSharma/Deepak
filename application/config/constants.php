@@ -658,5 +658,9 @@ define("_247AROUND_WEBSITE", "247around-Website");
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
 define("MICRO_WAREHOUSE_CHARGES_TYPE", "micro-warehouse-charges");
+
+//Micro Warehouse Description
+define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

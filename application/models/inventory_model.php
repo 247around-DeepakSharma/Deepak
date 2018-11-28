@@ -1663,14 +1663,14 @@ class Inventory_model extends CI_Model {
      * @return array list
      */
     
-    function get_micro_wh_lists_by_partner_id($partner_id) {
-        $this->db->select('micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,micro_wh_mp.micro_warehouse_charges,service_centres.name,micro_wh_mp.id as micro_wh_mp_id');
+    function get_micro_wh_lists_by_partner_id($select, $where) {
+        $this->db->select($select);
         $this->db->from('micro_warehouse_state_mapping AS micro_wh_mp');        
-        $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');       
-        $where['micro_wh_mp.partner_id']= $partner_id;        
+        $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');
         $this->db->where($where);
         $query = $this->db->get();        
-        return $query->result_array();
+        $result= $query->result_array();
+        return $result;
     }
     /**
      * @desc This is used to  inactive of active value in wh_on_of_status table     

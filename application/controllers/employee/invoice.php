@@ -3842,7 +3842,11 @@ class Invoice extends CI_Controller {
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                 "hsn_code" => SPARE_HSN_CODE,
                 "invoice_file_pdf" => $response['meta']['copy_file'],
-                "remarks" => $data[0]['description']
+                "remarks" => $data[0]['description'],
+                "vertical" => SERVICE,
+                "category" => SPARES,
+                "sub_category" => DEFECTIVE_RETURN,
+                "accounting" => 1
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4024,7 +4028,11 @@ class Invoice extends CI_Controller {
                     "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                     "hsn_code" => SPARE_HSN_CODE,
                     "invoice_file_pdf" => $response['meta']['copy_file'],
-                    "remarks" => $data[0]['description']
+                    "remarks" => $data[0]['description'],
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => DEFECTIVE_RETURN,
+                    "accounting" => 1
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4157,6 +4165,10 @@ class Invoice extends CI_Controller {
                     
                         $invoice['invoice_file_main'] = $invoice_pdf;
                         $invoice['amount_collected_paid'] = -$total_amount_collected;
+                        $invoice['vertical'] = SERVICE;
+                        $invoice['category'] = SPARES;
+                        $invoice['sub_category'] = IN_WARRANTY;
+                        $invoice['accounting'] = 1;
 
                         $this->invoices_model->action_partner_invoice($invoice);
                         $this->invoices_model->insert_invoice_breakup($invoice_breakup);

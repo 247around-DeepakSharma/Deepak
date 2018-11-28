@@ -580,7 +580,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function get_partner_invoice_data($partner_id, $from_date, $to_date) {
+    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date) {
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -647,6 +647,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
+        $result['micro_warehouse_list'] = array();
         $final_courier = array_merge($courier,$pickup_courier, $warehouse_courier, $defective_return_to_partner);
         
         if (!empty($upcountry_data)) {
@@ -760,23 +761,21 @@ class invoices_model extends CI_Model {
             }
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
-            
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
-                    $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($partner_id); 
-                   
-                    if(!empty($micro_wh_lists)){
+                    $micro_wh_lists = $this->invoices_model->calculate_active_microwarehouse($partner_id, $tmp_from_date, $to_date);
+                    if($micro_wh_lists['count'] > 0){
                         $c_data = array();
                         $c_data[0]['description'] = $value['description'];
                         $c_data[0]['hsn_code'] = $value['hsn_code'];
-                        $c_data[0]['qty'] = count($micro_wh_lists);
+                        $c_data[0]['qty'] = $micro_wh_lists['count'];
                         $c_data[0]['rate'] = $value['fixed_charges'];
                         $c_data[0]['gst_rate'] = $value['gst_rate'];
                         $c_data[0]['product_or_services'] = $value['description'];
-                        $c_data[0]['taxable_value'] = count($micro_wh_lists) * $value['fixed_charges'];
+                        $c_data[0]['taxable_value'] = $micro_wh_lists['count'] * $value['fixed_charges'];
                         $result['result'] = array_merge($result['result'], $c_data);
                        
-                    //$result['warehouse_storage_charge'] = $packaging1[0]['fixed_charges'];
+                        $result['micro_warehouse_list'] = $micro_wh_lists['list'];
                     }
                 }
                 
@@ -785,12 +784,42 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
+    }
+    /**
+     * @desc This function is used to get micro warehouse invoice data for Partner
+     * It will create full amount invoice when Micro warehouse created before requested from date
+     * It will create partial amount invoice when Micro invoice created with in requested Date
+     * @param int $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function calculate_active_microwarehouse($partner_id, $from_date, $to_date){
+        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id, 
+            'micro_wh_mp.create_date < "'.$from_date.'" ' => NULL, "micro_wh_mp.active" => 1));
 
+        $count = 0;
+        if(!empty($micro_wh_lists)){
+            $count = count($micro_wh_lists);
+        } 
+        
+        $micro_wh = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id, 
+            'micro_wh_mp.create_date >= "'.$from_date.'" ' => NULL, "micro_wh_mp.create_date <= '".$to_date."' " => NULL, "micro_wh_mp.active" => 1));
 
-//        } else {
-//            
-//           return false;
-//        }
+        if(!empty($micro_wh)){
+            foreach ($micro_wh as $value) {
+                $datetime1 = date_create(date('Y-m-d', strtotime($value['create_date']))); 
+                $datetime2 = date_create(date('Y-m-d', strtotime($to_date)));
+                $interval = date_diff($datetime1, $datetime2); 
+                $days = $interval->days;
+                if($days > 0){
+                    $count += ($days/30);
+                    $micro_wh_lists[] = $value;
+                }
+            }
+        }
+        
+        return array('count' => sprintf("%.2f", $count), "list" => $micro_wh_lists);
     }
 
     /**
@@ -804,7 +833,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
-        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date);
+        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
         $anx_data = array();
         $penalty_count = array();
         $penalty_tat = array();
@@ -852,6 +881,7 @@ class invoices_model extends CI_Model {
             $data['penalty_tat_count'] = $penalty_count;
             $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
             $data['pickup_courier'] = $result_data['pickup_courier'];
+            $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
           
             return $data;
         } else {
@@ -1218,6 +1248,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
+        $result['micro_warehouse_list'] = array();
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
         $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
@@ -1298,6 +1329,22 @@ class invoices_model extends CI_Model {
             $result['booking'] = array_merge($result['booking'], $m);
             $result['misc'] = $misc;
         }
+        
+        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
+        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
+
+            $c_data = array();
+            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+            $c_data[0]['hsn_code'] = "";
+            $c_data[0]['qty'] = $micro_invoice['count'];
+            $c_data[0]['rate'] = "";
+            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
+            $result['booking'] = array_merge($result['booking'], $c_data);
+            $result['micro_warehouse_list'] = $micro_invoice['list'];
+                
+        }
 
 //            if (!empty($warehouse_courier)) {
 //                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
@@ -1344,7 +1391,7 @@ class invoices_model extends CI_Model {
                 $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
                 $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
             }
-
+            
 //            if ($result['booking'][0]['is_wh'] == 1) {
 //                $packaging1 = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
@@ -1392,6 +1439,44 @@ class invoices_model extends CI_Model {
             $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
+    }
+    /**
+     * @desc This function is used to get micro warehouse invoice data
+     * It will create full amount invoice when Micro warehouse created before requested from date
+     * It will create partial amount invoice when Micro invoice created with in requested Date
+     * @param int $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date, $to_date){
+        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", 
+                array('micro_wh_mp.vendor_id' => $vendor_id, 'micro_wh_mp.create_date < "'.$from_date.'" ' => NULL, "micro_wh_mp.active" => 1));
+        $count = 0;
+        $charge = 0;
+        if(!empty($micro_wh_lists)){
+            $count = count($micro_wh_lists);
+            $charge = (array_sum(array_column($micro_wh_lists, 'micro_warehouse_charges')));
+        } 
+        
+        $micro_wh = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.vendor_id' => $vendor_id, 
+            'micro_wh_mp.create_date >= "'.$from_date.'" ' => NULL, "micro_wh_mp.create_date <= '".$to_date."' " => NULL, "micro_wh_mp.active" => 1));
+
+        if(!empty($micro_wh)){
+            foreach ($micro_wh as $value) {
+                $datetime1 = date_create(date('Y-m-d', strtotime($value['create_date']))); 
+                $datetime2 = date_create(date('Y-m-d', strtotime($to_date)));
+                $interval = date_diff($datetime1, $datetime2); 
+                $days = $interval->days;
+                if($days > 0){
+                    $count += ($days/30);
+                    $charge += (($days/30) * $value['micro_warehouse_charges']); 
+                    $micro_wh_lists[] = $value;
+                }
+            }
+        }
+        
+        return array('count' => sprintf("%.2f", $count), "list" => $micro_wh_lists, "charge" => sprintf("%.2f", $charge));
     }
 
     /**
