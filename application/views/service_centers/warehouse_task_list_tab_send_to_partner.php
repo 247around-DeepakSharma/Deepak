@@ -146,9 +146,17 @@
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
+                                    <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                     <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-8">
-                                        <input type="text"  class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>
+<!--                                        <input type="text"  class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>-->
+                                        <select class="form-control" id="courier_name_by_wh" name="courier_name_by_wh" required="">
+                                            <option selected="" disabled="" value="">Select Courier Name</option>
+                                            <?php foreach ($courier_details as $value1) { ?> 
+                                                <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <?php echo form_error('courier_name'); ?>
                                     </div>
                                 </div>
                             </div>

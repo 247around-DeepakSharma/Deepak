@@ -105,9 +105,17 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                      <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
+<!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
+                                            <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
+                                                <option selected="" disabled="" value="">Select Courier Name</option>
+                                                <?php foreach ($courier_details as $value1) { ?> 
+                                                    <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
