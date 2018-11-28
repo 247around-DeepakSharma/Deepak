@@ -2925,7 +2925,6 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-       
         $where = array('active' => '1','on_off' => '1');
         $select = "*";
         $whereIN = array();
@@ -2938,6 +2937,13 @@ class vendor extends CI_Controller {
         $districArray = $this->miscelleneous->get_district_covered_by_vendors();
         foreach($vendor as $index=>$values){
             $vendor[$index]['covered_state'] = '';
+            $vendor[$index]['sf_rm_name'] = '';
+            $vendor[$index]['sf_rm_phone'] = '';
+            $rm_detail = $this->vendor_model->get_rm_sf_relation_by_sf_id($values['id']);
+            if(!empty($rm_detail)){
+                $vendor[$index]['sf_rm_name'] = $rm_detail[0]['full_name'];
+                $vendor[$index]['sf_rm_phone'] = $rm_detail[0]['phone'];
+            }
             if(array_key_exists($values['id'], $districArray)){
                 $vendor[$index]['covered_state'] = $districArray[$values['id']];
             }
