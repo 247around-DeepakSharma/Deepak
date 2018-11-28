@@ -36,7 +36,7 @@
                                         <td><?php echo date('d F Y H:i:s', strtotime($value['create_date'])) ; ?></td>
                                     </tr>
                                 <?php } ?>
-                                    <tr>
+<!--                                    <tr>
                                         <th><b>Total Count <span class="badge"><i class="fa fa-info" title="Spare count calculated only for spare shipped by partner to wh and wh to sf only"></i></span></b></th>
                                         <th></th>
                                         <th></th>
@@ -44,7 +44,7 @@
                                         <th><b><?php if(isset($total_spare) && !empty($total_spare)) { echo $total_spare[0]['total_spare_from_ledger']; }?></b></th>
                                         <th></th>
                                         <th></th>
-                                    </tr>
+                                    </tr>-->
                             </tbody>
                         </table>
                         <?php if (!empty($links)) { ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if (isset($links)) {
