@@ -3062,8 +3062,7 @@ class Booking extends CI_Controller {
                         'Booking Completed - Defective Part Rejected By Partner');
                 }
                 else{
-                    $post['where']  = array("current_status IN ('Pending','Rescheduled')" => NULL,
-                    "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0" => NULL,"service_center_closed_date IS NULL"=>NULL);
+                    $post['where']  = array("current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
                 }
                 $post['order_performed_on_count'] = TRUE;
             }

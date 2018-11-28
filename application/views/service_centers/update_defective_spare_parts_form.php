@@ -47,7 +47,9 @@
                                     </div>
                                 </div>
                             </div>
-                            
+                            <input type="hidden" class="form-control" id="defective_return_to_entity_type" name="defective_return_to_entity_type" value="<?php echo $spare_parts[0]['defective_return_to_entity_type']; ?>">
+                            <input type="hidden" class="form-control" id="defective_return_to_entity_id" name="defective_return_to_entity_id" value="<?php echo $spare_parts[0]['defective_return_to_entity_id']; ?>">
+                            <input type="hidden" class="form-control" id="shipped_inventory_id" name="shipped_inventory_id" value="<?php echo $spare_parts[0]['shipped_inventory_id']; ?>">
                         </div>
                  
                     <!-- Close Panel Body -->
