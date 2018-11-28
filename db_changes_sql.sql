@@ -9373,3 +9373,8 @@ ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `e
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
 
+--Kalyani 27-Nov-2018
+ALTER TABLE `courier_company_invoice_details` ADD `is_reject` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_exist`;
+ALTER TABLE `courier_company_invoice_details` ADD `reject_remarks` VARCHAR(255) NOT NULL AFTER `is_reject`;
+
+
