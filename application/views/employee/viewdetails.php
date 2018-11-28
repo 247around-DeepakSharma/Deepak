@@ -316,7 +316,7 @@
             </div>
             <div class="tab-pane fade in" id="tab2">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12 table-responsive">
                         <?php if(!empty($unit_details)) { ?>
                         <table class="table  table-striped table-bordered">
                             <thead>
