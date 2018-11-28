@@ -386,8 +386,18 @@ class accounting_model extends CI_Model {
         
         $this->db->select($select);
         $this->db->from('taxpro_gstr2a_data');
-        $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no',"Left");
         
+        if($condition['entity_type'] == 'vendor'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no');
+        }
+        else if($condition['entity_type'] == 'partner'){
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no');
+        }
+        else if($condition['entity_type'] == 'other'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('gstin_detail', 'gstin_detail.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+        }
         
         if(!empty($condition['where'])){
             $this->db->where($condition['where']);
@@ -432,7 +442,7 @@ class accounting_model extends CI_Model {
             $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
         }else{
             $this->db->order_by('taxpro_gstr2a_data.invoice_number', "asc");
-            $this->db->order_by('service_centres.name', "asc");
+            $this->db->order_by($condition['column_order'], "asc");
         }
     }
     
@@ -454,8 +464,17 @@ class accounting_model extends CI_Model {
     
     function _count_all_taxpro_gstr2a_data($post){
         $this->db->from('taxpro_gstr2a_data');
-        $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no',"Left");
-        $this->db->where($post);
+        if($post['entity_type'] == 'vendor'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no');
+        }
+        else if($post['entity_type'] == 'partner'){
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no');
+        }
+        else if($post['entity_type'] == 'other'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+        }
+        $this->db->where($post['where']);
     }
     
     function count_filtered_taxpro_gstr2a_data($condition, $select){
