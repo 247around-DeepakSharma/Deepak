@@ -3880,7 +3880,7 @@ class Service_centers extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_id" => $sf_id,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            "status " => DEFECTIVE_PARTS_SHIPPED
         );
 
         $select = "defective_part_shipped, spare_parts_details.id, "
@@ -4566,7 +4566,7 @@ class Service_centers extends CI_Controller {
         } else {
             $data['spare_parts'] = array();
         }
-        
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('service_centers/header');
