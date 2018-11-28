@@ -1010,7 +1010,7 @@ EOD;
     function get_sc_crimes_for_sf() {
         log_message('info', __FUNCTION__);
         if (date('l') != "Sunday") {
-            $vendor_details = $this->vendor_model->getactive_vendor();
+            $vendor_details = $this->vendor_model->getVendorDetails("*", array('is_sf' => 1));
             foreach ($vendor_details as $value) {
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
