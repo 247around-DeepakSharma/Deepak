@@ -40,7 +40,7 @@ class Push_notification_scheduler extends CI_Controller {
         $data = $this->reusable_model->get_search_result_data("spare_parts_details","COUNT(spare_parts_details.booking_id) as pending_count,spare_parts_details.partner_id",
                 array("spare_parts_details.status"=>SPARE_PARTS_REQUESTED),
                 array("booking_details"=>"booking_details.booking_id=spare_parts_details.booking_id"),
-                NULL,NULL,array("booking_details.current_status"=>array('Pending', 'Rescheduled')),NULL,array("spare_parts_details.partner_id"));
+                NULL,NULL,array("booking_details.current_status"=>array(_247AROUND_PENDING, _247AROUND_RESCHEDULED)),NULL,array("spare_parts_details.partner_id"));
         foreach($data as $values){
             //Send Push Notification
             $receiverArray['partner'] = array($values['partner_id']);

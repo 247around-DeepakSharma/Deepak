@@ -277,7 +277,7 @@ class ApiDataRequest extends CI_Controller {
                 $sc_data['unit_details_id'] = $result['unit_id'];
                 $sc_data['booking_id'] = $booking_id;
                 $sc_data['service_center_id'] = $vendor_id;
-                $sc_data['current_status'] = "Pending";
+                $sc_data['current_status'] = _247AROUND_PENDING;
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = SPARE_OOW_EST_GIVEN;
                 //Update New item In SF Action Table 
@@ -285,9 +285,9 @@ class ApiDataRequest extends CI_Controller {
                 
                 $isEn = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$vendor_id));
                 if($isEn[0]['isEngineerApp'] == 1){
-                    $en['current_status'] = "Pending";
+                    $en['current_status'] = _247AROUND_PENDING;
                     $en['create_date'] = date('Y-m-d H:i:s');
-                    $en['internal_status'] = "Pending";
+                    $en['internal_status'] = _247AROUND_PENDING;
                     $en['service_center_id'] = $vendor_id;
                     $en['booking_id'] = $booking_id;
                     $en['unit_details_id'] = $result['unit_id'];
@@ -296,7 +296,7 @@ class ApiDataRequest extends CI_Controller {
                 }
 
                 //Update SF Action Table
-                $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
+                $this->vendor_model->update_service_center_action($booking_id, array("current_status" => _247AROUND_PENDING, 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
                  //Insert State Change
                 if($this->session->userdata('partner_id')){

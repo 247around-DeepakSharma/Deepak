@@ -4407,7 +4407,7 @@ class Service_centers extends CI_Controller {
         foreach ($booking_manifest as $key => $value) {
 
             $where = "spare_parts_details.booking_id = '" . $value . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                    . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+                    . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') ";
             $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where)[0];
             $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id' => $value))[0]['appliance_brand'];
         }

@@ -1030,8 +1030,8 @@ class Booking extends CI_Controller {
             $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, _247AROUND_RESCHEDULED, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
-//            $service_center_data['internal_status'] = "Pending";
-//            $service_center_data['current_status'] = "Pending";
+//            $service_center_data['internal_status'] = _247AROUND_PENDING;
+//            $service_center_data['current_status'] = _247AROUND_PENDING;
             //$service_center_data['update_date'] = date("Y-m-d H:i:s");
 
 
@@ -3055,7 +3055,7 @@ class Booking extends CI_Controller {
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
-                    $post['where']  = array("(current_status = 'Rescheduled' OR (current_status = 'Pending' AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0))"=>NULL,
+                    $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.partner_internal_status']  = array('Booking Completed - Defective Part To Be Shipped By SF','Booking Completed - Defective Part Shipped By SF',
                         'Spare Parts Requested By Service Centre','Booking Completed - Defective Part Received By Partner','Spare Parts Shipped by Partner','Service Centre Requested Quote for Spare Part',
@@ -3442,7 +3442,7 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
-                ."(CASE WHEN current_status  IN ('Pending','Rescheduled','FollowUp') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
@@ -3527,7 +3527,7 @@ class Booking extends CI_Controller {
             $complete =  "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
         } else {
-            if ($order_list->current_status == 'Pending' || $order_list->current_status == 'Rescheduled') {
+            if ($order_list->current_status == _247AROUND_PENDING || $order_list->current_status == _247AROUND_RESCHEDULED) {
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             } else if ($order_list->current_status == 'Review') {
@@ -4021,7 +4021,7 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,"
-                ."(CASE WHEN current_status  IN ('Pending','Rescheduled','FollowUp') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking,"
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking,"
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
                 . " booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
@@ -4451,7 +4451,7 @@ class Booking extends CI_Controller {
         if($actor != 'blank'){
             $where['actor'] = $actor;
         }
-        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $whereIN['current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED) ;
         $requestTypeArray= $this->reusable_model->get_search_result_data("booking_details","DISTINCT(request_type)",$where,NULL,NULL,array("request_type"=>"ASC"),
         $whereIN,NULL,array());
         $select ="";
@@ -4465,7 +4465,7 @@ class Booking extends CI_Controller {
         if($actor != 'blank'){
             $where['actor'] = $actor;
         }
-        $whereIN['current_status'] = array("Pending","Rescheduled") ;
+        $whereIN['current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED) ;
         $partnerStatusArray = $this->reusable_model->get_search_result_data("booking_details","DISTINCT(partner_internal_status)",$where,NULL,NULL,array("request_type"=>"ASC"),
                 $whereIN,NULL,array());
         $select = "";
