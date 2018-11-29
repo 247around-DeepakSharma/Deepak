@@ -8,15 +8,60 @@
     
     });
     
+    function get_third_party_list(){
+        var par_ven = $('input[name=partner_vendor]:checked', '#myForm1').val();
+        var hide = true;
+        if(par_ven === "vendor"){
+            var type = $('input[name=advance_type]:checked', '#myForm1').val();
+            if(type === '<?php echo MICRO_WAREHOUSE_CHARGES_TYPE;?>'){
+                var vendor_id = $("#name").val();
+                hide = false;
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/spare_parts/get_micro_partner_list/' + vendor_id,
+                    data: {},
+                    success: function (data) {
+                        console.log(data);
+                        $("#third_party").html(data).change();
+                        $('#loader_gif').attr('src',  "");
+                        $('#loader_gif').css("display", "none");
+
+                }
+              });
+            }
+        }
+        
+        if(hide){
+            $("#third_party_div").css('display',"none");
+        } else {
+           $("#third_party_div").css('display',"block");
+        }
+    }
+    
     function partner_vendor1(vendor_partner_id){
        var par_ven = $('input[name=partner_vendor]:checked', '#myForm1').val();
-       $('#loader_gif').css("display", "inline-block");
-       $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
+       var type = undefined;
+       var ajax_call = false;
+       if(par_ven === "partner"){
+           ajax_call = true
+           $("#advance_tag").css("display","none");
+       } else {
+            var type = $('input[name=advance_type]:checked', '#myForm1').val();
        
-        $.ajax({
+            if(type === undefined){
+                ajax_call = false;
+            } else {
+                ajax_call = true;
+            }
+           $("#advance_tag").css("display","block");
+       }
+       if(ajax_call){
+           $('#loader_gif').css("display", "inline-block");
+           $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
+           $.ajax({
                   type: 'POST',
                   url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + par_ven,
-                  data: {vendor_partner_id: vendor_partner_id,invoice_flag:0},
+                  data: {vendor_partner_id: vendor_partner_id,invoice_flag:0, type: type},
                   success: function (data) {
                       
                       $("#name").html(data).change();
@@ -25,6 +70,8 @@
     
               }
           });
+       }
+        
     }
     
           (function($,W,D)
@@ -40,7 +87,11 @@
                   rules: {
                       //partner_vendor: "required",
                       credit_debit: "required",
-                      amount: "required",
+                      amount: {
+                          digits: true,
+                          required:true,
+                          minlength:1
+                          },
                       tdate: "required",
                       tds_amount: "required"
                   },
@@ -52,8 +103,40 @@
                       tds_amount: "Please enter TDS"
                   },
                   submitHandler: function(form) {
-                      $('#submitform').val("Please wait.....");
-                      form.submit();
+                       $('#submitform').val("Please wait.....");
+                       document.getElementById('submitform').disabled=true;
+                       var par_ven = $('input[name=partner_vendor]:checked', '#myForm1').val();
+                       if(par_ven === "vendor"){
+                           var type =  $('input[name=advance_type]:checked', '#myForm1').val();
+                            if(type === undefined){
+                                document.getElementById('submitform').disabled=false;
+                                $('#submitform').val("Save");
+                                alert("Please Select Advance Type");
+                                $('#submitform').val("Save");
+                                return false;
+                            } else {
+                                if(type === '<?php echo MICRO_WAREHOUSE_CHARGES_TYPE;?>'){
+
+                                    var third_party = $("#third_party").val();
+                                    if(third_party === null){
+                                        document.getElementById('submitform').disabled=false;
+                                        $('#submitform').val("Save");
+                                        alert("Please Select Third Party Name");
+                                        return false;
+                                    }
+                                }
+                            }
+                        } 
+                        
+                        var amount = $("#amount").val();
+                        if(amount < 1){
+                            document.getElementById('submitform').disabled=false;
+                            $('#submitform').val("Save");
+                            alert("Please Enter Amount");
+                            return false;
+                        }
+
+                        form.submit();
                       
                       
                   }
@@ -65,6 +148,7 @@
     
       //when the dom has loaded setup form validation rules
       $(D).ready(function($) {
+          
           JQUERY4U.UTIL.setupFormValidation();
       });
     
@@ -110,7 +194,7 @@
             </div>';
             }
             ?>
-        <form name="myForm1" onSubmit="document.getElementById('submitform').disabled=true;" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/process_advance_payment" method="POST">
+        <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/process_advance_payment" method="POST">
             <h1>Add Advance Payment Transaction</h1>
             
             <div class="form-group ">
@@ -120,11 +204,27 @@
                     <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?> onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
             </div>
-            <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px;" class="col-md-offset-3">
-            <div class="form-group ">
+            <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px; display:none" class="col-md-offset-3">
+            <div class="form-group " id="advance_tag">
+                <label for="name" class="col-md-2">Advance Type <span class="red">*</span></label>
+                <div class="col-md-6">
+                    <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="advance_type" value = "<?php echo BUYBACKTYPE;?>">   Buyback &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="advance_type" value = "<?php echo MICRO_WAREHOUSE_CHARGES_TYPE;?>" >    Micro Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);" name="advance_type" value = "<?php echo SECURITY; ?>">   Security &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+                <span id="errmsg1"></span>
+            </div>
+            <div class="form-group " >
                 <label for="name" class="col-md-2">Name<span class="red">*</span></label>
                 <div class="col-md-6">
-                    <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
+                    <select  onchange="get_third_party_list()" class="form-control"  id="name" name="partner_vendor_id"  required></select>
+                </div>
+            </div>
+            
+            <div class="form-group " id="third_party_div" style="display:none">
+                <label for="third party" class="col-md-2">Third Party Name<span class="red">*</span></label>
+                <div class="col-md-6">
+                    <select  class="form-control" id="third_party" name="third_party"  ></select>
                 </div>
             </div>
             
@@ -136,6 +236,7 @@
                 </div>
                 <span id="errmsg1"></span>
             </div>
+            
             <div class="form-group">
                 <label for="name" class="col-md-2">Amount (With TDS) <span class="red">*</span></label>
                 <div class="col-md-6">

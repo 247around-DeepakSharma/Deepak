@@ -1062,8 +1062,8 @@ class vendor extends CI_Controller {
             
             foreach ($unit_details[0]['quantity'] as $value) {
                 
-                $data['current_status'] = "Pending";
-                $data['internal_status'] = "Pending";
+                $data['current_status'] = _247AROUND_PENDING;
+                $data['internal_status'] = _247AROUND_PENDING;
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
@@ -2925,7 +2925,6 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-       
         $where = array('active' => '1','on_off' => '1');
         $select = "*";
         $whereIN = array();
@@ -2938,6 +2937,13 @@ class vendor extends CI_Controller {
         $districArray = $this->miscelleneous->get_district_covered_by_vendors();
         foreach($vendor as $index=>$values){
             $vendor[$index]['covered_state'] = '';
+            $vendor[$index]['sf_rm_name'] = '';
+            $vendor[$index]['sf_rm_phone'] = '';
+            $rm_detail = $this->vendor_model->get_rm_sf_relation_by_sf_id($values['id']);
+            if(!empty($rm_detail)){
+                $vendor[$index]['sf_rm_name'] = $rm_detail[0]['full_name'];
+                $vendor[$index]['sf_rm_phone'] = $rm_detail[0]['phone'];
+            }
             if(array_key_exists($values['id'], $districArray)){
                 $vendor[$index]['covered_state'] = $districArray[$values['id']];
             }
@@ -3736,8 +3742,8 @@ class vendor extends CI_Controller {
      }else{
          $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
      }
-    if($status === 'Pending' || $status === 'Rescheduled'){
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+    if($status === _247AROUND_PENDING || $status === _247AROUND_RESCHEDULED){
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
     }else{
         redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
@@ -4536,7 +4542,7 @@ class vendor extends CI_Controller {
     
     function pending_bookings_on_vendor($vendorID){
          $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
-                 array("current_status"=>array("Rescheduled","Pending")),NULL );
+                 array("current_status"=>array(_247AROUND_RESCHEDULED,_247AROUND_PENDING)),NULL );
          echo $count;
     }
     

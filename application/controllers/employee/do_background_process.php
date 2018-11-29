@@ -418,7 +418,7 @@ class Do_background_process extends CI_Controller {
             $csv = TMP_FOLDER . $newCSVFileName;
             $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
             if($status != 'all'){
-                if($status == 'Pending'){
+                if($status == _247AROUND_PENDING){
                     $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
               }
                     else{
