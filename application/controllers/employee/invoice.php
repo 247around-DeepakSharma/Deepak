@@ -383,21 +383,32 @@ class Invoice extends CI_Controller {
                 echo $option;
             }
         } else {
-           
+            if($this->input->post('type')){
+                $type = $this->input->post('type');
+                $where = array();
+                if($type == BUYBACKTYPE){
+                    $where['is_cp'] = 1;
+                } else if($type == MICRO_WAREHOUSE_CHARGES_TYPE){
+                     $where['is_micro_wh'] = 1;
+                } else if($type ==SECURITY){
+                     $where['is_sf'] = 1;
+                }
+            }
             $select = "service_centres.name, service_centres.id";
-            $all_vendors = $this->vendor_model->getVendorDetails($select);
+            $all_vendors = $this->vendor_model->getVendorDetails($select, $where);
             foreach ($all_vendors as $v_name) {
                 $option = "<option value='" . $v_name['id'] . "'";
                 if ($vendor_partner_id == $v_name['id']) {
 
                     $option .= "selected ";
                 }
+                
                 $option .=" > ";
                 $option .= $v_name['name'] . "</option>";
 
                 echo $option;
             }
-            echo $vendor_partner_id;
+            
         }
     }
 
@@ -3179,21 +3190,42 @@ class Invoice extends CI_Controller {
         
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
-                if($txntype == "Credit"){
-                    if($entity[0]['is_cp'] === '1'){
+                $advance_type = $this->input->post('advance_type');
+                switch ($advance_type){
+                    case BUYBACKTYPE:
                         $data['type'] = BUYBACK_VOUCHER;
                         $data['vertical'] = BUYBACK;
                         $data['category'] = EXCHANGE;
                         $data['sub_category'] = ADVANCE;
                         $data['accounting'] = 0;
-                    }
-                    else{
+                        break;
+                    
+                    case MICRO_WAREHOUSE_CHARGES_TYPE:
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['third_party_entity'] = _247AROUND_PARTNER_STRING;
+                        $data['third_party_entity_id'] = $this->input->post('third_party');
+                        $data['category'] = MICROWAREHOUSE;
+                        $data['sub_category'] = SECURITY;
+                        $data['accounting'] = 0;
+                        break;
+                    
+                    case SECURITY:
                         $data['type'] = VENDOR_VOUCHER;
                         $data['vertical'] =SERVICE;
                         $data['category'] = ADVANCE;
                         $data['sub_category'] = SECURITY;
                         $data['accounting'] = 0;
-                    }
+                        break;
+                    default :
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['category'] = ADVANCE;
+                        $data['sub_category'] = SECURITY;
+                        $data['accounting'] = 0;
+                        break;
+                }
+                if($txntype == "Credit"){
                     $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-RV");
                     $basic_price = $amount;
                     $data['parts_cost'] = $basic_price;
@@ -3202,7 +3234,6 @@ class Invoice extends CI_Controller {
                     $data['amount_collected_paid'] = -$amount_collected_paid;
                 } else {
                     $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']."-RV");
-                    $data['type'] = VENDOR_VOUCHER;
                     $basic_price = $amount;
                     $amount_collected_paid = $amount;
                     $data['total_service_charge'] = $basic_price;

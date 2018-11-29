@@ -1663,7 +1663,9 @@ class Inventory_model extends CI_Model {
     function get_micro_wh_mapping_list($where, $select){
         $this->db->where($where);
         $this->db->select($select);
-        $query =  $this->db->get("micro_warehouse_state_mapping");
+        $this->db->from('micro_warehouse_state_mapping');        
+        $this->db->join('partners', 'partners.id = micro_warehouse_state_mapping.partner_id', 'RIGHT JOIN');
+        $query =  $this->db->get();
         return $query->result_array();
     }
     /**

@@ -982,5 +982,22 @@ class Spare_parts extends CI_Controller {
         return $row;
         
     }
+    /**
+     * @desc This function is used to get micro partner list by Vendor
+     * @param String $vendor_id
+     */
+    function get_micro_partner_list($vendor_id){
+        $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $vendor_id,
+                'micro_warehouse_state_mapping.active' => 1), 
+                'partners.id, partners.public_name');
+        echo "<option value='' selected disabled>Select Entity</option>";
+        foreach ($micro_wh_mapping_list as $p_name) {
+            $option = "<option value='" . $p_name['id'] . "'";
+
+            $option .=" > ";
+            $option .= $p_name['public_name'] . "</option>";
+            echo $option;
+        }
+    }
 
 }

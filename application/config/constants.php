@@ -402,10 +402,6 @@ define('CLAIM_APPROVED','Claim Approved');
 define('CLAIM_REJECTED','Claim Rejected');
 define('CLAIM_SETTLED','Claim Settled');
 
-define('BUYBACK_VOUCHER','Buyback_Voucher');
-define('PARTNER_VOUCHER','Partner_Voucher');
-define('VENDOR_VOUCHER','Vendor_Voucher');
-
 define('BUYBACK_TYPE','Buyback');
 
 define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');

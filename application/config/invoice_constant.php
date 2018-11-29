@@ -24,4 +24,8 @@ define('CUSTOMER_PAYMENT', 'Customer Payment');
 define('PAYTM_GATEWAY', 'paytm_gateway');
 define('PRE_PAID_PAYMENT_GATEWAY', 'Pre-paid(PG)');
 define('LIQUIDATION', 'Liquidation');
+define('MICROWAREHOUSE', 'Micro Warehouse');
+define('BUYBACK_VOUCHER','Buyback_Voucher');
+define('PARTNER_VOUCHER','Partner_Voucher');
+define('VENDOR_VOUCHER','Vendor_Voucher');
 ?>
