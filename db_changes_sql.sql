@@ -9377,4 +9377,13 @@ ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `e
 ALTER TABLE `courier_company_invoice_details` ADD `is_reject` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_exist`;
 ALTER TABLE `courier_company_invoice_details` ADD `reject_remarks` VARCHAR(255) NOT NULL AFTER `is_reject`;
 
-
+---Gorakh 29-Nov-2018 
+CREATE TABLE `hsn_code_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `hsn_code` varchar(64) DEFAULT NULL, `gst_rate` int(11) DEFAULT NULL, `agent_id` int, `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('7326', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8529', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8518', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8509', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8479', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('4819', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8450', '28', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8501', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
