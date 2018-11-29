@@ -1563,7 +1563,7 @@ class Partner extends CI_Controller {
                 $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
-                $unit_details['booking_status'] = "Pending";
+                $unit_details['booking_status'] = _247AROUND_PENDING;
                 $customer_net_payable += ($explode[1] - $explode[2]);
                 
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
@@ -1693,7 +1693,7 @@ class Partner extends CI_Controller {
             $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
             $this->OLD_BOOKING_STATE = $state_change['old_state'];
         } else { //count($booking_state_change)
-            $state_change['old_state'] = "Pending";
+            $state_change['old_state'] = _247AROUND_PENDING;
         }
 
         if (empty($is_cron)) {
@@ -1957,7 +1957,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') ";
         $data = $this->partner_model->get_spare_parts_booking($where);
         $template = 'download_spare_parts.xlsx';
         //set absolute path to directory with template files
@@ -2112,7 +2112,7 @@ class Partner extends CI_Controller {
         foreach ($booking_manifest as $key => $value) {
 
             $where = "spare_parts_details.booking_id = '" . $value . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                    . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+                    . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') ";
             $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where)[0];
             $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id' => $value))[0]['appliance_brand'];
         }
@@ -2781,7 +2781,7 @@ class Partner extends CI_Controller {
         }
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') ";
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $data['spare_parts'] = $total_rows[0]['total_rows'];
         $this->miscelleneous->load_partner_nav_header();
@@ -3228,7 +3228,7 @@ class Partner extends CI_Controller {
 
                 $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
                 $ext = explode('.', $_FILES["partner_brand_logo"]["name"][$key]);
-                $file_name = $partner_name . preg_replace("/[^a-zA-Z]+/", "", $_FILES["partner_brand_logo"]["name"][$key]) . rand(10, 100) . "." . end($ext);
+                $file_name = preg_replace('/\s+/', '', $partner_name). rand(10, 100) . "." . end($ext);
                 if (!file_exists(FCPATH . 'images/' . $file_name)) {
                     //move_uploaded_file($tmpFile, FCPATH . 'images/' . $file_name);
                     //Uploading images to S3 
@@ -3429,7 +3429,7 @@ class Partner extends CI_Controller {
             $where = array('spare_parts_details.partner_id' => $partner['id'],
                 'defactive_part_received_date_by_courier_api IS NOT NULL' => null,
                 "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
-                "booking_details.current_status IN ('Pending', 'Rescheduled')" => null);
+                "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
 
             if (!empty($defective_parts_acknowledge_data)) {
@@ -4499,7 +4499,7 @@ class Partner extends CI_Controller {
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
         if($status != 'All'){
-            if($status == 'Pending'){
+            if($status == _247AROUND_PENDING){
                 $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
           }
                 else{
@@ -5403,7 +5403,7 @@ class Partner extends CI_Controller {
                                                             <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
                                                         </li>
                                                          <li style="color: #fff;margin-top:5px;">
-                                                             <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/Pending/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
+                                                             <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/'._247AROUND_PENDING.'/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
                                                          </li>
                                                     </ul>
                                                 </div>';

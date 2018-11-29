@@ -847,7 +847,7 @@ class Inventory extends CI_Controller {
         log_message('info', __FUNCTION__. "Entering... And Booking_ID: " . $id);
         $this->checkUserSession();
         $where = "spare_parts_details.id = '".$id."' "
-                . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."', 'Completed', 'Cancelled') ";
         $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where);
         
         if(!empty($data['bookinghistory'][0])){

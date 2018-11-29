@@ -1512,8 +1512,8 @@ class Partner extends CI_Controller {
                             }
                         }
                     } else {
-                        $booking['current_status'] = "Pending";
-                        $booking['internal_status'] = "Scheduled";
+                        $booking['current_status'] = _247AROUND_PENDING;
+                        $booking['internal_status'] = _247AROUND__SCHEDULED;
                         $booking['type'] = "Booking";
 
                         if (isset($upcountry_data['is_upcountry'])) {
