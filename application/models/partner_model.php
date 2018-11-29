@@ -165,7 +165,7 @@ function get_data_for_partner_callback($booking_id) {
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
                     . " AND (booking_details.current_status IN ('Pending','Rescheduled','FollowUp')) ";
         } else {
-            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) ";
+            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) AND booking_details.service_center_closed_date IS NULL ";
         }
          if($stateValue){
               $where .= " AND (booking_details.state = '$stateValue') ";
