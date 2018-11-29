@@ -1433,8 +1433,10 @@ class Accounting extends CI_Controller {
      * @return view
      */
     function show_gstr2a_report(){
+        $data = array();
+        $data['last_updated_data'] = $this->reusable_model->execute_custom_select_query('SELECT `create_date` FROM `taxpro_gstr2a_data` ORDER BY create_date desc LIMIT 1')[0]['create_date'];
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/show_taxpro_GSTR2a_Data');
+        $this->load->view('employee/show_taxpro_GSTR2a_Data', $data);
     }
     
     /**
@@ -1444,17 +1446,40 @@ class Accounting extends CI_Controller {
      */
     function get_gst2ra_mapped_data(){
         $color_array = array();
+        $inv_where = array();
         $post = $this->get_gst2ra_post_data();
         $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
-        $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+        $post['entity_type'] = $this->input->post("entity");
+        log_message('info', 'kalyani'. $post['entity_type']);
+        if($post['entity_type'] == 'vendor'){
+            $inv_where['vendor_partner'] = 'vendor';
+            $inv_where['credit_generated'] = 0;
+            $inv_where['invoice_id like "%Around-GST-DN%"'] = NULL;
+            $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'service_centres.name';
+            $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
+        }
+        else if($post['entity_type'] == 'partner'){
+            $inv_where['vendor_partner'] = 'partner';
+            $post['column_search'] = array('partners.public_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'partners.public_name';
+            $select = "taxpro_gstr2a_data.*, partners.company_name, partners.public_name as name, partners.id as vendor_id";
+        }
+        else if($post['entity_type'] == 'other'){
+            $post['column_search'] = array('gstin_detail.company_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'taxpro_gstr2a_data.invoice_number';
+            $select = "taxpro_gstr2a_data.*, gstin_detail.company_name, gstin_detail.company_name as name, gstin_detail.id as vendor_id";
+            $post['where']['service_centres.id'] =  null;
+            $post['where']['partners.id'] =  null;
+        }
         
-        $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
         $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
         $data = array();
         $no = $post['start'];
         foreach ($list as $data_list) {
+            $no++;
             $array_val = $data_list['checksum'];
             if(in_array($array_val, $color_array)){
                 $data_list['duplicate_entry'] = 1;
@@ -1464,20 +1489,28 @@ class Accounting extends CI_Controller {
                 $data_list['duplicate_entry'] = 0;
             }
             
-            $no++;
-            $inv_where = array(
-                'vendor_partner'=>'vendor',
-                'vendor_partner_id'=>$data_list['vendor_id'],
-                'credit_generated' => 0,
-                'invoice_id like "%Around-GST-DN%"' => NULL,
-            );
-            $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+            if($post['entity_type'] == 'vendor'){
+               $inv_where['vendor_partner_id'] = $data_list['vendor_id'];
+               $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+               $data_list['entity_type'] = 'vendor';
+            }
+            else if($post['entity_type'] == 'partner'){
+               $inv_where['vendor_partner_id'] = $data_list['vendor_id'];
+               $inv_where['invoice_id'] = $data_list['invoice_number'];
+               $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+               $data_list['entity_type'] = 'partner';
+            }
+            else{
+                $data_list['vendor_invoices'] = array();
+                $data_list['entity_type'] = 'other';
+            }
+            
             $row =  $this->gstr2a_table_data($data_list, $no);
             $data[] = $row;
         }
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->accounting_model->count_all_taxpro_gstr2a_data($post['where']),
+            "recordsTotal" => $this->accounting_model->count_all_taxpro_gstr2a_data($post),
             "recordsFiltered" => $this->accounting_model->count_filtered_taxpro_gstr2a_data($post, 'taxpro_gstr2a_data.id'),
             "data" => $data,
         );
@@ -1496,13 +1529,27 @@ class Accounting extends CI_Controller {
     
     function gstr2a_table_data($data_list, $no){
         $row = array();
+        $partner_inv_not_found = null;
+        if($data_list['entity_type'] == 'vendor'){  
+            $inv_href = base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']; 
+        }
+        else if($data_list['entity_type'] == 'partner'){ 
+            $inv_href = base_url()."employee/invoice/invoice_summary/partner/".$data_list['vendor_id']; 
+            if(empty($data_list['vendor_invoices'])){
+                $partner_inv_not_found = 'inv_not_found';
+            }
+        }
+        else{ 
+            $inv_href = "#"; 
+        }
+        
         $row[] = $no;
         $row[] = $data_list['invoice_number'];
         if($data_list['duplicate_entry'] == 1){
-            $row[] = "<a class='duplicate_row' href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
+            $row[] = "<a class='duplicate_row ".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
         }
         else{
-            $row[] = "<a href='".base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']."' target='_blank'>".$data_list['name']."</a>";
+            $row[] = "<a class='".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
         }
         $row[] = $data_list['gst_no'];
         $row[] = $data_list['invoice_date'];
@@ -1522,7 +1569,7 @@ class Accounting extends CI_Controller {
         $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
         $row[] = $html;
         $row[] = $cn_btn;
-        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'  data-toggle='modal' data-target='#myModal'>Reject</a>";
+        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'  data-toggle='modal' data-target='#myModal'>Remark</a>";
         return $row;
     }
     
