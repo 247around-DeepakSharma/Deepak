@@ -64,7 +64,7 @@ class bookingjobcard extends CI_Controller {
         if(!$mpdf){
             $this->booking_utilities->mpdf_failure_backup_jobcard($booking_id);
         }
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
     }
 
     /*
@@ -83,7 +83,7 @@ class bookingjobcard extends CI_Controller {
 
         $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $additional_note);
 
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
         
     }
 
@@ -173,7 +173,7 @@ class bookingjobcard extends CI_Controller {
                 "body" => $message, "type" => $type);
             $this->booking_model->save_vendor_email($details);
 
-            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
         } else {
             echo "This booking Id do not exists";
         }

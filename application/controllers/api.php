@@ -1977,8 +1977,8 @@ class Api extends CI_Controller {
 
                 $booking['type'] = "Booking";
                 $booking['source'] = "SB";
-                $booking['current_status'] = 'Pending';
-                $booking['internal_status'] = 'Scheduled';
+                $booking['current_status'] = _247AROUND_PENDING;
+                $booking['internal_status'] = _247AROUND__SCHEDULED;
 
 //            log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
 //                    . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']

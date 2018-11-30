@@ -140,7 +140,7 @@ class Partner_booking extends CI_Controller {
                     }
                 }
             }
-            redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
             $reader->close();
         } else {
             $this->get_upload_partners_cancelled_booking();

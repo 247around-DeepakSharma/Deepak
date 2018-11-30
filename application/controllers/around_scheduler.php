@@ -1174,7 +1174,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function auto_acknowledge_buyback_order() {
         log_message("info", __METHOD__);
         $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , delivery_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
-            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => 'Pending');
+            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => _247AROUND_PENDING);
         $where['select'] = "bb_order_details.partner_order_id";
         $where['length'] = -1;
         $data = $this->cp_model->get_bb_cp_order_list($where);
