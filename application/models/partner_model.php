@@ -1162,6 +1162,7 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($where)){
            $this->db->where($where);
         }
+        $this->db->order_by("public_name", "asc");         
         $query = $this->db->get('partners');
 
         return $query->result_array();
