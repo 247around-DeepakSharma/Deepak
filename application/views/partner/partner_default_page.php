@@ -5,13 +5,13 @@
     <?php
     if($this->session->userdata('agent_id') != '980084' && $this->session->userdata('agent_id') != '980083'){
     ?>
-<!--    <div class="row">
+    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="col-md-12" id="booking_summary" style="margin-top:10px;">
                 <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
             </div>
         </div>
-    </div>-->
+    </div>
     <?php
     }
     if($this->session->flashdata('inProcessBookings')){
@@ -285,13 +285,13 @@
         $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
         }); 
         
-//        $.ajax({
-//            type: 'POST',
-//            url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
-//            success: function (data) {
-//                $("#booking_summary").html(data);   
-//            }
-//        });
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
+            success: function (data) {
+                $("#booking_summary").html(data);   
+            }
+        });
     }
     
     function load_view(url, tab) {
