@@ -2081,7 +2081,10 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
+        if(isset($post['unit_not_required'])){
+            $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
+        }
+        
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
