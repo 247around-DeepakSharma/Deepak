@@ -2926,6 +2926,22 @@ class Booking extends CI_Controller {
      *  @return : void();
      */
     public function view_bookings_by_status($status,$booking_id=""){
+        
+        $data['booking_status'] = trim($status);
+        $data['booking_id'] = trim($booking_id);
+       
+       $this->miscelleneous->load_nav_header();
+        if(strtolower($data['booking_status']) == 'pending'){
+            $this->load->view('employee/view_pending_bookings', $data);
+        }else{
+            $this->load->view('employee/view_bookings_by_status', $data);
+        }
+    }
+    /**
+     * @desc This function is uses to load filter view in the Pending booking Page
+     */
+    function get_booking_filter_view($status){
+        log_message('info', __METHOD__);
         $partnerWhere['is_active'] = 1;
         $vendorJoin = NULL;
         $vendorWhere['service_centres.active'] = 1;
@@ -2938,19 +2954,18 @@ class Booking extends CI_Controller {
             $vendorWhere['employee_relation.agent_id'] = $rm_id;
             $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
         }
-        $data['booking_status'] = trim($status);
-        $data['booking_id'] = trim($booking_id);
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
-       $this->miscelleneous->load_nav_header();
-        if(strtolower($data['booking_status']) == 'pending'){
-            $this->load->view('employee/view_pending_bookings', $data);
-        }else{
-            $this->load->view('employee/view_bookings_by_status', $data);
+        if($status == _247AROUND_PENDING){
+            $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
+        
+            echo $this->load->view('employee/pending_booking_filter_page', $data, TRUE);
+        } else {
+            echo $this->load->view('employee/closed_booking_filter_page', $data, TRUE);
         }
+        
     }
     
     
