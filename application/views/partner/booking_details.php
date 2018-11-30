@@ -265,6 +265,7 @@
                                                 <table class="table  table-striped table-bordered" >
                                                     <thead>
                                                         <tr>
+                                                            <th >Request to Partner/Warehouse </th>
                                                             <th >Model Number </th>
                                                             <th >Requested Parts </th>
                                                             <th >Requested Date</th>
@@ -281,6 +282,7 @@
                                                     <tbody>
                                                                 <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                                             <tr>
+                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
                                                                 <td><?php echo $sp['parts_requested']; ?></td>
                                                                 <td><?php echo $sp['create_date']; ?></td>
@@ -400,6 +402,7 @@
                                                     <table class="table  table-striped table-bordered" >
                                                         <thead>
                                                             <tr>
+                                                                <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
@@ -412,6 +415,7 @@
                                                         <tbody>
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){?>
                                                                 <tr>
+                                                                    <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
