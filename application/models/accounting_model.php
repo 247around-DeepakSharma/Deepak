@@ -169,7 +169,7 @@ class accounting_model extends CI_Model {
                 . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
                 . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
                 . " to_date,total_service_charge,"
-                . " `total_additional_service_charge`,vpi.`service_tax`,"
+                . " `total_additional_service_charge`,vpi.`service_tax`, vpi.warehouse_storage_charges, vpi.miscellaneous_charges,"
                 . " `parts_cost`,`parts_count`, `parts_cost`, `vat`,`total_amount_collected`,"
                 . " `around_royalty`,`total_service_charge`,`parts_count`,`reference_invoice_id`,`amount_collected_paid`,"
                 . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
