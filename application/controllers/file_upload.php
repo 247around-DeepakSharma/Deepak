@@ -218,7 +218,7 @@ class File_upload extends CI_Controller {
 
                     if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
                         $flag = 0;
-                        $msg = "GST Rate of HSN Code (" . $rowData['gst_rate'] . ") should be " . $hsncode_data[0]['gst_rate'];
+                        $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
                         break;
                     }
                     if ($flag == 1) {
