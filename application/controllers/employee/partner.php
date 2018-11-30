@@ -4090,7 +4090,7 @@ class Partner extends CI_Controller {
     function get_partner_list(){
         $is_wh = $this->input->post('is_wh');
         if(!empty($is_wh)){
-            $where = array('is_active'=>1,'is_wh' => 1);
+            $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
             $where = array('is_active'=>1);
         }
