@@ -9,7 +9,7 @@
     </div>
     <div style="margin-left: 8px;">
         <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:5px;">To, </p>
-        <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:5px;"><?php //echo $value['company_name'];?></p>
+        <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:5px;"><?php echo $value['company_name'];?></p>
         <?php if(!empty($value['primary_contact_name']) ){ ?>
         <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">C/o - <?php echo $value['primary_contact_name'];?></p>
         <?php } ?>

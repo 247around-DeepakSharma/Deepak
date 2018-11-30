@@ -3126,7 +3126,7 @@ class Inventory extends CI_Controller {
                 );
             $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
-            $this->ci->insert_def_invoice_breakup($response, 0);
+            $this->invoice_lib->insert_def_invoice_breakup($response, 0);
         }
     }
 
@@ -4968,8 +4968,15 @@ class Inventory extends CI_Controller {
                   . "warehouse_details.warehouse_state as state"; 
                 $where = array('warehouse_details.entity_type' => _247AROUND_SF_STRING,
                   'warehouse_details.entity_id' => $warehouse_id);
-                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true); 
-                $wh_address_details[0]['total_quantity'] = $total_quantity;
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);                
+                $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
+                $sf_address_details = $this->vendor_model->getVendorDetails($select1, array('id' =>$warehouse_id));              
+                if(empty($wh_address_details)){
+                    $wh_address_details =$sf_address_details;
+                }else{
+                    $wh_address_details[0]['company_name'] =$sf_address_details[0]['company_name'];
+                }
+                $wh_address_details[0]['total_quantity'] = $total_quantity;                
                 if(!empty($partner_id)){
                     $booking_details = $this->partner_model->getpartner($partner_id);
                 }  

@@ -1739,5 +1739,17 @@ class Inventory_model extends CI_Model {
          $this->db->where($where);
         $query =  $this->db->get("inventory_stocks");
         return $query->result_array();
+    }    
+     /**
+     * @desc This is used to get list of HSN Code Details.     
+     * @table hsn_code_details 
+     * @return array
+     */    
+     function get_hnscode_details($select, $where) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("hsn_code_details");
+        return $query->result_array();
     }
+
 }
