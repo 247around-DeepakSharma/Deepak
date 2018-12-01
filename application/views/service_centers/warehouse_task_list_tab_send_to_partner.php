@@ -33,7 +33,7 @@
                                     <form class="form-inline" action="#" method="POST">
 
                                         <label for="partner_id">Select Partner</label>
-                                        <select class="form-control" id="partner_id" name="partner_id" required="">
+                                        <select class="form-control" id="partner_id_send_to_partner" name="partner_id" required="">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                         <div id="partner_err"></div>
@@ -223,7 +223,7 @@
     });
     
      $("#partner_search").click(function(){         
-         var partner_id = $("#partner_id").val();
+         var partner_id = $("#partner_id_send_to_partner").val();
          if(partner_id==null){
             $("#partner_err").html('Please Select Partner.').css({'color':'red'});
             return false;
@@ -275,7 +275,7 @@
 </script>
 <script>
     
-    $('#partner_id').select2({
+    $('#partner_id_send_to_partner').select2({
         placeholder:'Select Partner',
         allowClear:true
     });
@@ -319,7 +319,7 @@
         postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
-        postData['receiver_partner_id'] = $("#partner_id").val();
+        postData['receiver_partner_id'] = $("#partner_id_send_to_partner").val();
         
         if(flag){
             if(postData['receiver_partner_id']){
@@ -401,10 +401,10 @@
                 if(response === 'Error'){
                     
                 } else {
-                    $('#partner_id').html(response);
+                    $('#partner_id_send_to_partner').html(response);
                      <?php if(isset($filtered_partner)) { ?> 
-                    $('#partner_id').val('<?php echo $filtered_partner?>'); 
-                    $('#partner_id').trigger('change');
+                    $('#partner_id_send_to_partner').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id_send_to_partner').trigger('change');
                     <?php } ?>
                 }
                 
