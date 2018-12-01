@@ -336,6 +336,25 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
         return $result;
     }
     /**
+     * @desc: This is used to update micro warehouse state mapping table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_micro_warehouse($where, $data) {
+        $this->db->where($where);
+        $this->db->update('micro_warehouse_state_mapping', $data);
+        log_message('info', __FUNCTION__ . '=> Update Micor Warehouse: ' . $this->db->last_query());
+
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
+        return $result;
+    }
+    /**
      * @desc: Insert booking details for spare parts
      * @param Array $data
      * @return boolean

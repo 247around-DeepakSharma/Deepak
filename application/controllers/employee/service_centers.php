@@ -5189,5 +5189,23 @@ class Service_centers extends CI_Controller {
         }
                
     }
+    /**
+     * @desc This is used to update micro warehouse related field. Just pass field name, value and table primary key id
+     */
+    function update_micro_warehouse_column(){
+        $this->form_validation->set_rules('data', 'Data', 'required');
+        $this->form_validation->set_rules('id', 'id', 'required');
+        $this->form_validation->set_rules('column', 'column', 'required');
+        if ($this->form_validation->run()) {
+            $data = $this->input->post('data');
+            $id = $this->input->post('id');
+            $column = $this->input->post('column');
+            
+            $this->service_centers_model->update_micro_warehouse(array('id' => $id), array($column => $data));
+            echo "Success";
+        } else {
+            echo "Error";
+        }
+    }
 
 }
