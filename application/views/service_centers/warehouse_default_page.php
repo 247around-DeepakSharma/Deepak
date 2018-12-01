@@ -17,14 +17,13 @@
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
-                                <!--  Pending Spares--> Send To SF
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Acknowledge From Partner
                                 </a>
                             </li>
-                            
                             <li role="presentation">
-                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_list">
-                                    Send To Partner
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
+                                <!--  Pending Spares--> Send To SF
                                 </a>
                             </li>
                             <li role="presentation">
@@ -33,16 +32,18 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Acknowledge From Partner
+                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_list">
+                                    Send To Partner
                                 </a>
                             </li>
+                            
+                            
                         </ul>
                         <div id="myTabContent" class="tab-content">
-                            <div class="tab-pane active" id="tabs-2"></div>
+                            <div class="tab-pane" id="tabs-2"></div>
                             <div class="tab-pane" id="tabs-5"></div>
                             <div class="tab-pane" id="tabs-3"></div>                            
-                            <div class="tab-pane" id="tabs-6">
+                            <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
@@ -426,7 +427,7 @@
     
     $(document).ready(function () {
         
-        load_view('service_center/spare_parts/0/1', '#tabs-2');
+       // load_view('service_center/spare_parts/0/1', '#tabs-2');
         
         $("#datatable1_filter").hide();
         
@@ -569,7 +570,7 @@
 <script>
 
     var inventory_spare_table;
-
+    var time = moment().format('D-MMM-YYYY');
     $(document).ready(function () {
         get_partner();
         get_inventory_list();
@@ -588,6 +589,17 @@
         inventory_spare_table = $('#inventory_spare_table').DataTable({
             "processing": true,
             "serverSide": true,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ]
+                    },
+                    title: 'inventory_spare_table_'+time                    
+                },
+            ],
             "language": {
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
