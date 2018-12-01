@@ -234,7 +234,7 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
         $this->checkUserSession();
-        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE);
+        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         $data['partner'] = $this->partner_model->getpartner("", false);
         $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'), false, $data['partnerType']);
         foreach ($invoicing_summary as $key => $value) {
