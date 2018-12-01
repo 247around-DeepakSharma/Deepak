@@ -4859,6 +4859,7 @@ class Inventory extends CI_Controller {
     function recheck_docket_number() { 
         $this->checkUserSession();
         $data['courier_company_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_exist'=>0, 'is_reject'=>0));
+        $data['ignored_invoice_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_reject'=>1));
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/recheck_docket_number', $data);
     }
