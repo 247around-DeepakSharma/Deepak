@@ -1,4 +1,4 @@
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <style type="text/css">
     #booking_form .form-group label.error {
     margin:4px 0 5px !important;
@@ -2241,7 +2241,7 @@
                                 </thead>
                                 <tbody> 
                                     <?php
-                                    if (!empty($micro_wh_lists)) {
+                                    if (!empty($micro_wh_lists)) {                            
                                         $i = 1;
                                         foreach ($micro_wh_lists as $key => $val) {
                                             ?>                                           
@@ -2249,7 +2249,9 @@
                                                 <td><?php echo $i . "."; ?></td>
                                                 <td><?php echo $val['state']; ?></td>
                                                 <td><?php echo $val['name']; ?></td>                                                
-                                                <td><?php echo $val['micro_warehouse_charges']; ?></td>
+                                                <td>
+                                                <span class="payout_amount_text" id="<?php echo $val['id']."|micro_warehouse_charges";?>"><?php echo $val['micro_warehouse_charges']; ?></span> <span class="payout_amount_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                                </td>
                                                 <td><a href="#" class="micro_warehouse_view" id="<?php echo $val['micro_wh_mp_id']; ?>">View</a></td>
                                                 <td>
                                                     <a href="#" id="status_<?php echo $val['wh_on_of_id']; ?>">
@@ -2263,12 +2265,12 @@
                                                     </a>
 
                                                 </td> 
-                                                <td><?php echo $val['update_date']; ?></td>
+                                                <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?> 
-                                                        <button type="button" class="btn btn-danger btn-sm" href="#" title="Delete" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)"><span id="remove_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-trash"></i></span></button>                                                    
+                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Actived</button>                                                    
                                                     <?php } else { ?>
-                                                        <button type="button" class="btn btn-default" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)"><span id="add_<?php echo $val['wh_on_of_id']; ?>"><i class="fa fa-plus"></i></span></button>
+                                                        <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Deactived</button>
                                                     <?php } ?>                                         
                                                 </td>
                                             </tr>
@@ -2546,7 +2548,7 @@
                 <h4 class="modal-title">Micro Warehouse History Details</h4>
             </div>
             <div class="modal-body">               
-                    <div id="table_body"></div>                
+                <div id="table_body" style="height: 400px; overflow: auto;"></div>                
             </div>
         </div>
     </div>
@@ -3655,7 +3657,7 @@
         manange_micro_warehouse(multiple_id,'1');
     }
     
-    function manange_micro_warehouse(multiple_id,active){        
+    function manange_micro_warehouse(multiple_id,active){  
         var multiple_id_arr = multiple_id.split('-'); 
         wh_on_of_id = multiple_id_arr[0];
         micro_wh_mp_id = multiple_id_arr[1];        
@@ -3667,11 +3669,13 @@
                 data : {wh_on_of_id:wh_on_of_id,micro_wh_mp_id:micro_wh_mp_id,active_status:active},
                 success:function(data){                
                     if(data['status']=='success'){                        
-                        if(active=='1'){                            
-                            $("#add_"+wh_on_of_id).html('<i class="fa fa-trash"></i>');                            
+                        if(active=='1'){                             
+                            $("#"+multiple_id).attr('onclick', 'remove_micro_warehose(this.id)');
+                            $("#"+multiple_id).html('Actived').css({'background-color':'#01903a;','border-color':'#fff;'});                            
                             $("#status_"+wh_on_of_id).html('Active');                            
-                        }else{                           
-                            $("#remove_"+wh_on_of_id).html('<i class="fa fa-plus"></i>');
+                        }else{                      
+                            $("#"+multiple_id).attr('onclick', 'add_micro_warehose(this.id)');
+                            $("#"+multiple_id).html('Deactived').css({'background-color':'#d9534f;'});
                             $("#status_"+wh_on_of_id).html('Inactive');
                         }
                         
@@ -3847,4 +3851,40 @@
            
         }
     }
+    
+    $(".payout_amount_edit").click(function() {
+        if ($(this).siblings(".payout_amount_text").is(":hidden")) {
+            var prethis = $(this);
+            var text_id = $(this).siblings(".payout_amount_text").attr('id');       
+            var split = text_id.split('|');
+            var line_item_id = split[0];
+            var column = split[1];
+            var data_value = $(this).siblings("input").val();
+            $(this).siblings(".payout_amount_text").text($(this).siblings("input").val());
+
+            $.ajax({
+                url: "<?php echo base_url() ?>employee/service_centers/update_micro_warehouse_column",
+                type: "POST",
+                beforeSend: function(){                
+                     prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+                 },
+                data: { data: data_value, id: line_item_id, column:column},
+                success: function (data) {
+                    if(data === "Success"){                    
+                        prethis.siblings("input").remove();
+                        prethis.siblings(".payout_amount_text").show();
+                        prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');                 
+                    } else {
+                        alert("There is a problem to update");
+                        alert(data);
+                    }                
+                }
+            });
+        } else {
+            var text = $(this).siblings(".payout_amount_text").text();
+            $(this).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+            $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+            $(this).siblings(".payout_amount_text").hide();
+        }
+    });
 </script>

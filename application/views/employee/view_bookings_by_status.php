@@ -125,7 +125,7 @@
         </div>
         <hr>
         <div class="bookings_table">
-            <table id="datatable1" class="table table-bordered table-responsive">
+            <table id="datatable1" class="table table-bordered table-responsive" style="display:none">
                 <thead>
                     <tr>
                         <th>S.No.</th>
@@ -197,9 +197,8 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script>
-    $(document).ready(function(){
         
-    
+    function load_datatable(){
         datatable1 = $('#datatable1').DataTable({
             "processing": true, 
             "serverSide": true,
@@ -253,11 +252,9 @@
             }        
         });
         
-       
+      } 
         
-    });
-    
-</script>
+ </script>
 <script>
     $(function(){
     
