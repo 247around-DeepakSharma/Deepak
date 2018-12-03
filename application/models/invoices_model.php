@@ -2735,4 +2735,36 @@ class invoices_model extends CI_Model {
         $query = $this->db->get("invoice_tags");
         return $query->result_array();
     }
+    
+    /**
+     * @desc This function is used to get all HSN Code Details 
+     * @param void
+     * @return result array
+     */
+    function get_hsncode_list($select, $where=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+             $this->db->where($where);
+        }
+        $query = $this->db->get("hsn_code_details");
+        return $query->result_array();
+    }    
+    /**
+     * @desc: This is used to update hsn code details table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_hsn_code_details($where, $data) {
+        $this->db->where($where);
+        $this->db->update('hsn_code_details', $data);
+        log_message('info', __FUNCTION__ . '=> Update HSN Code Details: ' . $this->db->last_query());
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
+        return $result;
+    }
 }

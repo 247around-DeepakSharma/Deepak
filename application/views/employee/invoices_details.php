@@ -1,3 +1,4 @@
+<script src="<?php echo base_url(); ?>js/invoice_tag.js"></script>
 <style>
     #wrapper{
         overflow-x: hidden;
@@ -39,8 +40,8 @@
       </div>
       <div class="row">
         <div class="form-group col-md-4">
-            <label for="state" class="col-sm-2">Name</label>
-            <div class="col-md-10">
+            <label for="state" class="col-sm-4">Vendor Name</label>
+            <div class="col-md-8">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
                   <option disabled selected >Service Center</option>
@@ -57,7 +58,7 @@
                 <?php } else { ?>
 
                  <select class="form-control" name ="partner" id="invoice_id" onChange="getInvoicingData('partner')">
-                  <option disabled selected >Partner</option>
+                  <option disabled selected >Partner Name</option>
 
                   <?php
                      foreach ($partner as $partnerdetails) {
@@ -71,7 +72,7 @@
                 <?php }?>
             </div>
         </div>
-           <div class="form-group col-md-3" style="width: 25%">
+           <div class="form-group col-md-4" style="">
             <label for="filter_invoice_type" class="col-sm-3">Invoice Type</label>
             <div class="col-md-9">
                 <select class="form-control filter_table" id="filter_invoice_type" name="filter_invoice_type[]" onchange="getInvoicingData('<?php echo $vendor_partner; ?>')" multiple="multiple" data-placeholder="All">
@@ -79,19 +80,43 @@
                 </select>
             </div>
          </div>
-          <div class="form-group col-md-3" style="width: 25%">
-            <label for="invoice_period" class="col-sm-3">Invoice Period</label>
-            <div class="col-md-9">
+          <div class="form-group col-md-4" style="">
+            <label for="invoice_period" class="col-sm-4">Invoice Period</label>
+            <div class="col-md-8">
                 <select class="form-control" id="invoice_period" onchange="getInvoicingData('<?php echo $vendor_partner; ?>')">
                     <option value="all">All</option>
                     <option value="cur_fin_year">Current Financial Year</option>
                 </select>
             </div>
          </div>
-         <div class="form-group col-md-2">
+         <div class="form-group col-md-4" style="">
+            <label for="vertical" class="col-sm-4">Vertical</label>
+            <div class="col-md-8">
+                <select class="form-control" id="vertical">
+                  <option disabled selected>Select Vertical</option>
+                </select>
+            </div>
+         </div>
+          <div class="form-group col-md-4" style="">
+            <label for="category" class="col-sm-3">Category</label>
+            <div class="col-md-9">
+                <select class="form-control" id="category">
+                    <option disabled selected>Select Category</option>
+                </select>
+            </div>
+         </div>
+          <div class="form-group col-md-4" style="">
+            <label for="sub_category" class="col-sm-4">Sub Category</label>
+            <div class="col-md-8">
+                <select class="form-control" id="sub_category">
+                   <option disabled selected>Select Sub Category</option>
+                </select>
+            </div>
+         </div>
+         <div class="form-group col-md-3">
             <label for="settle_invoice_checkbox" class="col-sm-8">Invoice Un-Settled</label>
             <div class="col-md-4">
-                <input type="checkbox" onclick="getInvoicingData('<?php echo $vendor_partner; ?>');" checked id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
+                <input style="margin-left:15px" type="checkbox" onclick="getInvoicingData('<?php echo $vendor_partner; ?>');" checked id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
             </div>
          </div>
       </div>
@@ -242,7 +267,7 @@
    </div>
 
 <script type="text/javascript">
-   $("#invoice_id").select2();
+   $("#invoice_id, #category, #sub_category, #vertical").select2();
    $(function() {
         $('#invoice_date').daterangepicker({
             locale: {
@@ -256,10 +281,26 @@
 
    $(document).ready(function () {
 
-  getInvoicingData('<?php echo $vendor_partner; ?>');
-  get_invoice_type();
-   $("#filter_invoice_type").select2();
-});
+        getInvoicingData('<?php echo $vendor_partner; ?>');
+        get_invoice_type();
+        $("#filter_invoice_type").select2();
+        get_vertical('<?php echo base_url(); ?>');
+        
+        $('#vertical').change(function(){
+            get_category('<?php echo base_url(); ?>');
+            getInvoicingData('<?php echo $vendor_partner; ?>');
+        });
+        
+        $('#category').change(function(){
+            get_sub_category('<?php echo base_url(); ?>')
+            getInvoicingData('<?php echo $vendor_partner; ?>');
+        });
+        
+        $('#sub_category').change(function(){
+           getInvoicingData('<?php echo $vendor_partner; ?>');
+        });
+        
+    });
 
 
    function getInvoicingData(source){
@@ -274,11 +315,14 @@
     }
     var invoice_period = $('#invoice_period').val();
     var invoice_type = $('#filter_invoice_type').val();
+    var vertical = $("#vertical").val();
+    var category = $("#category").val();
+    var sub_category = $("#sub_category").val();
     $('#overall_summary').css('display', 'none');
     $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,invoice_period:invoice_period, settle_invoice: c},
+          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,invoice_period:invoice_period, settle_invoice: c, vertical:vertical, category:category, sub_category:sub_category},
           success: function (data) {
             $('#loader_gif').attr('src', '');
             $("#invoicing_table").html(data);

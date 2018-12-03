@@ -156,7 +156,16 @@ class Invoice extends CI_Controller {
             }
         }
         
-       
+        if(!empty($this->input->post('vertical'))){
+            $where['vertical'] = $this->input->post('vertical');
+        }
+        if(!empty($this->input->post('category'))){
+            $where['category'] = $this->input->post('category');
+        }
+        if(!empty($this->input->post('sub_category'))){
+            $where['sub_category'] = $this->input->post('sub_category');
+        }
+        
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
@@ -234,7 +243,7 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
         $this->checkUserSession();
-        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE);
+        $data['partnerType'] = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
         $data['partner'] = $this->partner_model->getpartner("", false);
         $invoicing_summary = $this->invoices_model->getsummary_of_invoice("partner", array('active' => '1'), false, $data['partnerType']);
         foreach ($invoicing_summary as $key => $value) {
@@ -4883,4 +4892,51 @@ class Invoice extends CI_Controller {
         }
         echo $html;
     }
+    /**
+     *  @desc : This function adds new transactions between vendor/partner and 247around.
+     *  @param : Type $partnerId
+     *  @return : void
+     */
+    function get_add_new_hsn_code($vendor_partner = "", $id = "") {
+        $this->checkUserSession();
+        $data['hsn_code_list'] = $this->invoices_model->get_hsncode_list('*', array());
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/addnewhsncode', $data);
+    }
+    /**
+     *  @desc : This is used to add data in hsn_code_details table
+     *  @param : void
+     *  @return : Json
+     */
+    function post_add_new_hsncode() {
+        $this->checkUserSession();
+        $hsn_code = $this->input->post('hsn_code');
+        if (!empty($hsn_code)) {
+            $hsn = array('hsn_code' => $hsn_code, 'gst_rate' => $this->input->post('gst_rate'), 'agent_id' => $this->input->post('agent_id'));
+            $last_inserted_id = $this->inventory_model->insert_query('hsn_code_details', $hsn);
+            if(!empty($last_inserted_id)){
+                echo json_encode(array('status'=>'success'));
+            } else {
+            echo json_encode(array('status'=>'failed'));                
+            }
+        }
+    }
+      /**
+     * @desc This is used to update hsn code details related field. Just pass field name, value and table primary key id
+     */
+    function update_hsn_code_details_column(){
+        $this->form_validation->set_rules('data', 'Data', 'required');
+        $this->form_validation->set_rules('id', 'id', 'required');
+        $this->form_validation->set_rules('column', 'column', 'required');
+        if ($this->form_validation->run()) {
+            $data = $this->input->post('data');
+            $id = $this->input->post('id');
+            $column = $this->input->post('column');            
+            $this->invoices_model->update_hsn_code_details(array('id' => $id), array($column => $data));
+            echo "Success";
+        } else {
+            echo "Error";
+        }
+    }
+              
 }
