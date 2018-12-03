@@ -276,7 +276,6 @@
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         ?>
-                                                                    <input type="hidden" id="<?php echo "model_mandatory_".$count; ?>" value="1">
                                                                     <div class="form-group">
                                                                         <div class="col-md-12 ">
                                                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
@@ -637,16 +636,13 @@
                 <?php
                 if($isModelMandatory){
                     ?>
-                     var modelNumber = $('#model_number_'+div_no[2]).val();
-                     if($("#model_mandatory_"+div_no[2]).length == 1){
-                        if($("#model_mandatory_"+div_no[2]).val() == 1){
-                            if(modelNumber == null){
-                                alert("Please Select Model number");
-                                flag = 1;
-                            }
+                    if($("#model_number_"+div_no[2]).length == 1){
+                        var modelNumber = $('#model_number_'+div_no[2]).val();
+                        if(modelNumber == null){
+                            alert("Please Select Model number");
+                            flag = 1;
                         }
-                     }
-                     
+                    }
                     <?php
                 }
                 ?>
