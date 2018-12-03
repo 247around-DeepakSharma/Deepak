@@ -3483,6 +3483,8 @@ class Inventory extends CI_Controller {
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+        $eway_bill_by_wh = $this->input->post('eway_bill_by_wh');
+        $defective_parts_ewaybill_date_by_wh = $this->input->post('defective_parts_ewaybill_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
@@ -3491,10 +3493,18 @@ class Inventory extends CI_Controller {
                 $courier_file['status'] = true;
                 $courier_file['message'] = $exist_courier_image;
             } else {
-                //$courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            }            
+            $exist_ewaybill_image = $this->input->post("exist_ewaybill_image");
+            if (!empty($exist_ewaybill_image)) {
+                $ewaybill_file['status'] = true;
+                $ewaybill_file['message_ewaybill'] = $exist_ewaybill_image;
+            } else {
+                $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");                
+                $rand_no = rand();                
+                $ewaybill_file = $this->miscelleneous->upload_file_to_s3($_FILES["eway_file"], 'ewaybill', $allowedExts, $rand_no, "invoices-excel", "sp_parts");
             }
-            $courier_file['status'] = 1;
-            $courier_file['message'] = 1;
+           
             if ($courier_file['status']) {
                 $courier_details['sender_entity_id'] = $sender_entity_id;
                 $courier_details['sender_entity_type'] = $sender_entity_type;
@@ -3507,6 +3517,9 @@ class Inventory extends CI_Controller {
                 $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
                 $courier_details['courier_charge'] = $courier_price_by_wh;
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
+                $courier_details['ewaybill_no'] = $eway_bill_by_wh;
+                $courier_details['ewaybill_file'] = $ewaybill_file;
+                $courier_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh;           
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
 
                 if (!empty($insert_courier_details)) {
