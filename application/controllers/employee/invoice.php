@@ -156,7 +156,16 @@ class Invoice extends CI_Controller {
             }
         }
         
-       
+        if(!empty($this->input->post('vertical'))){
+            $where['vertical'] = $this->input->post('vertical');
+        }
+        if(!empty($this->input->post('category'))){
+            $where['category'] = $this->input->post('category');
+        }
+        if(!empty($this->input->post('sub_category'))){
+            $where['sub_category'] = $this->input->post('sub_category');
+        }
+        
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
