@@ -4019,7 +4019,7 @@ class vendor extends CI_Controller {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
 
-                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehous)" . "</option>";
             }
         }
         if ($partner_data[0]['is_micro_wh'] == 1) {
@@ -4030,8 +4030,8 @@ class vendor extends CI_Controller {
                 foreach ($micro_wh_state_mapp_data_list as $value) {
                     $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
                     $option .= " > ";
-                    $option .= $value['name'] . "</option>";
-                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>)" . "</option>";
+                    $option .= $value['name'] . " - (Micro Warehouse) </option>";
+                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
                 }
             }
         }
