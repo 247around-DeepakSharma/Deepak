@@ -943,6 +943,18 @@ class Accounting extends CI_Controller {
         if(!empty($invoice_id)){
             $post['where']['vendor_partner_invoices.invoice_id LIKE "%'.$invoice_id.'%"'] = NULL;
         }
+        
+        if(!empty($this->input->post("vertical"))){  
+            $post['where']['vendor_partner_invoices.vertical'] = $this->input->post("vertical");
+        }
+        
+        if(!empty($this->input->post("category"))){
+            $post['where']['vendor_partner_invoices.category'] = $this->input->post("category");
+        }
+        
+        if(!empty($this->input->post("sub_category"))){
+            $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
+        }
         return $post;
     }
     
