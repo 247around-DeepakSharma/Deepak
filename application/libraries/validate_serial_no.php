@@ -65,11 +65,12 @@ class Validate_serial_no {
     }
     
     /**
-     * @desc This method is used to validate serial number for jeeves partner and micromax partner.
+     * @desc This method is used to validate serial number for jeeves partner and micromax brand.
      * Serial number starting with 00.
      * then next 3 digit will be integer.
      * then next 1 digit will be character
-     * then next 9 digit will be integer
+     * then next 8 digit will be integer
+     * then next last digit will be character
      * and total length is 15.
      * @param String $partnerID
      * @param String $serialNo
@@ -89,7 +90,8 @@ class Validate_serial_no {
             $digit1to2 = substr($serialNo, 0, 2);
             $digit3to5 = substr($serialNo, 2, 3);
             $digit6 = substr($serialNo, 5, 1);
-            $digit7to15 = substr($serialNo, 6, 9);
+            $digit7to14 = substr($serialNo, 6, 8);
+            $digit15 = substr($serialNo, 14, 1);
             if(strlen($serialNo) != 15){
                log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " not 15 digit number ");
                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
@@ -110,12 +112,16 @@ class Validate_serial_no {
                 log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 6 is not character ".$digit6);
                 $flag = false; 
             }
-            else if (!is_numeric($digit7to15)) {
+            else if (!is_numeric($digit7to14)) {
                 $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
-                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 7 to 15 is not integer ".$digit7to15);
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 7 to 15 is not integer ".$digit7to14);
                 $flag = false;
             }
-            
+            else if(!ctype_alpha($digit15)){
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 15 is not character ".$digit15);
+                $flag = false; 
+            }
             if ($flag) {
                 return array('code' => SUCCESS_CODE);
             }
