@@ -434,7 +434,7 @@
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
         //var model_value = $("#model_number_1").val();
-        var user_regex = /^([a-zA-Z0-9\s]*)$/;
+        var user_regex = /^([a-zA-Z\s]*)$/;
         if(!mobile_number.match(exp1)){
             alert('Please Enter Valid User Phone Number');   
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid User Phone Number");
@@ -455,7 +455,7 @@
             
         }
         if(!user_name.match(user_regex)){
-            display_message("name","error_username","red","Special charecter not allowed");
+            display_message("name","error_username","red","Please Enter Valid User Name");
             return false;
         }else {
            display_message("name","error_username","green","");
