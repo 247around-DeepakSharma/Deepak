@@ -564,7 +564,7 @@
     $("#grand_total_price").val(price);
     });
     
-    function onsubmit_form(upcountry_flag, number_of_div) {
+    function onsubmit_form(upcountry_flag, number_of_div) { 
     
     var flag = 0;
     var div_count = 0;
@@ -636,11 +636,13 @@
                 <?php
                 if($isModelMandatory){
                     ?>
-                     var modelNumber = $('#model_number_'+div_no[2]).val();
-                     if(modelNumber == null){
-                         alert("Please Select Model number");
-                         flag = 1;
-                     }
+                    if($("#model_number_"+div_no[2]).length == 1){
+                        var modelNumber = $('#model_number_'+div_no[2]).val();
+                        if(modelNumber == null){
+                            alert("Please Select Model number");
+                            flag = 1;
+                        }
+                    }
                     <?php
                 }
                 ?>
