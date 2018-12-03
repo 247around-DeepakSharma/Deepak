@@ -9387,3 +9387,60 @@ INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date
 INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('4819', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8450', '28', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8501', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--Kalyani 03-Dec-2018
+
+DROP TABLE vendor_partner_variable_charges;
+
+CREATE TABLE `vendor_partner_variable_charges` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `entity_id` varchar(11) NOT NULL,
+  `charges_type` int(11) NOT NULL,
+  `fixed_charges` decimal(10,0) DEFAULT '0',
+  `percentage_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `validity_in_month` int(11) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+ALTER TABLE `vendor_partner_variable_charges`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vendor_partner_variable_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+INSERT INTO `vendor_partner_variable_charges` (`id`, `entity_type`, `entity_id`, `charges_type`, `fixed_charges`, `percentage_charge`, `validity_in_month`, `create_date`, `update_date`) VALUES
+(1, 'partner', '247073', 1, '10000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:22:59'),
+(2, 'partner', '247073', 2, '40', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:26:17'),
+(3, 'vendor', '10', 1, '10000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:28:12'),
+(4, 'vendor', '10', 2, '0', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:29:15'),
+(5, 'partner', '247073', 3, '25000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:32:00'),
+(6, 'partner', '247097', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:33:29'),
+(7, 'partner', '247113', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:34:56'),
+(8, 'partner', '247115', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:36:48'),
+(9, 'partner', '247115', 1, '3000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:37:54'),
+(10, 'partner', '247116', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:39:10');
+
+CREATE TABLE `variable_charges_type` (
+  `id` int(11) NOT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `hsn_code` int(11) DEFAULT NULL,
+  `gst_rate` int(11) DEFAULT NULL,
+  `is_fixed` tinyint(1) DEFAULT '1',
+  `updated_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+)
+
+
+ALTER TABLE `variable_charges_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `variable_charges_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+INSERT INTO `variable_charges_type` (`id`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
+(1, 'warehouse-fixed', 'Warehouse Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
+(2, 'packaging-variable', 'Packaging Charges', 998715, 18, 0, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
+(3, 'callcenter-fixed', 'Call Center Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00');
