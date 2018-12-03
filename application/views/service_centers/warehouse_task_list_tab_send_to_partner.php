@@ -188,6 +188,38 @@
                                         <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
                                     </div>
                                 </div>
+                            </div>                            
+                        </div>
+                        <br>
+                        <h4 class="modal-title">E-Way Bill Details</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="awb_by_wh" class="col-md-4">E-Way Bill</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="eway_bill_by_wh" name="eway_bill_by_wh" placeholder="Please Enter E-Way Bill" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="defective_parts_ewaybill_date_by_wh" class="col-md-4">E-Way Bill Date </label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="defective_parts_ewaybill_date_by_wh" name="defective_parts_ewaybill_date_by_wh" placeholder="Please enter E-Way Bill Date" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="defective_parts_shippped_ewaybill_pic_by_wh" class="col-md-4">E-Way Bill File </label>
+                                    <div class="col-md-8">
+                                        <input type="hidden" class="form-control"  id="exist_ewaybill_image" name="exist_ewaybill_image" >
+                                        <input type="file" class="form-control"  id="defective_parts_shippped_ewaybill_pic_by_wh" name="defective_parts_shippped_ewaybill_pic_by_wh" required>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -286,6 +318,7 @@
     
     var postData = {};
     $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
         {
@@ -338,13 +371,16 @@
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
-        var exist_courier_image = $("#exist_courier_image").val();
+        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
+        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
+        var exist_courier_image = $("#exist_courier_image").val();       
         
         //Declaring new Form Data Instance  
         var formData = new FormData();
                 
         //Getting Files Collection
         var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
+        var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
         
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < files.length; i++) {
@@ -357,6 +393,18 @@
         
         if(files.length >= 1){
             is_exist_file = true;
+        }
+        
+        for (var i = 0; i < eway_files.length; i++) {
+            formData.append('eway_file', files[i]);
+        }
+        var is_exist_eway_files = false;
+        if(exist_ewaybill_image){
+            is_exist_eway_files = true;
+        }
+        
+        if(eway_files.length >= 1){
+            is_exist_eway_files = true;
         }
         //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
         $.each(postData, function(index, element) {
