@@ -1,3 +1,4 @@
+<script src="<?php echo base_url(); ?>js/invoice_tag.js"></script>
 <script src="<?php echo base_url();?>assest/DataTables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
 <!--<script src="<?php echo base_url();?>bower_components/buttons.dataTables/pdfmake.min.js"></script>
 <script src="<?php echo base_url();?>bower_components/buttons.dataTables/vfs_fonts.js"></script>-->
@@ -24,23 +25,24 @@
                             </select>
                         </div>
                         <div class="form-group col-md-3">
-                            <label>Select Invoice Date</label>
-                            <input name="invoice_date" placeholder="Select invoice date range" class="form-control col-md-12" id="invoice_date" style="width:100%;">
-                               
-                            </input>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label>Select Period Date</label>
-                            <input name="invoice_period" placeholder="Select invoice period range" class="form-control col-md-12" id="invoice_period_date" style="width:100%;">
-                               
-                            </input>
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label>Select Invoice Type</label>
-                            <select name="invoice_type" class="form-control col-md-12" id="invoice_type" style="width:100%;"> 
+                            <label>Select Vertical</label>
+                            <select class="form-control col-md-12" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')" style="width:100%;">
+                                <option disabled selected>Select Vertical</option>
                             </select>
-                        </div>
-                        <div class="form-group col-md-3">
+                         </div>
+                         <div class="form-group col-md-3">
+                            <label>Select Category</label>
+                            <select class="form-control col-md-12" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')" style="width:100%;">
+                                 <option disabled selected>Select Category</option>
+                            </select>
+                         </div>
+                         <div class="form-group col-md-3">
+                            <label>Select Sub-Category</label>
+                            <select class="form-control col-md-12" name="sub_category" id="sub_category" onchange="get_accounting(this);" style="width:100%;">
+                                 <option disabled selected>Select Sub Category</option>
+                            </select>
+                         </div>
+                         <div class="form-group col-md-3">
                             <label>Is Settle Invoice</label>
                             <select name="settle" class="form-control col-md-12" id="settle" style="width:100%;">
                                 <option value="2">All</option>
@@ -48,16 +50,30 @@
                                 <option value="0">Unsettle</option>
                             </select>
                         </div>
-                        
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
+                            <label>Select Invoice Date</label>
+                            <input name="invoice_date" placeholder="Select invoice date range" class="form-control col-md-12" id="invoice_date" style="width:100%;">
+                            
+                        </div>
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
+                            <label>Select Period Date</label>
+                            <input name="invoice_period" placeholder="Select invoice period range" class="form-control col-md-12" id="invoice_period_date" style="width:100%;">
+                          
+                        </div>
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
+                            <label>Select Invoice Type</label>
+                            <select name="invoice_type" class="form-control col-md-12" id="invoice_type" style="width:100%;"> 
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
                              <label>Invoice Remark</label>
                              <input type="text" class="form-control" id="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
                              <label>Invoice Id</label>
                              <input type="text" class="form-control" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
                             <button class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</button>
                         </div>
                         
@@ -100,10 +116,11 @@
 </div>
 <script>
     $("#vendor_partner").select2();
-    $("#vendor_partner_id").select2();
+    $("#vendor_partner_id, #category, #sub_category, #vertical, #settle").select2();
     var invoice_table = null;
     $(document).ready(function () {
         loaddataTable();
+        get_vertical('<?php echo base_url(); ?>');
         $('#get_invoice_id_data').click(function () {
             if(invoice_table == null){
                 loaddataTable();
@@ -155,6 +172,9 @@
                        d.invoice_remarks = $("#invoice_remarks").val();
                        d.invoice_type = $("#invoice_type").val();
                        d.invoice_id = $("#invoice_id").val();
+                       d.vertical = $("#vertical").val();
+                       d.category = $("#category").val();
+                       d.sub_category = $("#sub_category").val();
                  }
 
             },
@@ -162,7 +182,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2], //first column / numbering column
+                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], //first column / numbering column
                     orderable: false //set not orderable
                 }
             ],
