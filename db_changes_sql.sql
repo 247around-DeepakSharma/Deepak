@@ -9320,7 +9320,7 @@ ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `acti
 ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
 ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
-
+ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 
 ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
 ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
@@ -9503,3 +9503,6 @@ INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accou
 (38, 'Buyback', 'Liquidation', 'Debit Note', 1, 'DN issued by 247around to CP'),
 (39, 'Service', 'Installation & Repair', 'Customer Payment', 0, 'custome payment on behalf of sf'),
 (40, 'Service', 'Advance', 'Pre-paid(PG)', 0, 'Advance given by Pre-paid via paytm gateway');
+
+--Released 04 Dec - Branch 59
+
