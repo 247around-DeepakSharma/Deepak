@@ -3906,14 +3906,14 @@ class Invoice extends CI_Controller {
      * @param String $spare_id
      */
     function generate_reverse_micro_purchase_invoice($spare_id){
-        log_message('info', __METHOD__ . " Spare ID " . json_encode($this->input->post('spare_id'), true));
+        log_message('info', __METHOD__ . " Spare ID " . $spare_id);
         //$array = $this->input->post('spare_id');
        // foreach ($array as $value) {
 
             $spare = $this->partner_model->get_spare_parts_by_any("booking_details.partner_id AS booking_partner_id, "
                     . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, service_center_id, service_centres.is_wh,"
                     . "spare_parts_details.is_micro_wh, spare_parts_details.invoice_email_to, spare_parts_details.booking_id,"
-                    . "spare_parts_details.id", array('spare_parts_details.id, reverse_purchase_invoice_id' => $spare_id), TRUE, false);
+                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, false);
             if(!empty($spare)){
                 $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
                 if(!empty($partner_details)){
