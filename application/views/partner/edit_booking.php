@@ -161,9 +161,7 @@
                                     <label for="partner_source">Seller Channel*  <span id="error_seller" style="color: red;"></label>
                                     <select class="form-control"  id="partner_source" name="partner_source" >
                                         <option value="" selected disabled>Please select seller channel</option>
-                                        <?php foreach ($channel as $key => $value) { ?>
-                                        <option <?php if($booking_history[0]['partner_source'] == $value['channel_name']){ echo "selected";} else{if($is_repeat){echo 'disabled';}}?>><?php echo $value['channel_name'];  ?></option>  
-                                       <?php } ?>
+                                        
                                     </select>
                                     <?php echo form_error('partner_source'); ?>
                                 </div>
