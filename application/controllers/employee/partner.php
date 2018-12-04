@@ -2386,9 +2386,7 @@ class Partner extends CI_Controller {
             if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
             }
-            else{
-                $option .= 'disabled';
-            }
+            
             $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
 
