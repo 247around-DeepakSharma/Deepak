@@ -4019,7 +4019,7 @@ class vendor extends CI_Controller {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
 
-                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehous)" . "</option>";
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
             }
         }
         if ($partner_data[0]['is_micro_wh'] == 1) {
