@@ -9320,7 +9320,7 @@ ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `acti
 ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
 ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
-
+ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 
 ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
 ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
@@ -9444,3 +9444,6 @@ INSERT INTO `variable_charges_type` (`id`, `type`, `description`, `hsn_code`, `g
 (1, 'warehouse-fixed', 'Warehouse Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
 (2, 'packaging-variable', 'Packaging Charges', 998715, 18, 0, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
 (3, 'callcenter-fixed', 'Call Center Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00');
+
+
+--Released 04 Dec - Branch 59
