@@ -392,9 +392,10 @@ class Invoice extends CI_Controller {
                 echo $option;
             }
         } else {
+            $where = array();
             if($this->input->post('type')){
                 $type = $this->input->post('type');
-                $where = array();
+                
                 if($type == BUYBACKTYPE){
                     $where['is_cp'] = 1;
                 } else if($type == MICRO_WAREHOUSE_CHARGES_TYPE){
