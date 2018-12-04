@@ -1529,6 +1529,7 @@ class Partner extends CI_Controller {
                      */
 
                     if (isset($requestData['dealer_phone_number']) && !empty($requestData['dealer_phone_number'])) {
+                        $requestData['state'] = $distict_details['state'];
                         $is_dealer_id = $this->miscelleneous->dealer_process($requestData, $this->partner['id']);
                         if (!empty($is_dealer_id)) {
                             $booking['dealer_id'] = $is_dealer_id;
