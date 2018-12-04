@@ -9368,7 +9368,8 @@ ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_de
 UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service was good, give miss call 01139588220. If not, 01139588224. 247Around%s.' WHERE `sms_template`.`tag` = 'complete_booking';
 
 --Kalyani 26-Nov-2018
-ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_type`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
+ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_name`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
+ALTER TABLE `file_uploads` ADD `revert_file_cc` VARCHAR(255) NULL DEFAULT NULL AFTER `revert_file_to`;
 
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
@@ -9446,4 +9447,62 @@ INSERT INTO `variable_charges_type` (`id`, `type`, `description`, `hsn_code`, `g
 (3, 'callcenter-fixed', 'Call Center Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00');
 
 
+CREATE TABLE `invoice_tags` (
+  `id` int(11) NOT NULL,
+  `vertical` varchar(255) NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `sub_category` varchar(255) NOT NULL,
+  `accounting` tinyint(1) NOT NULL,
+  `remarks` varchar(500) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `invoice_tags`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `invoice_tags`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`) VALUES
+(1, 'Service-Ancillary', 'Installation & Repair', 'Courier', 1, ''),
+(2, 'Service', 'Advance', 'Cash', 0, 'Cash given to SF/CP as advance'),
+(3, 'Service', 'Advance', 'Security', 0, 'Advance given by SF'),
+(4, 'Service', 'Advance', 'Pre-paid', 0, 'Advance given by Pre-paid Partners'),
+(5, 'Service', 'Recurring Charges', 'Credit Note', 1, 'CRM Charges'),
+(6, 'Service', 'Recurring Charges', 'CRM', 1, 'CRM Charges'),
+(7, 'Service', 'Credit Note', 'Customer Payment', 0, 'Paytm payments'),
+(8, 'Service', 'Installation & Repair', 'Cash', 1, 'Invoices to Partners'),
+(9, 'Service', 'Installation & Repair', 'Commission', 1, 'Invoices to SF'),
+(10, 'Service', 'Installation & Repair', 'Courier', 1, 'Invoices to Partners - Courier Charges'),
+(11, 'Service', 'Installation & Repair', 'Credit Note', 1, 'Credit Note'),
+(12, 'Service', 'Installation & Repair', 'Debit Note', 1, 'Debit Note'),
+(13, 'Service', 'Installation & Repair', 'FOC', 1, 'FOC'),
+(14, 'Service', 'Installation & Repair', 'GST Credit Note', 0, 'GST Credit Note'),
+(15, 'Service', 'Installation & Repair', 'GST Debit Note', 0, 'GST Debit Note'),
+(16, 'Service', 'Installation & Repair', 'Misc', 0, ''),
+(17, 'Service', 'Installation & Repair', 'Warehouse Rent', 0, 'NO NEED'),
+(18, 'Service', 'Installation & Repair', 'Royalty', 1, 'Royalty paid to partners'),
+(19, 'Service', 'Spares', 'Brackets', 1, 'Brackets sold to SF / bought from Manish ji'),
+(20, 'Service', 'Spares', 'Defective Return', 1, 'Invoices issued by 247around to Partner for IW defective spares collected from SF'),
+(21, 'Service', 'Spares', 'In-Warranty', 1, 'Invoices issued by Partner for IW spares / issued by 247around to SF - Booking Specific'),
+(22, 'Service', 'Spares', 'Out-of-Warranty', 1, 'Invoices issued by Partner for OOW spares / issued by 247around to SF or Partner'),
+(23, 'Service', 'Spares', 'Damaged Case', 1, 'Invoices issued by Partner for damaged spares / issued by 247around to SF for damaged spares'),
+(24, 'Service', 'Spares', 'MSL', 1, 'Invoices issued by Partner for IW spares / issued by 247around to SF - MSL'),
+(25, 'Other', 'Marketing', 'Print', 1, ''),
+(26, 'Other', 'Service', 'SMS', 1, ''),
+(27, 'Buyback', 'Exchange', 'Advance', 0, 'Advance given by CP'),
+(28, 'Buyback', 'Exchange', 'Credit Note', 1, 'CN issued by 247around to CP'),
+(29, 'Buyback', 'Exchange', 'Debit Note', 1, 'DN issued by 247around to CP'),
+(30, 'Buyback', 'Exchange', 'Reimbursement', 1, 'Invoice/DN issued by 247around to Amazon'),
+(31, 'Buyback', 'Exchange', 'Sale', 1, 'Buyback invoices issued to CP'),
+(32, 'Buyback', 'Exchange', 'Sweetener', 1, 'Sweetener invoices given to Cloudtail'),
+(33, 'Buyback', 'Exchange', 'VoucherPurchase', 1, 'QC invoices'),
+(34, 'Buyback', 'Liquidation', 'Purchase', 1, '247around purchase invoice'),
+(35, 'Buyback', 'Liquidation', 'Reimbursement', 1, 'Invoice/DN issued by 247around to Amazon'),
+(36, 'Buyback', 'Liquidation', 'Sale', 1, 'Liq invoice issued to CP'),
+(37, 'Buyback', 'Liquidation', 'Credit Note', 1, 'CN issued by 247around to CP'),
+(38, 'Buyback', 'Liquidation', 'Debit Note', 1, 'DN issued by 247around to CP'),
+(39, 'Service', 'Installation & Repair', 'Customer Payment', 0, 'custome payment on behalf of sf'),
+(40, 'Service', 'Advance', 'Pre-paid(PG)', 0, 'Advance given by Pre-paid via paytm gateway');
+
 --Released 04 Dec - Branch 59
+
