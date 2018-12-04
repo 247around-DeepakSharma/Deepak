@@ -98,7 +98,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'Invoice',
+                    title: 'bank_transactions',
                     exportOptions: {
                        columns: [1,2,3,4,5,6,7,8,9,10],
                         modifier : {
