@@ -2432,9 +2432,7 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $option .= " selected ";
             }
-            else{
-                $option .= " disabled ";
-            }
+            
             $option .= " value='" . $value['category'] . "'>" . $value['category'] . "</option>";
         }
         echo $option;
@@ -2481,9 +2479,7 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $capacity .= " selected ";
             }
-            else{
-                $capacity .= 'disabled';
-            }
+            
             $capacity .= " value='" . $value['capacity'] . "'>" . $value['capacity'] . "</option>";
         }
 
@@ -2525,9 +2521,7 @@ class Partner extends CI_Controller {
                 } else if (count($data) == 1) {
                     $model .= " selected ";
                 }
-                else{
-                     $model .= " disabled ";
-                }
+                
                 $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
             }
             echo $model;
