@@ -3641,8 +3641,7 @@ class Booking extends CI_Controller {
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         $row[] = $penalty_row;
-        
-        
+        $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
         return $row;
     }
     /**
