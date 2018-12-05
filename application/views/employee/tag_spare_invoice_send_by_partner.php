@@ -415,6 +415,9 @@
 </div>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+    var date_before_15_days = new Date();
+    date_before_15_days.setDate(date_before_15_days.getDate()-15);
+    
      var onBookingIndex = 0;
     var is_valid_booking = true;
     $(document).ready(function () {
@@ -462,8 +465,16 @@
         
         
         $('[data-toggle="popover"]').popover(); 
-        $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
-        $("#courier_shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
+        $("#dated").datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: date_before_15_days,
+            maxDate:'today',
+        });
+        $("#courier_shipment_date").datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: date_before_15_days,
+            maxDate:'today',
+        });
         
         $(".allowNumericWithDecimal").keydown(function (e) {
             // Allow: backspace, delete, tab, escape, enter and .
@@ -876,7 +887,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -894,7 +906,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
