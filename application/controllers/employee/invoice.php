@@ -392,9 +392,10 @@ class Invoice extends CI_Controller {
                 echo $option;
             }
         } else {
+            $where = array();
             if($this->input->post('type')){
                 $type = $this->input->post('type');
-                $where = array();
+                
                 if($type == BUYBACKTYPE){
                     $where['is_cp'] = 1;
                 } else if($type == MICRO_WAREHOUSE_CHARGES_TYPE){
@@ -3905,14 +3906,15 @@ class Invoice extends CI_Controller {
      * @param String $spare_id
      */
     function generate_reverse_micro_purchase_invoice($spare_id){
-        log_message('info', __METHOD__ . " Spare ID " . json_encode($this->input->post('spare_id'), true));
-        $array = $this->input->post('spare_id');
-        foreach ($array as $value) {
+        log_message('info', __METHOD__ . " Spare ID " . $spare_id);
+        //$array = $this->input->post('spare_id');
+       // foreach ($array as $value) {
 
             $spare = $this->partner_model->get_spare_parts_by_any("booking_details.partner_id AS booking_partner_id, "
-                    . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, service_center_id, service_centres.is_wh,"
-                    . "spare_parts_details.is_micro_wh, spare_parts_details.invoice_email_to, spare_parts_details.booking_id,"
-                    . "spare_parts_details.id", array('spare_parts_details.id, reverse_purchase_invoice_id' => $spare_id), TRUE, false);
+                    . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
+                    . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
+                    . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
+                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, FALSE);
             if(!empty($spare)){
                 $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
                 if(!empty($partner_details)){
@@ -3931,18 +3933,18 @@ class Invoice extends CI_Controller {
                                 $data[0]['description'] = ucwords($unsettle['processData'][0]['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
                                 $data[0]['taxable_value'] = $unsettle['processData'][0]['rate'];
                                 $data[0]['product_or_services'] = "Product";
-                                $data[0]['gst_number'] = $spare[0]['gst_number'];
+                                $data[0]['gst_number'] = $partner_details[0]['gst_number'];
                                 $data[0]['invoice_id'] = $invoice_id;
                                 $data[0]['spare_id'] = $spare_id;
-                                $data[0]['inventory_id'] = $spare[0]['inventory_id'];
-                                $data[0]['company_name'] = $spare[0]['company_name'];
-                                $data[0]['company_address'] = $spare[0]['company_address'];
-                                $data[0]['district'] = $spare[0]['district'];
-                                $data[0]['pincode'] = $spare[0]['pincode'];
-                                $data[0]['state'] = $spare[0]['state'];
+                                $data[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
+                                $data[0]['company_name'] = $partner_details[0]['company_name'];
+                                $data[0]['company_address'] = $partner_details[0]['address'];
+                                $data[0]['district'] = $partner_details[0]['district'];
+                                $data[0]['pincode'] = $partner_details[0]['pincode'];
+                                $data[0]['state'] = $partner_details[0]['state'];
                                 $data[0]['rate'] = $unsettle['processData'][0]['rate'];
                                 $data[0]['qty'] = 1;
-                                $data[0]['hsn_code'] = $unsettle['processData'][0]['rate'];
+                                $data[0]['hsn_code'] = $unsettle['processData'][0]['hsn_code'];
                                 $sd = $ed = $invoice_date = date("Y-m-d");
                                 $data[0]['gst_rate'] = $unsettle['processData'][0]['gst_rate'];
 
@@ -3957,7 +3959,7 @@ class Invoice extends CI_Controller {
                     }
                 }
             }
-        }
+        
     }
 
     /**

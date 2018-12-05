@@ -426,7 +426,7 @@ define('SUCCESS_UPDATED_MSG', 'Order is Updated Successfully');
 define('PRODUCT_DELIVERED', 'PRODUCT_DELIVERED');
 
 //SMS deactivation constant
-define('SMS_DEACTIVATION_MAIL_SERVER','{md-in-13.webhostbox.net}');
+define('SMS_DEACTIVATION_MAIL_SERVER','{imap.gmail.com}');
 define('SMS_DEACTIVATION_EMAIL','chhavid@247around.com');
 define('SMS_DEACTIVATION_PASSWORD','chhavid247');
 define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
