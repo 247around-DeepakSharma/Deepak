@@ -88,6 +88,7 @@
                                     <th>Company Name</th>
                                     <th>Billable Weight</th>
                                     <th>Actual Weight</th>
+                                    <th>Create Date</th>
                                     <th>Courier Charges</th>
                                     <th>Action</th>
                                 </tr>
@@ -95,6 +96,7 @@
                             <tbody>
                                 <?php 
                                     $i = 1;
+                                    $total_courier_charges = 0;
                                     foreach ($courier_company_detail as $key => $value) {
                                 ?>
                                 <tr>
@@ -104,7 +106,8 @@
                                     <td><?php echo $value['company_name']; ?></td>
                                     <td><?php echo $value['billable_weight']; ?></td>
                                     <td><?php echo $value['actual_weight']; ?></td>
-                                    <td><?php echo $value['courier_charge']; ?></td>
+                                    <td><?php echo date('Y-m-d', strtotime($value['create_date'])); ?></td>
+                                    <td><?php echo $value['courier_charge']; $total_courier_charges = $total_courier_charges + $value['courier_charge']; ?></td>
                                     <td>
                                         <button type="button" class="btn btn-success btn-xs" onclick="recheck_docket_nember('<?php echo $value['id']; ?>', '<?php echo $value['awb_number']; ?>', '<?php echo $value['courier_charge']; ?>')">Recheck</button>
                                         <button type="button" class="btn btn-warning btn-xs" onclick="open_reject_remark_model('<?php echo $value['id']; ?>')" data-toggle="modal" data-target="#rejectInvoiceModal">Ignore</button>
@@ -117,6 +120,7 @@
                                 <?php        
                                     }
                                 ?>
+                                <tr><td colspan="7"><b>Total</b></td><td colspan="2"><b><?php echo $total_courier_charges; ?></b></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -128,6 +132,7 @@
                                     <th>Invoice Id</th>
                                     <th>AWB Number</th>
                                     <th>Company Name</th>
+                                    <th>Create Date</th>
                                     <th>Courier Charges</th>
                                     <th>Remark</th>
                                 </tr>
@@ -135,6 +140,7 @@
                             <tbody>
                                 <?php 
                                     $i = 1;
+                                    $total_courier_charges = 0;
                                     foreach ($ignored_invoice_detail as $key => $value) {
                                 ?>
                                 <tr>
@@ -142,7 +148,8 @@
                                     <td><?php echo $value['courier_invoice_id']; ?></td>
                                     <td><?php echo $value['awb_number']; ?></td>
                                     <td><?php echo $value['company_name']; ?></td>
-                                    <td><?php echo $value['courier_charge']; ?></td>
+                                    <td><?php echo date('Y-m-d', strtotime($value['create_date'])); ?></td>
+                                    <td><?php echo $value['courier_charge'];  $total_courier_charges = $total_courier_charges + $value['courier_charge']; ?></td>
                                     <td><?php echo $value['reject_remarks']; ?></td>
                                 </tr>
                                 <?php
@@ -152,6 +159,7 @@
                                 <?php        
                                     }
                                 ?>
+                                <tr><td colspan="5"><b>Total</b></td><td colspan="2"><b><?php echo $total_courier_charges; ?></b></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -193,7 +201,7 @@
 
 <script>
 $(document).ready(function(){
-    $("#recheck_docket_number_table, #ingnored_docket_number_table").DataTable();
+    //$("#recheck_docket_number_table, #ingnored_docket_number_table").DataTable();
 }); 
 
 function recheck_docket_nember(id, awb_no, courier_charge){
@@ -243,8 +251,8 @@ function reject_courier_invoice(){
         var total_div  = 3;
         for(var i =1;i<=total_div;i++){
             if(i != tab_id){
-                document.getElementById("container_"+i).style.display='none';
-                document.getElementById(i).style.background='#d9edf7';
+                $("#container_"+i).css("display", "none");
+                $("#"+i).css("background", '#d9edf7');
             }
             else{
                 document.getElementById("container_"+i).style.display='block';
