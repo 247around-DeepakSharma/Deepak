@@ -406,6 +406,10 @@
 </div>
 
 <script>
+    var date_before_15_days = new Date();
+    date_before_15_days.setDate(date_before_15_days.getDate()-15);
+
+
     var onBookingIndex = 0;
     var is_valid_booking = true;
     $(document).ready(function () {
@@ -437,7 +441,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -447,7 +452,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -473,7 +479,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -491,7 +498,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
