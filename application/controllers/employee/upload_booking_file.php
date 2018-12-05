@@ -1290,7 +1290,12 @@ class Upload_booking_file extends CI_Controller {
         $file_list->file_name."'>$file_list->file_name</a>";
         $row[] = $file_list->agent_name;
         $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
-        $row[] = '<button type="button" onclick="view_revert_file('.$file_list->id.')" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#revert_file_model">View Revert File</button>';
+        if(!empty($file_list->revert_file_name)){
+            $row[] = '<button type="button" onclick="view_revert_file('.$file_list->id.')" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#revert_file_model">View Revert File</button>';
+        }
+        else{
+            $row[] = '<button type="button"  class="btn btn-xs btn-warning" disabled>View Revert File</button>';
+        }
         $row[] = $result;
         
         return $row;
