@@ -26,11 +26,11 @@
                                     <tr> 
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <p style="float: left;margin-left: 4px;">HSN Code</p>
-                                            <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Eneter HSN Code" required="">
+                                            <input type="text" class="form-control" name="hsn_code" id="hsn_code" placeholder="Enter HSN Code" required="">
                                         </th>
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <p style="float: left;margin-left: 2px;">GST Rate</p>
-                                            <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Eneter GST Rate"  required="">
+                                            <input type="text" class="form-control" name="gst_rate" id="gst_rate" placeholder="Enter GST Rate"  required="">
                                         </th>                                      
                                         <th style="border-color: #bce8f1;" class="text-center">
                                             <div class="col-md-12" style="text-align: center;">
