@@ -631,6 +631,8 @@
                                 <th >Penalty On SF</th>
                                 <th >Agent Name</th>
                                 <th >Remarks</th>
+                                <th >Penalty Debit on Invoice</th>
+                                <th >Penalty Credit On Invoice</th>
                             </tr>
                             <?php foreach ($penalty as $key => $value){?>
                             <?php if($penalty[$key]['active'] == 1){?>
@@ -647,6 +649,8 @@
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['remarks']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
                             </tr>
                             <?php }else if($penalty[$key]['active'] == 0){?>
                             <tr>
@@ -662,6 +666,8 @@
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
                             </tr>
                             <?php }?>
                             <?php }?>
