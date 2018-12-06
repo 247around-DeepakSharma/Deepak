@@ -3674,7 +3674,7 @@ function generate_image($base64, $image_name,$directory){
                                         array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
                                             'is_micro_wh' => $stock['is_micro_wh'],
                                             'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
-                                            'defective_return_to_entity_to' => $stock['defective_return_to_entity_to'],
+                                            'defective_return_to_entity_id' => $stock['defective_return_to_entity_id'],
                                             'partner_id' => $stock['entity_id']));
                                 if($stock['entity_type'] == _247AROUND_SF_STRING){
                                     $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
