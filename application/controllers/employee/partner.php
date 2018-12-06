@@ -1022,7 +1022,7 @@ class Partner extends CI_Controller {
         );
         // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
         
-        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable');
+        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable, create_date, booking_status');
         
         $unbilled_amount = 0;
         $msic_charge = 0;
@@ -1030,7 +1030,7 @@ class Partner extends CI_Controller {
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
         
-        $misc_select = 'miscellaneous_charges.partner_charge, miscellaneous_charges.booking_id, miscellaneous_charges.description';
+        $misc_select = 'miscellaneous_charges.partner_charge,booking_details.current_status, miscellaneous_charges.booking_id, miscellaneous_charges.description, miscellaneous_charges.create_date';
 
         $misc = $this->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
         if(!empty($misc)){
