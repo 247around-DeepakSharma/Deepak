@@ -298,10 +298,10 @@ function get_data_for_partner_callback($booking_id) {
 	$this->db->where('active', 1);
 	$this->db->where('check_box', 1);
 	$this->db->where('partner_id', $partner_id);
-        if(!$is_repeat){
-            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-            $this->db->where($where);
-        }
+//        if(!$is_repeat){
+//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+//            $this->db->where($where);
+//        }
         if($service_category !=""){
             if($not_like){
                 $this->db->where('service_category', $service_category);

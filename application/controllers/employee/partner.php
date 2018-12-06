@@ -62,7 +62,7 @@ class Partner extends CI_Controller {
      * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking() {
+    function pending_booking($booking_id = "") {
         $this->checkUserSession();
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $agent_id = $this->session->userdata('agent_id');
@@ -73,6 +73,7 @@ class Partner extends CI_Controller {
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['booking_id'] = $booking_id;
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/pending_booking', $data);
