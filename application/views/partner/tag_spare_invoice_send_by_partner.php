@@ -44,7 +44,7 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
         <ul class="nav nav-tabs" role="tablist" >
             <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-            <li role="presentation" ><a href="#onBooking" class="<?php if(!empty($this->session->userdata('is_micro_wh'))){ echo 'isDisabled'; } ?>" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+            <li role="presentation" ><a href="#onBooking" class="<?php if(!empty($this->session->userdata('is_micro_wh')) && empty($this->session->userdata('is_wh'))){ echo 'isDisabled'; } ?>" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
         </ul>
     </div>
 </div>
