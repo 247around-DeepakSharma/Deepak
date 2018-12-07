@@ -4028,7 +4028,7 @@ class vendor extends CI_Controller {
 
             if (!empty($micro_wh_state_mapp_data_list)) {
                 foreach ($micro_wh_state_mapp_data_list as $value) {
-                    $option .= "<option  data-warehose='2' value='" . $value['id'] . "'";
+                    $option .= "<option  data-warehose='2' value='" . $value['vendor_id'] . "'";
                     $option .= " > ";
                     $option .= $value['name'] . " - (Micro Warehouse) </option>";
                     $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
