@@ -5,6 +5,9 @@
 <script src="<?php echo base_url() ?>assest/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script> 
 <script src="<?php echo base_url(); ?>js/jquery.counterup.min.js"></script>
+<link href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src='https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js'></script>
+<script src='//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js'></script>
 <style>
     .dataTables_length{
         margin:10px 0px;
@@ -59,8 +62,13 @@
             </li>
             <li role="presentation" class=""><a href="#tab_content2" role="tab" id="delivered-tab"  data-toggle="tab" aria-expanded="true">Delivered( <span style="font-weight:bold" id="deliverd_record"></span> )</a>
             </li>
-            <li role="presentation" class=""><a href="#tab_content3" role="tab" id="acknowledge-tab"  data-toggle="tab" aria-expanded="true">Acknowledge( <span style="font-weight:bold" id="acknowledge_record"></span> )</a>
+            <li role="presentation" class=""><a href="#tab_content5" role="tab" id="inprocess-tab"  data-toggle="tab" aria-expanded="true">InProcess Order( <span style="font-weight:bold" id="inprocess_record"></span> )</a>
             </li>
+            <li role="presentation" class=""><a href="#tab_content3" role="tab" id="acknowledge-tab"  data-toggle="tab" aria-expanded="true">Manual Acknowledge( <span style="font-weight:bold" id="acknowledge_record"></span> )</a>
+            </li>
+            <li role="presentation" class=""><a href="#tab_content4" role="tab" id="auto_acknowledge-tab"  data-toggle="tab" aria-expanded="true">Auto Acknowledge( <span style="font-weight:bold" id="auto_acknowledge_record"></span> )</a>
+            </li>
+            
         </ul>
         <div id="myTabContent" class="tab-content">
             <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pending-tab">
@@ -131,6 +139,50 @@
                     </tbody>
                 </table>
             </div>
+            <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="auto_acknowledge-tab">
+                <table id="auto_acknowledge_datatable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Order ID</th>
+                            <th>Tracking ID</th>
+                            <th>Service Name</th>
+                            <th>Category</th>
+                            <th>Order date</th>
+                            <th>Delivery date</th>
+                            <th>SF Charge</th>
+                            <th>Status</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="inProcess-tab">
+                <table id="inprocess_datatable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Order ID</th>
+                            <th>Tracking ID</th>
+                            <th>Service Name</th>
+                            <th>Category</th>
+                            <th>Order date</th>
+                            <th>Delivery date</th>
+                            <th>SF Charge</th>
+                            <th>Status</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -138,6 +190,8 @@
 
     var delivered;
     var pending;
+    var auto_acknowledge;
+    var inprocess;
 
     $(document).ready(function () {
         
@@ -160,6 +214,25 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Delivered Order',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
@@ -185,6 +258,25 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'In-Transit Order',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
@@ -210,11 +302,30 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Manual_Acknowledge',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
                 "type": "POST",
-                "data": {"status": 2}
+                "data": {"status": 2,auto_acknowledge:0}
             },
             //Set column definition initialisation properties.
             "columnDefs": [
@@ -226,6 +337,92 @@
             "fnInitComplete": function (oSettings, response) {
             
                 $("#acknowledge_record").text(response.recordsTotal);
+            }
+        });
+        
+        auto_acknowledge = $('#auto_acknowledge_datatable').DataTable({
+            "processing": true, //Feature control the processing indicator.
+            "serverSide": true, //Feature control DataTables' server-side processing mode.
+            "order": [], //Initial no order.
+            "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Auto_Acknowledge',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
+                "type": "POST",
+                "data": {"status": 2, auto_acknowledge: 1}
+            },
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,7,8], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $("#auto_acknowledge_record").text(response.recordsTotal);
+            }
+        });
+        
+        inprocess = $('#inprocess_datatable').DataTable({
+            "processing": true, //Feature control the processing indicator.
+            "serverSide": true, //Feature control DataTables' server-side processing mode.
+            "order": [], //Initial no order.
+            "pageLength": 50,
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Auto_Acknowledge',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/service_centers/get_bb_order_details",
+                "type": "POST",
+                "data": {"status": 3}
+            },
+            //Set column definition initialisation properties.
+            "columnDefs": [
+                {
+                    "targets": [0,7,8], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $("#inprocess_record").text(response.recordsTotal);
             }
         });
     });
