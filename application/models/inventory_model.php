@@ -136,7 +136,7 @@ class Inventory_model extends CI_Model {
     }
     
     /**
-     * @desc: This fucntion is used to insert data in inventory table
+     * @desc: This function is used to insert data in inventory table
      * params: Array of data
      * return : boolean
      */
