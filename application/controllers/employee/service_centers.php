@@ -3257,7 +3257,7 @@ class Service_centers extends CI_Controller {
          $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
-                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged', 'To Be Claimed Not Delivered'));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
