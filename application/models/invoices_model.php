@@ -636,7 +636,7 @@ class invoices_model extends CI_Model {
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
                 . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as file';
 
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();
         $result['pickup_courier'] = array();
         $result['courier'] = array();
@@ -1263,7 +1263,7 @@ class invoices_model extends CI_Model {
                 . '(case when (product_or_services = "Service" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge, '
                 . '(case when (product_or_services = "Product" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand,'
                 . 'vendor_basic_charges as total_booking_charge, vendor_basic_charges as amount_paid, product_or_services';
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges", _247AROUND_COMPLETED);
 
         //$warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
         //$defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
@@ -2210,12 +2210,15 @@ class invoices_model extends CI_Model {
     }
     
     function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
-            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge){
+            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = ""){
         $this->db->select($select, false);
         $this->db->from('miscellaneous_charges');
         $this->db->join('booking_details', 'booking_details.booking_id = miscellaneous_charges.booking_id');
         $this->db->join('services', 'booking_details.service_id = services.id');
-        $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        if(!empty($current_status)){
+            $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        }
+        
         $this->db->where($vendor_partner_invoice, NULL);
         $this->db->where("active", 1);
         $this->db->where($sf_partner_charge. " > 0", NULL);

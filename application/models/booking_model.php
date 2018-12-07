@@ -856,8 +856,8 @@ class Booking_model extends CI_Model {
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
         if(!$is_repeat){
-            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-            $this->db->where($where);
+//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+//            $this->db->where($where);
         }
         //if($brand !=""){
             $this->db->where('brand', $brand);

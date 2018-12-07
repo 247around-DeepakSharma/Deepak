@@ -62,7 +62,7 @@ class Partner extends CI_Controller {
      * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking() {
+    function pending_booking($booking_id = "") {
         $this->checkUserSession();
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $agent_id = $this->session->userdata('agent_id');
@@ -73,6 +73,7 @@ class Partner extends CI_Controller {
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['booking_id'] = $booking_id;
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/pending_booking', $data);
@@ -1022,7 +1023,7 @@ class Partner extends CI_Controller {
         );
         // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
         
-        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable');
+        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable, create_date, booking_status');
         
         $unbilled_amount = 0;
         $msic_charge = 0;
@@ -1030,7 +1031,7 @@ class Partner extends CI_Controller {
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
         
-        $misc_select = 'miscellaneous_charges.partner_charge, miscellaneous_charges.booking_id, miscellaneous_charges.description';
+        $misc_select = 'miscellaneous_charges.partner_charge,booking_details.current_status, miscellaneous_charges.booking_id, miscellaneous_charges.description, miscellaneous_charges.create_date';
 
         $misc = $this->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
         if(!empty($misc)){
