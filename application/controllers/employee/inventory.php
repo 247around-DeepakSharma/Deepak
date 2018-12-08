@@ -3021,7 +3021,12 @@ class Inventory extends CI_Controller {
             $newdata['serial_number'] = $spare[0]['serial_number'];
             $newdata['date_of_request'] =  date('Y-m-d');
             $newdata['parts_requested'] =  $fomData['part_name'];
-            $newdata['parts_requested_type'] = $fomData['type'];
+            if(!empty($fomData['type'])){
+                $newdata['parts_requested_type'] = $fomData['type'];
+            } else {
+                $newdata['parts_requested_type'] = $fomData['part_name'];
+            }
+            
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
