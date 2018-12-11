@@ -4163,7 +4163,7 @@ class Service_centers extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Warehouse acknowledged to shipped spare parts", $actor, $next_action);
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED_BY_WAREHOUSE, "Warehouse acknowledged to shipped spare parts", $actor, $next_action);
 
                     $this->booking_model->update_booking($booking_id, $booking);
                     
