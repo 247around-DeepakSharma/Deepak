@@ -9506,3 +9506,5 @@ INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accou
 
 --Released 04 Dec - Branch 59
 
+-- Kalyani 11-Dec-2018 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'resend_dn_cn_invoice', '247around - Credit Note for period: %s to %s', 'Dear Partner <br/><br/> Please find attached Credit Note for jobs completed between %s and %s.<br/><br/> Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/> Hope to have a long lasting working relationship with you. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>With Regards,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
