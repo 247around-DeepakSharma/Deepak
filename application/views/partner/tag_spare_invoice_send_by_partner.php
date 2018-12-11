@@ -251,6 +251,7 @@
                                             <input type="hidden" class="form-control" id="partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
                                             <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                                             <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
+                                            <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                             <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                         </div>
                                     </div>
@@ -404,6 +405,7 @@
                         <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
                         <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
+                        <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
                          <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                     </div>

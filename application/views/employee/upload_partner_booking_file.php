@@ -196,6 +196,7 @@
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
+                    d.file_source = 'partner_file_upload',
                     d.file_type = get_upload_file_type();
                 }
             },

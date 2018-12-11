@@ -3256,7 +3256,7 @@ class Service_centers extends CI_Controller {
          $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
-                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged', 'To Be Claimed Not Delivered'));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
@@ -4083,7 +4083,12 @@ class Service_centers extends CI_Controller {
                                 $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
-                                $data['parts_requested_type'] = $part_details['parts_type'];
+                                if(!empty($part_details['parts_type'])){
+                                    $data['parts_requested_type'] = $part_details['parts_type'];
+                                } else {
+                                    $data['parts_requested_type'] = $part_details['parts_name'];
+                                }
+                                
                                 $data['parts_requested'] = $part_details['parts_name'];
             
                                 

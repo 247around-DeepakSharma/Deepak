@@ -28,4 +28,5 @@ define('MICROWAREHOUSE', 'Micro Warehouse');
 define('BUYBACK_VOUCHER','Buyback_Voucher');
 define('PARTNER_VOUCHER','Partner_Voucher');
 define('VENDOR_VOUCHER','Vendor_Voucher');
+define('MSL','MSL');
 ?>
