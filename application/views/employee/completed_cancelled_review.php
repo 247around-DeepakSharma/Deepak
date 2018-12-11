@@ -113,7 +113,11 @@
                                 $now = time();
                                 $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
                                 $datediff = $now - $initial_booking_date;
-                                $booking_age =  ceil($datediff / (60 * 60 * 24));
+                                $booking_age = 0;
+                                if($datediff >= 0){
+                                    $booking_age =  ceil($datediff / (60 * 60 * 24));
+                                }
+                                
                               ?>
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
