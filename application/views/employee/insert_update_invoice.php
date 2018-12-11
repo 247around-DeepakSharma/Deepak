@@ -426,6 +426,7 @@
        
         $(document).ready(function(){
           partner_vendor('<?php echo $vendor_partner; ?>');   
+          get_vertical('<?php echo base_url(); ?>');
        });
       
     
@@ -518,6 +519,6 @@
          }, 5000);
       });
 
-    get_vertical('<?php echo base_url(); ?>');
+  
 </script>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
