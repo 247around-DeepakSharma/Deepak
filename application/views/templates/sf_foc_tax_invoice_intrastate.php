@@ -1,4 +1,3 @@
-<?php include 'sf_foc_tax_invoice_variables_intrastate.php'; ?>
 <html>
     <head>
         <title>SF FOC Invoice Intrastate</title>
