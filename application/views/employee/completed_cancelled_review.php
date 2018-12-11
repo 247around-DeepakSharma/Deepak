@@ -20,6 +20,7 @@
                               <th class="jumbotron" style="text-align: center;">Price Details</th>
                               <th class="jumbotron" >Amount Due</th>
                               <th class="jumbotron" >Amount Paid</th>
+                              <th class="jumbotron" >Age</th>
                               <th class="jumbotron" >Admin Remarks</th>
                               <th class="jumbotron" >Vendor Remarks</th>
                               <th class="jumbotron" >Vendor Cancellation Reason</th>
@@ -108,6 +109,14 @@
                               </td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['booking'][0]['amount_due']; ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value1['amount_paid']; ?></strong></td>
+                              <?php
+                                $now = time();
+                                $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
+                                $datediff = $now - $initial_booking_date;
+                                $booking_age =  ceil($datediff / (60 * 60 * 24));
+                              ?>
+                              
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
                               <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
                               </td>
