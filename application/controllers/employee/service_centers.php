@@ -3137,6 +3137,9 @@ class Service_centers extends CI_Controller {
             case 2:
                 $data = $this->get_acknowledge_data();
                 break;
+            case 3:
+                $data = $this->get_inprocess_order_data();
+                break;
         }
         
         $post = $data['post'];
@@ -3224,9 +3227,36 @@ class Service_centers extends CI_Controller {
      */
     function get_acknowledge_data(){
         $post = $this->get_post_view_data();
-        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
-        $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'), "bb_order_details.auto_acknowledge" => $this->input->post('auto_acknowledge'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'Not Delivered', 'Damaged'),
                                   'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+        $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
+                                'order_date','delivery_date','cp_basic_charge',NULL,NULL);
+        $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
+            'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $list = $this->cp_model->get_bb_cp_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->get_acknowledge_table_data($order_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    /**
+     * @desc This function used to get inprocess buyback data
+     */
+    function get_inprocess_order_data(){
+         $post = $this->get_post_view_data();
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
+                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged', 'To Be Claimed Not Delivered'));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
@@ -3697,7 +3727,7 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_id)) {
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
-            $req['select'] = "spare_parts_details.id";
+            $req['select'] = "spare_parts_details.id, spare_parts_details.is_micro_wh";
             $sp_data =$this->inventory_model->get_spare_parts_query($req);
             if(!empty($sp_data)){
                 log_message("info",__METHOD__. "Spare parts Not found". $booking_id);
@@ -4053,7 +4083,12 @@ class Service_centers extends CI_Controller {
                                 $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
-                                $data['parts_requested_type'] = $part_details['parts_type'];
+                                if(!empty($part_details['parts_type'])){
+                                    $data['parts_requested_type'] = $part_details['parts_type'];
+                                } else {
+                                    $data['parts_requested_type'] = $part_details['parts_name'];
+                                }
+                                
                                 $data['parts_requested'] = $part_details['parts_name'];
             
                                 

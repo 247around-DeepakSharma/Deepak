@@ -1181,7 +1181,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         if (!empty($data)) {
             foreach ($data as $value) {
                 // Update bb order details
-                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), array("acknowledge_date" => date("Y-m-d H:i:s"), "current_status" => "Completed", "internal_status" => "Completed"));
+                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), 
+                        array("acknowledge_date" => date("Y-m-d H:i:s"), 
+                            "current_status" => "Completed", 
+                            "internal_status" => "Completed",
+                            "auto_acknowledge" => 1));
                 // Update Unit Details
                 $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), array("order_status" => "Delivered"));
 
