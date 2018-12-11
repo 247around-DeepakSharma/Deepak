@@ -2427,6 +2427,9 @@ class Invoice extends CI_Controller {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
                     
                     $gst_number = $entity_details[0]['gst_no'];
+                    if($data['type_code'] == "A" && empty($gst_number)){
+                        $gst_number = TRUE;
+                    }
                     
                 } else {
 
