@@ -2452,10 +2452,12 @@ class Invoice extends CI_Controller {
 
                     $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
                     $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
+                    $data['igst_tax_rate'] = 0;
                 } else {
 
                     $data['igst_tax_amount'] = $gst_amount;
                     $data['igst_tax_rate'] = $gst_rate;
+                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = 0;
                 }
 
 
@@ -2514,6 +2516,7 @@ class Invoice extends CI_Controller {
                 $data['category'] = $this->input->post("category");
                 $data['sub_category'] = $this->input->post("sub_category");
                 $data['accounting'] = $this->input->post("accounting_input");
+                
                 $status = $this->invoices_model->action_partner_invoice($data);
 
                 if ($status) {
