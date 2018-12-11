@@ -1819,6 +1819,7 @@ class invoices_model extends CI_Model {
                 }
                 if($is_bill_of_supply){
                     $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
+                    $commission_charge[$key]['total_amount'] = $value['taxable_value'];
                     $meta['sub_total_amount'] += $value['taxable_value'];
                     $meta['total_qty'] += $value['qty'];
                     $meta['invoice_template'] = "Buyback-v1.xlsx"; 
@@ -1833,7 +1834,7 @@ class invoices_model extends CI_Model {
                         $meta['cgst_total_tax_amount'] +=  $commission_charge[$key]['cgst_tax_amount'];
                         $meta['sgst_total_tax_amount'] += $commission_charge[$key]['sgst_tax_amount'];
                         $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
-                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE/2))));
+                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE))));
 
                     } else {
                         $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
@@ -1922,7 +1923,7 @@ class invoices_model extends CI_Model {
             $group_by = " GROUP BY bb_unit_details.service_id ";
         }
         
-        $sql = "SELECT $select
+        $sql = "SELECT $select, 'Product' AS 'product_or_services'
                 
                 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 

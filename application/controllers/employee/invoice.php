@@ -2262,6 +2262,9 @@ class Invoice extends CI_Controller {
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
             log_message('info', __METHOD__ . ': Invoice ' . $meta['invoice_id'] . ' details  entered into invoices table');
 
+            //Insert invoice Breakup
+            $this->insert_invoice_breakup($invoices);
+
 
             $this->update_invoice_id_in_buyback($data, $meta['invoice_id'], $invoice_type, "cp_invoice_id");
             
@@ -2269,13 +2272,13 @@ class Invoice extends CI_Controller {
             $out['invoice_id'] = $meta['invoice_id'];
             $out['excel'] = $output_file_excel;
             $out['pdf'] = $output_file_main;
-            //$this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
+            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
         }
         $out['files'] = $files;
         //Do not Delete XLS files now
-//        foreach ($files as $file_name) {
-//            exec("rm -rf " . escapeshellarg($file_name));
-//        }
+        foreach ($files as $file_name) {
+            exec("rm -rf " . escapeshellarg($file_name));
+        }
         unset($meta);
         unset($invoice_details);
         return $out;
@@ -4640,7 +4643,6 @@ class Invoice extends CI_Controller {
             
             array_push($invoice_breakup, $invoice_details);
         }
-        
          $this->invoices_model->insert_invoice_breakup($invoice_breakup);
     }
     /**
