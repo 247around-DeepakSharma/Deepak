@@ -39,11 +39,11 @@ class Courier_tracking extends CI_Controller {
      * @desc: send email to developer when api failed or return unexpected response
      * @return void
      */
-    function  send_api_failed_email($email_body_data){
-        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");
+    function  send_api_failed_email($email_body_data,$error_type){
+        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");        
         if (!empty($template)) {
             $subject = $template[4];
-            $emailBody = vsprintf($template[0], $email_body_data);
+            $emailBody = vsprintf($template[0], $email_body_data,$error_type);
             $this->notify->sendEmail($template[2], DEVELOPER_EMAIL, '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
     }
@@ -116,7 +116,7 @@ class Courier_tracking extends CI_Controller {
         }else{
             log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
-            $this->send_api_failed_email(json_encode($awb_number_list));
+            $this->send_api_failed_email(json_encode($awb_number_list),'acknowledge_spare_shipped_by_partner');
         }
         
     }
@@ -143,7 +143,7 @@ class Courier_tracking extends CI_Controller {
                     log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
                     
                     //send mail to developer
-                    $this->send_api_failed_email(json_encode($api_data));
+                    $this->send_api_failed_email(json_encode($api_data),'awb_real_time_tracking_details');
                     
                     $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                     $data['awb_number'] = $awb_number;
@@ -210,7 +210,7 @@ class Courier_tracking extends CI_Controller {
                     $response['status'] = FALSE;
                     $response['msg'] = $api_response['meta']['message'];
                     //send mail to developer
-                    $this->send_api_failed_email(json_encode($api_response));
+                    $this->send_api_failed_email(json_encode($api_response),'delete_awb_data_from_api');
                 }
             }else{
                 $response['status'] = FALSE;
@@ -495,7 +495,7 @@ class Courier_tracking extends CI_Controller {
         }else{
             log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
-            $this->send_api_failed_email(json_encode($awb_number_list));
+            $this->send_api_failed_email(json_encode($awb_number_list),'cknowledge_defactive_part_shipped_by_sf');
         }
         
     }
