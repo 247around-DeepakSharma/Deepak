@@ -251,6 +251,10 @@ class Miscelleneous {
     }
 
     function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
+        
+        if(empty($agent_id)){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+        }
        
         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $cus_net_payable = 0;
