@@ -881,7 +881,7 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
-        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
+        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>0), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
@@ -6398,6 +6398,22 @@ class Partner extends CI_Controller {
                     }
                 }
             }
+        }
+    }
+      /*
+     * @desc - This function is used to deactivate brand collateral
+     */ 
+    function deactivate_brand_collateral(){
+         $collateralID = $this->input->post('collateral_id');
+         rtrim($collateralID,", ");
+        if($collateralID){
+            $affected_rows = $this->partner_model->deactivate_collateral($collateralID);
+            if($affected_rows){
+                echo "Collateral has been deactivated successfully";
+            }
+        }
+        else{
+            echo "Something Went Wrong Please Try Again";
         }
     }
 }

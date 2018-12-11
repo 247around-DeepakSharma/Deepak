@@ -1478,6 +1478,7 @@
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
+                            <th>Delete <button onclick="delete_collatrals()"><i class="fa fa-trash" aria-hidden="true"></i></button></th>
                             <th>Date</th>
                         </tr>
                     </thead>
@@ -1506,6 +1507,7 @@
                             <td><?php echo $value['request_type'] ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
+                            <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $value['id'] ?>"> </div></td>
                             <td><?php echo $value['start_date'] ?></td>
                         </tr>
                         <tr>
@@ -3934,4 +3936,30 @@
             $(this).siblings(".payout_amount_text").hide();
         }
     });
+    function getMultipleSelectedCheckbox(fieldName){
+        var checkboxes = document.getElementsByName(fieldName);
+        var vals = "";
+        length = checkboxes.length;
+        for (var i=0;i<length;i++) 
+        {
+            if (checkboxes[i].checked) 
+            {
+                vals += "'"+checkboxes[i].value+"',";
+            }
+        }
+        return vals;
+    }
+    function delete_collatrals(){
+        collatrelsID = getMultipleSelectedCheckbox("coll_id[]");
+        if(collatrelsID){
+            $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/deactivate_brand_collateral',
+            data: {collateral_id:collatrelsID},
+            success: function (data) {
+                alert(data);
+            }
+        });
+        }
+    }
 </script>
