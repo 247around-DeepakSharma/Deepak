@@ -3975,7 +3975,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $booking_id);
         $this->check_WH_UserSession();
         $where['length'] = -1;
-        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING);
+        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type, inventory_invoice_on_booking";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
