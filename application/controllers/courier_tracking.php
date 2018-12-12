@@ -40,10 +40,12 @@ class Courier_tracking extends CI_Controller {
      * @return void
      */
     function  send_api_failed_email($email_body_data,$error_type){
+        log_message('info', __METHOD__. " email_body". print_r($email_body_data, TRUE). " error type ".$error_type);
         $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");        
         if (!empty($template)) {
             $subject = $template[4];
-            $emailBody = vsprintf($template[0], $email_body_data,$error_type);
+            $email_body_data .= "<br/> ".$error_type;
+            $emailBody = vsprintf($template[0], $email_body_data);
             $this->notify->sendEmail($template[2], DEVELOPER_EMAIL, '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
     }
@@ -128,6 +130,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_real_time_tracking_details(){
+        log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post(), TRUE));
         //$this->checkUserSession();
         $carrier_code = $this->input->post('courier_code');
         $awb_number = $this->input->post('awb_number');
@@ -288,6 +291,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_details($carrier_code,$awb_number){
+        log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
         $return_data = array();
         
         if(!empty($carrier_code) && !empty($awb_number)){
@@ -334,6 +338,7 @@ class Courier_tracking extends CI_Controller {
      * @return: boolean
      */
     function process_partner_shipped_auto_acknowledge_data($data) {
+        log_message('info', __METHOD__. " ". print_r($data, TRUE));
         $res = FALSE;
 
         $parts_details = explode('/', $data->order_id);
