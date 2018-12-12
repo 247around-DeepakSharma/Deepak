@@ -44,7 +44,7 @@ class Courier_tracking extends CI_Controller {
         $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");        
         if (!empty($template)) {
             $subject = $template[4];
-            $email_body_data .= "<br/> ". json_encode($error_type, TRUE);
+            $email_body_data .= "<br/> <br/>". json_encode($error_type, TRUE);
             $emailBody = vsprintf($template[0], $email_body_data);
             $this->notify->sendEmail($template[2], DEVELOPER_EMAIL, '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
@@ -146,10 +146,10 @@ class Courier_tracking extends CI_Controller {
                     log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
                     
                     //send mail to developer
-                    $this->send_api_failed_email(json_encode($api_data), array("Method" => __METHOD__,
-                        " AWB Number " =>$awb_number, 
-                        " CODE "=>$carrier_code, 
-                        "Status"=>$spare_status ));
+//                    $this->send_api_failed_email(json_encode($api_data), array("Method" => __METHOD__,
+//                        " AWB Number " =>$awb_number, 
+//                        " CODE "=>$carrier_code, 
+//                        "Status"=>$spare_status ));
                     
                     $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                     $data['awb_number'] = $awb_number;
