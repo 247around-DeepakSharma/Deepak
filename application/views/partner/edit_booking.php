@@ -60,7 +60,7 @@
                                     <?php } ?>
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
                                     
-                                    <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name" <?php if($is_repeat){ echo "readonly";} ?>>
+                                    <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name" <?php if($is_repeat){ echo "readonly";} ?>>
                                     <?php echo form_error('user_name'); ?>
                                 </div>
                             </div>
@@ -1000,6 +1000,7 @@
         var postData = {};
         postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
         postData['channel'] = $("#partner_channel").val();
+        postData['is_repeat'] = '<?php echo $is_repeat; ?>';
         if( postData['partner_id'] !== null){
             sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
                $("#partner_source").html("");

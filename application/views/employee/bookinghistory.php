@@ -64,7 +64,7 @@
                                 <?php } ?>
                             </td>
                             <td>
-                                <?php if ($row->current_status =='Completed') {
+                             <?php  if ($row->current_status =='Completed') {
                                             $today = strtotime(date("Y-m-d"));
                                             $closed_date = strtotime($row->closed_date);
                                             $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
