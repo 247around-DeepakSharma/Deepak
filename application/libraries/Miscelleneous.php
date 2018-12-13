@@ -2288,19 +2288,32 @@ class Miscelleneous {
     }
     function is_fake_rescheduled_penalty_valid($bookingDetails,$userPhone){
         log_message('info', __METHOD__.' Function Start '.$userPhone);
-        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
-        $historyWhere['new_state'] =  "InProcess_Rescheduled";
-        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
-        $historyLimitArray['length'] =  1;
-        $historyLimitArray['start'] =  0;
-        $historyOrderBYArray['id'] =  'ASC';
-        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
-                NULL,NULL,array()); 
-        $where['from_number'] = $userPhone;
-        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
-        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
-        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
-        if($logData[0]['count'] >0){
+//        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
+//        $historyWhere['new_state'] =  "InProcess_Rescheduled";
+//        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+//        $historyLimitArray['length'] =  1;
+//        $historyLimitArray['start'] =  0;
+//        $historyOrderBYArray['id'] =  'ASC';
+//        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
+//                NULL,NULL,array()); 
+//        $where['from_number'] = $userPhone;
+//        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
+//        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
+//        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
+//        if($logData[0]['count'] >0){
+//            log_message('info', __METHOD__.' Function End With False '.$userPhone);
+//            return false;    
+//        }
+//        else{
+//            log_message('info', __METHOD__.' Function End With True '.$userPhone);
+//            return true;
+//        }
+       $where['booking_id'] =  $bookingDetails[0]['booking_id'];
+       $where['escalation_reason'] =  PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT;
+       $where['vendor_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+       $alreadyApplicablePenalty = $this->My_CI->reusable_model->get_search_result_data("vendor_escalation_log","COUNT(id) as count",$where,NULL,NULL,NULL,NULL,NULL,array()); 
+       log_message('info', __METHOD__.' Function Start '.print_r($alreadyApplicablePenalty,true));
+        if($alreadyApplicablePenalty[0]['count'] >0){
             log_message('info', __METHOD__.' Function End With False '.$userPhone);
             return false;    
         }

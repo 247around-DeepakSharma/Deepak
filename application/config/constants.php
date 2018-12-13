@@ -658,5 +658,7 @@ define("MICRO_WAREHOUSE_CHARGES_TYPE", "micro-warehouse-charges");
 //Micro Warehouse Description
 define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
 
+// Courier details  status
+define("COURIER_DETAILS_STATUS", "pick-up");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
