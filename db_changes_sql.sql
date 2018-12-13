@@ -9513,4 +9513,3 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Gorakh 11-12-2018 
 ALTER TABLE `courier_details` ADD `status` VARCHAR(100) NOT NULL AFTER `ewaybill_generated_date`;
-
