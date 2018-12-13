@@ -514,20 +514,20 @@ class Courier_tracking extends CI_Controller {
      *  @return: view
      */
     
-    function partner_shipped_spare_parts_details_tracking() {
+    function process_msl_courier_tracking() {
         log_message('info', __METHOD__ . ' Entering...');
         //update trackingmore data by creating new awb number from spare part details
         $select = "courier_details.id as 'courier_id',"
                 . "courier_details.AWB_no as 'awb',courier_details.courier_name,"
                 . "courier_details.shipment_date as 'shipped_date',courier_details.booking_id,courier_details.sender_entity_id as 'partner_id'";
-        $this->create_awb_no_to_shipped_partner_spares($select, COURIER_DETAILS_STATUS);
+        $this->create_awb_number_for_msl($select, COURIER_DETAILS_STATUS);
         //getting awb list from the api and process on pick-up status
         $awb_number_list = $this->trackingmore_api->getTrackingsList();
         echo $awb_number_list->meta->code;
-        
+
         if (!empty($awb_number_list) && $awb_number_list->meta->code == 200) {
             //check if data is empty    
-            
+
             if (!empty($awb_number_list->data)) {
                 //do background process on api data to save it into database
                 $this->insert_api_data($awb_number_list);
@@ -545,10 +545,12 @@ class Courier_tracking extends CI_Controller {
                         $update_status = $this->inventory_model->update_courier_detail($where, $data);
                         if ($update_status) {
                             log_message('info', 'Courier Status Updated Successfully for awb number ' . $value->tracking_number);
-                            $deleted_awb_number_tmp_arr = array();
-                            $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
-                            $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
-                            $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
+                            if ($value->status == 'delivered') {
+                                $deleted_awb_number_tmp_arr = array();
+                                $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
+                                $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
+                                $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
+                            }
                         }
                         if (!empty($awb_number_to_be_deleted_from_api)) {
                             $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
@@ -564,7 +566,7 @@ class Courier_tracking extends CI_Controller {
                         }
                     }
                 }
-            }         
+            }
             log_message('info', __METHOD__ . ' Exit...');
         } else {
             log_message('info', 'api did not return success response ' . print_r($awb_number_list, true));
@@ -577,7 +579,7 @@ class Courier_tracking extends CI_Controller {
      * @param void
      * @return void 
      */
-    function create_awb_no_to_shipped_partner_spares($select, $status) {
+    function create_awb_number_for_msl($select, $status) {
         $where = array('courier_details.status' => $status);
         $courier_data = $this->inventory_model->get_courier_details($select, $where);
         if (!empty($courier_data)) {
