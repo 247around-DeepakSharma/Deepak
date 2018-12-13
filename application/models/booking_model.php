@@ -847,7 +847,6 @@ class Booking_model extends CI_Model {
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $is_repeat = NULL) {
-
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
         $this->db->where('service_id',$service_id);
@@ -856,8 +855,8 @@ class Booking_model extends CI_Model {
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
         if(!$is_repeat){
-//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-//            $this->db->where($where);
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
         }
         //if($brand !=""){
             $this->db->where('brand', $brand);
@@ -2081,7 +2080,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        if(isset($post['unit_not_required'])){
+        if(!isset($post['unit_not_required'])){
             $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         }
         

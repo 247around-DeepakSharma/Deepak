@@ -299,10 +299,10 @@ function get_data_for_partner_callback($booking_id) {
 	$this->db->where('active', 1);
 	$this->db->where('check_box', 1);
 	$this->db->where('partner_id', $partner_id);
-//        if(!$is_repeat){
-//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-//            $this->db->where($where);
-//        }
+        if(!$is_repeat){
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
+        }
         if($service_category !=""){
             if($not_like){
                 $this->db->where('service_category', $service_category);
@@ -1614,6 +1614,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
+            booking_details.booking_address As 'Booking Address',
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
@@ -1769,6 +1770,13 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->order_by('code', 'ASC');
         $query = $this->db->get('partner_code');
         return $query->result_array();
+    }
+    function deactivate_collateral($where_in){
+       $this->db->where_in('id', $where_in);
+       $data['is_valid'] = 1;
+       $this->db->update("collateral",$data);
+       $this->db->last_query();
+       return $this->db->affected_rows();
     }
 }
 

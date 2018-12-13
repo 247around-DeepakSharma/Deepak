@@ -454,8 +454,8 @@
                                                                         if($is_repeat){
                                                                             if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                 echo " checked ";
-                                                                                echo "style= 'pointer-events: none;'";
                                                                             }
+                                                                            echo "style= 'pointer-events: none;'";
                                                                         }
                                                                      }
                                                                     }
