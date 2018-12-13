@@ -1524,6 +1524,26 @@ class Service_centers extends CI_Controller {
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
                     
+                    if ($status == SPARE_OOW_EST_REQUESTED && 
+                            isset($warehouse_details['inventory_id']) 
+                            && !empty($warehouse_details['inventory_id']) 
+                            && isset($warehouse_details['estimate_cost'])
+                            && $warehouse_details['entity_type'] == _247AROUND_SF_STRING) {
+                        
+                            $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
+                            $pcb['booking_id'] = $booking_id;
+                            $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
+                            $pcb['amount_due'] = $this->input->post('amount_due');
+                            $pcb['partner_id'] = $partner_id;
+                            $pcb['sp_id'] = $spare_id;
+                            $pcb['gst_rate'] = $warehouse_details['gst_rate'];
+
+                            $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
+                            $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
+
+                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                    }
+
                     if ( isset($data['is_micro_wh']) && $data['is_micro_wh']== 1 &&
                             !stristr($price_tags, "Out Of Warranty"))  {
                         $data['spare_id'] = $spare_id;
@@ -1564,23 +1584,6 @@ class Service_centers extends CI_Controller {
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                     $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
-
-                    if ($status == SPARE_OOW_EST_REQUESTED && isset($warehouse_details['inventory_id']) && !empty($warehouse_details['inventory_id']) && isset($warehouse_details['estimate_cost'])) {
-                        foreach ($new_spare_id as $sid) {
-                            $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
-                            $pcb['booking_id'] = $booking_id;
-                            $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
-                            $pcb['amount_due'] = $this->input->post('amount_due');
-                            $pcb['partner_id'] = $partner_id;
-                            $pcb['sp_id'] = $spare_id;
-                            $pcb['gst_rate'] = $warehouse_details['gst_rate'];
-
-                            $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
-                            $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
-
-                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
-                        }
-                    }
 
                     if(!empty($delivered_sp)){
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
