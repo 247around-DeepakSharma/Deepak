@@ -399,6 +399,9 @@ class Partner extends CI_Controller {
         $post['dealer_name'] = $this->input->post('dealer_name');
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
+        if($this->input->post('parent_booking')){
+            $post['parent_booking'] = $this->input->post('parent_booking');
+        }
         return $post;
     }
 
@@ -2392,7 +2395,11 @@ class Partner extends CI_Controller {
             if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
             }
-            
+            else{
+                 if($is_repeat){
+                $option .= " disabled ";
+            }
+            }
             $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
 
@@ -2412,7 +2419,7 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-        
+        $is_repeat = $this->input->post('is_repeat');
         if($this->input->post('is_mapping')){
             $where = array("service_id" => $service_id);
                
@@ -2438,6 +2445,11 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $option .= " selected ";
             }
+            else{
+                if($is_repeat){
+                    $option .= " disabled ";
+                }
+            }
             
             $option .= " value='" . $value['category'] . "'>" . $value['category'] . "</option>";
         }
@@ -2458,6 +2470,7 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
+        $is_repeat = $this->input->post('is_repeat');
         
         if($this->input->post("is_mapping")){
             
@@ -2485,7 +2498,11 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $capacity .= " selected ";
             }
-            
+            else{
+                if($is_repeat){
+                    $capacity .= " disabled ";
+                }
+            }
             $capacity .= " value='" . $value['capacity'] . "'>" . $value['capacity'] . "</option>";
         }
 
@@ -2507,7 +2524,8 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $model_number = $this->input->post('model');
         $partner_type = $this->input->post('partner_type');
-
+        $is_repeat = $this->input->post('is_repeat');
+        
         if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
             $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'active'=> 1, 'capacity' => $capacity);
@@ -2526,6 +2544,11 @@ class Partner extends CI_Controller {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
+                }
+                else{
+                    if($is_repeat){
+                        $model .= " disabled ";
+                    }
                 }
                 
                 $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
@@ -2903,8 +2926,8 @@ class Partner extends CI_Controller {
                else if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                         $html.= " checked ";
-                        $html.=  "style= 'pointer-events: none;'";
                     }
+                    $html.=  "style= 'pointer-events: none;'";
                 }
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     if($customer_net_payable == 0 ){
@@ -6148,6 +6171,7 @@ class Partner extends CI_Controller {
     public function get_partner_channel() {
          log_message('info', __FUNCTION__ . print_r($_POST, true));
         $select = 'partner_channel.id, partner_channel.channel_name';
+        $is_repeat = $this->input->post('is_repeat');
         if(!empty($this->input->post('partner_id'))){ 
             $where = array(
                 'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
@@ -6165,6 +6189,11 @@ class Partner extends CI_Controller {
            $html .= '<option ';
            if($channel ==$value['channel_name'] ){
                $html .= " selected ";
+           }
+           else{
+               if($is_repeat){
+                    $html .= " disabled ";
+               }
            }
            $html .=' >'.$value['channel_name'].'</option>'; 
         }

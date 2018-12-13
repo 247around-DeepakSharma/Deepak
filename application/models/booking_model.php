@@ -847,7 +847,6 @@ class Booking_model extends CI_Model {
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $is_repeat = NULL) {
-
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
         $this->db->where('service_id',$service_id);
@@ -856,8 +855,8 @@ class Booking_model extends CI_Model {
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
         if(!$is_repeat){
-//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-//            $this->db->where($where);
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
         }
         //if($brand !=""){
             $this->db->where('brand', $brand);
