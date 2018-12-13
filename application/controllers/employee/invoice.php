@@ -200,7 +200,15 @@ class Invoice extends CI_Controller {
                 $detailed_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_detailed_excel'];
             }
             $main_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_file_main'];
-            $email_template = $this->booking_model->get_booking_email_template("resend_invoice");
+            //get email template
+            if(($data[0]['category'] == 'Installation & Repair' || $data[0]['category'] == 'Recurring Charges') && ($data[0]['sub_category'] == 'Credit Note' || $data[0]['sub_category'] == 'GST Credit Note' || $data[0]['sub_category'] == 'Debit Note' || $data[0]['sub_category'] == 'GST Debit Note')){
+                $email_template = $this->booking_model->get_booking_email_template("resend_dn_cn_invoice"); 
+                $email_template_name = "resend_dn_cn_invoice";
+            }
+            else{
+                $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
+                $email_template_name = "resend_invoice";
+            }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
 
@@ -216,12 +224,10 @@ class Invoice extends CI_Controller {
                 $to =  $to = $getEmail[0]['invoice_email_to'];
                 $cc = $email_template[3]. ", ". $this->session->userdata("official_email");
             }
-
-
             $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             $email_from = $email_template[2];
-            $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice,'resend_invoice');
+            $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice, $email_template_name);
             if ($sent) {
                 $userSession = array('success' => "Invoice Sent");
                 $this->session->set_userdata($userSession);

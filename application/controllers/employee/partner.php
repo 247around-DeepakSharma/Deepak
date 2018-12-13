@@ -398,6 +398,9 @@ class Partner extends CI_Controller {
         $post['dealer_name'] = $this->input->post('dealer_name');
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
+        if($this->input->post('parent_booking')){
+            $post['parent_booking'] = $this->input->post('parent_booking');
+        }
         return $post;
     }
 
@@ -881,7 +884,7 @@ class Partner extends CI_Controller {
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
-        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
+        $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>0), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
@@ -1022,7 +1025,7 @@ class Partner extends CI_Controller {
         );
         // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
         
-        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable');
+        $unbilled_data  = $this->booking_model->get_unit_details($where, false, 'booking_id, partner_net_payable, create_date, booking_status');
         
         $unbilled_amount = 0;
         $msic_charge = 0;
@@ -1030,7 +1033,7 @@ class Partner extends CI_Controller {
             $unbilled_amount = (array_sum(array_column($unbilled_data, 'partner_net_payable')));
         }
         
-        $misc_select = 'miscellaneous_charges.partner_charge, miscellaneous_charges.booking_id, miscellaneous_charges.description';
+        $misc_select = 'miscellaneous_charges.partner_charge,booking_details.current_status, miscellaneous_charges.booking_id, miscellaneous_charges.description, miscellaneous_charges.create_date';
 
         $misc = $this->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
         if(!empty($misc)){
@@ -2386,7 +2389,11 @@ class Partner extends CI_Controller {
             if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
             }
-            
+            else{
+                 if($is_repeat){
+                $option .= " disabled ";
+            }
+            }
             $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
 
@@ -2406,7 +2413,7 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-        
+        $is_repeat = $this->input->post('is_repeat');
         if($this->input->post('is_mapping')){
             $where = array("service_id" => $service_id);
                
@@ -2432,6 +2439,11 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $option .= " selected ";
             }
+            else{
+                if($is_repeat){
+                    $option .= " disabled ";
+                }
+            }
             
             $option .= " value='" . $value['category'] . "'>" . $value['category'] . "</option>";
         }
@@ -2452,6 +2464,7 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
+        $is_repeat = $this->input->post('is_repeat');
         
         if($this->input->post("is_mapping")){
             
@@ -2479,7 +2492,11 @@ class Partner extends CI_Controller {
             } else if (count($data) == 1) {
                 $capacity .= " selected ";
             }
-            
+            else{
+                if($is_repeat){
+                    $capacity .= " disabled ";
+                }
+            }
             $capacity .= " value='" . $value['capacity'] . "'>" . $value['capacity'] . "</option>";
         }
 
@@ -2501,7 +2518,8 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $model_number = $this->input->post('model');
         $partner_type = $this->input->post('partner_type');
-
+        $is_repeat = $this->input->post('is_repeat');
+        
         if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
             $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'active'=> 1, 'capacity' => $capacity);
@@ -2520,6 +2538,11 @@ class Partner extends CI_Controller {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
+                }
+                else{
+                    if($is_repeat){
+                        $model .= " disabled ";
+                    }
                 }
                 
                 $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
@@ -2897,8 +2920,8 @@ class Partner extends CI_Controller {
                else if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                         $html.= " checked ";
-                        $html.=  "style= 'pointer-events: none;'";
                     }
+                    $html.=  "style= 'pointer-events: none;'";
                 }
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     if($customer_net_payable == 0 ){
@@ -6142,6 +6165,7 @@ class Partner extends CI_Controller {
     public function get_partner_channel() {
          log_message('info', __FUNCTION__ . print_r($_POST, true));
         $select = 'partner_channel.id, partner_channel.channel_name';
+        $is_repeat = $this->input->post('is_repeat');
         if(!empty($this->input->post('partner_id'))){ 
             $where = array(
                 'partner_id = "'.$this->input->post('partner_id').'" OR is_default = 1'=>NULL
@@ -6159,6 +6183,11 @@ class Partner extends CI_Controller {
            $html .= '<option ';
            if($channel ==$value['channel_name'] ){
                $html .= " selected ";
+           }
+           else{
+               if($is_repeat){
+                    $html .= " disabled ";
+               }
            }
            $html .=' >'.$value['channel_name'].'</option>'; 
         }
@@ -6398,6 +6427,22 @@ class Partner extends CI_Controller {
                     }
                 }
             }
+        }
+    }
+      /*
+     * @desc - This function is used to deactivate brand collateral
+     */ 
+    function deactivate_brand_collateral(){
+         $collateralID = $this->input->post('collateral_id');
+         rtrim($collateralID,", ");
+        if($collateralID){
+            $affected_rows = $this->partner_model->deactivate_collateral($collateralID);
+            if($affected_rows){
+                echo "Collateral has been deactivated successfully";
+            }
+        }
+        else{
+            echo "Something Went Wrong Please Try Again";
         }
     }
 }

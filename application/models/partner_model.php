@@ -1769,5 +1769,12 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partner_code');
         return $query->result_array();
     }
+    function deactivate_collateral($where_in){
+       $this->db->where_in('id', $where_in);
+       $data['is_valid'] = 1;
+       $this->db->update("collateral",$data);
+       $this->db->last_query();
+       return $this->db->affected_rows();
+    }
 }
 

@@ -848,7 +848,6 @@ class Booking_model extends CI_Model {
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $is_repeat = NULL) {
-
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
         $this->db->where('service_id',$service_id);
