@@ -2788,6 +2788,7 @@ class Inventory extends CI_Controller {
                                 $courier_data['create_date'] = date('Y-m-d H:i:s');
                                 $courier_data['quantity'] = count($booking_id_array);
                                 $courier_data['bill_to_partner'] = $partner_id;
+                                $courier_data['status']= COURIER_DETAILS_STATUS;
                                 if (!empty($booking_id_array)) {
                                     $courier_data['booking_id'] = implode(",", $booking_id_array);
                                 }
@@ -3519,7 +3520,8 @@ class Inventory extends CI_Controller {
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
                 $courier_details['ewaybill_no'] = $eway_bill_by_wh;
                 $courier_details['ewaybill_file'] = $ewaybill_file;
-                $courier_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh;           
+                $courier_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
+                $courier_data['status']=COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
 
                 if (!empty($insert_courier_details)) {

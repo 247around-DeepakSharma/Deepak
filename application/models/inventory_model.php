@@ -1132,12 +1132,22 @@ class Inventory_model extends CI_Model {
       return $this->db->insert_id();
     }
     
-    function update_courier_detail($where, $data){
+     /**
+     * @desc This is used to Update courier details table
+     * @param Array $data
+     * @return boolearn
+     */    
+    function update_courier_detail($where, $data) {
         $this->db->where($where);
-        $this->db->update('courier_details',$data);
+        $this->db->update('courier_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-     /**
+    /**
      * @desc: This function is used to update spare parts courier details in spare_parts_details table
      * @params: Array $id
      * @params: Array $data
