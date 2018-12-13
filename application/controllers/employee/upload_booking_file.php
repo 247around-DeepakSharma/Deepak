@@ -1248,6 +1248,11 @@ class Upload_booking_file extends CI_Controller {
                            'file_type' =>trim($this->input->post('file_type')),
                            'search_value' => trim($this->input->post('search')['value'])
                         );
+        
+        if (!empty($this->input->post('file_source')) && $this->input->post('file_source') == "partner_file_upload") {
+            $post_data['file_type_not_equal_to'] = 'Partner_Summary_Reports';
+        }
+        
         $list = $this->reporting_utils->get_uploaded_file_history($post_data);
         $table_data = array();
         $no = $post_data['start'];
