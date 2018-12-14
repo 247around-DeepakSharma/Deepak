@@ -73,6 +73,13 @@ define('REQUESTED_SPARED_REMAP','Requested spare remap to');
 define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_date_by_courier_api');
 //Delivered Spare Status 
 define('DELIVERED_SPARE_STATUS','Delivered');
+define("MICRO_WAREHOUSE_CHARGES_TYPE", "micro-warehouse-charges");
+//Micro Warehouse Description
+define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
+
+// Courier details  status
+define("COURIER_DETAILS_STATUS", "pick-up");
+
 
 
 
