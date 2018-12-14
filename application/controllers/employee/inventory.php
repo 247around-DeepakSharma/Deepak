@@ -5023,4 +5023,54 @@ class Inventory extends CI_Controller {
             echo json_encode($data);
         }   
     }
+    
+    /**
+    * @desc: This function is used to get all courier invoices 
+    * @param: void
+    * @return : data table
+    */
+    function get_courier_invoices(){
+        $post_data = array('length' =>$this->input->post('length'),
+                           'start' =>$this->input->post('start'),
+                           'file_type' =>trim($this->input->post('file_type')),
+                           'order' => $this->input->post('order'),
+                           'draw' => $this->input->post('draw'),
+                           'search_value' => trim($this->input->post('search')['value'])
+                        );
+        $post_data['where'] = array(
+                'is_exist'=>1,
+                'is_reject'=>0,
+            );
+        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'vendor_invoice_id', 'partner_invoice_id');
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        
+        $no = $post_data['start'];
+        $data = array();
+        foreach ($list as $invoice_list) {
+            $row = array();
+            $no++;
+            $row[] =  $no;
+            $row[] =  $invoice_list->awb_number;
+            $row[] =  $invoice_list->company_name;
+            $row[] =  $invoice_list->courier_charge;
+            $row[] =  $invoice_list->actual_weight;
+            $row[] =  $invoice_list->billable_weight;
+            $row[] =  $invoice_list->courier_invoice_id;
+            $row[] =  $invoice_list->vendor_invoice_id;
+            $row[] =  $invoice_list->partner_invoice_id;
+            $row[] =  $invoice_list->pickup_from;
+            $row[] =  $invoice_list->create_date;
+            $data[] = $row;
+            
+        }
+        
+        $output = array(
+            "draw" => $post_data['draw'],
+            "recordsTotal" =>$this->inventory_model->count_courier_invoices($post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
 }
