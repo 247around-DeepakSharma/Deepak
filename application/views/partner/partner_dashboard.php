@@ -185,7 +185,7 @@
                     <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 
-                    <div id="state_type_booking_chart"></div>
+                    <div id="state_type_booking_chart" style="width:100%; height:400px;"></div>
                 </div>
             </div>
         </div>
