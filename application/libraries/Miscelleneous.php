@@ -2914,7 +2914,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
+            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -2928,7 +2928,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
-            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
