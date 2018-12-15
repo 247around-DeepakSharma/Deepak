@@ -1132,12 +1132,22 @@ class Inventory_model extends CI_Model {
       return $this->db->insert_id();
     }
     
-    function update_courier_detail($where, $data){
+     /**
+     * @desc This is used to Update courier details table
+     * @param Array $data
+     * @return boolearn
+     */    
+    function update_courier_detail($where, $data) {
         $this->db->where($where);
-        $this->db->update('courier_details',$data);
+        $this->db->update('courier_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-     /**
+    /**
      * @desc: This function is used to update spare parts courier details in spare_parts_details table
      * @params: Array $id
      * @params: Array $data
@@ -1751,5 +1761,80 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get("hsn_code_details");
         return $query->result_array();
     }
+    
+    
+     /**
+     * @desc This is used to get all courier invoices in data table format
+     * @param $select, $post
+     * @return array
+     */  
+    function get_searched_courier_invoices($select='*', $post){
+        $this->_querySearchCourierInvoice($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    function _querySearchCourierInvoice($select, $post){
+        $this->db->from('courier_company_invoice_details');
+        $this->db->select($select, FALSE);
 
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+        
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+     /**
+     * @desc This is used to get count of all courier invoices in data table format
+     * @param $post
+     * @return array
+     */  
+    function count_courier_invoices($post){
+        $this->db->from('courier_company_invoice_details');
+        if(isset($post['where'])){
+            $this->db->where($post['where']);
+        }
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
+     /**
+     * @desc This is used to get count of all filtered courier invoices in data table format
+     * @param $select, $post
+     * @return array
+     */  
+    function count_filtered_courier_invoices($select, $post) {
+        $this->_querySearchCourierInvoice($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
 }

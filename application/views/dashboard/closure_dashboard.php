@@ -112,7 +112,7 @@
                 <div class="col-md-12">
                     <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div id="chart_container2" class="chart_containe2"></div>
+                <div id="chart_container2" class="chart_containe2" style="width:100%; height:400px;" ></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
