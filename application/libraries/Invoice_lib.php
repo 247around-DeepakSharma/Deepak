@@ -297,13 +297,13 @@ class Invoice_lib {
      * @param String $gst_number
      * @return api response 
      */
-    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id=""){ 
+    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id="", $vendor_partner=""){ 
         if(!$vendor_id){
           $vendor_id = _247AROUND;
         }
         $url = "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no;
         $activity = array(
-            'entity_type' => 'vendor',
+            'entity_type' => $vendor_partner,
             'partner_id' => $vendor_id,
             'activity' => __METHOD__,
             'header' => "",
@@ -325,7 +325,7 @@ class Invoice_lib {
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
         if(!empty($vendor[0]['gst_no'])){
             
-            $api_response = $this->taxpro_gstin_checking_curl_call($vendor[0]['gst_no'], $vendor_id);
+            $api_response = $this->taxpro_gstin_checking_curl_call($vendor[0]['gst_no'], $vendor_id, 'vendor');
             if (!$api_response) {
                 $data['status'] = 'error'; 
                 return $data;
