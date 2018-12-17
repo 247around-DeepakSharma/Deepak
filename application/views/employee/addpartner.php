@@ -2009,7 +2009,7 @@
                                             <label for="annual_amount" class="col-md-4">Charge Type *</label>
                                             <div class="col-md-6">
                                                 <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
-                                                    <option selected disabled>Select Charge Type</option>
+                                                    <option value="" selected disabled>Select Charge Type</option>
                                                     <?php foreach ($charges_type as $charges){ ?> 
                                                     <option value="<?php echo $charges['id'] ?>" data-charge-type="<?php echo $charges['type'];  ?>"><?php echo $charges['description']; ?></option>
                                                     <?php } ?>
