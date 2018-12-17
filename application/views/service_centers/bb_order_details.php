@@ -174,6 +174,7 @@
                             <th>Delivery date</th>
                             <th>SF Charge</th>
                             <th>Status</th>
+                            <th>Action</th>
                             
                         </tr>
                     </thead>
