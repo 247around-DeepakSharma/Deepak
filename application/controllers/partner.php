@@ -1896,7 +1896,7 @@ class Partner extends CI_Controller {
             $this->booking_model->update_booking($booking['booking_id'], $data);
 
             $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
-            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
+            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'],$actor,$next_action, $this->partner['id']);
 
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
