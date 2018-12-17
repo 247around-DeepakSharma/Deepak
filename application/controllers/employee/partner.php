@@ -4480,8 +4480,7 @@ class Partner extends CI_Controller {
         $agent_id = $this->session->userdata('agent_id');
         if($this->session->userdata('is_filter_applicable') == 1){
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
-        }
-        else{
+        }else{
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
             $this->miscelleneous->load_partner_nav_header();
@@ -6407,9 +6406,9 @@ class Partner extends CI_Controller {
     }
 
     /*
-     * @desc - This function is used to remove service center from partner valum area.
-     * @param -  get id
-     * @render on same pages
+     * @desc - This function is used to activate and deactivate micro warehouse
+     * @param -  
+     * @render 
      */ 
     
     function manage_micro_warehouse_by_status() {
