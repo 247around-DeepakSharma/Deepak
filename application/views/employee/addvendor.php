@@ -1711,7 +1711,7 @@ function manageAccountNameField(value){
         $("#gst_no").val(gstin);
         var vendor_id="";
         if($("#vendor_id").val()){
-            vendor_id = "/"+$("#vendor_id").val();
+            vendor_id = "/"+$("#vendor_id").val()+"/vendor";
         }
         if(gstin.length == '15'){
             $.ajax({
@@ -1732,7 +1732,7 @@ function manageAccountNameField(value){
                     else{
                         $("#gst_type, #gst_status").val("");
                         if(response.errorMsg){
-                           alert("Error occured while checking GST number try again");
+                           alert(response.errorMsg);
                         }
                         else if(response.error.message){
                             if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){

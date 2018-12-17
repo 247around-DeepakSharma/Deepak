@@ -60,7 +60,10 @@
     .radio-inline input[type=radio] {
     position: absolute;   
     margin-left: 10px;
-}
+   }
+   #courier_invoice_table_filter {
+       text-align: right;
+   }
 </style>
  <div id="page-wrapper">
     <div class="row">
@@ -70,8 +73,9 @@
             <div id="tabs" style="border:0px solid #fff;float:left;">
                 <div class="col-md-12" style="">
                     <ul>
-                        <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id, 'vendor')"><span class="panel-title">Recheck Docket No</span></a></li>
-                        <li><a id="2" href="#tabs-1" onclick="load_form(this.id, 'partner')"><span class="panel-title">Ignored Docket Number</span></a></li>
+                        <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Recheck Docket No</span></a></li>
+                        <li><a id="2" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Ignored Docket Number</span></a></li>
+                        <li><a id="3" href="#tabs-2" onclick="load_form(this.id)"><span class="panel-title">Courier Invoice Detail</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -163,6 +167,28 @@
                             </tbody>
                         </table>
                     </div>
+                     <div id="container_3" class="form_container" style="display:none">
+                        <table class="table table-bordered table-hover table-striped" id="courier_invoice_table">
+                            <thead>
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>AWB Number</th>
+                                    <th>Company Name</th>
+                                    <th>Courier Charges</th>
+                                    <th>Actual Weight</th>
+                                    <th>Billable Weight</th>
+                                    <th>Courier Invoice Id</th>
+                                    <th>Vendor Invoice Id</th>
+                                    <th>Partner Invoice Id</th>
+                                    <th>Pickup From</th>
+                                    <th>Invoice Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -200,6 +226,7 @@
 <!---- End ----->
 
 <script>
+var courier_invoice_table;
 $(document).ready(function(){
     //$("#recheck_docket_number_table, #ingnored_docket_number_table").DataTable();
 }); 
@@ -257,6 +284,34 @@ function reject_courier_invoice(){
             else{
                 document.getElementById("container_"+i).style.display='block';
                 document.getElementById(i).style.background='#fff';
+            }
+        }
+        
+        if(tab_id == '3'){
+            if(courier_invoice_table == null){
+                courier_invoice_table = $('#courier_invoice_table').DataTable({
+                    processing: true, //Feature control the processing indicator.
+                    serverSide: true, //Feature control DataTables' server-side processing mode.
+                    order: [], //Initial no order.
+                    lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                    pageLength: 10,
+                    // Load data for the table's content from an Ajax source
+                    ajax: {
+                        url: "<?php echo base_url(); ?>employee/inventory/get_courier_invoices",
+                        type: "POST",
+                        data: {}
+                    },
+                    //Set column definition initialisation properties.
+                    columnDefs: [
+                        {
+                            "targets": [0,1,2,3,4,5,6,7,8,9, 10], //first column / numbering column
+                            "orderable": false //set not orderable
+                        }
+                    ]
+                });
+                
+            } else {
+                courier_invoice_table.ajax.reload(null, false);
             }
         }
     }
