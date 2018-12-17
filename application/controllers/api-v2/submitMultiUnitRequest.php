@@ -108,7 +108,7 @@ class submitMultiUnitRequest extends CI_Controller {
                             $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => 'STS'));
                             //Insert Data in booking state change
                             $this->notify->insert_state_change($this->ApiData['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,$remarks , $p_login_details[0]['id'], 
-                                    $this->ApiData['partnerName'], $this->partner['id'],"not_define","not_define");
+                                    $this->ApiData['partnerName'],"not_define","not_define", $this->partner['id']);
                             
                              // Send Mail if state not found
                             if (empty($this->ApiData['state'])) {

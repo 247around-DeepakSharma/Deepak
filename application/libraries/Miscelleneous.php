@@ -2912,7 +2912,7 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
+            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -2926,7 +2926,7 @@ function generate_image($base64, $image_name,$directory){
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
-            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
@@ -3107,7 +3107,8 @@ function generate_image($base64, $image_name,$directory){
     }
     
     function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
-        $response = array();
+        log_message('info', _METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id);
+        $response = array(); 
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
                 . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));

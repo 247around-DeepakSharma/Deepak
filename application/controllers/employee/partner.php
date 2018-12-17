@@ -3145,7 +3145,7 @@ class Partner extends CI_Controller {
 
             $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
             $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
-                    $agent_name, $partner_id,$actor,$next_action);
+                    $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
