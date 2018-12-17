@@ -164,7 +164,54 @@ class Courier_tracking extends CI_Controller {
         echo $res;
         
     }
-    
+     /** @desc: get real time tracking result
+     * @param string $carrierCode Carrier code
+     * @param string $awb_number  Tracking number 
+     * @param string $spare_status spare status
+     * @return array 
+     */
+    function get_msl_awb_real_time_tracking_details(){        
+       
+        log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post(), TRUE));
+        //$this->checkUserSession();
+        $carrier_code = $this->input->post('courier_code');
+        $awb_number = $this->input->post('awb_number');
+        $status = $this->input->post('status');
+        if(!empty($carrier_code) && !empty($awb_number) && !empty($status)){
+            if($status === COURIER_DETAILS_STATUS){
+                $api_data = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
+                if(!empty($api_data['data'])){
+                    $data['awb_details_by_api'] = $api_data['data'];
+                    $data['awb_number'] = $awb_number;
+                    
+                }else{
+                    log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
+                    
+                    //send mail to developer
+//                    $this->send_api_failed_email(json_encode($api_data), array("Method" => __METHOD__,
+//                        " AWB Number " =>$awb_number, 
+//                        " CODE "=>$carrier_code, 
+//                        "Status"=>$spare_status ));
+                    
+                    $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
+                    $data['awb_number'] = $awb_number;
+                    
+                }
+            }else{
+                $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
+                $data['awb_number'] = $awb_number;
+            }
+            
+        }else{
+            $data['awb_details'] = array();
+            $data['awb_number'] = $awb_number;
+        }
+        
+        $res = $this->load->view("employee/show_msl_awb_real_time_status",$data);
+        
+        echo $res;
+        
+    }
     /** @desc: this function is used to create courier data on trackingMore api so that we can get updated data when we call thier api
      * @param void
      * @return void 

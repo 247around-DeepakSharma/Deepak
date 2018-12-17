@@ -3257,7 +3257,7 @@ class Inventory extends CI_Controller {
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
                     WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
-                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name";
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
         $list = $this->inventory_model->get_spare_need_to_acknowledge($post,$select);
         $data = array();
         $no = $post['start'];
@@ -3300,7 +3300,15 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->part_number;
         $row[] = $inventory_list->quantity;
         $row[] = $inventory_list->courier_name;
-        $row[] = $inventory_list->AWB_no;
+        //$row[] = "<a href='#' onclick='get_msl_awb_details('".$inventory_list->courier_name."','".$inventory_list->AWB_no."','".$inventory_list->status."','msl_awb_loader_'".$inventory_list->AWB_no."')'>".$inventory_list->AWB_no."</a> <span id='msl_awb_loader_$inventory_list->AWB_no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>"; 
+        $a = "<a href='javascript:void(0);' onclick='";
+        $a .= "get_msl_awb_details(".'"'.$inventory_list->courier_name.'"';
+        $a .= ', "'.$inventory_list->AWB_no.'"';
+        $a .= ', "'.$inventory_list->status.'"';
+        $a .= ', "msl_awb_loader_'.$no.'"';
+        $a .= ")'>".$inventory_list->AWB_no."</a>";
+        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $row[] = $a;
         $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
         
         return $row;
