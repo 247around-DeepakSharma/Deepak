@@ -149,6 +149,26 @@
         </div>
     </div>
     
+     <!-- model -->
+     <!-- Start MSL Real time Tracking model -->
+    <div id="gen_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="gen_model_title"></h4>
+                </div>
+                <div class="modal-body" id="gen_model_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+   <!-- End MSL Real time Tracking model -->
+     
     <div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -710,4 +730,23 @@
         }
     }
 
+    function get_msl_awb_details(courier_code,awb_number,status,id){
+
+            if(courier_code && awb_number && status){
+                $('#'+id).show();
+                $.ajax({
+                    method:"POST",
+                    data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                    url:'<?php echo base_url(); ?>courier_tracking/get_msl_awb_real_time_tracking_details',
+                    success: function(res){
+                        $('#'+id).hide();
+                        $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                        $('#gen_model_body').html(res);
+                        $('#gen_model').modal('toggle');
+                    }
+                });
+            }else{
+                alert('Something Wrong. Please Refresh Page...');
+            }
+    }
 </script>
