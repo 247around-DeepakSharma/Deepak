@@ -732,7 +732,7 @@ class Service_centers extends CI_Controller {
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
-                    $this->miscelleneous->process_booking_tat_on_completion($booking_id);
+                    //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
@@ -2734,6 +2734,7 @@ class Service_centers extends CI_Controller {
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
         $request_data['where'] = array('bb_cp_order_action.current_status' => _247AROUND_BB_IN_PROCESS,
+            'bb_cp_order_action.internal_status NOT IN ("To Be Claimed Not Delivered")' => NULL,
             "bb_cp_order_action.partner_order_id" => $this->input->post('order_id'));
         $is_inProcess = $this->cp_model->get_bb_cp_order_list($request_data);
 
@@ -3231,8 +3232,8 @@ class Service_centers extends CI_Controller {
     function get_acknowledge_data(){
         $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'), "bb_order_details.auto_acknowledge" => $this->input->post('auto_acknowledge'));
-        $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'Not Delivered', 'Damaged'),
-                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS),
+                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
@@ -3242,7 +3243,7 @@ class Service_centers extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->get_acknowledge_table_data($order_list, $no);
+            $row =  $this->get_acknowledge_table_data($order_list, $no, false);
             $data[] = $row;
         }
         
@@ -3259,7 +3260,7 @@ class Service_centers extends CI_Controller {
          $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
-                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged', 'To Be Claimed Not Delivered'));
+                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
@@ -3269,7 +3270,7 @@ class Service_centers extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->get_acknowledge_table_data($order_list, $no);
+            $row =  $this->get_acknowledge_table_data($order_list, $no, true);
             $data[] = $row;
         }
         
@@ -3362,7 +3363,7 @@ class Service_centers extends CI_Controller {
      * @param $no
      * @return array
      */
-    function get_acknowledge_table_data($order_list, $no) {
+    function get_acknowledge_table_data($order_list, $no, $inprocess) {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
@@ -3375,6 +3376,23 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->delivery_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
+        if($inprocess){
+            switch ($order_list->internal_status){
+                case _247AROUND_BB_NOT_DELIVERED:
+                case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
+                    $row[] = "<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
+                            <span class='caret'></span></button>
+                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                            </ul>
+                          </div>";
+                    break;
+            }
+            
+        }
+        
         return $row;
     }
     

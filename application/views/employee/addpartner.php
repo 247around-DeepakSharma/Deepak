@@ -3800,7 +3800,7 @@
         $("#gst_number").val(gstin);
         var partner_id="";
         if($("#partner_id").val()){
-            partner_id = "/"+$("#partner_id").val();
+            partner_id = "/"+$("#partner_id").val()+"/partner";
         }
         if(gstin.length == '15'){
             $.ajax({
@@ -3821,7 +3821,7 @@
                     else{
                         $("#gst_type, #gst_status").val("");
                         if(response.errorMsg){
-                           alert("Error occured while checking GST number try again");
+                           alert(response.errorMsg);
                         }
                         else if(response.error.message){
                             if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
