@@ -49,6 +49,19 @@ class File_upload extends CI_Controller {
             $data = $this->read_upload_file_header($file_status);
            
             $data['post_data'] = $this->input->post();
+            
+            if(!empty( $data['post_data']['partner_id'])){
+               $data['post_data']['entity_type'] = "partner";
+               $data['post_data']['entity_id'] = $data['post_data']['partner_id'];
+            }
+            else if(!empty( $data['post_data']['vendor_id'])){
+                $data['post_data']['entity_type'] = "vendor";
+                $data['post_data']['entity_id'] =$data['post_data']['vendor_id'];
+            }
+            else{
+                $data['post_data']['entity_type'] = "";
+                $data['post_data']['entity_id'] = "";
+            }
 
             //check all required header and file type 
             if ($data['status']) { 
@@ -81,11 +94,11 @@ class File_upload extends CI_Controller {
                 if($response['status']){
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_SUCCESS_STATUS);
+                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_SUCCESS_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                     
                 }else{
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS);
+                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                     $this->session->set_flashdata('file_error', $response['message']);
                     
                 }
@@ -900,7 +913,7 @@ class File_upload extends CI_Controller {
                    
                 }
                 $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
-                    $data['post_data']['file_type'], $file_upload_status);
+                    $data['post_data']['file_type'], $file_upload_status, "", "partner", $partner_id);
             
                 $this->send_email($data,$response);
             } else {

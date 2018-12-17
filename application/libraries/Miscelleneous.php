@@ -1295,11 +1295,13 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "") {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="") {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
         $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $data['entity_id'] = $entity_id;
+        $data['entity_type'] = $entity_type;
         $data['result'] = $result;
         $data['email_message_id'] = $email_message_id;
 
