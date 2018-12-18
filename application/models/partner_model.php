@@ -1770,5 +1770,34 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partner_code');
         return $query->result_array();
     }
+    function deactivate_collateral($where_in){
+       $this->db->where_in('id', $where_in);
+       $data['is_valid'] = 1;
+       $this->db->update("collateral",$data);
+       $this->db->last_query();
+       return $this->db->affected_rows();
+    }
+    function get_login_details($agentID){
+        $this->db->select("user_id,clear_password,email");
+        $this->db->where("agent_id",$agentID);
+        $query = $this->db->get('entity_login_table');
+        return $query->result_array();
+    }
+    function activate_deactivate_login($action,$contactID = NULL,$agentID = NULL){
+        if($agentID){
+            $this->db->where('agent_id',$agentID);
+        }
+        if($contactID){
+            $this->db->where('contact_person_id',$contactID);
+        }
+        $this->db->update("entity_login_table",array('active'=>$action));
+        return $this->db->affected_rows();
+    }
+    function activate_deactivate_contact_person($contactID,$action){
+       $this->activate_deactivate_login($action,$contactID);
+       $this->db->where('id',$contactID);
+       $this->db->update("contact_person",array('is_active'=>$action));
+       return $this->db->affected_rows();
+    }
 }
 
