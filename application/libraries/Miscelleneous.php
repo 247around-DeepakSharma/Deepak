@@ -3119,12 +3119,12 @@ function generate_image($base64, $image_name,$directory){
         $is_partner_wh = $partner_details[0]['is_wh'];
         $is_micro_wh = $partner_details[0]['is_micro_wh'];
         if (!empty($inventory_part_number)) {
-
+            //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+                //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
-                if (empty($response) && $is_partner_wh == 1) {
-                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
-                } else if (!empty($response)) {
+                if (!empty($response)) {
+                    //Defective Parts Return To
                     if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                         $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3134,10 +3134,26 @@ function generate_image($base64, $image_name,$directory){
                         $response['defective_return_to_entity_id'] = $partner_id;
                     }
                 }
+                
+                if (empty($response) && $is_partner_wh == 1) {
+                    
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    if(!empty($response)){
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
+                    }
+                    
+                } 
+                
             } else if ($is_partner_wh == 1) {
 
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                if(!empty($response)){
+                    $response['defective_return_to_entity_type'] = $response['entity_type'];
+                    $response['defective_return_to_entity_id'] = $response['entity_id'];
+                }
             }
+
         } else {
             return false;
         }
