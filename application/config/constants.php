@@ -53,15 +53,6 @@ define('FOPEN_READ_WRITE_CREATE_STRICT','x+b');
 define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
-define('basic_percentage', 0.7);
-define('addtitional_percentage', .85);
-define('parts_percentage', .95);
-define('PART_DELIVERY_PERCENTAGE', .10);
-define('SERVICE_TAX_RATE', 0.18);
-define('DEFAULT_TAX_RATE', 18);
-define('DEFAULT_PARTS_TAX_RATE', 28);
-define('DEFAULT_MOBILE_TAX_RATE', 12);
-
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
 
@@ -469,12 +460,6 @@ define('_247AROUND_SF_STRING','vendor');
 define('_247AROUND_CP_STRING','CP');
 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
-define("QC_HSN_CODE", 998397);
-define("HSN_CODE", "998715");
-define("STAND_HSN_CODE", "8302");
-define("COMMISION_CHARGE_HSN_CODE", "996111");
-define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
-
 
 //Booking Rescheduled Confirmation SMS Constant
 define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
@@ -587,10 +572,6 @@ define('BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL',10);
 //show this text when partner cancel booking before time interval
 define('TEXT_FOR_BOOKING_CAN_NOT_BE_CANCEL_AFTER_THIS_TIME_INTERVAL','Booking can not be cancelled, Please contact to 247Around Team');
 define('REVIEW_NOTIFICATION_TO_PARTNER_DAYS','2');
-//Default Municipal limit for Paytm
-define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
-// Default PAYTM UPCOUNTRY DISTRICT
-define("DEFAULT_PAYTM_UPCOUNTRY_DISTRICT", "Others");
 define("REVIEW_LIMIT_BEFORE", "BEFORE");
 define("REVIEW_LIMIT_AFTER", "AFTER");
 //Define Constant for upload docket file 
