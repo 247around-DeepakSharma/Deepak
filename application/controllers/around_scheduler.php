@@ -983,20 +983,21 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc This function is used to calculate upcountry from India Pincode File
      */
-    function get_upcountry_details_from_india_pincode() {
+    function get_upcountry_details_from_india_pincode($service_id) {
         $this->upcountry_model->truncate_upcountry_sf_level_table();
         $pincode_array = $this->vendor_model->getPincode_from_india_pincode("", true);
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
         $partner_data[0]['upcountry_approval_email'] = '';
-        $services = $this->booking_model->selectservice();
-        foreach ($services as $service_id) {
+        
+        //$services = $this->booking_model->selectservice();
+        //foreach ($services as $service_id) {
             $upcountry_data = array();
             foreach ($pincode_array as $key => $pincode) {
-                $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id->id, $partner_data);
+                $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id, $partner_data);
                 $data = array();
                 $data['pincode'] = $pincode['pincode'];
-                $data['service_id'] = $service_id->id;
+                $data['service_id'] = $service_id;
                 $data['hq_pincode'] = NULL;
                 $data['sub_vendor_id'] = 0;
                 $data['distance'] = 0;
@@ -1045,7 +1046,7 @@ class Around_scheduler extends CI_Controller {
                  
             }
             log_message('info',__METHOD__. " Exit");
-        }
+        //}
         
         $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
