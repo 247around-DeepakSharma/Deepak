@@ -2009,7 +2009,7 @@
                                             <label for="annual_amount" class="col-md-4">Charge Type *</label>
                                             <div class="col-md-6">
                                                 <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
-                                                    <option selected disabled>Select Charge Type</option>
+                                                    <option value="" selected disabled>Select Charge Type</option>
                                                     <?php foreach ($charges_type as $charges){ ?> 
                                                     <option value="<?php echo $charges['id'] ?>" data-charge-type="<?php echo $charges['type'];  ?>"><?php echo $charges['description']; ?></option>
                                                     <?php } ?>
@@ -3800,7 +3800,7 @@
         $("#gst_number").val(gstin);
         var partner_id="";
         if($("#partner_id").val()){
-            partner_id = "/"+$("#partner_id").val();
+            partner_id = "/"+$("#partner_id").val()+"/partner";
         }
         if(gstin.length == '15'){
             $.ajax({
@@ -3821,7 +3821,7 @@
                     else{
                         $("#gst_type, #gst_status").val("");
                         if(response.errorMsg){
-                           alert("Error occured while checking GST number try again");
+                           alert(response.errorMsg);
                         }
                         else if(response.error.message){
                             if(response.error.error_cd == '<?php echo INVALID_GSTIN; ?>'){
