@@ -791,7 +791,7 @@ class Partner extends CI_Controller {
 
             //Storing State change values in Booking_State_Change Table
             $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
+                    $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $id);
             //send email
             $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
             $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
@@ -833,7 +833,7 @@ class Partner extends CI_Controller {
 
             //Storing State change values in Booking_State_Change Table
             $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
+                    $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $id);
 
             //send email
 
