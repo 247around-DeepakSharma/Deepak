@@ -110,4 +110,4 @@ define('SPARE_INVOICE_EMAIL_TAG','spare_invoice_sent');
 define('QWIKCILVER_TRANSACTION_DETAIL','qwikcilver_transaction_detail');
 define('VALIDITY_EXPIRY_WARNING_FOR_PARTNER', 'validity_expiry_warning_for_partner');
 define('WRONG_CALL_AREA_TEMPLATE', 'wrong_call_area');
-
+define('MINIMUM_GUARANTEE_MAIL_TEMPLATE', 'minimum_guarantee_mail_template');

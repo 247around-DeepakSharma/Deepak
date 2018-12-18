@@ -1220,7 +1220,8 @@ class invoices_model extends CI_Model {
                 round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
-                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh
+                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh,
+                minimum_guarantee_charge
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -1280,22 +1281,10 @@ class invoices_model extends CI_Model {
             $result['upcountry'] = $upcountry_data;
         }
 
-        if (!empty($debit_penalty)) {
-            $d_penalty = array();
-            $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
-            $d_penalty[0]['hsn_code'] = '';
-            $d_penalty[0]['qty'] = '';
-            $d_penalty[0]['rate'] = '';
-            $d_penalty[0]['product_or_services'] = 'Debit Penalty';
-            $d_penalty[0]['taxable_value'] = -sprintf("%1\$.2f",(array_sum(array_column($debit_penalty, 'p_amount'))));
-            $result['booking'] = array_merge($result['booking'], $d_penalty);
-            $result['d_penalty'] = $debit_penalty;
-        }
-
         if (!empty($final_courier_data)) {
             $c_data = array();
             $c_data[0]['description'] = 'Courier Charges';
-            $c_data[0]['hsn_code'] = '';
+            $c_data[0]['hsn_code'] = HSN_CODE;
             $c_data[0]['qty'] = '';
             $c_data[0]['rate'] = '';
             $c_data[0]['product_or_services'] = 'Courier';
@@ -1306,22 +1295,10 @@ class invoices_model extends CI_Model {
             $result['final_courier_data'] = $final_courier_data;
         }
 
-        if (!empty($credit_penalty)) {
-            $cp_data = array();
-            $cp_data[0]['description'] = 'Credit (Penalty Removed)';
-            $cp_data[0]['hsn_code'] = '';
-            $cp_data[0]['qty'] = '';
-            $cp_data[0]['rate'] = '';
-            $cp_data[0]['product_or_services'] = 'Credit Penalty';
-            $cp_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($credit_penalty, 'p_amount'))));
-            $result['booking'] = array_merge($result['booking'], $cp_data);
-            $result['c_penalty'] = $credit_penalty;
-        }
-
         if (!empty($misc)) {
             $m = array();
             $m[0]['description'] = 'Miscellaneous Charge';
-            $m[0]['hsn_code'] = '';
+            $m[0]['hsn_code'] = HSN_CODE;
             $m[0]['qty'] = '';
             $m[0]['rate'] = '';
             $m[0]['product_or_services'] = 'Misc Charge';
@@ -1335,7 +1312,7 @@ class invoices_model extends CI_Model {
 
             $c_data = array();
             $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
-            $c_data[0]['hsn_code'] = "";
+            $c_data[0]['hsn_code'] = HSN_CODE;
             $c_data[0]['qty'] = $micro_invoice['count'];
             $c_data[0]['rate'] = "";
             $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
@@ -1345,7 +1322,7 @@ class invoices_model extends CI_Model {
             $result['micro_warehouse_list'] = $micro_invoice['list'];
                 
         }
-
+        
 //            if (!empty($warehouse_courier)) {
 //                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
@@ -1364,14 +1341,36 @@ class invoices_model extends CI_Model {
 //                    $result['packaging_quantity'] = count($warehouse_courier);
 //                }
 //            }
-
-
+        if (!empty($credit_penalty)) {
+                $cp_data = array();
+                $cp_data[0]['description'] = 'Credit (Penalty Removed)';
+                $cp_data[0]['hsn_code'] = HSN_CODE;
+                $cp_data[0]['qty'] = '';
+                $cp_data[0]['rate'] = '';
+                $cp_data[0]['product_or_services'] = 'Credit Penalty';
+                $cp_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($credit_penalty, 'p_amount'))));
+                $result['booking'] = array_merge($result['booking'], $cp_data);
+                $result['c_penalty'] = $credit_penalty;
+        }
+        
+        if (!empty($debit_penalty)) {
+            $d_penalty = array();
+            $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
+            $d_penalty[0]['hsn_code'] = HSN_CODE;
+            $d_penalty[0]['qty'] = '';
+            $d_penalty[0]['rate'] = '';
+            $d_penalty[0]['product_or_services'] = 'Debit Penalty';
+            $d_penalty[0]['taxable_value'] = -sprintf("%1\$.2f",(array_sum(array_column($debit_penalty, 'p_amount'))));
+            $result['booking'] = array_merge($result['booking'], $d_penalty);
+            $result['d_penalty'] = $debit_penalty;
+        }
+        
         if (!empty($result['booking'])) {
             if (!isset($result['booking'][0]['company_name'])) {
                 $select = 'state,company_name,'
                         . ' address as company_address, pincode, district,'
                         . ' is_wh, owner_phone_1, sc_code, primary_contact_email,'
-                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number ';
+                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number,minimum_guarantee_charge ';
 
                 $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
 
@@ -1390,6 +1389,7 @@ class invoices_model extends CI_Model {
                 $result['booking'][0]['company_type'] = $vendor_details[0]['signature_file'];
                 $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
                 $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
+                $result['booking'][0]['minimum_guarantee_charge'] = $vendor_details[0]['minimum_guarantee_charge'];
             }
             
 //            if ($result['booking'][0]['is_wh'] == 1) {
