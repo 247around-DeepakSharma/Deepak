@@ -1317,17 +1317,18 @@ class Invoice extends CI_Controller {
                 }
             }
 
-                /*
-                 * Update booking-invoice table to capture this new invoice against these bookings.
-                 * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
-                 */
-                if(!empty($invoice_details)){
-                    $this->update_invoice_id_in_unit_details($invoice_details, $invoice_data['meta']['invoice_id'], $invoice_type, "vendor_foc_invoice_id");
-                }
-            } else {
-                
-                 $this->download_invoice_files($invoice_data['meta']['invoice_id'], $output_file_excel, $output_file_main);
+            /*
+             * Update booking-invoice table to capture this new invoice against these bookings.
+             * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
+             */
+            if(!empty($invoice_details)){
+                $this->update_invoice_id_in_unit_details($invoice_details, $invoice_data['meta']['invoice_id'], $invoice_type, "vendor_foc_invoice_id");
             }
+            
+        } else {
+
+             $this->download_invoice_files($invoice_data['meta']['invoice_id'], $output_file_excel, $output_file_main);
+        }
         
            
         //Delete XLS files now
@@ -2305,6 +2306,15 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
 
         if (!empty($invoices['booking'])) {
+            if($invoices['booking'][0]['minimum_guarantee_charge'] > 0 && $invoice_type == "final"){
+
+                if($invoices['booking'][0]['minimum_guarantee_charge'] > $invoices['meta']['sub_total_amount']){
+                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $invoices['booking'][0]['minimum_guarantee_charge'],
+                      'invoice_amount' => $invoices['meta']['sub_total_amount'], "company_name" => $invoices['booking'][0]['company_name'], 
+                        'from_date' =>  date('M', strtotime($from_date)), 'to_date' => $to_date, 'vendor_id' => $vendor_id));
+                }
+            }   
+                
             if ($invoices['meta']['sub_total_amount'] > 0) {
 
                 if (isset($details['invoice_id'])) {
@@ -2351,11 +2361,25 @@ class Invoice extends CI_Controller {
                     $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 }
                 
-              
+                
                 return false;
             }
         } else {
+            if($invoice_type == "final"){
+                $select = 'company_name, minimum_guarantee_charge ';
+                $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
+            
+                if(!empty($vendor_details) && $vendor_details[0]['minimum_guarantee_charge'] > 0){
+                    $basic_min_guarantee_charge =  ($vendor_details[0]['minimum_guarantee_charge'] * SERVICE_TAX_RATE)/(1 + SERVICE_TAX_RATE);
 
+
+                    $this->send_guarantee_exist_mail(array('minimum_guarantee_charge' => $vendor_details[0]['minimum_guarantee_charge'],
+                      'invoice_amount' => 0, "company_name" => $vendor_details[0]['company_name'], 
+                        'from_date' => date('M', strtotime($from_date)), 'vendor_id' => $vendor_id));
+
+                }
+            }
+        
             echo "Data Not Found - ".$vendor_id.PHP_EOL;
             log_message('info', __FUNCTION__ . " Data Not Found -". $vendor_id);
             return false;
@@ -4952,6 +4976,31 @@ class Invoice extends CI_Controller {
             echo "Success";
         } else {
             echo "Error";
+        }
+    }
+    
+    /**
+     * @desc @desc This function is used to send mail to accountant when Min
+     * @param Array $data
+     */
+    function send_guarantee_exist_mail($data){
+        $email_template = $this->booking_model->get_booking_email_template(MINIMUM_GUARANTEE_MAIL_TEMPLATE);
+       
+        if (!empty($email_template)) {
+            $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($data['vendor_id']);
+          //  print_r($employee_rm_relation); exit();
+            $rm_email = "";
+            if(!empty($employee_rm_relation)){
+                $rm_email = ", ".$employee_rm_relation[0]['official_email'];
+            }
+
+            $to = $email_template[1].$rm_email;
+            $cc = $email_template[3];
+            $bcc = $email_template[5];
+            $subject = $email_template[4];
+            $email_template[0];
+            $emailBody = vsprintf($email_template[0], array($data['company_name'], $data['minimum_guarantee_charge'], $data['invoice_amount'], $data['from_date']));
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", MINIMUM_GUARANTEE_MAIL_TEMPLATE);
         }
     }
               
