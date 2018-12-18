@@ -5112,30 +5112,6 @@ class Partner extends CI_Controller {
         }
     }
     
-    function delete_partner_contacts($contact_id,$partnerID){
-        $where["entity_id"] = $partnerID;
-        $where["contact_person_id"] = $contact_id;
-        if(!empty($where)){
-            //Update Entity Login Table
-            $this->reusable_model->update_table("entity_login_table",array("active"=>0),array("entity_id"=>$partnerID,"contact_person_id"=>$contact_id));
-            //Update Agent Filter Table 
-            $this->reusable_model->update_table('agent_filters',array("is_active"=>0),$where);
-            //Update Contact Person Table
-            $this->reusable_model->update_table('contact_person',array('is_active'=>0),array('id'=>$contact_id,'entity_id'=>$partnerID));
-            $msg = "Contact deleted successfully";
-            $this->session->set_userdata('success', $msg);
-        }
-        else{
-            $msg = "Something Went Wrong , Please Try Again";
-            $this->session->set_userdata('error', $msg);
-        }
-        if($this->session->userdata('partner_id')){
-            redirect(base_url() . 'partner/contacts');
-        }
-       else{
-             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
-       }
-    }
     
     /**
      * @desc: This Function is used to search the docket number
@@ -6476,6 +6452,22 @@ class Partner extends CI_Controller {
         if($contactID){
             $affected_rows =  $this->partner_model->activate_deactivate_contact_person($contactID,$action);
             if($affected_rows){
+                 $v = "Deactivated";
+                if($action){
+                    $v = "Activated";
+                }
+                if($this->session->userdata('userType') == 'employee'){
+                    $agent = $this->session->userdata('id');
+                    $agentName = $this->session->userdata('emp_name');
+                    $partner_id = _247AROUND;
+                }
+                else{
+                    $agent = $this->session->userdata('agent_id');
+                    $agentName = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                }
+                $this->notify->insert_state_change($contactID, "Contact Person - ".$v,"Contact Person", $contactID." has been ".$v, $agent, $agentName, 
+                        'not_define','not_define',$partner_id);
                 echo "Successfully Done";
             }
             else{
