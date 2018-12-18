@@ -250,6 +250,7 @@
                             <th>Booking Date</th>
                             <th>Status</th>
                             <th>Service Center</th>
+                            <th>Contacts</th>
                             <th>Call</th>
                             <th>View</th>
                             <th>Reschedule</th>
@@ -285,6 +286,8 @@
                         <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                         <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                         <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
+                        <td><button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ='<?php echo $row->booking_id ?>' onclick="show_contacts(this.id,1)">
+                <span class="glyphicon glyphicon-user"></span></button></td>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
                         <td>
                             <?php echo "<a class='btn btn-sm btn-color' "
@@ -661,6 +664,21 @@
         </div>
     </div>
 </div>
+
+ <div id="relevant_content_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header well" style="background-color:  #2C9D9C;border-color: #2C9D9C;">
+                    <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
+                    <h4 class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center;">Contacts</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <center><img id="loader_gif_contact" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+            </div>
+        </div>
+    </div>
 <script type="text/javascript">
         $(document).ready(function() {
         <?php if(isset($data['FollowUp_count'])){ ?>
@@ -750,4 +768,46 @@
         }
     } 
     
+    function show_contacts(bookingID,create_booking_contacts_flag){
+            $("#relevant_content_modal .modal-body").html("");
+            $("#loader_gif_contact").show();
+                    $.ajax({
+                        type: 'post',
+                        url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
+                        data: {},
+                        success: function (response) {
+                            if(create_booking_contacts_flag){
+                              create_booking_contacts(response);
+                            }
+                       }
+                    });
+                }
+
+
+                         function create_booking_contacts(response){
+        var data="";
+        var result = JSON.parse(response);
+        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>247around Regional Manager</td><td>"+result[0].rm+"</td><td>"+result[0].rm_contact+"</td></tr>";
+        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        var tb="<table class='table  table-bordered table-condensed ' >";
+        tb+='<thead>';
+        tb+='<tr>';
+        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+        tb+='<th class="jumbotron col-md-6">Role</th>';
+        tb+='<th class="jumbotron  col-md-5">Name</th>';
+        tb+='<th class="jumbotron  col-md-5">Contact</th>';
+        tb+='</tr>';
+        tb+='</thead>';
+        tb+='<tbody>';
+        tb+=data;
+        tb+='</tbody>';
+        tb+='</table>';
+        $("#loader_gif_contact").hide();
+        $("#relevant_content_modal .modal-body").html(tb);
+        $('#relevant_content_table').DataTable();
+        $('#relevant_content_table  th').css("background-color","#ECEFF1");
+        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+        $("#relevant_content_modal").modal("show");
+    }
 </script>
