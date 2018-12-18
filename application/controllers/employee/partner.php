@@ -566,7 +566,7 @@ class Partner extends CI_Controller {
                         $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
                         $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
                         $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                        $loginData['checkbox_value_holder'][] = 'true';
+                        $loginData['final_checkbox_value_holder'][] = 'true';
                         $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
                         $sendUrl = base_url().'employee/partner/process_partner_contacts';
                         $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
@@ -893,8 +893,9 @@ class Partner extends CI_Controller {
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
         $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
-                . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
-                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id,"contact_person.is_active"=>1),
+                . "GROUP_CONCAT(agent_filters.state) as  state,entity_login_table.agent_id as login_agent_id,contact_person.is_active,"
+                . "entity_login_table.active as login_active",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
@@ -4862,6 +4863,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
@@ -4879,7 +4881,7 @@ class Partner extends CI_Controller {
                 $id = $this->reusable_model->insert_into_table("contact_person",$data);
                 $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
                 // Create Login If Checkbox Checked
-                if($this->input->post('checkbox_value_holder')[$index] == 'true'){
+                if($checkbox_array[$index] == 'true'){
                         $password = mt_rand(100000, 999999);
                         $loginData['user_id'] = str_replace(" ","_",$data['name']."_".mt_rand(1,5));
                         $loginData['password'] = md5($password);
@@ -5049,13 +5051,19 @@ class Partner extends CI_Controller {
             $update_data1 = $this->reusable_model->update_table("contact_person",$data,$where);
             $loginData['contact_person_id'] = $stateData['contact_person_id'] = $pid;
             // Create Login If Checkbox Checked
-            if($this->input->post('checkbox_value_holder') == true && !$agent_id){
+            if($this->input->post('checkbox_value_holder') == 'true' && !$agent_id){
                     $password = mt_rand(100000, 999999);
                     $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
                     $loginData['password'] = md5($password);
                     $loginData['clear_password'] = $password;
                     $loginData['active'] = 1;
                     $agent_id = $this->miscelleneous->create_entity_login($loginData);
+             }
+             else if($this->input->post('checkbox_value_holder') == 'false' && $agent_id){
+                 $this->partner_model->activate_deactivate_login("0",NULL,$agent_id);
+             }
+             else if($this->input->post('checkbox_value_holder') == 'true'  && $agent_id){
+                  $this->partner_model->activate_deactivate_login("1",NULL,$agent_id);
              }
                 // If state is not selected then add all states
                 if($agent_id){
@@ -6442,6 +6450,37 @@ class Partner extends CI_Controller {
         }
         else{
             echo "Something Went Wrong Please Try Again";
+        }
+    }
+    function resend_login_details($agentID){
+        log_message('info', __FUNCTION__ . " Agent ID  " . $agentID);
+        $agentLoginDetails = $this->partner_model->get_login_details($agentID);
+        $login_template = $this->booking_model->get_booking_email_template("resend_partner_login_details");
+        if (!empty($login_template)) {
+            $login_email['username'] = $agentLoginDetails[0]['user_id'];
+            $login_email['password'] = $agentLoginDetails[0]['clear_password'];
+            $cc = $login_template[3];
+            $bcc = $login_template[5];
+            $login_subject = $login_template[4];
+            $login_emailBody = vsprintf($login_template[0], $login_email);
+            $this->notify->sendEmail($login_template[2], $agentLoginDetails[0]['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'resend_partner_login_details');
+            log_message('info', __FUNCTION__ . " Email Send successfully" . $login_emailBody);
+            echo "Details Sent Successfully";
+         } 
+         else {
+               echo "Something Went Wrong Please Try Again";
+               log_message('info', __FUNCTION__ . " Template Not Available ");
+          }
+    }
+    function activate_deactivate_contacts($contactID,$action){
+        if($contactID){
+            $affected_rows =  $this->partner_model->activate_deactivate_contact_person($contactID,$action);
+            if($affected_rows){
+                echo "Successfully Done";
+            }
+            else{
+                echo "Something Went Wrong Please Try Again";
+            }
         }
     }
 }

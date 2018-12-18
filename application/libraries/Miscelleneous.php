@@ -3014,13 +3014,14 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     $login_email['username'] = $data['user_id'];
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
+                    $bcc = $login_template[5];
                     if($accountManagerData){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
                     //Logging Error
