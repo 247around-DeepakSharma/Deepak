@@ -2597,8 +2597,8 @@ exit();
     function manage_partner_contacts(){
         $partner_id = $this->session->userdata('partner_id');
         $data['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
-                . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
-                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$partner_id,"contact_person.is_active"=>1),
+                . "GROUP_CONCAT(agent_filters.state) as  state,entity_login_table.agent_id as login_agent_id,entity_login_table.active as login_active",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$partner_id),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
          $data['department'] = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  

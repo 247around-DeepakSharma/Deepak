@@ -208,12 +208,12 @@ class Do_background_upload_excel extends CI_Controller {
         // For shipped data
         if(!empty($shipped_data)){
             $this->process_upload_sd_file($shipped_data,"shipped", $file_name,SNAPDEAL_ID);
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_SHIPPED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_SHIPPED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         //For delivered data
         if(!empty($delivered_data)){
             $this->process_upload_sd_file($delivered_data,"delivered", $file_name,SNAPDEAL_ID);
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         // for both type of file
         if(!empty($data)){
@@ -224,7 +224,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $type = _247AROUND_SNAPDEAL_SHIPPED;
             }
             log_message("info","both");
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         
     }
@@ -266,7 +266,7 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     $type = _247AROUND_SNAPDEAL_SHIPPED;
                 }
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES["file"]["tmp_name"], $type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES["file"]["tmp_name"], $type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", SNAPDEAL_ID);
             }
 
             exit();
@@ -1278,7 +1278,7 @@ class Do_background_upload_excel extends CI_Controller {
         // echo $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason);
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "",DELIVERED_FILE_UPLOADED);
         if($file_upload && $partner_id == SNAPDEAL_ID){
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$filetype,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$filetype,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
     }
 
@@ -1460,7 +1460,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
                     log_message("info", "File Uploaded successfully");
-                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", $partner_id);
                     //now send back file with updated booking id to partner
                     if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data) && $this->is_send_file_back !== "null"){
                         $header_data['file_upload_id'] = $file_upload_id;
@@ -1475,7 +1475,7 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     
                     //save file and upload on s3
-                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
                     
                     
                     //get email details 

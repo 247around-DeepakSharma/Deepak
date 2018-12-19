@@ -404,7 +404,7 @@ class Miscelleneous {
                         $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
                         //End Push Notification
                         }
-                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG);
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG, "", $query1[0]['booking_id']);
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -1295,11 +1295,13 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "") {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="") {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
         $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $data['entity_id'] = $entity_id;
+        $data['entity_type'] = $entity_type;
         $data['result'] = $result;
         $data['email_message_id'] = $email_message_id;
 
@@ -2411,7 +2413,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking');
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking', "", $booking_id);
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {
@@ -3026,13 +3028,14 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['username'] = $data['user_id'];
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
+                    $bcc = $login_template[5];
                     if($accountManagerData){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
                     //Logging Error
@@ -3117,12 +3120,12 @@ function generate_image($base64, $image_name,$directory){
         $is_partner_wh = $partner_details[0]['is_wh'];
         $is_micro_wh = $partner_details[0]['is_micro_wh'];
         if (!empty($inventory_part_number)) {
-
+            //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+                //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
-                if (empty($response) && $is_partner_wh == 1) {
-                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
-                } else if (!empty($response)) {
+                if (!empty($response)) {
+                    //Defective Parts Return To
                     if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                         $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3132,10 +3135,26 @@ function generate_image($base64, $image_name,$directory){
                         $response['defective_return_to_entity_id'] = $partner_id;
                     }
                 }
+                
+                if (empty($response) && $is_partner_wh == 1) {
+                    
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    if(!empty($response)){
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
+                    }
+                    
+                } 
+                
             } else if ($is_partner_wh == 1) {
 
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                if(!empty($response)){
+                    $response['defective_return_to_entity_type'] = $response['entity_type'];
+                    $response['defective_return_to_entity_id'] = $response['entity_id'];
+                }
             }
+
         } else {
             return false;
         }

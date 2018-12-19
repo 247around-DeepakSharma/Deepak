@@ -77,7 +77,7 @@
                                             </div>
                                         </div> 
                                         <div class="form-group "> 
-                                            <input type="hidden" value="" id="checkbox_value_holder_1" name="checkbox_value_holder[]">
+                                            <input type="hidden" value="" id="checkbox_value_holder_1" name="final_checkbox_value_holder[]">
                                               <div class="col-md-6"> 
                                                   <label><b>Create Login</b></label><input style="margin-left: 167px;" type="checkbox" value="" id="login_checkbox_1" name="login_checkbox[]" checked="">
                                             </div>   
@@ -163,11 +163,13 @@
                                 <th>Email</th>
                                 <th>Contact</th>
                                 <th>Is Login</th>
-                                <th>Permanent Address</th>
+<!--                                <th>Permanent Address</th>-->
 <!--                                <th>Alt Email</th>
                                 <th>Alt Contact</th>
                                 <th>Correspondence Address</th>-->
-                                <th class="col-md-1">Action</th>
+                                <th>Active / Inactive <br>Contact</th>
+                            <th>Edit</th>
+                            <th>Resend Login <br>Details</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -184,13 +186,24 @@
                                 <td><?php echo $value['official_email'] ?></td>
                                 <td><?php echo $value['official_contact_number'] ?></td>
                                 <td><?php if($value['login_agent_id']){echo "Yes"; } else { echo "No"; } ?></td>
-                                <td><?php echo $value['permanent_address'] ?></td>
+<!--                                <td><?php echo $value['permanent_address'] ?></td>-->
 <!--                                 <td><?php echo $value['alternate_email'] ?></td>
                                 <td><?php echo $value['alternate_contact_number'] ?></td>
                                 <td><?php echo $value['correspondence_address'] ?></td>-->
-                                <td><button type="button" class="btn btn-info btn-sm" onclick="create_edit_form(this.value)" data-toggle="modal"  id="edit_button" value='<?=json_encode($value)?>'><i class="fa fa-edit"></i></button>
-                                    <a  class="btn btn-danger btn-sm" href="<?php echo base_url();?>employee/partner/delete_partner_contacts/<?php echo $value['id'];?>/<?php echo  $value['entity_id']?>" title="Delete" onclick="return confirm('Are you sure you want to delete this contact?')"><i class="fa fa-trash"></i></a>
-                                </td>
+                                <td><?php if($value['is_active']) { ?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_contacts('<?php echo $value['id'] ?>','0')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
+                           <?php } else {?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_contacts('<?php echo $value['id'] ?>','1')"  value='' style="background: #468245;border: #468245; width: 79px;">Activate</button>
+                           <?php } ?>
+                            </td>
+                                <td><button type="button" class="btn btn-info btn-sm" onclick="create_edit_form(this.value)" data-toggle="modal"  id="edit_button" value='<?=json_encode($value)?>'><i class="fa fa-edit"></i></button></td>
+                                <td>
+                                    <?php
+                                     if($value['login_agent_id'] && $value['login_active']){
+                                            ?>
+                                    <button type="button" class="btn btn-info btn-sm" onclick="resend_password('<?php echo $value['login_agent_id'] ?>')"  id="resend_password" value=''><i class="fa fa-envelope"></i></button>
+                                     <?php } ?>
+                            </td>
                             </tr>
                             <tr>
                                 <?php
@@ -376,6 +389,8 @@
             department = $("#contact_person_department").val();
             role = $("#contact_person_role").val();
             states = getMultipleSelectedValues("contact_person_states");
+            new_string = $('#login_checkbox').is(':checked');
+            $('#checkbox_value_holder').val(new_string);
             if(name && email && contact && department && role){ 
                 $('#states_value_holder').val(states);
                  return true;
@@ -460,13 +475,16 @@ function getEditRole(department){
             $("#contact_person_states").val('').change();
              $("#contact_person_states").prop("disabled", true);
         }
-        if(value.login_agent_id){
-          $("#checkbox_value_holder").val(true);
-          $( "#login_checkbox" ).prop( "checked", true );
+       if(value.login_agent_id){
+            $("#agentid").val(value.login_agent_id);
+        }
+        if(value.login_agent_id && value.login_active == '1'){
+            $("#login_checkbox").prop('checked',true);
+            $("#login_checkbox_holder").val(true);
         }
         else{
-          $("#checkbox_value_holder").val(false);
-          $( "#login_checkbox" ).prop( "checked", false );
+          $("#login_checkbox").prop('checked',false);
+            $("#login_checkbox_holder").val(false);
         }
         $("#contact_id").val(value.id);
         $("#contact_person_name").val(value.name);
@@ -485,6 +503,30 @@ function getEditRole(department){
             $("#agentid").val(value.agentid);
         }
         $("#myModal").modal("show");
+    }
+    
+     function activate_deactive_contacts(contact_id,action){
+        if(contact_id){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/activate_deactivate_contacts/'+contact_id+'/'+action,
+                success: function (data) {
+                    alert(data);
+                    location.reload();
+                }
+            });
+        }
+    }
+    function resend_password(agent_id){
+        if (confirm('Are you sure you want to Resend the login Details?')) {
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/resend_login_details/'+agent_id,
+                success: function (data) {
+                    alert(data);
+                }
+            });
+        } 
     }
     </script>
     <style>

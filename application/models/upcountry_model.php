@@ -223,6 +223,7 @@ class Upcountry_model extends CI_Model {
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
             $up_data['upcountry_distance'] = 0;
             $up_data['upcountry_remarks'] = DISTANCE_WITHIN_MUNICIPAL_LIMIT;
+            $up_data['partner_provide_upcountry'] = $partner_data[0]['is_upcountry'];
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
@@ -236,7 +237,8 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry']);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
             if(isset($partner_data[0]['account_manager_id'])){
@@ -255,7 +257,8 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry']);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            if(isset($partner_data[0]['account_manager_id'])){
                 $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
@@ -651,7 +654,9 @@ class Upcountry_model extends CI_Model {
         $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
                 . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
                 . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
+        $this->db->join('partners', 'partners.id = ud.partner_id');
         $this->db->where('booking_id', $booking_id);
+        $this->db->where('partners.is_upcountry', '1');
         $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
        

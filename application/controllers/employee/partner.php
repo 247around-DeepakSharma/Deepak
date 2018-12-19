@@ -38,8 +38,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
-    
-
+        
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -567,7 +566,7 @@ class Partner extends CI_Controller {
                         $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
                         $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
                         $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                        $loginData['checkbox_value_holder'][] = 'true';
+                        $loginData['final_checkbox_value_holder'][] = 'true';
                         $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
                         $sendUrl = base_url().'employee/partner/process_partner_contacts';
                         $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
@@ -791,7 +790,7 @@ class Partner extends CI_Controller {
 
             //Storing State change values in Booking_State_Change Table
             $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
+                    $this->session->userdata('employee_id'),ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $id);
             //send email
             $email_template = $this->booking_model->get_booking_email_template("partner_activate_email");
             $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
@@ -833,7 +832,7 @@ class Partner extends CI_Controller {
 
             //Storing State change values in Booking_State_Change Table
             $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = ' . $id, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), _247AROUND,ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE);
+                    $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $id);
 
             //send email
 
@@ -894,8 +893,9 @@ class Partner extends CI_Controller {
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
         $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
-                . "GROUP_CONCAT(agent_filters.state) as  state,agent_filters.agent_id as agentid,entity_login_table.agent_id as login_agent_id",
-                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id,"contact_person.is_active"=>1),
+                . "GROUP_CONCAT(agent_filters.state) as  state,entity_login_table.agent_id as login_agent_id,contact_person.is_active,"
+                . "entity_login_table.active as login_active",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$id),
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
@@ -1338,9 +1338,9 @@ class Partner extends CI_Controller {
                     $subject['booking_id'] = $booking_id;
                     $subjectBody = vsprintf($template[4], $subject);
                     //Sending Mail
-                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel');
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
                     //Logging
-                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
+                    log_message('info', " Escalation Mail Send successfully " . $emailBody);
                 } else {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
@@ -1947,7 +1947,7 @@ class Partner extends CI_Controller {
                     $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
-                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent');
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent', "", $booking_id);
                 }
 
                 return true;
@@ -3086,7 +3086,7 @@ class Partner extends CI_Controller {
             $to = "abhaya@247around.com";
             $cc = "vijaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED, "", $booking_id);
             $msg = "Your request has been submitted. We will fix it shortly.";
         }
 
@@ -3219,7 +3219,7 @@ class Partner extends CI_Controller {
             }
 
             //Notify
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED, "", $value['booking_id']);
         }
     }
 
@@ -4868,6 +4868,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
@@ -4885,7 +4886,7 @@ class Partner extends CI_Controller {
                 $id = $this->reusable_model->insert_into_table("contact_person",$data);
                 $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
                 // Create Login If Checkbox Checked
-                if($this->input->post('checkbox_value_holder')[$index] == 'true'){
+                if($checkbox_array[$index] == 'true'){
                         $password = mt_rand(100000, 999999);
                         $loginData['user_id'] = str_replace(" ","_",$data['name']."_".mt_rand(1,5));
                         $loginData['password'] = md5($password);
@@ -5055,13 +5056,19 @@ class Partner extends CI_Controller {
             $update_data1 = $this->reusable_model->update_table("contact_person",$data,$where);
             $loginData['contact_person_id'] = $stateData['contact_person_id'] = $pid;
             // Create Login If Checkbox Checked
-            if($this->input->post('checkbox_value_holder') == true && !$agent_id){
+            if($this->input->post('checkbox_value_holder') == 'true' && !$agent_id){
                     $password = mt_rand(100000, 999999);
                     $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
                     $loginData['password'] = md5($password);
                     $loginData['clear_password'] = $password;
                     $loginData['active'] = 1;
                     $agent_id = $this->miscelleneous->create_entity_login($loginData);
+             }
+             else if($this->input->post('checkbox_value_holder') == 'false' && $agent_id){
+                 $this->partner_model->activate_deactivate_login("0",NULL,$agent_id);
+             }
+             else if($this->input->post('checkbox_value_holder') == 'true'  && $agent_id){
+                  $this->partner_model->activate_deactivate_login("1",NULL,$agent_id);
              }
                 // If state is not selected then add all states
                 if($agent_id){
@@ -5110,30 +5117,6 @@ class Partner extends CI_Controller {
         }
     }
     
-    function delete_partner_contacts($contact_id,$partnerID){
-        $where["entity_id"] = $partnerID;
-        $where["contact_person_id"] = $contact_id;
-        if(!empty($where)){
-            //Update Entity Login Table
-            $this->reusable_model->update_table("entity_login_table",array("active"=>0),array("entity_id"=>$partnerID,"contact_person_id"=>$contact_id));
-            //Update Agent Filter Table 
-            $this->reusable_model->update_table('agent_filters',array("is_active"=>0),$where);
-            //Update Contact Person Table
-            $this->reusable_model->update_table('contact_person',array('is_active'=>0),array('id'=>$contact_id,'entity_id'=>$partnerID));
-            $msg = "Contact deleted successfully";
-            $this->session->set_userdata('success', $msg);
-        }
-        else{
-            $msg = "Something Went Wrong , Please Try Again";
-            $this->session->set_userdata('error', $msg);
-        }
-        if($this->session->userdata('partner_id')){
-            redirect(base_url() . 'partner/contacts');
-        }
-       else{
-             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
-       }
-    }
     
     /**
      * @desc: This Function is used to search the docket number
@@ -6051,7 +6034,7 @@ class Partner extends CI_Controller {
                         $to = $am_data[0]['official_email'];
                         $subject = vsprintf($template[4], $booking_id);
                         $emailBody = vsprintf($template[0], $updated_price);
-                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated');
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated', "", $booking_id);
                     }
                 }
                 return true;
@@ -6451,4 +6434,53 @@ class Partner extends CI_Controller {
             echo "Something Went Wrong Please Try Again";
         }
     }
+
+    function resend_login_details($agentID){
+        log_message('info', __FUNCTION__ . " Agent ID  " . $agentID);
+        $agentLoginDetails = $this->partner_model->get_login_details($agentID);
+        $login_template = $this->booking_model->get_booking_email_template("resend_partner_login_details");
+        if (!empty($login_template)) {
+            $login_email['username'] = $agentLoginDetails[0]['user_id'];
+            $login_email['password'] = $agentLoginDetails[0]['clear_password'];
+            $cc = $login_template[3];
+            $bcc = $login_template[5];
+            $login_subject = $login_template[4];
+            $login_emailBody = vsprintf($login_template[0], $login_email);
+            $this->notify->sendEmail($login_template[2], $agentLoginDetails[0]['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'resend_partner_login_details');
+            log_message('info', __FUNCTION__ . " Email Send successfully" . $login_emailBody);
+            echo "Details Sent Successfully";
+         } 
+         else {
+               echo "Something Went Wrong Please Try Again";
+               log_message('info', __FUNCTION__ . " Template Not Available ");
+          }
+    }
+    function activate_deactivate_contacts($contactID,$action){
+        if($contactID){
+            $affected_rows =  $this->partner_model->activate_deactivate_contact_person($contactID,$action);
+            if($affected_rows){
+                 $v = "Deactivated";
+                if($action){
+                    $v = "Activated";
+                }
+                if($this->session->userdata('userType') == 'employee'){
+                    $agent = $this->session->userdata('id');
+                    $agentName = $this->session->userdata('emp_name');
+                    $partner_id = _247AROUND;
+                }
+                else{
+                    $agent = $this->session->userdata('agent_id');
+                    $agentName = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                }
+                $this->notify->insert_state_change($contactID, "Contact Person - ".$v,"Contact Person", $contactID." has been ".$v, $agent, $agentName, 
+                        'not_define','not_define',$partner_id);
+                echo "Successfully Done";
+            }
+            else{
+                echo "Something Went Wrong Please Try Again";
+            }
+        }
+    }
+
 }
