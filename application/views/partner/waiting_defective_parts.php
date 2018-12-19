@@ -32,7 +32,7 @@
                     <div class="clearfix"></div>
                     
                 </div>
-        <input type="text" id="booking_id_search_waiting" onchange="booking_search_waiting()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
+        <input type="text" id="booking_id_search_waiting" onchange="booking_search_waiting()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Search">
         <div class="x_content">
             <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                 <table class="table table-bordered table-hover table-striped" id="waiting_defactive_parts">
