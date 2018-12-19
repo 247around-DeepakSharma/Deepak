@@ -1715,7 +1715,7 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
      */
-    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id, $autoAck = false) {
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id, $autoAck = false, $flag=TRUE) {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . ' service_center_id: ' . $service_center_id . ' id: ' . $id);
         if (empty($autoAck)) {
             $this->checkUserSession();
@@ -1811,7 +1811,9 @@ class Service_centers extends CI_Controller {
         }
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $service_center_id);
         if ($this->session->userdata('service_center_id')) {
-            redirect(base_url() . "service_center/pending_booking");
+            if($flag==TRUE){
+             redirect(base_url() . "service_center/pending_booking");   
+            }
         }
     }
 
@@ -3694,30 +3696,108 @@ class Service_centers extends CI_Controller {
      * @param String $booking_id
      */
     function approve_oow($booking_id) {
-        log_message("info",__METHOD__. "Enterring");
+        log_message("info",__METHOD__. "Enterring");        
         if (!empty($booking_id)) {
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
-            $req['select'] = "spare_parts_details.id";
+
+            $req['select'] = "spare_parts_details.id, "
+                    . "spare_parts_details.is_micro_wh,"
+                    . "spare_parts_details.entity_type,"
+                    . "spare_parts_details.partner_id,"
+                    . "spare_parts_details.requested_inventory_id,"
+                    . "spare_parts_details.model_number,"
+                    . "spare_parts_details.parts_requested,"
+                    . "spare_parts_details.parts_requested_type,"
+                    . "spare_parts_details.date_of_request,"
+                    . "spare_parts_details.service_center_id,"
+                    . "spare_parts_details.booking_id";            
             $sp_data =$this->inventory_model->get_spare_parts_query($req);
+            $partner_id = $this->input->post("partner_id");                   
             if(!empty($sp_data)){
-                log_message("info",__METHOD__. "Spare parts Not found". $booking_id);
-                $sc['current_status'] = "InProcess";
-                $sc['update_date'] = date('Y-m-d H:i:s');
-                $sc['internal_status'] = SPARE_PARTS_REQUIRED;
-                // UPDATE SC Action Table
+                $flag = TRUE;
+                foreach ($sp_data as $key => $value){
+                    if ($value->entity_type == _247AROUND_SF_STRING) {
+                        $select = "(stock - pending_request_count) as actual_stock";                      
+                        $where = array('entity_id' => $value->partner_id, 'entity_type' => $value->entity_type, 'inventory_id' => $value->requested_inventory_id);
+                                              
+                        $inventory_stock = $this->inventory_model->get_inventory_stock_count_details($select, $where);                      
+                        if (!empty($inventory_stock) && $inventory_stock[0]['actual_stock'] > 0) {
+                            if ($value->is_micro_wh == 1) {
+                                $sc['current_status'] = _247AROUND_PENDING;
+                                $sc['update_date'] = date('Y-m-d H:i:s');
+                                $sc['internal_status'] = _247AROUND_PENDING;                                
+                                 
+                                $data['status'] = SPARE_DELIVERED_TO_SF; 
+                                $data['date_of_request'] = date('Y-m-d');
+                                $data['model_number_shipped'] = $value->model_number;
+                                $data['parts_shipped'] = $value->parts_requested;
+                                $data['shipped_parts_type'] = $value->parts_requested_type;
+                                $data['shipped_date'] = $value->date_of_request;
+                                $data['shipped_inventory_id'] = $value->requested_inventory_id; 
+                                
+                                $flag = false;
+                                                                                               
+                                $this->insert_details_in_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, "not_define", "not_define");
+                                //$this->insert_details_in_state_change($booking_id, SPARE_DELIVERED_TO_SF, ESTIMATE_APPROVED_BY_CUSTOMER, "not_define", "not_define");
+                                
+                                $where = array('id' => $value->id);
+                                $this->service_centers_model->update_spare_parts($where, $data);  
+                                                                
+                                $in['receiver_entity_id'] = $value->service_center_id;
+                                $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                $in['sender_entity_id'] = $value->service_center_id;
+                                $in['sender_entity_type'] = _247AROUND_SF_STRING;
+                                $in['stock'] = -1;
+                                $in['booking_id'] = $value->booking_id;
+                                $in['agent_id'] = $this->session->userdata('agent_id');
+                                $in['agent_type'] = _247AROUND_SF_STRING;
+                                $in['is_wh'] = TRUE;
+                                $in['inventory_id'] = $data['shipped_inventory_id'];
+                               
+                                $this->miscelleneous->process_inventory_stocks($in);                                
+                               
+                                $this->acknowledge_delivered_spare_parts($value->booking_id, $value->service_center_id, $value->id, $partner_id, TRUE,FALSE);
+                                
+                            } else if ($value->is_micro_wh == 2) {
+                                $sc['current_status'] = "InProcess";
+                                $sc['update_date'] = date('Y-m-d H:i:s');
+                                $sc['internal_status'] = SPARE_PARTS_REQUIRED;
+                                $status = SPARE_PARTS_REQUESTED;                                
+                                $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
+                            } 
+                        } else {
+                            $sc['current_status'] = "InProcess";
+                            $sc['update_date'] = date('Y-m-d H:i:s');
+                            $sc['internal_status'] = SPARE_OOW_EST_REQUESTED;
+                            $status = SPARE_OOW_EST_REQUESTED;
+
+                            $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("entity_type"=>_247AROUND_PARTNER_STRING,"partner_id"=>$value->partner_id,"status" => $status, 'date_of_request' => date('Y-m-d')));
+                        }
+                    } else {                        
+                        log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
+                        $sc['current_status'] = "InProcess";
+                        $sc['update_date'] = date('Y-m-d H:i:s');
+                        $sc['internal_status'] = SPARE_PARTS_REQUIRED;
+                        $status = SPARE_PARTS_REQUESTED;
+
+                        $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
+                        
+                    }                    
+                                                      
+                     // UPDATE SC Action Table                    
+                    if($flag == TRUE){
+                       $this->insert_details_in_state_change($booking_id, $status, ESTIMATE_APPROVED_BY_CUSTOMER, "not_define", "not_define"); 
+                    }
+                      
+                }
+             
                 $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
-
-                // UPDATE Spare Parts
-                $this->service_centers_model->update_spare_parts(array('id' => $sp_data[0]->id), array("status" => SPARE_PARTS_REQUESTED, 'date_of_request' => date('Y-m-d')));
-
-                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_REQUESTED, ESTIMATE_APPROVED_BY_CUSTOMER,"not_define","not_define");
-                $partner_id = $this->input->post("partner_id");
-                $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER,  $partner_id);
-                
+                $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/pending_booking");
+                
             } else {
                 log_message("info",__METHOD__. "Spare Not not found ". $booking_id);
                 $userSession = array('error' => 'Booking Not Updated');
