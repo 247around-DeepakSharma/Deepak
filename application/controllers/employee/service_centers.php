@@ -461,7 +461,7 @@ class Service_centers extends CI_Controller {
             $from = $email_template[2];
         }
         
-        $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, "",'partner_spare_cancelled');
+        $this->notify->sendEmail($from, $to, $cc, "", $subject, $message, "",'partner_spare_cancelled', "", $booking_id);
         } else {
             log_message('info', __METHOD__. " No Data found for Cancel Spare parts");
         }
@@ -764,7 +764,7 @@ class Service_centers extends CI_Controller {
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
             $emailBody = vsprintf($email_template[0], $booking_id);
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WRONG_CALL_AREA_TEMPLATE);
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WRONG_CALL_AREA_TEMPLATE, "", $booking_id);
         }
     }
 
@@ -1267,7 +1267,7 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking " . $booking_id;
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING);
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING, "", $booking_id);
                         } else {
                             $this->default_update(true, true);
                         }
@@ -2200,7 +2200,7 @@ class Service_centers extends CI_Controller {
                     $cc = $rm_email.','.$email_template[3];
                     $bcc = $email_template[5];
 
-                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS);
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS, "", $booking_id);
                 }
 
                 $userSession = array('success' => 'Parts Updated.');

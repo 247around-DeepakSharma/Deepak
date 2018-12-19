@@ -979,7 +979,7 @@ class vendor extends CI_Controller {
         $subject = "Pincode Not Found In Vendor Pincode Mapping File";
         $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
         
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",SF_NOT_FOUND);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",SF_NOT_FOUND, "", $booking_id);
     }
     
    
@@ -1083,7 +1083,7 @@ class vendor extends CI_Controller {
                     $enID = $this->engineer_model->insert_engineer_action($engineer_action);
                     if(!$enID){
                          $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED);
+                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED, "", $booking_id);
                     }
                 }
                 
@@ -1448,7 +1448,7 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : Takes to view
      */
-    function process_vendor_escalation_form() {
+    function process_vendor_escalation_form() { 
         $this->checkUserSession();
         log_message('info',__FUNCTION__);
         $booking_id= $this->input->post('booking_id');
@@ -3721,7 +3721,7 @@ class vendor extends CI_Controller {
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking');
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);

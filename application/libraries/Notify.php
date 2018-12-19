@@ -29,7 +29,7 @@ class Notify {
      *  @param : From, To, CC, BCC, Subject, Message, Attachment
      *  @return : if mail send return true else false
      */
-    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "") {
+    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "", $booking_id = "") {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
@@ -55,7 +55,7 @@ class Notify {
                     $this->My_CI->email->message($message);
 
                     if ($this->My_CI->email->send()) {
-                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag);
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
                         return true;
                     } else {
                         return false;
@@ -827,7 +827,7 @@ class Notify {
      * return: Null
      */
 
-    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag) {
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag, $booking_id) {
 	$data = array();
 
 	$data['email_from'] = $email_from;
@@ -837,12 +837,13 @@ class Notify {
 	$data['subject'] = $subject;
         $data['message'] = $message;
         $data['attachment_link'] = $attachment_link;
-                    $data['email_tag'] = $template_tag;
+        $data['email_tag'] = $template_tag;
+        $data['booking_id'] = $booking_id;
 
 	//Add Email to Database
 	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
 	if (!empty($insert_id)) {
-	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . $subject);
+	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . print_r($data, TRUE));
 	} else {
 	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
 	}

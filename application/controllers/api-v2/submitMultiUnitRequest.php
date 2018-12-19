@@ -114,7 +114,7 @@ class submitMultiUnitRequest extends CI_Controller {
                             if (empty($this->ApiData['state'])) {
                                 $to = NITS_ANUJ_EMAIL_ID;
                                 $message = "Pincode " . $this->ApiData['booking_pincode'] . " not found for Booking ID: " . $this->ApiData['booking_id'];
-                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "",PINCODE_NOT_FOUND);
+                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "",PINCODE_NOT_FOUND, "", $this->ApiData['booking_id']);
                             }
                             
                             //Send response

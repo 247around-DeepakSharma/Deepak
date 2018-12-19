@@ -400,7 +400,7 @@ class Miscelleneous {
                         $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
                         //End Push Notification
                         }
-                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG);
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG, "", $query1[0]['booking_id']);
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -2394,7 +2394,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking');
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking', "", $booking_id);
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {

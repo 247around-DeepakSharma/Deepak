@@ -9521,3 +9521,7 @@ ALTER TABLE `courier_details` ADD `status` VARCHAR(100) NOT NULL AFTER `ewaybill
 --Abhay 18-12-2018
 ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
 ALTER TABLE `trigger_partners` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`
+
+--Kalyani 18-dec-2018
+ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFTER `email_tag`;
+
