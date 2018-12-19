@@ -1389,7 +1389,7 @@ class service_centre_charges extends CI_Controller {
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
                             $message = vsprintf($email_template[0], array($agent_id, $this->table->generate(), $a));
 
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",MISC_CHARGES_DETAILS_ON_EMAIL);
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",MISC_CHARGES_DETAILS_ON_EMAIL, "", $booking_id);
                         }
                         
                         $this->session->set_userdata(array('success' => "Charges Added Successfully"));

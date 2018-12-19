@@ -9511,3 +9511,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Gorakh 11-12-2018 
 ALTER TABLE `courier_details` ADD `status` VARCHAR(100) NOT NULL AFTER `ewaybill_generated_date`;
+
+--Kalyani 18-dec-2018
+ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFTER `email_tag`;

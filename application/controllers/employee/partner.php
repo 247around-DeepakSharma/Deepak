@@ -38,8 +38,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
-    
-
+        
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -1338,9 +1337,9 @@ class Partner extends CI_Controller {
                     $subject['booking_id'] = $booking_id;
                     $subjectBody = vsprintf($template[4], $subject);
                     //Sending Mail
-                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel');
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
                     //Logging
-                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
+                    log_message('info', " Escalation Mail Send successfully " . $emailBody);
                 } else {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
@@ -1947,7 +1946,7 @@ class Partner extends CI_Controller {
                     $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $invoice_name;
                     $subject = vsprintf($template[4], $booking_id);
                     $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
-                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent');
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent', "", $booking_id);
                 }
 
                 return true;
@@ -3086,7 +3085,7 @@ class Partner extends CI_Controller {
             $to = "abhaya@247around.com";
             $cc = "vijaya@247around.com";
             $message = "Partner try to approve Booking Id " . $booking_id . " but somehow it failed. <br/>Please check this booking.";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, '', 'UpCountry Approval Failed', $message, '',PARTNER_APPROVAL_FAILED, "", $booking_id);
             $msg = "Your request has been submitted. We will fix it shortly.";
         }
 
@@ -3219,7 +3218,7 @@ class Partner extends CI_Controller {
             }
 
             //Notify
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, ANUJ_EMAIL_ID, '', '', 'Upcountry Bookings Cancelled', print_r($data, TRUE), '',UPCOUNTRY_BOOKING_CANCELLED, "", $value['booking_id']);
         }
     }
 
@@ -6051,7 +6050,7 @@ class Partner extends CI_Controller {
                         $to = $am_data[0]['official_email'];
                         $subject = vsprintf($template[4], $booking_id);
                         $emailBody = vsprintf($template[0], $updated_price);
-                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated');
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_updated', "", $booking_id);
                     }
                 }
                 return true;
@@ -6451,4 +6450,5 @@ class Partner extends CI_Controller {
             echo "Something Went Wrong Please Try Again";
         }
     }
+    
 }
