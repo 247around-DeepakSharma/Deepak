@@ -820,7 +820,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                                 
                         </body>
                     </html>";
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE);
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE, "", $booking_id);
     }
     
     function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {

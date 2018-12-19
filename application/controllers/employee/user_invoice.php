@@ -112,7 +112,7 @@ class User_invoice extends CI_Controller {
 
 
                         $pdf_attachement_url = S3_WEBSITE_URL . 'invoices-excel/' . $output_pdf_file_name;
-                        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url, 'customer_paid_invoice_to_vendor');
+                        $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $pdf_attachement_url, 'customer_paid_invoice_to_vendor', "", $booking_id);
                     }
 
                     $pathinfo = pathinfo($copy_pdf_file_name);
@@ -144,7 +144,7 @@ class User_invoice extends CI_Controller {
                             $cc = $email_template[3];
                             $bcc = $email_template[5];
 
-                            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url, 'customer_paid_invoice');
+                            $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url, 'customer_paid_invoice', "", $booking_id);
                         }
                     }
                     $sms['smsData']['amount'] = $data[0]->amount_paid;
@@ -456,7 +456,7 @@ class User_invoice extends CI_Controller {
                     $cc = $email_template[3];
                     $bcc = $email_template[5] . ", " . $this->session->userdata('official_email');
 
-                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url,'customer_paid_invoice');
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $customer_attachement_url,'customer_paid_invoice', "", $booking_id);
                 }
             }
             echo "success";
