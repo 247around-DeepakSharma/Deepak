@@ -485,7 +485,27 @@
                         </div>
                    
                         
-                    </div>        
+                    </div>    
+                <div class="panel panel-info">
+                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Minimum Guarantee</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                <div class="form-group ">
+                                    <label for="minimum_guarantee" class="col-md-4 vertical-align">Minimum Guarantee</label>
+                                    <div class="col-md-8">
+                                        <input  type="text" id="minimum_guarantee" class="form-control"  name="minimum_guarantee_charge" value = "<?php if (isset($query[0]['minimum_guarantee_charge'])) {
+                                            echo $query[0]['minimum_guarantee_charge'];
+                                        } else { echo "0";} ?>">
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                   
+                        
+                    </div>    
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php
