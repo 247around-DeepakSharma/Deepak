@@ -1926,8 +1926,8 @@ class Inventory extends CI_Controller {
         $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
-            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks_list($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks_list($post),
             "data" => $data['data'],
         );
         
@@ -1963,7 +1963,7 @@ class Inventory extends CI_Controller {
         $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
         $data = array();
         $no = $post['start'];
-        unset($post['having']);
+        //unset($post['having']);
         foreach ($list as $stock_list) {
             $no++;
             $row = $this->get_inventory_stocks_table($stock_list, $no);
