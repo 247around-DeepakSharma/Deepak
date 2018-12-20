@@ -9518,4 +9518,14 @@ ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFT
 --Abhay 18-12-2018
 ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
 ALTER TABLE `trigger_partners` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`
+<<<<<<< Updated upstream
 
+=======
+--Chhavi 17-12-2018
+INSERT INTO `email_template`(`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL,"resend_partner_login_details","Partner ERP URL and Login - 247around",'Dear Partner,<br><br>
+As Per Request, please find below your login details.<br><br>
+URL: <a href="https://www.aroundhomzapp.com/partner/login">https://www.aroundhomzapp.com/partner/login</a><br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team',"noreply@247around.com","","nits@247around.com,priyar@247around.com","chhavid@247around.com","1","2018-12-17 16:41:14");
+>>>>>>> Stashed changes
