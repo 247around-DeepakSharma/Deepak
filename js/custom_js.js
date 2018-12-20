@@ -702,6 +702,7 @@ function set_upcountry() {
                     total_price = $("#grand_total_price").val();
                     $("#upcountry_charges").val(upcountry_charges);
                     $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
+                    $('#submitform').attr('disabled', false);
                     
                 } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1){
                     var total_price = $("#grand_total_price").val();
