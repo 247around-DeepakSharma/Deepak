@@ -2031,4 +2031,94 @@ class service_centre_charges extends CI_Controller {
             $this->entity_role_data();
         }
     }
+    
+    /**
+     * @desc: This function is used to load form for add bank
+     * @params: void
+     * @return: view
+    */
+    public function add_bank(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_bank_form');
+    }
+    
+    /**
+     * @desc: This function is used to save bank detail
+     * @params: form data
+     * @return: view
+    */
+    public function process_add_bank(){
+        $bank_name = $this->input->post("bank_name");
+        $data = array('bank_name'=>$bank_name);
+        $response = $this->service_centre_charges_model->insert_bank_detail($data);
+        if(empty($response)){
+            $this->session->set_userdata('error', 'Bank name already exist');
+        }
+        else{
+            $this->session->set_userdata('success', 'Bank detail added successfully.');
+        }
+        $this->add_bank();
+    }
+    
+     /**
+     * @desc: This function is used to get bank details in data table format
+     * @params: void
+     * @return: json
+    */
+    public function get_bank_details(){
+        $post_data = array('length' =>$this->input->post('length'),
+                           'start' =>$this->input->post('start'),
+                           'order' => $this->input->post('order'),
+                           'draw' => $this->input->post('draw'),
+                           'search_value' => trim($this->input->post('search')['value'])
+                        );
+        
+        $post_data['column_search'] = array('bank_name');
+        $post_data['column_order'] = array('bank_name'=>'ASC');
+        $list = $this->service_centre_charges_model->get_bank_detail('*', $post_data);
+        
+         log_message('info', __FUNCTION__ . print_r($list, true));
+        
+        $no = $post_data['start'];
+        $data = array();
+        foreach ($list as $bank_list) {
+            $row = array();
+            $no++;
+            $row[] =  $no;
+            $row[] =  $bank_list->bank_name;
+            $row[] =  $bank_list->create_date;
+            if($bank_list->is_active == '1'){
+                $row[] =  '<a class="btn btn-xs btn-success" href="javascript:void(0);" title="Click to Deactivate Bank" onclick="update_bank_detail('.$bank_list->id.', 0)">Active</a>';
+            }
+            else{
+                $row[] =  '<a class="btn btn-xs btn-warning" href="javascript:void(0);" title="Click to Activate Bank" onclick="update_bank_detail('.$bank_list->id.', 1)">Deactive</a>';
+            }
+            $data[] = $row;
+        }
+        
+        $output = array(
+            "draw" => $post_data['draw'],
+            "recordsTotal" =>$this->reusable_model->count_all_result('bank_details'),
+            "recordsFiltered" => $this->service_centre_charges_model->count_filtered_bank_detail('id', $post_data),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+     /**
+     * @desc: This function is used to activate and deactivate bank detail
+     * @params: void
+     * @return: boolean
+    */
+    public function update_bank_details(){
+        $data = array(
+            'is_active' =>$this->input->post('status')
+        ); 
+        $where =array(
+            'id'=> $this->input->post('id')
+        );
+        $response = $this->service_centre_charges_model->update_bank_details($where, $data);
+        echo $response;
+    }
 }
