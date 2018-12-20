@@ -1837,4 +1837,42 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->num_rows();
     }
+    
+       /**
+     *  @desc : This function is used to get total inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_inventory_stocks_list($post) {
+        $this->_get_inventory_stocks($post, "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) "
+                . "FROM inventory_stocks as s "
+                . "WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name");
+        $query = $this->db->get();
+        log_message("info", __METHOD__."count all query ".$this->db->last_query());
+        return $query->num_rows();
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_inventory_stocks_list($post){
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        $this->_get_inventory_stocks($post, "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) "
+                . "FROM inventory_stocks as s "
+                . "WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name");
+        if($sfIDArray){
+            $this->db->where_in('inventory_stocks.entity_id', $sfIDArray);
+        }
+        $query = $this->db->get();
+        return $query->num_rows;
+    }
+    
 }

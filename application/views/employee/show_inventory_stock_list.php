@@ -166,10 +166,8 @@
     
     function reload_data(){
         if($('#is_show_all').is(":checked")){
-            //alert('s');
             $('#is_show_all').val('1');
         }else if($('#is_show_all').is(":not(:checked)")){
-            alert('ss');
             $('#is_show_all').val('0')
         }
         inventory_stock_table.ajax.reload();

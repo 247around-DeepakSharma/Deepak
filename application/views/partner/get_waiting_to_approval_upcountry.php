@@ -43,7 +43,7 @@
             <div class="clearfix"></div>
                     
         </div>
-    <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
+    <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Search">
         <div class="x_content">
             <table class="table table-bordered table-hover table-striped" id="waiting_upcountry_charges_table" style=" z-index: -1;position: static;">
                 <thead>
