@@ -3475,7 +3475,7 @@ class Partner extends CI_Controller {
             $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
                 'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
-                'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
+                'DATEDIFF(defactive_part_received_date_by_courier_api,now()) <= -7' => null,
                 "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
