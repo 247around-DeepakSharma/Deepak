@@ -9519,3 +9519,7 @@ ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFT
 ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
 ALTER TABLE `trigger_partners` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`
 
+--Kalyani 19-Dec-2018
+ALTER TABLE `bank_details` ADD `is_active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `bank_name`;
+
+

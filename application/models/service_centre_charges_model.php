@@ -579,7 +579,7 @@ class service_centre_charges_model extends CI_Model {
      * @return: true if updated
      * 
      */
-        function update_entity_role_detail($id, $data) {
+    function update_entity_role_detail($id, $data) {
         $this->db->where('id', $id);
         $this->db->update('entity_role', $data);
      
@@ -591,4 +591,104 @@ class service_centre_charges_model extends CI_Model {
             return false;
         }
     }
+    
+    
+    /**
+     * @desc: This function is used to insert bank detail
+     * @params: $data
+     * @return: last insert id
+    */
+    function insert_bank_detail($data) {
+
+        $this->db->select('id');
+        $this->db->from('bank_details');
+        $this->db->where($data);
+        $query = $this->db->get();
+        if ($query->num_rows() == 0) {
+            $this->db->insert('bank_details', $data);
+            return $this->db->insert_id();
+            
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get bank detail
+     * @params: $select, $post
+     * @return: array
+    */
+    function get_bank_detail($select='*', $post){
+        $this->_getBankDetail($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    function _getBankDetail($select, $post){
+        $this->db->from('bank_details');
+        $this->db->select($select, FALSE);
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if(isset($post['column_order']) && !empty($post['column_order'])){
+            foreach ($post['column_order'] as $key => $item) { 
+                  $this->db->order_by($key, $item);
+            }
+           
+        }
+        
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get count of resultant row from filtered data table
+     * @params: $select, $post
+     * @return: number
+    */
+    function count_filtered_bank_detail($select, $post) {
+        $this->_getBankDetail($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+    /**
+     * @desc: This function is used to update bank detail
+     * @params: $where, $data
+     * @return: boolean
+    */
+    function update_bank_details($where, $data){
+        $this->db->where($where);
+        $this->db->update('bank_details', $data);
+     
+        if ($this->db->affected_rows() > 0) {
+                return true;
+            
+        } else {
+            return false;
+        }
+    }
+    
 }
