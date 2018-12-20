@@ -42,4 +42,10 @@ define('LEMON_SN_MODEL_POSIBLE_VALUES','24LL,24LS,32LL,32LS,40LL,40LS');
 define('JEEVES_FIRST_TWO_DIGIT', 00);
 define('JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG', 'Serial No length should be 15 character, starting with 00.');
 
+//Wybor 
+define('MONTH_POSIBLE_VALUES_2016', 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,,Z');
+define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
+define('FAILURE_MSG', 'Please Entered Correct Serial Number');
+
+
 
