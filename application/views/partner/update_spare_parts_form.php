@@ -447,7 +447,7 @@
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
-                approx_value :"Pleases Enter Approx Value."
+                approx_value :"Please Enter Approx Value."
                 },
                 submitHandler: function (form) {
                 form.submit();
