@@ -2763,6 +2763,7 @@ class Invoice extends CI_Controller {
                 $amount = $d['amount'];
                 
                 $parts_name = $d['parts_name'];
+                $challan_value = $d['challan_value'];
                 $explode = explode("_", $key);
                 $service_center_id = $explode[0];
                 $defective_parts =$explode[1];
@@ -2795,6 +2796,7 @@ class Invoice extends CI_Controller {
                 $sc_details['defective_parts'] = $defective_parts;
                 $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
                 $sc_details['shipped_parts_name'] = $parts_name;
+                $sc_details['challan_value'] = $challan_value;
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
@@ -2925,6 +2927,7 @@ class Invoice extends CI_Controller {
         $sc_details['defective_parts'] = "No Of Defective Parts";
         $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
         $sc_details['shipped_parts_name'] = "Shipped Parts Name";
+        $sc_details['challan_value'] = "Challan Approx Value";
         $sc_details['is_verified'] = "Bank Account Verified";
         $sc_details['amount_type'] = "Type";
         $sc_details['sf_id'] = "SF/CP Id";
@@ -4593,7 +4596,7 @@ class Invoice extends CI_Controller {
     }
     
     function get_pending_defective_parts_list($vendor_id){
-        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age";
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age, challan_approx_value";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
@@ -4611,6 +4614,7 @@ class Invoice extends CI_Controller {
                 $html .= "<td>".$value['booking_id']."</td>";
                 $html .= "<td>".$value['shipped_parts_type']."</td>";
                 $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "<td> Rs.".$value['challan_approx_value']."</td>";
                 $html .= "</tr>";
                 
             }

@@ -269,10 +269,12 @@ class invoices_model extends CI_Model {
                     $data[$key]['count_spare_part'] = $sp_d[0]['count'];
                     $data[$key]['max_sp_age'] = $sp_d[0]['max_sp_age'];
                     $data[$key]['shipped_parts'] = $sp_d[0]['parts'];
+                    $data[$key]['challan_value'] = $sp_d[0]['challan_value'];
                 } else {
                     $data[$key]['count_spare_part'] = 0;
                     $data[$key]['max_sp_age'] = 0;
                     $data[$key]['shipped_parts'] = "";
+                    $data[$key]['challan_value'] = 0;
                 }
                 
             } else if (isset($value['public_name'])) {
@@ -302,7 +304,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_pending_defective_parts($service_center_id){
-        $select = "count(spare_parts_details.booking_id) as count, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
