@@ -558,7 +558,7 @@
                                         } ?>">
                                         <label for="owner_alternate_email" class="col-md-4">Owner Alternate Email</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="owner_alternate_email" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
+                                            <input type="email" class="form-control"  name="owner_alternate_email" value = "<?php if (isset($query[0]['owner_alternate_email'])) {
                                                 echo $query[0]['owner_alternate_email'];
                                                 } ?>" >
                                             <?php echo form_error('owner_alternate_email'); ?>
@@ -1607,9 +1607,18 @@
                                                 <option value="" disabled="" selected="" required="">Select Department</option>
                                                 <?php
                                                 foreach ($department as $value) {
-                                                    ?> 
+                                                    if($value['department'] == 'Warehouse'){
+                                                        if($is_wh[0]['is_wh'] == '1'){
+                                                            ?> 
+                                                            <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
+                                                            <?php
+                                                        }
+                                                    }
+                                                    else{
+                                                           ?> 
                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
                                                     <?php
+                                                    }
                                                 }
                                                 ?>
                                             </select>
@@ -3285,7 +3294,6 @@
        });
     }
     function getEditRole(department){
-        $("#contact_person_role").html(response);
        //divID = id.split("_")[3];
        var data = {department:department};
        //alert(data);
