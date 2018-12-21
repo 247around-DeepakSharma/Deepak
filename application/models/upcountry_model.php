@@ -93,7 +93,7 @@ class Upcountry_model extends CI_Model {
     }
     
     function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details, $partner_data){
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__  );
         $error = array();
         $same_pincode_vendor = array();
         $upcountry_vendor_details = array();
@@ -223,6 +223,8 @@ class Upcountry_model extends CI_Model {
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
             $up_data['upcountry_distance'] = 0;
             $up_data['upcountry_remarks'] = DISTANCE_WITHIN_MUNICIPAL_LIMIT;
+            $up_data['partner_provide_upcountry'] = $partner_data[0]['is_upcountry'];
+            $up_data['upcountry_bill_to_partner'] = $partner_data[0]['upcountry_bill_to_partner'];
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
@@ -236,7 +238,9 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry'],
+                'upcountry_bill_to_partner' => $partner_data[0]['upcountry_bill_to_partner']);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
             if(isset($partner_data[0]['account_manager_id'])){
@@ -255,7 +259,9 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry'],
+                'upcountry_bill_to_partner' => $partner_data[0]['upcountry_bill_to_partner']);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            if(isset($partner_data[0]['account_manager_id'])){
                 $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
@@ -772,6 +778,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
                 . " AND bd.upcountry_partner_approved = 1 "
+                . " AND bd.upcountry_bill_to_partner = 1 "
                 . " AND bd.upcountry_partner_invoice_id IS NULL"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         

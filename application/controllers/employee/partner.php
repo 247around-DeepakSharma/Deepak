@@ -697,6 +697,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
             $upcountry_approval = $this->input->post('upcountry_approval');
             $return_data['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
+            $return_data['upcountry_bill_to_partner'] =$this->input->post('upcountry_bill_to_partner');
         } else {
             $return_data['is_upcountry'] = 0;
             $return_data['upcountry_rate'] = 0;
@@ -706,8 +707,8 @@ class Partner extends CI_Controller {
             $return_data['upcountry_mid_distance_threshold'] = 0;
             $return_data['upcountry_approval_email'] = NULL;
             $return_data['upcountry_approval'] = 0;
+            $return_data['upcountry_bill_to_partner'] = 0;
         }
-
 //        $partner_data_final['partner'] = $return_data;
         return $return_data;
     }

@@ -924,7 +924,18 @@
         switch(data1.message){
             case 'UPCOUNTRY BOOKING':
             case 'UPCOUNTRY LIMIT EXCEED':
-                if(Number(is_upcountry) == 1){
+                if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 0 ){
+                    
+                    var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+               
+                    $("#upcountry_charges").text(upcountry_charges);
+                    $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
+                    document.getElementById("checkbox_upcountry").checked = true;
+                    alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                    $('#submitform').attr('disabled', false); 
+                    final_price();
+                        
+                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var partner_approval = Number(data1.partner_upcountry_approval);
 
                         if (data1.message === "UPCOUNTRY BOOKING") {
@@ -932,6 +943,7 @@
                             $("#checkbox_upcountry").val("upcountry_0_0");
                             document.getElementById("checkbox_upcountry").checked = false;
                             final_price();
+                            alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
                             $('#submitform').attr('disabled', false); 
 
                         } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {

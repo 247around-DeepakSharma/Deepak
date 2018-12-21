@@ -458,6 +458,17 @@
                                             <p id="up_th_msg" style="font-weight:bold;"></p>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label  for="upcountry_approval" class="col-md-4">Upcountry Bill to Partner</label>
+                                        <div class="col-md-1">
+                                            <input type="checkbox" name="upcountry_bill_to_partner" value="1" id="upcountry_bill_to_partner" style="zoom:1.5" 
+                                                <?php if (isset($query[0])) {
+                                                    if ($query[0]['upcountry_bill_to_partner'] == 1) {
+                                                        echo "checked";
+                                                    }
+                                                    } else { echo "checked";} ?> />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -471,6 +482,7 @@
                                                     } ?> />
                                         </div>
                                     </div>
+                                    
                                     <div class="form-group ">
                                         <label for="upcountry_approval_email" class="col-md-4">Upcountry Approval Email</label>
                                         <div class="col-md-8">
@@ -479,6 +491,7 @@
                                                 } ?>">
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
