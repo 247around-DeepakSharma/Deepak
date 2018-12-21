@@ -212,6 +212,7 @@
                         <th>Booking ID</th>
                         <th>Shipped Part Type</th>
                         <th>Pending Age</th>
+                        <th>Challan Approx Value</th>
                       </thead>
                       <tbody id="defective-model">
                           
