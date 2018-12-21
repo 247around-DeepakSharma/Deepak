@@ -1651,15 +1651,7 @@
                                         <div class="col-md-6">
                                             <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
                                         </div>
-                                    </div>
-                                                                         
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4">Alternate Email </label>
-                                        <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
-                                        </div>
-                                    </div>
-                                                                         
+                                    </div>                               
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Permanent Address</label>
                                         <div class="col-md-6">
