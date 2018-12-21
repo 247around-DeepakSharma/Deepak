@@ -4770,11 +4770,12 @@ class vendor extends CI_Controller {
             
             if($is_partner){
                 $html .=  "<th>Partner Invoice Id</th>";
+                $html .=  "<th>Approval File</th><th>Remarks</th>";
             }
             if($is_sf){
                 $html  .= "<th>Vendor Invoice Id</th>";
             }
-            $html .=  "<th>Approval File</th><th>Remarks</th>";
+            
             
             if($this->session->userdata('userType') == 'employee'){ 
                 $html .=  "<th>Action</th>";
@@ -4792,16 +4793,17 @@ class vendor extends CI_Controller {
                
                if($is_partner){
                     $html .= '<td>'.$value['partner_invoice_id'].'</td>';
+                    if(!empty($value['approval_file'])){
+                        
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
                 }
                if($is_sf){
                    $html .= '<td>'.$value['vendor_invoice_id'].'</td>';
                }
                
-               if(!empty($value['approval_file'])){
-                   $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
-               } else {
-                   $html .= '<td></td>';
-               }
                $html .= '<td>'.$value['remarks'].'</td>';
                if($this->session->userdata('userType') == 'employee'){
                    $b = "'$booking_id'";
