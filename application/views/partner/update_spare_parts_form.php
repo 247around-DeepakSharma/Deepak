@@ -438,6 +438,7 @@
                 awb: "required",
                 shipment_date:"required",
                 approx_value:{
+                    min:1,
                     required: true,
                     maxlength: 100000
                 }
@@ -445,7 +446,8 @@
                 messages: {
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
-                shipment_date:"Please Enter Shipped date"
+                shipment_date:"Please Enter Shipped date",
+                approx_value :"Please Enter Approx Value."
                 },
                 submitHandler: function (form) {
                 form.submit();
@@ -631,9 +633,7 @@
                 index = $row.attr('data-part-index');
                 partIndex = partIndex -1;
             $row.remove();
-        });
-            
-    
+        });           
 </script>
 
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
