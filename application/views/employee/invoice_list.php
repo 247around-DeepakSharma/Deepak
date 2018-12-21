@@ -249,7 +249,7 @@ ini_set('max_execution_time', 36000000);
                                             //echo 'checkbox_amt';
                                        // }
                                     //}
-                                    ?>" name="<?php echo "amount_service_center[" . $value['id']."_".$value["count_spare_part"]."_".$value["max_sp_age"] . "]"; ?>" value ='<?php echo json_encode(array("amount" => $value['final_amount'], "parts_name" => str_replace("'","",$value['shipped_parts']))); ?>' > </td>
+                                    ?>" name="<?php echo "amount_service_center[" . $value['id']."_".$value["count_spare_part"]."_".$value["max_sp_age"] . "]"; ?>" value ='<?php echo json_encode(array("amount" => $value['final_amount'], "parts_name" => str_replace("'","",$value['shipped_parts']), "challan_value" => $value['challan_value'])); ?>' > </td>
                                 
                                 <?php } else { if($value['id'] !== CLOUDTAIL_LA) { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
                                 <td>
@@ -337,6 +337,7 @@ ini_set('max_execution_time', 36000000);
                         <th>Booking ID</th>
                         <th>Shipped Part Type</th>
                         <th>Pending Age</th>
+                        <th>Challan Approx Value</th>
                       </thead>
                       <tbody id="defective-model">
                           
