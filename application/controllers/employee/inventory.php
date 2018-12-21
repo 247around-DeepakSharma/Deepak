@@ -1926,8 +1926,8 @@ class Inventory extends CI_Controller {
         $post = $data['post'];
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
-            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
+            "recordsTotal" => $this->inventory_model->count_all_inventory_stocks_list($post),
+            "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks_list($post),
             "data" => $data['data'],
         );
         
@@ -1963,7 +1963,7 @@ class Inventory extends CI_Controller {
         $list = $this->inventory_model->get_inventory_stock_list($post,$select,$sfIDArray);
         $data = array();
         $no = $post['start'];
-        unset($post['having']);
+        //unset($post['having']);
         foreach ($list as $stock_list) {
             $no++;
             $row = $this->get_inventory_stocks_table($stock_list, $no);
@@ -2106,7 +2106,7 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
         $row[] = $stock_list->price;
-        $row[] = $stock_list->gst_rate;
+        $row[] = $stock_list->gst_rate."%";
         $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";

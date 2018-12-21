@@ -53,6 +53,7 @@ class Validate_serial_no {
         $logic[JVC_ID] = 'jvc_serialNoValidation';
         $logic[LEMON_ID] = 'lemon_serialNoValidation';
         $logic[JEEVES_ID] = 'jeeves_serialNoValidation';
+        $logic[WYBOR_ID] = 'wybor_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -496,6 +497,233 @@ class Validate_serial_no {
             return FALSE;
         }
         return TRUE;
+    }
+    
+/**
+     * @desc This method is used to validate Wybor serial number, Wybor has 3 serial number pattern (2015,2016,2017)
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $applianceID
+     * @return Int
+     */
+    function wybor_serialNoValidation($partnerID, $serialNo){
+        log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $serialNo = strtoupper($serialNo);
+        //  2015 Pattern Serial NUmber
+        $validation_2015 = $this->_wybor2015pattern($serialNo);
+        if(!$validation_2015){
+            // 2016 Pattern Validation
+            $validation_2016 = $this->_wybor2016pattern($serialNo);
+            if(!$validation_2016){
+                // 2017 Pattern Validation
+               $validation_2017 = $this->_wybor2017pattern($serialNo);
+               if($validation_2017){
+                   return array('code' => SUCCESS_CODE);
+               }
+            }
+            else{
+               return array('code' => SUCCESS_CODE);
+            }
+        }
+        else{
+           return array('code' => SUCCESS_CODE);
+        }
+       return array('code' => FAILURE_CODE, "message" => FAILURE_MSG);
+    }
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 2 digit will be ME
+     * Next 2 digit will be Size (It must be numeric)
+     * Next 2 digit represents main board , it must be 2 alphabets 
+     * Next 3 digit represents panel , it must be 3 alphanumeric char
+     * Next 2 digit represent year , it must be last 2 digit of year
+     * Next 2 digit represent weeks, there are 52 weeks in an year , so this value must be less then or equal to 52
+     * Last 5 digits represents s.no in week , it must be 5 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2015pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 18){
+             $startDigit = substr($serialNo,0,2);
+             $sizeDigit = substr($serialNo,2,2);
+             $mainBoardDigit = substr($serialNo,4,2);
+             $panelDigit = substr($serialNo,6,3);
+             $yearDigit = substr($serialNo,9,2);
+             $weekDigit = substr($serialNo,11,2);
+             $snWeekDigit = substr($serialNo,13,5);
+             //Starting 2 digit must be ME
+             if($startDigit != "ME"){
+                 return false;
+             }
+             //Next 2 digit will be Size (It must be numeric)
+             if(!is_numeric($sizeDigit)){
+                 return false;
+             }
+             // Next 2 digit represents main board , it must be 2 alphabets 
+             if(!ctype_alpha($mainBoardDigit)){
+                  return false;
+             }
+             //Next 3 digit represents panel , it must be 3 alphanumeric char
+             if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $panelDigit)){
+                 return false;
+             }
+             //Next 2 digit represent year , it must be last 2 digit of year
+             $current_year = date("y");
+             if($yearDigit < 15 && $yearDigit > $current_year){
+                  return false;
+             }
+             //Next 2 digit represent weeks, there are 52 weeks in an year , so this value must be less then or equal to 52
+             if($weekDigit > 52){
+                  return false;
+             }
+             //Last 5 digits represents s.no in week , it must be 5 digit numeric number  
+             if(!is_numeric($snWeekDigit)){
+                 return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
+    }
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 1 digit will be W or E
+     * Next 2 digit will be Panel , It must be alphabets 
+     * Next 2 digit represents main board , it must be 2 alphabets 
+     * Next 3 digit represents Size and model, Initial 2 digit for Size and last 1 digit for model in particular that model , all 3 should be numeric
+     * Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+     * Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+     * Last 5 digits represents s.no in week , it must be 4 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2016pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 14){
+             $startDigit = substr($serialNo,0,1);
+             $panelDigit = substr($serialNo,1,2);
+             $mainBoardDigit = substr($serialNo,3,2);
+             $sizeModelDigit = substr($serialNo,5,3);
+             $yearDigit = substr($serialNo,8,1);
+             $monthDigit = substr($serialNo,9,1);
+             $snWeekDigit = substr($serialNo,10,4);
+             //Initial 1 digit will be W or E
+             if(!($startDigit == "W" || $startDigit == "E")){
+                 return false;
+             }
+             //Next 2 digit will be Panel , It must be alphabets 
+              if(!ctype_alpha($panelDigit)){
+                 return false;
+             }
+             //Next 2 digit represents main board , it must be 2 alphabets 
+              if(!ctype_alpha($mainBoardDigit)){
+                  return false;
+             }
+             //Next 3 digit represents Size and model, Initial 2 digit for Size and last 1 digit for model in particular that model , all 3 should be numeric
+             if(!is_numeric($sizeModelDigit)){
+                  return false;
+             }
+             // Next 1 digit represent year , it must be alphabet  , 2016 Will be P
+             $yearMAppingYear = array("2016"=>"P","2017"=>"Q","2018"=>"R","2019"=>"S","2020"=>"T","2021"=>"U","2022"=>"V","2023"=>"W","2024"=>"X","2025"=>"Y","2026"=>"Z");
+             $current_year = date("Y");
+             $currentYearAlph = $yearMAppingYear[$current_year];
+             if($yearDigit < "P" || $yearDigit > $currentYearAlph){
+                  return false;
+             }
+             //Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES_2016);
+             if(!in_array($monthDigit, $expectedMonthValuesArray)){
+                 return false;
+            }
+            //Last 5 digits represents s.no in week , it must be 4 digit numeric number 
+             if(!is_numeric($snWeekDigit)){
+                  return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
+    }
+    
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 1 digit will be 1 or 3 its represent the warranty
+     * Next 1 or  digit will be Brand , Expected Values will be O,B,W,E,BL
+     * Next 3 digit represents Size and model , Initial 2 will be size and last one will be model 
+     * Next 4 digit represents Panel, It will be alphanumeric
+     * Next 4 digit represent main board , it must be alphanumeric 
+     * Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+     * Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+     * Next 2 digit represent date  , It must be less then 31
+     * Last 3 digits represents s.no , it must be 3 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2017pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 20 || $stringLength == 21){
+             $startDigit = substr($serialNo,0,1);
+             $brandLength = 1;
+             if($stringLength == 21){
+                $brandLength = 2;
+             }
+             $brandDigit = substr($serialNo,1,$brandLength);
+             $sizeModelDigit = substr($serialNo,($brandLength+1),3);
+             $panelDigit = substr($serialNo,($brandLength+4),4);
+             $mainBoardDigit = substr($serialNo,($brandLength+8),4);
+             $yearDigit = substr($serialNo,($brandLength+12),1);
+             $monthDigit = substr($serialNo,($brandLength+13),1);
+             $dateDigit = substr($serialNo,($brandLength+14),2);
+             $snDigit = substr($serialNo,($brandLength+16),3);
+             //Initial 1 digit will be 1 or 3 its represent the warranty
+             if(!($startDigit == 1 || $startDigit == 3)){
+                 return false;
+             }
+             //Next 1 or  digit will be Brand , Expected Values will be O,B,W,E,BL
+             $expectedBrandValuesArray = explode(",",BRAND_POSIBLE_VALUES);
+             if(!in_array($brandDigit, $expectedBrandValuesArray)){
+                 return false;
+             }
+            // Next 3 digit represents Size and model , Initial 2 will be size and last one will be model 
+              if(!is_numeric($sizeModelDigit)){
+                 return false;
+             }
+             //Next 4 digit represents Panel, It will be alphanumeric
+              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $panelDigit)){
+                 return false;
+             }
+             //Next 4 digit represent main board , it must be alphanumeric 
+              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $mainBoardDigit)){
+                 return false;
+             }
+             // Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+             $yearMAppingYear = array("2016"=>"P","2017"=>"Q","2018"=>"R","2019"=>"S","2020"=>"T","2021"=>"U","2022"=>"V","2023"=>"W","2024"=>"X","2025"=>"Y","2026"=>"Z");
+             $current_year = date("Y");
+             $currentYearAlph = $yearMAppingYear[$current_year];
+             if($yearDigit < "Q" || $yearDigit > $currentYearAlph){
+                  return false;
+             }
+             //Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES_2016);
+             if(!in_array($monthDigit, $expectedMonthValuesArray)){
+                 return false;
+            }
+            //Next 2 digit represent date  , It must be less then 31
+            if($dateDigit >32){
+                return false;
+            }
+            //Last 3 digits represents s.no , it must be 3 digit numeric number  
+             if(!is_numeric($snDigit)){
+                  return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
     }
 }
 

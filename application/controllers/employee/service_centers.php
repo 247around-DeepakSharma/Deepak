@@ -2736,7 +2736,7 @@ class Service_centers extends CI_Controller {
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
         $request_data['where'] = array('bb_cp_order_action.current_status' => _247AROUND_BB_IN_PROCESS,
-            'bb_cp_order_action.internal_status NOT IN ("To Be Claimed Not Delivered")' => NULL,
+            'bb_cp_order_action.internal_status NOT IN ("'._247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS.'")' => NULL,
             "bb_cp_order_action.partner_order_id" => $this->input->post('order_id'));
         $is_inProcess = $this->cp_model->get_bb_cp_order_list($request_data);
 

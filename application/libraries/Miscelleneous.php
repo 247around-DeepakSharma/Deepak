@@ -3110,7 +3110,7 @@ function generate_image($base64, $image_name,$directory){
     }
     
     function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
-        log_message('info', _METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id);
+        log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id);
         $response = array(); 
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
