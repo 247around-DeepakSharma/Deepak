@@ -4925,11 +4925,10 @@ class Invoice extends CI_Controller {
         echo $html;
     }
     /**
-     *  @desc : This function adds new transactions between vendor/partner and 247around.
-     *  @param : Type $partnerId
-     *  @return : void
+     *  @desc : This function add new HSN Code view page.
+     * @param : void 
      */
-    function get_add_new_hsn_code($vendor_partner = "", $id = "") {
+    function get_add_new_hsn_code() {
         $this->checkUserSession();
         $data['hsn_code_list'] = $this->invoices_model->get_hsncode_list('*', array());
         $this->miscelleneous->load_nav_header();
