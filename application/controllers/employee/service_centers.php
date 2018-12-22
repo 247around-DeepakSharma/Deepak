@@ -1815,8 +1815,6 @@ class Service_centers extends CI_Controller {
         if ($this->session->userdata('service_center_id')) {
             if($flag==TRUE){
              redirect(base_url() . "service_center/pending_booking");   
-            if ($flag == TRUE) {
-                redirect(base_url() . "service_center/pending_booking");
             }
         }
     }

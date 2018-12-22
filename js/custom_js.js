@@ -705,7 +705,7 @@ function set_upcountry() {
                     alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
                     $('#submitform').attr('disabled', false);
                     
-                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1){
+                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var total_price = $("#grand_total_price").val();
 
                     var partner_approval = Number(data1.partner_upcountry_approval);
