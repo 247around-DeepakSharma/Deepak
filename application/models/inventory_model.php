@@ -1886,4 +1886,11 @@ class Inventory_model extends CI_Model {
         return $query->num_rows;
     }
     
+    function get_spare_parts_details($select, $where=array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("spare_parts_details");
+        return $query->result_array();
+    }
+    
 }
