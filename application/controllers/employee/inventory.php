@@ -3532,14 +3532,16 @@ class Inventory extends CI_Controller {
                 $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
                 $courier_details['courier_charge'] = $courier_price_by_wh;
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
-                $courier_details['ewaybill_no'] = $eway_bill_by_wh;
-                $courier_details['ewaybill_file'] = $ewaybill_file;
-                $courier_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
+                $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
+                $ewaybill_details['ewaybill_file'] = $ewaybill_file;
+                $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
                 $courier_data['status']=COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
-
+                
                 if (!empty($insert_courier_details)) {
                     log_message('info', 'Courier Details added successfully.');
+                    $ewaybill_details['courier_details_id'] = $insert_courier_details;
+                    $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details);
                     $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
 
                     if (!empty($invoice['processData'])) {
