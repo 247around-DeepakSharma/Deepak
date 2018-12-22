@@ -999,5 +999,19 @@ class Spare_parts extends CI_Controller {
             echo $option;
         }
     }
-
+    
+    function defective_spare_invoice(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/defective_spare_invoice_form');
+    }
+    
+    function get_defective_spare_parts(){
+        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, sell_invoice_id";
+        $booking_id = $this->input->post('booking_id');
+        $where = array('booking_id'=>$booking_id);
+        $data = $this->inventory_model->get_spare_parts_details($select, $where);
+        echo json_encode($data);
+    }
+    
+    
 }
