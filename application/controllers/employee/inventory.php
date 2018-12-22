@@ -2590,8 +2590,14 @@ class Inventory extends CI_Controller {
         $spareID = $this->input->post('spareID');
         $bookingID = $this->input->post('booking_id');
         $spareColumn = $this->input->post('spareColumn');
+        if(!empty($this->input->post('directory_name'))){
+           $file_dir = "vendor-partner-docs";
+        } else {
+           $file_dir = "misc-images"; 
+        }
+        
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], 
-                        $spareColumn, $allowedExts, $bookingID, "misc-images", "sp_parts");
+                        $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if($defective_parts_pic){
             $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));

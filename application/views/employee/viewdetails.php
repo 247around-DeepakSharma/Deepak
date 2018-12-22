@@ -625,12 +625,23 @@
                                         <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
-                                        <td><?php echo $sp['partner_challan_number']; ?></td>
-                                        <td><?php echo $sp['challan_approx_value']; ?></td>
+                                        <td>                                         
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|partner_challan_number";?>"><?php echo str_replace(array('-','_'), ' ', $sp['partner_challan_number']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['partner_challan_number'];  ?>" id="<?php echo $sp['id']."_partner_challan_number";?>" />
+                                        </td>
+                                        <td>                                                                                    
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|challan_approx_value";?>"><?php echo str_replace(array('-','_'), ' ', $sp['challan_approx_value']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['challan_approx_value'];  ?>" id="<?php echo $sp['id']."_challan_approx_value";?>" />
+                                            
+                                        </td>
                                         <td>
                                             <?php if(!empty($sp['partner_challan_file'])){ ?> 
-                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            
                                             <?php } ?>
+                                            
+                                        <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogresspartner_challan_file".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['partner_challan_file'])) {
+                                            if ($sp['partner_challan_file'] != '0') {
+                                        ?> <a href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank" id="<?php echo "a_partner_challan_file_".$sp['id']; ?>">Click Here to view</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "partner_challan_file_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','partner_challan_file');"></i>
                                         </td>
                                         <td>
                                             <?php if(!empty($sp['courier_pic_by_partner'])){ ?> 
@@ -1553,12 +1564,19 @@ function uploadfile(){
         return;
     }
     
+    if(spareFileColumn=='partner_challan_file'){
+        directory_name = 'vendor-partner-docs';
+    }else{
+        directory_name = '';
+    }
+    
     
         if(flag === true){
             var formData = new FormData();
             formData.append('file', $('#fileLoader')[0].files[0]);
             formData.append('spareID', spareID);
             formData.append('spareColumn', spareFileColumn);
+            formData.append('directory_name', directory_name);
             formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
             
             $.ajax({
@@ -1586,7 +1604,11 @@ function uploadfile(){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        if(directory_name!=''){
+                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);                        
+                        }else{
+                         $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   
+                        }
                         spareID = 0;
                         spareFileColumn = "";
                     } else {
