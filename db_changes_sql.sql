@@ -9542,4 +9542,14 @@ ALTER TABLE `partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '
 ALTER TABLE `trigger_partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `grace_period_date`;
 ALTER TABLE `booking_details` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `is_upcountry`;
 
+--Gorakh 22-12-2018--
+
+CREATE TABLE `ewaybill_details` (
+  `id` int(11) NOT NULL primary key auto_increment,
+  `courier_details_id` int(11) DEFAULT NULL,
+  `ewaybill_no` varchar(156) NOT NULL,
+  `ewaybill_file` varchar(1020) NOT NULL,
+  `ewaybill_generated_date` datetime,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
