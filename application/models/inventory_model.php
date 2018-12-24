@@ -1006,6 +1006,17 @@ class Inventory_model extends CI_Model {
         $this->db->insert('courier_details', $data);
         return $this->db->insert_id();
     }
+        
+    /**
+     * @desc This is used to insert ewaybill details into ewaybill_details table
+     * @param Array $data
+     * @return last inserted_id
+     */
+    function insert_ewaybill_details($data){
+        $this->db->insert('ewaybill_details', $data);
+        return $this->db->insert_id();
+    }
+    
     
     /**
      * @Desc: This function is used to get data from the appliance_model_details table
