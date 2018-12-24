@@ -201,7 +201,7 @@ class Invoice extends CI_Controller {
             }
             $main_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_file_main'];
             //get email template
-            if(($data[0]['category'] == 'Installation & Repair' || $data[0]['category'] == 'Recurring Charges') && ($data[0]['sub_category'] == 'Credit Note' || $data[0]['sub_category'] == 'GST Credit Note' || $data[0]['sub_category'] == 'Debit Note' || $data[0]['sub_category'] == 'GST Debit Note')){
+            if(($data[0]['category'] == INSTALLATION_AND_REPAIR || $data[0]['category'] == RECURRING_CHARGES) && ($data[0]['sub_category'] == CREDIT_NOTE || $data[0]['sub_category'] == GST_CREDIT_NOTE || $data[0]['sub_category'] == DEBIT_NOTE || $data[0]['sub_category'] == GST_DEBIT_NOTE)){
                 $email_template = $this->booking_model->get_booking_email_template("resend_dn_cn_invoice"); 
                 $email_template_name = "resend_dn_cn_invoice";
             }
