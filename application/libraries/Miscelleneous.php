@@ -3112,7 +3112,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     
 
     function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
-        log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id);
+        log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
