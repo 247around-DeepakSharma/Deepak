@@ -511,6 +511,10 @@ class Service_centers extends CI_Controller {
                                     if(isset($upload_serial_number_pic['name'][$unit_id])){
                                         $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                     }
+                                    else{
+                                        $return_status = false;
+                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                    }
                                 } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
                                     $return_status = false;
                                     $this->form_validation->set_message('validate_serial_no', $status['message']); 
@@ -518,7 +522,7 @@ class Service_centers extends CI_Controller {
                                      
                                     if(!isset($upload_serial_number_pic['name'][$unit_id])){
                                         $return_status = false;
-                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image as entered serial number is wrong");
+                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
                                     } else {
                                         $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                         if(empty($s)){
