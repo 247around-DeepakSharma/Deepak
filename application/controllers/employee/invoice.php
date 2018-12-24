@@ -201,7 +201,7 @@ class Invoice extends CI_Controller {
             }
             $main_invoice = S3_WEBSITE_URL."invoices-excel/".$data[0]['invoice_file_main'];
             //get email template
-            if(($data[0]['category'] == 'Installation & Repair' || $data[0]['category'] == 'Recurring Charges') && ($data[0]['sub_category'] == 'Credit Note' || $data[0]['sub_category'] == 'GST Credit Note' || $data[0]['sub_category'] == 'Debit Note' || $data[0]['sub_category'] == 'GST Debit Note')){
+            if(($data[0]['category'] == INSTALLATION_AND_REPAIR || $data[0]['category'] == RECURRING_CHARGES) && ($data[0]['sub_category'] == CREDIT_NOTE || $data[0]['sub_category'] == GST_CREDIT_NOTE || $data[0]['sub_category'] == DEBIT_NOTE || $data[0]['sub_category'] == GST_DEBIT_NOTE)){
                 $email_template = $this->booking_model->get_booking_email_template("resend_dn_cn_invoice"); 
                 $email_template_name = "resend_dn_cn_invoice";
             }
@@ -4937,11 +4937,10 @@ class Invoice extends CI_Controller {
         echo $html;
     }
     /**
-     *  @desc : This function adds new transactions between vendor/partner and 247around.
-     *  @param : Type $partnerId
-     *  @return : void
+     *  @desc : This function add new HSN Code view page.
+     * @param : void 
      */
-    function get_add_new_hsn_code($vendor_partner = "", $id = "") {
+    function get_add_new_hsn_code() {
         $this->checkUserSession();
         $data['hsn_code_list'] = $this->invoices_model->get_hsncode_list('*', array());
         $this->miscelleneous->load_nav_header();
