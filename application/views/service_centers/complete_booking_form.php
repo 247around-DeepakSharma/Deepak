@@ -232,8 +232,8 @@
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
-                                                                    <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                 </div>
                                                                 
                                                             </div>
@@ -528,15 +528,14 @@
                             
                         }
                     }
-                    var requiredPic = $('#sno_required'+ div_no[2]).val();
-                    if(requiredPic === '1'){
+                    //var requiredPic = $('#sno_required'+ div_no[2]).val();
+                   // if(requiredPic === '1'){
                         if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
                         }
-                        
-                    }
+                  //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
                     if(duplicateSerialNo === '1'){
                         alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
@@ -773,11 +772,10 @@
                 data:{serial_number:serialNo,model_number:model_number,partner_id:'<?php echo $booking_history[0]['partner_id'];?>',appliance_id:'<?php echo $booking_history[0]['service_id'];?>', price_tags:price_tags,
                 user_id: '<?php echo $booking_history[0]['user_id'];?>', 'booking_id': '<?php echo $booking_history[0]['booking_id'];?>'},
                 success: function (response) {
-                    console.log(response);
                     var data = jQuery.parseJSON(response);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
-                        $("#upload_serial_number_pic"+index).css('display', "none");
+                        //$("#upload_serial_number_pic"+index).css('display', "none");
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
                         $("#duplicate_sno_required"+index).val('0');
@@ -789,7 +787,7 @@
                     } else {
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
-                        $("#upload_serial_number_pic"+index).css('display', "block");
+                       // $("#upload_serial_number_pic"+index).css('display', "block");
                         $("#duplicate_sno_required"+index).val('0');
                         $('body').loadingModal('destroy');
                     }
@@ -798,7 +796,7 @@
             });
        } else {
        
-            $("#upload_serial_number_pic"+index).css('display', "none");
+           // $("#upload_serial_number_pic"+index).css('display', "none");
             $("#error_serial_no" +index).text("");
             $("#sno_required"+index).val('0');
        }
