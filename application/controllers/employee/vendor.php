@@ -4845,7 +4845,7 @@ class vendor extends CI_Controller {
     
     function check_GST_number($gst, $vendor_partner_id="", $vendor_partner=""){
         if($vendor_partner == 'partner'){ 
-            $GST_number = $this->partner_model->getpartner_details('partners.id', array('gst_number'=>$gst));
+            $GST_number = $this->partner_model->getpartner_details('partners.id', array('gst_number'=>$gst, 'partners.id != "'.$vendor_partner_id.'"'=>null));
             if(empty($GST_number)){
                 $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($gst, $vendor_partner_id, $vendor_partner);
                 if (!$api_response) {
@@ -4855,7 +4855,7 @@ class vendor extends CI_Controller {
                 }
             }
             else{
-                echo '{"status_cd":"0","errorMsg":"GST number already exist"}';
+                echo '{"status_cd":"0","errorMsg":"GST Number Already Exist"}';
             }
         }
         else{

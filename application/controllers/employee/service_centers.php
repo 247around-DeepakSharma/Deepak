@@ -3783,6 +3783,7 @@ class Service_centers extends CI_Controller {
                                 $sc['internal_status'] = _247AROUND_PENDING;                                
                                  
                                 $data['status'] = SPARE_DELIVERED_TO_SF; 
+                                $data['status'] = SPARE_SHIPPED_BY_PARTNER; 
                                 $data['date_of_request'] = date('Y-m-d');
                                 $data['model_number_shipped'] = $value->model_number;
                                 $data['parts_shipped'] = $value->parts_requested;
@@ -3827,6 +3828,7 @@ class Service_centers extends CI_Controller {
                             $status = SPARE_OOW_EST_REQUESTED;
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("entity_type"=>_247AROUND_PARTNER_STRING,"partner_id"=>$value->partner_id,"status" => $status, 'date_of_request' => date('Y-m-d')));
+                            $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("entity_type"=>_247AROUND_PARTNER_STRING,"partner_id"=>$partner_id,"status" => $status, 'date_of_request' => date('Y-m-d')));
                         }
                     } else {                        
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);

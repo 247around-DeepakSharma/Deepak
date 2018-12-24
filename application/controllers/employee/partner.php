@@ -698,6 +698,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_approval_email'] = $this->input->post('upcountry_approval_email');
             $upcountry_approval = $this->input->post('upcountry_approval');
             $return_data['upcountry_approval'] = (!empty($upcountry_approval)) ? 1 : 0;
+            $return_data['upcountry_bill_to_partner'] =$this->input->post('upcountry_bill_to_partner');
         } else {
             $return_data['is_upcountry'] = 0;
             $return_data['upcountry_rate'] = 0;
@@ -707,8 +708,8 @@ class Partner extends CI_Controller {
             $return_data['upcountry_mid_distance_threshold'] = 0;
             $return_data['upcountry_approval_email'] = NULL;
             $return_data['upcountry_approval'] = 0;
+            $return_data['upcountry_bill_to_partner'] = 0;
         }
-
 //        $partner_data_final['partner'] = $return_data;
         return $return_data;
     }
@@ -1754,7 +1755,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
         if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]');
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
 

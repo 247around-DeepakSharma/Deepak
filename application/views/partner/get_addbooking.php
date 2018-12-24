@@ -936,7 +936,7 @@
                     $('#submitform').attr('disabled', false); 
                     final_price();
                         
-                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1){
+                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var partner_approval = Number(data1.partner_upcountry_approval);
 
                         if (data1.message === "UPCOUNTRY BOOKING") {

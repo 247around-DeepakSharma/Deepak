@@ -343,6 +343,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
                         $booking['upcountry_remarks'] = PARTNER_PAID_UPCOUNTRY;
+                        $booking['upcountry_bill_to_partner'] = $data['upcountry_bill_to_partner'];
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
                     } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -352,6 +353,7 @@ class Miscelleneous {
                         $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
+                        $booking['upcountry_bill_to_partner'] = $data['upcountry_bill_to_partner'];
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
                         

@@ -458,6 +458,17 @@
                                             <p id="up_th_msg" style="font-weight:bold;"></p>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label  for="upcountry_approval" class="col-md-4">Upcountry Bill to Partner</label>
+                                        <div class="col-md-1">
+                                            <input type="checkbox" name="upcountry_bill_to_partner" value="1" id="upcountry_bill_to_partner" style="zoom:1.5" 
+                                                <?php if (isset($query[0])) {
+                                                    if ($query[0]['upcountry_bill_to_partner'] == 1) {
+                                                        echo "checked";
+                                                    }
+                                                    } else { echo "checked";} ?> />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -471,6 +482,7 @@
                                                     } ?> />
                                         </div>
                                     </div>
+                                    
                                     <div class="form-group ">
                                         <label for="upcountry_approval_email" class="col-md-4">Upcountry Approval Email</label>
                                         <div class="col-md-8">
@@ -479,6 +491,7 @@
                                                 } ?>">
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -2316,9 +2329,9 @@
                                                 <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
-                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactived</button>
+                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactived</button>
                                                     <?php } else { ?>
-                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Actived</button>      
+                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Actived</button>      
                                                     <?php } ?>                                         
                                                 </td>
                                             </tr>
