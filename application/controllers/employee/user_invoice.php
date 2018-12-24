@@ -510,6 +510,141 @@ class User_invoice extends CI_Controller {
             redirect(base_url(). "employee/invoice/customer_invoice");
         }
     }
+    
+    function process_spare_invoice(){ 
+        $data = array();
+        $result = "";
+        $booking_id = $this->input->post('booking_id');
+        $spare_detail_ids = $this->input->post('spare_detail_ids');
+        $service_center_ids = $this->input->post('service_center_ids');
+        $hsn_codes = $this->input->post('hsn_codes');
+        $gst_rates = $this->input->post('gst_rates');
+        $confirm_prices = $this->input->post('confirm_prices');
+        $spare_part_name = $this->input->post('spare_product_name');
+        
+        $spare_detail_array = explode("_", $spare_detail_ids);
+        array_pop($spare_detail_array);
+        
+        $sd = $ed = $invoice_date = date("Y-m-d");
+        $service_center_array = explode("_", $service_center_ids);
+        $hsn_codes_array = explode("_", $hsn_codes);
+        $gst_rates_array = explode("_", $gst_rates);
+        $confirm_prices_array = explode("_", $confirm_prices);
+        $spare_part_name_array = explode("_", $spare_part_name);
+        $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+        foreach ($spare_detail_array as $key=>$value){
+            if($value){
+                
+                 $service_center_id = $service_center_array[$key];
+                $amount = $confirm_prices_array[$key];
+                $partner_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
+                    . "state,address as company_address, "
+                    . "company_name, pincode, "
+                    . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $service_center_id))[0];
+                 
+                $hsn_code = $hsn_codes_array[$key];
+                $gst_rate = $gst_rates_array[$key];
+               
+                $data[$key]['description'] =  $spare_part_name_array[$key];
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                $data[$key]['taxable_value'] = ($amount  - $tax_charge);
+                $data[$key]['product_or_services'] = "Service";
+                if(!empty($partner_data['gst_number'])){
+                     $data[$key]['gst_number'] = $partner_data['gst_number'];
+                } else {
+                     $data[$key]['gst_number'] = TRUE;
+                }
 
+                $data[$key]['company_name'] = $partner_data['company_name'];
+                $data[$key]['company_address'] = $partner_data['company_address'];
+                $data[$key]['district'] = $partner_data['district'];
+                $data[$key]['pincode'] = $partner_data['pincode'];
+                $data[$key]['state'] = $partner_data['state'];
+                $data[$key]['rate'] = 0;
+                $data[$key]['qty'] = 1;
+                $data[$key]['hsn_code'] = $hsn_code;
+                $data[$key]['gst_rate'] = $gst_rate;
+                
+            }
+        }
+        $invoice_type = "Tax Invoice";
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
+        $response['meta']['invoice_id'] = $invoice_id;
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        if($status){
+           
+            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+            $output_pdf_file_name = $convert['main_pdf_file_name'];
+            $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+            $response['meta']['copy_file'] = $convert['copy_file'];
+            $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+            
+            $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+            $email_tag = CRM_SETUP_INVOICE_EMAIL_TAG;    
+           
+            $email_template = $this->booking_model->get_booking_email_template($email_tag);
+            $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+            $to = $partner_data['invoice_email_to'].",".$email_template[1];
+            $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
 
+            $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+            exec($cmd); 
+            
+            $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+                
+            unlink(TMP_FOLDER.$output_pdf_file_name);
+
+            unlink(TMP_FOLDER.$invoice_id.".xlsx");
+            unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+            
+        }
+        
+        $basic_sc_charge = $response['meta']['total_taxable_value'];
+        $invoice_details = array(
+            'invoice_id' => $invoice_id,
+            'type_code' => 'A',
+            'type' => 'Parts',
+            'vendor_partner' => 'vendor',
+            'invoice_tagged' => '',
+            'vendor_partner_id' => $service_center_id,
+            'invoice_file_main' => $response['meta']['invoice_file_main'],
+            'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+            'from_date' => $sd,
+            'to_date' => $ed,
+            'total_service_charge' => $basic_sc_charge,
+            'total_amount_collected' => $response['meta']['sub_total_amount'],
+            'invoice_date' => $invoice_date,
+            'around_royalty' => $response['meta']['sub_total_amount'],
+            'due_date' => $ed,
+            //Amount needs to be collected from Vendor
+            'amount_collected_paid' => $response['meta']['sub_total_amount'],
+            //add agent_id
+            'agent_id' => $this->session->userdata('id'),
+            "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
+            "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
+            "igst_tax_rate" => $response['meta']['igst_tax_rate'],
+            "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+            "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+            "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+            "hsn_code" => $hsn_code,
+            "invoice_file_pdf" => $response['meta']['copy_file'],
+            "vertical" => SERVICE,
+            "category" => SPARES,
+            "sub_category" => DEFECTIVE_RETURN,
+            "accounting" => 1
+        );
+
+        $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+        
+        if($inserted_invoice){
+          $spare_detail_array = array_filter($spare_detail_array);
+          $where_in = array('id' => $spare_detail_array);
+          $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id));
+        }
+        
+        echo $result;
+    }
+        
 }

@@ -2057,7 +2057,7 @@ class service_centre_charges extends CI_Controller {
         else{
             $this->session->set_userdata('success', 'Bank detail added successfully.');
         }
-        $this->add_bank();
+        redirect(base_url() . 'employee/service_centre_charges/add_bank');
     }
     
      /**
