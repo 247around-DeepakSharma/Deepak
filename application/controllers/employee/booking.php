@@ -1941,7 +1941,7 @@ class Booking extends CI_Controller {
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
                 $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
                 if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
-                    $this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
+                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
                 }
             }
 
