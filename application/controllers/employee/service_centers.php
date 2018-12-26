@@ -561,7 +561,7 @@ class Service_centers extends CI_Controller {
         if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
            
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
+                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
                 
                 return true;
