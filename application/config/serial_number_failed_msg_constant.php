@@ -45,7 +45,7 @@ define('JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG', 'Serial No length should be 15 
 //Wybor 
 define('MONTH_POSIBLE_VALUES_2016', 'A,B,C,D,E,F,G,H,I,J,K,L');
 define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
-define('FAILURE_MSG', 'Please Entered Correct Serial Number');
+define('FAILURE_MSG', 'Please Enter Correct Serial Number');
 
 
 
