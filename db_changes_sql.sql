@@ -9553,3 +9553,7 @@ CREATE TABLE `ewaybill_details` (
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
+ALTER TABLE `courier_details`
+  DROP `ewaybill_no`,
+  DROP `ewaybill_file`,
+  DROP `ewaybill_generated_date`;
