@@ -504,33 +504,28 @@ class Service_centers extends CI_Controller {
                                     break;
                                 }
                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
-                            if (!empty($status)) {
-                                if ($status['code'] == SUCCESS_CODE) {
-                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
-                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                    }
-                                    else{
-                                        $return_status = false;
-                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-                                    }
-                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-                                    $return_status = false;
-                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
-                                }else {
-                                     
-                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $return_status = false;
-                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-                                    } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                        if(empty($s)){
+                            if(isset($upload_serial_number_pic['name'][$unit_id])){
+                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                   if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
                         . 'Maximum file size is 5 MB.');
                                             $return_status = false;
                                         }
-                                    }
+                             }
+                             else{
+                                  $return_status = false;
+                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                             }
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
+                            if (!empty($status)) {
+                                if ($status['code'] == SUCCESS_CODE) {
+                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                    $return_status = false;
+                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
+                                }
+                                else{
+                                    log_message('info', " Serial No validation failed  for serial no " . trim($serial_number[$unit_id]));
                                 }
                             } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
@@ -566,7 +561,7 @@ class Service_centers extends CI_Controller {
         if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
            
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
+                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
                 
                 return true;

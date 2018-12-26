@@ -36,7 +36,7 @@ define("JVC_ID", 247092);
 //Paytm Partner ID
 define("PAYTM_ID", 3);
 //Serial number Mendatory Partner List
-define("SERIAL_NUMBER_MENDATORY", '247034,247064,247066,247092,247080');
+define("SERIAL_NUMBER_MENDATORY", '247034,247064,247066,247092,247080,247010');
 //QWIKCILVER partner id
 define('QWIKCILVER_PARTNER_ID','247025');
 
