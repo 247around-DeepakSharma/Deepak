@@ -226,7 +226,7 @@
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
-                                                                    <input type="text" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
+                                                                    <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No"   />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
@@ -743,7 +743,9 @@
     
     function validateSerialNo(index){
        var model_number = '';
-       var serialNo = $("#serial_number" +index).val();
+       var temp = $("#serial_number" +index).val();
+       var serialNo =  temp.toUpperCase();
+       $("#serial_number" +index).val(serialNo);
        var price_tags = $("#price_tags"+index).text();
        if(<?php echo $booking_history[0]['partner_id'] ?> == <?php echo LEMON_ID ?>){
             var model_number = $("#model_number_"+index).val();
