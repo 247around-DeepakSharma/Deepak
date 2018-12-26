@@ -2329,9 +2329,9 @@
                                                 <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
-                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactived</button>
+                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactivate</button>
                                                     <?php } else { ?>
-                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Actived</button>      
+                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Activate</button>      
                                                     <?php } ?>                                         
                                                 </td>
                                             </tr>
@@ -3743,11 +3743,11 @@
                     if(data['status']=='success'){                        
                         if(active=='1'){                             
                             $("#"+multiple_id).attr('onclick', 'remove_micro_warehose(this.id)');
-                            $("#"+multiple_id).html('Deactived').css({'background-color':'#d9534f;','border-color':'#fff;'});                            
+                            $("#"+multiple_id).html('Deactivate').css({'background-color':'#d9534f;','border-color':'#fff;'});                            
                             $("#status_"+wh_on_of_id).html('Active');                            
                         }else{                      
                             $("#"+multiple_id).attr('onclick', 'add_micro_warehose(this.id)');
-                            $("#"+multiple_id).html('Active').css({'background-color':'#01903a;','border-color':'#fff;'});
+                            $("#"+multiple_id).html('Activate').css({'background-color':'#01903a;','border-color':'#fff;'});
                             $("#status_"+wh_on_of_id).html('Inactive');
                         }
                         
