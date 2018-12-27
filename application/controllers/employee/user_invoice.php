@@ -22,7 +22,7 @@ class User_invoice extends CI_Controller {
         $this->load->library("session");
 
     }
-    
+   
     /**
      * @desc This method is used to generate Customer invoice on the behalf of Sf
      * @param String $booking_id
@@ -509,42 +509,30 @@ class User_invoice extends CI_Controller {
     }
     
     function process_spare_invoice(){ 
+        $postData = json_decode($this->input->post('postData'));
+        $spare_parts_detail_ids = array();
         $data = array();
         $result = "";
         $booking_id = $this->input->post('booking_id');
-        $spare_detail_ids = $this->input->post('spare_detail_ids');
-        $service_center_ids = $this->input->post('service_center_ids');
-        $hsn_codes = $this->input->post('hsn_codes');
-        $gst_rates = $this->input->post('gst_rates');
-        $confirm_prices = $this->input->post('confirm_prices');
-        $spare_part_name = $this->input->post('spare_product_name');
-        
-        $spare_detail_array = explode("_", $spare_detail_ids);
-        array_pop($spare_detail_array);
-        
+        $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
-        $service_center_array = explode("_", $service_center_ids);
-        $hsn_codes_array = explode("_", $hsn_codes);
-        $gst_rates_array = explode("_", $gst_rates);
-        $confirm_prices_array = explode("_", $confirm_prices);
-        $spare_part_name_array = explode("_", $spare_part_name);
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
-        foreach ($spare_detail_array as $key=>$value){
-            if($value){
-                $where = array('id'=>$spare_detail_array[$key]);
+        foreach ($postData as $key=>$value){
+                $spare_parts_detail_ids[] = $value->spare_detail_ids;
+                $where = array('id' => $value->spare_detail_ids);
                 $chech_spare = $this->inventory_model->get_spare_parts_details('sell_invoice_id, entity_type, partner_id', $where);
                 if(!$chech_spare[0]['sell_invoice_id']){
-                       $service_center_id = $service_center_array[$key];
-                        $amount = $confirm_prices_array[$key];
+                        $service_center_id = $value->service_center_ids;
+                        $amount = $value->confirm_prices;
                         $partner_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                             . "state,address as company_address, "
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $service_center_id))[0];
 
-                        $hsn_code = $hsn_codes_array[$key];
-                        $gst_rate = $gst_rates_array[$key];
+                        $hsn_code = $value->hsn_codes;
+                        $gst_rate = $value->gst_rates;
 
-                        $data[$key]['description'] =  $spare_part_name_array[$key];
+                        $data[$key]['description'] =  $value->spare_product_name;
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                         $data[$key]['taxable_value'] = ($amount  - $tax_charge);
                         $data[$key]['product_or_services'] = "Service";
@@ -575,7 +563,6 @@ class User_invoice extends CI_Controller {
 
                     $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", SPARE_SALE_INVOICE, "", $booking_id);
                 }
-            }
         }
         if(!empty($data)){
             $invoice_type = "Tax Invoice";
@@ -651,9 +638,17 @@ class User_invoice extends CI_Controller {
             $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
 
             if($inserted_invoice){
-              $spare_detail_array = array_filter($spare_detail_array);
-              $where_in = array('id' => $spare_detail_array);
-              $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id));
+                $service_center_action = $this->booking_model->get_bookings_count_by_any('id, service_center_closed_date', array('booking_id'=>$booking_id));
+                if($service_center_action[0]['service_center_closed_date']){
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    //insert entry into booking state change
+                    $this->notify->insert_state_change($booking_id, BIll_DEFECTIVE_SPARE_PART_TO_VENDOR, "", $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
+                }
+                $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
+                $where_in = array('id' => $spare_parts_detail_ids);
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id));
             }
 
             echo $result;
@@ -662,5 +657,5 @@ class User_invoice extends CI_Controller {
             echo false;
         }
     }
-        
+  
 }
