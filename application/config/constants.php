@@ -633,10 +633,9 @@ define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
 define("_247AROUND_WEBSITE", "247around-Website");
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
-//247Around Website string
-define("_247AROUND_WEBSITE", "247around-Website");
-//constant to define 'bill defective spare part to vendor' internal status
-define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
+
+//define("_247AROUND_WEBSITE", "247around-Website");
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
