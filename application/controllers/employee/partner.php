@@ -5561,13 +5561,13 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
-            '(spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
-            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'")' => NULL
+            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
