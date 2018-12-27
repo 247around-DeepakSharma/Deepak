@@ -74,6 +74,8 @@ define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_d
 //Delivered Spare Status 
 define('DELIVERED_SPARE_STATUS','Delivered');
 
+// Partner will send new parts
+define("PARTNER_WILL_SEND_NEW_PARTS", "Partner will send new parts");
 
 
 
