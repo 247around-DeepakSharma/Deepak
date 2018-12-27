@@ -81,6 +81,8 @@ define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
 define("COURIER_DETAILS_STATUS", "pick-up");
 
 
+// Partner will send new parts
+define("PARTNER_WILL_SEND_NEW_PARTS", "Partner will send new parts");
 
 
 
