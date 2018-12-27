@@ -238,7 +238,7 @@ class Do_background_process extends CI_Controller {
                        "serial_number" => $value['serial_number'], "active" =>1, "added_by" => "vendor" ));
                     $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
                    if(!empty($is_inserted) && in_array($partner_id, $serialNumberMandatoryPartners)){
-                       $this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
+                       //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
                    } 
                 }
 

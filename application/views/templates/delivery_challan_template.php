@@ -20,7 +20,6 @@
     }
 
 </style>
-
 <body>
     <table id="table1">
         <tr>
@@ -31,7 +30,13 @@
             <td colspan="13" style="border-bottom: hidden; text-align: center; font-size: 15px"><b><?php echo $excel_data['sf_name']; ?></td>
         </tr>
         <tr>
-            <td colspan="7" align="left" style="border-right: hidden;"><b><?php echo $excel_data['sf_address']; ?></td>
+            <td colspan="7" align="left" style="border-right: hidden;"><b><?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?>
+            <?php
+                    if (!empty($excel_data['sf_contact_number'])) {
+                        echo '<br><br>Contact Number : ' . $excel_data['sf_contact_number'];
+                    }
+                    ?>
+            </td>
             <td style="border-right: hidden;"></td>
             <?php if(!empty($excel_data['sf_gst'])) { ?> 
             <td colspan="5" align="right"><b>GST:</b> <?php echo $excel_data['sf_gst']; ?></td>
@@ -43,7 +48,14 @@
             <td  colspan="5" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
         </tr>
         <tr>
-            <td  colspan="7" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php echo $excel_data['partner_address']; ?></td>
+            <td  colspan="7" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php echo $excel_data['partner_address']; ?>
+          
+            <?php if(!empty($excel_data['partner_contact_number'])){ 
+                    echo '<br><br><b>Contact Number<b> : '.$excel_data['partner_contact_number'];
+                } 
+            ?>
+                
+            </td>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
             <td colspan="5" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
         </tr>
