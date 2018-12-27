@@ -59,9 +59,10 @@
                                 <th>Part Type</th>
                                 <th>Challan Approx Value</th>
                                 <th>Status</th>
-                                <th>Confirm Value</th>
+                                <th>Invoice Value<small> (Including Tax) </small></th>
                                 <th>GST Rate</th>
                                 <th>HSN Code</th>
+                                <th>Reason</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -87,31 +88,46 @@
                 type:'POST',
                 data:{booking_id:booking_id}
             }).done(function(response){
-                if(response == '[]'){
+                response = JSON.parse(response);
+                var remarks = response.remarks;
+                response = response.data;
+                if(response.length == '0'){
                    alert("No data found for this booking id.");
                 }
                 else{
-                    response = JSON.parse(response);
+                    
                     var html = "";
                     var index = 1;
                     for(var i=0; i<response.length; i++){
+                        var href = "";
+                        if(response[i]['partner_challan_file']){
+                            //href = "href='<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/"+response[i]['partner_challan_file']+"'";
+                        }
                         html += "<tr>";
                             html += "<td>"+ index +"</td>";
                             html += "<td>"+ response[i]['booking_id'] +"</td>";
                             html += "<td>"+ response[i]['parts_shipped'] +"</td>";
                             html += "<td>"+ response[i]['shipped_parts_type'] +"</td>";
-                            html += "<td>"+ response[i]['challan_approx_value'] +"</td>";
+                            html += "<td><a "+href+" target='_blank'>"+ response[i]['challan_approx_value'] +"</td></a>";
                             html += "<td>"+ response[i]['status'] +"</td>";
                             html += '<td><input type="hidden" id="spare_product_name_'+i+'" value="'+response[i]['parts_shipped']+'"><input type="number" class="form-control" placeholder="Enter Confirm Value" id="confirm_value_'+i+'"></td>';
-                            html += '<td><input type="number" class="form-control" placeholder="Enter GST Rate" id="gst_rate_'+i+'"></td>';
+                            html += '<td><select id="gst_rate_'+i+'"><option disabled selected>Select GST Rate</option><option value="5">5</option><option value="12">12</option><option value="18">18</option><option value="28">28</option></select></td>';
                             html += '<td><input type="number" class="form-control" placeholder="Enter HSN Code" id="hsn_code_'+i+'"></td>';
+                            html += '<td>';
+                            html += '<select id="reason_'+i+'"><option  disabled selected>Select Reason</option>';
+                            for(var k=0; k<remarks.length; k++){
+                                html += '<option value="'+remarks[k]['status']+'">'+remarks[k]['status']+'</option>';
+                            }
+                            html += '</select>';
+                            html += '</td>';
                             html += '<td><input type="checkbox" name="spare_checkbox" id="spareCheck_'+i+'" data-id="'+response[i]['id']+'" service-center-id="'+response[i]['service_center_id']+'"></td>';
                         html += "</tr>";
                         index++;
                     }
-                    html += "<tr><td colspan='9'><input type='test' id='remarks' class='form-control' placeholder='Enter reason for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
+                    html += "<tr><td colspan='10'><input type='test' id='remarks' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
                     $("#defective_spare_detail").css("display", "inline-table");
                     $("#defective_spare_detail tbody").html(html);
+                    $("select").select2();
                 }
                
             });
@@ -129,14 +145,15 @@
             $("input:checkbox[name=spare_checkbox]:checked").each(function(){
                 var checkbox_id = $(this).attr("id");
                 var id = checkbox_id.split("_")[1];
-                if($("#confirm_value_"+id).val() && $("#gst_rate_"+id).val() && $("#hsn_code_"+id).val()){
+                if($("#confirm_value_"+id).val() && $("#gst_rate_"+id).val() && $("#hsn_code_"+id).val() && $("#reason_"+id).val()){ 
                     var postData = {
                         spare_detail_ids : $(this).attr("data-id"),
                         service_center_ids : $(this).attr("service-center-id"),
                         gst_rates : $("#gst_rate_"+id).val(),
                         hsn_codes : $("#hsn_code_"+id).val(),
                         confirm_prices : $("#confirm_value_"+id).val(),
-                        spare_product_name : $("#spare_product_name_"+id).val()
+                        spare_product_name : $("#spare_product_name_"+id).val(),
+                        reasons : $("#reason_"+id).val()
                     };
                     flag = true;
                 }
@@ -146,6 +163,7 @@
                 postDataArray.push(postData);
             });
             if(flag == true){
+              if($("#remarks").val()){
                 var formData = JSON.stringify(postDataArray);
                 $.ajax({
                    url:'<?php echo base_url(); ?>employee/user_invoice/process_spare_invoice',
@@ -177,6 +195,10 @@
                        alert("Invoice not generated, Try Again");
                    }
                 });
+               }
+               else{
+                alert("Please Enter Remark");
+               }
             }
             else{
                alert("Enter input fields for checked spare parts");
