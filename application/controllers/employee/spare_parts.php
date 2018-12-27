@@ -743,21 +743,24 @@ class Spare_parts extends CI_Controller {
      * @params: void
      * @return: string
      */
-    function move_to_update_spare_parts_details() {        
+    function move_to_update_spare_parts_details() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
         $spare_parts_id = $this->input->post('spare_parts_id');
         $partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
         $where = array('id' => $spare_parts_id);
-        $data = array('entity_type' => $entity_type, 'partner_id' => $partner_id);
+        $data['entity_type'] = $entity_type;
+        $data['partner_id'] = $partner_id;
+        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+        $data['defective_return_to_entity_id'] = $partner_id;
+        $data['is_micro_wh'] = 0;
+        
         $row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($entity_type == _247AROUND_PARTNER_STRING) {
-            $new_state = REQUESTED_SPARED_REMAP . " " . _247AROUND_PARTNER_STRING;
-        } else {
-            $new_state = REQUESTED_SPARED_REMAP . " " . WAREHOUSE;
-        }
-
+            $new_state = REQUESTED_SPARED_REMAP . " " . PARTNER_WILL_SEND_NEW_PARTS;
+        } 
+        
         if (!empty($row)) {
             $this->notify->insert_state_change($booking_id, $new_state, '', '', $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
             echo 'success';
@@ -1013,9 +1016,9 @@ class Spare_parts extends CI_Controller {
     }
     
     function get_defective_spare_parts(){
-        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, sell_invoice_id";
+        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status";
         $booking_id = $this->input->post('booking_id');
-        $where = array('booking_id'=>$booking_id);
+        $where = array("booking_id"=>$booking_id, "sell_invoice_id IS NULL"=>NULL);
         $data = $this->inventory_model->get_spare_parts_details($select, $where);
         echo json_encode($data);
     }
