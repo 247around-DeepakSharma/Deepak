@@ -222,7 +222,7 @@
                             <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
                         </tr>
                     </table>
-                    <table class="table  table-striped table-bordered" id="relative_holder" style="display:none;">
+                    <table class="table  table-striped table-bordered" id="relative_holder">
                         <tr>
                             <th colspan="3" style="font-size: 16px; color: #2c9d9c;">Booking Relatives</th>
                         </tr> 
