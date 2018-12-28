@@ -542,7 +542,7 @@ class Spare_parts extends CI_Controller {
         
         if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin"){
             
-            if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
+            if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
             $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
         } else {
             
@@ -1016,10 +1016,13 @@ class Spare_parts extends CI_Controller {
     }
     
     function get_defective_spare_parts(){
-        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status";
+        $where_internal_status = array("page" => "bill_defective_spare", "active" => '1');
+        $internal_status = $this->booking_model->get_internal_status($where_internal_status);
+        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
         $booking_id = $this->input->post('booking_id');
         $where = array("booking_id"=>$booking_id, "sell_invoice_id IS NULL"=>NULL);
-        $data = $this->inventory_model->get_spare_parts_details($select, $where);
+        $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where);
+        $data['remarks'] = $internal_status;
         echo json_encode($data);
     }
     

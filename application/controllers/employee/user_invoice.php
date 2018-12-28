@@ -514,10 +514,10 @@ class User_invoice extends CI_Controller {
         $data = array();
         $result = "";
         $booking_id = $this->input->post('booking_id');
-        $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
         foreach ($postData as $key=>$value){
+                $remarks = $this->input->post('remarks');
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('id' => $value->spare_detail_ids);
                 $chech_spare = $this->inventory_model->get_spare_parts_details('sell_invoice_id, entity_type, partner_id', $where);
@@ -547,7 +547,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['district'] = $partner_data['district'];
                         $data[$key]['pincode'] = $partner_data['pincode'];
                         $data[$key]['state'] = $partner_data['state'];
-                        $data[$key]['rate'] = 0;
+                        $data[$key]['rate'] = $gst_rate;
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
@@ -563,6 +563,9 @@ class User_invoice extends CI_Controller {
 
                     $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", SPARE_SALE_INVOICE, "", $booking_id);
                 }
+                //insert entry into booking state change
+                $remarks = $remarks." Part Id - ".$value->spare_detail_ids;
+                $this->notify->insert_state_change($booking_id, $value->reasons, "", $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
         }
         if(!empty($data)){
             $invoice_type = "Tax Invoice";
@@ -638,13 +641,11 @@ class User_invoice extends CI_Controller {
             $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
 
             if($inserted_invoice){
-                $service_center_action = $this->booking_model->get_bookings_count_by_any('id, service_center_closed_date', array('booking_id'=>$booking_id));
+                $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
                 if($service_center_action[0]['service_center_closed_date']){
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = _247AROUND_COMPLETED;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                    //insert entry into booking state change
-                    $this->notify->insert_state_change($booking_id, BIll_DEFECTIVE_SPARE_PART_TO_VENDOR, "", $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
                 }
                 $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
                 $where_in = array('id' => $spare_parts_detail_ids);
