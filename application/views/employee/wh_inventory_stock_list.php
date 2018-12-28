@@ -33,15 +33,15 @@
                             <div class="row">
                                 <div class="form-inline">
                                     <div class="form-group col-md-3">
-                                        <select class="form-control" id="wh_id">
-                                            <option value="" disabled="">Select Warehouse</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-3">
                                         <select class="form-control" id="partner_id">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <select class="form-control" id="wh_id">
+                                            <option value="" disabled="">Select Warehouse</option>
+                                        </select>
+                                    </div>                                    
                                     <div class="form-group col-md-3">
                                         <select class="form-control" id="service_id">
                                             <option value="" disabled="">Select Appliance</option>
@@ -109,8 +109,7 @@
             placeholder: 'Select Appliance'
         });
         
-        get_partner();
-        get_vendor();
+        get_partner();        
         get_inventory_list();
     });
     
@@ -199,11 +198,11 @@
         });
     }
     
-    function get_vendor() {
+    function get_vendor(partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'is_wh' : 1,partner_id:partner_id},
             success: function (response) {
                 $('#wh_id').html(response);
             }
@@ -214,10 +213,12 @@
         var partner_id = $('#partner_id').val();
         if(partner_id){
             get_appliance(partner_id);
+            get_vendor(partner_id);
         }else{
             alert('Please Select Partner');
         }
     });
+    
     function get_appliance(partner_id){
         $.ajax({
             type: 'GET',
