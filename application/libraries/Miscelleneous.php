@@ -3013,15 +3013,22 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     function create_entity_login($data){
+        $email_sent = true;
         $check_username = $this->My_CI->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $data['user_id']));
         if(empty($check_username)) {
             $p_where = array('id' => $data['entity_id']);
             //Getting name of Partner by Partner ID
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data['entity_name'] = $partner_details[0]['public_name'];
+            if(isset($data['email_not_sent'])){ 
+                $email_sent = false;
+                unset($data['email_not_sent']);
+            }
             $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
             if ($s1) {
                 //Log Message
+                
+                if($email_sent){
                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $data['entity_id'] . ' with values ' . print_r($data, TRUE));
                 //Getting template from Database to send mail
                 $accountManagerData = $this->get_am_data($data['entity_id']);
@@ -3042,6 +3049,8 @@ function generate_image($base64, $image_name,$directory){
                 } else {
                     //Logging Error
                     log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                
                 }
                 return $s1;
             } else {
