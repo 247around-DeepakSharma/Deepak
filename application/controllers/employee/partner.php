@@ -563,15 +563,22 @@ class Partner extends CI_Controller {
                 if (!empty($partner_id)) {
                     //Create Login For Partner
                     if($this->input->post('partner_type') == OEM){
-                        $loginData['partner_id'] = $partner_id;
-                        $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
-                        $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
-                        $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                        $loginData['final_checkbox_value_holder'][] = 'true';
-                        $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
-                        $sendUrl = base_url().'employee/partner/process_partner_contacts';
-                        $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                        $loginData['temp_partner_type'] = "OEM";
+                        $loginData['temp_partner_source'] = "autologin";
                     }
+                    else{
+                        $loginData['temp_partner_type'] = "NOT_OEM";
+                        $loginData['temp_partner_source'] = "autologin";
+                    }
+                    $loginData['partner_id'] = $partner_id;
+                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                    $loginData['final_checkbox_value_holder'] = 'true';
+                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
@@ -4889,7 +4896,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
-            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder')); 
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
@@ -4906,6 +4913,9 @@ class Partner extends CI_Controller {
                 $data['agent_id'] = $this->session->userdata('id');
                 $id = $this->reusable_model->insert_into_table("contact_person",$data);
                 $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
+                if($this->input->post('temp_partner_type') == "NOT_OEM" && $this->input->post('temp_partner_source')== "autologin"){
+                    $loginData['email_not_sent'] = "NOT";
+                }
                 // Create Login If Checkbox Checked
                 if($checkbox_array[$index] == 'true'){
                         $password = mt_rand(100000, 999999);
