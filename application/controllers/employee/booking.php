@@ -389,6 +389,12 @@ class Booking extends CI_Controller {
         $booking['service_center_closed_date'] = NULL;
         $booking['cancellation_reason'] = NULL;
         $actor = $next_action = NULL;
+        if($this->input->post('is_repeat')){
+            $booking['parent_booking'] = $this->input->post('parent_id');
+        }
+        else{
+            $booking['parent_booking'] = NULL;
+        }
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
@@ -396,9 +402,6 @@ class Booking extends CI_Controller {
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
                 $booking['parent_booking'] = NULL;
-                if($this->input->post('is_repeat')){
-                    $booking['parent_booking'] = $this->input->post('parent_id');
-                }
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
@@ -1273,9 +1276,13 @@ class Booking extends CI_Controller {
                     $html .= " onclick='return false;' ";
                 }
                 $html .= "name='prices[$brand_id][$clone_number][]'";
-                $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
-                        "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
-
+               // if($prices['service_category'] == REPEAT_BOOKING_TAG){
+                    $html .= "onclick='final_price(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model'></td><tr>";
+//                }
+//                else{
+//                    $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
+//                            "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
+//                }
                 $i++;
             }
             $data['price_table'] = $html;
@@ -4712,4 +4719,45 @@ class Booking extends CI_Controller {
             echo false;
         }
     }
+    function get_posible_parent_id(){
+        $contact = $this->input->post('contact');
+        $service_id = $this->input->post('service_id');
+        $partnerID = $this->input->post('partnerID');
+        $dayDiff = $this->input->post('day_diff');
+        $bookingsArray = $this->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
+        $count = count($bookingsArray);
+        if($count == 1){
+            $resultArray['html'] = $bookingsArray[0]['booking_id'];
+            $resultArray['status'] =_ONE_REPEAT_BOOKING_FLAG;
+        }
+        else if($count == 0){
+            $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
+        }
+        else{
+            $html = '<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Booking ID</th>
+      <th scope="col">Appliance</th>
+      <th scope="col">Status</th>
+      <th scope="col">Closed Date</th>
+      <th scope="col"></th>
+    </tr>
+  </thead><tbody>';
+    foreach($bookingsArray as $bookingDetails){
+        $html .= '<tr>
+      <td>'.$bookingDetails['booking_id'].'</td>
+      <td>'.$bookingDetails['services'].'</td>
+      <td>'.$bookingDetails['current_status'].'</td>
+      <td>'.$bookingDetails['closed_date'].'</td>
+      <td><input type="radio" name = "parent_booking_id_options" id="'.$bookingDetails['booking_id'].'" onclick = "parentBooking(this.id)""></td>
+    </tr>';
+    }
+    $html .= '</tbody></table>'; 
+    $resultArray['status'] = _MULTIPLE_REPEAT_BOOKING_FLAG;
+    $resultArray['html'] = $html;
+        }
+        echo json_encode($resultArray);
+    }
+    
 }
