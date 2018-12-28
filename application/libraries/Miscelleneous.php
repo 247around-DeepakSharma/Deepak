@@ -3178,14 +3178,16 @@ function generate_image($base64, $image_name,$directory){
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
             $response['inventory_id'] = $inventory_id;
             $response['is_micro_wh'] = 0;
-            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
-                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-            } else {
-                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['defective_return_to_entity_id'] = $partner_id;
-            }
+            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['defective_return_to_entity_id'] = $partner_id;
+//            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+//                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+//                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+//                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+//            } else {
+//                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $response['defective_return_to_entity_id'] = $partner_id;
+//            }
         }
         return $response;
     }
