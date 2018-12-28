@@ -389,19 +389,12 @@ class Booking extends CI_Controller {
         $booking['service_center_closed_date'] = NULL;
         $booking['cancellation_reason'] = NULL;
         $actor = $next_action = NULL;
-        if($this->input->post('is_repeat')){
-            $booking['parent_booking'] = $this->input->post('parent_id');
-        }
-        else{
-            $booking['parent_booking'] = NULL;
-        }
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-                $booking['parent_booking'] = NULL;
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
@@ -606,7 +599,12 @@ class Booking extends CI_Controller {
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
         $booking['partner_id'] = $this->input->post('partner_id');
-        
+        if($this->input->post('is_repeat')){
+           $booking['parent_booking'] = $this->input->post('parent_id');
+       }
+       else{
+           $booking['parent_booking'] = NULL;
+       }
         if(empty($user_id)){
             $user['phone_number'] = trim($booking['booking_primary_contact_no']);
             $user['name'] = trim($this->input->post('user_name'));
@@ -2495,38 +2493,35 @@ class Booking extends CI_Controller {
      * @return boolean
      */
     function validate_order_id($partner_id, $booking_id, $order_id, $amount_due) {
-
         switch ($partner_id) {
             case '247001':
-            
                 return true;
             // break;
             default :
                 $dealer_phone_number = $this->input->post("dealer_phone_number");
-                if (!empty($order_id)) {
-                    //Check only If booking is not Repeat
-                    if(!$this->input->post('is_repeat')){
-                        $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
-                        if (is_null($partner_booking)) {
-                            return true;
-                        } 
-                        else {
-                            if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
-                                $output = "Duplicate Order ID";
-                                $userSession = array('error' => $output);
-                                $this->session->set_userdata($userSession);
-                                return FALSE;
+                if(!$this->input->post('is_repeat')){
+                    if (!empty($order_id)) {
+                        //Check only If booking is not Repeat
+                            $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
+                            if (is_null($partner_booking)) {
+                                return true;
+                            } 
+                            else {
+                                if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                                    $output = "Duplicate Order ID";
+                                    $userSession = array('error' => $output);
+                                    $this->session->set_userdata($userSession);
+                                    return FALSE;
+                                }
                             }
                         }
-                        
-                    }
-                } 
-                else if(empty($dealer_phone_number) && $amount_due ==0){
-                    $output = "Please Enter Order ID OR Dealer Mobile Number";
-                    $userSession = array('error' => $output);
-                    $this->session->set_userdata($userSession);
-                    return FALSE;
-                } 
+                    else if(empty($dealer_phone_number) && $amount_due ==0){
+                        $output = "Please Enter Order ID OR Dealer Mobile Number";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        return FALSE;
+                    } 
+                }
                 return true;
                // break;
         }
