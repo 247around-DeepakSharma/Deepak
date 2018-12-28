@@ -4720,44 +4720,6 @@ class Booking extends CI_Controller {
         }
     }
     function get_posible_parent_id(){
-        $contact = $this->input->post('contact');
-        $service_id = $this->input->post('service_id');
-        $partnerID = $this->input->post('partnerID');
-        $dayDiff = $this->input->post('day_diff');
-        $bookingsArray = $this->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
-        $count = count($bookingsArray);
-        if($count == 1){
-            $resultArray['html'] = $bookingsArray[0]['booking_id'];
-            $resultArray['status'] =_ONE_REPEAT_BOOKING_FLAG;
-        }
-        else if($count == 0){
-            $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
-        }
-        else{
-            $html = '<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">Booking ID</th>
-      <th scope="col">Appliance</th>
-      <th scope="col">Status</th>
-      <th scope="col">Closed Date</th>
-      <th scope="col"></th>
-    </tr>
-  </thead><tbody>';
-    foreach($bookingsArray as $bookingDetails){
-        $html .= '<tr>
-      <td>'.$bookingDetails['booking_id'].'</td>
-      <td>'.$bookingDetails['services'].'</td>
-      <td>'.$bookingDetails['current_status'].'</td>
-      <td>'.$bookingDetails['closed_date'].'</td>
-      <td><input type="radio" name = "parent_booking_id_options" id="'.$bookingDetails['booking_id'].'" onclick = "parentBooking(this.id)""></td>
-    </tr>';
+        $this->miscelleneous->get_posible_parent_booking();
     }
-    $html .= '</tbody></table>'; 
-    $resultArray['status'] = _MULTIPLE_REPEAT_BOOKING_FLAG;
-    $resultArray['html'] = $html;
-        }
-        echo json_encode($resultArray);
-    }
-    
 }

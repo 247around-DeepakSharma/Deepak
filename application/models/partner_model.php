@@ -291,17 +291,13 @@ function get_data_for_partner_callback($booking_id) {
      * @desc: This method gets price details for partner
      */
     function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$is_repeat = NULL) {
-	$this->db->distinct();
-	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage');
-	$this->db->where('service_id', $service_id);
-	$this->db->where('category', $category);
-	$this->db->where('active', 1);
-	$this->db->where('check_box', 1);
-	$this->db->where('partner_id', $partner_id);
-        if(!$is_repeat){
-            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-            $this->db->where($where);
-        }
+        $this->db->distinct();
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services');
+        $this->db->where('service_id', $service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', 1);
+        $this->db->where('check_box', 1);
+        $this->db->where('partner_id', $partner_id);
         if($service_category !=""){
             if($not_like){
                 $this->db->where('service_category', $service_category);

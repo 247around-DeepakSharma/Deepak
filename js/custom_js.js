@@ -265,7 +265,10 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
-   // var customer_paid = $("#grand_total_price").val();
+    var parant_id = $('#parent_id').val();
+    var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
+    var isServiceChecked = $('.Service:checkbox:checked').length;
+   // var customer_paid = $("#grand_total_price").val()
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
@@ -432,7 +435,15 @@ function addBookingDialog(chanel = '') {
             } 
         }
     }
-
+    //If anyone select repeat booking then parent ID Shoud not blank
+    if(isRepeatChecked > 0 && isServiceChecked >0){
+        alert("You Can Not Select any other Service in case of Repeat Booking");
+        return false;
+    }
+    if(isRepeatChecked > 0 && !parant_id){
+        alert("Please Select Parent ID");
+        return false;
+    }
     if (booking_date === "") {
         alert("Please fill Booking date ");
         return false;
