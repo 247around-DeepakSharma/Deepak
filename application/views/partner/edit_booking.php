@@ -1092,7 +1092,7 @@
               $.ajax({
                       type: 'POST',
                       url: '<?php echo base_url(); ?>employee/partner/get_posible_parent_id',
-                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
