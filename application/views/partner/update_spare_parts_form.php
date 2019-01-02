@@ -191,8 +191,10 @@
                                             <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
-                                            <input required="" type="text" class="form-control spare_parts" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "" placeholder="Shipped Parts Type" >
+                                        <div class="col-md-6">                                            
+                                            <select required="" class="form-control spare_parts_type" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
+                                                <option selected disabled>Select Part Type</option>
+                                            </select>
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -285,8 +287,10 @@
                                             <span id="spinner" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="shippedparttype"  value = "" placeholder="Shipped Parts Type" >
+                                        <div class="col-md-6">                                            
+                                            <select required="" class="form-control spare_parts_type" id="shippedparttype"  value = "">
+                                                <option selected disabled>Select Part Type</option>
+                                            </select>
                                         </div>
                                         <?php } ?>
                                         <div class="col-md-2">
@@ -400,6 +404,20 @@
         </div>
     </form>
 </div>
+<script type="text/javascript">
+ $(document).ready(function(){
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";        
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+            data: { service_id:service_id},
+            success:function(data){                       
+                $('.spare_parts_type').html(data);              
+                $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
+            }
+        });
+    });
+</script>
 <script type="text/javascript">
     var someDate = new Date();
     var numberOfDaysToAdd = 7;

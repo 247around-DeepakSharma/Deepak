@@ -5089,4 +5089,170 @@ class Inventory extends CI_Controller {
         
         echo json_encode($output);
     }
+    
+    /**
+     *  @desc : This function is used to get inventory part type 
+     *  @param : void
+     *  @return : $res array()
+     */
+    
+    function get_inventory_parts_type() {
+
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')));
+
+        $option = '<option selected disabled>Select Part Type</option>';
+
+        foreach ($inventory_parts_type as $value) {
+            $option .= "<option data-hsn-code-details='".$value['hsn_code_details_id']."' value='" . $value['part_type'] . "'";
+            $option .= " > ";
+            $option .= $value['part_type'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /**
+     *  @desc : This function is used to get HSN Code and GST Rate
+     *  @param : void
+     *  @return : json
+     */
+    
+    function get_hsn_code_gst_details() {
+        if (!empty($this->input->post('hsn_code_id'))) {
+            $where = array('id' => $this->input->post('hsn_code_id'));
+        } else {
+            $where = array();
+        }
+
+        $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+
+        if (!empty($hsncode_details)) {
+            if (!empty($where) && sizeof($hsncode_details) == 1) {
+                echo json_encode($hsncode_details[0]);
+            } else {
+                if ($this->input->post('is_option_selected')) {
+                    $option = '<option  selected="" disabled="">Select HSN Code</option>';
+                } else {
+                    $option = '';
+                }
+
+                foreach ($hsncode_details as $value) {
+                    $option .= "<option value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['hsn_code'] . "</option>";
+                }
+                echo $option;
+            }
+        } else {
+            echo json_encode(array('result' => 'Data not found'));
+        }
+    }
+
+    /**
+     *  @desc : This function is used to add Inventory Part Type
+     *  @param : void
+     *  @return : json
+     */
+    
+    function get_add_inventory_part_type() {
+        
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('*',array());
+        $data = array();        
+        foreach ($inventory_parts_type as $key => $value){            
+            $services_details = $this->inventory_model->get_services_details('id,services', array('id'=>$value['service_id']));  
+            $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id'=>$value['hsn_code_details_id']));
+            array_push($value,array('service_name'=> $services_details[0]['services'],'hsn_code'=>$hsncode_details[0]['hsn_code']));
+            $part_type_arr[] = $value;
+            
+        }
+        $data['parts_type'] = $part_type_arr;        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/add_inventory_part_type",$data);
+    }
+    
+    
+     /**
+     *  @desc : This function is used to get HSN Code and GST Rate
+     *  @param : void
+     *  @return : json
+     */
+    
+    function get_services() {
+       
+        $services_details = $this->inventory_model->get_services_details('id,services', array());
+
+        if (!empty($services_details)) {
+            
+                if ($this->input->post('is_option_selected')) {
+                    $option = '<option  selected="" disabled="">Select Appliance </option>';
+                } else {
+                    $option = '';
+                }
+
+                foreach ($services_details as $value) {
+                    $option .= "<option value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['services'] . "</option>";
+                }
+           }
+        echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to process add Inventory Part Type form
+     * @params: Array
+     * @return: void
+     */
+     function process_add_inventory_part_type_form() {
+        //Form Validation
+        $this->form_validation->set_rules('service_id', 'Select Appliance', 'required');
+        $this->form_validation->set_rules('part_type', 'Enter Part Type', 'required');
+        $this->form_validation->set_rules('hsn_code', 'Select HSN Code', 'required');
+        if ($this->form_validation->run()) {
+            $data['service_id'] = $this->input->post('service_id');
+            $data['part_type'] = $this->input->post('part_type');
+            $data['hsn_code_details_id'] = $this->input->post('hsn_code');
+            $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
+            if($last_inserted_id){
+               redirect(base_url() . 'employee/inventory/get_add_inventory_part_type'); 
+            }
+                        
+        }else{
+            //Setting success session data 
+            $this->session->set_userdata('part_type_error', 'Please Fill Form  Details');
+            redirect(base_url() . 'employee/inventory/get_add_inventory_part_type');
+        }
+    }
+    
+    /**
+     * @desc: This function is used to process add Inventory Part Type form
+     * @params: Array
+     * @return: void
+     */
+    function process_edit_inventory_part_type_form() {
+        //Form Validation
+        $part_type_id = $this->input->post('part_type_id');
+        if (!empty($part_type_id)) {
+            $data['id'] = $part_type_id;
+            $data['service_id'] = $this->input->post('service_id');
+            $data['part_type'] = $this->input->post('part_type');
+            $data['hsn_code_details_id'] = $this->input->post('hsn_code');
+            if (!empty($data)) {
+                $affected_id = $this->inventory_model->update_inventory_parts_type($data, array('id' => $part_type_id));
+
+                if ($affected_id) {
+                    $services_details = $this->inventory_model->get_services_details('id,services', array('id' => $data['service_id']));
+                    $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id' => $data['hsn_code_details_id']));
+                    if (!empty($services_details) && !empty($hsncode_details)) {
+                        unset($data['hsn_code_details_id']);
+                        unset($data['service_id']);
+                        $data['service_name'] = $services_details[0]['services'];
+                        $data['hsn_code'] = $hsncode_details[0]['hsn_code'];
+                        echo json_encode($data);
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -9557,3 +9557,13 @@ ALTER TABLE `courier_details`
   DROP `ewaybill_no`,
   DROP `ewaybill_file`,
   DROP `ewaybill_generated_date`;
+--Kalyani 27-Dec-2018
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+--Gorakh 26-12-2018--
+CREATE TABLE `inventory_parts_type` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) DEFAULT NULL,
+  `part_type` varchar(156) NOT NULL,
+  `hsn_code_details_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

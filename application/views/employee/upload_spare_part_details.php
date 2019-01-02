@@ -35,7 +35,7 @@
                 </h1>
                 <section>
                     <div class="col-md-6">
-                        <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                        <form class="form-horizontal" onsubmit="return submitForm();" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <div class="form-group <?php if( form_error('partner_id') ) { echo 'has-error';} ?>">
                                 <label for="partner_id" class="col-md-3">Select Partner</label>
                                 <div class="col-md-9">
@@ -64,8 +64,8 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <div class="col-md-4">
-                                    <input type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload">
+                                <div class="col-md-4">                                 
+                                    <input type="submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload">
                                 </div>
                             </div>
                         </form>
@@ -107,7 +107,7 @@
                 fd.append("label", "WEBUPLOAD");
                 fd.append('partner_id',$('#partner_id').val());
                 fd.append('service_id',$('#service_id').val());
-                fd.append('file_type','<?PHP echo PARTNER_INVENTORY_DETAILS_FILE ;?>');
+                fd.append('file_type','<?php echo PARTNER_INVENTORY_DETAILS_FILE ;?>');
                 fd.append('redirect_url','upload_inventory_details_file');
                 $.ajax({
                     url: "<?php echo base_url() ?>upload_file",
