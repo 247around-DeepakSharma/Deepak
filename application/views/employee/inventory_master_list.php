@@ -205,8 +205,10 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="type">Part Type*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="type" name="type"></textarea>
+                                    <div class="col-md-7 col-md-offset-1">                                        
+                                        <select class="form-control inventory_part_type" id="part_type" name="type" tabindex="-1" aria-hidden="true">
+                                            <option selected="" disabled="">Select Partner</option>                                            
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -243,7 +245,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" disabled="">
                                     </div>
                                 </div>
                             </div>
@@ -251,7 +253,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" disabled="">
                                     </div>
                                 </div>
                             </div>
@@ -278,7 +280,7 @@
                         </div>
                         
                         <div class="modal-footer">
-                            <input type="hidden"  id="entity_type" name='entity_type' value="partner">
+                            <input type="hidden"  id="entity_type" name='entity_type' value="partner">                            
                             <input type="hidden"  id="inventory_id" name='inventory_id' value="">
                             <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">Submit</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -498,7 +500,7 @@
         $('#model_number_div').hide();
         var form_data = $(this).data('id');
         if(form_data.service_id){
-                // Set the value, creating a new option if necessary
+              // Set the value, creating a new option if necessary
                 if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
                 $('#service_id').val(form_data.service_id).trigger('change');
                 } else { 
@@ -516,7 +518,11 @@
             $('#entity_id').html(entity_id_options);
         }
         
-        
+        if(form_data.type){
+            $('.inventory_part_type').attr("id","edit_part_type_modal_id");
+            $("#edit_part_type_modal_id").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
+        }
+               
         $('#part_name').val(form_data.part_name);
         $('#part_number').val(form_data.part_number);
         $('#serial_number').val(form_data.serial_number);
@@ -531,7 +537,7 @@
         $('#master_list_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
         $('#inventory_master_list_data').modal('toggle');
-           
+         
     });
     
     $("#master_list_submit_btn").click(function(){
@@ -627,5 +633,46 @@
         inventory_master_list_table.ajax.reload();
     };
     
+   $(document).ready(function(){      
+  
+    $("#service_id").on('change',function(){
+        var service_id = $(this).val();
+        get_services(service_id,'part_type');
+       
+    });
     
+    function get_services(service_id,part_type_div){
+         if(service_id!=''){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+                data: { service_id:service_id},
+                success:function(data){                
+                    $("#"+part_type_div).html(data);                                      
+                }
+            });
+       }
+    }
+        
+    $("#part_type").on('change',function(){
+        var hsn_code_id =$("#part_type").find('option:selected').attr("data-hsn-code-details"); 
+        $.ajax({
+            method:'POST',            
+            url:'<?php echo base_url(); ?>employee/inventory/get_hsn_code_gst_details',
+            dataType: "json",
+            data: { hsn_code_id:hsn_code_id},
+            success:function(response){
+                $("#hsn_code").val(response['hsn_code']); 
+                $("#gst_rate").val(response['gst_rate']);            
+            }
+        });
+    });  
+    
+    $(".inventory_part_type").click(function(){
+       var service_id = $("#service_id").val();
+       get_services(service_id,'edit_part_type_modal_id');
+    });
+    
+  }); 
+ 
 </script>
