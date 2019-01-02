@@ -9563,3 +9563,17 @@ CREATE TABLE `inventory_parts_type` (
   `part_type` varchar(156) NOT NULL,
   `hsn_code_details_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--Gorakh 02-Jan-2019
+ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('GoJavas', 'gojavas', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('ecom-express', 'Ecom Express', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('tnt-reference', 'TNT Reference', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('overnitenet', 'Overnite Express', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('airwings-india', '	Airwings Courier Express India', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('parcel', 'Pitney Bowes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
