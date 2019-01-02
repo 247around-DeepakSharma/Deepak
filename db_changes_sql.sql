@@ -9543,7 +9543,6 @@ ALTER TABLE `trigger_partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL D
 ALTER TABLE `booking_details` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `is_upcountry`;
 
 --Gorakh 22-12-2018--
-
 CREATE TABLE `ewaybill_details` (
   `id` int(11) NOT NULL primary key auto_increment,
   `courier_details_id` int(11) DEFAULT NULL,
