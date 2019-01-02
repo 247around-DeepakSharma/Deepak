@@ -398,6 +398,7 @@ class Partner extends CI_Controller {
         $post['dealer_name'] = $this->input->post('dealer_name');
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
+        $post['parent_booking']  = NULL;
         if($this->input->post('parent_booking')){
             $post['parent_booking'] = $this->input->post('parent_booking');
         }
@@ -562,15 +563,22 @@ class Partner extends CI_Controller {
                 if (!empty($partner_id)) {
                     //Create Login For Partner
                     if($this->input->post('partner_type') == OEM){
-                        $loginData['partner_id'] = $partner_id;
-                        $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
-                        $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
-                        $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
-                        $loginData['final_checkbox_value_holder'][] = 'true';
-                        $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
-                        $sendUrl = base_url().'employee/partner/process_partner_contacts';
-                        $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                        $loginData['temp_partner_type'] = "OEM";
+                        $loginData['temp_partner_source'] = "autologin";
                     }
+                    else{
+                        $loginData['temp_partner_type'] = "NOT_OEM";
+                        $loginData['temp_partner_source'] = "autologin";
+                    }
+                    $loginData['partner_id'] = $partner_id;
+                    $loginData['contact_person_name'][] = $return_data['partner']['primary_contact_name'];
+                    $loginData['contact_person_email'][] = $return_data['partner']['primary_contact_email'];
+                    $loginData['contact_person_contact'][] = $return_data['partner']['primary_contact_phone_1'];
+                    $loginData['final_checkbox_value_holder'] = 'true';
+                    $loginData['contact_person_role'][] = PARTNER_POC_ROLE_ID;
+                    $sendUrl = base_url().'employee/partner/process_partner_contacts';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $loginData);
+                    
                     //End Login
                     $msg = "Partner added successfully Please update documents and Operation Regions.";
                     $this->session->set_userdata('success', $msg);
@@ -1478,6 +1486,7 @@ class Partner extends CI_Controller {
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($post['pincode']));
 
             $user['state'] = $distict_details['state'];
+            $booking_details['parent_booking'] = $post['parent_booking'];
             $booking_details['booking_date'] = $post['booking_date'];
             $booking_details['partner_id'] = $post['partner_id'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
@@ -2866,6 +2875,7 @@ class Partner extends CI_Controller {
         $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
+        $contact = $this->input->post("contact");
         $result = array();
 
         if ($partner_type == OEM) {
@@ -2915,32 +2925,49 @@ class Partner extends CI_Controller {
                      }
                      
                 }
-                
-                $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
-                $html .= "<td>" . $customer_net_payable . "</td>";
-                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
-                $html .= " type='checkbox' id='checkbox_" . $i . "'";
-                $html .= "name='prices[]'";
-                if (in_array($prices['service_category'], $explode) && !$is_repeat) {
-                    $html .= " checked ";
-                }
-               else if($is_repeat){
+                $checkboxClass = $prices['product_or_services'];
+                $ch  = "check_active_paid('".$i."')";
+                $onclick = 'onclick="final_price(), '.$ch.', set_upcountry()"';
+                $tempHelperString = "";
+               if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
-                        $html.= " checked ";
+                        $tempHelperString.= " checked ";
+                        $checkboxClass = "repeat_".$prices['product_or_services'];
                     }
-                    $html.=  "style= 'pointer-events: none;'";
+                    $tempHelperString.=  "style= 'pointer-events: none;'";
+                }
+                else{
+                    if (in_array($prices['service_category'], $explode)) {
+                        $tempHelperString .= " checked ";
+                        if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
+                            $checkboxClass = "repeat_".$prices['product_or_services'];
+                            $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,true";
+                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(),get_parent_booking('.$tempString.')"';
+                            //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                         }
+                    }
+                    else{
+                         if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
+                             $checkboxClass = "repeat_".$prices['product_or_services'];
+                            $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
+                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(),get_parent_booking('.$tempString.')"';
+                            //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                         }
+                    }
                 }
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     if($customer_net_payable == 0 ){
-                        $html .= " disabled onclick='return false;' ";
+                        $tempHelperString .= " disabled onclick='return false;' ";
                     } else {
-                        $html .= " onclick='return false;' ";
+                        $tempHelperString .= " onclick='return false;' ";
                     }   
                 }
-                $ch  = 'check_active_paid("'.$i.'")';
-                $html .= "  onclick='final_price(), ".$ch.", set_upcountry()'" .
-                        "value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
-
+                $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
+                $html .= "<td>" . $customer_net_payable . "</td>";
+                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
+                $html .= " type='checkbox' id='checkbox_" . $i . "'";
+                $html .= "name='prices[]'";
+                $html .= $tempHelperString.$onclick."value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
                 $i++;
             }
             $html .= "<tr class='text-center'><td>Upcountry Services</td>";
@@ -4869,7 +4896,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
-            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder')); 
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
@@ -4886,6 +4913,9 @@ class Partner extends CI_Controller {
                 $data['agent_id'] = $this->session->userdata('id');
                 $id = $this->reusable_model->insert_into_table("contact_person",$data);
                 $loginData['contact_person_id'] = $stateData['contact_person_id'] = $id;
+                if($this->input->post('temp_partner_type') == "NOT_OEM" && $this->input->post('temp_partner_source')== "autologin"){
+                    $loginData['email_not_sent'] = "NOT";
+                }
                 // Create Login If Checkbox Checked
                 if($checkbox_array[$index] == 'true'){
                         $password = mt_rand(100000, 999999);
@@ -6484,4 +6514,7 @@ class Partner extends CI_Controller {
         }
     }
 
+    function get_posible_parent_id(){
+        $this->miscelleneous->get_posible_parent_booking();
+    }
 }

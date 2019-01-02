@@ -55,9 +55,18 @@
                                     <input type="hidden" name="partner_channel" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>" />
                                     <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
-                                    <?php if($is_repeat){ ?>
-                                    <input type="hidden" value="<?php echo $booking_history[0]['booking_id']; ?>" name="parent_booking">
-                                    <?php } ?>
+                                    <?php
+                                    $parentID = "";
+                                    if($is_repeat){ 
+                                        $parentID = $booking_history[0]['booking_id'];
+                                     }
+                                     else{
+                                         if($booking_history[0]['parent_booking']){
+                                             $parentID = $booking_history[0]['parent_booking'];
+                                         }
+                                     }
+                                    ?>
+                                    <input type="hidden" value="<?php echo $parentID; ?>" name="parent_booking" id="parent_booking">
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
                                     
                                     <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name" <?php if($is_repeat){ echo "readonly";} ?>>
@@ -369,6 +378,25 @@
     </form>
 </div>
 
+<!-- Repeat Booking Model  -->
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body" id="repeat_booking_body">
+      </div>
+<!--      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
     function check_validation(){
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
@@ -381,11 +409,22 @@
         var category = $('#appliance_category_1').val();
         var remarks = $('#remarks').val();
         var partner_source = $("#partner_source").val();
-       
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
         var dealer_name = $("#dealer_name").val();
         var dealer_phone_number = $("#dealer_phone_number").val();
+        var parant_id = $('#parent_booking').val();
+        var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
+        var isServiceChecked = $('.Service:checkbox:checked').length;
+         //If anyone select repeat booking then parent ID Shoud not blank
+        if(isRepeatChecked > 0 && isServiceChecked >0){
+            alert("You Can Not Select any other Service in case of Repeat Booking");
+            return false;
+        }
+        if(isRepeatChecked > 0 && !parant_id){
+            alert("Please Select Parent ID");
+            return false;
+        }
         if(!mobile_number.match(exp1)){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid Mobile");
             return false;
@@ -689,6 +728,7 @@
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
         postData['is_repeat'] = '<?php echo $is_repeat;?>';
         postData['partner_type'] = '<?php echo $partner_type;?>';
+        postData['contact'] = '<?php echo $booking_history[0]['booking_primary_contact_no']; ?>';
         
         if( postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
@@ -1045,5 +1085,55 @@
                $("#partner_source").html(data).change();
             });
         }
+    }
+    function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
+        if(isChecked){
+            if(!is_already_repeat){
+              $.ajax({
+                      type: 'POST',
+                      url: '<?php echo base_url(); ?>employee/partner/get_posible_parent_id',
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
+                      success: function(response) {
+                          obj = JSON.parse(response);
+                          if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
+                              alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
+                              $('.repeat_Service:checked').prop('checked', false);
+                          }
+                         else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
+                             $('.Service:checked').prop('checked', false);
+                             $('.Service').each(function() {
+                                $(this).prop('disabled', true);
+                             });
+                             $("#parent_booking").val(obj.html);
+                          }
+                          else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
+                              $('.Service:checked').prop('checked', false);
+                                $('.Service').each(function() {
+                                    $(this).prop('disabled', true);
+                                });
+                              $('#repeat_booking_model').modal('show');
+                              $("#repeat_booking_body").html(obj.html);
+                          }
+                      }
+                  });
+              }
+              else{
+                $('.Service:checked').prop('checked', false);
+                $('.Service').each(function() {
+                    $(this).prop('disabled', true);
+                });
+                $("#parent_booking").val($("#parent_id_temp").text());
+              }
+           }
+           else{
+                $('.Service').each(function() {
+                    $(this).prop('disabled', false);
+                });
+                $("#parent_booking").val("");
+           }
+    }
+    function parentBooking(id){
+        $("#parent_booking").val(id);
+        $('#repeat_booking_model').modal('hide');
     }
 </script>

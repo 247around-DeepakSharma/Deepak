@@ -597,5 +597,16 @@ define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
 //define("_247AROUND_WEBSITE", "247around-Website");
 
+
+//constant to define 'bill defective spare part to vendor' internal status
+define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
+
+//Repeat Booking
+define("_247AROUND_REPEAT_BOOKING_ALLOWED_DAYS", 90);
+define("_PARTNER_REPEAT_BOOKING_ALLOWED_DAYS", 30);
+define("_NO_REPEAT_BOOKING_FLAG", 2);
+define("_ONE_REPEAT_BOOKING_FLAG", 1);
+define("_MULTIPLE_REPEAT_BOOKING_FLAG", 3);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -848,16 +848,16 @@ class Booking_model extends CI_Model {
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $is_repeat = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable,product_or_services');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
-        if(!$is_repeat){
-            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
-            $this->db->where($where);
-        }
+//        if(!$is_repeat){
+//            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+//            $this->db->where($where);
+//        }
         //if($brand !=""){
             $this->db->where('brand', $brand);
         //}
@@ -2498,6 +2498,22 @@ class Booking_model extends CI_Model {
                 . " AND s.booking_id != booking_details.booking_id) as siblings,(SELECT GROUP_CONCAT(c.booking_id) FROM booking_details c WHERE c.parent_booking = booking_details.booking_id) as child "
                 . "FROM booking_details WHERE booking_id = '".$bookingID."'";
         $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff){
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->_reserved_identifiers = array('NOT');
+        $where["DATEDIFF(CURRENT_TIMESTAMP , closed_date) <= ".$dayDiff] = NULL;
+        $where['service_id'] = $service_id;
+        $where['partner_id'] = $partnerID;
+        $where['booking_primary_contact_no'] = $contact;
+        $where['current_status'] = _247AROUND_COMPLETED;
+        $where['NOT EXISTS (SELECT 1 FROM booking_details bd WHERE bd.parent_booking = booking_details.booking_id AND bd.current_status ="Pending" LIMIT 1)'] = NULL;
+        $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date');
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        $this->db->join("services","services.id = booking_details.service_id");
+        $query = $this->db->get();
         return $query->result_array();
     }
 }
