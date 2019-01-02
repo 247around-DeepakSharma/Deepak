@@ -2775,4 +2775,15 @@ class invoices_model extends CI_Model {
         
         return $result;
     }
+    
+    /**
+     * @desc: This is used to insert data into booking_debit_credit_details
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_into_booking_debit_credit_detils($data){
+        $this->db->insert('booking_debit_credit_details', $data);
+        return $this->db->insert_id();
+    }
 }

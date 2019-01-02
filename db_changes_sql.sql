@@ -9553,9 +9553,6 @@ ALTER TABLE `courier_details`
   DROP `ewaybill_file`,
   DROP `ewaybill_generated_date`;
 
-
---Kalyani 27-Dec-2018
-INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 --Gorakh 26-12-2018--
 CREATE TABLE `inventory_parts_type` (
   `id` int(11) NOT NULL,
@@ -9577,3 +9574,31 @@ INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('airwings-india', '	Airwings Courier Express India', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('parcel', 'Pitney Bowes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Kalyani 27-Dec-2018
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+
+-- Kalyani 02-Jan-2019 --
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'partner_refuse_to_pay', 'Invalid Serial Number', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+ALTER TABLE `booking_unit_details` ADD `partner_refuse_to_pay` TINYINT(1) NOT NULL DEFAULT '0' AFTER `appliance_size`;
+
+CREATE TABLE `booking_debit_credit_details` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(100) DEFAULT NULL,
+  `entity_id` int(11) NOT NULL,
+  `booking_id` varchar(255) DEFAULT NULL,
+  `booking_unit_id` int(11) NOT NULL,
+  `invoice_type` varchar(255) DEFAULT NULL,
+  `invoice_id` varchar(255) DEFAULT NULL,
+  `reference_invoice_id` varchar(65) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `booking_debit_credit_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `booking_debit_credit_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+
