@@ -47,7 +47,7 @@ class File_upload extends CI_Controller {
             
             //get file header
             $data = $this->read_upload_file_header($file_status);
-           
+            
             $data['post_data'] = $this->input->post();
             
             if(!empty( $data['post_data']['partner_id'])){
@@ -225,15 +225,27 @@ class File_upload extends CI_Controller {
 
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-
+               
                     $where['hsn_code'] = $rowData['hsn_code'];
-                    $hsncode_data = $this->inventory_model->get_hnscode_details('hsn_code,gst_rate', $where);
+                    $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+                                        
+                    if(!empty($service_id) && !empty($rowData['part_type'])){
+                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=>$rowData['part_type']));
+                        if(empty($parts_type_details)){
+                            $parts_data['service_id'] = $service_id;
+                            $parts_data['part_type'] = $rowData['part_type'];
+                            $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
+                            if(!empty($parts_data)){
+                                $this->inventory_model->insert_inventory_parts_type($parts_data);
+                            }
+                        }
+                    }
 
                     if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
                         $flag = 0;
                         $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
                         break;
-                    }
+                    }                                          
                     if ($flag == 1) {
                         $rowData['service_id'] = $service_id;
                         //array_push($file_appliance_arr, $rowData['appliance']);
