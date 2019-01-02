@@ -395,10 +395,6 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-                $booking['parent_booking'] = NULL;
-                if($this->input->post('is_repeat')){
-                    $booking['parent_booking'] = $this->input->post('parent_id');
-                }
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
@@ -603,7 +599,12 @@ class Booking extends CI_Controller {
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
         $booking['update_date'] = date("Y-m-d H:i:s");
         $booking['partner_id'] = $this->input->post('partner_id');
-        
+        if($this->input->post('is_repeat')){
+           $booking['parent_booking'] = $this->input->post('parent_id');
+       }
+       else{
+           $booking['parent_booking'] = NULL;
+       }
         if(empty($user_id)){
             $user['phone_number'] = trim($booking['booking_primary_contact_no']);
             $user['name'] = trim($this->input->post('user_name'));
@@ -1273,9 +1274,13 @@ class Booking extends CI_Controller {
                     $html .= " onclick='return false;' ";
                 }
                 $html .= "name='prices[$brand_id][$clone_number][]'";
-                $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
-                        "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
-
+               // if($prices['service_category'] == REPEAT_BOOKING_TAG){
+                    $html .= "onclick='final_price(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model'></td><tr>";
+//                }
+//                else{
+//                    $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
+//                            "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . " ></td><tr>";
+//                }
                 $i++;
             }
             $data['price_table'] = $html;
@@ -2488,38 +2493,35 @@ class Booking extends CI_Controller {
      * @return boolean
      */
     function validate_order_id($partner_id, $booking_id, $order_id, $amount_due) {
-
         switch ($partner_id) {
             case '247001':
-            
                 return true;
             // break;
             default :
                 $dealer_phone_number = $this->input->post("dealer_phone_number");
-                if (!empty($order_id)) {
-                    //Check only If booking is not Repeat
-                    if(!$this->input->post('is_repeat')){
-                        $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
-                        if (is_null($partner_booking)) {
-                            return true;
-                        } 
-                        else {
-                            if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
-                                $output = "Duplicate Order ID";
-                                $userSession = array('error' => $output);
-                                $this->session->set_userdata($userSession);
-                                return FALSE;
+                if(!$this->input->post('is_repeat')){
+                    if (!empty($order_id)) {
+                        //Check only If booking is not Repeat
+                            $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
+                            if (is_null($partner_booking)) {
+                                return true;
+                            } 
+                            else {
+                                if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                                    $output = "Duplicate Order ID";
+                                    $userSession = array('error' => $output);
+                                    $this->session->set_userdata($userSession);
+                                    return FALSE;
+                                }
                             }
                         }
-                        
-                    }
-                } 
-                else if(empty($dealer_phone_number) && $amount_due ==0){
-                    $output = "Please Enter Order ID OR Dealer Mobile Number";
-                    $userSession = array('error' => $output);
-                    $this->session->set_userdata($userSession);
-                    return FALSE;
-                } 
+                    else if(empty($dealer_phone_number) && $amount_due ==0){
+                        $output = "Please Enter Order ID OR Dealer Mobile Number";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        return FALSE;
+                    } 
+                }
                 return true;
                // break;
         }
@@ -4711,5 +4713,8 @@ class Booking extends CI_Controller {
         else{
             echo false;
         }
+    }
+    function get_posible_parent_id(){
+        $this->miscelleneous->get_posible_parent_booking();
     }
 }

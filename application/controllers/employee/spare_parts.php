@@ -1006,10 +1006,13 @@ class Spare_parts extends CI_Controller {
     }
     
     function get_defective_spare_parts(){
-        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, sell_invoice_id";
+        $where_internal_status = array("page" => "bill_defective_spare", "active" => '1');
+        $internal_status = $this->booking_model->get_internal_status($where_internal_status);
+        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
         $booking_id = $this->input->post('booking_id');
-        $where = array('booking_id'=>$booking_id);
-        $data = $this->inventory_model->get_spare_parts_details($select, $where);
+        $where = array("booking_id"=>$booking_id, "sell_invoice_id IS NULL"=>NULL);
+        $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where);
+        $data['remarks'] = $internal_status;
         echo json_encode($data);
     }
     

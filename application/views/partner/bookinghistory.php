@@ -71,7 +71,7 @@
                                         $today = strtotime(date("Y-m-d"));
                                         $closed_date = strtotime($row['closed_date']);
                                         $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
-                                        if($completedDays < 42){
+                                        if($completedDays < _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS){
                                             echo "<td><a class='btn btn-sm btn-primary' "
                                                 . "href=" . base_url() . "employee/partner/get_repeat_booking_form/$row[booking_id]/". " target='_blank'title='view'><i class='fa fa-plus' aria-hidden='true'></i></a></td>";
                                         }

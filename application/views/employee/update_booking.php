@@ -65,16 +65,25 @@
             <?php } ?>
             <div class="panel-body">
                 <?php
+                $is_repeat_value = "";
+                $parentBkng = "";
                 if($is_repeat){
                     $bkng_id = INSERT_NEW_BOOKING;
+                    $parentBkng = $booking_history[0]['booking_id'];
+                    $is_repeat_value = 1;
                 }
                 else{
                     $bkng_id = $booking_history[0]['booking_id'];
                 }
+                if($booking_history[0]['parent_booking'] && !$is_repeat){
+                     $is_repeat_value = 1;
+                     $parentBkng = $booking_history[0]['parent_booking'];
+                }
                 ?>
                 <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id; }  ?> "  method="POST" enctype="multipart/form-data">
-                    <input type="hidden" value="<?php echo $is_repeat ?>" name="is_repeat">
-                    <input type="hidden" value="<?php echo $booking_history[0]['booking_id']; ?>" name="parent_id">
+                    <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
+                    <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
+                    <p id="parent_id_temp"><?php echo $parentBkng; ?></p>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -445,23 +454,41 @@
                                                                 placeholder='Enter discount' readonly />
                                                             </td>
                                                             <td>
+                                                                <?php
+                                                                 $onclick = "onclick='final_price(), enable_discount(this.id), set_upcountry()'";
+                                                                ?>
                                                                 <input type='hidden'name ='is_up_val' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
-                                                                <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
+                                                                <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
+                                                                class='price_checkbox <?php echo $price['product_or_services']; } ?>' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
-                                                                        if(($tags['price_tags'] == $price['service_category']) && !$is_repeat ){
-                                                                           echo " checked ";
-                                                                        }
                                                                         if($is_repeat){
                                                                             if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                 echo " checked ";
                                                                             }
                                                                             echo "style= 'pointer-events: none;'";
                                                                         }
+                                                                        else{
+                                                                            if(($tags['price_tags'] == $price['service_category'])){
+                                                                                echo " checked ";
+                                                                                if($price['service_category'] ==  REPEAT_BOOKING_TAG){
+                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true";
+                                                                                    //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                }
+                                                                            }
+                                                                            else{ 
+                                                                                if($price['service_category'] ==  REPEAT_BOOKING_TAG){
+                                                                                   $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
+                                                                                   //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                }
+                                                                            }
+                                                                        }
                                                                      }
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -771,6 +798,25 @@
         </div>
     </div>
 </div>
+<!-- Repeat Booking Model  -->
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body" id="repeat_booking_body">
+      </div>
+<!--      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+  </div>
+</div>
+
 <script>
 
    
@@ -893,7 +939,60 @@
     else
         $(".disabled-select", objs).remove();
 }
-
+function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
+        if(isChecked){
+            if(!is_already_repeat){
+              $.ajax({
+                      type: 'POST',
+                      url: '<?php echo base_url(); ?>employee/booking/get_posible_parent_id',
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
+                      success: function(response) {
+                          obj = JSON.parse(response);
+                          if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
+                              alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
+                              $('.repeat_Service:checked').prop('checked', false);
+                          }
+                         else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
+                             $('.Service:checked').prop('checked', false);
+                             $('.Service').each(function() {
+                                $(this).prop('disabled', true);
+                             });
+                             $("#parent_id").val(obj.html);
+                             $("#is_repeat").val("1");
+                          }
+                          else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
+                              $('.Service:checked').prop('checked', false);
+                                $('.Service').each(function() {
+                                    $(this).prop('disabled', true);
+                                });
+                              $('#repeat_booking_model').modal('show');
+                              $("#repeat_booking_body").html(obj.html);
+                          }
+                      }
+                  });
+              }
+              else{
+                $('.Service:checked').prop('checked', false);
+                $('.Service').each(function() {
+                    $(this).prop('disabled', true);
+                });
+                $("#parent_id").val($("#parent_id_temp").text());
+                $("#is_repeat").val("1");
+              }
+           }
+           else{
+           $('.Service').each(function() {
+               $(this).prop('disabled', false);
+           });
+            $("#parent_id").val("");
+            $("#is_repeat").val("");
+           }
+    }
+    function parentBooking(id){
+        $("#parent_id").val(id);
+        $("#is_repeat").val("1");
+        $('#repeat_booking_model').modal('hide');
+    }
 </script>
 <style type="text/css">
     #errmsg1

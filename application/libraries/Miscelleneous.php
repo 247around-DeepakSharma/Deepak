@@ -2999,15 +2999,22 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         }
     }
     function create_entity_login($data){
+        $email_sent = true;
         $check_username = $this->My_CI->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $data['user_id']));
         if(empty($check_username)) {
             $p_where = array('id' => $data['entity_id']);
             //Getting name of Partner by Partner ID
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data['entity_name'] = $partner_details[0]['public_name'];
+            if(isset($data['email_not_sent'])){ 
+                $email_sent = false;
+                unset($data['email_not_sent']);
+            }
             $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
             if ($s1) {
                 //Log Message
+                
+                if($email_sent){
                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $data['entity_id'] . ' with values ' . print_r($data, TRUE));
                 //Getting template from Database to send mail
                 $accountManagerData = $this->get_am_data($data['entity_id']);
@@ -3028,6 +3035,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                 } else {
                     //Logging Error
                     log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                
                 }
                 return $s1;
             } else {
@@ -3743,5 +3752,45 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
             }
+    }
+    function get_posible_parent_booking(){
+        $contact = $this->My_CI->input->post('contact');
+        $service_id = $this->My_CI->input->post('service_id');
+        $partnerID = $this->My_CI->input->post('partnerID');
+        $dayDiff = $this->My_CI->input->post('day_diff');
+        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
+        $count = count($bookingsArray);
+        if($count == 1){
+            $resultArray['html'] = $bookingsArray[0]['booking_id'];
+            $resultArray['status'] =_ONE_REPEAT_BOOKING_FLAG;
+        }
+        else if($count == 0){
+            $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
+        }
+        else{
+            $html = '<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Booking ID</th>
+      <th scope="col">Appliance</th>
+      <th scope="col">Status</th>
+      <th scope="col">Closed Date</th>
+      <th scope="col"></th>
+    </tr>
+  </thead><tbody>';
+    foreach($bookingsArray as $bookingDetails){
+        $html .= '<tr>
+      <td>'.$bookingDetails['booking_id'].'</td>
+      <td>'.$bookingDetails['services'].'</td>
+      <td>'.$bookingDetails['current_status'].'</td>
+      <td>'.$bookingDetails['closed_date'].'</td>
+      <td><input type="radio" name = "parent_booking_id_options" id="'.$bookingDetails['booking_id'].'" onclick = "parentBooking(this.id)""></td>
+    </tr>';
+    }
+    $html .= '</tbody></table>'; 
+    $resultArray['status'] = _MULTIPLE_REPEAT_BOOKING_FLAG;
+    $resultArray['html'] = $html;
+        }
+        echo json_encode($resultArray);
     }
 }
