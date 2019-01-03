@@ -338,6 +338,7 @@
                         <th>Type</th>
                         <th>Name on PAN</th>
                         <th>PAN</th>
+                        <th>Service Charge</th>
                         <th>TDS Amount</th>
                         <th>TDS Rate</th>
                     </tr>
@@ -355,6 +356,7 @@
                                 <td><?php echo $value['company_type']; ?></td>
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
+                                <td><?php echo round($value['tds_taxable_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_rate'],0); ?></td>
                             </tr>
