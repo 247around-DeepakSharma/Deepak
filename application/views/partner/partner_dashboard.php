@@ -330,17 +330,18 @@
     var partner_name = '<?php echo $this->session->userdata('partner_name')?>';
     var partner_id = '<?php echo $this->session->userdata('partner_id')?>'; 
     $(function() {
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
+//        var d = new Date();
+//        n = d.getMonth();
+//        y = d.getFullYear();
+//        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
                 timePicker: true,
            timePickerIncrement: 30,
            locale: {
                format: 'YYYY-MM-DD'
            },
-           startDate: y+'-'+n+'-'+date
+           //startDate: y+'-'+n+'-'+date
+           startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         });
           function cb(start, end) {
             $('#reportrange2 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -477,17 +478,18 @@
     }
     
 function initiate_escalation_data(){
-    var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
+//    var d = new Date();
+//        n = d.getMonth();
+//        y = d.getFullYear();
+//        date = d.getDate();
         $('input[name="daterange"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-'+date
+        //startDate: y+'-'+n+'-'+date
+        startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
     });
 }
 

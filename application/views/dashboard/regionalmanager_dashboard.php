@@ -672,17 +672,18 @@ if($this->session->userdata("wrong_pincode_msg")){
     });
   
    function initiate_escalation_data(){
-        var d = new Date();
-        n = d.getMonth() + 1;
-        y = d.getFullYear();
-        date = d.getDate();
-        $('input[name="daterange"]').daterangepicker({
+//        var d = new Date();
+//        n = d.getMonth() + 1;
+//        y = d.getFullYear();
+//        date = d.getDate();
+        $('input[id="daterange_id"]').daterangepicker({
             timePicker: true,
             timePickerIncrement: 30,
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y + '-' + n + '-01'
+            //startDate: y + '-' + n + '-01'
+            startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
         });
    }
   
@@ -856,33 +857,26 @@ if($this->session->userdata("wrong_pincode_msg")){
             var dvSecond = document.getElementById('admin_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['admin_dashboard']);
-            var d = new Date();
-            n = d.getMonth();
-            y = d.getFullYear();
-            date = d.getDate();
+            
             $('#completed_daterange_id_am').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 30,
                 locale: {
                      format: 'YYYY-MM-DD'
                 },
-                startDate: y+'-'+n+'-'+date
+                startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
             });
         });
     }
     
      function initialise_RM_TAT_reporting(){
-        var d = new Date();
-         n = d.getMonth();
-         y = d.getFullYear();
-         date = d.getDate();
-         $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[name="daterange_completed_bookings"]').daterangepicker({
               timePicker: true,
              timePickerIncrement: 30,
              locale: {
                  format: 'YYYY-MM-DD'
              },
-             startDate: y+'-'+n+'-'+date
+             startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         });
     }
 </script>
