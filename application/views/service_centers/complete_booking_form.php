@@ -773,7 +773,7 @@
                 data:{serial_number:serialNo,model_number:model_number,partner_id:'<?php echo $booking_history[0]['partner_id'];?>',appliance_id:'<?php echo $booking_history[0]['service_id'];?>', price_tags:price_tags,
                 user_id: '<?php echo $booking_history[0]['user_id'];?>', 'booking_id': '<?php echo $booking_history[0]['booking_id'];?>'},
                 success: function (response) {
-                    console.log(response);
+                    var is_block = false;
                     var data = jQuery.parseJSON(response);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
@@ -787,13 +787,21 @@
                         $('body').loadingModal('destroy');
                         
                     } else {
+                        if(data.message == '<?php echo REPEAT_BOOKING_FAILURE_MSG?>'){
+                             is_block = true;
+                        }
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
                         $("#upload_serial_number_pic"+index).css('display', "block");
                         $("#duplicate_sno_required"+index).val('0');
                         $('body').loadingModal('destroy');
                     }
-                    
+                    if(is_block){
+                        $("#submitform").hide();
+                    }
+                    else{
+                        $("#submitform").show();
+                    }
                 }
             });
        } else {

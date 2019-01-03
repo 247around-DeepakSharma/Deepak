@@ -47,5 +47,7 @@ define('MONTH_POSIBLE_VALUES_2016', 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V
 define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
 define('FAILURE_MSG', 'Please Entered Correct Serial Number');
 
+//Repeat Booking Failure Massege
+define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Untill Repeat Booking Will not have correcct Serial Number');
 
 
