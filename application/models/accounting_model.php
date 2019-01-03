@@ -205,8 +205,8 @@ class accounting_model extends CI_Model {
                     vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
             $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount,
-                    tds_rate";
-            $group_by = " GROUP BY sc.id";
+                      tds_rate, (SUM(total_service_charge)+ SUM(courier_charges) + SUM(warehouse_storage_charges) + SUM(miscellaneous_charges) + SUM(upcountry_price) + SUM(credit_penalty_amount) + SUM(total_additional_service_charge) - SUM(penalty_amount)) as tds_taxable_amount";
+            $group_by = " GROUP BY sc.id, tds_rate";
         }
         $where = "";
         if ($invoice_data_by === 'invoice_date') {
