@@ -1211,19 +1211,20 @@ class Booking extends CI_Controller {
      * @return : services name and there prices
      */
     function getPricesForCategoryCapacity() {
-
+        $add_booking = NULL;
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
         $booking_city = $this->input->post('booking_city');
         $booking_pincode = $this->input->post('booking_pincode');
         $brand = $this->input->post('brand');
-        
         $partner_type = $this->input->post('partner_type');
         $clone_number = $this->input->post('clone_number');
         $partner_id =  $this->input->post('partner_id');
-       
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
+        if($this->input->post('add_booking')){
+            $add_booking = $this->input->post('add_booking');
+        }
         if (empty($assigned_vendor_id)) {
             $assigned_vendor_id = FALSE;
         }
@@ -1232,7 +1233,7 @@ class Booking extends CI_Controller {
         $partner_data = $this->initialized_variable->get_partner_data();
 
         if ($partner_type == OEM) {
-            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand,$add_booking);
         } else {
             $isWbrand = "";
             $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
@@ -1242,7 +1243,7 @@ class Booking extends CI_Controller {
                  
             } 
              
-            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $isWbrand);
+            $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $isWbrand,$add_booking);
             
         }
 
