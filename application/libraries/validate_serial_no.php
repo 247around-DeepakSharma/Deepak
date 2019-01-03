@@ -126,11 +126,11 @@ class Validate_serial_no {
                 log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 7 to 15 is not integer ".$digit7to14);
                 $flag = false;
             }
-            else if(!ctype_alpha($digit15)){
-                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
-                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 15 is not character ".$digit15);
-                $flag = false; 
-            }
+//            else if(!ctype_alpha($digit15)){
+//                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+//                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 15 is not character ".$digit15);
+//                $flag = false; 
+//            }
             if ($flag) {
                 return array('code' => SUCCESS_CODE);
             }
@@ -743,6 +743,7 @@ class Validate_serial_no {
          }
          return true;
     }
+
     function validate_repeat_booking_serial_number($serialNo,$booking_id){
         $parentBookingSerialNumbers = $this->MY_CI->booking_model->get_parent_booking_serial_number($booking_id,1);
         if($parentBookingSerialNumbers){

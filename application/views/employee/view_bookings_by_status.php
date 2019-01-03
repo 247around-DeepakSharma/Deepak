@@ -240,7 +240,7 @@
                     d.booking_id =  '<?php echo $booking_id;?>';
                     if ($('#partner_id').length){    d.partner_id   =  $('#partner_id').val();}else{ d.partner_id = ""; }
                     if ($('#sf_id').length){         d.sf_id        =  $('#sf_id').val();}else{ d.sf_id = ""; }
-                    if ($('#booking_date_range').length){  d.booking_date_range =  $('#booking_date_range').val();}else{ d.booking_date_range = ""; }
+                    if ($('#closed_date').length){  d.booking_date_range =  $('#closed_date').val();}else{ d.booking_date_range = ""; }
                     if ($('#city').length){          d.city         =  $('#city').val();}else{ d.city = ""; }
                     if ($('#ratings').length){d.ratings =  $('#ratings').val();}else{ d.ratings = ""; }
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }

@@ -262,6 +262,7 @@ class Upcountry_model extends CI_Model {
                 'is_upcountry' => 1,
                 'partner_provide_upcountry' => $partner_data[0]['is_upcountry'],
                 'upcountry_bill_to_partner' => $partner_data[0]['upcountry_bill_to_partner']);
+
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            if(isset($partner_data[0]['account_manager_id'])){
                 $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
@@ -657,7 +658,9 @@ class Upcountry_model extends CI_Model {
         $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
                 . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
                 . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
+        $this->db->join('partners', 'partners.id = ud.partner_id');
         $this->db->where('booking_id', $booking_id);
+        $this->db->where('partners.is_upcountry', '1');
         $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
        

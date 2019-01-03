@@ -139,9 +139,7 @@ class Miscelleneous {
             $notificationTextArrayVendor['msg'] = array($booking_id);
              $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
              
-            // Send New Booking SMS
-            $this->My_CI->notify->send_sms_email_for_booking($booking_id, "Newbooking" );
-             
+            
             //End Sending Push Notification
             // Data to be insert in service center
             $sc_data['current_status'] = "Pending";
@@ -251,6 +249,10 @@ class Miscelleneous {
     }
 
     function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
+        
+        if(empty($agent_id)){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+        }
        
         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $cus_net_payable = 0;
@@ -456,7 +458,7 @@ class Miscelleneous {
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
                 $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
-                $cc = "sachinj@247around.com, abhaya@247around.com";
+                $cc = "abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
 
@@ -2286,19 +2288,32 @@ class Miscelleneous {
     }
     function is_fake_rescheduled_penalty_valid($bookingDetails,$userPhone){
         log_message('info', __METHOD__.' Function Start '.$userPhone);
-        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
-        $historyWhere['new_state'] =  "InProcess_Rescheduled";
-        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
-        $historyLimitArray['length'] =  1;
-        $historyLimitArray['start'] =  0;
-        $historyOrderBYArray['id'] =  'ASC';
-        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
-                NULL,NULL,array()); 
-        $where['from_number'] = $userPhone;
-        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
-        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
-        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
-        if($logData[0]['count'] >0){
+//        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
+//        $historyWhere['new_state'] =  "InProcess_Rescheduled";
+//        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+//        $historyLimitArray['length'] =  1;
+//        $historyLimitArray['start'] =  0;
+//        $historyOrderBYArray['id'] =  'ASC';
+//        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
+//                NULL,NULL,array()); 
+//        $where['from_number'] = $userPhone;
+//        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
+//        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
+//        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
+//        if($logData[0]['count'] >0){
+//            log_message('info', __METHOD__.' Function End With False '.$userPhone);
+//            return false;    
+//        }
+//        else{
+//            log_message('info', __METHOD__.' Function End With True '.$userPhone);
+//            return true;
+//        }
+       $where['booking_id'] =  $bookingDetails[0]['booking_id'];
+       $where['escalation_reason'] =  PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT;
+       $where['vendor_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+       $alreadyApplicablePenalty = $this->My_CI->reusable_model->get_search_result_data("vendor_escalation_log","COUNT(id) as count",$where,NULL,NULL,NULL,NULL,NULL,array()); 
+       log_message('info', __METHOD__.' Function Start '.print_r($alreadyApplicablePenalty,true));
+        if($alreadyApplicablePenalty[0]['count'] >0){
             log_message('info', __METHOD__.' Function End With False '.$userPhone);
             return false;    
         }
@@ -2901,7 +2916,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
+            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -2915,7 +2930,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
-            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
@@ -3108,7 +3123,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     
 
     function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
-        $response = array();
+        log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
+        $response = array(); 
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
                 . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
@@ -3117,12 +3133,12 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $is_partner_wh = $partner_details[0]['is_wh'];
         $is_micro_wh = $partner_details[0]['is_micro_wh'];
         if (!empty($inventory_part_number)) {
-
+            //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+                //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
-                if (empty($response) && $is_partner_wh == 1) {
-                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
-                } else if (!empty($response)) {
+                if (!empty($response)) {
+                    //Defective Parts Return To
                     if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                         $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3130,12 +3146,30 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     } else {
                         $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $response['defective_return_to_entity_id'] = $partner_id;
+                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['defective_return_to_entity_id'] = $partner_id;
                     }
                 }
+                
+                if (empty($response) && $is_partner_wh == 1) {
+                    
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    if(!empty($response)){
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
+                    }
+                    
+                } 
+                
             } else if ($is_partner_wh == 1) {
 
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                if(!empty($response)){
+                    $response['defective_return_to_entity_type'] = $response['entity_type'];
+                    $response['defective_return_to_entity_id'] = $response['entity_id'];
+                }
             }
+
         } else {
             return false;
         }
@@ -3148,14 +3182,16 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
             $response['inventory_id'] = $inventory_id;
             $response['is_micro_wh'] = 0;
-            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
-                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-            } else {
-                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['defective_return_to_entity_id'] = $partner_id;
-            }
+            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['defective_return_to_entity_id'] = $partner_id;
+            // if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+            //     $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+            //     $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+            //     $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+            // } else {
+            //     $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            //     $response['defective_return_to_entity_id'] = $partner_id;
+            // }
         }
         return $response;
     }

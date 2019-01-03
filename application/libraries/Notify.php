@@ -523,7 +523,12 @@ class Notify {
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
-                        $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+                        if($query1[0]['is_upcountry'] == 1){
+                            // Do not add booking date in the SMS
+                        } else {
+                            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+                        }
+                        
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
 
@@ -539,15 +544,21 @@ class Notify {
                         else { 
                             $sms['smsData']['public_name'] = $query1[0]['public_name'];
                         }
-
-                        $sms['tag'] = "add_new_booking";
+                        
+                        if($query1[0]['is_upcountry'] == 1){
+                            $sms['tag'] = "upcountry_add_new_booking";
+                        } else {
+                            $sms['tag'] = "add_new_booking";
+                        }
+                
+                        
                     }
 		    
 		    //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-                
+                    log_message('info', __METHOD__. " ". print_r($sms, true));
 		    $this->send_sms_msg91($sms);
                     
                     //send sms to dealer

@@ -306,18 +306,18 @@ function get_data_for_partner_callback($booking_id) {
             }
         }
 
-	if (!empty($capacity)) {
-	    $this->db->where('capacity', $capacity);
-	}
+        if (!empty($capacity)) {
+            $this->db->where('capacity', $capacity);
+        }
         if(!empty($brand)){
             $this->db->where('brand', $brand);
         }
         
         $this->db->order_by('service_category', 'asc');
 
-	$query = $this->db->get('service_centre_charges');
+      $query = $this->db->get('service_centre_charges');
 
-	return $query->result_array();
+      return $query->result_array();
     }
     
     function get_service_category($service_id, $category, $capacity, $partner_id, $service_category,$brand ="") {
@@ -1609,6 +1609,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
+            booking_details.booking_address As 'Booking Address',
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',

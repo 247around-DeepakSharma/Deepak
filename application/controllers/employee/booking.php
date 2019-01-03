@@ -948,7 +948,7 @@ class Booking extends CI_Controller {
             $booking_details = $this->reusable_model->get_search_query('booking_details', 'booking_details.assigned_vendor_id,booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_details.booking_id' => $booking_id,"booking_unit_details.price_tags like '%"._247AROUND_WALL_MOUNT__PRICE_TAG."%'" => NULL,'booking_details.assigned_vendor_id IS NOT null'=>NULL), array('booking_unit_details'=>'booking_details.booking_id = booking_unit_details.booking_id'), NULL, NULL, NULL, NULL)->result_array();
             if (!empty($booking_details)) { 
             //Calculate TAT 
-            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
+            //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Send Push Notification
             $rmArray = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id']);
             $receiverArray['vendor'] = array($booking_details[0]['assigned_vendor_id']);
@@ -1947,7 +1947,7 @@ class Booking extends CI_Controller {
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
                 $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
                 if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
-                    $this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
+                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
                 }
             }
 

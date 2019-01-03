@@ -1477,6 +1477,7 @@ class Do_background_upload_excel extends CI_Controller {
                     //save file and upload on s3
 
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
+
                     
                     //get email details 
                     $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
@@ -1505,7 +1506,23 @@ class Do_background_upload_excel extends CI_Controller {
                     $body .= "<br> <b>File Name</b> ". $header_data['file_name']; 
                     $attachment = TMP_FOLDER.$header_data['file_name'];
                     $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment,FILE_UPLOAD_FAILED_STATUS);
+                    
+                    //Save revert file info
+                    $uploaded_file_name = $this->reusable_model->get_search_query("file_uploads", "file_name", array('id'=>$file_upload_id), null, null, null, null, null, null)->result_array();
+                    $revertData = array(
+                        'revert_file_subject' => $subject."<br/><b>Message</b> - ".$body,
+                        'revert_file_from' => "noreply@247around.com",
+                        'revert_file_to' => $to,
+                        'revert_file_cc' => $cc,
+                        'revert_file_name' => $uploaded_file_name[0]['file_name'],
+                    );
 
+                    $revertDataWhere = array(
+                        'id' => $file_upload_id,
+                    );
+
+                    $this->partner_model->update_file_upload_details($revertDataWhere, $revertData);
+                    
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
                     redirect(base_url() . "employee/booking_excel/$redirect_to");

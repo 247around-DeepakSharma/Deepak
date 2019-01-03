@@ -1667,14 +1667,12 @@
                                             <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
                                         </div>
                                     </div>
-                                                                         
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Alternate Email </label>
                                         <div class="col-md-6">
                                             <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
                                         </div>
-                                    </div>
-                                                                         
+                                    </div>                               
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Permanent Address</label>
                                         <div class="col-md-6">
@@ -2077,7 +2075,7 @@
                                             <label for="annual_amount" class="col-md-4">Charge Type *</label>
                                             <div class="col-md-6">
                                                 <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
-                                                    <option selected disabled>Select Charge Type</option>
+                                                    <option value="" selected disabled>Select Charge Type</option>
                                                     <?php foreach ($charges_type as $charges){ ?> 
                                                     <option value="<?php echo $charges['id'] ?>" data-charge-type="<?php echo $charges['type'];  ?>"><?php echo $charges['description']; ?></option>
                                                     <?php } ?>
@@ -2341,6 +2339,7 @@
                                                     <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactived</button>
                                                     <?php } else { ?>
                                                     <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Actived</button>      
+
                                                     <?php } ?>                                         
                                                 </td>
                                             </tr>
@@ -3790,11 +3789,11 @@
                     if(data['status']=='success'){                        
                         if(active=='1'){                             
                             $("#"+multiple_id).attr('onclick', 'remove_micro_warehose(this.id)');
-                            $("#"+multiple_id).html('Deactived').css({'background-color':'#d9534f;','border-color':'#fff;'});                            
+                            $("#"+multiple_id).html('Deactivate').css({'background-color':'#d9534f;','border-color':'#fff;'});                            
                             $("#status_"+wh_on_of_id).html('Active');                            
                         }else{                      
                             $("#"+multiple_id).attr('onclick', 'add_micro_warehose(this.id)');
-                            $("#"+multiple_id).html('Active').css({'background-color':'#01903a;','border-color':'#fff;'});
+                            $("#"+multiple_id).html('Activate').css({'background-color':'#01903a;','border-color':'#fff;'});
                             $("#status_"+wh_on_of_id).html('Inactive');
                         }
                         

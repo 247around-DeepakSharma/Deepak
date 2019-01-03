@@ -6,7 +6,7 @@
      * @param {controller url} serviceUrl
      * @returns {html for vertical select}
      */
-    function get_vertical(serviceUrl){
+    function get_vertical(serviceUrl){ 
         var vertical_input = $('#vertical_input').val();
         $.ajax({
             method: "POST",
@@ -34,8 +34,10 @@
             data:{'vertical':vertical, 'category_input': category_input},
             success: function (response) {
                 $("#category").html(response);
-                $("#category").val('').trigger('change');
-                $("#sub_category").val('').trigger('change');
+                if(!category_input){
+                    $("#category").val('').trigger('change');
+                    $("#sub_category").val('').trigger('change');
+                }
                 get_sub_category(serviceUrl);
             }
         });
@@ -56,7 +58,9 @@
             data:{'vertical':vertical, 'category':category, 'sub_category_input': sub_category_input},
             success: function (response) {
                 $("#sub_category").html(response);
-                $("#sub_category").val('').trigger('change');
+                if(!sub_category_input){
+                    $("#sub_category").val('').trigger('change');
+                }
             }
         });
     }

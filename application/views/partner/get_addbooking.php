@@ -171,7 +171,7 @@
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
                                     <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
-                                    <select class="form-control"  id="partner_source" name="partner_source" >
+                                    <select class="form-control"  id="partner_source" name="partner_source" required>
                                         <option value="" selected disabled>Please select seller channel</option>
                                         <?php foreach ($channel as $key => $value) { ?>
                                         <option><?php echo $value['channel_name'];  ?></option>  
@@ -182,7 +182,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-5 ">
-                                    <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
+                                    <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
                                     <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                       
                                         <?php for($i =1; $i <11; $i++) { ?>
@@ -502,7 +502,7 @@
 //        } else {
 //              display_message("model_number_1","error_model","green","");
 //        }
-        if(partner_source === ""){
+        if(partner_source === "" || partner_source === null){
            
             display_message("partner_source","error_seller","red","Please Seller Channel");
              return false;
@@ -510,6 +510,7 @@
            display_message("partner_source","error_seller","green","");
             
         }
+        
         service_category =0;
          $("input[type=checkbox]:checked").each(function(i) {
             service_category = 1;
@@ -936,6 +937,7 @@
                     final_price();
                         
                 } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
+
                     var partner_approval = Number(data1.partner_upcountry_approval);
 
                         if (data1.message === "UPCOUNTRY BOOKING") {

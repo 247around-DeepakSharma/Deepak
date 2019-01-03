@@ -226,14 +226,14 @@
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
-                                                                    <input type="text" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
+                                                                    <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No"   />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
-                                                                    <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                 </div>
                                                                 
                                                             </div>
@@ -528,15 +528,14 @@
                             
                         }
                     }
-                    var requiredPic = $('#sno_required'+ div_no[2]).val();
-                    if(requiredPic === '1'){
+                    //var requiredPic = $('#sno_required'+ div_no[2]).val();
+                   // if(requiredPic === '1'){
                         if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
                         }
-                        
-                    }
+                  //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
                     if(duplicateSerialNo === '1'){
                         alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
@@ -744,7 +743,9 @@
     
     function validateSerialNo(index){
        var model_number = '';
-       var serialNo = $("#serial_number" +index).val();
+       var temp = $("#serial_number" +index).val();
+       var serialNo =  temp.toUpperCase();
+       $("#serial_number" +index).val(serialNo);
        var price_tags = $("#price_tags"+index).text();
        if(<?php echo $booking_history[0]['partner_id'] ?> == <?php echo LEMON_ID ?>){
             var model_number = $("#model_number_"+index).val();
@@ -777,7 +778,7 @@
                     var data = jQuery.parseJSON(response);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
-                        $("#upload_serial_number_pic"+index).css('display', "none");
+                        //$("#upload_serial_number_pic"+index).css('display', "none");
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
                         $("#duplicate_sno_required"+index).val('0');
@@ -792,7 +793,7 @@
                         }
                         $("#sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
-                        $("#upload_serial_number_pic"+index).css('display', "block");
+                       // $("#upload_serial_number_pic"+index).css('display', "block");
                         $("#duplicate_sno_required"+index).val('0');
                         $('body').loadingModal('destroy');
                     }
@@ -806,7 +807,7 @@
             });
        } else {
        
-            $("#upload_serial_number_pic"+index).css('display', "none");
+           // $("#upload_serial_number_pic"+index).css('display', "none");
             $("#error_serial_no" +index).text("");
             $("#sno_required"+index).val('0');
        }

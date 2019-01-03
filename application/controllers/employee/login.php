@@ -430,7 +430,7 @@ class Login extends CI_Controller {
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
                 //Adding Log Details
-                 redirect(base_url() . "partner/home");
+                 redirect(base_url() . "partner/dashboard");
 
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
@@ -474,7 +474,7 @@ class Login extends CI_Controller {
                     $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
-                echo "service_center/pending_booking";
+                echo "service_center/dashboard";
             } else if ($this->session->userdata('is_cp') === '1') {
                 echo "service_center/buyback/bb_order_details";
             }else if($this->session->userdata('is_wh') === '1'){
@@ -564,7 +564,7 @@ class Login extends CI_Controller {
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0);
                 
                 if($this->session->userdata('is_sf') === '1'){
-                    redirect(base_url() . "service_center/pending_booking");
+                    redirect(base_url() . "service_center/dashboard");
                 }else if($this->session->userdata('is_cp') === '1'){
                     redirect(base_url() . "service_center/buyback/bb_order_details");
                 }else if($this->session->userdata('is_wh') === '1'){

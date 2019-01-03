@@ -722,6 +722,7 @@ function set_upcountry() {
                     $('#submitform').attr('disabled', false);
                     
                 } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
+
                     var total_price = $("#grand_total_price").val();
 
                     var partner_approval = Number(data1.partner_upcountry_approval);

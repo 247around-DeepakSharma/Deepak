@@ -61,7 +61,7 @@ class Partner extends CI_Controller {
      * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking() {
+    function pending_booking($booking_id = "") {
         $this->checkUserSession();
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
         $agent_id = $this->session->userdata('agent_id');
@@ -72,6 +72,7 @@ class Partner extends CI_Controller {
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['booking_id'] = $booking_id;
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
             $this->load->view('partner/pending_booking', $data);
@@ -628,7 +629,6 @@ class Partner extends CI_Controller {
             $this->get_add_partner_form();
         }
     }
-
     function get_partner_form_data() {
         $return_data['company_name'] = trim($this->input->post('company_name'));
         $return_data['company_type'] = trim($this->input->post('company_type'));
@@ -1763,7 +1763,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
         if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]');
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
 
@@ -1925,7 +1925,12 @@ class Partner extends CI_Controller {
         $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
         $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
         $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
-        $data['parts_requested_type'] = $part_details['shipped_part_type'];
+        if(!empty($part_details['shipped_part_type'])){
+            $data['parts_requested_type'] = $part_details['shipped_part_type'];
+        } else {
+            $data['parts_requested_type'] = $part_details['shipped_parts_name'];
+        }
+        
         $data['parts_requested'] = $part_details['shipped_parts_name'];
 
 
@@ -3167,7 +3172,7 @@ class Partner extends CI_Controller {
 
             $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
             $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
-                    $agent_name, $partner_id,$actor,$next_action);
+                    $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
@@ -3470,8 +3475,8 @@ class Partner extends CI_Controller {
             //fetch spare parts sent 7 days or more ago
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'],
-                'defactive_part_received_date_by_courier_api IS NOT NULL' => null,
-                "spare_parts_details.status IN ('Defective Part Shipped By SF')" => null,
+                'defective_part_shipped_date IS NOT NULL' => null,
+                "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
 
@@ -3520,7 +3525,7 @@ class Partner extends CI_Controller {
             $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
                 'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
-                'DATEDIFF(defactive_part_received_date_by_courier_api,now()) <= -7' => null,
+                'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
                 "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
@@ -4890,7 +4895,9 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
-            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder')); 
+
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
+
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;
@@ -5585,13 +5592,13 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
-            '(spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
-            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'")' => NULL
+            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -6506,6 +6513,7 @@ class Partner extends CI_Controller {
             }
         }
     }
+
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
