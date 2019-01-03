@@ -840,7 +840,7 @@
                     var obj = JSON.parse(res);
                     parent_string = child_string = sibling_string = "NULL";
                     if(obj.parent){
-                        parent_string = "<a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
+                        parent_string = "<a href = '<?php echo base_url(); ?>service_center/booking_details/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
                     }
                     if(obj.siblings){
                         sibling_string ="";

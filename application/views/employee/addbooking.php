@@ -210,7 +210,7 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select  class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
+                                                <select  class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id,'add_booking');" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                 </select>
                                             </div>

@@ -124,7 +124,7 @@
                                         <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_phone_number_1'];  } ?></td>
                                     </tr>   
                                 </table>
-                                <table class="table  table-striped table-bordered" id="relative_holder" style="display:none;">
+                                <table class="table  table-striped table-bordered" id="relative_holder">
                         <tr>
                             <th colspan="3" style="font-size: 16px; color: #2c9d9c;">Booking Relatives</th>
                         </tr> 
@@ -693,7 +693,7 @@
                     var obj = JSON.parse(res);
                     parent_string = child_string = sibling_string = "NULL";
                     if(obj.parent){
-                        parent_string = "<a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
+                        parent_string = "<a href = '<?php echo base_url(); ?>partner/booking_details/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
                     }
                     if(obj.siblings){
                         sibling_string ="";

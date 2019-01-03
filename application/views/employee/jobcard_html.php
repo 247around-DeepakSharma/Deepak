@@ -47,7 +47,12 @@ p{
       </tr>
   <?php
     }
-    ?>
+     if($booking_details['parant_booking_serial_number']){ ?>
+     <tr>
+      <td colspan="3"><p><b>Parent Booking Serial Number</b></p></td>
+      <td colspan="3"><p><?php echo $booking_details['parant_booking_serial_number']?></p></td>
+      </tr>
+  <?php  } ?>
   <tr>
     <td><p><b>Booking ID</b></p></td>
     <td colspan="2"><p><?php echo $booking_details[0]['booking_id']?></p></td>
