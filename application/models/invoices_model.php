@@ -2743,19 +2743,20 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
     
-    /**
-     * @desc This function is used to get all HSN Code Details 
-     * @param void
-     * @return result array
-     */
-    function get_hsncode_list($select, $where=array()){
+     /**
+     * @desc This is used to get list of HSN Code Details.     
+     * @table hsn_code_details 
+     * @return array
+     */    
+     function get_hsncode_details($select, $where) {
         $this->db->select($select);
         if(!empty($where)){
              $this->db->where($where);
         }
         $query = $this->db->get("hsn_code_details");
         return $query->result_array();
-    }    
+    }
+       
     /**
      * @desc: This is used to update hsn code details table
      * @param Array $where
@@ -2773,5 +2774,16 @@ class invoices_model extends CI_Model {
         }
         
         return $result;
+    }
+    
+    /**
+     * @desc: This is used to insert data into booking_debit_credit_details
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_into_booking_debit_credit_detils($data){
+        $this->db->insert('booking_debit_credit_details', $data);
+        return $this->db->insert_id();
     }
 }

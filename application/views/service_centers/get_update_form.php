@@ -180,8 +180,10 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
                                             </div>
                                             <?php } ?>
                                             
@@ -241,8 +243,10 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
                                             </div>
                                             <?php } ?>
                                             
@@ -654,6 +658,18 @@
         }
         
     }
+    
+    $(document).ready(function(){
+        var service_id = "<?php echo $bookinghistory[0]['service_id']; ?>";
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+            data: { service_id:service_id},
+            success:function(data){                       
+                $('.spare_parts_type').html(data);                  
+            }
+        });
+    });
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
