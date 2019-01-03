@@ -5169,23 +5169,24 @@ class Inventory extends CI_Controller {
      */
     
     function get_add_inventory_part_type() {
-        
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('*',array());
-        $data = array();        
-        foreach ($inventory_parts_type as $key => $value){            
-            $services_details = $this->inventory_model->get_services_details('id,services', array('id'=>$value['service_id']));  
-            $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id'=>$value['hsn_code_details_id']));
-            array_push($value,array('service_name'=> $services_details[0]['services'],'hsn_code'=>$hsncode_details[0]['hsn_code']));
-            $part_type_arr[] = $value;
-            
+
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('*', array());
+        $data = array();
+        if (!empty($inventory_parts_type)) {
+            foreach ($inventory_parts_type as $key => $value) {
+                $services_details = $this->inventory_model->get_services_details('id,services', array('id' => $value['service_id']));
+                $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id' => $value['hsn_code_details_id']));
+                array_push($value, array('service_name' => $services_details[0]['services'], 'hsn_code' => $hsncode_details[0]['hsn_code']));
+                $part_type_arr[] = $value;
+            }
+            $data['parts_type'] = $part_type_arr;
         }
-        $data['parts_type'] = $part_type_arr;        
+
         $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/add_inventory_part_type",$data);
+        $this->load->view("employee/add_inventory_part_type", $data);
     }
-    
-    
-     /**
+
+    /**
      *  @desc : This function is used to get HSN Code and GST Rate
      *  @param : void
      *  @return : json
@@ -5227,7 +5228,8 @@ class Inventory extends CI_Controller {
             $data['part_type'] = $this->input->post('part_type');
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
             $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
-            if($last_inserted_id){
+            if($last_inserted_id){                
+               $this->session->set_userdata('part_type_success', 'Inventory part type add successfully');
                redirect(base_url() . 'employee/inventory/get_add_inventory_part_type'); 
             }
                         
