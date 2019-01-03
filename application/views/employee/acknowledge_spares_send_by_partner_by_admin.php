@@ -213,6 +213,7 @@
             tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['invoice_id'] = $(this).attr('data-invoice_id');
+            tmp_arr[key]['is_wh_micro'] = $(this).attr('data-is_wh_micro');
             flag = true;
         });
         
