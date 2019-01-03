@@ -5227,10 +5227,18 @@ class Inventory extends CI_Controller {
             $data['service_id'] = $this->input->post('service_id');
             $data['part_type'] = $this->input->post('part_type');
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
-            $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
-            if($last_inserted_id){                
-               $this->session->set_userdata('part_type_success', 'Inventory part type add successfully');
-               redirect(base_url() . 'employee/inventory/get_add_inventory_part_type'); 
+            if(!empty($this->input->post('service_id') && !empty($this->input->post('part_type')))){
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $data['service_id'],'part_type'=>$data['part_type']));
+                if(empty($parts_type_details)){
+                    $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
+                    if($last_inserted_id){                
+                     $this->session->set_userdata('part_type_success', 'Inventory part type add successfully');
+                     redirect(base_url() . 'employee/inventory/get_add_inventory_part_type'); 
+                    } 
+                } else {
+                    $this->session->set_userdata('part_type_error', 'Inventory part type already exist');
+                    redirect(base_url() . 'employee/inventory/get_add_inventory_part_type');
+                }
             }
                         
         }else{
