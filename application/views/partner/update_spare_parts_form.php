@@ -412,7 +412,7 @@
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('.spare_parts_type').html(data);              
+                $('.spare_parts').html(data);              
                 $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
             }
         });
