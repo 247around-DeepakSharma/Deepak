@@ -1312,23 +1312,25 @@ class Service_centers extends CI_Controller {
             $data['partner_id'] = $partner_id;
             $data['entity_type'] = _247AROUND_PARTNER_STRING;
             $data['is_micro_wh'] = 0;
+            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $data['defective_return_to_entity_id'] = $partner_id;
         }
 
-        if (!isset($data['defective_return_to_entity_id'])) {
-            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-                $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
-                if (!empty($wh_address_details)) {
-                    $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                    $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-                } else {
-                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $data['defective_return_to_entity_id'] = $partner_id;
-                }
-            } else {
-                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                $data['defective_return_to_entity_id'] = $partner_id;
-            }
-        }
+//        if (!isset($data['defective_return_to_entity_id'])) {
+//            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+//                $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
+//                if (!empty($wh_address_details)) {
+//                    $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+//                    $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+//                } else {
+//                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                    $data['defective_return_to_entity_id'] = $partner_id;
+//                }
+//            } else {
+//                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $data['defective_return_to_entity_id'] = $partner_id;
+//            }
+//        }
 
         $where = array('id' => $this->input->post('spare_id'));
         $affected_row = $this->service_centers_model->update_spare_parts($where, $data);

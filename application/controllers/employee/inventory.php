@@ -3549,7 +3549,7 @@ class Inventory extends CI_Controller {
                 $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
                 $ewaybill_details['ewaybill_file'] = $ewaybill_file;
                 $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
-                $courier_data['status']=COURIER_DETAILS_STATUS;
+                $courier_details['status'] = COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
                 
                 if (!empty($insert_courier_details)) {

@@ -43,9 +43,9 @@ define('JEEVES_FIRST_TWO_DIGIT', 00);
 define('JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG', 'Serial No length should be 15 character, starting with 00.');
 
 //Wybor 
-define('MONTH_POSIBLE_VALUES_2016', 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,,Z');
+define('MONTH_POSIBLE_VALUES_2016', 'A,B,C,D,E,F,G,H,I,J,K,L');
 define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
-define('FAILURE_MSG', 'Please Entered Correct Serial Number');
+define('FAILURE_MSG', 'Please Enter Correct Serial Number');
 
 //Repeat Booking Failure Massege
 define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Untill Repeat Booking Will not have correcct Serial Number');

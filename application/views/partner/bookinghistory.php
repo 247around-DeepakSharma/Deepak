@@ -20,7 +20,7 @@
                                     <th>Status</th>
                                     <th>View</th>
                                     <th>More Action</th>
-<!--                                    <th>Repeat</th>-->
+                                    <th>Repeat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,7 +82,6 @@
                                 else{
                                     echo "<td></td>";
                                 }
-
                                 ?>
                                 </tr>
                                 <?php

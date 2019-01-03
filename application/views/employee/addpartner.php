@@ -1554,9 +1554,7 @@
                 </div>
 
              </div>
-
-            </div>    
-
+            </div>     
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
@@ -1572,7 +1570,7 @@
                     }
                     ?>
 
-                <div class="clonedInput panel panel-info " id="clonedInput1">                   
+                <div class="clonedInput panel panel-info " id="clonedInput1">                      
                     <div class="panel-heading" style=" background-color: #f5f5f5;">
                         <p style="color: #000;"><b>Contact Persons</b></p>
                         <div class="clone_button_holder" style="float:right;margin-top: -31px;">
@@ -1667,12 +1665,7 @@
                                             <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
                                         </div>
                                     </div>
-                                    <div class="form-group ">
-                                        <label for="service_name" class="col-md-4">Alternate Email </label>
-                                        <div class="col-md-6">
-                                            <input  type="text" class="form-control input-model"  name="contact_person_alt_email[]" id="contact_person_alt_email_1" value = "" placeholder="Alternative Email">
-                                        </div>
-                                    </div>                               
+                                                                         
                                     <div class="form-group ">
                                         <label for="service_name" class="col-md-4">Permanent Address</label>
                                         <div class="col-md-6">
@@ -2336,10 +2329,9 @@
                                                 <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
-                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactived</button>
+                                                    <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactivate</button>
                                                     <?php } else { ?>
-                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Actived</button>      
-
+                                                    <button type="button" class="btn btn-danger" style="background-color: #01903a; border-color: #fff; width: 90px; color: #fff;" href="#" id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="add_micro_warehose(this.id)">Activate</button>      
                                                     <?php } ?>                                         
                                                 </td>
                                             </tr>
@@ -2356,6 +2348,7 @@
          </div>
        </div>
     </div>
+</div>
 </div>
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
@@ -2662,7 +2655,6 @@
        cloneIndex++;
        return false;
     }  
-
     function remove(){
        $(this).parents(".clonedInput").remove();
        final_price();
@@ -2843,44 +2835,6 @@
             return false;
         }
     }
-    $("#contact_person_department_1,#contact_person_role_1").on('click',function(){        
-       var department = $("#contact_person_department_1").val();
-       var role = $("#contact_person_role_1").val();
-       if(department=='Warehouse' && role=='3'){
-           $("#warehouse_office").css({'display':'block'});
-       }else{
-            $("#warehouse_office").css({'display':'none'})
-       }
-    });
-    
-    function get_Permanent_District(state){
-       get_city(state,'permanent_district');        
-    }  
-
-    function get_Permanent_Pincode(district){
-       get_pincode(district,'parmanent_pincode');
-    }
-   
-    function get_city(state,html_div_id){
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
-            data: {state: state, district: ''},
-            success: function (data) {
-                $("#"+html_div_id).html(data);                   
-            }
-        });
-    }
-    function get_pincode(district,html_div_id){
-        $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
-                data: {pincode: '', district: district},
-                success: function (data) {
-                    $("#"+html_div_id).html(data);
-                }
-           });
-    } 
     $("#contact_person_department_1,#contact_person_role_1").on('click',function(){        
        var department = $("#contact_person_department_1").val();
        var role = $("#contact_person_role_1").val();

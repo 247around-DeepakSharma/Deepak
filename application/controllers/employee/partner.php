@@ -4895,9 +4895,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_contacts(){
         if($this->input->post('partner_id')){
-
-            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder'));
-
+            $checkbox_array = explode(",",$this->input->post('final_checkbox_value_holder')); 
             $partnerID = $this->input->post('partner_id'); 
             foreach($this->input->post('contact_person_email') as $index=>$contactEmails){
                 $agent_id = NULL;

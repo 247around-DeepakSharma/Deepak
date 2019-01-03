@@ -53,8 +53,7 @@ class Validate_serial_no {
      */
     function getLogicMethod($partnerID){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID);
-	    $logic = array();
-
+	$logic = array();
 
         $logic[AKAI_ID] = 'akai_serialNoValidation';
         $logic[SALORA_ID] = 'salora_serialNoValidation';
