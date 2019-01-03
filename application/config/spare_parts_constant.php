@@ -31,6 +31,8 @@ define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
 define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
 //Spare Parts Shipped By SF
 define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
+//SPARE paarts shipoped By Warehouse
+define('SPARE_PARTS_SHIPPED_BY_WAREHOUSE', 'Spare Parts Shipped by Warehouse');
 // Spare Reschedule 
 define('SPARE_RESCHEDULED', 'Spare_Rescheduled');
 
@@ -79,6 +81,8 @@ define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
 define("COURIER_DETAILS_STATUS", "pick-up");
 
 
+// Partner will send new parts
+define("PARTNER_WILL_SEND_NEW_PARTS", "Partner will send new parts");
 
 
 

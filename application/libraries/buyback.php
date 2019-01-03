@@ -251,6 +251,7 @@ class Buyback {
         if($this->POST_DATA['current_status'] == "PLACED" || $this->POST_DATA['current_status'] == "Unknown"){
             return false;
         }
+        $remarks = NULL;
         if ($order_data[0]['is_delivered'] == 0) {
                 if ($order_data[0]['current_status'] != $this->POST_DATA['current_status']) {
 
@@ -272,6 +273,7 @@ class Buyback {
                     if ($this->POST_DATA['current_status'] == 'Delivered') {
                             $this->My_CI->initialized_variable->delivered_count();
                             $bb_order_details['is_delivered'] = 1;
+                            $remarks = "Delivery Date is ". (!empty($this->POST_DATA['delivery_date']) ? $this->POST_DATA['delivery_date'] : NULL);
                     }
                     $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
                     if ($is_status) {
@@ -279,7 +281,7 @@ class Buyback {
                             'order_status' => $this->POST_DATA['current_status']
                         );
                         $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $this->POST_DATA['partner_order_id'] ), $bb_unit_details);
-                        $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], NULL, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
+                        $this->insert_bb_state_change($this->POST_DATA['partner_order_id'], $this->POST_DATA['current_status'], $remarks, _247AROUND_DEFAULT_AGENT, _247AROUND, NULL);
                         
                         $this->My_CI->initialized_variable->total_updated();
                         return true;

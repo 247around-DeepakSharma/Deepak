@@ -63,7 +63,7 @@
                                 <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/open_cancelled_query/<?php echo $row->booking_id;?>" title="uncancel"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
                                 <?php } ?>
                             </td>
-                            <td>
+                           <td>
                              <?php  if ($row->current_status =='Completed') {
                                             $today = strtotime(date("Y-m-d"));
                                             $closed_date = strtotime($row->closed_date);
@@ -75,7 +75,7 @@
                                             }
                                  }
                                  ?>
-                            </td>
+                          </td>
                         </tr>
                         <?php } }?>
                     </table>

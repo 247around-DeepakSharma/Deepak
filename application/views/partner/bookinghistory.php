@@ -48,7 +48,7 @@
                                             switch ($row['current_status']) {
                                                 case 'Pending':
                                                 case 'Rescheduled':
-                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    $view = 'partner/pending_booking/' . $row['booking_id'];
                                                     break;
 
                                                 case 'Cancelled':
@@ -60,7 +60,7 @@
                                                     break;
 
                                                 default:
-                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    $view = 'partner/pending_booking/' . $row['booking_id'];
                                                     break;
                                             }
                                             ?>

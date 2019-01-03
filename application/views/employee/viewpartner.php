@@ -13,7 +13,7 @@
                 url: '<?php echo base_url() . "employee/login/allow_log_in_to_partner/" ?>' + partner_id,
                 success: function (data) {
                     //console.log(data);
-                    window.open("<?php echo base_url() . 'partner/home' ?>", '_blank');
+                    window.open("<?php echo base_url() . 'partner/dashboard' ?>", '_blank');
                 }
             });
 

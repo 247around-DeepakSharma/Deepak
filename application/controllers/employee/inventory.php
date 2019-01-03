@@ -2729,7 +2729,7 @@ class Inventory extends CI_Controller {
     function process_spare_invoice_tagging() {       
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
-//        $_POST = json_decode($str, true);
+//        $_POST = json_decode($str, true); 
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -2837,12 +2837,13 @@ class Inventory extends CI_Controller {
                                             $ledger_data['invoice_id'] = $invoice_id;
                                             $ledger_data['is_wh_ack'] = 0;
                                             $ledger_data['courier_id'] = $insert_courier_details;
+                                            $ledger_data['is_wh_micro'] = $is_wh_micro;
 
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
 
                                             if ($insert_id) {
                                                 log_message("info", "Ledger details added successfully");
-                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $action_agent_id);
+                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
                                             } else {
                                                 array_push($not_updated_data, $value['part_number']);
                                                 log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
@@ -2883,8 +2884,13 @@ class Inventory extends CI_Controller {
                                             'contact_person.entity_id' => $wh_id,
                                             'contact_person.entity_type' => _247AROUND_SF_STRING
                                         );
+                                        
                                         $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                                        if (!empty($email_details) && !empty($email_template)) {
+                                        if(empty($email_details)){
+                                            $email_details = $this->vendor_model->getVendorDetails('primary_contact_email as official_email', array('id'=>$wh_id));
+                                            
+                                        }
+                                        if (!empty($email_details) && !empty($email_template)) {    
                                             //generate part details table                                        
                                             $parts_details_table = $this->table->generate();
 
@@ -2955,7 +2961,7 @@ class Inventory extends CI_Controller {
      * @param Array $ledger
      * @param int $wh_id
      */
-    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $action_agent_id) {
+    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true). " Form data " . json_encode($fomData). " WH id ". $wh_id);
         if($this->session->userdata("partner_id")){
             $s_partner_id = $this->session->userdata("partner_id");
@@ -2981,12 +2987,17 @@ class Inventory extends CI_Controller {
             }
             
         } else {
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, "
-                    . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
-                    . "requested_inventory_id", array('requested_inventory_id' => $ledger['inventory_id'],
+            $array = array('requested_inventory_id' => $ledger['inventory_id'],
                 'status' => SPARE_PARTS_REQUESTED,
                 'entity_type' => _247AROUND_PARTNER_STRING,
-                'wh_ack_received_part != "0"' => NULL), false);
+                'wh_ack_received_part != "0"' => NULL);
+            
+            if($is_wh_micro == 2){
+                $array['spare_parts_details.service_center_id'] = $wh_id;
+            }
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, "
+                    . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
+                    . "requested_inventory_id", $array, false);
 
             if (!empty($spare)) {
                 $qty = 1;
@@ -3023,7 +3034,12 @@ class Inventory extends CI_Controller {
             $newdata['serial_number'] = $spare[0]['serial_number'];
             $newdata['date_of_request'] =  date('Y-m-d');
             $newdata['parts_requested'] =  $fomData['part_name'];
-            $newdata['parts_requested_type'] = $fomData['type'];
+            if(!empty($fomData['type'])){
+                $newdata['parts_requested_type'] = $fomData['type'];
+            } else {
+                $newdata['parts_requested_type'] = $fomData['part_name'];
+            }
+            
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
@@ -3128,7 +3144,7 @@ class Inventory extends CI_Controller {
                     "invoice_file_pdf" => $response['meta']['copy_file'],
                     "vertical" => SERVICE,
                     "category" => SPARES,
-                    "sub_category" => OUT_OF_WARRANTY,
+                    "sub_category" => $this->input->post('invoice_tag'),
                     "accounting" => 1
                 );
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -3185,7 +3201,11 @@ class Inventory extends CI_Controller {
                     "remarks" => !empty($booking_id_array) ? implode(",", $booking_id_array) : '',
                     "igst_tax_amount" => $total_igst_tax_amount,
                     "sgst_tax_amount" => $total_sgst_tax_amount,
-                    "cgst_tax_amount" => $total_cgst_tax_amount
+                    "cgst_tax_amount" => $total_cgst_tax_amount,
+                    "vertical" => SERVICE,
+                    "category" => SPARES,
+                    "sub_category" => $this->input->post('invoice_tag'),
+                    "accounting" => 1
                    
                 );
 
@@ -3315,7 +3335,7 @@ class Inventory extends CI_Controller {
         $a .= ")'>".$inventory_list->AWB_no."</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
-        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
+        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
         
         return $row;
     }
@@ -3444,6 +3464,10 @@ class Inventory extends CI_Controller {
             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
              log_message('info', __METHOD__ . " Booking ID updated ". $data->booking_id);
         } else {
+            if($data->is_wh_micro == 2){
+                $where['service_center_id'] = $receiver_entity_id;
+            } 
+            
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
             $qty = 1;
             if (!empty($spare)) {
@@ -3464,6 +3488,9 @@ class Inventory extends CI_Controller {
                     'entity_type' => _247AROUND_PARTNER_STRING,
                     'partner_id' => $sender_entity_id,
                     'requested_inventory_id' => $data->inventory_id);
+                if($data->is_wh_micro == 2){
+                    $where1['service_center_id'] = $receiver_entity_id;
+                } 
                 $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
                 if (!empty($spare)) {
                     foreach ($spare as $value) {
@@ -3535,7 +3562,7 @@ class Inventory extends CI_Controller {
                 $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
                 $ewaybill_details['ewaybill_file'] = $ewaybill_file;
                 $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
-                $courier_data['status']=COURIER_DETAILS_STATUS;
+                $courier_details['status'] = COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
                 
                 if (!empty($insert_courier_details)) {

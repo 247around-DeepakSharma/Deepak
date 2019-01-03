@@ -109,7 +109,8 @@
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
-            "pageLength": 50,
+            "lengthMenu": [[100, 200, 500,-1], [100, 200, 500, "All"]],
+            "pageLength": 500,
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_review_order_details",

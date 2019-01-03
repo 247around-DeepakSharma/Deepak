@@ -25,10 +25,10 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_RM_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_RM_TAT_Reporting()"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_TAT_Reporting" class="collapse">
+                <div id="RM_TAT_Reporting" class="collapse in">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                         <div class="item form-group">
@@ -561,7 +561,7 @@
                     <div class="col-md-12">
                         <center><img id="loader_gif4" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                     </div>
-                    <div id="chart_container2" class="chart_containe2"></div>
+                    <div id="chart_container2" class="chart_containe2" style="width:100%; height:400px;"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -793,14 +793,11 @@
         
         //partner spare status
         //spare_details_by_partner();
+        initiate_RM_TAT_Reporting();
         
     });
     
     function initiate_AM_TAT_Reporting(){
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
         // $('input[name="daterange_completed_bookings"]').daterangepicker({
         $('input[id="completed_daterange_id_am"]').daterangepicker({
             timePicker: true,
@@ -808,15 +805,11 @@
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
+            startDate:  "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         });
     }
     
     function initiate_RM_TAT_Reporting(){
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
         // $('input[name="daterange_completed_bookings"]').daterangepicker({
         $('input[id="completed_daterange_id"]').daterangepicker({
             timePicker: true,
@@ -824,7 +817,7 @@
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         });
     }
     
@@ -1422,17 +1415,18 @@
     }
 
 function initiate_escalation_data(){
-    var d = new Date();
-    n = d.getMonth()+1;
-    y = d.getFullYear();
-    date = d.getDate();
+//    var d = new Date();
+//    n = d.getMonth()+1;
+//    y = d.getFullYear();
+//    date = d.getDate();
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-01'
+       // startDate: y+'-'+n+'-01'
+       startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
     });
 }
 

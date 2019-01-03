@@ -336,7 +336,7 @@
                 <div class="col-md-12">
                     <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div id="chart_container2" class="chart_containe2"></div>
+                <div id="chart_container2" class="chart_containe2" style="width:100%; height:400px;"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -646,34 +646,26 @@
     }
     
 function initiate_am_tat_report(){
-         var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
             timePickerIncrement: 30,
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         }); 
 }
 function initiate_rm_tat_report(){
         var dvSecond = document.getElementById('rm_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['rm_dashboard']);
-            var d = new Date();
-            n = d.getMonth();
-            y = d.getFullYear();
-            date = d.getDate();
             $('#completed_daterange_id').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 30,
                 locale: {
                      format: 'YYYY-MM-DD'
                 },
-                startDate: y+'-'+n+'-'+date
+                startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
             });
         });
 }

@@ -504,29 +504,28 @@ class Service_centers extends CI_Controller {
                                     break;
                                 }
                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
-                            if (!empty($status)) {
-                                if ($status['code'] == SUCCESS_CODE) {
-                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
-                                    if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                    }
-                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-                                    $return_status = false;
-                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
-                                }else {
-                                     
-                                    if(!isset($upload_serial_number_pic['name'][$unit_id])){
-                                        $return_status = false;
-                                        $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image as entered serial number is wrong");
-                                    } else {
-                                        $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                        if(empty($s)){
+                            if(isset($upload_serial_number_pic['name'][$unit_id])){
+                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                   if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
                         . 'Maximum file size is 5 MB.');
                                             $return_status = false;
                                         }
-                                    }
+                             }
+                             else{
+                                  $return_status = false;
+                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                             }
+                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
+                            if (!empty($status)) {
+                                if ($status['code'] == SUCCESS_CODE) {
+                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                    $return_status = false;
+                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
+                                }
+                                else{
+                                    log_message('info', " Serial No validation failed  for serial no " . trim($serial_number[$unit_id]));
                                 }
                             } else if ($value == 1 && empty($trimSno)) {
                                 $return_status = false;
@@ -562,7 +561,7 @@ class Service_centers extends CI_Controller {
         if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
            
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic", $unit, "engineer-uploads", "serial_number_pic");
+                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, "engineer-uploads", "serial_number_pic");
             if($pic_name){
                 
                 return true;
@@ -732,7 +731,7 @@ class Service_centers extends CI_Controller {
                         $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
                     }
                     $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
-                    $this->miscelleneous->process_booking_tat_on_completion($booking_id);
+                    //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
@@ -1313,23 +1312,25 @@ class Service_centers extends CI_Controller {
             $data['partner_id'] = $partner_id;
             $data['entity_type'] = _247AROUND_PARTNER_STRING;
             $data['is_micro_wh'] = 0;
+            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $data['defective_return_to_entity_id'] = $partner_id;
         }
 
-        if (!isset($data['defective_return_to_entity_id'])) {
-            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-                $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
-                if (!empty($wh_address_details)) {
-                    $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                    $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-                } else {
-                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $data['defective_return_to_entity_id'] = $partner_id;
-                }
-            } else {
-                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                $data['defective_return_to_entity_id'] = $partner_id;
-            }
-        }
+//        if (!isset($data['defective_return_to_entity_id'])) {
+//            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+//                $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
+//                if (!empty($wh_address_details)) {
+//                    $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+//                    $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+//                } else {
+//                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                    $data['defective_return_to_entity_id'] = $partner_id;
+//                }
+//            } else {
+//                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $data['defective_return_to_entity_id'] = $partner_id;
+//            }
+//        }
 
         $where = array('id' => $this->input->post('spare_id'));
         $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
@@ -1625,6 +1626,8 @@ class Service_centers extends CI_Controller {
                             $data['partner_id'] = $this->input->post('partner_id');
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
                             $data['is_micro_wh'] = 0;
+                            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                            $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
                             
                             array_push($parts_stock_not_found, array('model_number' => $data['model_number'], 'part_type' => $data['parts_requested_type'], 'part_name' => $value['parts_name']));
                         }
@@ -1632,25 +1635,27 @@ class Service_centers extends CI_Controller {
                         $data['partner_id'] = $this->input->post('partner_id');
                         $data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['is_micro_wh'] = 0;
+                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
                         
                     }
                     
-                    if(!isset($data['defective_return_to_entity_id'])){
-                        if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-                            $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
-                            if(!empty($wh_address_details)){
-                                $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                                $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-                            } else {
-                                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                                $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
-                            }
+                    // if(!isset($data['defective_return_to_entity_id'])){
+                    //     if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                    //         $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
+                    //         if(!empty($wh_address_details)){
+                    //             $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                    //             $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                    //         } else {
+                    //             $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                    //             $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
+                    //         }
                             
-                        } else {
-                           $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                           $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
-                       }
-                    }
+                    //     } else {
+                    //        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                    //        $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
+                    //    }
+                    // }
                     
                     //$entity_type, $entity_id, $inventory_id, $qty
                     if (isset($data['requested_inventory_id']) && !empty($data['requested_inventory_id']) && $data['entity_type'] == _247AROUND_SF_STRING) {
@@ -1662,6 +1667,26 @@ class Service_centers extends CI_Controller {
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
                     
+                    if ($status == SPARE_OOW_EST_REQUESTED && 
+                            isset($warehouse_details['inventory_id']) 
+                            && !empty($warehouse_details['inventory_id']) 
+                            && isset($warehouse_details['estimate_cost'])
+                            && $warehouse_details['entity_type'] == _247AROUND_SF_STRING) {
+                        
+                            $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
+                            $pcb['booking_id'] = $booking_id;
+                            $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
+                            $pcb['amount_due'] = $this->input->post('amount_due');
+                            $pcb['partner_id'] = $partner_id;
+                            $pcb['sp_id'] = $spare_id;
+                            $pcb['gst_rate'] = $warehouse_details['gst_rate'];
+
+                            $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
+                            $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
+
+                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                    }
+
                     if ( isset($data['is_micro_wh']) && $data['is_micro_wh']== 1 &&
                             !stristr($price_tags, "Out Of Warranty"))  {
                         $data['spare_id'] = $spare_id;
@@ -1702,23 +1727,6 @@ class Service_centers extends CI_Controller {
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                     $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
-
-                    if ($status == SPARE_OOW_EST_REQUESTED && isset($warehouse_details['inventory_id']) && !empty($warehouse_details['inventory_id']) && isset($warehouse_details['estimate_cost'])) {
-                        foreach ($new_spare_id as $sid) {
-                            $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
-                            $pcb['booking_id'] = $booking_id;
-                            $pcb['assigned_vendor_id'] = $this->session->userdata('service_center_id');
-                            $pcb['amount_due'] = $this->input->post('amount_due');
-                            $pcb['partner_id'] = $partner_id;
-                            $pcb['sp_id'] = $spare_id;
-                            $pcb['gst_rate'] = $warehouse_details['gst_rate'];
-
-                            $pcb['estimate_cost'] = $warehouse_details['estimate_cost'];
-                            $pcb['agent_id'] = $this->session->userdata('service_center_agent_id');
-
-                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
-                        }
-                    }
 
                     if(!empty($delivered_sp)){
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
@@ -2870,6 +2878,7 @@ class Service_centers extends CI_Controller {
         $request_data['length'] = -1;
         $request_data['where_in'] = array();
         $request_data['where'] = array('bb_cp_order_action.current_status' => _247AROUND_BB_IN_PROCESS,
+            'bb_cp_order_action.internal_status NOT IN ("'._247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS.'")' => NULL,
             "bb_cp_order_action.partner_order_id" => $this->input->post('order_id'));
         $is_inProcess = $this->cp_model->get_bb_cp_order_list($request_data);
 
@@ -3276,6 +3285,9 @@ class Service_centers extends CI_Controller {
             case 2:
                 $data = $this->get_acknowledge_data();
                 break;
+            case 3:
+                $data = $this->get_inprocess_order_data();
+                break;
         }
         
         $post = $data['post'];
@@ -3363,9 +3375,9 @@ class Service_centers extends CI_Controller {
      */
     function get_acknowledge_data(){
         $post = $this->get_post_view_data();
-        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
-        $post['where_in'] = array('bb_cp_order_action.current_status' => array('Delivered', 'InProcess', 'Not Delivered', 'Damaged'),
-                                  'bb_cp_order_action.internal_status' => array('Delivered', 'Not Delivered', 'Refunded','Damaged'));
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'), "bb_order_details.auto_acknowledge" => $this->input->post('auto_acknowledge'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS),
+                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS));
         $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
                                 'order_date','delivery_date','cp_basic_charge',NULL,NULL);
         $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
@@ -3375,7 +3387,34 @@ class Service_centers extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $order_list) {
             $no++;
-            $row =  $this->get_acknowledge_table_data($order_list, $no);
+            $row =  $this->get_acknowledge_table_data($order_list, $no, false);
+            $data[] = $row;
+        }
+        
+        return array(
+                'data' => $data,
+                'post' => $post
+            
+                );
+    }
+    /**
+     * @desc This function used to get inprocess buyback data
+     */
+    function get_inprocess_order_data(){
+         $post = $this->get_post_view_data();
+        $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
+        $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
+                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
+        $post['column_order'] = array( NULL,'bb_order_details.partner_order_id','bb_order_details.partner_tracking_id','services','category',
+                                'order_date','delivery_date','cp_basic_charge',NULL,NULL);
+        $post['column_search'] = array('bb_order_details.partner_order_id','bb_order_details.partner_tracking_id', 'services', 'city',
+            'order_date', 'delivery_date', 'bb_cp_order_action.current_status');
+        $list = $this->cp_model->get_bb_cp_order_list($post);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $order_list) {
+            $no++;
+            $row =  $this->get_acknowledge_table_data($order_list, $no, true);
             $data[] = $row;
         }
         
@@ -3468,7 +3507,7 @@ class Service_centers extends CI_Controller {
      * @param $no
      * @return array
      */
-    function get_acknowledge_table_data($order_list, $no) {
+    function get_acknowledge_table_data($order_list, $no, $inprocess) {
         //log_message("info", __METHOD__);
         $row = array();
         $row[] = $no;
@@ -3481,6 +3520,23 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->delivery_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
+        if($inprocess){
+            switch ($order_list->internal_status){
+                case _247AROUND_BB_NOT_DELIVERED:
+                case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
+                    $row[] = "<div class='dropdown'>
+                            <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
+                            <span class='caret'></span></button>
+                            <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                            </ul>
+                          </div>";
+                    break;
+            }
+            
+        }
+        
         return $row;
     }
     
@@ -3836,7 +3892,6 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_id)) {
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
-
             $req['select'] = "spare_parts_details.id, "
                     . "spare_parts_details.is_micro_wh,"
                     . "spare_parts_details.entity_type,"
@@ -3847,7 +3902,8 @@ class Service_centers extends CI_Controller {
                     . "spare_parts_details.parts_requested_type,"
                     . "spare_parts_details.date_of_request,"
                     . "spare_parts_details.service_center_id,"
-                    . "spare_parts_details.booking_id";            
+                    . "spare_parts_details.booking_id";
+            
             $sp_data =$this->inventory_model->get_spare_parts_query($req);
             $partner_id = $this->input->post("partner_id");                   
             if(!empty($sp_data)){
@@ -4161,7 +4217,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $booking_id);
         $this->check_WH_UserSession();
         $where['length'] = -1;
-        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING);
+        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type, inventory_invoice_on_booking";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
@@ -4272,7 +4328,12 @@ class Service_centers extends CI_Controller {
                                 $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
-                                $data['parts_requested_type'] = $part_details['parts_type'];
+                                if(!empty($part_details['parts_type'])){
+                                    $data['parts_requested_type'] = $part_details['parts_type'];
+                                } else {
+                                    $data['parts_requested_type'] = $part_details['parts_name'];
+                                }
+                                
                                 $data['parts_requested'] = $part_details['parts_name'];
             
                                 
@@ -4347,7 +4408,7 @@ class Service_centers extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Warehouse acknowledged to shipped spare parts", $actor, $next_action);
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED_BY_WAREHOUSE, "Warehouse acknowledged to shipped spare parts", $actor, $next_action);
 
                     $this->booking_model->update_booking($booking_id, $booking);
                     

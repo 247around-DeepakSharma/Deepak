@@ -13,6 +13,7 @@ include('warehouse_constant.php');
 include('telephony_constant.php');
 include('taxpro_api_constant.php');
 include('invoice_constant.php');
+include('buyback_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -355,47 +356,8 @@ define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
 define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
-//Buyback constant
-define('_247AROUND_BB_PRICE_LIST','BB-Price-List');
-define('_247AROUND_BB_ORDER_LIST','BB-Order-List');
-define('_247AROUND_BB_PRICE_QUOTE','BB-Price-Quote');
-define('_247AROUND_BB_ORDER_ID_IMAGE_TAG','order_id_image');
-define('_247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG','damaged_order_image');
-define('_247AROUND_BB_DELIVERED','Delivered');
-define('_247AROUND_BB_IN_PROCESS','InProcess');
-define('_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS','Completed');
-define('_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS','Claimed Raised By CP');
-define('_247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS','Auto Approve Spec. Match');
-define('_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS','To Be Claimed Not Delivered');
-define('CLAIM_SUBMITTED','Claim Submitted');
-define('TO_BE_CLAIMED','To Be Claimed');
-define('CLAIM_SETTLED_BY_AMAZON','Claim Settled by Amazon');
-define('_247AROUND_BB_REPORT_ISSUE_IN_PROCESS','InProcess_Claimed_Raised_By_CP');
-define('_247AROUND_BB_NOT_DELIVERED_IN_PROCESS','InProcess_Not_delivered');
-define('_247AROUND_BB_247APPROVED_STATUS','Refunded');
-define('_247AROUND_BB_Damaged_STATUS','Damaged');
-define('_247AROUND_BB_NOT_DELIVERED','Not Delivered');
-define('_247AROUND_BB_TO_BE_CLAIMED','To Be Claimed');
-define('_247AROUND_BB_ORDER_MISMATCH','Product Mismatch');
-define('_247AROUND_BB_ORDER_REJECTED','Rejected');
-define('_247AROUND_BB_ORDER_TAT_BREACH','Tat Breach');
-
-//new shop address added
-define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
-define('SHOP_ADDRESS_DEACTIVATED','Shop Address De-Activated');
-define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
-define('BB_CP_ADDRESS','CP_ADDRESS');
 
 define('CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER','Customer not visited to service center');
-
-define('_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN', 'Broken');
-define('CLAIM_APPROVED','Claim Approved');
-define('CLAIM_REJECTED','Claim Rejected');
-define('CLAIM_SETTLED','Claim Settled');
-
-define('BUYBACK_TYPE','Buyback');
-
-define('CLAIM_DEBIT_NOTE_RAISED','Claim Debit Note Raised');
 
 define('SF_NOTIFICATION_MSG','Urgent - Update your GST number by clicking on the GST link above IMMEDIATELY. Your CRM will get deactivated if GST is not updated soon.');
 
@@ -630,12 +592,10 @@ define('WAREHOUSE','Warehouse');
 define('_247AROUND_QUERY','Query');
 //Sf Select Wrong Call Area
 define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
-define("_247AROUND_WEBSITE", "247around-Website");
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
 //define("_247AROUND_WEBSITE", "247around-Website");
-
 
 
 //constant to define 'bill defective spare part to vendor' internal status

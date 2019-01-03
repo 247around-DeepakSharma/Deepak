@@ -269,10 +269,12 @@ class invoices_model extends CI_Model {
                     $data[$key]['count_spare_part'] = $sp_d[0]['count'];
                     $data[$key]['max_sp_age'] = $sp_d[0]['max_sp_age'];
                     $data[$key]['shipped_parts'] = $sp_d[0]['parts'];
+                    $data[$key]['challan_value'] = $sp_d[0]['challan_value'];
                 } else {
                     $data[$key]['count_spare_part'] = 0;
                     $data[$key]['max_sp_age'] = 0;
                     $data[$key]['shipped_parts'] = "";
+                    $data[$key]['challan_value'] = 0;
                 }
                 
             } else if (isset($value['public_name'])) {
@@ -302,7 +304,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_pending_defective_parts($service_center_id){
-        $select = "count(spare_parts_details.booking_id) as count, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
@@ -1818,6 +1820,7 @@ class invoices_model extends CI_Model {
                 }
                 if($is_bill_of_supply){
                     $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
+                    $commission_charge[$key]['total_amount'] = $value['taxable_value'];
                     $meta['sub_total_amount'] += $value['taxable_value'];
                     $meta['total_qty'] += $value['qty'];
                     $meta['invoice_template'] = "Buyback-v1.xlsx"; 
@@ -1832,7 +1835,7 @@ class invoices_model extends CI_Model {
                         $meta['cgst_total_tax_amount'] +=  $commission_charge[$key]['cgst_tax_amount'];
                         $meta['sgst_total_tax_amount'] += $commission_charge[$key]['sgst_tax_amount'];
                         $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
-                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE/2))));
+                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE))));
 
                     } else {
                         $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
@@ -1921,7 +1924,7 @@ class invoices_model extends CI_Model {
             $group_by = " GROUP BY bb_unit_details.service_id ";
         }
         
-        $sql = "SELECT $select
+        $sql = "SELECT $select, 'Product' AS 'product_or_services'
                 
                 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 

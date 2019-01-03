@@ -913,7 +913,12 @@ class Invoice_lib {
         $a = array();
         foreach ($response['booking'] as $value) {
             $invoice = array();
-            $invoice['invoice_id'] = $value['invoice_id'];
+            if(isset($value['invoice_id'])){
+                $invoice['invoice_id'] = $value['invoice_id'];
+            } else {
+                $invoice['invoice_id'] = $response['meta']['invoice_id'];
+            }
+            
             $invoice['description'] = $value['description'];
             $invoice['product_or_services'] = "Product";
             $invoice['hsn_code'] = $value['hsn_code'];
@@ -945,6 +950,75 @@ class Invoice_lib {
         
         return $this->ci->invoices_model->insert_invoice_breakup($a);
         
+    }
+    /**
+     * @desc this function is used to return array to insert invoice in the vendor partner invoice table
+     * @param Array $response
+     * @param String $type_code
+     * @param String $type
+     * @param String $entity_type
+     * @param int $entity_id
+     * @param Array $convert
+     * @param int $agent_id
+     * @param String $hsn_code
+     * @return Array
+     */
+    function insert_vendor_partner_main_invoice($response, $type_code, $type, $entity_type, $entity_id,$convert,$agent_id,$hsn_code = ''){
+        
+        $invoice_details = array(
+                'invoice_id' => $response['meta']['invoice_id'],
+                'type_code' => $type_code,
+                'type' => $type,
+                'vendor_partner' => $entity_type,
+                'vendor_partner_id' => $entity_id,
+                "third_party_entity" => (isset($response['meta']['third_party_entity']))?$response['meta']['third_party_entity']:NULL,
+                "third_party_entity_id" => (isset($response['meta']['third_party_entity_id']))?$response['meta']['third_party_entity_id']:NULL,
+                'invoice_file_main' => $convert['main_pdf_file_name'],
+                'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                'invoice_detailed_excel' => $response['meta']['invoice_id'] . '-detailed.xlsx',
+                'from_date' => date("Y-m-d", strtotime($response['meta']['sd'])), //??? Check this next time, format should be YYYY-MM-DD
+                'to_date' => date("Y-m-d", strtotime($response['meta']['sd'])),
+                'num_bookings' => $response['meta']['service_count'],
+                'total_service_charge' => ($response['meta']['total_ins_charge']),
+                'total_additional_service_charge' => (isset($response['meta']['total_additional_service_charge']))?$response['meta']['total_additional_service_charge']:0,
+                'parts_cost' => $response['meta']['total_parts_charge'],
+                'total_amount_collected' => $response['meta']['sub_total_amount'],
+                'tds_amount' => (isset($response['meta']['tds']))?$response['meta']['tds']:0,
+                'tds_rate' => (isset($response['meta']['tds_tax_rate']))?$response['meta']['tds_tax_rate']:0,
+                'upcountry_booking' => (isset($response['meta']['upcountry_booking']))?$response['meta']['upcountry_booking']:0,
+                'upcountry_distance' => (isset($response['meta']['upcountry_distance']))?$response['meta']['upcountry_distance']:0,
+                'courier_charges' =>  (isset($response['meta']['total_courier_charge']))?$response['meta']['total_courier_charge']:0,
+                'upcountry_price' => (isset($response['meta']['total_upcountry_price']))?$response['meta']['total_upcountry_price']:0,
+                'rating' => 5,
+                'invoice_date' => (isset($response['meta']['invoice_date']))? date('Y-m-d', strtotime($response['meta']['invoice_date'])): date('Y-m-d'),
+                'around_royalty' => (isset($response['meta']['around_royalty']))?$response['meta']['around_royalty']:0,
+                'due_date' => (isset($response['meta']['due_date']))? date('Y-m-d', strtotime($response['meta']['due_date'])): date('Y-m-d', strtotime("+1 month")),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' => ($type =="A")?$response['meta']['sub_total_amount']:(0-$response['meta']['sub_total_amount']),
+                //add agent_id
+                'agent_id' => $agent_id,
+                "cgst_tax_rate" => (isset($response['meta']['cgst_tax_rate']))?$response['meta']['cgst_tax_rate']:0,
+                "sgst_tax_rate" => (isset($response['meta']['sgst_tax_rate']))?$response['meta']['sgst_tax_rate']:0,
+                "igst_tax_rate" => (isset($response['meta']['igst_tax_rate']))?$response['meta']['igst_tax_rate']:0,
+                "igst_tax_amount" => (isset($response['meta']['igst_total_tax_amount']))?$response['meta']['igst_total_tax_amount']:0,
+                "sgst_tax_amount" => (isset($response['meta']['sgst_total_tax_amount']))?$response['meta']['sgst_total_tax_amount']:0,
+                "cgst_tax_amount" => (isset($response['meta']['cgst_total_tax_amount']))?$response['meta']['cgst_total_tax_amount']:0,
+                "parts_count" => (isset($response['meta']['parts_count']))?$response['meta']['parts_count']:0,
+                "invoice_file_pdf" => $convert['copy_file'], 
+                "hsn_code" => $hsn_code,
+                'packaging_quantity' => (isset($response['meta']['packaging_quantity']))?$response['meta']['packaging_quantity']:0,
+                'packaging_rate' => (isset($response['meta']['packaging_rate']))?$response['meta']['packaging_rate']:0,
+                'miscellaneous_charges' => (isset($response['meta']['miscellaneous_charges']))?$response['meta']['miscellaneous_charges']:0,
+                'warehouse_storage_charges' => (isset($response['meta']['warehouse_storage_charges']))?$response['meta']['warehouse_storage_charges']:0,
+                'penalty_amount'=> (isset($response['meta']['penalty_amount']))?$response['meta']['penalty_amount']:0,
+                'penalty_bookings_count' => (isset($response['meta']['penalty_bookings_count']))?$response['meta']['penalty_bookings_count']:0,
+                'vertical' => $response['meta']['vertical'],
+                'category' => $response['meta']['category'],
+                'sub_category' => $response['meta']['sub_category'],
+                'accounting' => $response['meta']['accounting']
+            );
+        
+            return $invoice_details;
     }
 
 }
