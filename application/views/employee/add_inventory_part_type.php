@@ -98,15 +98,27 @@
                          <th>HSN Code</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody>                 
+                    <?php
+                    if ($this->session->userdata('part_type_success')) {
+                        echo '<div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close close_message" data-dismiss="alert" sms-type="part_type_success" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>'.$this->session->userdata('part_type_success').'</strong>
+                    </div>';
+                         $this->session->unset_userdata('part_type_success');
+                    }
+                    ?>
                    <?php
                     if ($this->session->userdata('part_type_error')) {
                         echo '<div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <button type="button" class="close close_message" data-dismiss="alert" sms-type="part_type_error" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <strong>'.$this->session->userdata('part_type_error').'</strong>
                     </div>';
+                        $this->session->unset_userdata('part_type_error');
                     }
                     ?>
                 <form name="myForm" class="form-horizontal" id ="brackets" method="POST" action='<?php echo base_url() ?>employee/inventory/process_add_inventory_part_type_form'>
@@ -125,7 +137,7 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="submit" id="submitform" class="btn btn-info " value="Save">
+                                <input type="submit" id="submitform" class="btn btn-info " value="Add">
                             </td>
                             
                         </tr>
@@ -134,7 +146,7 @@
             </table>           
             </form> 
                 <br>
-                <h5><strong>Inventory Part Type  List</strong></h5>
+                <h4><strong>Inventory Part Type  List</strong></h4>
         </div>
         
    <table class="table priceList table-striped table-bordered" id="inventory_part_type_table">
@@ -323,6 +335,16 @@ $(document).ready(function() {
         fixedHeader: true
     });
     
+    $(".close_message").on('click',function(){
+        var sms_type = $(this).attr("sms-type");
+        
+        if(sms_type =='part_type_success'){
+            <?php $this->session->unset_userdata('part_type_success'); ?>
+        }
+        if(sms_type =='part_type_error'){
+            <?php $this->session->unset_userdata('part_type_error'); ?>
+        }
+    });
 } );
 </script>
 
