@@ -691,7 +691,6 @@ class User_invoice extends CI_Controller {
                    . ',booking_unit_details.partner_invoice_id, booking_unit_details.tax_rate, booking_unit_details.product_or_services, vendor_foc_invoice_id, vendor_basic_charges';
            $where = array('booking_unit_details.id'=>$value->booking_unit_ids);
            $joinDataArray['booking_details'] = 'booking_details.booking_id = booking_unit_details.booking_id';
-           //$joinDataArray['service_centres'] = 'service_centres.id=booking_details.assigned_vendor_id';
            $joinDataArray["services"] = "services.id=booking_details.service_id";
            $booking_unit_data = $this->reusable_model->get_search_query('booking_unit_details', $select, $where, $joinDataArray, "", "", "", "", "")->result_array();
            $partner_id = $booking_unit_data[0]['partner_id'];
@@ -780,35 +779,14 @@ class User_invoice extends CI_Controller {
                     $partner_reference_invoice_id = $partner_reference_array[0];
                 }
                 
-                $invoice['invoice_id'] = $invoice_id;
-                $invoice['reference_invoice_id'] = $partner_reference_invoice_id;
-                $invoice['vendor_partner'] = 'partner';
-                $invoice['vendor_partner_id'] = $partner_id;
-                $invoice['total_service_charge'] = $response['meta']['total_ins_charge'];
-                $invoice['parts_cost'] = $response['meta']['total_parts_charge'];
-                $invoice['invoice_file_main'] = $response['meta']['invoice_file_main'];
-                $invoice['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
-                $invoice['from_date'] = date("Y-m-d", strtotime($sd));
-                $invoice['to_date'] = date("Y-m-d", strtotime($sd));
-                $invoice['due_date'] = date("Y-m-d", strtotime($sd));
-                $invoice['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                $invoice['invoice_date'] = date("Y-m-d", strtotime($sd));
-                $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
-                $invoice['agent_id'] = $this->session->userdata('id');
-                $invoice['cgst_tax_rate'] = $response['meta']['cgst_tax_rate'];
-                $invoice['sgst_tax_rate'] = $response['meta']['sgst_tax_rate'];
-                $invoice['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
-                $invoice['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
-                $invoice['sgst_tax_amount'] = $response['meta']['sgst_total_tax_amount'];
-                $invoice['cgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
-                $invoice['hsn_code'] = HSN_CODE;
-                $invoice['type'] = "Credit Note";
-                $invoice['type_code'] = "B";
-                $invoice['vertical'] = SERVICE;
-                $invoice['category'] = INSTALLATION_AND_REPAIR;
-                $invoice['sub_category'] = CREDIT_NOTE;
-                $invoice['accounting'] = 1;
-
+                $response['meta']['invoice_id'] = $invoice_id;
+                $response['meta']['reference_invoice_id'] = $partner_reference_invoice_id;
+                $response['meta']['vertical'] = SERVICE;
+                $response['meta']['category'] = INSTALLATION_AND_REPAIR;
+                $response['meta']['sub_category'] = CREDIT_NOTE;
+                $response['meta']['accounting'] = 1;
+                $invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Credit Note", "partner", $partner_id, $convert, $this->session->userdata('id'), HSN_CODE);
+                
                 $last_invoice_id = $this->invoices_model->insert_new_invoice($invoice);
                 if($last_invoice_id){
                     $i = 0;
@@ -852,35 +830,14 @@ class User_invoice extends CI_Controller {
                     $vendor_reference_invoice_id = $vendor_reference_array[0];
                 }
                 
-                $vendor_invoice['invoice_id'] = $vendor_invoice_id;
-                $vendor_invoice['reference_invoice_id'] = $vendor_reference_invoice_id;
-                $vendor_invoice['vendor_partner'] = 'vendor';
-                $vendor_invoice['vendor_partner_id'] = $booking_assigned_vendor[0]['assigned_vendor_id'];
-                $vendor_invoice['total_service_charge'] = $response['meta']['total_ins_charge'];
-                $vendor_invoice['parts_cost'] = $response['meta']['total_parts_charge'];
-                $vendor_invoice['invoice_file_main'] = $response['meta']['invoice_file_main'];
-                $vendor_invoice['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
-                $vendor_invoice['from_date'] = date("Y-m-d", strtotime($sd));
-                $vendor_invoice['to_date'] = date("Y-m-d", strtotime($sd));
-                $vendor_invoice['due_date'] = date("Y-m-d", strtotime($sd));
-                $vendor_invoice['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                $vendor_invoice['invoice_date'] = date("Y-m-d", strtotime($sd));
-                $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
-                $vendor_invoice['agent_id'] = $this->session->userdata('id');
-                $vendor_invoice['cgst_tax_rate'] = $response['meta']['cgst_tax_rate'];
-                $vendor_invoice['sgst_tax_rate'] = $response['meta']['sgst_tax_rate'];
-                $vendor_invoice['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
-                $vendor_invoice['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
-                $vendor_invoice['sgst_tax_amount'] = $response['meta']['sgst_total_tax_amount'];
-                $vendor_invoice['cgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
-                $vendor_invoice['hsn_code'] = HSN_CODE;
-                $vendor_invoice['type'] = "Debit Note";
-                $vendor_invoice['type_code'] = "A";
-                $vendor_invoice['vertical'] = SERVICE;
-                $vendor_invoice['category'] = INSTALLATION_AND_REPAIR;
-                $vendor_invoice['sub_category'] = DEBIT_NOTE;
-                $vendor_invoice['accounting'] = 1;
-
+                $response['meta']['invoice_id'] = $vendor_invoice_id;
+                $response['meta']['reference_invoice_id'] = $vendor_reference_invoice_id;
+                $response['meta']['vertical'] = SERVICE;
+                $response['meta']['category'] = INSTALLATION_AND_REPAIR;
+                $response['meta']['sub_category'] = DEBIT_NOTE;
+                $response['meta']['accounting'] = 1;
+                $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_assigned_vendor[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
+            
                 $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
                 if($last_invoice_id){
                     $i = 0;
