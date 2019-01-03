@@ -519,6 +519,7 @@
     }
     
     function  get_brand_collateral(booking_id){
+       $('#collatral_container').html('<center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>');
        $.ajax({
          type: 'POST',
          data: {booking_id: booking_id},

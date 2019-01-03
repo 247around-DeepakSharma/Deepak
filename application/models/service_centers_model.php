@@ -751,6 +751,13 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    function get_collateral_by_condition($where){
+        $this->db->select('collateral.*,collateral_type.*');
+        $this->db->where($where);
+        $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
+        $query= $this->db->get('collateral');
+        return  $query->result_array();
+    }
     /*
      * This function is used to get collateral files against a booking id
     */
@@ -767,7 +774,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                 $where['appliance_id'] = $bookingData['service_id'];
                 $where['request_type'] = $bookingData['request_type'];
                 $where['brand'] = $bookingData['appliance_brand'];
-                $where['is_valid'] = 0;
+                $where['is_valid'] = 1;
                 if($bookingData['appliance_category']){
                     $where['category'] = $bookingData['appliance_category'];
                 }
@@ -781,13 +788,16 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                     $where['model'] = $bookingData['model_number'];
                 }
             }
-            $this->db->select('collateral.*,collateral_type.*');
-            $this->db->where($where);
-            $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
-            $query2 = $this->db->get('collateral');
-            $collateralData =  $query2->result_array();
+            $collateralData = $this->get_collateral_by_condition($where);
+            if(empty($collateralData)){
+                unset($where['model']);
+                $collateralDataNew = $this->get_collateral_by_condition($where);
+            }
+            else{
+             return $collateralData;   
+            }
         }
-        return $collateralData;
+        return $collateralDataNew;
     }
     
     function create_new_entry_in_spare_table($data,$id){
