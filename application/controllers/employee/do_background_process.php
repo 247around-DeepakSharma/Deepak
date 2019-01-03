@@ -61,6 +61,10 @@ class Do_background_process extends CI_Controller {
 
                     $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                     if ($upcountry_status) {
+                        
+                        // Send New Booking SMS
+                        $this->notify->send_sms_email_for_booking($booking_id, "Newbooking" );
+            
                         //Send Push Notification
                         //Send To Vendor
                         $receiverArrayVendor['vendor'] = array($service_center_id);
