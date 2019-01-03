@@ -646,34 +646,26 @@
     }
     
 function initiate_am_tat_report(){
-         var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
             timePickerIncrement: 30,
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         }); 
 }
 function initiate_rm_tat_report(){
         var dvSecond = document.getElementById('rm_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['rm_dashboard']);
-            var d = new Date();
-            n = d.getMonth();
-            y = d.getFullYear();
-            date = d.getDate();
             $('#completed_daterange_id').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 30,
                 locale: {
                      format: 'YYYY-MM-DD'
                 },
-                startDate: y+'-'+n+'-'+date
+                startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
             });
         });
 }
