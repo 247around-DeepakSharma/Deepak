@@ -1761,19 +1761,7 @@ class Inventory_model extends CI_Model {
         $query =  $this->db->get("inventory_stocks");
         return $query->result_array();
     }    
-     /**
-     * @desc This is used to get list of HSN Code Details.     
-     * @table hsn_code_details 
-     * @return array
-     */    
-     function get_hnscode_details($select, $where) {
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("hsn_code_details");
-        return $query->result_array();
-    }
-    
-    
+        
      /**
      * @desc This is used to get all courier invoices in data table format
      * @param $select, $post
@@ -1885,6 +1873,13 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->num_rows;
     }
+      /**
+     * @Desc: This function is used to get data from the  spare_parts_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
     
     function get_spare_parts_details($select, $where=array()){
         $this->db->select($select);
@@ -1893,4 +1888,69 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+      /**
+     * @Desc: This function is used to get data from the appliance_model_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_parts_type_details($select,$where = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('part_type','ASC');
+        $query = $this->db->get('inventory_parts_type');
+        return $query->result_array();
+    }
+    /**
+     * @desc: This function is used to insert data in inventory_parts_type table
+     * @params: Array of data
+     * return : boolean
+     */
+    function insert_inventory_parts_type($data){
+        
+        $this->db->insert('inventory_parts_type', $data);
+         if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc This is used to get list of HSN Code Details.     
+     * @table hsn_code_details 
+     * @return array
+     */    
+     function get_services_details($select, $where) {
+        $this->db->select($select);
+        if(!empty($where)){
+             $this->db->where($where);
+        }
+        $query = $this->db->get("services");
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to update Inventory Parts Type
+     * @params: Array, Int id
+     * @return: Int
+     * 
+     */
+    function update_inventory_parts_type($data,$where){
+        $this->db->where($where);
+	$this->db->update('inventory_parts_type', $data);
+        if($this->db->affected_rows() > 0){
+             log_message ('info', __METHOD__ . "=> Inventory Part Type  SQL ". $this->db->last_query());
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
+       
 }
