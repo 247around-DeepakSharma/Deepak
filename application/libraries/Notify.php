@@ -558,7 +558,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-                
+                    log_message('info', __METHOD__. " ". print_r($sms, true));
 		    $this->send_sms_msg91($sms);
                     
                     //send sms to dealer

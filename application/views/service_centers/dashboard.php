@@ -166,17 +166,18 @@
 </div>
 <script>
     $(document).ready(function () {
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
+//        var d = new Date();
+//        n = d.getMonth();
+//        y = d.getFullYear();
+//        date = d.getDate();
         $('input[id="completed_daterange_id"]').daterangepicker({
            timePicker: true,
            timePickerIncrement: 30,
            locale: {
                format: 'YYYY-MM-DD'
            },
-           startDate: y+'-'+n+'-'+date
+           //startDate: y+'-'+n+'-'+date
+           startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
        });
         get_header_summary();
         get_sf_tat_report("Installation");
@@ -251,17 +252,18 @@
         }); 
     }
      $(function() {
-     var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
+//     var d = new Date();
+//        n = d.getMonth();
+//        y = d.getFullYear();
+//        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-'+date
+        startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+        //startDate: y+'-'+n+'-'+date
     });
 });
 function fetch_filtered_tat_report(){
