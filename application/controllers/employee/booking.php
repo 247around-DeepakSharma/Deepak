@@ -1631,7 +1631,7 @@ class Booking extends CI_Controller {
                 
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $isWbrand);
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $isWbrand, $value['partner_id']);
-                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand,$is_repeat);
+                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand);
                 $where1 = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
                 $brand_id_array = $this->booking_model->get_brand($where1);
                 if (!empty($brand_id_array)) {
