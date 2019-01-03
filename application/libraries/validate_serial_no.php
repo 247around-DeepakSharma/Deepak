@@ -11,7 +11,7 @@ class Validate_serial_no {
     function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id,$applianceID,$modelNumber = NULL){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
         $flag = true;
-        
+        //Check For Duplicate In Non Repeat Booking Case
         if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
             $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
             if(!empty($v)){
@@ -19,6 +19,14 @@ class Validate_serial_no {
                 return $v;
             }
         }
+        //If booking is repeat then validate serial number with parent booking 
+        if($price_tags == REPEAT_BOOKING_TAG){
+            $repeatResult =  $this->validate_repeat_booking_serial_number($serialNo,$booking_id);
+            if($repeatResult){
+                return $repeatResult;
+            }
+        }
+        // Validate with basic rules 
         if($flag){
             $method = $this->getLogicMethod($partnerID);
             if(!empty($method)){
@@ -724,6 +732,20 @@ class Validate_serial_no {
              return false;
          }
          return true;
+    }
+    function validate_repeat_booking_serial_number($serialNo,$booking_id){
+        $parentBookingSerialNumbers = $this->MY_CI->booking_model->get_parent_booking_serial_number($booking_id,1);
+        if($parentBookingSerialNumbers){
+            foreach($parentBookingSerialNumbers as $serialNo){
+                if($serialNo['parent_sn'] == $serialNo){
+                     return array('code' => SUCCESS_CODE);
+                }
+            }
+            return array('code' => FAILURE_CODE, "message" => REPEAT_BOOKING_FAILURE_MSG);
+        }
+        else{
+            return false;
+        }
     }
 }
 
