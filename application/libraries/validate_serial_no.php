@@ -746,8 +746,8 @@ class Validate_serial_no {
     function validate_repeat_booking_serial_number($serialNo,$booking_id){
         $parentBookingSerialNumbers = $this->MY_CI->booking_model->get_parent_booking_serial_number($booking_id,1);
         if($parentBookingSerialNumbers){
-            foreach($parentBookingSerialNumbers as $serialNo){
-                if($serialNo['parent_sn'] == $serialNo){
+            foreach($parentBookingSerialNumbers as $sn){
+                if(strtoupper($sn['parent_sn']) == $serialNo){
                      return array('code' => SUCCESS_CODE);
                 }
             }
