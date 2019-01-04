@@ -836,24 +836,23 @@
                 url:'<?php echo base_url(); ?>employee/partner/get_booking_relatives/<?php echo $booking_history[0]['booking_id']; ?>',
                 success: function(res){
                     if(res){
-                    $("#relative_holder").show();
                     var obj = JSON.parse(res);
                     parent_string = child_string = sibling_string = "NULL";
                     if(obj.parent){
-                        parent_string = "<a href = '<?php echo base_url(); ?>service_center/booking_details/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
+                        parent_string = "<a href = '<?php echo base_url(); ?>service_center/booking_details/"+encodeURIComponent(window.btoa(obj.parent))+"' target = '_blank'>"+obj.parent+"</a>";
                     }
                     if(obj.siblings){
                         sibling_string ="";
                         sibling_array = obj.siblings.split(",");
                         for(var i = 0;i<sibling_array.length;i++){
-                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+sibling_array[i]+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
+                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>service_center/booking_details/"+encodeURIComponent(window.btoa(sibling_array[i]))+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
                         }
                     }
                     if(obj.child){
                         child_string ="";
                         child_array = obj.child.split(",");
                         for(var i = 0;i<child_array.length;i++){
-                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
+                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>booking_details/booking_details"+encodeURIComponent(window.btoa(child_array[i]))+"' target = '_blank'>"+child_array[i]+"</a><br>";
                         }
                     }
                     $('#parent_holder').html(parent_string);
