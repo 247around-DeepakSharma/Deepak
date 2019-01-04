@@ -9601,4 +9601,5 @@ ALTER TABLE `booking_debit_credit_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-
+--Abhay 03-01-2019
+ALTER TABLE `inventory_ledger` ADD `is_wh_micro` INT NOT NULL DEFAULT '0' AFTER `is_partner_ack`;

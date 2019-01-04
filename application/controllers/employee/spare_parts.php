@@ -657,9 +657,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to get post data from datatable
      * @return Array
      */
-    
-    function get_spare_tab_datatable_data(){        
-                
+    function get_spare_tab_datatable_data(){
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -689,9 +687,6 @@ class Spare_parts extends CI_Controller {
         
         return $post;
     }
-    
-    
-    
     
      /**
      * @desc This function is used to load view 
