@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-                                <div class="row">
+    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -92,9 +92,48 @@
             </div>
         </div>
     </div>
+    
+                                
+                                
     <div class="row">
-        
-        <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>247around Spare Related</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                         <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
+                                 <div class="left col-xs-12">
+                                     <h2><b>Mr. Sachin Sharma</b></h2>
+                                     <p><strong>About: </strong> Inventory </p>
+                                     <ul class="list-unstyled">
+                                        <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
+                                        <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
+                                     </ul>
+                                 </div>
+                         </div>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                         <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
+                                 <div class="left col-xs-12">
+                                     <h2><b>Mr. Chandan Singh</b></h2>
+                                     <p><strong>About: </strong> Inventory </p>
+                                     <ul class="list-unstyled">
+                                        <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
+                                        <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
+                                     </ul>
+                                 </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>                            
+                                
+   <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>247around Invoices Related</h2>
@@ -107,37 +146,6 @@
                                 <h2><b>Miss. Geeta Gupta</b></h2>
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 9717165247</li>
-                                    <li><i class="fa fa-envelope"></i> Email: geetag@247around.com </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-4 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>247around Spare Related</h2>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                    <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
-                        <div class="well profile_view" style="width:100%!important;">
-                            <div class="left col-xs-12">
-                                <h2><b>Mr. Sachin Sharma</b></h2>
-                                <p><strong>About: </strong> Inventory </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
-                                    <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
-                                </ul>
-                            </div>
-                            <div class="left col-xs-12">
-                                <h2><b>Mr. Chandan Singh</b></h2>
-                                <p><strong>About: </strong> Inventory </p>
-                                <ul class="list-unstyled">
                                     <li><i class="fa fa-phone"></i> Phone: 8448965247 /  8949687620</li>
                                     <li><i class="fa fa-envelope"></i> Email: chandans@247around.com </li>
                                 </ul>
@@ -147,8 +155,7 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Technical – CRM Related</h2>
@@ -171,8 +178,8 @@
             </div>
         </div>
     </div>
-                            </div>
-                            <div class="tab-pane" id="tabs-2">
+    </div>
+    <div class="tab-pane" id="tabs-2">
                                   <div class="x_title">
                                          <h2>Holiday List  <?php echo date("Y") ?></h2>
         <div style='border-radius: 5px;background: #EEEEEE;margin-bottom: 10px;width:330px;margin-top: 4px;margin-left: 9px;' class='col-md-6'><b>NOTE:</b> <i>Checkmark shows Holiday declared.</i></div>
