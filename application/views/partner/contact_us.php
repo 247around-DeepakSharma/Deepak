@@ -127,6 +127,14 @@
                     <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
                         <div class="well profile_view" style="width:100%!important;">
                             <div class="left col-xs-12">
+                                <h2><b>Mr. Sachin Sharma</b></h2>
+                                <p><strong>About: </strong> Inventory </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
+                                    <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
+                                </ul>
+                            </div>
+                            <div class="left col-xs-12">
                                 <h2><b>Mr. Chandan Singh</b></h2>
                                 <p><strong>About: </strong> Inventory </p>
                                 <ul class="list-unstyled">
