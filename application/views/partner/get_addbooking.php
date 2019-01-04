@@ -786,7 +786,7 @@
                     var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                     $("#model_number_2").html(input_text).change();
                     $("#model_number_1").append(data).change();
-                    getPrice();
+                    
                 }
             }
         });
