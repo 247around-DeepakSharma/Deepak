@@ -590,7 +590,7 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 define('WAREHOUSE','Warehouse');  
 //constant to define New Query state
 define('_247AROUND_QUERY','Query');
-//
+//Sf Select Wrong Call Area
 define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');

@@ -786,7 +786,7 @@
                     var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                     $("#model_number_2").html(input_text).change();
                     $("#model_number_1").append(data).change();
-                    getPrice();
+                    
                 }
             }
         });
@@ -816,6 +816,7 @@
         
         postData['partner_type'] = $('#partner_type').val();
         postData['assigned_vendor_id'] = "";
+        postData['add_booking'] = "add_booking";
         
         if(postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){

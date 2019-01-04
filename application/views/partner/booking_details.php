@@ -699,14 +699,14 @@
                         sibling_string ="";
                         sibling_array = obj.siblings.split(",");
                         for(var i = 0;i<sibling_array.length;i++){
-                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+sibling_array[i]+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
+                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>partner/booking_details/"+sibling_array[i]+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
                         }
                     }
                     if(obj.child){
                         child_string ="";
                         child_array = obj.child.split(",");
                         for(var i = 0;i<child_array.length;i++){
-                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
+                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>partner/booking_details/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
                         }
                     }
                     $('#parent_holder').html(parent_string);
