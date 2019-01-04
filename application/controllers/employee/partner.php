@@ -2860,6 +2860,7 @@ class Partner extends CI_Controller {
      * @desc: This is used to return customer net payable, Its called by Ajax
      */
     function get_price_for_partner() {
+        $add_booking = NULL;
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $service_id = $this->input->post('service_id');
@@ -2875,12 +2876,15 @@ class Partner extends CI_Controller {
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
+        if($this->input->post("add_booking")){
+            $add_booking = $this->input->post("add_booking");
+        }
         $result = array();
 
         if ($partner_type == OEM) {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand,TRUE,$is_repeat);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand,TRUE,$add_booking);
         } else {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "",TRUE,$is_repeat);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "",TRUE,$add_booking);
         }
         if (!empty($result)) {
             $p_where = array('id' => $partner_id);

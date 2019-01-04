@@ -838,7 +838,7 @@ class Notify {
      * return: Null
      */
 
-    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag, $booking_id) {
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag, $booking_id="") {
 	$data = array();
 
 	$data['email_from'] = $email_from;
