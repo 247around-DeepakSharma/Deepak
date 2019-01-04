@@ -896,7 +896,7 @@ class Partner extends CI_Controller {
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
-                array("entity_id" => $id, "entity_type" => "partner","is_valid"=>0), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
+                array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
@@ -2861,6 +2861,7 @@ class Partner extends CI_Controller {
      * @desc: This is used to return customer net payable, Its called by Ajax
      */
     function get_price_for_partner() {
+        $add_booking = NULL;
         log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $service_id = $this->input->post('service_id');
@@ -2876,12 +2877,15 @@ class Partner extends CI_Controller {
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
+        if($this->input->post("add_booking")){
+            $add_booking = $this->input->post("add_booking");
+        }
         $result = array();
 
         if ($partner_type == OEM) {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand,TRUE,$is_repeat);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", $brand,TRUE,$add_booking);
         } else {
-            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "",TRUE,$is_repeat);
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, "", "",TRUE,$add_booking);
         }
         if (!empty($result)) {
             $p_where = array('id' => $partner_id);

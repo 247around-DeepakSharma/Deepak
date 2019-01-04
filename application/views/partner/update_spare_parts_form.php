@@ -406,16 +406,27 @@
 </div>
 <script type="text/javascript">
  $(document).ready(function(){
-        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";        
-        $.ajax({
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>"; 
+        get_inventory_pary_type(service_id,'shippedparttype_0');
+        $(".addButton").on('click',function(){  
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";    
+        var numItems = $('.spare_clone').length;
+        spare_part_type_id = "shippedparttype_"+numItems;
+        get_inventory_pary_type(service_id,spare_part_type_id)
+          
+        });
+        
+        function get_inventory_pary_type(service_id,spare_part_type_id){
+            $.ajax({
             method:'POST',
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('.spare_parts').html(data);              
+                $('#'+spare_part_type_id).html(data);              
                 $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
             }
         });
+        }        
     });
 </script>
 <script type="text/javascript">
