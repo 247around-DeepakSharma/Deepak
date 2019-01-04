@@ -369,7 +369,9 @@
                     <div class="x_content">
                         <center>
                             <input type="hidden" name="product_type" value="Delivered"/>
+                            <input type="hidden" id="not_visible" name="not_visible" value="0"/>
                             <input type="submit" id="submitform" class="btn btn-success "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
+                        <p id="error_not_visible" style="color: red"></p>
                         </center>
                     </div>
                 </div>
@@ -537,7 +539,7 @@
     
     
     function display_message(input_id, error_id, color,message){
-    
+    console.log(error_id);
             document.getElementById(input_id).style.borderColor = color;
             document.getElementById(error_id).innerHTML = message;
     }
@@ -698,7 +700,7 @@
                                      var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                                     $("#model_number_2").html(input_text).change();
                                     $("#model_number_1").append(data).change();
-                                    getPrice();
+                                    
                                 }
                             }
                     });
