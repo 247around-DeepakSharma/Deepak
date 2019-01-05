@@ -1020,5 +1020,37 @@ class Invoice_lib {
         
             return $invoice_details;
     }
+    
+    /**
+     * @desc this function is used to return array to insert invoice breakup into invoice_details
+     * @param Array $invoice
+     * @return Array
+     */
+    function insert_invoice_breackup($invoice){
+        $invoice_breakup = array();
+        foreach($invoice['booking'] as $value){
+            $invoice_details = array(
+                "invoice_id" => $invoice['meta']['invoice_id'],
+                "description" => $value['description'],
+                "qty" => $value['qty'],
+                "product_or_services" => $value['product_or_services'],
+                "rate" => $value['rate'],
+                "taxable_value" => $value['taxable_value'],
+                "cgst_tax_rate" => (isset($value['cgst_rate']) ? $value['cgst_rate'] : 0),
+                "sgst_tax_rate" => (isset($value['sgst_rate']) ? $value['sgst_rate'] : 0),
+                "igst_tax_rate" => (isset($value['igst_rate']) ? $value['igst_rate'] : 0),
+                "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
+                "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
+                "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
+                "hsn_code" => $value['hsn_code'],
+                "total_amount" => $value['total_amount'],
+                "create_date" => date('Y-m-d H:i:s')
+                
+            );
+            
+            array_push($invoice_breakup, $invoice_details);
+        }
+       return $this->ci->invoices_model->insert_invoice_breakup($invoice_breakup);
+    }
 
 }
