@@ -118,8 +118,8 @@
                                      <h2><b>Mr. Chandan Singh</b></h2>
                                      <p><strong>About: </strong> Inventory </p>
                                      <ul class="list-unstyled">
-                                        <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
-                                        <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
+                                        <li><i class="fa fa-phone"></i> Phone: 8448965247 /  8949687620</li>
+                                        <li><i class="fa fa-envelope"></i> Email: chandans@247around.com </li>
                                      </ul>
                                  </div>
                          </div>
