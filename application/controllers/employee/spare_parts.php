@@ -1005,11 +1005,21 @@ class Spare_parts extends CI_Controller {
         }
     }
     
+    /*
+     * @des - This function is used to load view for bill defective spare to service center
+     * @param - void
+     * @return - view
+     */
     function defective_spare_invoice(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/defective_spare_invoice_form');
     }
     
+     /*
+     * @des - This function is used to get parts for booking
+     * @param - booking_id
+     * @return - array
+     */
     function get_defective_spare_parts(){
         $where_internal_status = array("page" => "bill_defective_spare", "active" => '1');
         $internal_status = $this->booking_model->get_internal_status($where_internal_status);
