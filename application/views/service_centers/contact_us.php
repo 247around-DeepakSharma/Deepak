@@ -49,6 +49,34 @@
 </div>  
 
 <div class="modal-header">
+    <h4 class="modal-title">247around Spare Related:</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card" style="padding: 10px 16px;">
+                <div class="container">
+                    <h5><b>Mr. Sachin Sharma</b></h5> 
+                    <p>Delhi Office</p>
+                    <p>‭+91 9810558247</p>
+                    <p>sachins@247around.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card" style="padding: 10px 16px;">
+                <div class="container">
+                    <h5><b>Mr. Chandan Singh</b></h5> 
+                    <p>Delhi Office</p>
+                    <p>‭+91 8448965247</p>
+                    <p>chandans@247around.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-header">
     <h4 class="modal-title">247around Invoices Related:</h4>
 </div>
 <div class="modal-body">
