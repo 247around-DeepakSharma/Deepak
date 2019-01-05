@@ -5183,49 +5183,18 @@ class Inventory extends CI_Controller {
     
     function get_add_inventory_part_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('*', array());
+        $select = "inventory_parts_type.id,inventory_parts_type.part_type,inventory_parts_type.service_id,inventory_parts_type.hsn_code_details_id,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details($select, array(), TRUE);
+
         $data = array();
         if (!empty($inventory_parts_type)) {
-            foreach ($inventory_parts_type as $key => $value) {
-                $services_details = $this->inventory_model->get_services_details('id,services', array('id' => $value['service_id']));
-                $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id' => $value['hsn_code_details_id']));
-                array_push($value, array('service_name' => $services_details[0]['services'], 'hsn_code' => $hsncode_details[0]['hsn_code']));
-                $part_type_arr[] = $value;
-            }
-            $data['parts_type'] = $part_type_arr;
+            $data['parts_type'] = $inventory_parts_type;
         }
 
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/add_inventory_part_type", $data);
     }
-
-    /**
-     *  @desc : This function is used to get HSN Code and GST Rate
-     *  @param : void
-     *  @return : json
-     */
-    
-    function get_services() {
-       
-        $services_details = $this->inventory_model->get_services_details('id,services', array());
-
-        if (!empty($services_details)) {
-            
-                if ($this->input->post('is_option_selected')) {
-                    $option = '<option  selected="" disabled="">Select Appliance </option>';
-                } else {
-                    $option = '';
-                }
-
-                foreach ($services_details as $value) {
-                    $option .= "<option value='" . $value['id'] . "'";
-                    $option .= " > ";
-                    $option .= $value['services'] . "</option>";
-                }
-           }
-        echo $option;
-    }
-    
+   
     /**
      * @desc: This function is used to process add Inventory Part Type form
      * @params: Array
@@ -5241,7 +5210,7 @@ class Inventory extends CI_Controller {
             $data['part_type'] = $this->input->post('part_type');
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
             if(!empty($this->input->post('service_id') && !empty($this->input->post('part_type')))){
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $data['service_id'],'part_type'=>$data['part_type']));
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $data['service_id'],'part_type'=>$data['part_type']),false);
                 if(empty($parts_type_details)){
                     $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
                     if($last_inserted_id){                
@@ -5278,14 +5247,12 @@ class Inventory extends CI_Controller {
                 $affected_id = $this->inventory_model->update_inventory_parts_type($data, array('id' => $part_type_id));
 
                 if ($affected_id) {
-                    $services_details = $this->inventory_model->get_services_details('id,services', array('id' => $data['service_id']));
-                    $hsncode_details = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', array('id' => $data['hsn_code_details_id']));
-                    if (!empty($services_details) && !empty($hsncode_details)) {
-                        unset($data['hsn_code_details_id']);
-                        unset($data['service_id']);
-                        $data['service_name'] = $services_details[0]['services'];
-                        $data['hsn_code'] = $hsncode_details[0]['hsn_code'];
-                        echo json_encode($data);
+                    $select = "inventory_parts_type.part_type,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
+                    $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details($select, array('inventory_parts_type.id'=>$part_type_id), TRUE);
+                    
+                    if (!empty($inventory_parts_type)) {
+                        
+                        echo json_encode($inventory_parts_type[0]);
                     }
                 }
             }
