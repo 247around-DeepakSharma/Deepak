@@ -614,14 +614,14 @@ class User_invoice extends CI_Controller {
             $response['meta']['accounting'] = 1;
             
             $this->invoice_lib->insert_invoice_breackup($response);
-            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", _247AROUND_SF_STRING, "Parts", $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
+            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
             $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
 
             if($inserted_invoice){
                 /* Send mail to partner */
                 $email_template = $this->booking_model->get_booking_email_template(SPARE_SALE_INVOICE);
                 $subject = $email_template[4];
-                $message = $email_template[0];
+                $message = $email_template[0]; 
                 $email_from = $email_template[2];
                 $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
                 $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1];
@@ -666,15 +666,12 @@ class User_invoice extends CI_Controller {
     */
     function get_refuse_booking_detail(){
         $booking_id = trim($this->input->post("booking_id"));
-        $select = "booking_unit_details.id, booking_unit_details.booking_id, booking_unit_details.partner_net_payable, booking_unit_details.vendor_basic_charges, booking_details.order_id,bookings_sources.source,"
-                . "service_centres.company_name,services.services,booking_details.current_status,booking_details.internal_status,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
+        $select = "booking_unit_details.id, booking_unit_details.booking_id, booking_unit_details.partner_net_payable, booking_unit_details.vendor_basic_charges,"
+                . "services.services,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
                 . "booking_unit_details.product_or_services, partner_refuse_to_pay, vendor_basic_charges";
         $where = array('booking_unit_details.booking_id'=> $booking_id);
-        $joinDataArray['booking_details'] = 'booking_details.booking_id = booking_unit_details.booking_id';
-        $joinDataArray["bookings_sources"] = "bookings_sources.partner_id=booking_details.partner_id";
-        $joinDataArray['service_centres'] = 'service_centres.id=booking_details.assigned_vendor_id';
-        $joinDataArray["services"] = "services.id=booking_details.service_id";
-        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
+        $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
+        $JoinTypeTableArray = array('services'=>'left');
         $result['data'] = $this->booking_model->get_advance_search_result_data("booking_unit_details",$select,$where,$joinDataArray,"",array("booking_unit_details.booking_id"=>"ASC"),
                 "",$JoinTypeTableArray);
         $where_internal_status = array("page" => "partner_refuse_to_pay", "active" => '1');
@@ -699,33 +696,37 @@ class User_invoice extends CI_Controller {
         $vendor_invoice = array();
         $partner_reference_invoice = array();
         $vendor_reference_invoice = array();
-        $partner_id = 0;
         $invoice_id = "";
         $sd = $ed = $invoice_date = date("Y-m-d");
-        $booking_assigned_vendor = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id', array('booking_id'=>$booking_id));
+        $booking_data = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id, partner_id', array('booking_id'=>$booking_id));
+        
+        $partner_data = $this->partner_model->getpartner_details("gst_number,"
+                        . "company_name, state, address as company_address, district, pincode, "
+                        . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_data[0]['partner_id']));
+        
+        $partner_id = $booking_data[0]['partner_id'];
+        
+        $vendor_data = $this->vendor_model->getVendorDetails("gst_no as gst_number,"
+                        . "company_name, state, address as company_address, district, pincode, "
+                        . "primary_contact_email as invoice_email_to,owner_email as invoice_email_cc", array('id' => $booking_data[0]['assigned_vendor_id']));
+         
         foreach ($postData as $key => $value){
             array_push($unit_bookings, $value->booking_unit_ids);
            
-           $select = 'booking_unit_details.partner_id, booking_unit_details.partner_net_payable, services.services as service, booking_details.request_type'
+           $select = 'booking_unit_details.partner_net_payable, services.services as service'
                    . ', booking_unit_details.price_tags, booking_unit_details.appliance_category,booking_unit_details.appliance_capacity'
                    . ',booking_unit_details.partner_invoice_id, booking_unit_details.tax_rate, booking_unit_details.product_or_services, vendor_foc_invoice_id, vendor_basic_charges';
            $where = array('booking_unit_details.id'=>$value->booking_unit_ids);
-           $joinDataArray['booking_details'] = 'booking_details.booking_id = booking_unit_details.booking_id';
-           $joinDataArray["services"] = "services.id=booking_details.service_id";
+           $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
            $booking_unit_data = $this->reusable_model->get_search_query('booking_unit_details', $select, $where, $joinDataArray, "", "", "", "", "")->result_array();
-           $partner_id = $booking_unit_data[0]['partner_id'];
             array_push($partner_reference_invoice, $booking_unit_data[0]['partner_invoice_id']);
             array_push($vendor_reference_invoice, $booking_unit_data[0]['vendor_foc_invoice_id']);
             if($booking_unit_data[0]['partner_invoice_id']){
                 /* If partner_invoice_id exist we create credit note for partner */
-                $description = $booking_unit_data[0]['request_type']." ".$booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."".$booking_unit_data[0]['appliance_capacity'];
+                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
                
-                $partner_data = $this->partner_model->getpartner_details("gst_number,"
-                        . "company_name, state, address as company_address, district, pincode, "
-                        . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_unit_data[0]['partner_id']));
-                
                 $data[$key]['description'] =  $description;
-                $data[$key]['rate'] = $booking_unit_data[0]['tax_rate'];
+                $data[$key]['rate'] = $booking_unit_data[0]['partner_net_payable'];
                 $data[$key]['qty'] = 1;
                 $data[$key]['taxable_value'] = $booking_unit_data[0]['partner_net_payable'];
                 $data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
@@ -746,13 +747,9 @@ class User_invoice extends CI_Controller {
             }
             if($booking_unit_data[0]['vendor_foc_invoice_id']){ 
                 /* If vendor_foc_invoice_id exist we create Debit Note for vendor */
-                $description = $booking_unit_data[0]['request_type']." ".$booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."".$booking_unit_data[0]['appliance_capacity'];
-                $vendor_data = $this->vendor_model->getVendorDetails("gst_no as gst_number,"
-                        . "company_name, state, address as company_address, district, pincode, "
-                        . "primary_contact_email as invoice_email_to,owner_email as invoice_email_cc", array('id' => $booking_assigned_vendor[0]['assigned_vendor_id']));
-                
+                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
                 $vendor_invoice_data[$key]['description'] =  $description;
-                $vendor_invoice_data[$key]['rate'] = $booking_unit_data[0]['tax_rate'];
+                $vendor_invoice_data[$key]['rate'] = $booking_unit_data[0]['vendor_basic_charges'];
                 $vendor_invoice_data[$key]['qty'] = 1;
                 $vendor_invoice_data[$key]['taxable_value'] = $booking_unit_data[0]['vendor_basic_charges'];
                 $vendor_invoice_data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
@@ -773,8 +770,8 @@ class User_invoice extends CI_Controller {
             }
             
             //insert entry into booking state change
-            $remarks = $remarks." Booking unit id - ".$value->booking_unit_ids;
-            $this->notify->insert_state_change($booking_id, $value->reasons, "", $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
+            $booking_state_remarks = $remarks." Booking unit id - ".$value->booking_unit_ids;
+            $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
         }
         if(!empty($data)){
             $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
@@ -790,6 +787,21 @@ class User_invoice extends CI_Controller {
                 $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
 
                 $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                
+                /* Send cn mail to partner */
+                $email_tag = "resend_dn_cn_invoice";
+                $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                //$to = $partner_data[0]['invoice_email_to'].",".$email_template[1];
+                //$cc = $partner_data[0]['invoice_email_cc'].",".$email_template[3];
+                $to = $email_template[1];
+                $cc = $email_template[3];
+
+                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+                
+                
                 unlink(TMP_FOLDER . $invoice_id . ".xlsx");
                 unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
                 
@@ -805,8 +817,9 @@ class User_invoice extends CI_Controller {
                 $response['meta']['category'] = INSTALLATION_AND_REPAIR;
                 $response['meta']['sub_category'] = CREDIT_NOTE;
                 $response['meta']['accounting'] = 1;
-                $invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Credit Note", "partner", $partner_id, $convert, $this->session->userdata('id'), HSN_CODE);
                 
+                $this->invoice_lib->insert_invoice_breackup($response);
+                $invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Credit Note", "partner", $partner_id, $convert, $this->session->userdata('id'), HSN_CODE);
                 $last_invoice_id = $this->invoices_model->insert_new_invoice($invoice);
                 if($last_invoice_id){
                     $i = 0;
@@ -841,6 +854,20 @@ class User_invoice extends CI_Controller {
                 $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
 
                 $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
+                
+                 /* Send DN mail to vendor */
+                $email_tag = "resend_dn_cn_invoice";
+                $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                //$to = $vendor_data[0]['invoice_email_to'].",".$email_template[1];
+                //$cc = $vendor_data[0]['invoice_email_cc'].",".$email_template[3];
+                $to = $email_template[1];
+                $cc = $email_template[3];
+
+                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+                
                 unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
                 unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
                 
@@ -856,15 +883,16 @@ class User_invoice extends CI_Controller {
                 $response['meta']['category'] = INSTALLATION_AND_REPAIR;
                 $response['meta']['sub_category'] = DEBIT_NOTE;
                 $response['meta']['accounting'] = 1;
-                $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_assigned_vendor[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
-            
+                
+                $this->invoice_lib->insert_invoice_breackup($response);
+                $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
                 $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
                 if($last_invoice_id){
                     $i = 0;
                     foreach ($postData as $key => $value){ 
                         $booking_cn_dn_data = array(
                             "entity_type" => "vendor",
-                            "entity_id" => $booking_assigned_vendor[0]['assigned_vendor_id'],
+                            "entity_id" => $booking_data[0]['assigned_vendor_id'],
                             "booking_id" => $booking_id,
                             "booking_unit_id" => $value->booking_unit_ids,
                             "invoice_type" => "Debit Note",
