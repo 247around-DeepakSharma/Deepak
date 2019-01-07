@@ -3428,7 +3428,7 @@ function generate_image($base64, $image_name,$directory){
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
             $tatArray['sf_closed_date'] = $values['sf_closed_date'];
             $tatArray['around_closed_date'] = $values['around_closed_date'];
-            if (stripos($values['request_type'], 'Repair') !== false) {
+            if (stripos($values['request_type'], 'Repair') !== false || stripos($values['request_type'], 'Repeat') !== false) {
                 $requestType = '1';
             }
             else{
