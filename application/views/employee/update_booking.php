@@ -83,7 +83,7 @@
                 <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id; }  ?> "  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
                     <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
-                    <p id="parent_id_temp"><?php echo $parentBkng; ?></p>
+                    <p id="parent_id_temp" style="display:none;"><?php echo $parentBkng; ?></p>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
