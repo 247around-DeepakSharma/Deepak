@@ -1511,7 +1511,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $uploaded_file_name = $this->reusable_model->get_search_query("file_uploads", "file_name", array('id'=>$file_upload_id), null, null, null, null, null, null)->result_array();
                     $revertData = array(
                         'revert_file_subject' => $subject."<br/><b>Message</b> - ".$body,
-                        'revert_file_from' => "noreply@247around.com",
+                        'revert_file_from' => NOREPLY_EMAIL_ID,
                         'revert_file_to' => $to,
                         'revert_file_cc' => $cc,
                         'revert_file_name' => $uploaded_file_name[0]['file_name'],
