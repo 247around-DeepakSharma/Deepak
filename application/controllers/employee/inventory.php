@@ -3005,9 +3005,9 @@ class Inventory extends CI_Controller {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                             'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
-
+                        
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
-                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE." shipped invoice id ".$ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
