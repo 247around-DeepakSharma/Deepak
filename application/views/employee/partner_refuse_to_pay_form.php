@@ -33,15 +33,10 @@
                             <tr>
                                 <th>S No.</th>
                                 <th>Booking ID</th>
-                                <th>Order ID</th>
-                                <th>Partner</th>
-                                <th>Vendor</th>
                                 <th>Appliance</th>
                                 <th>Brand</th>
                                 <th>Capacity</th>
                                 <th>Category</th>
-                                <th>Current Status</th>
-                                <th>Internal Status</th>
                                 <th>Request Type</th>
                                 <th>Partner basic Charge</th>
                                 <th>Vendor basic Charge</th>
@@ -85,15 +80,10 @@
                         html += "<tr>";
                             html += "<td>"+ index +"</td>";
                             html += "<td>"+ response[i]['booking_id'] +"</td>";
-                            html += "<td>"+ response[i]['order_id'] +"</td>";
-                            html += "<td>"+ response[i]['source'] +"</td>";
-                            html += "<td>"+ response[i]['company_name'] +"</td>";
                             html += "<td>"+response[i]['services']+"</td>";
                             html += "<td>"+response[i]['appliance_brand']+"</td>";
                             html += "<td>"+response[i]['appliance_capacity']+"</td>";
                             html += "<td>"+response[i]['appliance_category']+"</td>";
-                            html += "<td>"+response[i]['current_status']+"</td>";
-                            html += "<td>"+response[i]['internal_status']+"</td>";
                             html += "<td>"+response[i]['price_tags']+"</td>";
                             html += "<td>"+response[i]['partner_net_payable']+"</td>";
                             html += "<td>"+response[i]['vendor_basic_charges']+"</td>";
@@ -106,7 +96,7 @@
                         html += "</tr>";
                         index++;
                     }
-                    html += "<tr><td colspan='15'><input type='text' placeholder='Enter Remarks...' class='form-control' id='remarks'></td><td><input type='button' class='btn btn-primary' value='Refuse To Pay' onclick='process_refuse_to_pay()'></td></tr>";
+                    html += "<tr><td colspan='10'><input type='text' placeholder='Enter Remarks...' class='form-control' id='remarks' style='height: 50px;'></td><td><input type='button' class='btn btn-primary' value='Refuse To Pay' onclick='process_refuse_to_pay()'></td></tr>";
                     $("#booking_table").css("display", "inline-table");
                     $("#booking_table tbody").html(html);
                     $("select").select2();
