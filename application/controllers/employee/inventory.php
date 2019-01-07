@@ -3005,9 +3005,9 @@ class Inventory extends CI_Controller {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                             'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
-
+                        
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
-                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE." shipped invoice id ".$ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -3271,7 +3271,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','type','courier_details.AWB_no','courier_details.courier_name');
+        $post['column_search'] = array('inventory_master_list.part_name','inventory_master_list.type','courier_details.AWB_no','courier_details.courier_name','i.booking_id');
         $post['where'] = array('i.receiver_entity_id'=>trim($this->input->post('receiver_entity_id')),
                                'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
                                'i.sender_entity_id'=>trim($this->input->post('sender_entity_id')),
