@@ -41,12 +41,12 @@ class Courier_tracking extends CI_Controller {
      */
     function  send_api_failed_email($email_body_data,$error_type){
         log_message('info', __METHOD__. " email_body". print_r($email_body_data, TRUE). " error type ".$error_type);
-        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");        
+        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");
         if (!empty($template)) {
             $subject = $template[4];
             $email_body_data .= "<br/> <br/>". json_encode($error_type, TRUE);
             $emailBody = vsprintf($template[0], $email_body_data);
-            $this->notify->sendEmail($template[2], DEVELOPER_EMAIL, '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
+            $this->notify->sendEmail($template[2], 'abhaya@247around.com,gorakhn@247around.com', '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
     }
 
@@ -223,7 +223,7 @@ class Courier_tracking extends CI_Controller {
      * @return void 
      */
     function create_awb_number_data($select,$status){
-        $post['length'] = 200;
+        $post['length'] = 5;
         $post['start'] = 0;
         $post['select'] = $select;
         $post['where'] = array('spare_parts_details.status' => $status);
