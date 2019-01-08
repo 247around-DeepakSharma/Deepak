@@ -2825,7 +2825,9 @@ class Inventory extends CI_Controller {
                                             $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
                                             $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
                                             $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-
+                                            
+                                            $ledger_data = array();
+                        
                                             $ledger_data['receiver_entity_id'] = $wh_id;
                                             $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
                                             $ledger_data['sender_entity_id'] = $partner_id;
