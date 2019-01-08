@@ -3010,7 +3010,7 @@ class Inventory extends CI_Controller {
                         if($is_wh_micro == 2){
                         if ( $ledger['is_defective_part_return_wh']== 1) {
                             $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $wh_id));
-                            $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
+                            $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
                             $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
                             $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
                         } else {
@@ -5143,7 +5143,7 @@ class Inventory extends CI_Controller {
     
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')));
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
