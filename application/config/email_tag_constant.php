@@ -54,7 +54,7 @@ define('PAYTM_FILE_UPLOAD_FAILED','paytm_file_upload_failed');
 define('BOOKING_INSERTION_FAILURE_BY_DEALER','booking_insertion_failure_by_dealer');
 define('SNAPDEAL_FAILED_FILE_UPLOAD_SHIPPED','snapdeal_shipped_file_upload_failed');
 define('SNAPDEAL_FAILED_FILE_UPLOAD_DELIVERED','snapdeal_delivered_file_upload_failed');
-define('SNAPDEAL_VALIDATION_PASS','snapdeal_validation_pass');
+define('BOOKING_FILE_VALIDATION_PASS','booking_file_validation_pass');
 define('SNAPDEAL_FAILED_FILE','snapdeal_file_upload_failed');
 define('DELIVERED_FILE_UPLOADED','delivered_file_uploaded');
 define('BOOKING_ID_NOT_UPDATED_FOR_UPLOADED_FILE','booking_id_not_Updated_for_uploaded_file');
