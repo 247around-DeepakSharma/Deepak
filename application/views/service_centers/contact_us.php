@@ -84,10 +84,10 @@
         <div class="col-md-12">
             <div class="card" style="width:40%;">
                 <div class="container">
-                    <h5><b>Mr. Pankaj Kumar</b></h5> 
+                    <h5><b>Miss. Geeta Gupta</b></h5> 
                     <p>Delhi Office</p>
-                    <p>‭+91 9268953761</p>
-                    <p>pankajk@247around.com</p>
+                    <p>‭+91 9717165247</p>
+                    <p>geetag@247around.com</p>
                 </div>
             </div>
         </div>

@@ -131,6 +131,10 @@
         });
     });
     
+    $("#datatable").bind("DOMSubtreeModified", function() {
+        $('#datatable tr span.satteled_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
+    });
+    
     function loaddataTable(){
         invoice_table = $('#datatable').DataTable({
          "processing": true, //Feature control the processing indicator.
@@ -188,6 +192,7 @@
             ],
             fnInitComplete: function (oSettings, response) {
             $("#datatable_filter").addClass("pull-right");
+            $('#datatable tr span.satteled_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
             //$("#in_tranist_record").text(response.recordsTotal);
           }
 

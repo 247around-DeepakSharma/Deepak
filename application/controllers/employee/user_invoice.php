@@ -550,7 +550,7 @@ class User_invoice extends CI_Controller {
                         $hsn_code = $value->hsn_codes;
                         $gst_rate = $value->gst_rates;
 
-                        $data[$key]['description'] =  $value->spare_product_name."( ".$booking_id." )";
+                        $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                         $data[$key]['taxable_value'] = ($amount  - $tax_charge);
                         $data[$key]['product_or_services'] = "Product";
