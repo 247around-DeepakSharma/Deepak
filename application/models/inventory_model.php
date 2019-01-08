@@ -1895,11 +1895,15 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_inventory_parts_type_details($select,$where = array()){
+    function get_inventory_parts_type_details($select,$where = array(),$is_join){
         $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
+        }
+        if($is_join){
+            $this->db->join('services', 'inventory_parts_type.service_id = services.id');
+            $this->db->join('hsn_code_details', 'inventory_parts_type.hsn_code_details_id= hsn_code_details.id');
         }
         $this->db->order_by('part_type','ASC');
         $query = $this->db->get('inventory_parts_type');
@@ -1919,21 +1923,7 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
-    
-    /**
-     * @desc This is used to get list of HSN Code Details.     
-     * @table hsn_code_details 
-     * @return array
-     */    
-     function get_services_details($select, $where) {
-        $this->db->select($select);
-        if(!empty($where)){
-             $this->db->where($where);
-        }
-        $query = $this->db->get("services");
-        return $query->result_array();
-    }
-    
+        
     /**
      * @Desc: This function is used to update Inventory Parts Type
      * @params: Array, Int id

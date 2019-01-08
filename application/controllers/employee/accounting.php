@@ -850,7 +850,12 @@ class Accounting extends CI_Controller {
      */
     function invoice_datatable($invoice_list, $no){
         $row = array();
-        $row[] = $no;
+        if($invoice_list->settle_amount == 1){
+            $row[] = '<span class="satteled_row">'.$no.'</span>';
+        }
+        else{
+            $row[] = $no;
+        }
         $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
         $row[] = $invoice_list->invoice_id;
         $row[] = $invoice_list->type;

@@ -164,13 +164,13 @@
       <tr>
          <td style="text-align: center;"><?php echo $i; ?></td>
          <td style="text-align: center;" id="td_service_id_<?php echo $val['id']; ?>">                                            
-            <?php echo $val[0]['service_name']; ?>
+            <?php echo $val['service_name']; ?>
          </td>
          <td style="text-align: center;" id="td_part_type_id_<?php echo $val['id']; ?>">                                            
            <?php echo $val['part_type'];  ?>
          </td>
          <td style="text-align: center;" id="td_hsncode_id_<?php echo $val['id']; ?>">                                            
-           <?php echo $val[0]['hsn_code']; unset($val[0]); ?>
+           <?php echo $val['hsn_code']; ?>
          </td>
          <td style="text-align: center;">
              <a href="javascript:void(0)" class="btn btn-primary part_type"  data-parts-type='<?php echo json_encode($val); ?>' title="Edit Details"><i class="fa fa-edit"></i></a>
@@ -232,7 +232,7 @@
     function get_services(service_div_id,service_id){
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url();?>employee/inventory/get_services',
+            url:'<?php echo base_url();?>employee/booking/get_service_id',
             data:{is_option_selected:true},
             success:function(response){
                 $('#'+service_div_id).html(response);

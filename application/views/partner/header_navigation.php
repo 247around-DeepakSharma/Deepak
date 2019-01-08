@@ -277,8 +277,7 @@
                                             <i class="<?php echo $main_nav['navData']["id_".$p_id]['title_icon']?>"></i><span class="side_menu_list_title"><?php echo $main_nav['navData']["id_".$p_id]['title']; ?>
                                             </span></a></li>
                                     <?php
-                                } 
-                                else{
+                                }else{
                                     if(trim($main_nav['navData']["id_".$p_id]['title']) == 'Inventory'){
                                        if(($this->session->userdata('is_wh')==1) || ($this->session->userdata('is_wh')==1 && $this->session->userdata('is_micro_wh')==1)){ 
                                 ?>
@@ -289,7 +288,7 @@
                                              <ul class="nav child_menu" style="display:none !important;">
                                                 <?php
                                                 $t=0;
-                                                foreach($main_nav['navFlow']["id_".$p_id] as $childID){
+                                                foreach($main_nav['navFlow']["id_".$p_id] as $childID){                                                    
                                                     $childLink='';
                                                     if($main_nav['navData']["id_".$childID]['link'] !=''){
                                                         $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
@@ -310,13 +309,25 @@
                                                 <?php
                                                 $t=0;
                                                 foreach($main_nav['navFlow']["id_".$p_id] as $childID){
+                                                    
+                                                    if($this->session->userdata('is_wh')==0 && $this->session->userdata('is_micro_wh')==0){
+                                                        if($main_nav['navData']["id_".$childID]['title']=='247around warehouse Inventory'){
+                                                          $sub_menu_flag = FALSE;  
+                                                        }else{
+                                                          $sub_menu_flag = TRUE;  
+                                                        }
+                                                    }
+                                                    
                                                     $childLink='';
                                                     if($main_nav['navData']["id_".$childID]['link'] !=''){
                                                         $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
                                                     }
+                                                    
+                                                    if($sub_menu_flag){
                                                     ?>
                                                 <li><a href="<?php echo $childLink; ?>"><?php echo $main_nav['navData']["id_".$childID]['title']; ?></a></li>
                                                 <?php
+                                                    }
                                                 }
                                                 ?>
                                             </ul>
@@ -332,7 +343,7 @@
                                              <ul class="nav child_menu" style="display:none !important;">
                                                 <?php
                                                 $t=0;
-                                                foreach($main_nav['navFlow']["id_".$p_id] as $childID){
+                                                foreach($main_nav['navFlow']["id_".$p_id] as $childID){                                                    
                                                     $childLink='';
                                                     if($main_nav['navData']["id_".$childID]['link'] !=''){
                                                         $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
