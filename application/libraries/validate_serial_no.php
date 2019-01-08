@@ -29,6 +29,7 @@ class Validate_serial_no {
         // Validate with basic rules 
         if($flag){
             $method = $this->getLogicMethod($partnerID);
+           
             if(!empty($method)){
                 if($method == 'jvc_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$applianceID);
@@ -36,10 +37,12 @@ class Validate_serial_no {
                 if($method == 'lemon_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$modelNumber);
                 }
+
                 if($method == 'jeeves_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo, $booking_id);
                 }
                 return $this->$method($partnerID, $serialNo);
+
             } else{
                 return false;
             }
@@ -62,6 +65,8 @@ class Validate_serial_no {
         $logic[LEMON_ID] = 'lemon_serialNoValidation';
         $logic[JEEVES_ID] = 'jeeves_serialNoValidation';
         $logic[WYBOR_ID] = 'wybor_serialNoValidation';
+        $logic[BURLY_ID]='burly_serialNoValidation';
+
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -229,6 +234,43 @@ class Validate_serial_no {
             log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " Return false");
             return array('code' => FAILURE_CODE, "message" => QFX_SERIAL_NO_VALIDATION_FAILED_MSG);
         }
+    }
+    
+    /**
+     * @desc This is used to validate Burly serial number
+     * logic - first two digit are '29',next five digit are numeric only ,next two digits are '11',next two digit shows year , next two digit show month(01 to 12),next 6 digits are numeric
+     * @param String $partnerID
+     * @param String $serialNo
+     * @return Int
+     */
+    function burly_serialNoValidation($partnerID, $serialNo) {
+        log_message('info', __METHOD__ . " Enterring... Partner ID " . $partnerID . " Srial No " . $serialNo);
+        $first_two_str = substr($serialNo,0,2);
+        $product_code_str=substr($serialNo,2,5);
+        $vendor_code_str=substr($serialNo,7,2);
+        $year_code_str=substr($serialNo,9,2);
+        $month_code_str = substr($serialNo,11,2);
+        $month_year=$year_code_str.$month_code_str;
+        $current_date=date('y').date('m');
+        $serial_code_str=substr($serialNo,13,6);
+        $min=01;
+        $max=12;
+          
+        if(!(is_numeric($serialNo) && (strlen($serialNo)== BURLY_SERIALNO_LENGHT)))
+        {
+           log_message('info', __METHOD__. " Partner ID ". $partnerID. " Serial No ". $serialNo. " Burly Code  is not int ".$first_two_str);
+           return array('code' => FAILURE_CODE, "message" => BURLY_SERIAL_NO_VALIDATION_FAILED_MSG); 
+        }
+     
+        if(($first_two_str==BURLY_CODE) && ($min <= $month_code_str) && ($month_code_str <= $max) && ($current_date>=$month_year))
+         {            
+                return array('code' => SUCCESS_CODE);
+         }
+        else 
+        {
+            return array('code' => FAILURE_CODE, "message" => BURLY_SERIAL_NO_VALIDATION_FAILED_MSG);
+        } 
+      
     }
     /**
      * @desc
