@@ -2729,7 +2729,7 @@ class Inventory extends CI_Controller {
     function process_spare_invoice_tagging() {       
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
-//        $_POST = json_decode($str, true); 
+//        $_POST = json_decode($str, true);        
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -2741,6 +2741,7 @@ class Inventory extends CI_Controller {
         $courier_shipment_date = $this->input->post('courier_shipment_date');
         $partner_name = trim($this->input->post('partner_name'));
         $wh_name = trim($this->input->post('wh_name'));
+        $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));        
         if (!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($invoice_amount) && !empty($awb_number) && !empty($courier_name)) { 
             $parts_details = $this->input->post('part');
             if (!empty($parts_details)) {
@@ -2837,9 +2838,9 @@ class Inventory extends CI_Controller {
                                             $ledger_data['invoice_id'] = $invoice_id;
                                             $ledger_data['is_wh_ack'] = 0;
                                             $ledger_data['courier_id'] = $insert_courier_details;
-                                            $ledger_data['is_wh_micro'] = $is_wh_micro;
-
+                                            $ledger_data['is_wh_micro'] = $is_wh_micro;                                            
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                            $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
                                             if ($insert_id) {
                                                 log_message("info", "Ledger details added successfully");
@@ -2974,10 +2975,11 @@ class Inventory extends CI_Controller {
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'requested_inventory_id' => $ledger['inventory_id'],
-                    'inventory_invoice_on_booking' => 1);
+                    'inventory_invoice_on_booking' => 1,'defective_return_to_entity_id' => $wh_id,
+                    'defective_return_to_entity_type' => _247AROUND_SF_STRING);
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
-                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE." with invoice id ".$ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
@@ -3005,9 +3007,25 @@ class Inventory extends CI_Controller {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                             'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
-                        
+                        if($is_wh_micro == 2){
+                        if ( $ledger['is_defective_part_return_wh']== 1) {
+                            $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $wh_id));
+                            $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
+                            $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                            $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                        } else {
+                            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                            $data['defective_return_to_entity_id'] = $ledger['sender_entity_id'];
+                        }
+                        }else{
+                            $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
+                                'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
+                                'requested_inventory_id' => $ledger['inventory_id'],
+                                'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
+                                'defective_return_to_entity_type' => _247AROUND_SF_STRING);
+                        }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
-                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE." shipped invoice id ".$ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE." with invoice id ".$ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -5125,7 +5143,7 @@ class Inventory extends CI_Controller {
     
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')));
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
