@@ -929,19 +929,19 @@
             $('#submitform').attr('disabled', true);
         }
 
-        var not_visible = $("#not_visible").val();
+        //var not_visible = $("#not_visible").val();
 
-        if(Number(not_visible) === 0){
-
-         alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
-         display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
-          $('#submitform').attr('disabled', true);
-             return false;
-        } else {
-          display_message("not_visible","error_not_visible","","");
-          $('#submitform').attr('disabled', false);
-
-       }        
+//        if(Number(not_visible) === 0){
+//
+//         alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
+//         display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+//          $('#submitform').attr('disabled', true);
+//             return false;
+//        } else {
+//          display_message("not_visible","error_not_visible","","");
+//          $('#submitform').attr('disabled', false);
+//
+//       }        
    }           
     function final_price(){
         var price = 0;
