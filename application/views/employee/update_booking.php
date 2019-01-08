@@ -57,9 +57,33 @@
                 }
                 ?>
         <div class="panel panel-info" style="margin-top:20px;">
+            <?php
+            if($is_repeat){ ?>
+            <div class="panel-heading">Create Repeat Booking</div>
+            <?php } else{      ?>
             <div class="panel-heading">Update Booking</div>
+            <?php } ?>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']; }  ?> "  method="POST" enctype="multipart/form-data">
+                <?php
+                $is_repeat_value = "";
+                $parentBkng = "";
+                if($is_repeat){
+                    $bkng_id = INSERT_NEW_BOOKING;
+                    $parentBkng = $booking_history[0]['booking_id'];
+                    $is_repeat_value = 1;
+                }
+                else{
+                    $bkng_id = $booking_history[0]['booking_id'];
+                }
+                if($booking_history[0]['parent_booking'] && !$is_repeat){
+                     $is_repeat_value = 1;
+                     $parentBkng = $booking_history[0]['parent_booking'];
+                }
+                ?>
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id; }  ?> "  method="POST" enctype="multipart/form-data">
+                    <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
+                    <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
+                    <p id="parent_id_temp" style="display:none;"><?php echo $parentBkng; ?></p>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -79,7 +103,7 @@
                                         <input type="hidden" name="booking_type" id="booking_type" value="<?php echo $booking_history[0]["type"];?>" />
                                         <input type="hidden" name="partner_id" value="<?php echo $booking_history[0]['partner_id'];?>" id="partner_id" />
                                         <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; } else { echo '';} ?>" id="assigned_vendor_id" />
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required/>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required  <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                     </div>
                                     <div class="col-md-2">
                                         <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
@@ -91,20 +115,20 @@
                                     } ?>">
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
+                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                            <span id="error_pincode" style="color:red"></span>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control"  id="booking_city" name="city" required>
+                                        <select class="form-control"  id="booking_city" name="city" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php
                                                 $flag = 0;
                                                 foreach ($city as $key => $cites) {
                                                     ?>
-                                            <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
+                                            <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
                                            <?php if($flag == 0){ ?>
@@ -136,7 +160,7 @@
                                 <div class="form-group ">
                                      <label for="dealer_phone_number" class="col-md-4">Dealer Mobile Number </label>
                                       <div class="col-md-6">
-                                          <input class="form-control" name= "dealer_phone_number" value="<?php if(isset($booking_history[0]['dealer_phone_number'])){ echo $booking_history[0]['dealer_phone_number']; } ?>" placeholder="Enter Dealer Mobile No" id="dealer_phone_number"/>
+                                          <input class="form-control" name= "dealer_phone_number" value="<?php if(isset($booking_history[0]['dealer_phone_number'])){ echo $booking_history[0]['dealer_phone_number']; } ?>" placeholder="Enter Dealer Mobile No" id="dealer_phone_number" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                            <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($booking_history[0]['dealer_id'])){ echo $booking_history[0]['dealer_id']; } ?>">
                                             <div id="dealer_phone_suggesstion_box"></div>
                                       </div>
@@ -148,13 +172,13 @@
                                 <div class="form-group ">
                                     <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
-                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>">
+                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" >
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -163,7 +187,7 @@
                                         <select onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
-                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
+                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } else {if($is_repeat){echo 'disabled';}}?> value=<?php echo $values['code']; ?>>
                                                 <?php echo $values['source']; }    ?>
                                             </option>
                                         </select>
@@ -172,24 +196,21 @@
                                 <div class="form-group ">
                                     <label for="partner_source" class="col-md-4">Seller Platform</label>
                                     <div class="col-md-6">
-                                        <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
+                                        <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?>>
                                             <option value="">Please Select Seller Platform</option>
-                                            <?php foreach ($channel as $key => $values) { ?>
-                                            <option  <?php if($values['channel_name'] == $booking_history[0]['partner_source']){ echo "selected"; } ?>>
-                                                <?php echo $values['channel_name']; ?> 
-                                            </option>
-                                            <?php }    ?>
+                                           
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
+                                    <p id="booking_old_type_holder" style="display:none;"><?php echo $booking_history[0]['type'] ?></p>
                                     <div class="col-md-8">
                                      <!-- <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php //if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php //if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking-->
 
-                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required>Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" required>Booking
+                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required <?php if($is_repeat){ echo 'disabled'; } ?> >Query
+                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>Booking
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -218,7 +239,7 @@
                                 <div class="form-group ">
                                      <label for="dealer name" class="col-md-4">Dealer Name </label>
                                       <div class="col-md-6">
-                                          <input class="form-control" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" placeholder="Enter Dealer Name" id="dealer_name"/>
+                                          <input class="form-control" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" placeholder="Enter Dealer Name" id="dealer_name" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                           <div id="dealer_name_suggesstion_box"></div>
                                       </div>
                                  </div>
@@ -256,8 +277,10 @@
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                         <div class="panel-heading">
+                            <?php if(!$is_repeat){?>
                             <button class="clone btn btn-sm btn-info">Add</button>
                             <button class="remove btn btn-sm btn-info">Remove</button>
+                            <?php } ?>
                             <p class="pull-right"><?php if(!is_null($booking_history[0]['paid_by_customer'])){ 
                                 if($booking_history[0]['paid_by_customer'] == 1) { 
                                     echo "<b style='margin-right:100px'>Paid By Customer</b>";} 
@@ -275,10 +298,10 @@
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
-                                                    name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required>
+                                                    name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand[0] as  $appliance_brand) { ?>
-                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} } ?>
+                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} else{  if($is_repeat){ echo "disabled"; }} }  ?>
                                                         ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
                                                 </select>
@@ -287,10 +310,10 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required>
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category[0] as $key => $appliance_category) { ?>
-                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>
+                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -299,10 +322,10 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);">
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } } ?>
+                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -311,10 +334,10 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]">
                                                     <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } } ?>
+                                                    <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -329,13 +352,13 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Description </label>
                                             <div class="col-md-6">
-                                                <textarea  class="form-control"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> ><?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?></textarea>
+                                                <textarea <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> class="form-control"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> ><?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?></textarea>
                                             </div>
                                         </div>
                                         <div class="form-group ">
                                             <label for="order_item_id" class="col-md-4">Order Item Id </label>
                                              <div class="col-md-6">
-                                                 <input class="form-control" name= "order_item_id[]" value="<?php if(isset($unit_details[0]['sub_order_id'])){ echo $unit_details[0]['sub_order_id']; } ?>" placeholder="Enter Order Item Id" id="order_item_id_1"/>
+                                                 <input <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> class="form-control" name= "order_item_id[]" value="<?php if(isset($unit_details[0]['sub_order_id'])){ echo $unit_details[0]['sub_order_id']; } ?>" placeholder="Enter Order Item Id" id="order_item_id_1"/>
                                              </div>
                                         </div>
 <!--                                         <div class="form-group ">
@@ -348,7 +371,7 @@
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
+                                    <input <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -369,7 +392,6 @@
                                                     <tbody>
                                                         <?php if(!empty($prices)) { ?>
                                                         <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
-                                                        
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php 
@@ -432,17 +454,41 @@
                                                                 placeholder='Enter discount' readonly />
                                                             </td>
                                                             <td>
+                                                                <?php
+                                                                 $onclick = "onclick='final_price(), enable_discount(this.id), set_upcountry()'";
+                                                                ?>
                                                                 <input type='hidden'name ='is_up_val' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
-                                                                <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
+                                                                <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
+                                                                class='price_checkbox <?php echo $price['product_or_services']; } ?>' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
-                                                                        if($tags['price_tags'] == $price['service_category'] ){
-                                                                           echo " checked ";
+                                                                        if($is_repeat){
+                                                                            if($price['service_category'] ==  REPEAT_BOOKING_TAG){
+                                                                                echo " checked ";
+                                                                            }
+                                                                            echo "style= 'pointer-events: none;'";
+                                                                        }
+                                                                        else{
+                                                                            if(($tags['price_tags'] == $price['service_category'])){
+                                                                                echo " checked ";
+                                                                                if($price['service_category'] ==  REPEAT_BOOKING_TAG){
+                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true";
+                                                                                    //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                }
+                                                                            }
+                                                                            else{ 
+                                                                                if($price['service_category'] ==  REPEAT_BOOKING_TAG){
+                                                                                   $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
+                                                                                   //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                }
+                                                                            }
                                                                         }
                                                                      }
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -657,7 +703,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { if(date('H') < '13'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} } ?>" required readonly='true'>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { if(date('H') < '13'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} } ?>" required <?php if(!$is_repeat) { echo "readonly='true'" ;} ?>>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -665,7 +711,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
+                                    <textarea <?php if($is_repeat) { echo "readonly='true'" ;} ?> class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
                                 </div>
                             </div>
                              <div class="form-group ">
@@ -742,7 +788,7 @@
                         <div class="form-group  col-md-12" >
                             <center>
                                 
-                                <input type="submit" id="submitform" onclick="return addBookingDialog()" class="btn btn-primary" value="Submit Booking">
+                                <input type="submit" id="submitform" onclick="return addBookingDialog('admin_update')" class="btn btn-primary" value="Submit Booking">
                         </div>
                         </center>
                     </div>
@@ -752,6 +798,25 @@
         </div>
     </div>
 </div>
+<!-- Repeat Booking Model  -->
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body" id="repeat_booking_body">
+      </div>
+<!--      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+  </div>
+</div>
+
 <script>
 
    
@@ -867,7 +932,67 @@
    
 });
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
-
+  
+  function readonly_select(objs, action) {
+    if (action===true)
+        objs.prepend('<div class="disabled-select"></div>');
+    else
+        $(".disabled-select", objs).remove();
+}
+function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
+        if(isChecked){
+            if(!is_already_repeat){
+              $.ajax({
+                      type: 'POST',
+                      url: '<?php echo base_url(); ?>employee/booking/get_posible_parent_id',
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
+                      success: function(response) {
+                          obj = JSON.parse(response);
+                          if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
+                              alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
+                              $('.repeat_Service:checked').prop('checked', false);
+                          }
+                         else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
+                             $('.Service:checked').prop('checked', false);
+                             $('.Service').each(function() {
+                                $(this).prop('disabled', true);
+                             });
+                             $("#parent_id").val(obj.html);
+                             $("#is_repeat").val("1");
+                          }
+                          else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
+                              $('.Service:checked').prop('checked', false);
+                                $('.Service').each(function() {
+                                    $(this).prop('disabled', true);
+                                });
+                              $('#repeat_booking_model').modal('show');
+                              $("#repeat_booking_body").html(obj.html);
+                          }
+                      }
+                  });
+              }
+              else{
+                $('.Service:checked').prop('checked', false);
+                $('.Service').each(function() {
+                    $(this).prop('disabled', true);
+                });
+                $("#parent_id").val($("#parent_id_temp").text());
+                $("#is_repeat").val("1");
+              }
+           }
+           else{
+           $('.Service').each(function() {
+               $(this).prop('disabled', false);
+           });
+            $("#parent_id").val("");
+            $("#is_repeat").val("");
+           }
+    }
+    function parentBooking(id){
+        $("#parent_id").val(id);
+        $("#is_repeat").val("1");
+        $('#repeat_booking_model').modal('hide');
+    }
 </script>
 <style type="text/css">
     #errmsg1

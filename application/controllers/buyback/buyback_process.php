@@ -697,11 +697,12 @@ class Buyback_process extends CI_Controller {
             $row[] = $no;
             $row[] = "<a target='_blank' href='".base_url()."buyback/buyback_process/view_order_details/".
                 $order_list->partner_order_id."'>$order_list->partner_order_id</a>";
+            $row[] = $order_list->partner_tracking_id;
             $row[] = $order_list->name;
             $row[] = $order_list->category;
             $row[] = $order_list->brand;
-            $row[] = $order_list->physical_condition;
-            $row[] = $order_list->working_condition;
+            //$row[] = $order_list->physical_condition;
+            //$row[] = $order_list->working_condition;
             $row[] = $order_list->cp_claimed_price;
             if($order_list->internal_status === _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS){
                 $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
@@ -715,7 +716,6 @@ class Buyback_process extends CI_Controller {
             }else if($order_list->internal_status === _247AROUND_BB_Damaged_STATUS){
                 $row[] = "<a class='btn btn-info btn-sm' target='_blank' href='".base_url()."buyback/buyback_process/get_bb_order_image_link/".$order_list->partner_order_id."/".$order_list->cp_id."'><i class='fa fa-camera'></i></a>";
             }
-            $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."' data-cp_claimed_price='".$order_list->cp_claimed_price."'></label>";
             $r = "<a class='btn btn-danger btn-sm' href='javascript:void(0)' onclick='";
             $r .= "open_reject_approve_model(".'"'.$order_list->partner_order_id.'"';
             $r .= ', "'.$order_list->internal_status.'"';
@@ -730,6 +730,7 @@ class Buyback_process extends CI_Controller {
             $a .= " )' ><i class='fa fa-times-circle'></i></a>";
             
             $row[] = $a;
+             $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."' data-cp_claimed_price='".$order_list->cp_claimed_price."'></label>";
            
             $data[] = $row;
         }

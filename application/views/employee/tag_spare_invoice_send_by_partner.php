@@ -8,6 +8,15 @@
     .col-md-2 {
     width: 12.666667%;
     }
+    #print_warehouse_addr{
+    background-color: blue;
+    color: white;
+    padding: 5px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    text-decoration: none;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper" role="main">
@@ -26,8 +35,17 @@
                     <div class="x_panel" style="margin-top: 0px;">
                        
                         <div class="x_content">
-                            <div class="loader"></div>
+                            <div class="loader"></div>                            
                             <div class="form-box">
+                                <div class="warehouse_print_address" style="display:none;">                                    
+                                    <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                        Do You Want to Print Warehouse Address
+                                        <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>                                        
+                                    </div>
+                                </div>
                                 <div class="success_msg_div" style="display:none;">
                                     <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -53,42 +71,54 @@
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" id="wh_id" required="">
+                                                <select class="form-control" name="wh_id" id="wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                                                                        
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
+                                                <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" autocomplete="off"/>
+                                                <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                             </div>
-                                            <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
+                                             <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <input type="text" placeholder="Enter Invoice Number" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">               
                                             <label class="col-xs-2 control-label">Invoice Amount * </label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Eneter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
+                                                <input placeholder="Enter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                            
                                             <label class="col-xs-2 control-label">AWB Number *</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
                                             </div>
-                                            <label class="col-xs-2 control-label">Courier Name *</label>
+                                            <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
+                                             <label class="col-xs-2 control-label">Courier Name *</label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
+<!--                                                <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
+                                                <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
+                                                    <option selected="" disabled="" value="">Select Courier Name</option>
+                                                    <?php foreach ($courier_details as $value1) { ?> 
+                                                        <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            <?php echo form_error('courier_name'); ?>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group">                                            
+                                           
                                             <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
@@ -98,6 +128,7 @@
                                                 <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                             </div>
                                         </div>
+                                        
                                     </div>
                                     <hr>
                                     <div class="dynamic-form-box">
@@ -235,12 +266,14 @@
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id" required="">
+                                                <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
                                                 </select>
                                             </div>
                                     </div>
-                                    <div class="form-group">
+                                    
+                                      <div class="form-group">                       
+                                                                                    
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
@@ -250,20 +283,32 @@
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="on_invoice_number" required="" onblur="check_invoice_id(this.id, true)"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="col-xs-2 control-label">Invoice Amount * </label>
+                                    <div class="form-group">                                        
+                                       
+                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Invoice Number" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
+                                            <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
                                         </div>
+                                         
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
+                                            <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
                                         </div>
+                                        
                                     </div>
                                     <div class="form-group">
+                                       <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>
+<!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>-->
+                                                <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
+                                                    <option selected="" disabled="" value="">Select Courier Name</option>
+                                                    <?php foreach ($courier_details as $value1) { ?> 
+                                                        <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
@@ -271,15 +316,18 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-xs-2 control-label">Courier Shipment Date</label>
+                                        
+                                        
+                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
                                         </div>
-                                        <label class="col-xs-2 control-label">Courier File</label>
+                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -369,6 +417,9 @@
 </div>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+    var date_before_15_days = new Date();
+    date_before_15_days.setDate(date_before_15_days.getDate()-15);
+    
      var onBookingIndex = 0;
     var is_valid_booking = true;
     $(document).ready(function () {
@@ -381,6 +432,8 @@
         $('#wh_id').select2({
             placeholder:"Select Warehouse"
         });
+       
+        
        
         $('#serviceId_0').select2({
             placeholder:'Select Appliance'
@@ -397,13 +450,33 @@
         $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
-        
+            
         get_partner_list();
-        get_vendor();
+       // get_vendor('','');        
+        $("#partner_id").on('change',function(){
+            var partner_id = $("#partner_id").val();
+              get_vendor('1',partner_id);              
+        });
+        
+        
+         $("#on_partner_id").on('change',function(){
+            var partner_id = $("#partner_id").val();              ;   
+              get_vendor_by_booking('1',partner_id);
+        });
+        
+        
         
         $('[data-toggle="popover"]').popover(); 
-        $("#dated").datepicker({dateFormat: 'yy-mm-dd'});
-        $("#courier_shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
+        $("#dated").datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: date_before_15_days,
+            maxDate:'today',
+        });
+        $("#courier_shipment_date").datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: date_before_15_days,
+            maxDate:'today',
+        });
         
         $(".allowNumericWithDecimal").keydown(function (e) {
             // Allow: backspace, delete, tab, escape, enter and .
@@ -470,6 +543,9 @@
     
                         //Declaring new Form Data Instance  
                         var formData = new FormData();
+                        
+                        var is_micro = $("#wh_id").find(':selected').attr('data-warehose');
+                        formData.append("is_wh_micro", is_micro);
     
                         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
                         for (var i = 0; i < invoice_files.length; i++) {
@@ -492,14 +568,21 @@
                             contentType: false,
                             processData: false,
                             success:function(response){
-                                //console.log(response);
                                 obj = JSON.parse(response);
+//                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
+//                                    var confirmation = confirm("Want to Print Warehouse Address");
+//                                    if (confirmation){
+//                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
+//                                    }
+//                                }                                
                                 $('#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Submit");
+                                $('#submit_btn').html("Submit");                               
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $(".warehouse_print_address").css({'display':'block'});
+                                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
@@ -558,19 +641,28 @@
     $('#partner_id').on('change',function(){
         get_appliance(0);
     });
-    
-    function get_vendor() {
+      
+    function get_vendor(is_wh,partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{is_wh:is_wh,partner_id:partner_id},
             success: function (response) {
-                $('#wh_id').html(response);
-                $('#on_wh_id').html(response);
+                $('#wh_id').html(response);                
             }
         });
     }
     
+    function get_vendor_by_booking(is_wh,partner_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            data:{is_wh:is_wh,partner_id:partner_id},
+            success: function (response) {               
+                $('#on_wh_id').html(response);
+            }
+        });
+    }
     function get_partner_list(){
         $.ajax({
             type: 'POST',
@@ -797,7 +889,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -815,7 +908,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -1086,7 +1180,8 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
-    
+        var is_micro = $("on_wh_id").find(':selected').attr('data-warehose');
+        formData.append("is_wh_micro", is_micro);
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {
             formData.append('invoice_file', invoice_files[i]);

@@ -116,7 +116,7 @@
         var partner_id = $('#partner_id').val();
         var wh_id = $('#wh_id').val();
         if(partner_id && wh_id){
-            inventory_spare_table.ajax.reload();
+            inventory_spare_table.ajax.reload(null, false);
         }else{
             alert("Please Select All Field");
         }
@@ -213,6 +213,7 @@
             tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['invoice_id'] = $(this).attr('data-invoice_id');
+            tmp_arr[key]['is_wh_micro'] = $(this).attr('data-is_wh_micro');
             flag = true;
         });
         
@@ -236,7 +237,7 @@
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(obj.message);
-                        inventory_spare_table.ajax.reload();
+                        inventory_spare_table.ajax.reload(null, false);
                     }else{
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(obj.message);

@@ -14,6 +14,8 @@ class Spare_parts extends CI_Controller {
 
         $this->load->model('inventory_model');
         $this->load->model('service_centers_model');
+        $this->load->model('invoices_model');
+        
         
         $this->load->library('form_validation');
         $this->load->library('notify');
@@ -542,7 +544,7 @@ class Spare_parts extends CI_Controller {
         
         if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin"){
             
-            if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
+            if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
             $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
         } else {
             
@@ -657,9 +659,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to get post data from datatable
      * @return Array
      */
-    
-    function get_spare_tab_datatable_data(){        
-                
+    function get_spare_tab_datatable_data(){
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
@@ -689,9 +689,6 @@ class Spare_parts extends CI_Controller {
         
         return $post;
     }
-    
-    
-    
     
      /**
      * @desc This function is used to load view 
@@ -743,21 +740,24 @@ class Spare_parts extends CI_Controller {
      * @params: void
      * @return: string
      */
-    function move_to_update_spare_parts_details() {        
+    function move_to_update_spare_parts_details() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
         $spare_parts_id = $this->input->post('spare_parts_id');
         $partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
         $where = array('id' => $spare_parts_id);
-        $data = array('entity_type' => $entity_type, 'partner_id' => $partner_id);
+        $data['entity_type'] = $entity_type;
+        $data['partner_id'] = $partner_id;
+        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+        $data['defective_return_to_entity_id'] = $partner_id;
+        $data['is_micro_wh'] = 0;
+        
         $row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($entity_type == _247AROUND_PARTNER_STRING) {
-            $new_state = REQUESTED_SPARED_REMAP . " " . _247AROUND_PARTNER_STRING;
-        } else {
-            $new_state = REQUESTED_SPARED_REMAP . " " . WAREHOUSE;
-        }
-
+            $new_state = REQUESTED_SPARED_REMAP . " " . PARTNER_WILL_SEND_NEW_PARTS;
+        } 
+        
         if (!empty($row)) {
             $this->notify->insert_state_change($booking_id, $new_state, '', '', $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
             echo 'success';
@@ -773,10 +773,13 @@ class Spare_parts extends CI_Controller {
     function copy_booking_details_by_spare_parts_id() {
         $spare_parts_id = $this->input->post('spare_parts_id');
         $new_booking_id = $this->input->post('new_booking_id');
+        $status = $this->input->post('status');
+        
         $spare_parts_list = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.id' => $spare_parts_id), false, false);
         if (!empty($spare_parts_list)) {
             unset($spare_parts_list[0]['id']);
             $spare_parts_list[0]['booking_id'] = $new_booking_id;
+            $spare_parts_list[0]['status'] = $status;
             $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
             if(!empty($insert_id ) && $insert_id !=''){
                 echo 'success';
@@ -786,7 +789,7 @@ class Spare_parts extends CI_Controller {
         } 
         
     }
-    
+   
     
     /**
      * @desc: This function is used to brackets data table.
@@ -805,7 +808,7 @@ class Spare_parts extends CI_Controller {
         $post['type'] = $this->input->post('type');
         $post['where']['is_shipped'] = $this->input->post("is_shipped");
         $post['where']['is_received'] = $this->input->post("is_received");
-        if ($this->input->post("sf_id")) {
+        if (!empty($this->input->post("sf_id")) && !empty($this->input->post("sf_role"))) {
             $sf_role = $this->input->post("sf_role");
             $post['where'][$sf_role] = $this->input->post("sf_id");
         }        
@@ -923,7 +926,7 @@ class Spare_parts extends CI_Controller {
             $re = "received_order";
         }
         $row[] = "<span class='" . $re . "'>" . $no . "</span>";
-        $row[] = $brackets_list->order_id;
+        $row[] ='<a href="' . base_url() . 'employee/service_centers/show_brackets_order_history/' . $brackets_list->order_id . '" target="_blank">'.$brackets_list->order_id.'</a>';        
         $row[] = $brackets_list->owner_name . "<br>" . $brackets_list->name;
         $row[] = ($brackets_list->brackets_26_32_requested + $brackets_list->brackets_19_24_requested);
         $row[] = ($brackets_list->brackets_36_42_requested + $brackets_list->brackets_43_requested);
@@ -936,8 +939,35 @@ class Spare_parts extends CI_Controller {
         $row[] = $brackets_list->total_received;
         $date_timestamp = strtotime($date);
         $new_date = date('j M, Y g:i A', $date_timestamp);
-        $row[] = $new_date;       
+        $row[] = $new_date;     
+       
+        $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested"';
+        if ($brackets_list->is_shipped == 1 || $brackets_list->active == 0) {
+            $update_request_link .= 'disabled';
+        }
+        $update_request_link .= '><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
 
+        
+        $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment"';
+        if ($brackets_list->active == 0) {
+            $update_shipment_link .= 'disabled';
+        }
+        $update_shipment_link .= 'style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
+
+       
+        $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"';
+        if ($brackets_list->is_shipped != 1 || $brackets_list->active == 0) {
+            $update_receiving_link .= 'disabled';
+        }
+        $update_receiving_link .= '> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
+        
+        $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"';
+        if ($brackets_list->active == 1) {
+            $un_cancel_request_link .= 'disabled';
+        }
+        $un_cancel_request_link .= '><i class="fa fa-undo" aria-hidden="true"></i></a>';
+
+        /*   
         if ($brackets_list->is_shipped == 1 || $brackets_list->active == 0) {
             $update_request_link = '<a  href="' . base_url() . 'employee/inventory/get_update_requested_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Requested" disabled=TRUE><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
             $update_receiving_link = '<a href="' . base_url() . 'employee/inventory/get_update_receiving_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving"disabled=TRUE> <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>';
@@ -953,11 +983,61 @@ class Spare_parts extends CI_Controller {
             $update_shipment_link = '<a href="' . base_url() . 'employee/inventory/get_update_shipment_form/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" title="Update Shipment" style="margin-bottom: 3px;"><i class="fa fa-truck" aria-hidden="true"></i></a>';
             $un_cancel_request_link = '<a href="' . base_url() . 'employee/inventory/uncancel_brackets_request/' . $brackets_list->order_id . '" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request"><i class="fa fa-undo" aria-hidden="true"></i></a>';
         }
-
+    */
         $row[] = $update_request_link . "&nbsp;" . $update_shipment_link . " " . $update_receiving_link . " " . $un_cancel_request_link;
 
         return $row;
         
     }
+    /**
+     * @desc This function is used to get micro partner list by Vendor
+     * @param String $vendor_id
+     */
+    function get_micro_partner_list($vendor_id){
+        $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $vendor_id,
+                'micro_warehouse_state_mapping.active' => 1), 
+                'partners.id, partners.public_name');
+        echo "<option value='' selected disabled>Select Entity</option>";
+        foreach ($micro_wh_mapping_list as $p_name) {
+            $option = "<option value='" . $p_name['id'] . "'";
 
+            $option .=" > ";
+            $option .= $p_name['public_name'] . "</option>";
+            echo $option;
+        }
+    }
+    
+    /*
+     * @des - This function is used to load view for bill defective spare to service center
+     * @param - void
+     * @return - view
+     */
+    function defective_spare_invoice(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/defective_spare_invoice_form');
+    }
+    
+     /*
+     * @des - This function is used to get parts for booking
+     * @param - booking_id
+     * @return - array
+     */
+    function get_defective_spare_parts(){
+        $where_internal_status = array("page" => "bill_defective_spare", "active" => '1');
+        $internal_status = $this->booking_model->get_internal_status($where_internal_status);
+        $hsn_code = $this->invoices_model->get_hsncode_details('hsn_code, gst_rate', array());
+        $hsn_code_html = "<option value='' selected disabled>Select HSN Code</option>";
+        foreach ($hsn_code as $key => $value) {
+          $hsn_code_html .= "<option value='".$value['hsn_code']."' gst_rate='".$value['gst_rate']."'>".$value['hsn_code']."</option>"; 
+        }
+        $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
+        $booking_id = $this->input->post('booking_id');
+        $where = array("booking_id"=>$booking_id, "sell_invoice_id IS NULL"=>NULL);
+        $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where);
+        $data['remarks'] = $internal_status;
+        $data['hsn_code'] = $hsn_code_html;
+        echo json_encode($data);
+    }
+    
+    
 }

@@ -465,7 +465,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id` and penalty_on_booking.active = '1'
-            WHERE `booking_details`.booking_id NOT LIKE '%Q-%' AND $where
+            WHERE type = 'Booking' AND $where
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
@@ -846,15 +846,18 @@ class Booking_model extends CI_Model {
     /*
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
-    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
-
+    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $add_booking = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable,product_or_services');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
+        if($add_booking){
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
+        }
         //if($brand !=""){
             $this->db->where('brand', $brand);
         //}
@@ -1735,11 +1738,14 @@ class Booking_model extends CI_Model {
      *
      */
     function get_booking_state_change_by_id($booking_id){
-        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $bookingIDArray[] = $booking_id;
+        if (strpos($booking_id, 'Q-') === false) {
+            $bookingIDArray[] = "Q-".$booking_id;
+        }
         $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
                 . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
-        $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
+        $this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
         $this->db->order_by('booking_state_change.id');
@@ -1904,9 +1910,12 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_sms_sent_details($booking_id){
-        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $bookingIDArray[] = $booking_id;
+        if (strpos($booking_id, 'Q-') === false) {
+            $bookingIDArray[] = "Q-".$booking_id;
+        }
         $this->db->select('*');
-        $this->db->like('booking_id',$trimed_booking_id);
+        $this->db->where_in('booking_id', $bookingIDArray);
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
     } 
@@ -2071,7 +2080,10 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
-        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
+        if(!isset($post['unit_not_required'])){
+            $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
+        }
+        
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2131,9 +2143,14 @@ class Booking_model extends CI_Model {
             $this->db->where_in('booking_details.partner_id', $partnerIDArray);
             $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
         }
-         if($is_download){
-             $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
-         }
+        if($is_download){
+            if($is_download == 2){
+               
+            }
+            else{
+                $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
+            }
+        }
         $query = $this->db->get();
         if($is_download){
             
@@ -2475,5 +2492,41 @@ class Booking_model extends CI_Model {
        $this->db->where_in("booking_id",$bookingArray);
        $this->db->update("booking_details",array("is_in_process"=>1));
        return $this->db->affected_rows();
+    }
+    function get_parent_child_sibling_bookings($bookingID){
+        $sql = "SELECT booking_details.booking_id,booking_details.parent_booking as parent,(SELECT GROUP_CONCAT(s.booking_id) FROM booking_details s WHERE s.parent_booking = booking_details.parent_booking"
+                . " AND s.booking_id != booking_details.booking_id) as siblings,(SELECT GROUP_CONCAT(c.booking_id) FROM booking_details c WHERE c.parent_booking = booking_details.booking_id) as child "
+                . "FROM booking_details WHERE booking_id = '".$bookingID."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff){
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->_reserved_identifiers = array('NOT');
+        $where["DATEDIFF(CURRENT_TIMESTAMP , closed_date) <= ".$dayDiff] = NULL;
+        $where['service_id'] = $service_id;
+        $where['partner_id'] = $partnerID;
+        $where['booking_primary_contact_no'] = $contact;
+        $where['current_status'] = _247AROUND_COMPLETED;
+        $where["request_type != '".REPEAT_BOOKING_TAG."'"] = NULL;
+        $where['NOT EXISTS (SELECT 1 FROM booking_details bd WHERE bd.parent_booking = booking_details.booking_id AND bd.current_status ="Pending" LIMIT 1)'] = NULL;
+        $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date');
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        $this->db->join("services","services.id = booking_details.service_id");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    function get_parent_booking_serial_number($bookingID,$all = NULL){
+      if($all){
+         $sql = "SELECT booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
+                . "WHERE booking_details.booking_id = '".$bookingID."' AND booking_unit_details.serial_number IS NOT NULL AND booking_unit_details.serial_number != ''";
+      }
+      else{
+          $sql = "SELECT booking_unit_details.serial_number as parent_sn FROM booking_unit_details JOIN booking_details ON booking_details.parent_booking = booking_unit_details.booking_id "
+                . "WHERE booking_details.booking_id = '".$bookingID."' GROUP BY  booking_unit_details.booking_id HAVING COUNT(booking_unit_details.booking_id) < 2 ";
+      }
+      $query = $this->db->query($sql);
+      return $query->result_array();
     }
 }

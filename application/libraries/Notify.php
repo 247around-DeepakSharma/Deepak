@@ -29,7 +29,7 @@ class Notify {
      *  @param : From, To, CC, BCC, Subject, Message, Attachment
      *  @return : if mail send return true else false
      */
-    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "") {
+    function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "", $booking_id = "") {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
@@ -55,7 +55,7 @@ class Notify {
                     $this->My_CI->email->message($message);
 
                     if ($this->My_CI->email->send()) {
-                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag);
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
                         return true;
                     } else {
                         return false;
@@ -368,12 +368,28 @@ class Notify {
                                                // $this->My_CI->miscelleneous->send_completed_booking_email_to_customer(array($email['booking_id']));
 		    //Send internal mails now
 		    $this->send_email($email);
-
-	            $sms['tag'] = "complete_booking";
+                    
+                    $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$query1[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
+                    
+                    $sms['tag'] = "complete_booking";
 		    $call_type = explode(" ", $query1[0]['request_type']);
 		    $sms['smsData']['service'] = $query1[0]['services'];
                     $sms['smsData']['call_type'] = $call_type[0];
                     $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                    if ($query1[0]['partner_id'] == JEEVES_ID) {
+                        $sms['smsData']['public_name'] = "";
+                    } 
+                    else if($partner_type === OEM){ 
+                        $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$booking_id), false, 'appliance_brand');
+                        if(!empty($brand_name)){
+                            $sms['smsData']['public_name'] = $brand_name[0]['appliance_brand'];
+                        } else {
+                            $sms['smsData']['public_name'] = $query1[0]['public_name'];
+                        }
+                    }
+                    else { 
+                        $sms['smsData']['public_name'] = $query1[0]['public_name'];
+                    }
                     $sms['smsData']['good_rating_number'] = GOOD_MISSED_CALL_RATING_NUMBER;
                     $sms['smsData']['poor_rating_number'] = POOR_MISSED_CALL_RATING_NUMBER;
 		    $sms['booking_id'] = $query1[0]['booking_id'];
@@ -507,7 +523,12 @@ class Notify {
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
-                        $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+                        if($query1[0]['is_upcountry'] == 1){
+                            // Do not add booking date in the SMS
+                        } else {
+                            $sms['smsData']['booking_date'] = date("d-M-Y", strtotime($query1[0]['booking_date']));
+                        }
+                        
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
 
@@ -517,21 +538,27 @@ class Notify {
                         else if($partner_type === OEM){ 
                             $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$booking_id), false, 'appliance_brand');
                             if(!empty($brand_name)){
-                                $sms['smsData']['public_name'] = $brand_name[0]['appliance_brand']." Partner";
+                                $sms['smsData']['public_name'] = $brand_name[0]['appliance_brand'];
                             }
                         }
                         else { 
-                            $sms['smsData']['public_name'] = $query1[0]['public_name']. " Partner";
+                            $sms['smsData']['public_name'] = $query1[0]['public_name'];
                         }
-
-                        $sms['tag'] = "add_new_booking";
+                        
+                        if($query1[0]['is_upcountry'] == 1){
+                            $sms['tag'] = "upcountry_add_new_booking";
+                        } else {
+                            $sms['tag'] = "add_new_booking";
+                        }
+                
+                        
                     }
 		    
 		    //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-                
+                    log_message('info', __METHOD__. " ". print_r($sms, true));
 		    $this->send_sms_msg91($sms);
                     
                     //send sms to dealer
@@ -679,10 +706,7 @@ class Notify {
         ));
         $response = curl_exec($session);
         $responseAarray = json_decode($response);
-        $data['content'] = $responseAarray->status;
-        echo "<pre>";
-        print_r($responseAarray);
-        exit();
+        $data['content'] = $responseAarray->status;      
         return $data;
     }
     function send_sms_using_msg91($phone_number,$body){
@@ -747,7 +771,7 @@ class Notify {
                     $message = "Please check SMS tag and phone number. Booking id is : " .
                             $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                             . " " . $status['content'];
-                    $to = "anuj@247around.com, sachinj@247around.com";
+                    $to = DEVELOPER_EMAIL;
 
                     $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_sending_failed');
                 }
@@ -759,7 +783,7 @@ class Notify {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'] . " Result:"
                         . " " . $status['content'];
-                $to = "anuj@247around.com, sachinj@247around.com";
+                $to = DEVELOPER_EMAIL;
 
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'sms_not_sent_template_not_found');
             }
@@ -814,7 +838,7 @@ class Notify {
      * return: Null
      */
 
-    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag) {
+    function add_email_send_details($email_from, $email_to, $cc, $bcc, $subject, $message, $attachment_link,$template_tag, $booking_id="") {
 	$data = array();
 
 	$data['email_from'] = $email_from;
@@ -824,12 +848,13 @@ class Notify {
 	$data['subject'] = $subject;
         $data['message'] = $message;
         $data['attachment_link'] = $attachment_link;
-                    $data['email_tag'] = $template_tag;
+        $data['email_tag'] = $template_tag;
+        $data['booking_id'] = $booking_id;
 
 	//Add Email to Database
 	$insert_id = $this->My_CI->booking_model->add_email_send_details($data);
 	if (!empty($insert_id)) {
-	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . $subject);
+	    log_message('info', __FUNCTION__ . ' Email has been saved to Database "email_sent" with ID ' . print_r($data, TRUE));
 	} else {
 	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
 	}

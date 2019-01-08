@@ -9,6 +9,7 @@
         </div>
         <?php }?>
         <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php $isModelMandatory =0 ; $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -270,6 +271,22 @@
                                                                     <br/>
                                                                     <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                                    <?php
+                                                                    
+                                                                    if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
+                                                                        $isModelMandatory =1 ;
+                                                                        ?>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-12 ">
+                                                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
+                                                                                                <option value="" selected="" disabled="">Model Number</option>
+                                                                                                <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
+                                                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>  
+                                                                                                <?php }?>
+                                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <?php } ?>
                                                         </div>
                                                     </div>
                                                     <?php } ?>
@@ -512,6 +529,7 @@
 </div>
 <script>
     $(".booking_source").select2();
+    $(".model_number").select2();
 </script>
 <script>
     $("#service_id").select2();
@@ -546,7 +564,7 @@
     $("#grand_total_price").val(price);
     });
     
-    function onsubmit_form(upcountry_flag, number_of_div) {
+    function onsubmit_form(upcountry_flag, number_of_div) { 
     
     var flag = 0;
     var div_count = 0;
@@ -615,6 +633,19 @@
                     }
             }
     
+                <?php
+                if($isModelMandatory){
+                    ?>
+                    if($("#model_number_"+div_no[2]).length == 1){
+                        var modelNumber = $('#model_number_'+div_no[2]).val();
+                        if(modelNumber == null){
+                            alert("Please Select Model number");
+                            flag = 1;
+                        }
+                    }
+                    <?php
+                }
+                ?>
             var amount_due = $("#amount_due" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();

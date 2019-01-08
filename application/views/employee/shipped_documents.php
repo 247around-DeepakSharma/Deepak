@@ -65,7 +65,7 @@
                 <div class="panel-body">
                     <div class="form-group col-md-6">
                         <input type="hidden" value="<?php if(isset($courier_details)){ echo $courier_details[0]->id; } else{ echo "add";}  ?>" name="add_edit">
-                        <label for="entity_type" class="col-md-5 vertical_align" id="label_entity_type">Receiver Type</label>
+                        <label for="entity_type" class="col-md-5 vertical_align" id="label_entity_type">Receiver Type *</label>
                         <select id="entity_type" class="form-control col-md-6" name="entity_type" style="width: 195px;">
                             <option disabled <?php if(!isset($courier_details)) echo "selected"?> value="" >Select</option>
                             <option value="247around" <?php if(isset($courier_details) && $courier_details[0]->receiver_entity_type=='247around') echo "selected"?>>247 Around</option>
@@ -76,7 +76,7 @@
                     
                     <!--<div class="clear"></div>-->
                     <div class="form-group col-md-6">
-                        <label for="doc_type" class="col-md-5 vertical_align" id="label_doc_type">Document Type</label>
+                        <label for="doc_type" class="col-md-5 vertical_align" id="label_doc_type">Document Type *</label>
                         <select id="doc_type" name="doc_type" class="form-control col-md-6  <?php if(!isset($courier_details)) echo 'disabledbutton'?>" style="width: 195px;">
                             <option disabled value="" <?php if(!isset($courier_details)) echo "selected"?>>Select</option>
                             <option value="invoice" <?php if(isset($courier_details) && $courier_details[0]->document_type=='invoice') echo "selected"?>>Invoice</option>
@@ -86,7 +86,7 @@
                     <div class="clear"></div>
                     
                     <div class="form-group col-md-6 <?php if(isset($courier_details)&& $courier_details[0]->document_type != 'invoice') echo 'hidden'?>" id="div_id">
-                        <label for="invoice_id" class="col-md-5 vertical_align" id="label_invoice_id">Invoice ID</label>
+                        <label for="invoice_id" class="col-md-5 vertical_align" id="label_invoice_id">Invoice ID *</label>
                         <input type="text" class="form-control col-md-6 idclass " id="invoice_id" name="invoice_id" value="<?php if((isset($courier_details) && $courier_details[0]->document_type=='invoice')) echo $courier_details[0]->partner_invoice_id?>" placeholder="Invoice ID"/>
                     </div>
 
@@ -139,13 +139,13 @@
                         <?php echo form_error('sfid'); ?>
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="courier" class="col-md-5 vertical_align" id="label_courier">Courier Name</label>
+                        <label for="courier" class="col-md-5 vertical_align" id="label_courier">Courier Name *</label>
                         <input type="text" id="courier_name" required class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>" maxlength="256" name="courier_name" placeholder="Courier company name" value="<?php if(isset($courier_details)) echo $courier_details[0]->courier_name?>"/>
                     </div>  
                     <!--image-->
                     <div class="clear"></div>
                     <div class="form-group col-md-6">
-                        <label for="track_label" class="col-md-5 vertical_align" id="label_track">Courier File</label>
+                        <label for="track_label" class="col-md-5 vertical_align" id="label_track">Courier File *</label>
                         <input type="file" name="courier" class="form-control col-md-2 <?php if(!isset($courier_details)) echo 'disabledbutton'?>" style="width:195px" id="track_file" required value="<?php if(isset($courier_details)) echo $courier_details[0]->courier_file?>"/>
                         <div class="col-md-1">
                             <?php
@@ -168,7 +168,7 @@
                     
                     <!--AWB no-->
                     <div class="form-group col-md-6">
-                        <label for="awb_no" class="col-md-5 vertical_align" id="label_awb_no">AWB No.</label>
+                        <label for="awb_no" class="col-md-5 vertical_align" id="label_awb_no">AWB No. *</label>
                         <input type="text" name="awb_no" required class="form-control col-md-4 <?php if(!isset($courier_details)) echo 'disabledbutton'?>" style="width:195px" id="awb_no"  maxlength="256"
                                value="<?php if(isset($courier_details)) echo $courier_details[0]->AWB_no?>"/>
                     </div>
@@ -176,7 +176,7 @@
                     <div class="clear"></div>
                     <!--Shipment Date-->
                     <div class="form-group col-md-6">
-                        <label for="shipment_date" class="col-md-5 vertical_align" id="label_awb_no">Shipment Date</label>
+                        <label for="shipment_date" class="col-md-5 vertical_align" id="label_awb_no">Shipment Date *</label>
                         <input type="date" required name="shipment_date" class="form-control col-md-4 <?php if(!isset($courier_details)) echo 'disabledbutton'?>" style="width:195px" id="shipment_date" 
                             value="<?php if(isset($courier_details)) echo date('Y-m-d', strtotime ($courier_details[0]->shipment_date));?>"/>
                     </div>
@@ -200,7 +200,7 @@
                                value="<?php// if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->contact_person_id;}?>"/>
                     </div> -->
                     <div class="form-group col-md-6">
-                        <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email</label>
+                        <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email *</label>
                         
                         <input type="email" id="email_input" name="email_input" class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>"
                                value="<?php if(isset($courier_details)) {if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->notification_email;}?>"/>

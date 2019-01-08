@@ -8,6 +8,7 @@ class Invoice_lib {
         $this->ci->load->library('PHPReport');
         $this->ci->load->library("miscelleneous");
         $this->ci->load->library('s3');
+        $this->ci->load->library('table');
     }
     
     function create_invoice_id($start_name){
@@ -249,26 +250,10 @@ class Invoice_lib {
         }
     }
     
-    /**
-     * @desc This function is used to call taxpro gst api 
-     * @param String $vendor_id
-     * @param String $gst_number
-     * @return api response 
-     */
-    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id=""){ 
-        if(!$vendor_id){
-          $vendor_id = _247AROUND;
-        }
-        $activity = array(
-            'entity_type' => 'vendor',
-            'partner_id' => $vendor_id,
-            'activity' => __METHOD__,
-            'header' => "",
-            'json_request_data' => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
-        );
+    function taxpro_api_curl_call($url){
         $curl = curl_init();
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no,
+          CURLOPT_URL => $url,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
           CURLOPT_MAXREDIRS => 10,
@@ -290,7 +275,7 @@ class Invoice_lib {
                 if($response['error']['error_cd'] != INVALID_LENGHT_GSTIN && $response['error']['error_cd'] != INVALID_GSTIN){  /**** mail not send on invalid gst number or invalid length of gst number *****/
                     $email_template = $this->ci->booking_model->get_booking_email_template(TAXPRO_API_FAIL);
                     if(!empty($email_template)){
-                        $message = vsprintf($email_template[0], array("GST NO - ".$gst_no,"Filled by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                        $message = vsprintf($email_template[0], array("Called by - ".$this->ci->session->userdata('emp_name'), $api_response));  
                         $to = $email_template[1];
                         $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', TAXPRO_API_FAIL);
                     }
@@ -301,7 +286,32 @@ class Invoice_lib {
                return $api_response;
             }
         }
+    }
+    
+    
+    
+    /**
+     * @desc This function is used to call taxpro gst api 
+     * @param String $vendor_id
+     * @param String $gst_number
+     * @return api response 
+     */
+    function taxpro_gstin_checking_curl_call($gst_no, $vendor_id="", $vendor_partner=""){ 
+        if(!$vendor_id){
+          $vendor_id = _247AROUND;
+        }
+        $url = "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=".ASP_ID."&password=".ASP_PASSWORD."&Action=TP&Gstin=".$gst_no;
+        $activity = array(
+            'entity_type' => $vendor_partner,
+            'partner_id' => $vendor_id,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
         $this->ci->partner_model->log_partner_activity($activity);
+        return $api_response;
     }
     
     /**
@@ -314,7 +324,7 @@ class Invoice_lib {
         $vendor = $this->ci->vendor_model->getVendorDetails('gst_no, gst_status, gst_taxpayer_type, company_name, gst_cancelled_date', array('id'=>$vendor_id), 'id', array());
         if(!empty($vendor[0]['gst_no'])){
             
-            $api_response = $this->taxpro_gstin_checking_curl_call($vendor[0]['gst_no'], $vendor_id);
+            $api_response = $this->taxpro_gstin_checking_curl_call($vendor[0]['gst_no'], $vendor_id, 'vendor');
             if (!$api_response) {
                 $data['status'] = 'error'; 
                 return $data;
@@ -601,24 +611,29 @@ class Invoice_lib {
      * @param Array $partner_challan_number
      * @return String $output_pdf_file_name
      */
-    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number,  $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
         $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
         $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+        $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
+        $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
         $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
         $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
+        $excel_data['excel_data']['partner_contact_person_name'] = $partner_details[0]['contact_person_name'];
+        $excel_data['excel_data']['partner_contact_number'] = $partner_details[0]['contact_number'];
         $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
-        if(!empty($service_center_closed_date)){
-            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
-        } else {
-            $excel_data['excel_data']['date'] = date('Y-m-d');
-        }
-        
-        $booking_id  = $spare_details[0]['booking_id'];
+//        if(!empty($service_center_closed_date)){
+//            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
+//        } else {
+//            $excel_data['excel_data']['date'] = date('Y-m-d');
+//        }
+        $excel_data['excel_data']['date'] = "";
+
+        $booking_id = $spare_details[0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
-        
+
         foreach ($spare_details as $value) {
             if (!empty($value)) {
                 $tmp_arr = array();
@@ -640,20 +655,19 @@ class Invoice_lib {
             $excel_data['excel_data']['sf_gst'] = '';
             $excel_data['excel_data']['sf_owner_name'] = $sf_details[0]['owner_name'];
             //get signature file from s3 and save it to server
-            if(!empty($sf_details[0]['signature_file'])){
+            if (!empty($sf_details[0]['signature_file'])) {
                 $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . trim($sf_details[0]['signature_file']);
                 copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
                 system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
-                $excel_data['excel_data']['signature_file'] = $signature_file = $sf_details[0]['signature_file'] ;
+                $excel_data['excel_data']['signature_file'] = $signature_file = $sf_details[0]['signature_file'];
             } else {
-                $excel_data['excel_data']['signature_file'] = $signature_file = "" ;
+                $excel_data['excel_data']['signature_file'] = $signature_file = "";
             }
-            
-        } 
+        }
 
         if (!empty($template)) {
             //generated pdf file name
-            $output_file = "delivery_challan_" . $booking_id . "_" . rand(10,100) . "_" . date('d_M_Y_H_i_s');
+            $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
             $output_pdf_file_name = $output_file . ".pdf";
@@ -661,7 +675,7 @@ class Invoice_lib {
             $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
             $pdf_response = json_decode($json_result, TRUE);
-            
+
             if ($pdf_response['response'] === 'Success') {
                 log_message('info', ' Mpdf ' . $pdf_response['response_msg']);
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
@@ -674,55 +688,368 @@ class Invoice_lib {
                 log_message('info', $pdf_response['response_msg'] . ' Error in generating pdf');
                 $output_pdf_file_name = '';
             }
-            
+
             if ($signature_file && file_exists(TMP_FOLDER . $sf_details[0]['signature_file'])) {
                 unlink(TMP_FOLDER . $sf_details[0]['signature_file']);
             }
         } else {
-            log_message('info','pdf file can not be generated because no template found');
+            log_message('info', 'pdf file can not be generated because no template found');
             $output_pdf_file_name = "";
         }
 
         return $output_pdf_file_name;
     }
+
     /**
      * @desc Generate Challan file
      * @param type $booking_id
      * @return boolean
      */
-    function generate_challan_file($booking_id, $service_center_id, $service_center_closed_date = ""){
-        
+    function generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "") {
+
         $select = 'spare_parts_details.*';
-        $where =  array('spare_parts_details.booking_id' => $booking_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
-        
-        
-        $spare_parts_details  = $this->ci->partner_model->get_spare_parts_by_any($select,$where );
-        if(!empty($spare_parts_details)){
-            $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')),',');
-            $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc',array('id'=>$service_center_id));
-            if ($spare_parts_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
-                    $partner_details = $this->ci->partner_model->getpartner_details('company_name,address,gst_number', array('partners.id' => $spare_parts_details[0]['partner_id']));
-            } else if ($spare_parts_details[0]['entity_type'] === _247AROUND_SF_STRING) {
-                $partner_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $spare_parts_details[0]['partner_id']));
+        $where = array('spare_parts_details.id' => $spare_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
+
+
+        $spare_parts_details = $this->ci->partner_model->get_spare_parts_by_any($select, $where);
+        if (!empty($spare_parts_details)) {
+            $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
+
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+
+
+            $where = array('contact_person.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id'],
+                'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
+                'warehouse_details.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
+                'warehouse_details.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id']);
+            $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
+
+            if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0]['defective_return_to_entity_id']));
+            } else if ($spare_parts_details[0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
+                $partner_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $spare_parts_details[0]['defective_return_to_entity_id']));
             }
-            
+
+            if (!empty($wh_address_details)) {
+                $partner_details[0]['address'] = $wh_address_details[0]['address'];
+                $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
+                $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+            }
+
             $sf_challan_number = $spare_parts_details[0]['sf_challan_number'];
-            
+
             if (empty($sf_challan_number)) {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
-            
+
             $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
-            
+
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
-            
-            foreach($spare_parts_details as $value){
+
+            foreach ($spare_parts_details as $value) {
                 $this->ci->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
             }
-        } 
-        
+        }
+
         return true;
+    }
+
+    /**
+     * @desc This function is used to get settle inventory data
+     * @param Array $postData
+     * @param String $invoice_id
+     * @return boolean
+     */
+    function settle_inventory_invoice_annexure($postData, $invoice_id) {
+        $processPostData = array();
+        $not_updated = array();
+       
+        foreach ($postData as $value) {
+            if (!empty($value['inventory_id'])) {
+                $where = array('inventory_id' => $value['inventory_id'],
+                    'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+
+                $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+                if (!empty($unsettle)) {
+                    $qty = 1;
+                    $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
+ 
+                    foreach ($unsettle as $key => $b) {
+                        
+                        $restQty = $b['qty'] - $b['settle_qty'];
+                        if ($restQty == $qty) {
+
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            
+                            
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+
+
+                            $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
+
+
+                            array_push($processPostData, $s);
+                            log_message('info', __METHOD__ . " Settle " . print_r($s, true));
+                            $qty = 0;
+                            break;
+                        } else if ($restQty < $qty) {
+                           
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+
+
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+                            
+                            $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
+                            
+                          
+                            array_push($processPostData, $s);
+                            $qty = $qty - $restQty;
+                        } else if ($restQty > $qty) {
+
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
+                            
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
+                    'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            
+                            $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
+                            
+                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+
+                            array_push($processPostData, $s);
+                            $qty = 0;
+
+                            break;
+                        } else {
+                            if ($qty > 0) {
+                                $this->invoices_not_found($value);
+                                array_push($not_updated, $value['booking_id']);
+                                log_message('info', __METHOD__. " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+                            }
+                        }
+                    }
+                } else {
+                    $this->invoices_not_found($value);
+                    array_push($not_updated, $value['booking_id']);
+                    log_message('info', __METHOD__. " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+                }
+            } else {
+                $this->invoices_not_found($value);
+                array_push($not_updated, $value['booking_id']);
+                log_message('info', __METHOD__. " Inventory ID Missing. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
+            }
+        }
+        return array(
+            'processData' => $processPostData,
+            'not_update_booking_id' => $not_updated);
+    }
+    
+    function get_array_settle_data($b, $inventory_details, $restQty, $value){
+        return array(
+            'incoming_invoice_id' => $b['invoice_id'], 
+            "qty" => $restQty, 
+            "part_name" => $inventory_details[0]['part_name'],
+            "part_number" => $inventory_details[0]['part_number'],
+            "booking_id" => $value['booking_id'],
+            "rate" => $b['rate'],
+            "spare_id" => $value['spare_id'],
+            "booking_partner_id" => $value['booking_partner_id'],
+            "inventory_id" => $value['inventory_id'],
+            "hsn_code" => $inventory_details[0]['hsn_code'],
+            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+    }
+    
+    /**
+     * @desc If there is no any un-settle invoice available then it will send a mail to developer or accountant
+     * @param Array $data
+     */
+    function invoices_not_found($data) {
+        log_message('info', __METHOD__ . " Invoice Qty Not found " . print_r($data, true));
+
+        $template1 = array(
+            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+        );
+
+        $this->ci->table->set_template($template1);
+
+        $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
+        
+        $this->ci->table->add_row($data['part_name'], $data['booking_id'], $data['inventory_id']);
+        
+
+        $this->ci->table->set_template($template1);
+        $html_table = $this->ci->table->generate();
+
+        $email_template = $this->ci->booking_model->get_booking_email_template("spare_invoice_not_found");
+        $subject = $email_template[4];
+        $message = vsprintf($email_template[0], array($html_table,json_encode($data, true)));
+        $email_from = $email_template[2];
+
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $bcc = $email_template[5];
+
+        $this->ci->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, "", 'spare_invoice_not_found');
+    }
+    
+    /**
+     * @desc this is used to insert invoice break up in the new invoice table
+     * @param Array $response
+     * @return boolean
+     */
+    function insert_def_invoice_breakup($response, $is_settle = 1){
+        log_message('info', __METHOD__. " Insert invoice breakup");
+        $a = array();
+        foreach ($response['booking'] as $value) {
+            $invoice = array();
+            if(isset($value['invoice_id'])){
+                $invoice['invoice_id'] = $value['invoice_id'];
+            } else {
+                $invoice['invoice_id'] = $response['meta']['invoice_id'];
+            }
+            
+            $invoice['description'] = $value['description'];
+            $invoice['product_or_services'] = "Product";
+            $invoice['hsn_code'] = $value['hsn_code'];
+            $invoice['qty'] = $value['qty'];
+            $invoice['rate'] = $value['rate'];
+            $invoice['inventory_id'] = $value['inventory_id'];
+            $invoice['taxable_value'] = $value['taxable_value'];
+            
+            $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = isset($value['sgst_tax_amount']) ?$value['sgst_tax_amount']:0;
+            $invoice['cgst_tax_rate'] = $invoice['sgst_tax_rate'] = isset($value['cgst_rate']) ?$value['cgst_rate']:0;
+            $invoice['igst_tax_amount'] = isset($value['igst_tax_amount']) ?$value['igst_tax_amount']:0;
+            $invoice['igst_tax_rate'] = isset($value['igst_rate']) ?$value['igst_rate']:0;
+            if($is_settle == 1){
+                $invoice['is_settle'] = $is_settle;
+                $invoice['settle_qty'] = $value['qty'];
+            } else {
+                $invoice['is_settle'] = 0;
+                $invoice['settle_qty'] = 0;
+            }
+            if(isset($value['spare_id'])){
+                $invoice['spare_id'] = $value['spare_id'];
+            }
+            $invoice['total_amount'] = $value['total_amount'];
+            $invoice['create_date'] = date('Y-m-d H:i:s');
+            
+            array_push($a, $invoice);
+
+        }
+        
+        return $this->ci->invoices_model->insert_invoice_breakup($a);
+        
+    }
+    /**
+     * @desc this function is used to return array to insert invoice in the vendor partner invoice table
+     * @param Array $response
+     * @param String $type_code
+     * @param String $type
+     * @param String $entity_type
+     * @param int $entity_id
+     * @param Array $convert
+     * @param int $agent_id
+     * @param String $hsn_code
+     * @return Array
+     */
+    function insert_vendor_partner_main_invoice($response, $type_code, $type, $entity_type, $entity_id,$convert,$agent_id,$hsn_code = ''){
+        
+        $invoice_details = array(
+                'invoice_id' => $response['meta']['invoice_id'],
+                'type_code' => $type_code,
+                'type' => $type,
+                'vendor_partner' => $entity_type,
+                'vendor_partner_id' => $entity_id,
+                "third_party_entity" => (isset($response['meta']['third_party_entity']))?$response['meta']['third_party_entity']:NULL,
+                "third_party_entity_id" => (isset($response['meta']['third_party_entity_id']))?$response['meta']['third_party_entity_id']:NULL,
+                'invoice_file_main' => $convert['main_pdf_file_name'],
+                'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                'invoice_detailed_excel' => $response['meta']['invoice_id'] . '-detailed.xlsx',
+                'from_date' => date("Y-m-d", strtotime($response['meta']['sd'])), //??? Check this next time, format should be YYYY-MM-DD
+                'to_date' => date("Y-m-d", strtotime($response['meta']['sd'])),
+                'num_bookings' => $response['meta']['service_count'],
+                'total_service_charge' => ($response['meta']['total_ins_charge']),
+                'total_additional_service_charge' => (isset($response['meta']['total_additional_service_charge']))?$response['meta']['total_additional_service_charge']:0,
+                'parts_cost' => $response['meta']['total_parts_charge'],
+                'total_amount_collected' => $response['meta']['sub_total_amount'],
+                'tds_amount' => (isset($response['meta']['tds']))?$response['meta']['tds']:0,
+                'tds_rate' => (isset($response['meta']['tds_tax_rate']))?$response['meta']['tds_tax_rate']:0,
+                'upcountry_booking' => (isset($response['meta']['upcountry_booking']))?$response['meta']['upcountry_booking']:0,
+                'upcountry_distance' => (isset($response['meta']['upcountry_distance']))?$response['meta']['upcountry_distance']:0,
+                'courier_charges' =>  (isset($response['meta']['total_courier_charge']))?$response['meta']['total_courier_charge']:0,
+                'upcountry_price' => (isset($response['meta']['total_upcountry_price']))?$response['meta']['total_upcountry_price']:0,
+                'rating' => 5,
+                'invoice_date' => (isset($response['meta']['invoice_date']))? date('Y-m-d', strtotime($response['meta']['invoice_date'])): date('Y-m-d'),
+                'around_royalty' => (isset($response['meta']['around_royalty']))?$response['meta']['around_royalty']:0,
+                'due_date' => (isset($response['meta']['due_date']))? date('Y-m-d', strtotime($response['meta']['due_date'])): date('Y-m-d', strtotime("+1 month")),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' => ($type =="A")?$response['meta']['sub_total_amount']:(0-$response['meta']['sub_total_amount']),
+                //add agent_id
+                'agent_id' => $agent_id,
+                "cgst_tax_rate" => (isset($response['meta']['cgst_tax_rate']))?$response['meta']['cgst_tax_rate']:0,
+                "sgst_tax_rate" => (isset($response['meta']['sgst_tax_rate']))?$response['meta']['sgst_tax_rate']:0,
+                "igst_tax_rate" => (isset($response['meta']['igst_tax_rate']))?$response['meta']['igst_tax_rate']:0,
+                "igst_tax_amount" => (isset($response['meta']['igst_total_tax_amount']))?$response['meta']['igst_total_tax_amount']:0,
+                "sgst_tax_amount" => (isset($response['meta']['sgst_total_tax_amount']))?$response['meta']['sgst_total_tax_amount']:0,
+                "cgst_tax_amount" => (isset($response['meta']['cgst_total_tax_amount']))?$response['meta']['cgst_total_tax_amount']:0,
+                "parts_count" => (isset($response['meta']['parts_count']))?$response['meta']['parts_count']:0,
+                "invoice_file_pdf" => $convert['copy_file'], 
+                "hsn_code" => $hsn_code,
+                'packaging_quantity' => (isset($response['meta']['packaging_quantity']))?$response['meta']['packaging_quantity']:0,
+                'packaging_rate' => (isset($response['meta']['packaging_rate']))?$response['meta']['packaging_rate']:0,
+                'miscellaneous_charges' => (isset($response['meta']['miscellaneous_charges']))?$response['meta']['miscellaneous_charges']:0,
+                'warehouse_storage_charges' => (isset($response['meta']['warehouse_storage_charges']))?$response['meta']['warehouse_storage_charges']:0,
+                'penalty_amount'=> (isset($response['meta']['penalty_amount']))?$response['meta']['penalty_amount']:0,
+                'penalty_bookings_count' => (isset($response['meta']['penalty_bookings_count']))?$response['meta']['penalty_bookings_count']:0,
+                'vertical' => $response['meta']['vertical'],
+                'category' => $response['meta']['category'],
+                'sub_category' => $response['meta']['sub_category'],
+                'accounting' => $response['meta']['accounting']
+            );
+        
+            return $invoice_details;
+    }
+    
+    /**
+     * @desc this function is used to return array to insert invoice breakup into invoice_details
+     * @param Array $invoice
+     * @return Array
+     */
+    function insert_invoice_breackup($invoice){
+        $invoice_breakup = array();
+        foreach($invoice['booking'] as $value){
+            $invoice_details = array(
+                "invoice_id" => $invoice['meta']['invoice_id'],
+                "description" => $value['description'],
+                "qty" => $value['qty'],
+                "product_or_services" => $value['product_or_services'],
+                "rate" => $value['rate'],
+                "taxable_value" => $value['taxable_value'],
+                "cgst_tax_rate" => (isset($value['cgst_rate']) ? $value['cgst_rate'] : 0),
+                "sgst_tax_rate" => (isset($value['sgst_rate']) ? $value['sgst_rate'] : 0),
+                "igst_tax_rate" => (isset($value['igst_rate']) ? $value['igst_rate'] : 0),
+                "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
+                "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
+                "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
+                "hsn_code" => $value['hsn_code'],
+                "total_amount" => $value['total_amount'],
+                "create_date" => date('Y-m-d H:i:s')
+                
+            );
+            
+            array_push($invoice_breakup, $invoice_details);
+        }
+       return $this->ci->invoices_model->insert_invoice_breakup($invoice_breakup);
     }
 
 }

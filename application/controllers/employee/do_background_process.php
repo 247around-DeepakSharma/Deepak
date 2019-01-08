@@ -61,6 +61,10 @@ class Do_background_process extends CI_Controller {
 
                     $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                     if ($upcountry_status) {
+                        
+                        // Send New Booking SMS
+                        $this->notify->send_sms_email_for_booking($booking_id, "Newbooking" );
+            
                         //Send Push Notification
                         //Send To Vendor
                         $receiverArrayVendor['vendor'] = array($service_center_id);
@@ -236,10 +240,9 @@ class Do_background_process extends CI_Controller {
                     
                    $is_inserted =$this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
                        "serial_number" => $value['serial_number'], "active" =>1, "added_by" => "vendor" ));
-                   
-                   if(!empty($is_inserted) && $partner_id == AKAI_ID){
-                       
-                       $this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
+                    $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+                   if(!empty($is_inserted) && in_array($partner_id, $serialNumberMandatoryPartners)){
+                       //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
                    } 
                 }
 
@@ -419,7 +422,7 @@ class Do_background_process extends CI_Controller {
             $csv = TMP_FOLDER . $newCSVFileName;
             $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
             if($status != 'all'){
-                if($status == 'Pending'){
+                if($status == _247AROUND_PENDING){
                     $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
               }
                     else{
@@ -491,6 +494,9 @@ function send_vendor_creation_notification(){
             log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
         }
     }
-
+    
+    function reopen_booking($booking_id,$status){
+        $this->miscelleneous->reopen_booking($booking_id, $status);
+    }
     /* end controller */
 }

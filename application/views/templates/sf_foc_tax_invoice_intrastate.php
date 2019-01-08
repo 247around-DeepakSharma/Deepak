@@ -47,10 +47,10 @@
 
             <tr style="text-align: center;background-color: rgb(211,211,211);">
                 <td rowspan="2" width="30%"><b>Product Description</td>
-                <td rowspan="2" width="8%" style="padding: 1px"><b>HSN/SAC<br>Code</td>
-                <td rowspan="2" width="6%"><b>Qty</td>
-                <td rowspan="2" width="8%"><b>Rate</td>
-                <td rowspan="2" width="8%"><b>Taxable value</td>
+                <td rowspan="2" width="5%" style="padding: 1px"><b>HSN/SAC<br>Code</td>
+                <td rowspan="2" width="5%"><b>Qty</td>
+                <td rowspan="2" width="5%"><b>Rate</td>
+                <td rowspan="2" width="10%"><b>Taxable value</td>
                 <td colspan="2" width="15%"><b>CGST</td>
                 <td colspan="2" width="15%"><b>SGST</td>
                 <td rowspan="2" width="10%" style="border-right: 2px solid"><b>Total</td>
@@ -67,10 +67,10 @@
             ?>
                 <tr style='text-align: center;'>
                     <td width="30%"><?php echo $data['description']; ?></td>
-                    <td width="8%"><?php echo $data['hsn_code']; ?></td>
-                    <td width="6%"><?php echo $data['qty']; ?></td>
-                    <td width="8%"><?php echo $data['rate']; ?></td>
-                    <td width="8%"><?php echo $data['taxable_value']; ?></td>
+                    <td width="5%"><?php echo $data['hsn_code']; ?></td>
+                    <td width="5%"><?php echo $data['qty']; ?></td>
+                    <td width="5%"><?php echo $data['rate']; ?></td>
+                    <td width="10%"><?php echo $data['taxable_value']; ?></td>
                     <td><?php echo $data['cgst_rate']; ?></td>
                     <td><?php echo $data['cgst_tax_amount']; ?></td>
                     <td><?php echo $data['sgst_rate']; ?></td>

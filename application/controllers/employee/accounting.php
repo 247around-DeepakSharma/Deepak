@@ -32,6 +32,7 @@ class Accounting extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("session");
         $this->load->library('s3');
+        $this->load->library('invoice_lib');
         //  $this->load->library('email');
 
 //    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -849,7 +850,12 @@ class Accounting extends CI_Controller {
      */
     function invoice_datatable($invoice_list, $no){
         $row = array();
-        $row[] = $no;
+        if($invoice_list->settle_amount == 1){
+            $row[] = '<span class="satteled_row">'.$no.'</span>';
+        }
+        else{
+            $row[] = $no;
+        }
         $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
         $row[] = $invoice_list->invoice_id;
         $row[] = $invoice_list->type;
@@ -875,11 +881,11 @@ class Accounting extends CI_Controller {
         
         $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
         $row[] = $resend_invoice;
-        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
-            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
-        } else {
-            $row[] = "";
-        }
+//        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
+//            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
+//        } else {
+//            $row[] = "";
+//        }
         return $row;
     }
     /**
@@ -941,6 +947,18 @@ class Accounting extends CI_Controller {
         
         if(!empty($invoice_id)){
             $post['where']['vendor_partner_invoices.invoice_id LIKE "%'.$invoice_id.'%"'] = NULL;
+        }
+        
+        if(!empty($this->input->post("vertical"))){  
+            $post['where']['vendor_partner_invoices.vertical'] = $this->input->post("vertical");
+        }
+        
+        if(!empty($this->input->post("category"))){
+            $post['where']['vendor_partner_invoices.category'] = $this->input->post("category");
+        }
+        
+        if(!empty($this->input->post("sub_category"))){
+            $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
         }
         return $post;
     }
@@ -1230,9 +1248,27 @@ class Accounting extends CI_Controller {
     function add_variable_charges(){ 
         $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
         $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
-        $variable_charges['charges_type'] = $this->invoices_model->get_variable_charge("DISTINCT(charges_type)", array(), false);
+        $variable_charges['charges_type'] = $this->accounting_model->get_variable_charge("id, name");
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges', $variable_charges);  
+    }
+    
+    /**
+     * @desc This function form select box of charges type for variable charges
+     * @param void
+     * @return html
+     */
+    function getVendorPartnerVariableChargesType(){
+        $variable_charge_detail = $this->accounting_model->get_variable_charge("*");
+        $html = '<option disabled>Select charge type</option>';
+        foreach($variable_charge_detail as $charges){
+            $selected = "";
+            if($charges['type'] == trim($this->input->post('type'))){
+                $selected = "selected";
+            }
+            $html .= '<option data-charge-type="'.$charges['type'].'" value="'.$charges['id'].'" '.$selected.'>'.$charges['description'].'</option>';
+        }
+        echo $html;
     }
     
      /**
@@ -1244,12 +1280,12 @@ class Accounting extends CI_Controller {
         $data = array();
         $data['entity_type'] = $this->input->post('vendor_partner');
         $data['entity_id'] = $this->input->post('vendor_partner_id');
-        $data['charges_type'] = $this->input->post('charges_type');
-        $data['description'] = $this->input->post('description');
         $data['fixed_charges'] = $this->input->post('fixed_charges');
-        $data['percentage_charge'] = $this->input->post('percentage_charge');
-        $data['hsn_code'] = $this->input->post('hsn_code');
-        $data['gst_rate'] = $this->input->post('gst_rate');
+        $variable_charge_detail = $this->accounting_model->get_variable_charge("*", array('id'=>$this->input->post('charges_type')));
+        $data['charges_type'] = $variable_charge_detail[0]['type'];
+        $data['description'] = $variable_charge_detail[0]['description'];
+        $data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
+        $data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
 
         if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
            $data['update_date'] = date("Y-m-d H:i:s");
@@ -1266,9 +1302,388 @@ class Accounting extends CI_Controller {
         redirect(base_url() . 'employee/accounting/add_variable_charges'); 
     }
     
-    function rendor_taxpro_GSTR2a_Data(){ 
+    /**
+     * @desc This is used to fetch gstr2a data from taxpro api
+     * @param void
+     * @return view
+     */
+    function generate_gstr2a_report(){ 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/show_taxpro_GSTR2a_Data');
+        $this->load->view('employee/generate_taxpro_GSTR2a_Data');
     }
     
+    
+     /**
+     * @desc This function is used to generate otp for getting authentication token from taxpro
+     * @param void
+     * @return api response
+     */
+    function generate_taxpro_otp(){
+       
+        $url = TAXPRO_OTP_REQUEST_URL;
+        //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=OTPREQUEST&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1";
+        $activity = array(
+            'entity_type' => _247AROUND_PARTNER_STRING,
+            'partner_id' => _247AROUND,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
+        $this->partner_model->log_partner_activity($activity);
+        echo $api_response;
+    }
+    
+     /**
+     * @desc This function is used to generate authentication token from taxpro
+     * @param otp
+     * @return boolean message
+     */
+    function generate_taxpro_auth_token(){
+        $otp = $this->input->post("otp");
+        $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.$otp;
+        //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=AUTHTOKEN&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1&OTP=575757";
+        $activity = array(
+            'entity_type' => _247AROUND_PARTNER_STRING,
+            'partner_id' => _247AROUND,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+        $activity['json_response_string'] = $api_response;
+        $this->partner_model->log_partner_activity($activity);
+        $response = json_decode($api_response);
+        if($response->status_cd == '1'){
+           $this->fetch_taxpro_gstr2a_data($response->auth_token);
+           echo "success";
+        }
+        else{
+           echo "error";
+        }
+    }
+    
+    /**
+     * @desc This function is used to fetch gstr2a data and save required data into database from taxpro
+     * @param authtoken
+     * @return void
+     */
+    function fetch_taxpro_gstr2a_data($autnToken){ 
+        $to_date = date("Y-m");
+        $from_date = date("2017-07");
+        while($from_date < $to_date){
+            $year = date('Y', strtotime($from_date));
+            $month = date('m', strtotime($from_date));
+            $ret_period = $month.$year;
+            $url = TAXPRO__FEATCH_GSTR2A_URL.$autnToken.'&ret_period='.$ret_period;
+            $activity = array(
+                'entity_type' => _247AROUND_PARTNER_STRING,
+                'partner_id' => _247AROUND,
+                'activity' => __METHOD__,
+                'header' => "",
+                'json_request_data' => $url,
+            );
+            $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+            
+            $response = json_decode($api_response, TRUE);
+            $data_on_gstin_array = $response['b2b'];
+            $row_batch = array();
+            foreach ($data_on_gstin_array as $data_on_gstin) {
+                $gst_no = $data_on_gstin['ctin'];
+                $data_on_invoice_array = $data_on_gstin['inv'];
+                foreach ($data_on_invoice_array as $data_on_invoice) {
+                    $checksum = $data_on_invoice['chksum'];
+                    $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
+                    $invoice_val = $data_on_invoice['val'];
+                    $invoice_number = $data_on_invoice['inum'];
+                    $data_on_invoice_items_array = $data_on_invoice['itms'];
+                    foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
+                        $data_on_tax = $data_on_invoice_items['itm_det'];
+                        $gst_rate = $data_on_tax['rt'];
+                        $taxable_val = $data_on_tax['txval'];
+                        if (isset($data_on_tax['iamt'])){
+                            $cgst_val = 0;
+                            $sgst_val = 0;
+                            $igst_val = $data_on_tax['iamt'];
+                        }
+                        else{
+                            $cgst_val = $data_on_tax['camt'];
+                            $sgst_val = $data_on_tax['samt'];
+                            $igst_val = 0;
+                        }
+                        $row = array(
+                            'gst_no' => $gst_no,
+                            'invoice_number' => $invoice_number,
+                            'invoice_amount' => $invoice_val,
+                            'gst_rate' => $gst_rate,
+                            'taxable_value' => $taxable_val,
+                            'igst_amount' => $igst_val,
+                            'cgst_amount' => $cgst_val,
+                            'sgst_amount' => $sgst_val,
+                            'invoice_date' => $date,
+                            'checksum' => $checksum,
+                            'gstr2a_period' => $ret_period,
+                            'create_date' => date('Y-m-d H:i:s')
+                        );
+                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                        if(empty($check_checksum)){
+                            array_push($row_batch, $row);
+                        }
+                    }
+                }
+            }
+            if(!empty($row_batch)){
+                $this->accounting_model->insert_taxpro_gstr2a_data($row_batch);
+            }
+            
+            $activity['json_response_string'] = $api_response;
+            $this->partner_model->log_partner_activity($activity);
+            
+            $from_date = date('Y-m', strtotime('+1 months', strtotime($from_date)));
+        }
+    }
+    
+    /**
+     * @desc This function is used to show the gstr2a data from taxpro
+     * @param voide
+     * @return view
+     */
+    function show_gstr2a_report(){
+        $data = array();
+        $data['last_updated_data'] = $this->reusable_model->execute_custom_select_query('SELECT `create_date` FROM `taxpro_gstr2a_data` ORDER BY create_date desc LIMIT 1')[0]['create_date'];
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_taxpro_GSTR2a_Data', $data);
+    }
+    
+    /**
+     * @desc This function is used to get data for gstr2a report
+     * @param datatable parameters
+     * @return boolean message
+     */
+    function get_gst2ra_mapped_data(){
+        $color_array = array();
+        $inv_where = array();
+        $post = $this->get_gst2ra_post_data();
+        $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
+        $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
+        //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
+        $post['entity_type'] = $this->input->post("entity");
+        log_message('info', 'kalyani'. $post['entity_type']);
+        if($post['entity_type'] == 'vendor'){
+            $inv_where['vendor_partner'] = 'vendor';
+            $inv_where['credit_generated'] = 0;
+            $inv_where['invoice_id like "%Around-GST-DN%"'] = NULL;
+            $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'service_centres.name';
+            $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
+        }
+        else if($post['entity_type'] == 'partner'){
+            $inv_where['vendor_partner'] = 'partner';
+            $post['column_search'] = array('partners.public_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'partners.public_name';
+            $select = "taxpro_gstr2a_data.*, partners.company_name, partners.public_name as name, partners.id as vendor_id";
+        }
+        else if($post['entity_type'] == 'other'){
+            $post['column_search'] = array('gstin_detail.company_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
+            $post['column_order'] = 'taxpro_gstr2a_data.invoice_number';
+            $select = "taxpro_gstr2a_data.*, gstin_detail.company_name, gstin_detail.company_name as name, gstin_detail.id as vendor_id";
+            $post['where']['service_centres.id'] =  null;
+            $post['where']['partners.id'] =  null;
+        }
+        
+        $list = $this->accounting_model->get_gstr2a_mapping_details($post, $select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $data_list) {
+            $no++;
+            $array_val = $data_list['checksum'];
+            if(in_array($array_val, $color_array)){
+                $data_list['duplicate_entry'] = 1;
+            }
+            else{
+                array_push($color_array, $array_val);
+                $data_list['duplicate_entry'] = 0;
+            }
+            
+            if($post['entity_type'] == 'vendor'){
+               $inv_where['vendor_partner_id'] = $data_list['vendor_id'];
+               $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+               $data_list['entity_type'] = 'vendor';
+            }
+            else if($post['entity_type'] == 'partner'){
+               $inv_where['vendor_partner_id'] = $data_list['vendor_id'];
+               $inv_where['invoice_id'] = $data_list['invoice_number'];
+               $data_list['vendor_invoices'] = $this->invoices_model->getInvoicingData($inv_where, false);
+               $data_list['entity_type'] = 'partner';
+            }
+            else{
+                $data_list['vendor_invoices'] = array();
+                $data_list['entity_type'] = 'other';
+            }
+            
+            $row =  $this->gstr2a_table_data($data_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->accounting_model->count_all_taxpro_gstr2a_data($post),
+            "recordsFiltered" => $this->accounting_model->count_filtered_taxpro_gstr2a_data($post, 'taxpro_gstr2a_data.id'),
+            "data" => $data,
+        );
+        echo json_encode($output); 
+    }
+    
+    function get_gst2ra_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        return $post;
+    }
+    
+    function gstr2a_table_data($data_list, $no){
+        $row = array();
+        $partner_inv_not_found = null;
+        if($data_list['entity_type'] == 'vendor'){  
+            $inv_href = base_url()."employee/invoice/invoice_summary/vendor/".$data_list['vendor_id']; 
+        }
+        else if($data_list['entity_type'] == 'partner'){ 
+            $inv_href = base_url()."employee/invoice/invoice_summary/partner/".$data_list['vendor_id']; 
+            if(empty($data_list['vendor_invoices'])){
+                $partner_inv_not_found = 'inv_not_found';
+            }
+        }
+        else{ 
+            $inv_href = "#"; 
+        }
+        
+        $row[] = $no;
+        $row[] = $data_list['invoice_number'];
+        if($data_list['duplicate_entry'] == 1){
+            $row[] = "<a class='duplicate_row ".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
+        }
+        else{
+            $row[] = "<a class='".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
+        }
+        $row[] = $data_list['gst_no'];
+        $row[] = $data_list['invoice_date'];
+        $row[] = $data_list['igst_amount'];
+        $row[] = $data_list['cgst_amount'];
+        $row[] = $data_list['sgst_amount'];
+        $total_tax = $data_list['igst_amount']+$data_list['cgst_amount']+$data_list['sgst_amount'];
+        $row[] = $total_tax;
+        $row[] = $data_list['taxable_value'];
+        $row[] = $data_list['invoice_amount'];
+        $html = "<select class='invoice_select' id='selected_invoice_".$no."' onchange='check_tax_amount(".$total_tax.", this)'>";
+        $html .= "<option selected disabled>Select Invoice</option>";
+        foreach($data_list['vendor_invoices'] as $key => $value){
+           $html .= "<option data-parent-inv='".$value['reference_invoice_id']."' data-tax='".$value['total_amount_collected']."' value='".$value['invoice_id']."'>".$value['invoice_id']." (".$value['total_amount_collected'].")</option>"; 
+        }
+        $html .= "<select>";
+        $cn_btn = '<button class="btn btn-primary btn-sm" style="margin-right:5px" data-id="'.$data_list['id'].'" data-checksum="'.$data_list['checksum'].'" onclick="generate_credit_note('.$no.', this)" disabled>Generate CN</button>';
+        $row[] = $html;
+        $row[] = $cn_btn;
+        $row[] = "<a class='btn btn-warning btn-sm' onclick='reject(".$data_list['id'].")'  data-toggle='modal' data-target='#myModal'>Remark</a>";
+        return $row;
+    }
+    
+    /**
+     * @desc This function is used to reject data who is invalid for us
+     * @param id
+     * @return boolean message
+     */
+    function reject_taxpro_gstr2a(){ 
+        $id = $this->input->post('id');
+        $remarks = $this->input->post('remarks');
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_rejected'=>1, 'reject_remarks'=>$remarks));
+    }
+    /**
+     * @desc This function is used to update flag for credit note generated against thie debit note
+     * @param otp
+     * @return boolean message
+     */
+    function update_cn_by_taxpro_gstr2a(){
+        $invoice_id = $this->input->post('parent_inv');
+        $checksum = $this->input->post('checksum');
+        $id = $this->input->post('id');
+        $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+        echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
+    }
+    
+    function add_charges_type(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_variable_charges_type_form');  
+    }
+    
+    /**
+     * @desc This function is used to add charges type
+     * @param form
+     * @return redirect on same page
+     */
+    function process_charges_type(){
+        $data = array();
+        $charge_type = $this->input->post('charges_type');
+        $charges_type = $this->accounting_model->get_variable_charge('id', array('type'=>$charge_type));
+        if(empty($charges_type)){
+            $data['type'] =  $charge_type;
+            $data['description'] = $this->input->post('description');
+            $data['hsn_code'] = $this->input->post('hsn_code');
+            $data['gst_rate'] = $this->input->post('gst_rate');
+            $data['created_date'] = date("Y-m-d H:i:s");
+            $result = $this->accounting_model->insert_into_variable_charge($data);
+            if(!empty($result)){
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+                redirect(base_url() . 'employee/accounting/add_charges_type'); 
+            }
+            else{
+                $this->session->set_userdata('error', 'Data Not Saved Try Again!');
+                redirect(base_url() . 'employee/accounting/add_charges_type'); 
+            }
+        }
+        else{
+            $this->session->set_userdata('error', 'Charge Type Already Exist!');
+            redirect(base_url() . 'employee/accounting/add_charges_type'); 
+        }
+        
+    }
+    
+    /*
+     * @desc - This function is used to add and update partner variable charges.
+     * @param -  get form
+     * @render on same page
+     */ 
+    function process_partner_variable_charges(){
+            $data = array();
+            $data['entity_type'] = _247AROUND_PARTNER_STRING;
+            $data['entity_id'] = $this->input->post('partner_id');
+            $data['fixed_charges'] = $this->input->post('fixed_charges');
+            $data['charges_type'] = $this->input->post('charges_type');
+            $data['validity_in_month'] = $this->input->post('validity');
+            $variable_charge_detail = $this->accounting_model->get_vendor_partner_variable_charges("id", array('charges_type'=>$this->input->post('charges_type'), 'entity_type'=>_247AROUND_PARTNER_STRING, 'entity_id'=>$this->input->post('partner_id')));
+            if((!empty($variable_charge_detail && $variable_charge_detail[0]['id'] == $this->input->post('variable_charges_id'))) || empty($variable_charge_detail)){
+                if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
+                   $data['update_date'] = date("Y-m-d H:i:s");
+                   $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
+                   $this->session->set_userdata('success', 'Data Updated Successfully');
+                }else{
+                   $data['create_date'] = date("Y-m-d H:i:s");
+                   $result = $this->invoices_model->insert_into_variable_charge($data);
+                   $this->session->set_userdata('success', 'Data Entered Successfully');
+                }
+                if($result){
+                    $this->session->set_userdata('success', 'Data Saved Successfully');
+                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+                } else {
+                    $this->session->set_userdata('error', 'Data can not be inserted. Please Try Again...');
+                    redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+                }
+            }
+            else{
+                $this->session->set_userdata('error', 'Charge Type Already Exist.');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
+            }
+    }
 }

@@ -124,4 +124,33 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         $this->db->where($where);
         $this->db->delete($table);
     }
+    
+     /**
+     * @desc This is used to get count of all data from given table
+     * @param $table, $where
+     * @return array
+     */  
+    function count_all_result($table, $where=array()){
+        $this->db->from($table);
+        if(isset($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
+     /**
+     * @desc This is used to get count of all data from given table
+     * @param $table, $where
+     * @return array
+     */  
+    function update_table_where_in($table, $data, $whereIn){
+        if (!empty($whereIn)) {
+            foreach($whereIn as $key=>$values){
+                $this->db->where_in($key, $values);
+            }
+        }
+        $this->db->update($table,$data);
+        return true;
+    }
 }

@@ -136,7 +136,7 @@ class Inventory_model extends CI_Model {
     }
     
     /**
-     * @desc: This fucntion is used to insert data in inventory table
+     * @desc: This function is used to insert data in inventory table
      * params: Array of data
      * return : boolean
      */
@@ -565,13 +565,22 @@ class Inventory_model extends CI_Model {
                 //get agent name 
                 if($value['agent_type'] === _247AROUND_EMPLOYEE_STRING){
                     $employe_details = $this->employee_model->getemployeefromid($value['agent_id']);
-                    $query[$key]['agent_name'] = $employe_details[0]['full_name'];
+                    if(!empty($employe_details[0]['full_name'])){
+                      $query[$key]['agent_name'] = $employe_details[0]['full_name'];  
+                    } else {
+                      $query[$key]['agent_name'] = '';  
+                    }                    
                 }else if($value['agent_type'] === _247AROUND_PARTNER_STRING){
                     $partner_details = $this->partner_model->getpartner_details('public_name',array('partners.id'=>$value['agent_id']));
                     $query[$key]['agent_name'] = $partner_details[0]['public_name'];
                 }else if($value['agent_type'] === _247AROUND_SF_STRING){
                     $vendor_details = $this->vendor_model->getVendorDetails('name',array('id'=>$value['agent_id']));
-                    $query[$key]['agent_name'] = $vendor_details[0]['name'];
+                    if(!empty($vendor_details[0]['name'])){
+                        $query[$key]['agent_name'] = $vendor_details[0]['name'];
+                    } else {
+                       $query[$key]['agent_name'] = ''; 
+                    }
+                    
                 }
 
             }
@@ -997,6 +1006,17 @@ class Inventory_model extends CI_Model {
         $this->db->insert('courier_details', $data);
         return $this->db->insert_id();
     }
+        
+    /**
+     * @desc This is used to insert ewaybill details into ewaybill_details table
+     * @param Array $data
+     * @return last inserted_id
+     */
+    function insert_ewaybill_details($data){
+        $this->db->insert('ewaybill_details', $data);
+        return $this->db->insert_id();
+    }
+    
     
     /**
      * @Desc: This function is used to get data from the appliance_model_details table
@@ -1123,12 +1143,22 @@ class Inventory_model extends CI_Model {
       return $this->db->insert_id();
     }
     
-    function update_courier_detail($where, $data){
+     /**
+     * @desc This is used to Update courier details table
+     * @param Array $data
+     * @return boolearn
+     */    
+    function update_courier_detail($where, $data) {
         $this->db->where($where);
-        $this->db->update('courier_details',$data);
+        $this->db->update('courier_details', $data);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-     /**
+    /**
      * @desc: This function is used to update spare parts courier details in spare_parts_details table
      * @params: Array $id
      * @params: Array $data
@@ -1631,4 +1661,286 @@ class Inventory_model extends CI_Model {
         return $query->num_rows();
     }
     
+    
+       
+    /**
+     * @desc This is used to Insert Data In Table     
+     * @table String $table
+     * @return last inserted id
+     */
+    
+    function insert_query($table,$data){
+        if(!empty($table) && !empty($data)){
+          $this->db->insert($table,$data);
+          return $this->db->insert_id();   
+        }        
+    }
+    
+    /**
+     * @desc This is used to get list of micro warehouse using vendor id     
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_micro_wh_mapping_list($where, $select){
+        $this->db->where($where);
+        $this->db->select($select);
+        $this->db->from('micro_warehouse_state_mapping');        
+        $this->db->join('partners', 'partners.id = micro_warehouse_state_mapping.partner_id', 'RIGHT JOIN');
+        $query =  $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc This is used to get the micro warehouse lists by partner id     
+     * @table multiple tables 
+     * @return array list
+     */
+    
+    function get_micro_wh_lists_by_partner_id($select, $where) {
+        $this->db->select($select);
+        $this->db->from('micro_warehouse_state_mapping AS micro_wh_mp');        
+        $this->db->join('service_centres', 'service_centres.id = micro_wh_mp.vendor_id', 'RIGHT JOIN');
+        $this->db->where($where);
+        $query = $this->db->get();        
+        $result= $query->result_array();
+        return $result;
+    }
+    /**
+     * @desc This is used to  inactive of active value in wh_on_of_status table     
+     * @table only one
+     * @return Json
+     */
+    function manage_micro_wh_from_list_by_id($id,$status) {
+        $this->db->set('micro_warehouse_state_mapping.active', $status);
+        $this->db->where('micro_warehouse_state_mapping.id', $id);
+        $this->db->update('micro_warehouse_state_mapping');
+        $afftected_row = $this->db->affected_rows();
+        if(!empty($afftected_row)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */    
+    function get_warehouse_on_of_status_list($where, $select){
+        $this->db->select($select);
+        $this->db->from('micro_warehouse_state_mapping as m');            
+        $this->db->join('warehouse_on_of_status as w_on_off', 'm.vendor_id = w_on_off.vendor_id');
+        $this->db->group_by('m.vendor_id');     
+        $this->db->where($where);        
+        $query = $this->db->get();        
+        return $query->result_array();
+    }
+     /**
+     * @desc This is used to get  warehouse_on_of_status by id   
+     * @table micro_warehouse_state_mapping 
+     * @return array
+     */   
+    function get_micro_wh_state_mapping_partner_id($partner_id) {
+        $this->db->select('m.*, s.name,s.district');
+        $this->db->from('micro_warehouse_state_mapping as m');
+        $where =array('m.active'=>1,'partner_id'=>$partner_id,'s.active'=>1,'s.on_off'=>1);      
+        $this->db->join('service_centres as s', 's.id = m.vendor_id');
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->result_array();
+    }    
+        
+    /**
+     * @desc This is used to get list of inventory stock count from inventory_stocks     
+     * @table inventory_stocks 
+     * @return array
+     */    
+    function get_inventory_stock_count_details($select,$where){       
+        $this->db->select($select);
+         $this->db->where($where);
+        $query =  $this->db->get("inventory_stocks");
+        return $query->result_array();
+    }    
+        
+     /**
+     * @desc This is used to get all courier invoices in data table format
+     * @param $select, $post
+     * @return array
+     */  
+    function get_searched_courier_invoices($select='*', $post){
+        $this->_querySearchCourierInvoice($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    function _querySearchCourierInvoice($select, $post){
+        $this->db->from('courier_company_invoice_details');
+        $this->db->select($select, FALSE);
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+        
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+     /**
+     * @desc This is used to get count of all courier invoices in data table format
+     * @param $post
+     * @return array
+     */  
+    function count_courier_invoices($post){
+        $this->db->from('courier_company_invoice_details');
+        if(isset($post['where'])){
+            $this->db->where($post['where']);
+        }
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
+     /**
+     * @desc This is used to get count of all filtered courier invoices in data table format
+     * @param $select, $post
+     * @return array
+     */  
+    function count_filtered_courier_invoices($select, $post) {
+        $this->_querySearchCourierInvoice($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+       /**
+     *  @desc : This function is used to get total inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_inventory_stocks_list($post) {
+        $this->_get_inventory_stocks($post, "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) "
+                . "FROM inventory_stocks as s "
+                . "WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name");
+        $query = $this->db->get();
+        log_message("info", __METHOD__."count all query ".$this->db->last_query());
+        return $query->num_rows();
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered inventory stocks
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_inventory_stocks_list($post){
+        $sfIDArray =array();
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $rm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        $this->_get_inventory_stocks($post, "inventory_stocks.entity_id,inventory_stocks.entity_type, (SELECT SUM(stock) "
+                . "FROM inventory_stocks as s "
+                . "WHERE inventory_stocks.entity_id = s.entity_id ) as total_stocks,service_centres.name");
+        if($sfIDArray){
+            $this->db->where_in('inventory_stocks.entity_id', $sfIDArray);
+        }
+        $query = $this->db->get();
+        return $query->num_rows;
+    }
+      /**
+     * @Desc: This function is used to get data from the  spare_parts_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    
+    function get_spare_parts_details($select, $where=array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("spare_parts_details");
+        return $query->result_array();
+    }
+    
+      /**
+     * @Desc: This function is used to get data from the appliance_model_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_parts_type_details($select,$where = array(),$is_join){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if($is_join){
+            $this->db->join('services', 'inventory_parts_type.service_id = services.id');
+            $this->db->join('hsn_code_details', 'inventory_parts_type.hsn_code_details_id= hsn_code_details.id');
+        }
+        $this->db->order_by('part_type','ASC');
+        $query = $this->db->get('inventory_parts_type');
+        return $query->result_array();
+    }
+    /**
+     * @desc: This function is used to insert data in inventory_parts_type table
+     * @params: Array of data
+     * return : boolean
+     */
+    function insert_inventory_parts_type($data){
+        
+        $this->db->insert('inventory_parts_type', $data);
+         if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+        
+    /**
+     * @Desc: This function is used to update Inventory Parts Type
+     * @params: Array, Int id
+     * @return: Int
+     * 
+     */
+    function update_inventory_parts_type($data,$where){
+        $this->db->where($where);
+	$this->db->update('inventory_parts_type', $data);
+        if($this->db->affected_rows() > 0){
+             log_message ('info', __METHOD__ . "=> Inventory Part Type  SQL ". $this->db->last_query());
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
+       
 }

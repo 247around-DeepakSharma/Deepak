@@ -122,7 +122,7 @@ class Upload_buyback_process extends CI_Controller {
         
         if ($response['code'] == -247) {
             echo json_encode($response);
-            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
+            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_FAILED_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
         } else {
            
             $to = empty($this->email_send_to)?(empty($this->session->userdata('official_email'))?ANUJ_EMAIL_ID:$this->session->userdata('official_email') . ", " . ANUJ_EMAIL_ID):$this->email_send_to;
@@ -143,7 +143,7 @@ class Upload_buyback_process extends CI_Controller {
             
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",BUY_BACK_ORDER_TAG);
 
-            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
+            $this->miscelleneous->update_file_uploads($order_file, $_FILES['file']['tmp_name'],_247AROUND_BB_ORDER_LIST,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
             $response = array("code" => 247, "msg" => "File sucessfully processed.");
             echo json_encode($response);
         }
@@ -178,7 +178,7 @@ class Upload_buyback_process extends CI_Controller {
                     //Change index in lower case
                     $this->initialized_variable->set_post_buyback_order_details(array());
 
-                    $rowData1['partner_id'] = 247024;
+                    $rowData1['partner_id'] = AMAZON_SELLER_ID;
                     $rowData1['partner_name'] = "Amazon";
                     $rowData1['partner_charge'] = $rowData1['discount_value'];
                     $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData1['order_day']);
@@ -513,7 +513,7 @@ class Upload_buyback_process extends CI_Controller {
                     if ($is_insert) {
 
                         //Adding Details in File_Uploads table as well
-                        $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS);
+                        $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_SUCCESS_STATUS, "", "partner", AMAZON_SELLER_ID);
                         //Return success Message
                         $msg = "File Uploaded Successfully.";
                         $response = array("code" => '247', "msg" => $msg);
@@ -525,14 +525,14 @@ class Upload_buyback_process extends CI_Controller {
                     }
                 }else{
                     //Adding Details in File_Uploads table as well
-                    $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
+                    $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS, "", "partner", AMAZON_SELLER_ID);
                     $msg = "Error!!! Uploaded File has negative margin at row $negative_margin_row . Please correct this and upload again.";
                     $response = array("code" => '-247', "msg" => $msg);
                     echo json_encode($response);
                 }
                 
             } else {
-                $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS);
+                $this->miscelleneous->update_file_uploads($_FILES['file']['name'], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_LIST,FILE_UPLOAD_FAILED_STATUS, "", "partner", AMAZON_SELLER_ID);
                 $msg = "Error!!! Please Try Again...";
                 $response = array("code" => '-247', "msg" => $this->Columfailed);
             }
@@ -770,12 +770,12 @@ class Upload_buyback_process extends CI_Controller {
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . ' Mail has been send successfully');
                     unlink($response);
-                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id);
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
                     $msg = "File Created Successfully And Mailed To Registed Email";
                     $response = array("code" => '247', "msg" => $msg);
                 } else {
                     log_message('info', __FUNCTION__ . 'Error in Sending Mail');
-                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id);
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
                     $msg = "Error In sending Email";
                     $response = array("code" => '-247', "msg" => $msg);
                 }

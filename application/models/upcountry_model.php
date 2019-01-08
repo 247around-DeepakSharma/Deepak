@@ -93,7 +93,7 @@ class Upcountry_model extends CI_Model {
     }
     
     function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details, $partner_data){
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__  );
         $error = array();
         $same_pincode_vendor = array();
         $upcountry_vendor_details = array();
@@ -203,14 +203,17 @@ class Upcountry_model extends CI_Model {
             $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
             
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
-            $min_threshold_distance = $this->vendor_min_up_distance *2;
+            
             $max_threshold_distance = ($partner_data[0]['upcountry_max_distance_threshold'] * 2 + $this->vendor_min_up_distance *2);
         } else {
             $partner_upcountry_approval = 0;
             $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
-            $min_threshold_distance = UPCOUNTRY_MIN_DISTANCE;
+//            $min_threshold_distance = UPCOUNTRY_MIN_DISTANCE;
             $max_threshold_distance = UPCOUNTRY_DISTANCE_THRESHOLD;
         }
+        
+        $min_threshold_distance = $this->vendor_min_up_distance *2;
+        
         $upcountry_distance = $upcountry_vendor_details['upcountry_distance'];
 
         if ($upcountry_distance <= ($min_threshold_distance)) {
@@ -220,6 +223,8 @@ class Upcountry_model extends CI_Model {
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
             $up_data['upcountry_distance'] = 0;
             $up_data['upcountry_remarks'] = DISTANCE_WITHIN_MUNICIPAL_LIMIT;
+            $up_data['partner_provide_upcountry'] = $partner_data[0]['is_upcountry'];
+            $up_data['upcountry_bill_to_partner'] = $partner_data[0]['upcountry_bill_to_partner'];
 
             
         } else if ($upcountry_distance > ($min_threshold_distance)
@@ -233,7 +238,9 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry'],
+                'upcountry_bill_to_partner' => $partner_data[0]['upcountry_bill_to_partner']);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
             if(isset($partner_data[0]['account_manager_id'])){
@@ -252,7 +259,9 @@ class Upcountry_model extends CI_Model {
                 'partner_upcountry_rate' => $partner_upcountry_rate,
                 'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'upcountry_approval_email' => $partner_data[0]['upcountry_approval_email'],
-                'is_upcountry' => 1);
+                'is_upcountry' => 1,
+                'partner_provide_upcountry' => $partner_data[0]['is_upcountry'],
+                'upcountry_bill_to_partner' => $partner_data[0]['upcountry_bill_to_partner']);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            if(isset($partner_data[0]['account_manager_id'])){
                 $up_data['partner_am_id'] = $partner_data[0]['account_manager_id'];
@@ -648,7 +657,9 @@ class Upcountry_model extends CI_Model {
         $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
                 . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
                 . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
+        $this->db->join('partners', 'partners.id = ud.partner_id');
         $this->db->where('booking_id', $booking_id);
+        $this->db->where('partners.is_upcountry', '1');
         $this->db->where_in('sc.is_upcountry', array('1',NOT_UPCOUNTRY_PRICE_TAG));
         $query = $this->db->get();
        
@@ -751,7 +762,8 @@ class Upcountry_model extends CI_Model {
     }
     
     function upcountry_partner_invoice($partner_id, $from_date, $to_date){
-        $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' ) AS order_id, "
+        $sql = "SELECT CASE WHEN (bd.partner_id = '".PAYTM_ID."' ) "
+                . "THEN (CONCAT( '', GROUP_CONCAT( DISTINCT ( SUBSTRING_INDEX(bd.order_id, '-', 1) ) ) , '' )) ELSE (CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' )) END AS order_id,"
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
@@ -768,6 +780,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
                 . " AND bd.upcountry_partner_approved = 1 "
+                . " AND bd.upcountry_bill_to_partner = 1 "
                 . " AND bd.upcountry_partner_invoice_id IS NULL"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         

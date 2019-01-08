@@ -209,6 +209,14 @@ class Booking_utilities {
             }
             $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
             $output_file_pdf = $output_file . ".pdf";
+            $parant_booking_serial_number = NULL;
+            if($booking_details[0]['request_type'] == REPEAT_BOOKING_TAG){
+                $tempArray = $booking_details['parant_booking_serial_number'] = $this->My_CI->booking_model->get_parent_booking_serial_number($booking_id);
+                if($tempArray){
+                    $parant_booking_serial_number = $tempArray[0]['parent_sn'];
+                }
+            }
+            $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
             //Create html for job card
            $html = $this->My_CI->load->view('employee/jobcard_html', array("booking_details"=>$booking_details,"booking_unit_details"=>$booking_unit_details,'meta'=>$meta,'qr'=>$qr),true);     
             //convert html into pdf
@@ -820,7 +828,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                                 
                         </body>
                     </html>";
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE);
+        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NO_DATA_FOUND_IN_STATUS_MAPPING_TABLE, "", $booking_id);
     }
     
     function convert_excel_to_pdf_paidApi($src_format, $dst_format, $files) {

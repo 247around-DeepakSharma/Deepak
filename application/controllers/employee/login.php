@@ -64,7 +64,7 @@ class Login extends CI_Controller {
                     $is_am = 1;
                 }
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
-                $this->miscelleneous->set_header_navigation_in_cache("247Around");
+                $this->miscelleneous->set_header_navigation_in_cache('247Around');
                 $this->push_notification_lib->get_unsubscribers_by_cookies();
                 //Saving Login Details in Database
                 $data['browser'] = $this->agent->browser();
@@ -322,6 +322,7 @@ class Login extends CI_Controller {
         $data['entity_login_table.entity'] = "partner";
         $data['entity_login_table.entity_id'] = $partner_id;
         $data['entity_login_table.active'] = 1;
+        $data['contact_person.role'] = PARTNER_POC_ROLE_ID;
         $agent = $this->dealer_model->get_entity_login_details($data);
         if (!empty($agent)) {
             //get partner details now
@@ -340,7 +341,7 @@ class Login extends CI_Controller {
                 }
              $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
                         $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
-                     $booking_review);
+                     $booking_review,$partner_details[0]['is_micro_wh']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -359,7 +360,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter,$review) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter,$review,$is_micro_wh) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -372,6 +373,7 @@ class Login extends CI_Controller {
             'status' => $status,
             'partner_logo' => $logo_img,
             'is_wh' => $is_wh,
+            'is_micro_wh'=>$is_micro_wh,
             'department' => $department,
             'user_group' => $role,
             'is_filter_applicable' => $filter,
@@ -423,7 +425,7 @@ class Login extends CI_Controller {
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
                         $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
-                        $booking_review);
+                        $booking_review,$partner_details[0]['is_micro_wh']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -465,10 +467,11 @@ class Login extends CI_Controller {
             }
             $wh_name =  _247AROUND_EMPLOYEE_STRING." ".$sc_details[0]['district'] ." (". $sc_details[0]['state']. ")";
             //Setting logging vendor session details
+          
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
                     $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
-                    $sc_details[0]['min_upcountry_distance'], TRUE);
+                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/dashboard";
@@ -488,7 +491,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_login_by_247=1) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_micro_wh, $is_login_by_247=1) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -505,7 +508,8 @@ class Login extends CI_Controller {
             'is_cp' => $cp,
             'is_wh' => $wh,
             'wh_name' => $wh_name,
-            'is_gst_exist' => $is_gst_doc
+            'is_gst_exist' => $is_gst_doc,
+            'is_micro_wh'=>$is_micro_wh    
 	);
 
         $this->session->set_userdata($userSession);
@@ -557,7 +561,7 @@ class Login extends CI_Controller {
                         $sc_details[0]['is_cp'],
                         $sc_details[0]['is_wh'],
                         $wh_name,
-                        $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],0);
+                        $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0);
                 
                 if($this->session->userdata('is_sf') === '1'){
                     redirect(base_url() . "service_center/dashboard");
@@ -587,8 +591,9 @@ class Login extends CI_Controller {
         $owner_email = $this->input->post('email');
         $is_email_exist = $this->vendor_model->getVendorDetails('id,name,owner_name,primary_contact_name,sc_code', array('owner_email' => $owner_email));
         if (!empty($is_email_exist)) {
-            $new_password = substr((strtolower(str_shuffle($is_email_exist[0]['name'] . $is_email_exist[0]['sc_code']))), 0, 6);
-            $new_login_details['clear_text'] = $new_password;
+            //$new_password = substr((strtolower(str_shuffle($is_email_exist[0]['name'] . $is_email_exist[0]['sc_code']))), 0, 6);
+            $new_password = strtolower($is_email_exist[0]['sc_code']);
+            $new_login_details['user_name'] = $new_password;
             $new_login_details['password'] = md5($new_password);
             $update = $this->vendor_model->update_service_centers_login(array('service_center_id' => $is_email_exist[0]['id']), $new_login_details);
             if (!empty($update)) {
@@ -598,8 +603,8 @@ class Login extends CI_Controller {
                 $login_template = $this->booking_model->get_booking_email_template("reset_vendor_login_details");
                 if (!empty($login_template)) {
                     
-                    $login_email['username'] = strtolower($is_email_exist[0]['sc_code']);
-                    $login_email['password'] = $new_login_details['clear_text'];
+                    $login_email['username'] = $new_login_details['user_name'];
+                    $login_email['password'] = $new_login_details['user_name'];
                     
                     $login_subject = vsprintf($login_template[4], $is_email_exist[0]['name']);
                     $login_emailBody = vsprintf($login_template[0], $login_email);

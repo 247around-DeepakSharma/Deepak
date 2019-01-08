@@ -70,6 +70,7 @@
                                 <th>Download</th>
                                 <th>Uploaded By</th>
                                 <th>Uploaded Date</th>
+                                <th>Revert File</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -81,6 +82,34 @@
         </div>
     </div>
 </div>
+
+   <!-- This model is used to view revert file detail -->
+    <div id="revert_file_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+       <!-- Modal content-->
+       <div class="modal-content">
+        <div class="modal-header">
+           <button type="button" class="close" data-dismiss="modal">&times;</button>
+           <h4 class="modal-title" align="center">Revert File Detail</h4>
+            </div>
+           <div class="modal-body" style="min-height: 110px;">
+               <div class="">
+                <table class="table table-bordered table-condensed">
+                   <thead><th>Subject</th><th>From</th><th>To</th><th>Cc</th><th>Action</th></thead>
+                    <tbody></tbody>
+                </table>
+               </div>
+           </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
+       </div>
+
+     </div>
+   </div>
+    <!-- End -->
+
 <script>
     //$("input").tagsinput('services');
 </script>
@@ -142,7 +171,7 @@
         
         get_partner_file_details();
         
-        if(partner_id === '<?php echo SNAPDEAL_ID ?>'){
+        if(partner_id === '<?php echo SNAPDEAL_ID ?>' || partner_id === '<?php echo PAYTM_ID ?>'){
             $('#file_type').show();
         }else{
             $('#file_type').hide();
@@ -167,12 +196,13 @@
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
+                    d.file_source = 'partner_file_upload',
                     d.file_type = get_upload_file_type();
                 }
             },
             columnDefs: [
                 {
-                    "targets": [0, 1, 2, 3,4],
+                    "targets": [0, 1, 2, 3,4,5],
                     "orderable": false
                 }
             ]
@@ -209,6 +239,24 @@
     function get_upload_file_type(){
         var upload_file_type = $('#upload_file_type').val();
         return upload_file_type;
+    }
+    
+    function view_revert_file(id){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/upload_booking_file/get_revert_file_details',
+            data:{id:id},
+            dataType:'json',
+            success:function(res){
+                var html = "<tr><td style='word-break: break-all'>"+res[0]['revert_file_subject']+"</td>\n\
+                                <td style='word-break: break-all'>"+res[0]['revert_file_from']+"</td>\n\
+                                <td style='word-break: break-all'>"+res[0]['revert_file_to']+"</td>\n\
+                                <td style='word-break: break-all'>"+res[0]['revert_file_cc']+"</td>\n\
+                                <td><a class='btn btn-primary btn-xs' target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/"+res[0]['revert_file_name']+"'>Download</a></td>\n\
+                            </tr>";
+                $("#revert_file_model").find("table tbody").html(html);
+            }
+        });
     }
 </script>
 <?php  if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} ?>

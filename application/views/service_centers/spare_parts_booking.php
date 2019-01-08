@@ -59,7 +59,7 @@ if ($this->uri->segment(3)) {
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
-                                    <th class="text-center">Booking Id</th>
+                                    <th class="text-center">Booking  Id</th>
                                     <th class="text-center">Invoice Id</th>
                                     <th class="text-center">SF Name</th>
                                     <th class="text-center">Age of Request(Days)</th>

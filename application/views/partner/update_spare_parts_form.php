@@ -191,8 +191,10 @@
                                             <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
-                                            <input required="" type="text" class="form-control spare_parts" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "" placeholder="Shipped Parts Type" >
+                                        <div class="col-md-6">                                            
+                                            <select required="" class="form-control spare_parts_type" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
+                                                <option selected disabled>Select Part Type</option>
+                                            </select>
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -285,8 +287,10 @@
                                             <span id="spinner" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="shippedparttype"  value = "" placeholder="Shipped Parts Type" >
+                                        <div class="col-md-6">                                            
+                                            <select required="" class="form-control spare_parts_type" id="shippedparttype"  value = "">
+                                                <option selected disabled>Select Part Type</option>
+                                            </select>
                                         </div>
                                         <?php } ?>
                                         <div class="col-md-2">
@@ -401,6 +405,31 @@
     </form>
 </div>
 <script type="text/javascript">
+ $(document).ready(function(){
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>"; 
+        get_inventory_pary_type(service_id,'shippedparttype_0');
+        $(".addButton").on('click',function(){  
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";    
+        var numItems = $('.spare_clone').length;
+        spare_part_type_id = "shippedparttype_"+numItems;
+        get_inventory_pary_type(service_id,spare_part_type_id)
+          
+        });
+        
+        function get_inventory_pary_type(service_id,spare_part_type_id){
+            $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+            data: { service_id:service_id},
+            success:function(data){                       
+                $('#'+spare_part_type_id).html(data);              
+                $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
+            }
+        });
+        }        
+    });
+</script>
+<script type="text/javascript">
     var someDate = new Date();
     var numberOfDaysToAdd = 7;
     
@@ -438,6 +467,7 @@
                 awb: "required",
                 shipment_date:"required",
                 approx_value:{
+                    min:1,
                     required: true,
                     maxlength: 100000
                 }
@@ -445,7 +475,8 @@
                 messages: {
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
-                shipment_date:"Please Enter Shipped date"
+                shipment_date:"Please Enter Shipped date",
+                approx_value :"Please Enter Approx Value."
                 },
                 submitHandler: function (form) {
                 form.submit();
@@ -631,9 +662,7 @@
                 index = $row.attr('data-part-index');
                 partIndex = partIndex -1;
             $row.remove();
-        });
-            
-    
+        });           
 </script>
 
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 

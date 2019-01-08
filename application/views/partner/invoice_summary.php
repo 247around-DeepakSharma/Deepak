@@ -19,7 +19,7 @@
                         <span style="font-size: 16px;">
                             <b>Un-Billed Amount</b>
                         </span><br/>
-                       <span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;" onclick="unbilledBooking();">
+                       <span data-toggle="modal" data-target="#myModal2" style="color:red; font-size: 16px; cursor: pointer;">
                             <b>Rs. <?php echo round($unbilled_amount,0);?> 
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </b>
@@ -88,7 +88,7 @@
         </div>
     </div>
     <div id="myModal2" class="modal fade" role="dialog">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
@@ -101,19 +101,25 @@
                     <thead>
                     <th>Booking ID</th>
                     <th>Charges</th>
+                    <th>Booking Status</th>
+                    <th>Registration</th>
                     </thead>
                     <tbody>
                         <?php foreach ($unbilled_data as $key => $value) { ?>              
                         <tr>
                             <td><?php echo $value['booking_id']; ?></td>
                             <td><?php echo $value['partner_net_payable'] *(1 + SERVICE_TAX_RATE); ?></td>
+                            <td><?php echo $value['booking_status'];?></td>
+                            <td><?php echo date("jS M, Y", strtotime($value['create_date']));?></td>
                         </tr>
                         <?php }?>
                         <?php if($misc) { foreach ($misc as $m) { ?>
                              <tr>                               
                                                            
-                                <td><?php echo $m['booking_id']." (".$m['description'].")"; ?></td>
+                                 <td style="max-width:150px;"><?php echo $m['booking_id']." (".$m['description'].")"; ?></td>
                                 <td><?php echo round($m['partner_charge'] *(1 + SERVICE_TAX_RATE),0); ?></td>
+                                <td><?php echo $m['current_status'];?></td>
+                                <td><?php echo date("jS M, Y", strtotime($m['create_date'])); ?></td>
                              </tr>
 
                         <?php } }?>
@@ -121,6 +127,9 @@
                             <tr>
                             <td><?php echo "Upcountry Charges"; ?></td>
                             <td><?php echo round($upcountry *(1 + SERVICE_TAX_RATE),0); ?></td>
+                            <td></td>
+                            <td></td>
+                            
                             </tr>
                         <?php }?>
                         
@@ -141,6 +150,34 @@
          loaddataTable();
     });
     
+    $("#unbilled_table").DataTable({
+         dom: 'lBfrtip',
+         "lengthMenu": [[-1], ["All"]],
+          buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Un-billed Invoice',
+                    exportOptions: {
+                       columns: [0,1,2,3],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+        columnDefs: [
+                {
+                    targets: [0,1,2,3], //first column / numbering column
+                    orderable: false //set not orderable
+                }
+            ],
+    });
     function loaddataTable(){
         invoice_table = $('#datatable').DataTable({
          "processing": true, //Feature control the processing indicator.

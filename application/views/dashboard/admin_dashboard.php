@@ -25,7 +25,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_TAT_Reporting" data-toggle="collapse" onclick="initiate_RM_TAT_Reporting()"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
                 <div id="RM_TAT_Reporting" class="collapse in">
@@ -145,10 +145,10 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                        <span class="collape_icon" href="#chart_container_div" data-toggle="collapse" onclick="initiate_partner_chart_reporting()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
-                <div class="collapse in" id="chart_container_div">
+                <div class="collapse" id="chart_container_div">
                 <div class="col-md-12 x_content">
                     <center><img id="loader_gif1" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                     <div id="chart_container" class="chart_container"></div>
@@ -561,7 +561,7 @@
                     <div class="col-md-12">
                         <center><img id="loader_gif4" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                     </div>
-                    <div id="chart_container2" class="chart_containe2"></div>
+                    <div id="chart_container2" class="chart_containe2" style="width:100%; height:400px;"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -778,22 +778,6 @@
             placement : 'top',
             trigger : 'hover'
         });
-        
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
-        // $('input[name="daterange_completed_bookings"]').daterangepicker({
-        $('input[id="completed_daterange_id"]').daterangepicker({
-            timePicker: true,
-            timePickerIncrement: 30,
-            locale: {
-                format: 'YYYY-MM-DD'
-            },
-            startDate: y+'-'+n+'-'+date
-        });
-        
-        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
         //top count data
         get_query_data();
         //missing pincode data
@@ -809,14 +793,11 @@
         
         //partner spare status
         //spare_details_by_partner();
+        initiate_RM_TAT_Reporting();
         
     });
     
     function initiate_AM_TAT_Reporting(){
-        var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
         // $('input[name="daterange_completed_bookings"]').daterangepicker({
         $('input[id="completed_daterange_id_am"]').daterangepicker({
             timePicker: true,
@@ -824,8 +805,24 @@
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
+            startDate:  "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         });
+    }
+    
+    function initiate_RM_TAT_Reporting(){
+        // $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="completed_daterange_id"]').daterangepicker({
+            timePicker: true,
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+        });
+    }
+    
+    function initiate_partner_chart_reporting(){
+        partner_booking_status(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
     }
    
     function agent_daily_report_call(){ 
@@ -1418,17 +1415,18 @@
     }
 
 function initiate_escalation_data(){
-    var d = new Date();
-    n = d.getMonth()+1;
-    y = d.getFullYear();
-    date = d.getDate();
+//    var d = new Date();
+//    n = d.getMonth()+1;
+//    y = d.getFullYear();
+//    date = d.getDate();
     $('input[name="daterange"]').daterangepicker({
         timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
-        startDate: y+'-'+n+'-01'
+       // startDate: y+'-'+n+'-01'
+       startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
     });
 }
 

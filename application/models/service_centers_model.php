@@ -335,6 +335,25 @@ class Service_centers_model extends CI_Model {
     }
 
     /**
+     * @desc: This is used to update micro warehouse state mapping table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_micro_warehouse($where, $data) {
+        $this->db->where($where);
+        $this->db->update('micro_warehouse_state_mapping', $data);
+        log_message('info', __FUNCTION__ . '=> Update Micor Warehouse: ' . $this->db->last_query());
+
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
+        return $result;
+    }
+    /**
      * @desc: Insert booking details for spare parts
      * @param Array $data
      * @return boolean
@@ -356,7 +375,7 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT distinct sp.*, bd.partner_id "
+        $sql = "SELECT distinct sp.*, bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
@@ -732,14 +751,21 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    function get_collateral_by_condition($where){
+        $this->db->select('collateral.*,collateral_type.*');
+        $this->db->where($where);
+        $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
+        $query= $this->db->get('collateral');
+        return  $query->result_array();
+    }
     /*
      * This function is used to get collateral files against a booking id
     */
     function get_collateral_for_service_center_bookings($booking_id){
         $collateralData = array();
-       $bookingDataSql = "SELECT booking_id,partner_id,service_id,appliance_brand,appliance_category,appliance_capacity,price_tags,
-CASE WHEN price_tags like 'Repair%' THEN 'repair' WHEN price_tags like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
-FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_type";
+       $bookingDataSql = "SELECT booking_details.booking_id,booking_details.partner_id,booking_details.service_id,appliance_brand,appliance_category,appliance_capacity,model_number,
+CASE WHEN booking_details.request_type like 'Repair%' THEN 'repair' WHEN booking_details.request_type like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
+FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = booking_unit_details.booking_id WHERE booking_details.booking_id='".$booking_id."' GROUP BY request_type";
         $query = $this->db->query($bookingDataSql);
         $data =  $query->result_array();
         if(!empty($data)){
@@ -747,23 +773,31 @@ FROM booking_unit_details WHERE booking_id='".$booking_id."' GROUP BY request_ty
                 $where['entity_id'] = $bookingData['partner_id'];
                 $where['appliance_id'] = $bookingData['service_id'];
                 $where['request_type'] = $bookingData['request_type'];
-                if($bookingData['appliance_brand']){
-                    $where['brand'] = $bookingData['appliance_brand'];
-                }
+                $where['brand'] = $bookingData['appliance_brand'];
+                $where['is_valid'] = 1;
                 if($bookingData['appliance_category']){
                     $where['category'] = $bookingData['appliance_category'];
                 }
-                if($bookingData['appliance_capacity']){
+                if($bookingData['appliance_capacity'] && $bookingData['model_number']){
+                    $where["(capacity = '".$bookingData['appliance_capacity']."' OR model = '".$bookingData['model_number']."')"] = NULL;
+                }
+                elseif ($bookingData['appliance_capacity']) {
                     $where['capacity'] = $bookingData['appliance_capacity'];
                 }
+                elseif ($bookingData['model_number']) {
+                    $where['model'] = $bookingData['model_number'];
+                }
             }
-            $this->db->select('collateral.*,collateral_type.*');
-            $this->db->where($where);
-            $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
-            $query2 = $this->db->get('collateral');
-            $collateralData =  $query2->result_array();
+            $collateralData = $this->get_collateral_by_condition($where);
+            if(empty($collateralData)){
+                unset($where['model']);
+                $collateralDataNew = $this->get_collateral_by_condition($where);
+            }
+            else{
+             return $collateralData;   
+            }
         }
-        return $collateralData;
+        return $collateralDataNew;
     }
     
     function create_new_entry_in_spare_table($data,$id){

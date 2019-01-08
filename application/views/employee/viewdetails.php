@@ -222,6 +222,21 @@
                             <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
                         </tr>
                     </table>
+                    <table class="table  table-striped table-bordered" id="relative_holder">
+                        <tr>
+                            <th colspan="3" style="font-size: 16px; color: #2c9d9c;">Booking Relatives</th>
+                        </tr> 
+                        <tr>
+                            <th style="width: 25%;">Parent </th>
+                            <th style="width: 21%;">Child</th>
+                            <th style="width: 21%;">Siblings</th>
+                        </tr>
+                        <tr>
+                            <td style="width: 23%;" id="parent_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="child_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="sibling_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -301,7 +316,7 @@
             </div>
             <div class="tab-pane fade in" id="tab2">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12 table-responsive">
                         <?php if(!empty($unit_details)) { ?>
                         <table class="table  table-striped table-bordered">
                             <thead>
@@ -430,14 +445,7 @@
                                     <?php } ?>
                             </tbody>
                         </table>
-                        <?php 
-                        
-echo '<pre>';
-print_r($booking_history[0]['request_type']);
-echo '</pre>';
-                        
-                        
-                                    } ?>
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="row">
@@ -451,8 +459,9 @@ echo '</pre>';
                     </div>
                 </div>
             </div>
+
             <div class="tab-pane fade in" id="tab3">
-                <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
+                <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE;   ?>
                 <input type="file" id="fileLoader" name="files" onchange="uploadfile()" style="display:none" />
                 <div class="row">
                     <div class="col-md-12" >
@@ -473,16 +482,16 @@ echo '</pre>';
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
-                                        <th >Move R Spare to P/V</th>
-                                        <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
-                                         <th>Copy Booking Id</th>
-                                        <?php } ?>
+                                        <th>Move To Vendor</th>
+                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <th>Copy Booking Id</th>
+                                        <?php  } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
-                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
+                                        <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>
@@ -508,12 +517,26 @@ echo '</pre>';
                                             }
                                             ?>
                                         </td>
-                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></td>
+                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-                                        <td><a href="<?php echo base_url(); ?>employee/spare_parts/move_request_spare_to_partner_vendor">Move To </a></td>
-                                       <?php if($booking_history[0]['request_type']!=HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ ?>
+                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
+                                            <td>
+                                                <form id="move_to_update_spare_parts">
+                                                    <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
+                                                    <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
+                                                    <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
+                                                    <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
+                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                 </form>
+                                            </td>
+                                        <?php } else {?> 
+                                           <td></td>   
+                                         <?php } } ?>
+                                        
+                                       <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
@@ -521,7 +544,8 @@ echo '</pre>';
                                     </tr>
                                     <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                         $defective_parts_shipped = TRUE;
-                                        } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; } } ?>
+                                        } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }                                         
+                                        } ?>
                                 </tbody>
                             </table>
                         </div>
@@ -570,15 +594,15 @@ echo '</pre>';
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Part Shipped By Partner/Warehouse</th>
-                                        <th >Shipped Parts </th>
-                                        <th >Courier Name</th>
-                                        <th >AWB </th>
-                                        <th >Shipped date </th>
-                                        <th >EDD </th>
-                                        <th >Remarks By Partner</th>
-                                        <th >Challan Number </th>
-                                        <th >Challan approx Value </th>
+                                        <th>Part Shipped By Partner/Warehouse</th>
+                                        <th>Shipped Parts </th>
+                                        <th>Courier Name</th>
+                                        <th>AWB </th>
+                                        <th>Shipped date </th>
+                                        <th>EDD </th>
+                                        <th>Remarks By Partner</th>
+                                        <th>Challan Number </th>
+                                        <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
                                         
@@ -588,19 +612,36 @@ echo '</pre>';
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
-                                        <td><?php echo $sp['parts_shipped']; ?></td>
-                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php echo $sp['shipped_date']; ?></td>
+                                        <td><?php echo $sp['parts_shipped']; ?></td>                                        
+                                        <td>                                            
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|courier_name_by_partner";?>"><?php echo str_replace(array('-','_'), ' ', $sp['courier_name_by_partner']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['courier_name_by_partner'];  ?>" id="<?php echo $sp['id']."_courier_name_by_partner";?>" />
+                                        </td>                                        
+                                        <td>
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_partner";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></span> 
+                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                        </td>                                       
+                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo $sp['shipped_date']; ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
-                                        <td><?php echo $sp['partner_challan_number']; ?></td>
-                                        <td><?php echo $sp['challan_approx_value']; ?></td>
+                                        <td>                                         
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|partner_challan_number";?>"><?php echo str_replace(array('-','_'), ' ', $sp['partner_challan_number']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['partner_challan_number'];  ?>" id="<?php echo $sp['id']."_partner_challan_number";?>" />
+                                        </td>
+                                        <td>                                                                                    
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|challan_approx_value";?>"><?php echo str_replace(array('-','_'), ' ', $sp['challan_approx_value']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <input type="hidden" value="<?php echo $sp['challan_approx_value'];  ?>" id="<?php echo $sp['id']."_challan_approx_value";?>" />
+                                            
+                                        </td>
                                         <td>
                                             <?php if(!empty($sp['partner_challan_file'])){ ?> 
-                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            
                                             <?php } ?>
+                                            
+                                        <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogresspartner_challan_file".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['partner_challan_file'])) {
+                                            if ($sp['partner_challan_file'] != '0') {
+                                        ?> <a href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank" id="<?php echo "a_partner_challan_file_".$sp['id']; ?>">Click Here to view</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "partner_challan_file_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','partner_challan_file');"></i>
                                         </td>
                                         <td>
                                             <?php if(!empty($sp['courier_pic_by_partner'])){ ?> 
@@ -701,6 +742,8 @@ echo '</pre>';
                                 <th >Penalty On SF</th>
                                 <th >Agent Name</th>
                                 <th >Remarks</th>
+                                <th >Penalty Debit on Invoice</th>
+                                <th >Penalty Credit On Invoice</th>
                             </tr>
                             <?php foreach ($penalty as $key => $value){?>
                             <?php if($penalty[$key]['active'] == 1){?>
@@ -717,6 +760,8 @@ echo '</pre>';
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['remarks']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
                             </tr>
                             <?php }else if($penalty[$key]['active'] == 0){?>
                             <tr>
@@ -732,8 +777,12 @@ echo '</pre>';
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
+                                
                             </tr>
                             <?php }?>
+                            
                             <?php }?>
                         </table>
                         <?php } else { echo "Penalty Not Found";?>
@@ -1024,20 +1073,22 @@ echo '</pre>';
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Copy Booking id</h4>
+                        <h4 class="modal-title" style="display: inline-block">Old Booking Id :</h4>
+                        <span id="old_booking_html" style="display: inline;font-weight: bold; padding-left: 10px;"></span> 
                     </div>
                     <div class="modal-body">
-                        <p id="response_err"></p>
+                        <p id="response_err"></p>                       
                         <p>
-                        <div style="display: inline-block; font-weight: bold;">Old Booking Id : </div>
-                        <div id="old_booking_html" style="display: inline;"></div>                  
-                        </p>
-                        <p>
-                        <div style="display: inline-block; font-weight: bold;">New Booking Id : </div>
+                        <div style="display: inline-block; font-weight: bold; padding-bottom:5px;">New Booking Id  </div>
                         <div  style="display: inline;">
                             <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="">
-                            <input type="text" name="new_booking_id" id="new_booking_id" value="">
-                        </div>                  
+                            <input type="text" class="form-control" name="new_booking_id" id="new_booking_id" value="">
+                        </div>                        
+                        <div style="display: inline-block; font-weight: bold; padding: 5px 0px 5px 0px;">Status</div>
+                        <div  style="display: inline;">                            
+                            <input type="text" class="form-control" name="status" id="status" value="<?php echo SPARE_PARTS_REQUESTED; ?>" disabled="true">
+                        </div>   
+                        
                         </p>
                         <p>
                             <a href="javascript:void(0);" class="btn btn-primary" id="generate_new_booking">Generate</a>                 
@@ -1174,7 +1225,42 @@ function sf_tab_active(){
                     $('#booking_history').html(response);
                 }
             });
+            get_booking_relatives();
     });
+        function get_booking_relatives(){
+            $.ajax({
+                method:"POST",
+                data : {},
+                url:'<?php echo base_url(); ?>employee/booking/get_booking_relatives/<?php echo $booking_history[0]['booking_id']; ?>',
+                success: function(res){
+                    if(res){
+                    $("#relative_holder").show();
+                    var obj = JSON.parse(res);
+                    parent_string = child_string = sibling_string = "NULL";
+                    if(obj.parent){
+                        parent_string = "<a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
+                    }
+                    if(obj.siblings){
+                        sibling_string ="";
+                        sibling_array = obj.siblings.split(",");
+                        for(var i = 0;i<sibling_array.length;i++){
+                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+sibling_array[i]+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
+                        }
+                    }
+                    if(obj.child){
+                        child_string ="";
+                        child_array = obj.child.split(",");
+                        for(var i = 0;i<child_array.length;i++){
+                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
+                        }
+                    }
+                    $('#parent_holder').html(parent_string);
+                    $('#sibling_holder').html(sibling_string);
+                    $('#child_holder').html(child_string);
+                }
+             }
+            });
+        }
     
 </script>
 <script>
@@ -1478,12 +1564,19 @@ function uploadfile(){
         return;
     }
     
+    if(spareFileColumn=='partner_challan_file'){
+        directory_name = 'vendor-partner-docs';
+    }else{
+        directory_name = '';
+    }
+    
     
         if(flag === true){
             var formData = new FormData();
             formData.append('file', $('#fileLoader')[0].files[0]);
             formData.append('spareID', spareID);
             formData.append('spareColumn', spareFileColumn);
+            formData.append('directory_name', directory_name);
             formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
             
             $.ajax({
@@ -1511,7 +1604,11 @@ function uploadfile(){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        if(directory_name!=''){
+                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);                        
+                        }else{
+                         $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   
+                        }
                         spareID = 0;
                         spareFileColumn = "";
                     } else {
@@ -1525,7 +1622,7 @@ function uploadfile(){
 $(".serial_no_edit").click(function() {
     if ($(this).siblings(".serial_no_text").is(":hidden")) {
         var prethis = $(this);
-        var text_id = $(this).siblings(".serial_no_text").attr('id');
+        var text_id = $(this).siblings(".serial_no_text").attr('id');       
         var split = text_id.split('|');
         var line_item_id = split[0];
         var column = split[1];
@@ -1546,6 +1643,17 @@ $(".serial_no_edit").click(function() {
                     prethis.siblings("input").remove();
                     prethis.siblings(".serial_no_text").show();
                     prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                    
+                    if(column === "awb_by_partner"){
+                        var c_name = $('#'+line_item_id+"_courier_name_by_partner").val();
+                        var status = $("#"+line_item_id+"_status").val();
+                       prethis.siblings(".serial_no_text").attr('onclick', 'get_awb_details("'+c_name+'", "'+data_value+'", "'+status+'", "awb_loader_'+data_value+'")');
+                    } else if(column === "courier_name_by_partner"){
+                        $('#'+line_item_id+"_courier_name_by_partner").val(data_value);
+                        var status = $("#"+line_item_id+"_status").val();
+                        var awb = $("#"+line_item_id+"|awb_by_partner").text();
+                        $("#"+line_item_id+"|awb_by_partner").attr('onclick', 'get_awb_details("'+c_name+'", "'+awb+'", "'+status+'", "awb_loader_'+awb+'")');
+                    }
                 } else {
                     alert("There is a problem to update");
                     alert(data);
@@ -1637,14 +1745,21 @@ background-color: #f5f5f5;
             $("#spare_parts_id").val(ids_array[1]);
         });
         
+        $("#new_booking_id").on('keypress',function(){
+            $("#response_err").html('');
+        });
+        
         $("#generate_new_booking").click(function(){           
            var spare_parts_id = $("#spare_parts_id").val();
-           var new_booking_id = $("#new_booking_id").val();            
+           var new_booking_id = $("#new_booking_id").val(); 
+           var status = $("#status").val();            
+           if(spare_parts_id!='' && new_booking_id!='' && status!=''){          
+           
             $.ajax({
                 method:"POST",
-                data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id},
+                data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                    
+                success: function(response){                  
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
@@ -1654,8 +1769,37 @@ background-color: #f5f5f5;
                 }
             });
             
+         }else{
+          $("#response_err").html("Please Enter Valid Information.").css({"color": "red"});
+          }
+            
         });
+       
+       $(".move_to_update").on('click', function () { 
+       var confirm_staus = confirm("Are you sure you want to Move ?");
+       if(confirm_staus){
+            $.ajax({
+                type: "POST",
+                url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                data: $("#move_to_update_spare_parts").serialize(),
+                success: function (data) {
+                    if (data != '') {               
+                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
+                        $("#move_to_vendor").hide();
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+
+            });
+           }
+
+        });
+       
     });
+    
+    
     </script>
     
    

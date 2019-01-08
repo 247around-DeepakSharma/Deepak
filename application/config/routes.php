@@ -63,6 +63,7 @@ $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
 $route['service_center/bank_transactions'] = 'employee/service_centers/bank_transactions';
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
+$route['service_center/update_booking_spare_parts_required/(:any)'] = 'employee/service_centers/update_booking_spare_parts_required/$1';
 $route['service_center/process_update_booking'] = 'employee/service_centers/process_update_booking';
 $route['service_center/acknowledge_delivered_spare_parts/(:any)/(:any)/(:any)/(:any)'] = 'employee/service_centers/acknowledge_delivered_spare_parts/$1/$2/$3/$4';
 $route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
@@ -110,6 +111,7 @@ $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employ
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';
 $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_centers/download_sf_declaration/$1'; 
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
+$route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
 
@@ -160,6 +162,7 @@ $route['partner/get_pending_part_on_sf/(:any)'] = 'employee/partner/get_pending_
 $route['partner/get_pending_part_on_sf/(:any)/(:any)'] = 'employee/partner/get_pending_part_on_sf/$1/$2';
 $route['partner/acknowledge_received_defective_parts/(:any)/(:any)'] = 'employee/partner/acknowledge_received_defective_parts/$1/$2';
 $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject_defective_part/$1/$2';
+$route['partner/reject_defective_part_sent_by_wh/(:any)/(:any)'] = 'employee/partner/reject_defective_part_sent_by_wh/$1/$2';
 $route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
 $route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
 $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner/get_waiting_for_approval_upcountry_charges';
@@ -187,7 +190,7 @@ $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner
 $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invoice';
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
-
+$route['partner/contacts'] = 'partner/manage_partner_contacts';
 
 
 
@@ -215,6 +218,10 @@ $route['upload_inventory_details_file'] = 'employee/inventory/upload_inventory_d
 
 $route['check_booking_id_exists/(:any)'] = 'employee/inventory/check_booking_id_exists/$1';
 $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_exists/$1';
+
+$route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
+$route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
+$route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

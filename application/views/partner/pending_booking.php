@@ -45,7 +45,7 @@
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
-            <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Booking ID">
+            <input type="text" id="booking_id_search" value="<?php if(!empty($booking_id)){ echo $booking_id;} ?>" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Booking ID">
             <table class="table table-bordered table-hover table-striped" id="pending_booking_table" style=" z-index: -1;position: static;">
                 <thead>
                     <tr>
@@ -64,6 +64,7 @@
                         <th class="text-center">Action</th>
                         <th class="text-center">JobCard</th>
                         <th class="text-center">Escalate</th>
+                        <th class="text-center">Helper <br> Docs</th>
                     </tr>
                 </thead>
             </table>
@@ -170,6 +171,27 @@
 
     </div>
 </div>
+
+   <div id="showBrandCollateral" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Brand Collateral</h4>
+      </div>
+        <div class="modal-body" id="collatral_container">
+             <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
@@ -198,7 +220,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,5,6,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,5,6,11,12,13,14,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
@@ -288,6 +310,17 @@
 
             return false;
         }
+        
+    function  get_brand_collateral(booking_id){
+       $.ajax({
+         type: 'POST',
+         data: {booking_id: booking_id},
+         url: '<?php echo base_url(); ?>employee/service_centers/get_learning_collateral_for_bookings/',
+         success: function (data) {
+             $('#collatral_container').html(data);
+         }
+       });
+    }
     </script>
     <style>
 /*        .dataTables_filter{

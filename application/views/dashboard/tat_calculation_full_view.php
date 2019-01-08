@@ -189,6 +189,7 @@
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
                             <th>S.no</th>
                             <th>Service Centers</th>
+                            <th>State</th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -221,6 +222,16 @@
                     echo wordwrap($values['entity'], 30, "<br />\n");
                 }
                 ?> </td>
+            <td><?php 
+            $onlyID = "00";
+            $onlyIDArray = explode("_",$values['id']);
+            if(isset($onlyIDArray[1])){
+                $onlyID = $onlyIDArray[1];
+            }
+            if(array_key_exists("sf_".$onlyID, $sf_state)){
+                echo $sf_state["sf_".$onlyID];
+            }
+            ?></td>
             <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>

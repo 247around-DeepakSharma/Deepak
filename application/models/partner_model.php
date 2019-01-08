@@ -165,7 +165,7 @@ function get_data_for_partner_callback($booking_id) {
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
                     . " AND (booking_details.current_status IN ('Pending','Rescheduled','FollowUp')) ";
         } else {
-            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) ";
+            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) AND booking_details.service_center_closed_date IS NULL ";
         }
          if($stateValue){
               $where .= " AND (booking_details.state = '$stateValue') ";
@@ -291,14 +291,18 @@ function get_data_for_partner_callback($booking_id) {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE) {
-	$this->db->distinct();
-	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage');
-	$this->db->where('service_id', $service_id);
-	$this->db->where('category', $category);
-	$this->db->where('active', 1);
-	$this->db->where('check_box', 1);
-	$this->db->where('partner_id', $partner_id);
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL) {
+        $this->db->distinct();
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services');
+        $this->db->where('service_id', $service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', 1);
+        $this->db->where('check_box', 1);
+        $this->db->where('partner_id', $partner_id);
+        if($add_booking){
+            $where['service_category != "'.REPEAT_BOOKING_TAG.'"'] = NULL;
+            $this->db->where($where);
+        }
         if($service_category !=""){
             if($not_like){
                 $this->db->where('service_category', $service_category);
@@ -844,10 +848,10 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
-                    . "booking_details.amount_due,booking_details.state, "
-                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.gst_no, "
+                    . "booking_details.amount_due,booking_details.state, booking_details.current_status,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             if($end){
@@ -882,6 +886,7 @@ function get_data_for_partner_callback($booking_id) {
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
             else{
+                
                 $sql =   $select
                     ." FROM spare_parts_details,booking_details,users, "
                     . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
@@ -889,7 +894,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);
+        $query = $this->db->query($sql);        
         return $query->result_array();
     }
 
@@ -1157,6 +1162,7 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($where)){
            $this->db->where($where);
         }
+        $this->db->order_by("public_name", "asc");         
         $query = $this->db->get('partners');
 
         return $query->result_array();
@@ -1269,6 +1275,20 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     /**
+     * @Desc: This function is used to update values in file uploads table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function update_file_upload_details($where, $data){
+        if(!empty($where)){
+            $this->db->where($where);
+            return $this->db->update("file_uploads",$data);
+        }
+        return TRUE;
+    }
+    
+    /**
      * @desc: This method is used to search booking by phone number or booking id
      * this is called by Partner panel
      * @param String $searched_text_tmp
@@ -1283,7 +1303,7 @@ function get_data_for_partner_callback($booking_id) {
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
       
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id,date(closed_date) as closed_date "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
@@ -1404,7 +1424,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE){
+    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false){
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
         $this->db->from('spare_parts_details');
@@ -1413,6 +1433,10 @@ function get_data_for_partner_callback($booking_id) {
         }
         if($sf_details){
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+        }
+        if($group_by){
+            
+            $this->db->group_by($group_by);
         }
         $query = $this->db->get();
         return $query->result_array();
@@ -1586,11 +1610,11 @@ function get_data_for_partner_callback($booking_id) {
             CASE WHEN(ud.serial_number IS NULL OR ud.serial_number = '') THEN '' ELSE (CONCAT('''', ud.serial_number))  END AS 'Serial Number',
             services AS 'Product', 
             ud.appliance_description As 'Description',
-            name As 'Customer', 
+            name As 'Customer', users.phone_number as 'Phone Number',
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
-            booking_primary_contact_no AS Phone, 
+            booking_details.booking_address As 'Booking Address',
             user_email As 'Email ID', 
             ud.price_tags AS 'Call Type (Installation /Table Top Installation/Demo/ Service)',
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
@@ -1746,6 +1770,35 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->order_by('code', 'ASC');
         $query = $this->db->get('partner_code');
         return $query->result_array();
+    }
+    function deactivate_collateral($where_in){
+       $this->db->where_in('id', $where_in);
+       $data['is_valid'] = 1;
+       $this->db->update("collateral",$data);
+       $this->db->last_query();
+       return $this->db->affected_rows();
+    }
+    function get_login_details($agentID){
+        $this->db->select("user_id,clear_password,email");
+        $this->db->where("agent_id",$agentID);
+        $query = $this->db->get('entity_login_table');
+        return $query->result_array();
+    }
+    function activate_deactivate_login($action,$contactID = NULL,$agentID = NULL){
+        if($agentID){
+            $this->db->where('agent_id',$agentID);
+        }
+        if($contactID){
+            $this->db->where('contact_person_id',$contactID);
+        }
+        $this->db->update("entity_login_table",array('active'=>$action));
+        return $this->db->affected_rows();
+    }
+    function activate_deactivate_contact_person($contactID,$action){
+       $this->activate_deactivate_login($action,$contactID);
+       $this->db->where('id',$contactID);
+       $this->db->update("contact_person",array('is_active'=>$action));
+       return $this->db->affected_rows();
     }
 }
 

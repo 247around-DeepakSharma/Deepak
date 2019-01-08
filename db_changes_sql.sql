@@ -1,4 +1,4 @@
-﻿<!-- Kalyani 23-07-2018  --->
+<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9210,4 +9210,402 @@ INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `docum
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software Upgrade', 'pdf');
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Factory Settings', 'pdf');
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'User Manual', 'pdf');
+
+--Kalyani 26-Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'qwikcilver_transaction_detail', '%s transaction detail', 'Dear Partner<br/><br> Your transaction detail is following - <br/>%s<br/><br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'validity_expiry_warning_for_partner', '%s Your 247around validity will be expire.', 'Dear Partner<br/><br> Your 247around validity will be expire on %s <br><strong>Reply All</strong> for raising any query or concern regarding the invoice.\r\n<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', 'prateekc@247around.com', '1', '', CURRENT_TIMESTAMP);
+
+--Kalyani 30-10-2018
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'GSTR2a Report', NULL, NULL, '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Generate GSTR2a Report', NULL, NULL, '2', '172', 'employee/accounting/generate_gstr2a_report', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'View GSTR2a Report', NULL, 'employee/accounting/show_gstr2a_report', '2', '172', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+CREATE TABLE `taxpro_gstr2a_data` (
+  `id` int(11) NOT NULL,
+  `gst_no` varchar(255) NOT NULL,
+  `invoice_number` varchar(255) NOT NULL,
+  `invoice_amount` int(11) NOT NULL,
+  `gst_rate` int(11) NOT NULL,
+  `taxable_value` int(11) NOT NULL,
+  `igst_amount` int(11) NOT NULL,
+  `cgst_amount` int(11) NOT NULL,
+  `sgst_amount` int(11) NOT NULL,
+  `invoice_date` datetime NOT NULL,
+  `checksum` mediumtext NOT NULL,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `taxpro_GSTR2a_data`
+--
+ALTER TABLE `taxpro_GSTR2a_data`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `taxpro_GSTR2a_data`
+--
+ALTER TABLE `taxpro_GSTR2a_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+ALTER TABLE `vendor_partner_invoices` ADD `taxpro_checksum` TEXT NOT NULL AFTER `credit_generated`;
+ALTER TABLE `taxpro_gstr2a_data` ADD `is_rejected` TINYINT(1) NOT NULL DEFAULT '0' AFTER `checksum`;
+ALTER TABLE `taxpro_gstr2a_data` ADD `is_mapped` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_rejected`;
+
+
+--Abhay 29 Oct
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_call_area', 'Wrong Call Area %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+--Kalyani 01-Nov
+UPDATE `email_template` SET `template` = '<b>TAXPRO GSP API FAIL</b><br/><p>%s</p><p>%s</p>' WHERE `email_template`.`tag` = 'taxpro_api_fail';
+ALTER TABLE `taxpro_gstr2a_data` CHANGE `invoice_date` `invoice_date` DATE NOT NULL;
+
+--Kalyani 02-Nov
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Send Broadcast SMS', NULL, 'employee/vendor/send_broadcast_sms_to_vendors', '2', '36', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `taxpro_gstr2a_data` ADD `reject_remarks` VARCHAR(256) NOT NULL AFTER `is_rejected`;
+
+--Kalyani
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'broadcast_sms_to_vendor', '%s', '', '1', CURRENT_TIMESTAMP);
+
+--Chhavi 1st November
+ALTER TABLE `booking_details` ADD `parent_booking` VARCHAR(128) NULL AFTER `is_in_process`;
+
+
+UPDATE `email_template` SET `template` = 'Dear Partner<br/><br/><br/> Credit note for Rs. %s is generated against GST amount of the invoice %s. Credit Note is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.\r\n<br/><br/>Thanks,<br/>247around Team',  cc='pankajk@247around.com' WHERE `email_template`.`tag` = 'credit_note_against_gst_debit_note';
+
+--Gorakh 14 Nov -2018---
+
+CREATE TABLE `warehouse_on_of_status` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `vendor_id` varchar(100) DEFAULT NULL,
+  `active` tinyint(11) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `warehouse_on_of_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `warehouse_on_of_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+CREATE TABLE `micro_warehouse_state_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `vendor_id` int(11) DEFAULT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `micro_warehouse_state_mapping`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `micro_warehouse_state_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `warehouse_on_of_status` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+ALTER TABLE `micro_warehouse_state_mapping` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `vendor_id`, ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`;
+ALTER TABLE `micro_warehouse_state_mapping` ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`;
+ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `active`;
+ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
+ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+
+ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
+ALTER TABLE trigger_service_centres ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`
+
+--Kalyani 19-Nov-2018
+
+CREATE TABLE `variable_charges_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `hsn_code` int(11) DEFAULT NULL,
+  `gst_rate` int(11) DEFAULT NULL,
+  `is_fixed` tinyint(1) DEFAULT '1',
+  `updated_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `variable_charges_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `variable_charges_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+
+--Abhay 21 NOv
+ALTER TABLE `spare_parts_details` ADD `defective_return_to_entity_type` VARCHAR(16) NULL DEFAULT NULL AFTER `partner_id`, ADD `defective_return_to_entity_id` INT(11) NULL DEFAULT NULL AFTER `defective_return_to_entity_type`;
+ALTER TABLE `spare_parts_details` ADD `received_defective_part_date_from_wh` DATETIME NULL AFTER `around_pickup_from_service_center`;
+
+--Kalyani 20-Nov-2018
+ALTER TABLE `vendor_partner_variable_charges` DROP `description`, DROP `hsn_code`, DROP `gst_rate`;	
+ALTER TABLE `vendor_partner_variable_charges` CHANGE `charges_type` `charges_type` INT NOT NULL;
+
+
+------Gorakh 21 Nov 2018------
+ALTER TABLE `micro_warehouse_state_mapping` ADD `micro_warehouse_charges` DECIMAL(10,2) NOT NULL AFTER `active`;
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Admin', NULL, NULL, '1', NULL, '', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Kalyani 23-Nov 2018
+ALTER TABLE `partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `gst_number`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+ALTER TABLE `trigger_partners` ADD `gst_type` VARCHAR(255) NOT NULL AFTER `is_defective_part_return_wh`, ADD `gst_status` VARCHAR(255) NOT NULL AFTER `gst_type`;
+
+UPDATE `sms_template` SET `template` = 'Your %s %s completed (%s). If service was good, give miss call 01139588220. If not, 01139588224. 247Around%s.' WHERE `sms_template`.`tag` = 'complete_booking';
+
+--Kalyani 26-Nov-2018
+ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_name`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
+ALTER TABLE `file_uploads` ADD `revert_file_cc` VARCHAR(255) NULL DEFAULT NULL AFTER `revert_file_to`;
+
+--Abhay 
+ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
+
+--Kalyani 27-Nov-2018
+ALTER TABLE `courier_company_invoice_details` ADD `is_reject` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_exist`;
+ALTER TABLE `courier_company_invoice_details` ADD `reject_remarks` VARCHAR(255) NOT NULL AFTER `is_reject`;
+
+---Gorakh 29-Nov-2018 
+CREATE TABLE `hsn_code_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `hsn_code` varchar(64) DEFAULT NULL, `gst_rate` int(11) DEFAULT NULL, `agent_id` int, `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('7326', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8529', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8518', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8509', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8479', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('4819', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8450', '28', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `hsn_code_details` (`hsn_code`, `gst_rate`, `agent_id`, `create_date`, `update_date`) VALUES ('8501', '18', 31, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--Kalyani 03-Dec-2018
+
+DROP TABLE vendor_partner_variable_charges;
+
+CREATE TABLE `vendor_partner_variable_charges` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(28) NOT NULL,
+  `entity_id` varchar(11) NOT NULL,
+  `charges_type` int(11) NOT NULL,
+  `fixed_charges` decimal(10,0) DEFAULT '0',
+  `percentage_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `validity_in_month` int(11) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+ALTER TABLE `vendor_partner_variable_charges`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vendor_partner_variable_charges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+INSERT INTO `vendor_partner_variable_charges` (`id`, `entity_type`, `entity_id`, `charges_type`, `fixed_charges`, `percentage_charge`, `validity_in_month`, `create_date`, `update_date`) VALUES
+(1, 'partner', '247073', 1, '10000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:22:59'),
+(2, 'partner', '247073', 2, '40', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:26:17'),
+(3, 'vendor', '10', 1, '10000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:28:12'),
+(4, 'vendor', '10', 2, '0', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:29:15'),
+(5, 'partner', '247073', 3, '25000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:32:00'),
+(6, 'partner', '247097', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:33:29'),
+(7, 'partner', '247113', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:34:56'),
+(8, 'partner', '247115', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:36:48'),
+(9, 'partner', '247115', 1, '3000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:37:54'),
+(10, 'partner', '247116', 3, '5000', '0.00', 0, '2018-12-03 00:00:00', '2018-12-03 12:39:10');
+
+CREATE TABLE `variable_charges_type` (
+  `id` int(11) NOT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `hsn_code` int(11) DEFAULT NULL,
+  `gst_rate` int(11) DEFAULT NULL,
+  `is_fixed` tinyint(1) DEFAULT '1',
+  `updated_date` datetime DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL
+)
+
+
+ALTER TABLE `variable_charges_type`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `variable_charges_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+INSERT INTO `variable_charges_type` (`id`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
+(1, 'warehouse-fixed', 'Warehouse Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
+(2, 'packaging-variable', 'Packaging Charges', 998715, 18, 0, '2018-12-03 00:00:00', '2018-12-03 00:00:00'),
+(3, 'callcenter-fixed', 'Call Center Charges', 998715, 18, 1, '2018-12-03 00:00:00', '2018-12-03 00:00:00');
+
+
+CREATE TABLE `invoice_tags` (
+  `id` int(11) NOT NULL,
+  `vertical` varchar(255) NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `sub_category` varchar(255) NOT NULL,
+  `accounting` tinyint(1) NOT NULL,
+  `remarks` varchar(500) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `invoice_tags`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `invoice_tags`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`) VALUES
+(1, 'Service-Ancillary', 'Installation & Repair', 'Courier', 1, ''),
+(2, 'Service', 'Advance', 'Cash', 0, 'Cash given to SF/CP as advance'),
+(3, 'Service', 'Advance', 'Security', 0, 'Advance given by SF'),
+(4, 'Service', 'Advance', 'Pre-paid', 0, 'Advance given by Pre-paid Partners'),
+(5, 'Service', 'Recurring Charges', 'Credit Note', 1, 'CRM Charges'),
+(6, 'Service', 'Recurring Charges', 'CRM', 1, 'CRM Charges'),
+(7, 'Service', 'Credit Note', 'Customer Payment', 0, 'Paytm payments'),
+(8, 'Service', 'Installation & Repair', 'Cash', 1, 'Invoices to Partners'),
+(9, 'Service', 'Installation & Repair', 'Commission', 1, 'Invoices to SF'),
+(10, 'Service', 'Installation & Repair', 'Courier', 1, 'Invoices to Partners - Courier Charges'),
+(11, 'Service', 'Installation & Repair', 'Credit Note', 1, 'Credit Note'),
+(12, 'Service', 'Installation & Repair', 'Debit Note', 1, 'Debit Note'),
+(13, 'Service', 'Installation & Repair', 'FOC', 1, 'FOC'),
+(14, 'Service', 'Installation & Repair', 'GST Credit Note', 0, 'GST Credit Note'),
+(15, 'Service', 'Installation & Repair', 'GST Debit Note', 0, 'GST Debit Note'),
+(16, 'Service', 'Installation & Repair', 'Misc', 0, ''),
+(17, 'Service', 'Installation & Repair', 'Warehouse Rent', 0, 'NO NEED'),
+(18, 'Service', 'Installation & Repair', 'Royalty', 1, 'Royalty paid to partners'),
+(19, 'Service', 'Spares', 'Brackets', 1, 'Brackets sold to SF / bought from Manish ji'),
+(20, 'Service', 'Spares', 'Defective Return', 1, 'Invoices issued by 247around to Partner for IW defective spares collected from SF'),
+(21, 'Service', 'Spares', 'In-Warranty', 1, 'Invoices issued by Partner for IW spares / issued by 247around to SF - Booking Specific'),
+(22, 'Service', 'Spares', 'Out-of-Warranty', 1, 'Invoices issued by Partner for OOW spares / issued by 247around to SF or Partner'),
+(23, 'Service', 'Spares', 'Damaged Case', 1, 'Invoices issued by Partner for damaged spares / issued by 247around to SF for damaged spares'),
+(24, 'Service', 'Spares', 'MSL', 1, 'Invoices issued by Partner for IW spares / issued by 247around to SF - MSL'),
+(25, 'Other', 'Marketing', 'Print', 1, ''),
+(26, 'Other', 'Service', 'SMS', 1, ''),
+(27, 'Buyback', 'Exchange', 'Advance', 0, 'Advance given by CP'),
+(28, 'Buyback', 'Exchange', 'Credit Note', 1, 'CN issued by 247around to CP'),
+(29, 'Buyback', 'Exchange', 'Debit Note', 1, 'DN issued by 247around to CP'),
+(30, 'Buyback', 'Exchange', 'Reimbursement', 1, 'Invoice/DN issued by 247around to Amazon'),
+(31, 'Buyback', 'Exchange', 'Sale', 1, 'Buyback invoices issued to CP'),
+(32, 'Buyback', 'Exchange', 'Sweetener', 1, 'Sweetener invoices given to Cloudtail'),
+(33, 'Buyback', 'Exchange', 'VoucherPurchase', 1, 'QC invoices'),
+(34, 'Buyback', 'Liquidation', 'Purchase', 1, '247around purchase invoice'),
+(35, 'Buyback', 'Liquidation', 'Reimbursement', 1, 'Invoice/DN issued by 247around to Amazon'),
+(36, 'Buyback', 'Liquidation', 'Sale', 1, 'Liq invoice issued to CP'),
+(37, 'Buyback', 'Liquidation', 'Credit Note', 1, 'CN issued by 247around to CP'),
+(38, 'Buyback', 'Liquidation', 'Debit Note', 1, 'DN issued by 247around to CP'),
+(39, 'Service', 'Installation & Repair', 'Customer Payment', 0, 'custome payment on behalf of sf'),
+(40, 'Service', 'Advance', 'Pre-paid(PG)', 0, 'Advance given by Pre-paid via paytm gateway');
+
+--Released 04 Dec - Branch 59
+
+-- Kalyani 11-Dec-2018 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'resend_dn_cn_invoice', '247around - Credit Note for period: %s to %s', 'Dear Partner <br/><br/> Please find attached Credit Note for jobs completed between %s and %s.<br/><br/> Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/> Hope to have a long lasting working relationship with you. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>With Regards,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+--Gorakh 11-12-2018 
+ALTER TABLE `courier_details` ADD `status` VARCHAR(100) NOT NULL AFTER `ewaybill_generated_date`;
+
+--Kalyani 18-dec-2018
+ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFTER `email_tag`;
+
+--Abhay 18-12-2018
+ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
+ALTER TABLE `trigger_service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
+
+--Kalyani 19-Dec-2018
+ALTER TABLE `bank_details` ADD `is_active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `bank_name`;
+
+--Chhavi 17-12-2018
+INSERT INTO `email_template`(`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL,"resend_partner_login_details","Partner ERP URL and Login - 247around",'Dear Partner,<br><br>
+As Per Request, please find below your login details.<br><br>
+URL: <a href="https://www.aroundhomzapp.com/partner/login">https://www.aroundhomzapp.com/partner/login</a><br><br>
+<b>Username: </b>%s<br><b>Password: </b>%s<br><br>
+Please use the ERP panel for your closures going forward. In case of any issues, write to us or call us.<br><br>
+Regards,<br> 247around Team',"noreply@247around.com","","nits@247around.com,priyar@247around.com","chhavid@247around.com","1","2018-12-17 16:41:14");
+
+
+--Abhay 21-Dec-2018
+
+ALTER TABLE `partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `grace_period_date`;
+ALTER TABLE `trigger_partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `grace_period_date`;
+ALTER TABLE `booking_details` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `is_upcountry`;
+
+--Gorakh 22-12-2018--
+
+CREATE TABLE `ewaybill_details` (
+  `id` int(11) NOT NULL primary key auto_increment,
+  `courier_details_id` int(11) DEFAULT NULL,
+  `ewaybill_no` varchar(156) NOT NULL,
+  `ewaybill_file` varchar(1020) NOT NULL,
+  `ewaybill_generated_date` datetime,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+ALTER TABLE `courier_details`
+  DROP `ewaybill_no`,
+  DROP `ewaybill_file`,
+  DROP `ewaybill_generated_date`;
+
+--Gorakh 26-12-2018--
+CREATE TABLE `inventory_parts_type` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) DEFAULT NULL,
+  `part_type` varchar(156) NOT NULL,
+  `hsn_code_details_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--Gorakh 02-Jan-2019
+ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('GoJavas', 'gojavas', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('ecom-express', 'Ecom Express', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('tnt-reference', 'TNT Reference', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('overnitenet', 'Overnite Express', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('airwings-india', '	Airwings Courier Express India', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('parcel', 'Pitney Bowes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Kalyani 27-Dec-2018
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+
+-- Kalyani 02-Jan-2019 --
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'partner_refuse_to_pay', 'Invalid Serial Number', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+ALTER TABLE `booking_unit_details` ADD `partner_refuse_to_pay` TINYINT(1) NOT NULL DEFAULT '0' AFTER `appliance_size`;
+
+CREATE TABLE `booking_debit_credit_details` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(100) DEFAULT NULL,
+  `entity_id` int(11) NOT NULL,
+  `booking_id` varchar(255) DEFAULT NULL,
+  `booking_unit_id` int(11) NOT NULL,
+  `invoice_type` varchar(255) DEFAULT NULL,
+  `invoice_id` varchar(255) DEFAULT NULL,
+  `reference_invoice_id` varchar(65) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `booking_debit_credit_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `booking_debit_credit_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Abhay 03-01-2019
+ALTER TABLE `inventory_ledger` ADD `is_wh_micro` INT NOT NULL DEFAULT '0' AFTER `is_partner_ack`;
+
+--Abhay 04-01-2019
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+(NULL, 'minimum_guarantee_mail_template', 'Minimum guarantee to be paid', 'Hi,<br/>\nMinimum guarantee to be paid as below<br/>\nSF Name - %s,<br/> MG amount - Rs. %s, <br/> Invoice Amount - %s.<br/>\nPro data amount to be paid depend on number of days. he has works with previous Month %s.', 'noreply@247around.com', 'accounts@247around.com, anuj@247around.com', 'abhaya@247around.com', '', '1', '2018-12-17 18:30:00');
 

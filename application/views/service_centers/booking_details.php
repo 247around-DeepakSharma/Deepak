@@ -174,6 +174,21 @@
                                 <td><?php if(isset($booking_history[0]['dealer_id'])) echo $booking_history[0]['dealer_phone_number_1']; ?></td>
                             </tr>
                         </table>
+                    <table class="table  table-striped table-bordered" id="relative_holder">
+                        <tr>
+                            <th colspan="3" style="font-size: 16px; color: #2c9d9c;">Booking Relatives</th>
+                        </tr> 
+                        <tr>
+                            <th style="width: 25%;">Parent </th>
+                            <th style="width: 21%;">Child</th>
+                            <th style="width: 21%;">Siblings</th>
+                        </tr>
+                        <tr>
+                            <td style="width: 23%;" id="parent_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="child_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                            <td style="width: 23%;" id="sibling_holder"><center><img  src="<?php echo base_url(); ?>images/loadring.gif" ></center></td>
+                        </tr>
+                    </table>
                     </div>
                 </div>
             </div>
@@ -494,7 +509,7 @@
                         <td><?php echo $value['remarks']; ?></td>
                         <td><?php echo $value['full_name']; ?></td>
                         <td><?php
-                            if ($value['source'] == "Website") {
+                            if ($value['source'] == _247AROUND_WEBSITE) {
                                 echo '247 Around';
                             } else {
                                 echo $value['source'];
@@ -616,6 +631,8 @@
                                 <th >Penalty On SF</th>
                                 <th >Agent Name</th>
                                 <th >Remarks</th>
+                                <th >Penalty Debit on Invoice</th>
+                                <th >Penalty Credit On Invoice</th>
                             </tr>
                             <?php foreach ($penalty as $key => $value){?>
                             <?php if($penalty[$key]['active'] == 1){?>
@@ -632,6 +649,8 @@
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['remarks']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
                             </tr>
                             <?php }else if($penalty[$key]['active'] == 0){?>
                             <tr>
@@ -647,6 +666,8 @@
                                 <td><?php echo $penalty[$key]['sf_name']; ?></td>
                                 <td><?php echo $penalty[$key]['agent_name']; ?></td>
                                 <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
+                                <td><?php echo $penalty[$key]['foc_invoice_id']; ?></td>
+                                <td><?php echo $penalty[$key]['removed_penalty_invoice_id']; ?></td>
                             </tr>
                             <?php }?>
                             <?php }?>
@@ -749,6 +770,7 @@
              setTimeout(function(){ GetRoute(); }, 1000);
     <?php } ?>
     $(document).ready(function () {
+        get_booking_relatives();
         $(".btn-pref .btn").click(function () {
             $(".btn-pref .btn").removeClass("btn-primary").addClass("btn-default");
             // $(".tab").addClass("active"); // instead of this do the below 
@@ -802,4 +824,37 @@
             alert('Something Wrong. Please Refresh Page...');
         }
     }
+         function get_booking_relatives(){
+            $.ajax({
+                method:"POST",
+                data : {},
+                url:'<?php echo base_url(); ?>employee/partner/get_booking_relatives/<?php echo $booking_history[0]['booking_id']; ?>',
+                success: function(res){
+                    if(res){
+                    var obj = JSON.parse(res);
+                    parent_string = child_string = sibling_string = "NULL";
+                    if(obj.parent){
+                        parent_string = "<a href = '<?php echo base_url(); ?>service_center/booking_details/"+encodeURIComponent(window.btoa(obj.parent))+"' target = '_blank'>"+obj.parent+"</a>";
+                    }
+                    if(obj.siblings){
+                        sibling_string ="";
+                        sibling_array = obj.siblings.split(",");
+                        for(var i = 0;i<sibling_array.length;i++){
+                            sibling_string = sibling_string+(i+1)+") <a href = '<?php echo base_url(); ?>service_center/booking_details/"+encodeURIComponent(window.btoa(sibling_array[i]))+"' target = '_blank'>"+sibling_array[i]+"</a><br>";
+                        }
+                    }
+                    if(obj.child){
+                        child_string ="";
+                        child_array = obj.child.split(",");
+                        for(var i = 0;i<child_array.length;i++){
+                            child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>booking_details/booking_details"+encodeURIComponent(window.btoa(child_array[i]))+"' target = '_blank'>"+child_array[i]+"</a><br>";
+                        }
+                    }
+                    $('#parent_holder').html(parent_string);
+                    $('#sibling_holder').html(sibling_string);
+                    $('#child_holder').html(child_string);
+                }
+             }
+            });
+        }
 </script>

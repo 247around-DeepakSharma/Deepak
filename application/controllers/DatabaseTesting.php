@@ -505,12 +505,12 @@ class DatabaseTesting extends CI_Controller {
     
     function testDefective(){
         $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NULL ' => NULL);
-               $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.booking_id, service_center_id, service_center_closed_date",
-                        $where, true, false, "spare_parts_details.booking_id");
+               $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, service_center_id, service_center_closed_date",
+                        $where, true, false, "spare_parts_details.id");
             echo count($data);echo PHP_EOL;       
          foreach ($data as $key => $value) {
             echo $key.PHP_EOL;
-                        $this->invoice_lib->generate_challan_file($value['booking_id'], $value['service_center_id'], $value['service_center_closed_date']);
+                        $this->invoice_lib->generate_challan_file($value['id'], $value['service_center_id'], $value['service_center_closed_date']);
             print_r($value); 
          }
 
@@ -529,6 +529,46 @@ class DatabaseTesting extends CI_Controller {
                 $i++;
             }
             $this->partner_model->insert_data_in_batch("partner_code", $data, "gk");
+        }
+    }
+    
+    function all_partner_gst_checking_by_api(){
+        $partners = $this->partner_model->getpartner('', false);
+        foreach ($partners as $partner){
+            if($partner['gst_number']){
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=".$partner['gst_number'],  
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                ));
+                $api_response = curl_exec($curl);
+                $err = curl_error($curl);
+                curl_close($curl);
+                if ($err) {
+                    echo "cURL Error :" . $err ."</br>"; 
+                    $emailBody =  "cURL Error :" . $err ."</br>"; 
+                    $this->notify->sendEmail('kalyanit@247around.com', 'kalyanit@247around.com', '', '', 'partner gst curl fail', $emailBody, "",'sf_permanent_on_off');
+                } else {
+                    $api_response = json_decode($api_response, TRUE);
+                    if(isset($api_response['error'])){
+                      $emailBody =json_encode($api_response, TRUE);
+                      $this->notify->sendEmail('kalyanit@247around.com', 'kalyanit@247around.com', '', '', 'partner gst error', $emailBody, "",'sf_permanent_on_off');
+                    }
+                    else{
+                        if(isset($api_response['dty'])){
+                            $data['gst_type'] = $api_response['dty'];
+                        }
+                        if(isset($api_response['sts'])){
+                            $data['gst_status'] = $api_response['sts'];
+                        }
+                       
+                        $this->partner_model->edit_partner($data, $partner['id']);
+                    }
+                }
+            }
         }
     }
 }

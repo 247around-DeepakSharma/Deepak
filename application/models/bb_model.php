@@ -5,8 +5,8 @@ class Bb_model extends CI_Model {
     //set column field database for datatable orderable       
 
     var $order = array('bb_order_details.order_date' => 'desc'); // default order 
-    var $cp_action_column_search = array('partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'internal_status');
-    var $cp_action_column_order = array('partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'internal_status');
+    var $cp_action_column_search = array('bb.partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'bb.internal_status');
+    var $cp_action_column_order = array('bb.partner_order_id', 'name', 'category', 'brand', 'physical_condition', 'working_condition', 'bb.internal_status');
     var $cp_action_column_default_order = array('cp_action.id' => 'asc'); // default order 
     var $bb_select = 'bb_unit_details.category,bb_unit_details.partner_order_id,bb_order_details.partner_id, service_id,services,city, order_date, bb_order_details.internal_status, delivery_date, bb_order_details.current_status,partner_basic_charge, cp_basic_charge,cp_tax_charge,bb_unit_details.order_key, bb_unit_details.service_id,bb_order_details.assigned_cp_id,bb_unit_details.physical_condition,bb_unit_details.working_condition,bb_order_details.partner_tracking_id as tracking_id,bb_order_details.acknowledge_date';
 
@@ -229,9 +229,10 @@ class Bb_model extends CI_Model {
         $this->db->from('bb_cp_order_action as cp_action');
 
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
+        $this->db->join('bb_order_details as bb', 'cp_action.partner_order_id = bb.partner_order_id');
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
-            cp_action.working_condition,cp_action.remarks,cp_action.internal_status,cp_action.cp_claimed_price, cp.name');
-        $this->db->where('current_status', _247AROUND_BB_IN_PROCESS);
+            cp_action.working_condition,cp_action.remarks,cp_action.internal_status,cp_action.cp_claimed_price, cp.name,bb.partner_tracking_id');
+        $this->db->where('cp_action.current_status', _247AROUND_BB_IN_PROCESS);
         if (!empty($search_value)) { // if datatable send POST for search
             $like = "";
             foreach ($this->cp_action_column_search as $key => $item) { // loop column 

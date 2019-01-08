@@ -11,7 +11,7 @@ class Validate_serial_no {
     function validateSerialNo($partnerID, $serialNo, $price_tags, $user_id, $booking_id,$applianceID,$modelNumber = NULL){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
         $flag = true;
-        
+        //Check For Duplicate In Non Repeat Booking Case
         if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
             $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
             if(!empty($v)){
@@ -19,14 +19,25 @@ class Validate_serial_no {
                 return $v;
             }
         }
+        //If booking is repeat then validate serial number with parent booking 
+        if($price_tags == REPEAT_BOOKING_TAG){
+            $repeatResult =  $this->validate_repeat_booking_serial_number($serialNo,$booking_id);
+            if($repeatResult){
+                return $repeatResult;
+            }
+        }
+        // Validate with basic rules 
         if($flag){
             $method = $this->getLogicMethod($partnerID);
             if(!empty($method)){
                 if($method == 'jvc_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$applianceID);
                 }
-                 if($method == 'lemon_serialNoValidation'){
+                if($method == 'lemon_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo,$modelNumber);
+                }
+                if($method == 'jeeves_serialNoValidation'){
+                    return $this->$method($partnerID, $serialNo, $booking_id);
                 }
                 return $this->$method($partnerID, $serialNo);
             } else{
@@ -49,6 +60,8 @@ class Validate_serial_no {
         $logic[QFX_ID] = 'qfx_serialNoValidation';
         $logic[JVC_ID] = 'jvc_serialNoValidation';
         $logic[LEMON_ID] = 'lemon_serialNoValidation';
+        $logic[JEEVES_ID] = 'jeeves_serialNoValidation';
+        $logic[WYBOR_ID] = 'wybor_serialNoValidation';
         
 	if (isset($logic[$partnerID])) {
             log_message('info', __METHOD__. " Method exist. Partner ID ". $logic[$partnerID]);
@@ -58,6 +71,78 @@ class Validate_serial_no {
 	    return false;
 	}
     }
+    
+    /**
+     * @desc This method is used to validate serial number for jeeves partner and micromax brand.
+     * Serial number starting with 00.
+     * then next 3 digit will be integer.
+     * then next 1 digit will be character
+     * then next 8 digit will be integer
+     * then next last digit will be character
+     * and total length is 15.
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $booking_id
+     * @return Int
+     */
+    function jeeves_serialNoValidation($partnerID, $serialNo, $booking_id){
+        log_message('info', __METHOD__ . " Enterring... Partner ID " . $partnerID . " Srial No " . $serialNo . " Booking Id ". $booking_id);
+        $where = array(
+                    'booking_id' =>$booking_id, 
+                    'appliance_brand' => 'Micromax', 
+                    'partner_id' => $partnerID);
+        $result = $this->MY_CI->booking_model->get_unit_details($where, FALSE, 'id');
+        if(!empty($result)){
+            $flag = true;
+            $failure_msg = "";
+            $digit1to2 = substr($serialNo, 0, 2);
+            $digit3to5 = substr($serialNo, 2, 3);
+            $digit6 = substr($serialNo, 5, 1);
+            $digit7to14 = substr($serialNo, 6, 8);
+            $digit15 = substr($serialNo, 14, 1);
+            if(strlen($serialNo) != 15){
+               log_message('info', __METHOD__ . " Partner ID " . $partnerID . " Srial No " . $serialNo . " not 15 digit number ");
+               $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+               $flag = false;
+            }
+            else if ($digit1to2 != JEEVES_FIRST_TWO_DIGIT) {
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " First two digit is not 00 ".$digit1to2);
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                $flag = false;
+            } 
+            else if (!is_numeric($digit3to5)) {
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 3 to 5 is not integer ".$digit3to5);
+                $flag = false;
+            }
+            else if(!ctype_alpha($digit6)){
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 6 is not character ".$digit6);
+                $flag = false; 
+            }
+            else if (!is_numeric($digit7to14)) {
+                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 7 to 15 is not integer ".$digit7to14);
+                $flag = false;
+            }
+//            else if(!ctype_alpha($digit15)){
+//                $failure_msg = JEEVES_SERIAL_NO_VALIDATION_FAILED_MSG;
+//                log_message('info', __METHOD__. " Partner ID ". $partnerID. " Srial No ". $serialNo. " Digit 15 is not character ".$digit15);
+//                $flag = false; 
+//            }
+            if ($flag) {
+                return array('code' => SUCCESS_CODE);
+            }
+            else{
+                return array('code' => FAILURE_CODE, "message" => $failure_msg);
+            }
+            
+        } else {
+            log_message('info', __METHOD__. 'No need to apply serial no checking....');
+            return array('code' => SUCCESS_CODE);
+        }
+    }
+    
     /**
      * @desc This method is used to validate serial number.
      * Serial number should be alpha numeric with 19 character
@@ -220,6 +305,7 @@ class Validate_serial_no {
      */
     function jvc_television_serial_number_validation($serialNo){
         $stringLength = strlen($serialNo);
+        $serialNo = strtoupper($serialNo);
         $firstString = strtoupper(substr($serialNo,0,5));
         if ($firstString == 'SHG32') {
             $secondString = substr($serialNo,5,2);
@@ -272,6 +358,7 @@ class Validate_serial_no {
         }
     }
     function jvc_WM_serial_number_validation($serialNo){
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength == 18){
             // Color Coding Validation 
@@ -376,6 +463,7 @@ class Validate_serial_no {
      */
     function lemon_serialNoValidation($partnerID, $serialNo,$modelNumber){
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $serialNo = strtoupper($serialNo);
         $stringLength = strlen($serialNo);
         if($stringLength  == 15){
             // Lemon  start Values
@@ -417,6 +505,247 @@ class Validate_serial_no {
             return FALSE;
         }
         return TRUE;
+    }
+    
+/**
+     * @desc This method is used to validate Wybor serial number, Wybor has 3 serial number pattern (2015,2016,2017)
+     * @param String $partnerID
+     * @param String $serialNo
+     * @param String $applianceID
+     * @return Int
+     */
+    function wybor_serialNoValidation($partnerID, $serialNo){
+        log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
+        $serialNo = strtoupper($serialNo);
+        //  2015 Pattern Serial NUmber
+        $validation_2015 = $this->_wybor2015pattern($serialNo);
+        if(!$validation_2015){
+            // 2016 Pattern Validation
+            $validation_2016 = $this->_wybor2016pattern($serialNo);
+            if(!$validation_2016){
+                // 2017 Pattern Validation
+               $validation_2017 = $this->_wybor2017pattern($serialNo);
+               if($validation_2017){
+                   return array('code' => SUCCESS_CODE);
+               }
+            }
+            else{
+               return array('code' => SUCCESS_CODE);
+            }
+        }
+        else{
+           return array('code' => SUCCESS_CODE);
+        }
+       return array('code' => FAILURE_CODE, "message" => FAILURE_MSG);
+    }
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 2 digit will be ME
+     * Next 2 digit will be Size (It must be numeric)
+     * Next 2 digit represents main board , it must be 2 alphabets 
+     * Next 3 digit represents panel , it must be 3 alphanumeric char
+     * Next 2 digit represent year , it must be last 2 digit of year
+     * Next 2 digit represent weeks, there are 52 weeks in an year , so this value must be less then or equal to 52
+     * Last 5 digits represents s.no in week , it must be 5 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2015pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 18){
+             $startDigit = substr($serialNo,0,2);
+             $sizeDigit = substr($serialNo,2,2);
+             $mainBoardDigit = substr($serialNo,4,2);
+             $panelDigit = substr($serialNo,6,3);
+             $yearDigit = substr($serialNo,9,2);
+             $weekDigit = substr($serialNo,11,2);
+             $snWeekDigit = substr($serialNo,13,5);
+             //Starting 2 digit must be ME
+             if($startDigit != "ME"){
+                 return false;
+             }
+             //Next 2 digit will be Size (It must be numeric)
+             if(!is_numeric($sizeDigit)){
+                 return false;
+             }
+             // Next 2 digit represents main board , it must be 2 alphabets 
+             if(!ctype_alpha($mainBoardDigit)){
+                  return false;
+             }
+             //Next 3 digit represents panel , it must be 3 alphanumeric char
+             if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $panelDigit)){
+                 return false;
+             }
+             //Next 2 digit represent year , it must be last 2 digit of year
+             $current_year = date("y");
+             if($yearDigit < 15 && $yearDigit > $current_year){
+                  return false;
+             }
+             //Next 2 digit represent weeks, there are 52 weeks in an year , so this value must be less then or equal to 52
+             if($weekDigit > 52){
+                  return false;
+             }
+             //Last 5 digits represents s.no in week , it must be 5 digit numeric number  
+             if(!is_numeric($snWeekDigit)){
+                 return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
+    }
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 1 digit will be W or E
+     * Next 2 digit will be Panel , It must be alphabets 
+     * Next 2 digit represents main board , it must be 2 alphabets 
+     * Next 3 digit represents Size and model, Initial 2 digit for Size and last 1 digit for model in particular that model , all 3 should be numeric
+     * Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+     * Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+     * Last 5 digits represents s.no in week , it must be 4 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2016pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 14){
+             $startDigit = substr($serialNo,0,1);
+             $panelDigit = substr($serialNo,1,2);
+             $mainBoardDigit = substr($serialNo,3,2);
+             $sizeModelDigit = substr($serialNo,5,3);
+             $yearDigit = substr($serialNo,8,1);
+             $monthDigit = substr($serialNo,9,1);
+             $snWeekDigit = substr($serialNo,10,4);
+             //Initial 1 digit will be W or E
+             if(!($startDigit == "W" || $startDigit == "E")){
+                 return false;
+             }
+             //Next 2 digit will be Panel , It must be alphabets 
+              if(!ctype_alpha($panelDigit)){
+                 return false;
+             }
+             //Next 2 digit represents main board , it must be 2 alphabets 
+              if(!ctype_alpha($mainBoardDigit)){
+                  return false;
+             }
+             //Next 3 digit represents Size and model, Initial 2 digit for Size and last 1 digit for model in particular that model , all 3 should be numeric
+             if(!is_numeric($sizeModelDigit)){
+                  return false;
+             }
+             // Next 1 digit represent year , it must be alphabet  , 2016 Will be P
+             $yearMAppingYear = array("2016"=>"P","2017"=>"Q","2018"=>"R","2019"=>"S","2020"=>"T","2021"=>"U","2022"=>"V","2023"=>"W","2024"=>"X","2025"=>"Y","2026"=>"Z");
+             $current_year = date("Y");
+             $currentYearAlph = $yearMAppingYear[$current_year];
+             if($yearDigit < "P" || $yearDigit > $currentYearAlph){
+                  return false;
+             }
+             //Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES_2016);
+             if(!in_array($monthDigit, $expectedMonthValuesArray)){
+                 return false;
+            }
+            //Last 5 digits represents s.no in week , it must be 4 digit numeric number 
+             if(!is_numeric($snWeekDigit)){
+                  return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
+    }
+    
+    /**
+     * @desc This method is used to validate Wybor serial number 2015 pattern
+     * Initial 1 digit will be 1 or 3 its represent the warranty
+     * Next 1 or  digit will be Brand , Expected Values will be O,B,W,E,BL
+     * Next 3 digit represents Size and model , Initial 2 will be size and last one will be model 
+     * Next 4 digit represents Panel, It will be alphanumeric
+     * Next 4 digit represent main board , it must be alphanumeric 
+     * Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+     * Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+     * Next 2 digit represent date  , It must be less then 31
+     * Last 3 digits represents s.no , it must be 3 digit numeric number  
+     * @param String $serialNo
+     * @return boolean
+     */
+    function _wybor2017pattern($serialNo){
+         $stringLength = strlen($serialNo);
+         if($stringLength == 20 || $stringLength == 21){
+             $startDigit = substr($serialNo,0,1);
+             $brandLength = 1;
+             if($stringLength == 21){
+                $brandLength = 2;
+             }
+             $brandDigit = substr($serialNo,1,$brandLength);
+             $sizeModelDigit = substr($serialNo,($brandLength+1),3);
+             $panelDigit = substr($serialNo,($brandLength+4),4);
+             $mainBoardDigit = substr($serialNo,($brandLength+8),4);
+             $yearDigit = substr($serialNo,($brandLength+12),1);
+             $monthDigit = substr($serialNo,($brandLength+13),1);
+             $dateDigit = substr($serialNo,($brandLength+14),2);
+             $snDigit = substr($serialNo,($brandLength+16),3);
+             //Initial 1 digit will be 1 or 3 its represent the warranty
+             if(!($startDigit == 1 || $startDigit == 3)){
+                 return false;
+             }
+             //Next 1 or  digit will be Brand , Expected Values will be O,B,W,E,BL
+             $expectedBrandValuesArray = explode(",",BRAND_POSIBLE_VALUES);
+             if(!in_array($brandDigit, $expectedBrandValuesArray)){
+                 return false;
+             }
+            // Next 3 digit represents Size and model , Initial 2 will be size and last one will be model 
+              if(!is_numeric($sizeModelDigit)){
+                 return false;
+             }
+             //Next 4 digit represents Panel, It will be alphanumeric
+              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $panelDigit)){
+                 return false;
+             }
+             //Next 4 digit represent main board , it must be alphanumeric 
+              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $mainBoardDigit)){
+                 return false;
+             }
+             // Next 1 digit represent year , it must be alphabet  , 2018 Will be R
+             $yearMAppingYear = array("2016"=>"P","2017"=>"Q","2018"=>"R","2019"=>"S","2020"=>"T","2021"=>"U","2022"=>"V","2023"=>"W","2024"=>"X","2025"=>"Y","2026"=>"Z");
+             $current_year = date("Y");
+             $currentYearAlph = $yearMAppingYear[$current_year];
+             if($yearDigit < "Q" || $yearDigit > $currentYearAlph){
+                  return false;
+             }
+             //Next 1 digit represent Month, it must be alphabet  , A Will be Jan and so on
+             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES_2016);
+             if(!in_array($monthDigit, $expectedMonthValuesArray)){
+                 return false;
+            }
+            //Next 2 digit represent date  , It must be less then 31
+            if($dateDigit >32){
+                return false;
+            }
+            //Last 3 digits represents s.no , it must be 3 digit numeric number  
+             if(!is_numeric($snDigit)){
+                  return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
+    }
+    function validate_repeat_booking_serial_number($serialNo,$booking_id){
+        $parentBookingSerialNumbers = $this->MY_CI->booking_model->get_parent_booking_serial_number($booking_id,1);
+        if($parentBookingSerialNumbers){
+            foreach($parentBookingSerialNumbers as $sn){
+                if(strtoupper($sn['parent_sn']) == $serialNo){
+                     return array('code' => SUCCESS_CODE);
+                }
+            }
+            return array('code' => FAILURE_CODE, "message" => REPEAT_BOOKING_FAILURE_MSG);
+        }
+        else{
+            return false;
+        }
     }
 }
 

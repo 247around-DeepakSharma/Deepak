@@ -55,12 +55,13 @@ class User extends CI_Controller {
         $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('booking_id')));
         $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
         //$userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
-        $userName = ltrim($this->input->get('userName'));
-        $userName = rtrim($userName);
+        $tempuserName = ltrim($this->input->get('userName'));
+        $userName = rtrim($tempuserName);
         $partner_id = $this->input->get('partner');
         $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('search_value')));
         $post['length'] = -1;
         $phone_number = preg_replace('/[^A-Za-z0-9\-]/', '',$this->input->get('phone_number'));
+        $is_flag = true;
         if (!empty($search)) {
             if (preg_match("/^[6-9]{1}[0-9]{9}$/", $search)) {
                 $phone_number = $search;
@@ -79,12 +80,17 @@ class User extends CI_Controller {
             $post['order'] = array(array('column' => 0,'dir' => 'asc'));
             $post['order_performed_on_count'] = TRUE;
             $post['column_order'] = array('booking_details.booking_id');
+            $post['unit_not_required'] = true;
+            
+            
             $view = "employee/search_result";
             
         } else if(!empty($order_id)){
             $post['search_value'] = $order_id;
             $post['column_search'] = array('booking_details.order_id');
             $post['where'] = array('booking_details.partner_id' =>$partner_id);
+            $post['unit_not_required'] = true;
+            
             $view = "employee/search_result";
            
             
@@ -97,22 +103,27 @@ class User extends CI_Controller {
             $post['order'] = array(array('column' => 0,'dir' => 'asc'));
             $post['order_performed_on_count'] = TRUE;
             $post['column_order'] = array('users.name');
+            $post['unit_not_required'] = true;
             $view = "employee/search_user_list";
             
             
         }  else if(!empty($phone_number)){
             
-            $post['search_value'] = $phone_number;
-            $post['column_search'] = array('booking_details.booking_primary_contact_no',
-                 'booking_alternate_contact_no', 'users.phone_number');
+//            $post['search_value'] = $phone_number;
+//            $post['column_search'] = array('booking_details.booking_primary_contact_no',
+//                 'booking_alternate_contact_no', 'users.phone_number');
+            $data['Bookings'] = $this->user_model->search_user($phone_number, "", "", TRUE);
+            $is_flag = false;
             $view = "employee/bookinghistory";
             
         } else{
             echo "Please Select Atlease One Input Field.";
             exit();
         }
+        if($is_flag){
+            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
+        } 
         
-        $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
         if(!empty($phone_number) && empty($data['Bookings'])){
           //  $output['phone_number'] = $phone_number;
             redirect(base_url()."employee/booking/addbooking/".$phone_number);

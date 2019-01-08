@@ -29,6 +29,8 @@
                     <th>Parts Amount</th>
                     <th>Service Charge Income</th>
                     <th>Total Additional Service Charge</th>
+                    <th>Miscellaneous Charges</th>
+                    <th>Warehouse Charges</th>
                     <th>Conveyance Charge Income</th>
                     <th>Courier Charges Income</th>
 <!--                    <th>Number Of Bookings</th>-->
@@ -53,7 +55,7 @@
                     <?php
                     $sn = 1; $total_sc = $total_pc = $total_asc = $total_st = 
                             $total_vat = $total_up_cc = $total_courier_charges = 
-                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst = $discount_amt = $tds_amount = 0;
+                            $grand_total_amount_collected = $num_bookings = $debit_penalty = $credit_penalty = $cgst = $sgst = $igst = $discount_amt = $tds_amount = $total_msc = $total_warehouse = 0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -70,6 +72,8 @@
                             <td><?php echo round($value['parts_cost'],0); $total_pc += $value['parts_cost'];?></td>
                             <td><?php echo round($value['total_service_charge'],0); $total_sc +=$value['total_service_charge']; ?></td>
                             <td><?php echo round($value['total_additional_service_charge'],0); $total_asc += $value['total_additional_service_charge']; ?></td>
+                            <td><?php echo round($value['miscellaneous_charges'],0); $total_msc += $value['miscellaneous_charges']; ?></td>
+                            <td><?php echo round($value['warehouse_storage_charges'],0); $total_warehouse += $value['warehouse_storage_charges']; ?></td>
                             <td><?php echo round($value['upcountry_price'],0); $total_up_cc += $value['upcountry_price'];?></td>
                             <td><?php echo round($value['courier_charges'],0); $total_courier_charges += $value['courier_charges']; ?></td>
 <!--                            <td><?php //echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>-->
@@ -82,7 +86,7 @@
                             <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
                             <td><?php echo round($value['cgst_tax_rate'] + $value['sgst_tax_rate'] + $value['igst_tax_rate'],0); ?></td>
-                            <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],0); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
+                            <td><?php echo round($value['total_amount_collected'] - $value['tds_amount'],2); $grand_total_amount_collected += ($value['total_amount_collected'] - $value['tds_amount']);?></td>
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo $value['type']; ?></td>
                             <td><?php echo $value['type_code']; ?></td>
@@ -104,6 +108,8 @@
                             <td><b><?php echo round($total_pc,0); ?></b></td>
                             <td><b><?php echo round($total_sc,0); ?></b></td>
                             <td><b><?php echo round($total_asc,0); ?></b></td>
+                            <td><b><?php echo round($total_msc,0); ?></b></td>
+                            <td><b><?php echo round($total_warehouse,0); ?></b></td>
                             <td><b><?php echo round($total_up_cc,0); ?></b></td>
                             <td><b><?php echo round($total_courier_charges,0); ?></b></td>
 <!--                            <td><b><?php //echo $num_bookings; ?></b></td>-->
@@ -332,6 +338,7 @@
                         <th>Type</th>
                         <th>Name on PAN</th>
                         <th>PAN</th>
+                        <th>Service Charge</th>
                         <th>TDS Amount</th>
                         <th>TDS Rate</th>
                     </tr>
@@ -349,6 +356,7 @@
                                 <td><?php echo $value['company_type']; ?></td>
                                 <td><?php echo $value['name_on_pan']; ?></td>
                                 <td><?php echo $value['pan_no']; ?></td>
+                                <td><?php echo round($value['tds_taxable_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_rate'],0); ?></td>
                             </tr>

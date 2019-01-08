@@ -219,7 +219,7 @@
     $('#get_appliance_model_data').on('click',function(){
         var model_partner_id = $('#model_partner_id').val();
         if(model_partner_id){
-            appliance_model_details_table.ajax.reload();
+            appliance_model_details_table.ajax.reload(null, false);
         }else{
             alert("Please Select Partner");
         }

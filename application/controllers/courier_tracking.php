@@ -39,10 +39,12 @@ class Courier_tracking extends CI_Controller {
      * @desc: send email to developer when api failed or return unexpected response
      * @return void
      */
-    function  send_api_failed_email($email_body_data){
-        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");
+    function  send_api_failed_email($email_body_data,$error_type){
+        log_message('info', __METHOD__. " email_body". print_r($email_body_data, TRUE). " error type ".$error_type);
+        $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");        
         if (!empty($template)) {
             $subject = $template[4];
+            $email_body_data .= "<br/> <br/>". json_encode($error_type, TRUE);
             $emailBody = vsprintf($template[0], $email_body_data);
             $this->notify->sendEmail($template[2], DEVELOPER_EMAIL, '', '', $subject, $emailBody, "", 'courier_api_failed_mail');
         }
@@ -116,7 +118,7 @@ class Courier_tracking extends CI_Controller {
         }else{
             log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
-            $this->send_api_failed_email(json_encode($awb_number_list));
+            $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
         
     }
@@ -128,6 +130,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_real_time_tracking_details(){
+        log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post(), TRUE));
         //$this->checkUserSession();
         $carrier_code = $this->input->post('courier_code');
         $awb_number = $this->input->post('awb_number');
@@ -143,7 +146,10 @@ class Courier_tracking extends CI_Controller {
                     log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
                     
                     //send mail to developer
-                    $this->send_api_failed_email(json_encode($api_data));
+//                    $this->send_api_failed_email(json_encode($api_data), array("Method" => __METHOD__,
+//                        " AWB Number " =>$awb_number, 
+//                        " CODE "=>$carrier_code, 
+//                        "Status"=>$spare_status ));
                     
                     $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                     $data['awb_number'] = $awb_number;
@@ -164,7 +170,54 @@ class Courier_tracking extends CI_Controller {
         echo $res;
         
     }
-    
+     /** @desc: get real time tracking result
+     * @param string $carrierCode Carrier code
+     * @param string $awb_number  Tracking number 
+     * @param string $spare_status spare status
+     * @return array 
+     */
+    function get_msl_awb_real_time_tracking_details(){        
+       
+        log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post(), TRUE));
+        //$this->checkUserSession();
+        $carrier_code = $this->input->post('courier_code');
+        $awb_number = $this->input->post('awb_number');
+        $status = $this->input->post('status');
+        if(!empty($carrier_code) && !empty($awb_number) && !empty($status)){
+            if($status === COURIER_DETAILS_STATUS){
+                $api_data = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
+                if(!empty($api_data['data'])){
+                    $data['awb_details_by_api'] = $api_data['data'];
+                    $data['awb_number'] = $awb_number;
+                    
+                }else{
+                    log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
+                    
+                    //send mail to developer
+//                    $this->send_api_failed_email(json_encode($api_data), array("Method" => __METHOD__,
+//                        " AWB Number " =>$awb_number, 
+//                        " CODE "=>$carrier_code, 
+//                        "Status"=>$spare_status ));
+                    
+                    $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
+                    $data['awb_number'] = $awb_number;
+                    
+                }
+            }else{
+                $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
+                $data['awb_number'] = $awb_number;
+            }
+            
+        }else{
+            $data['awb_details'] = array();
+            $data['awb_number'] = $awb_number;
+        }
+        
+        $res = $this->load->view("employee/show_msl_awb_real_time_status",$data);
+        
+        echo $res;
+        
+    }
     /** @desc: this function is used to create courier data on trackingMore api so that we can get updated data when we call thier api
      * @param void
      * @return void 
@@ -194,7 +247,7 @@ class Courier_tracking extends CI_Controller {
      * @return boolean 
      */
     function delete_awb_data_from_api($data){
-        log_message('info',__METHOD__.' Entering...');
+        log_message('info',__METHOD__.' Entering...'. print_r($data, true));
         $count = count($data);
         $x = 0;
         while($x <= $count) {
@@ -210,7 +263,7 @@ class Courier_tracking extends CI_Controller {
                     $response['status'] = FALSE;
                     $response['msg'] = $api_response['meta']['message'];
                     //send mail to developer
-                    $this->send_api_failed_email(json_encode($api_response));
+                    $this->send_api_failed_email(json_encode($api_response), array("Method" => __METHOD__));
                 }
             }else{
                 $response['status'] = FALSE;
@@ -288,6 +341,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_details($carrier_code,$awb_number){
+        log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
         $return_data = array();
         
         if(!empty($carrier_code) && !empty($awb_number)){
@@ -334,6 +388,7 @@ class Courier_tracking extends CI_Controller {
      * @return: boolean
      */
     function process_partner_shipped_auto_acknowledge_data($data) {
+        log_message('info', __METHOD__. " ". print_r($data, TRUE));
         $res = FALSE;
 
         $parts_details = explode('/', $data->order_id);
@@ -495,9 +550,94 @@ class Courier_tracking extends CI_Controller {
         }else{
             log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
-            $this->send_api_failed_email(json_encode($awb_number_list));
+            $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
         
+    }
+    
+    /** @desc:List all details of the courier awb number
+     *  @param int $numbers Tracking numbers,eg:$awb_numbers = LY044217709CN,UG561422482CN (optional)
+     *  @param int $orders Tracking order,eg:$orders = #123 (optional)
+     *  @return: view
+     */
+    
+    function process_msl_courier_tracking() {
+        log_message('info', __METHOD__ . ' Entering...');
+        //update trackingmore data by creating new awb number from spare part details
+        $select = "courier_details.id as 'courier_id',"
+                . "courier_details.AWB_no as 'awb',courier_details.courier_name,"
+                . "courier_details.shipment_date as 'shipped_date',courier_details.booking_id,courier_details.sender_entity_id as 'partner_id'";
+        $this->create_awb_number_for_msl($select, COURIER_DETAILS_STATUS);
+        //getting awb list from the api and process on pick-up status
+        $awb_number_list = $this->trackingmore_api->getTrackingsList();
+        echo $awb_number_list->meta->code;
+
+        if (!empty($awb_number_list) && $awb_number_list->meta->code == 200) {
+            //check if data is empty    
+
+            if (!empty($awb_number_list->data)) {
+                //do background process on api data to save it into database
+                $this->insert_api_data($awb_number_list);
+                $awb_number_to_be_deleted_from_api = array();
+                //make array of all delivered data so that we can update status of that spare
+                foreach ($awb_number_list->data->items as $key => $value) {
+                    $order_id_detail_arr = explode('/', $value->order_id);
+                    $tracking_type = $order_id_detail_arr[0];
+                    $courier_details_id = $order_id_detail_arr[1];
+                    $partner_id = $order_id_detail_arr[2];
+                    if ($tracking_type == 'MSL') {
+                        echo " FOr each update " . $key . PHP_EOL;
+                        $data = array('status' => $value->status);
+                        $where = array('id' => $courier_details_id);
+                        $update_status = $this->inventory_model->update_courier_detail($where, $data);
+                        if ($update_status) {
+                            log_message('info', 'Courier Status Updated Successfully for awb number ' . $value->tracking_number);
+                            if ($value->status == 'delivered') {
+                                $deleted_awb_number_tmp_arr = array();
+                                $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
+                                $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
+                                $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
+                            }
+                        }
+                        if (!empty($awb_number_to_be_deleted_from_api)) {
+                            $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                            echo "DELETE AWB BY API";
+                            print_r($delete_status);
+                            if ($delete_status['status']) {
+                                log_message('info', 'Courier details updated and awb deleted from tracking more api Delete API Response: ' . print_r($delete_status, true));
+                            } else {
+                                log_message('info', 'Courier details updated but awb not deleted from tracking more Delete API Response: ' . print_r($delete_status, true));
+                            }
+
+                            $awb_number_to_be_deleted_from_api = array();
+                        }
+                    }
+                }
+            }
+            log_message('info', __METHOD__ . ' Exit...');
+        } else {
+            log_message('info', 'api did not return success response ' . print_r($awb_number_list, true));
+            //send mail to developer
+            $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+        }
+    }
+
+    /** @desc: this function is used to create courier data on trackingMore api so that we can get updated data when we call thier api
+     * @param void
+     * @return void 
+     */
+    function create_awb_number_for_msl($select, $status) {
+        $where = array('courier_details.status' => $status);
+        $courier_data = $this->inventory_model->get_courier_details($select, $where);
+        if (!empty($courier_data)) {
+            foreach ($courier_data as $key => $val) {
+                $extra_info = array();
+                echo $key . PHP_EOL;
+                $extra_info['order_id'] = 'MSL/' . $val['courier_id'] . '/' . $val['partner_id'];
+                $extra_info['tracking_ship_date'] = $val['shipped_date'];
+                $this->trackingmore_api->createTracking($val['courier_name'], $val['awb'], $extra_info);
+            }
+        }
     }
 
 }

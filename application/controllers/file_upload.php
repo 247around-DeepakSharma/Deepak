@@ -47,8 +47,21 @@ class File_upload extends CI_Controller {
             
             //get file header
             $data = $this->read_upload_file_header($file_status);
-           
+            
             $data['post_data'] = $this->input->post();
+            
+            if(!empty( $data['post_data']['partner_id'])){
+               $data['post_data']['entity_type'] = "partner";
+               $data['post_data']['entity_id'] = $data['post_data']['partner_id'];
+            }
+            else if(!empty( $data['post_data']['vendor_id'])){
+                $data['post_data']['entity_type'] = "vendor";
+                $data['post_data']['entity_id'] =$data['post_data']['vendor_id'];
+            }
+            else{
+                $data['post_data']['entity_type'] = "";
+                $data['post_data']['entity_id'] = "";
+            }
 
             //check all required header and file type 
             if ($data['status']) { 
@@ -81,11 +94,11 @@ class File_upload extends CI_Controller {
                 if($response['status']){
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_SUCCESS_STATUS);
+                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_SUCCESS_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                     
                 }else{
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS);
+                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                     $this->session->set_flashdata('file_error', $response['message']);
                     
                 }
@@ -145,27 +158,27 @@ class File_upload extends CI_Controller {
      * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
      * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
      */
-    private function read_upload_file_header($file){ 
+    private function read_upload_file_header($file) {
         log_message('info', __FUNCTION__ . "=> getting upload file header");
-        try {  
+        try {
             $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
             $objPHPExcel = $objReader->load($file['file_tmp_name']);
-        } catch (Exception $e) {   
+        } catch (Exception $e) {
             die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
-        
+
         $file_name = $_FILES["file"]["name"];
-        move_uploaded_file($file['file_tmp_name'],TMP_FOLDER.$file_name);
+        move_uploaded_file($file['file_tmp_name'], TMP_FOLDER . $file_name);
         chmod(TMP_FOLDER . $file_name, 0777);
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
         $highestRow = $sheet->getHighestDataRow();
         $highestColumn = $sheet->getHighestDataColumn();
-        $response['status'] =  TRUE;
+        $response['status'] = TRUE;
         //Validation for Empty File
         if ($highestRow <= 1) {
             log_message('info', __FUNCTION__ . ' Empty File Uploaded');
-            $response['status'] =  False;
+            $response['status'] = False;
         }
 
         $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
@@ -174,113 +187,136 @@ class File_upload extends CI_Controller {
             $heading = str_replace(array("/", "(", ")", "."), "", $heading);
             array_push($headings_new, str_replace(array(" "), "_", $heading));
         }
-        
+
         $headings_new1 = array_map('strtolower', $headings_new[0]);
-        
-        $response['file_name'] =  $file_name;
-        $response['header_data'] =  $headings_new1;
-        $response['sheet'] =  $sheet;
-        $response['highest_row'] =  $highestRow;
-        $response['highest_column'] =  $highestColumn;
+
+        $response['file_name'] = $file_name;
+        $response['header_data'] = $headings_new1;
+        $response['sheet'] = $sheet;
+        $response['highest_row'] = $highestRow;
+        $response['highest_column'] = $highestColumn;
         return $response;
     }
-    
-     /**
+
+    /**
      * @desc: This function is used to process the inventory data 
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
      * @param $response array  response message and status
      */
-    function process_inventory_upload_file($data){
+    function process_inventory_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload inventory file");
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name','part_number','part_type','basic_price','hsn_code','gst_rate');
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate');
         //check if required column is present in upload file header
-        $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
-        
-        if($check_header['status']){
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+
+        if ($check_header['status']) {
             $invalid_data = array();
+            $flag = 1;
+            $msg = "";
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                $sanitizes_row_data = array_map('trim',$rowData_array[0]);
-                
-                if(!empty(array_filter($sanitizes_row_data))){
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    $rowData['service_id'] = $service_id;
-                    //array_push($file_appliance_arr, $rowData['appliance']);
-                    /**check if part_number value is present or not
-                     * if its value is not presnet then create new part number
-                     * based on partner_id,service_id and unique number
-                    */
-                    
-                    if(!empty($rowData['hsn_code']) && !empty($rowData['basic_price'])){
-                        if(empty($rowData['part_number'])){
-                            $new_part_number = $this->create_inventory_part_number($partner_id,$service_id,$rowData);
-                            $rowData['part_number'] = $new_part_number;
+               
+                    $where['hsn_code'] = $rowData['hsn_code'];
+                    $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+                                        
+                    if(!empty($service_id) && !empty($rowData['part_type'])){
+                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=>$rowData['part_type']));
+                        if(empty($parts_type_details)){
+                            $parts_data['service_id'] = $service_id;
+                            $parts_data['part_type'] = $rowData['part_type'];
+                            $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
+                            if(!empty($parts_data)){
+                                $this->inventory_model->insert_inventory_parts_type($parts_data);
+                            }
                         }
-
-                        $subArray = $this->get_sub_array($rowData, array('appliance','service_id', 'part_name', 'part_number'));
-                        array_push($sheetUniqueRowData, implode('_join_', $subArray));
-                        $this->sanitize_inventory_data_to_insert($rowData);
-                    }else{
-                        array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'],'hsn_code' => $rowData['hsn_code'],'basic_price'=>$rowData['basic_price']));
                     }
-                    
+
+                    if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
+                        $flag = 0;
+                        $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
+                        break;
+                    }                                          
+                    if ($flag == 1) {
+                        $rowData['service_id'] = $service_id;
+                        //array_push($file_appliance_arr, $rowData['appliance']);
+                        /*                         * check if part_number value is present or not
+                         * if its value is not presnet then create new part number
+                         * based on partner_id,service_id and unique number
+                         */
+
+                        if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price'])) {
+                            if (empty($rowData['part_number'])) {
+                                $new_part_number = $this->create_inventory_part_number($partner_id, $service_id, $rowData);
+                                $rowData['part_number'] = $new_part_number;
+                            }
+
+                            $subArray = $this->get_sub_array($rowData, array('appliance', 'service_id', 'part_name', 'part_number'));
+                            array_push($sheetUniqueRowData, implode('_join_', $subArray));
+                            $this->sanitize_inventory_data_to_insert($rowData);
+                        } else {
+                            array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'], 'hsn_code' => $rowData['hsn_code'], 'basic_price' => $rowData['basic_price']));
+                        }
+                    }
                 }
             }
-            
-            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
-            
-            if($is_file_contains_unique_data['status']){
-                
-                $insert_id = $this->inventory_model->insert_batch_inventory_master_list_data($this->dataToInsert);
-            
-                if($insert_id){
-                    log_message("info", __METHOD__." inventory file data inserted succcessfully");
-                    $response['status'] = TRUE;
-                    
-                    $message = "Details inserted successfully.";
-                    
-                    if (!empty($invalid_data)) {
-                        $template = array(
-                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                        );
 
-                        $this->table->set_template($template);
+            if ($flag == 1) {
+                $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
 
-                        $this->table->set_heading(array('Part Name','Part Number', 'HSN Code', 'Basic Price'));
-                        foreach ($invalid_data as $value) {
-                            $this->table->add_row($value['part_name'],$value['part_number'],$value['hsn_code'],$value['basic_price']);
+                if ($is_file_contains_unique_data['status']) {
+
+                    $insert_id = $this->inventory_model->insert_batch_inventory_master_list_data($this->dataToInsert);
+                    if ($insert_id) {
+                        log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
+                        $response['status'] = TRUE;
+
+                        $message = "Details inserted successfully.";
+
+                        if (!empty($invalid_data)) {
+                            $template = array(
+                                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                            );
+
+                            $this->table->set_template($template);
+
+                            $this->table->set_heading(array('Part Name', 'Part Number', 'HSN Code', 'Basic Price'));
+                            foreach ($invalid_data as $value) {
+                                $this->table->add_row($value['part_name'], $value['part_number'], $value['hsn_code'], $value['basic_price']);
+                            }
+
+                            $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
+                            $message .= $this->table->generate();
                         }
 
-                        $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
-                        $message .= $this->table->generate();
+                        $response['message'] = $message;
                     }
-
-                    $response['message'] = $message;
-                }else{
-                    log_message("info", __METHOD__." error in inserting inventory file data");
+                } else {
+                    log_message("info", __METHOD__ . $is_file_contains_unique_data['message']);
                     $response['status'] = FALSE;
-                    $response['message'] = "Something went wrong in inserting data.";
+                    $response['message'] = $is_file_contains_unique_data['message'];
                 }
-            }else{
-                log_message("info", __METHOD__ . $is_file_contains_unique_data['message']);
+            } else {
                 $response['status'] = FALSE;
-                $response['message'] = $is_file_contains_unique_data['message'];
+                $response['message'] = $msg;
             }
-            
-        }else{
+        } else {
             $response['status'] = $check_header['status'];
             $response['message'] = $check_header['message'];
         }
-        
+
         return $response;
     }
-    
+
     /**
      * @desc: This function is used to validate upload file header
      * @param $actual_header array this is actual header. It contains all the required column
@@ -889,7 +925,7 @@ class File_upload extends CI_Controller {
                    
                 }
                 $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
-                    $data['post_data']['file_type'], $file_upload_status);
+                    $data['post_data']['file_type'], $file_upload_status, "", "partner", $partner_id);
             
                 $this->send_email($data,$response);
             } else {

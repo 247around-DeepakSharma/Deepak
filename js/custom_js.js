@@ -104,7 +104,8 @@ function getCategoryForService(div_id) {
 }
 
 
-function getCapacityForCategory(category, div_id) {
+function getCapacityForCategory(category, div_id, add_booking) {
+    add_booking = add_booking || false;
     var postData = {};
     var div_no = div_id.split('_');
 
@@ -132,8 +133,8 @@ function getCapacityForCategory(category, div_id) {
             $("#priceList_" + div_no[2]).html("");
 
             if(category){
-                getModelForServiceCategoryCapacity(div_id);
-                getPricesForCategoryCapacity(div_id);
+                getModelForServiceCategoryCapacity(div_id,);
+                getPricesForCategoryCapacity(div_id,add_booking);
             }
             
 
@@ -142,7 +143,8 @@ function getCapacityForCategory(category, div_id) {
     });
 }
 
-function getPricesForCategoryCapacity(div_id) {
+function getPricesForCategoryCapacity(div_id,add_booking) {
+    add_booking = add_booking || false;
     var postData = {};
     var div_no = div_id.split('_');
     $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
@@ -157,6 +159,7 @@ function getPricesForCategoryCapacity(div_id) {
         postData['clone_number'] = div_no[2];
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
         postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+        postData['add_booking'] = add_booking;
         $('#submitform').attr('disabled', true);
 
         if ($("#appliance_capacity_" + div_no[2]).val() !== "") {
@@ -244,7 +247,7 @@ function check_prepaid_balance(type) {
 
 }
 
-function addBookingDialog() {
+function addBookingDialog(chanel = '') {
 
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
@@ -266,7 +269,10 @@ function addBookingDialog() {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
-   // var customer_paid = $("#grand_total_price").val();
+    var parant_id = $('#parent_id').val();
+    var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
+    var isServiceChecked = $('.Service:checkbox:checked').length;
+   // var customer_paid = $("#grand_total_price").val()
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
@@ -388,12 +394,15 @@ function addBookingDialog() {
                 }
             }
             else{
-                var order_id = $('#order_id').val();
-                if (order_id === "" && dealer_phone_number === "") {
-                    alert('Please Fill Order Id Or Dealer Phone Number');
-                    return false;
+                old_type = $("#booking_old_type_holder").text();
+                if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
+                    var order_id = $('#order_id').val();
+                    if (order_id === "" && dealer_phone_number === "") {
+                        alert('Please Fill Order Id Or Dealer Phone Number');
+                        return false;
+                    }
                 }
-         }
+            }
         }
     }
     if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
@@ -427,7 +436,15 @@ function addBookingDialog() {
             } 
         }
     }
-
+    //If anyone select repeat booking then parent ID Shoud not blank
+    if(isRepeatChecked > 0 && isServiceChecked >0){
+        alert("You Can Not Select any other Service in case of Repeat Booking");
+        return false;
+    }
+    if(isRepeatChecked > 0 && !parant_id){
+        alert("Please Select Parent ID");
+        return false;
+    }
     if (booking_date === "") {
         alert("Please fill Booking date ");
         return false;
@@ -694,7 +711,15 @@ function set_upcountry() {
         switch(data1.message) {
             case 'UPCOUNTRY BOOKING':
             case 'UPCOUNTRY LIMIT EXCEED':
-                if(Number(is_upcountry) == 1){
+                if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 0){
+                    var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
+                    total_price = $("#grand_total_price").val();
+                    $("#upcountry_charges").val(upcountry_charges);
+                    $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
+                    alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                    $('#submitform').attr('disabled', false);
+                    
+                } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var total_price = $("#grand_total_price").val();
 
                     var partner_approval = Number(data1.partner_upcountry_approval);
@@ -703,6 +728,7 @@ function set_upcountry() {
                         $("#upcountry_charges").val("0");
                         $('#submitform').attr('disabled', false);
                         final_price();
+                        alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
 
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
                         

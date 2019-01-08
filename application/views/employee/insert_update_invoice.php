@@ -87,18 +87,17 @@
                                 </div>
                             </div>
                             <div class="form-group" >
-                                <label for="Due Date" class="col-md-4">Vertical</label>
+                                <label for="Due Date" class="col-md-4">Vertical*</label>
                                 <div class="col-md-6">
-                                    <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+                                    <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')" required>
 
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group" >
-                                <label for="Due Date" class="col-md-4">Sub Category</label>
+                                <label for="Due Date" class="col-md-4">Sub Category*</label>
                                 <div class="col-md-6">
-                                    <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);">
-                                       <option>select</option>
+                                    <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);" required>
                                     </select>
                                 </div>
                             </div>
@@ -257,10 +256,9 @@
                                 <?php echo form_error('type'); ?>
                             </div>
                             <div class="form-group" >
-                                <label for="Due Date" class="col-md-4">Category</label>
+                                <label for="Due Date" class="col-md-4">Category*</label>
                                 <div class="col-md-6">
-                                    <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
-                                       <option>select</option>
+                                    <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')" required>
                                     </select>
                                 </div>
                             </div>
@@ -428,6 +426,7 @@
        
         $(document).ready(function(){
           partner_vendor('<?php echo $vendor_partner; ?>');   
+          get_vertical('<?php echo base_url(); ?>');
        });
       
     
@@ -520,6 +519,6 @@
          }, 5000);
       });
 
-    get_vertical('<?php echo base_url(); ?>');
+  
 </script>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

@@ -14,13 +14,16 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow{
         height: 31px;
     }
+   #total_stock{
+        font-size: 14px;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Warehouse Spare Parts Inventory</h3>
+                    <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -30,15 +33,15 @@
                             <div class="row">
                                 <div class="form-inline">
                                     <div class="form-group col-md-3">
-                                        <select class="form-control" id="wh_id">
-                                            <option value="" disabled="">Select Warehouse</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-3">
                                         <select class="form-control" id="partner_id">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <select class="form-control" id="wh_id">
+                                            <option value="" disabled="">Select Warehouse</option>
+                                        </select>
+                                    </div>                                    
                                     <div class="form-group col-md-3">
                                         <select class="form-control" id="service_id">
                                             <option value="" disabled="">Select Appliance</option>
@@ -64,7 +67,7 @@
                                     <th>Name</th>
                                     <th>Number</th>
                                     <th>Stock</th>
-                                    <th>Baisc Price</th>
+                                    <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
                                 </tr>
@@ -106,8 +109,7 @@
             placeholder: 'Select Appliance'
         });
         
-        get_partner();
-        get_vendor();
+        get_partner();        
         get_inventory_list();
     });
     
@@ -116,7 +118,9 @@
         var partner_id = $('#partner_id').val();
         if(wh_id && partner_id){
             is_admin_crm = true;
-            inventory_stock_table.ajax.reload();
+            inventory_stock_table.ajax.reload( function ( json ) { 
+            $("#total_stock").html('Total Stock (<i>'+json.stock+'</i>)').css({"font-size": "14px;", "color": "#288004;"});
+        } );
         }else{
             alert("Please Select Warehouse and Partner Both");
         }
@@ -147,9 +151,7 @@
                                 </div>",
                 "emptyTable":     "No Data Found"
             },
-            select: {
-                style: 'multi'
-            },
+            
             "order": [],
             "pageLength": 25,
             "ordering": false,
@@ -165,10 +167,9 @@
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.service_id = entity_details.service_id,
                     d.is_show_all = entity_details.is_show_all_checked,
-                    d.is_admin_crm = is_admin_crm
+                    d.is_admin_crm = is_admin_crm;
                 }
-            },
-            "deferRender": true
+            }
         });
     }
     
@@ -197,11 +198,11 @@
         });
     }
     
-    function get_vendor() {
+    function get_vendor(partner_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'is_wh' : 1,partner_id:partner_id},
             success: function (response) {
                 $('#wh_id').html(response);
             }
@@ -212,10 +213,12 @@
         var partner_id = $('#partner_id').val();
         if(partner_id){
             get_appliance(partner_id);
+            get_vendor(partner_id);
         }else{
             alert('Please Select Partner');
         }
     });
+    
     function get_appliance(partner_id){
         $.ajax({
             type: 'GET',
@@ -269,7 +272,9 @@
         });
 
         // Requery the server with the new one-time export settings
-        inventory_stock_table.ajax.reload();
+        inventory_stock_table.ajax.reload( function ( json ) {
+           $("#total_stock").html('Total Stock(<i>'+json.stock+'</i>)').css({"font-size": "14px", "color": "#288004;"});
+        } );
     };
 
 </script>

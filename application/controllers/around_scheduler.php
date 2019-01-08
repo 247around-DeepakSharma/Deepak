@@ -73,7 +73,7 @@ class Around_scheduler extends CI_Controller {
                         . " " . $status['content'];
                 $to = ANUJ_EMAIL_ID;
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",SMS_SENDING_FAILED);
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",SMS_SENDING_FAILED, "", $value->booking_id);
             }
         }
         // Inserting values in scheduler tasks log
@@ -304,6 +304,7 @@ class Around_scheduler extends CI_Controller {
 
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
+            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Log this state change as well for this booking
             $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
                     NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
@@ -982,20 +983,21 @@ class Around_scheduler extends CI_Controller {
     /**
      * @desc This function is used to calculate upcountry from India Pincode File
      */
-    function get_upcountry_details_from_india_pincode() {
+    function get_upcountry_details_from_india_pincode($service_id) {
         $this->upcountry_model->truncate_upcountry_sf_level_table();
         $pincode_array = $this->vendor_model->getPincode_from_india_pincode("", true);
         $partner_data = array();
         $partner_data[0]['is_upcountry'] = 0;
         $partner_data[0]['upcountry_approval_email'] = '';
-        $services = $this->booking_model->selectservice();
-        foreach ($services as $service_id) {
+        
+        //$services = $this->booking_model->selectservice();
+        //foreach ($services as $service_id) {
             $upcountry_data = array();
             foreach ($pincode_array as $key => $pincode) {
-                $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id->id, $partner_data);
+                $up_details = $this->miscelleneous->check_upcountry_vendor_availability("", $pincode['pincode'], $service_id, $partner_data);
                 $data = array();
                 $data['pincode'] = $pincode['pincode'];
-                $data['service_id'] = $service_id->id;
+                $data['service_id'] = $service_id;
                 $data['hq_pincode'] = NULL;
                 $data['sub_vendor_id'] = 0;
                 $data['distance'] = 0;
@@ -1044,7 +1046,7 @@ class Around_scheduler extends CI_Controller {
                  
             }
             log_message('info',__METHOD__. " Exit");
-        }
+        //}
         
         $newCSVFileName = "upcountry_local_file" . date('jMYHis') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
@@ -1173,14 +1175,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function auto_acknowledge_buyback_order() {
         log_message("info", __METHOD__);
         $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , delivery_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
-            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => 'Pending');
+            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => _247AROUND_PENDING);
         $where['select'] = "bb_order_details.partner_order_id";
         $where['length'] = -1;
         $data = $this->cp_model->get_bb_cp_order_list($where);
         if (!empty($data)) {
             foreach ($data as $value) {
                 // Update bb order details
-                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), array("acknowledge_date" => date("Y-m-d H:i:s"), "current_status" => "Completed", "internal_status" => "Completed"));
+                $this->bb_model->update_bb_order_details(array('partner_order_id' => $value->partner_order_id), 
+                        array("acknowledge_date" => date("Y-m-d H:i:s"), 
+                            "current_status" => "Completed", 
+                            "internal_status" => "Completed",
+                            "auto_acknowledge" => 1));
                 // Update Unit Details
                 $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), array("order_status" => "Delivered"));
 
@@ -2037,9 +2043,65 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $email_from = $email_template[2];
                 $to = $vendor_value->owner_email.",".$vendor_value->primary_contact_email;
                 $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-                $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
+                $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VENDOR_GST_RETURN_WARNING);
             }
         }
     }
     
+     /*
+     *@desc - this function is used to send sms to vendor for filling gst return with invoicing detail
+     */
+    function send_expiry_mail_and_generate_invoice_for_partner(){ 
+        $wh = " AND partners.is_active = 1 ";
+        $expiry_partner =$this->invoices_model->get_partners_annual_charges("public_name, owner_email, invoice_email_to, invoice_email_cc,  invoice_id, vendor_partner_id, "
+                 . "from_date, to_date, vendor_partner_id", "", $wh);
+        $exp_warning_date = date('Y-m-d', strtotime('-15 days', strtotime(date('Y-m-d'))));
+        foreach($expiry_partner as $expiry_partner){ 
+            if($expiry_partner->to_date >= $exp_warning_date && $expiry_partner->to_date <= date("Y-m-d")){
+                $email_template = $this->booking_model->get_booking_email_template(VALIDITY_EXPIRY_WARNING_FOR_PARTNER);
+                if(!empty($email_template)){
+                    $subject = vsprintf($email_template[4], array($expiry_partner->public_name));
+                    $message = vsprintf($email_template[0], array($expiry_partner->to_date)); 
+                    $email_from = $email_template[2];
+                    $to = $email_template[1]." ,".$expiry_partner->owner_email.",".$expiry_partner->invoice_email_to." ,".$this->session->userdata('official_email');
+                    $cc = $email_template[3]." ,".$expiry_partner->invoice_email_cc;
+                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', VALIDITY_EXPIRY_WARNING_FOR_PARTNER);
+                }
+            }
+            else if($expiry_partner->to_date < date("Y-m-d")){
+                $auual_charges_exist = $this->invoices_model->get_variable_charge('id, fixed_charges, validity_in_month', array('entity_type' => 'partner', 'entity_id' => $expiry_partner->vendor_partner_id));
+                if(!empty($auual_charges_exist)){
+                    $url = base_url() . "employee/invoice/generate_crm_setup/".true;
+                    $from_date = date('Y/m/d');
+                    $tot_days = 30 * $auual_charges_exist[0]['validity_in_month'];
+                    $to_date = date('Y/m/d', strtotime('+'.$auual_charges_exist[0]['validity_in_month'].' months', strtotime($from_date)));
+                    $async_data['partner_name'] = $expiry_partner->public_name;
+                    $async_data['partner_id'] = $expiry_partner->vendor_partner_id;
+                    $async_data['daterange'] = $from_date."-".$to_date;
+                    $async_data['invoice_type'] = CRM_SETUP_INVOICE_DESCRIPTION;
+                    $async_data["service_charge"] = $auual_charges_exist[0]['fixed_charges'];
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                }
+            }
+        }
+    }
+    function send_missed_call_sms_to_cancelled_bookings($partnerID,$days){
+        $where["DATEDIFF(CURRENT_TIMESTAMP , date(booking_details.service_center_closed_date)) < ".$days] = NULL;
+        $where['partner_id'] = $partnerID;
+        $where['current_status'] = _247AROUND_CANCELLED;
+        $join['services'] = "services.id = booking_details.service_id";
+        $join['partners'] = "partners.id = booking_details.partner_id";
+        $cancelledBookings = $this->reusable_model->get_search_result_data("booking_details","user_id,booking_id,booking_primary_contact_no,services.services,partners.public_name",$where,$join,NULL,NULL,NULL,NULL,array());
+        foreach($cancelledBookings as $bookingData){
+            $sms['tag'] = "partner_missed_call_for_installation";
+            $sms['smsData']['service'] = $bookingData['services'];
+            $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
+            $sms['booking_id'] = $bookingData['booking_id'] ;
+            $sms['type'] = "user";
+            $sms['type_id'] = $bookingData['user_id'];
+            $sms['phone_no'] = $bookingData['booking_primary_contact_no'];
+            $sms['smsData']['partner'] = $bookingData['public_name'];
+            $this->notify->send_sms_msg91($sms);
+        }
+    }
 }

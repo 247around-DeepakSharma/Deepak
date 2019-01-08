@@ -23,7 +23,7 @@ class Email_attachment_parser extends CI_Controller {
     * @param    void
     * @return   void
     */
-    function read_email_attachments() {
+    function read_email_attachments() { 
         log_message('info', __METHOD__ . " Entering...");
         $mail_server = SMS_DEACTIVATION_MAIL_SERVER;
         $email = EMAIL_ATTACHMENT_READER_EMAIL;
@@ -66,6 +66,7 @@ class Email_attachment_parser extends CI_Controller {
                                                     }
                                                 }
                                             }
+                                            $file_details['file_email_subject'] = $val['subject'];
                                             $file_upload_response = $this->process_uploading_extract_file($file_details['url'], TMP_FOLDER . $extract_file_name, $val['email_message_id'], $file_details);
                                             log_message('info',TMP_FOLDER . $extract_file_name);
                                             //delete file from the system after processing
@@ -148,7 +149,9 @@ class Email_attachment_parser extends CI_Controller {
             'is_file_send_back' => $file_details['is_file_send_back'],
             'file_read_column' => $file_details['file_read_column'],
             'file_write_column' => $file_details['file_write_column'],
-            'revert_file_email' => $file_details['revert_file_email']);
+            'revert_file_email' => $file_details['revert_file_email'],
+            'file_email_subject' => $file_details['file_email_subject'],
+            );
         
         $ch = curl_init();
         

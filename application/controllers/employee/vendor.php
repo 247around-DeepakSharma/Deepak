@@ -218,6 +218,7 @@ class vendor extends CI_Controller {
         $vendor_data['is_wh'] = $this->input->post('is_wh');
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
+        $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
         return $vendor_data;
     }
 
@@ -734,25 +735,44 @@ class vendor extends CI_Controller {
      * @param: vendor id
      * @return : array(of details) to view
      */
-    function viewvendor($vendor_id = "",$active = "1", $sf_cp_type ="sf",$offset = 0, $page = 0) {
-        $vendor_name = $this->input->post("vendor_name"); 
-        
+    function viewvendor($vendor_id = "") {
         $this->checkUserSession();
-        if ($page == 0) {
-            $page = 50;
+        $id = $this->session->userdata('id');   
+        $active = "1";
+        $data['active_state'] = $active;
+        if(!empty($this->input->get())){
+            $data = $this->input->get();
+            if($data['active_state'] == 'all'){
+                $active = "";
+            }
         }
-        if($vendor_id == "all"){
-            $vendor_id = "";
+        //Getting employee relation if present for logged in user
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+            $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $id = $this->session->userdata('id'); 
-        if($active == "" || $active == "all"){
-            $active = "";
-        } else {
-            $active = 1;
-        }
-       
-        $is_wh = '';
-        $is_cp = '';
+        //Getting State for SC charges
+        $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
+        $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
+        $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
+    }
+    
+    function get_filterd_sf_cp_data(){
+        $this->checkUserSession();
+        if($this->input->post()){
+            
+            $sf_cp_type = $this->input->post('sf_cp');
+            $active_state = $this->input->post('active_state');
+            if($active_state === 'all'){
+                $active = '';
+            }else{
+                $active = '1';
+            }
+            
+            $is_wh = '';
+            $is_cp = '';
             if($sf_cp_type === 'sf'){
                 $is_cp = '';
             }else if($sf_cp_type === 'cp'){
@@ -760,32 +780,25 @@ class vendor extends CI_Controller {
             }else if($sf_cp_type === 'wh'){
                 $is_wh = '1';
             }
-        $data['sf_cp_type'] = $sf_cp_type;
-        $data['active_state'] = $active;
-        $data['vendor_name']= $vendor_name;
-        //Getting employee relation if present for logged in user
-        $sf_list = $this->vendor_model->get_employee_relation($id);
-        if (!empty($sf_list)) {
-            $sf_list = $sf_list[0]['service_centres_id'];
+            
+            $id = $this->session->userdata('id');   
+            //$active = "1";
+            //Getting employee relation if present for logged in user
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh);
+            if(!empty($query)){
+                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
+            }else{
+                $response = "No Data Found";
+            }
+            echo $response;
+        }else{
+            echo "Invalid Request";
         }
         
-        $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-        $config['base_url'] = base_url() . 'employee/vendor/viewvendor/all/'.$active."/".$sf_cp_type;
-        $config['total_rows'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list,$is_cp,$is_wh,"count","",$vendor_name );
-
-        $config['per_page'] = $page;
-        $config['uri_segment'] = 7;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-        //Getting State for SC charges
-        $data['state'] = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
-        $data['query'] = $this->vendor_model->viewvendor($vendor_id, $active,$sf_list, $is_cp, $is_wh,$config['per_page'], $offset,$vendor_name  );
-
-        $data['pushNotification'] = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', $data);
     }
 
     /**
@@ -966,7 +979,7 @@ class vendor extends CI_Controller {
         $subject = "Pincode Not Found In Vendor Pincode Mapping File";
         $message = "Hi,<br/>Please add Pincode and SF details in the Vendor Pincode Mapping file and upload new file. Booking ID: " . $booking_id;
         
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",SF_NOT_FOUND);
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "",SF_NOT_FOUND, "", $booking_id);
     }
     
    
@@ -982,7 +995,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         $this->checkUserSession();
         if(!empty($booking_id)){
-            $service_centers = $this->vendor_model->viewvendor("", 1, NULL);
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
         }
@@ -1050,8 +1063,8 @@ class vendor extends CI_Controller {
             
             foreach ($unit_details[0]['quantity'] as $value) {
                 
-                $data['current_status'] = "Pending";
-                $data['internal_status'] = "Pending";
+                $data['current_status'] = _247AROUND_PENDING;
+                $data['internal_status'] = _247AROUND_PENDING;
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
@@ -1070,7 +1083,7 @@ class vendor extends CI_Controller {
                     $enID = $this->engineer_model->insert_engineer_action($engineer_action);
                     if(!$enID){
                          $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
-                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED);
+                            "BUG in Enginner Table ". $booking_id, "SF Assigned but Action table not updated", "",SF_ASSIGNED_ACTION_TABLE_NOT_UPDATED, "", $booking_id);
                     }
                 }
                 
@@ -1435,7 +1448,7 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : Takes to view
      */
-    function process_vendor_escalation_form() {
+    function process_vendor_escalation_form() { 
         $this->checkUserSession();
         log_message('info',__FUNCTION__);
         $booking_id= $this->input->post('booking_id');
@@ -2913,7 +2926,6 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-       
         $where = array('active' => '1','on_off' => '1');
         $select = "*";
         $whereIN = array();
@@ -2926,6 +2938,13 @@ class vendor extends CI_Controller {
         $districArray = $this->miscelleneous->get_district_covered_by_vendors();
         foreach($vendor as $index=>$values){
             $vendor[$index]['covered_state'] = '';
+            $vendor[$index]['sf_rm_name'] = '';
+            $vendor[$index]['sf_rm_phone'] = '';
+            $rm_detail = $this->vendor_model->get_rm_sf_relation_by_sf_id($values['id']);
+            if(!empty($rm_detail)){
+                $vendor[$index]['sf_rm_name'] = $rm_detail[0]['full_name'];
+                $vendor[$index]['sf_rm_phone'] = $rm_detail[0]['phone'];
+            }
             if(array_key_exists($values['id'], $districArray)){
                 $vendor[$index]['covered_state'] = $districArray[$values['id']];
             }
@@ -3359,8 +3378,7 @@ class vendor extends CI_Controller {
                 $insert_data['to_date'] = $data['to_date'];
                 $insert_data['active'] = $data['active'];
                 $insert_data['create_date'] = date('Y-m-d H:i:s');
-                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);
-                print_r($insert_id);
+                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);                
                 if ($insert_id) {
                     log_message('info', __FUNCTION__ . ' New Tax Rate Template has been added with ID ' . $insert_id);
                 } else {
@@ -3703,7 +3721,7 @@ class vendor extends CI_Controller {
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking');
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
@@ -3725,8 +3743,8 @@ class vendor extends CI_Controller {
      }else{
          $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
      }
-    if($status === 'Pending' || $status === 'Rescheduled'){
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
+    if($status === _247AROUND_PENDING || $status === _247AROUND_RESCHEDULED){
+        redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
     }else{
         redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
     }
@@ -3933,6 +3951,7 @@ class vendor extends CI_Controller {
         }
     }
     
+    
     /**
      * @Desc: This function is used to get the service center for filtered brackets list
      * @param void
@@ -3963,11 +3982,13 @@ class vendor extends CI_Controller {
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            
             
             if(!empty($is_wh)){
+                $option .= " data-warehose='1' > ";
                 $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
             }else{
+                $option .= " > ";
                 $option .= $value['name'] . "</option>";
             }
         }
@@ -3975,6 +3996,51 @@ class vendor extends CI_Controller {
         echo $option;
     }
     
+    /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_service_center_with_micro_wh() {
+        log_message('info', __METHOD__ );
+
+        $partner_id = $this->input->post('partner_id');
+
+        $partner_data = $this->partner_model->getpartner($partner_id);
+
+        $option = '<option selected="" disabled="">Select Warehouse</option>';
+        if ($partner_data[0]['is_wh'] == 1) {
+            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $where = array('is_wh' => 1, 'active' => 1);
+
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+
+            foreach ($data as $value) {
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
+                $option .= " > ";
+
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+            }
+        }
+        if ($partner_data[0]['is_micro_wh'] == 1) {
+             $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
+
+
+            if (!empty($micro_wh_state_mapp_data_list)) {
+                foreach ($micro_wh_state_mapp_data_list as $value) {
+                    $option .= "<option  data-warehose='2' value='" . $value['vendor_id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['name'] . " - (Micro Warehouse) </option>";
+                    $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
+                }
+            }
+        }
+        
+
+        echo $option;
+    }
+
     function upload_signature_file() {
         //Start Processing signature File Upload
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
@@ -4477,7 +4543,7 @@ class vendor extends CI_Controller {
     
     function pending_bookings_on_vendor($vendorID){
          $count = $this->reusable_model->get_search_result_count("booking_details","booking_id",array('assigned_vendor_id'=>$vendorID),NULL,NULL,NULL,
-                 array("current_status"=>array("Rescheduled","Pending")),NULL );
+                 array("current_status"=>array(_247AROUND_RESCHEDULED,_247AROUND_PENDING)),NULL );
          echo $count;
     }
     
@@ -4703,7 +4769,18 @@ class vendor extends CI_Controller {
                 $html  .= "<th>SF Earning</th>";
             }
             
-            $html .=  "<th>Approval File</th><th>Remarks</th>";
+            if($is_partner){
+                $html .=  "<th>Partner Invoice Id</th>";
+                $html .=  "<th>Approval File</th><th>Remarks</th>";
+            }
+            if($is_sf){
+                $html  .= "<th>Vendor Invoice Id</th>";
+            }
+            
+            
+            if($this->session->userdata('userType') == 'employee'){ 
+                $html .=  "<th>Action</th>";
+            }
             $html .= "</tr></thead><tbody>";
            foreach ($data as $value) {
                $html .= "<tr>";
@@ -4714,11 +4791,20 @@ class vendor extends CI_Controller {
                if($is_sf){
                    $html .= '<td>'.($value['vendor_basic_charges'] + $value['vendor_tax']).'</td>';
                }
-               if(!empty($value['approval_file'])){
-                   $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
-               } else {
-                   $html .= '<td></td>';
+               
+               if($is_partner){
+                    $html .= '<td>'.$value['partner_invoice_id'].'</td>';
+                    if(!empty($value['approval_file'])){
+                        
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
+                }
+               if($is_sf){
+                   $html .= '<td>'.$value['vendor_invoice_id'].'</td>';
                }
+               
                $html .= '<td>'.$value['remarks'].'</td>';
                if($this->session->userdata('userType') == 'employee'){
                    $b = "'$booking_id'";
@@ -4757,12 +4843,28 @@ class vendor extends CI_Controller {
         //unlink($csv);
     }
     
-    function check_GST_number($gst, $vendor_id=""){
-        $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($gst, $vendor_id);
-        if (!$api_response) {
-          echo '{"status_cd":"0","errorMsg":"cURL Error"}';
-        } else {
-          echo $api_response;
+    function check_GST_number($gst, $vendor_partner_id="", $vendor_partner=""){
+        if($vendor_partner == 'partner'){ 
+            $GST_number = $this->partner_model->getpartner_details('partners.id', array('gst_number'=>$gst, 'partners.id != "'.$vendor_partner_id.'"'=>null));
+            if(empty($GST_number)){
+                $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($gst, $vendor_partner_id, $vendor_partner);
+                if (!$api_response) {
+                  echo '{"status_cd":"0","errorMsg":"Error occured while checking GST number try again"}';
+                } else {
+                  echo $api_response;
+                }
+            }
+            else{
+                echo '{"status_cd":"0","errorMsg":"GST Number Already Exist"}';
+            }
+        }
+        else{
+            $api_response = $this->invoice_lib->taxpro_gstin_checking_curl_call($gst, $vendor_partner_id, $vendor_partner);
+            if (!$api_response) {
+              echo '{"status_cd":"0","errorMsg":"Error occured while checking GST number try again"}';
+            } else {
+              echo $api_response;
+            }
         }
     }
         function save_vendor_documents(){
@@ -5207,4 +5309,53 @@ class vendor extends CI_Controller {
         }
     }
     
+    function send_broadcast_sms_to_vendors(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/send_broadcast_sms_to_vendors_form');
+    }
+    
+    function process_broadcast_sms_to_vendors(){
+        $select = "id";
+        $vendor_owner = $this->input->post('vendor_owner');
+        $venor_poc = $this->input->post('venor_poc');
+        if($vendor_owner == 'on'){
+            $select .= ",owner_phone_1";
+        }
+        if($venor_poc == 'on'){
+            $select .= ",primary_contact_phone_1";
+        }
+        $where = array('active'=> 1);
+        $vender_detail = $this->vendor_model->getVendorDetails($select, $where);
+        foreach ($vender_detail as $key=>$value){
+            $sms_number = "";
+            $vendor_id = $value['id'];
+            if(isset($value['owner_phone_1'])){
+                $sms_number = $value['owner_phone_1'];
+                $sms = array();
+                $sms['phone_no'] = $sms_number;
+                $sms['smsData'] = $this->input->post('mail_body');
+                $sms['tag'] = BROADCAST_SMS_TO_VENDOR;
+                $sms['status'] = "";
+                $sms['booking_id'] = "";
+                $sms['type'] = "vendor";
+                $sms['type_id'] = $vendor_id;
+                $this->notify->send_sms_msg91($sms);
+            }
+            if(isset($value['primary_contact_phone_1'])){
+                $sms_number = $value['primary_contact_phone_1'];
+                $sms = array();
+                $sms['phone_no'] = $sms_number;
+                $sms['smsData'] = $this->input->post('mail_body');
+                $sms['tag'] = BROADCAST_SMS_TO_VENDOR;
+                $sms['status'] = "";
+                $sms['booking_id'] = "";
+                $sms['type'] = "vendor";
+                $sms['type_id'] = $vendor_id;
+                $this->notify->send_sms_msg91($sms);
+            }
+        }
+        
+        $this->session->set_flashdata('success', "SMS Sent Successfully");
+        redirect(base_url() . 'employee/vendor/send_broadcast_sms_to_vendors');
+    }
 }

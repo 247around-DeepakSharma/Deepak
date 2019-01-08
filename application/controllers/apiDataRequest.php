@@ -112,7 +112,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = "<a style='color:#337ab7' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sp_list->serial_number_pic."' target = '_blank' >Click Here</a>";
 
             $c = '"'.$sp_list->id.'", "'.$sp_list->booking_id.'", "'.$sp_list->assigned_vendor_id.'", "'.$sp_list->amount_due.'" , "'.$sp_list->partner_id.'"';
-            $row[] = '<input type="number" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
+            $row[] = '<input type="number" placeholder="Enter your Billing Price" style="width: fit-content;" step="0.01" id="estimate_cost_'.$sp_list->id.'" class="col-md-8"/>';
             $row[] = "<button id='btn_oow_".$sp_list->id."' "
                     . "class = 'btn btn-sm btn-info' onclick='update_spare_estimate_cost(".$c .")' >Submit</button>";
 
@@ -277,7 +277,7 @@ class ApiDataRequest extends CI_Controller {
                 $sc_data['unit_details_id'] = $result['unit_id'];
                 $sc_data['booking_id'] = $booking_id;
                 $sc_data['service_center_id'] = $vendor_id;
-                $sc_data['current_status'] = "Pending";
+                $sc_data['current_status'] = _247AROUND_PENDING;
                 $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = SPARE_OOW_EST_GIVEN;
                 //Update New item In SF Action Table 
@@ -285,9 +285,9 @@ class ApiDataRequest extends CI_Controller {
                 
                 $isEn = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$vendor_id));
                 if($isEn[0]['isEngineerApp'] == 1){
-                    $en['current_status'] = "Pending";
+                    $en['current_status'] = _247AROUND_PENDING;
                     $en['create_date'] = date('Y-m-d H:i:s');
-                    $en['internal_status'] = "Pending";
+                    $en['internal_status'] = _247AROUND_PENDING;
                     $en['service_center_id'] = $vendor_id;
                     $en['booking_id'] = $booking_id;
                     $en['unit_details_id'] = $result['unit_id'];
@@ -296,7 +296,7 @@ class ApiDataRequest extends CI_Controller {
                 }
 
                 //Update SF Action Table
-                $this->vendor_model->update_service_center_action($booking_id, array("current_status" => 'Pending', 
+                $this->vendor_model->update_service_center_action($booking_id, array("current_status" => _247AROUND_PENDING, 
                     'internal_status' =>SPARE_OOW_EST_GIVEN));
                  //Insert State Change
                 if($this->session->userdata('partner_id')){
@@ -326,7 +326,7 @@ class ApiDataRequest extends CI_Controller {
                         $subject = vsprintf($template[4], $booking_id);
                         $emailBody = vsprintf($template[0], $estimate_cost);
 
-                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_given');
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'oow_estimate_given', "", $booking_id);
                     }
                 }
 

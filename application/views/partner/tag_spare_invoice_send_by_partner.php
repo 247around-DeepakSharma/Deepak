@@ -21,6 +21,22 @@
     }
     .form-horizontal .control-label {
     text-align: left;
+    }    
+    .isDisabled {
+        pointer-events: none;
+        color: currentColor;
+        cursor: not-allowed;
+        opacity: 0.5;
+        text-decoration: none;
+    }
+    #print_warehouse_addr{
+    background-color: blue;
+    color: white;
+    padding: 5px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    text-decoration: none;
     }
 </style>
 <div class="right_col" role="main">
@@ -28,7 +44,7 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
         <ul class="nav nav-tabs" role="tablist" >
             <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-            <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+            <li role="presentation" ><a href="#onBooking" class="<?php if(!empty($this->session->userdata('is_micro_wh')) && empty($this->session->userdata('is_wh'))){ echo 'isDisabled'; } ?>" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
         </ul>
     </div>
 </div>
@@ -37,11 +53,17 @@
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
-                    <!--                    <div class="x_title">
-                        <h2>Spare Dispatched by Partner</h2>
-                        <div class="clearfix"></div>
-                        </div>-->
+                   
                     <div class="x_content">
+                        <div class="warehouse_print_address" style="display:none;">                                    
+                            <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                Do You Want to Print Warehouse Address
+                                <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>                                        
+                            </div>
+                        </div>
                         <div class="success_msg_div" style="display:none;">
                             <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -59,6 +81,7 @@
                             </div>
                         </div>
                         <div class="form-box">
+                            
                             <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                                 <div class="static-form-box">
                                     <div class="form-group">
@@ -74,7 +97,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Invoice Number" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
+                                            <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
@@ -82,9 +105,17 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                      <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>
+<!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
+                                            <select class="form-control" name="courier_name" id="courier_name" required="">
+                                                <option selected="" disabled="" value="">Select Courier Name</option>
+                                                <?php foreach ($courier_details as $value1) { ?> 
+                                                    <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
@@ -220,6 +251,8 @@
                                             <input type="hidden" class="form-control" id="partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
                                             <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                                             <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
+                                            <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                            <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
                                             <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                         </div>
                                     </div>
@@ -261,9 +294,17 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>
+<!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>-->
+                                            <select class="form-control" name="courier_name" id="on_courier_name" required="">
+                                                <option selected="" disabled="" value="">Select Courier Name</option>
+                                                <?php foreach ($courier_details as $value1) { ?> 
+                                                    <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
@@ -362,10 +403,11 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-xs-12 col-md-4 col-md-offset-4">
-                        <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
-                        <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
+                        <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>"/>
+                        <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name'); ?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
-                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
+                        <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
+                        <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                     </div>
                 </div>
@@ -375,6 +417,10 @@
 </div>
 
 <script>
+    var date_before_15_days = new Date();
+    date_before_15_days.setDate(date_before_15_days.getDate()-15);
+
+
     var onBookingIndex = 0;
     var is_valid_booking = true;
     $(document).ready(function () {
@@ -398,6 +444,7 @@
         });
         
         get_vendor();
+        get_vendor_by_booking_id();
         get_appliance(0);
         
         $('[data-toggle="popover"]').popover(); 
@@ -405,7 +452,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -415,7 +463,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -441,7 +490,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -459,7 +509,8 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate:false,
+            minDate: date_before_15_days,
+            maxDate:'today',
             locale:{
                 format: 'YYYY-MM-DD'
             }
@@ -581,6 +632,9 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
+        
+        var is_micro = $("#wh_id").find(':selected').attr('data-warehose');
+        formData.append("is_wh_micro", is_micro);
     
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {
@@ -612,6 +666,8 @@
                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                     $('#success_msg').html(obj.message);
                     $("#spareForm")[0].reset();
+                    $(".warehouse_print_address").css({'display':'block'});
+                                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                 }else{
                     showConfirmDialougeBox(obj.message, 'warning');
                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
@@ -620,19 +676,29 @@
             }
         });
     }
-    
+        
     function get_vendor() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
-            success: function (response) {
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'partner_id':<?php echo $this->session->userdata('partner_id'); ?>},
+            success: function (response) {                
                 $('#wh_id').html(response);
-                $("#on_wh_id").html(response);
             }
         });
     }
     
+    function get_vendor_by_booking_id() {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            data:{'is_wh' : 1},
+            success: function (response) {                
+                $("#on_wh_id").html(response);
+            }
+        });
+    }
+        
     function get_appliance(index){
         $.ajax({
             type: 'GET',
@@ -1031,6 +1097,8 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
+        var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
+        formData.append("is_wh_micro", is_micro);
     
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {

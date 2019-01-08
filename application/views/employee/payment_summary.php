@@ -98,9 +98,9 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'Invoice',
+                    title: 'bank_transactions',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+                       columns: [1,2,3,4,5,6,7,8,9,10],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -134,7 +134,6 @@
             ],
             fnInitComplete: function (oSettings, response) {
             $("#datatable_filter").addClass("pull-right");
-            $(".buttons-excel").hide();
             //$("#in_tranist_record").text(response.recordsTotal);
           }
 

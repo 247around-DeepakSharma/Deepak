@@ -63,6 +63,9 @@
             top: 10px;
             left:6%;
     }
+    .dataTables_length{
+     width: 15%;   
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -134,7 +137,7 @@
 <script>
 
     var inventory_stock_table;
-
+    var time = moment().format('D-MMM-YYYY');
     $(document).ready(function () {
         $('#wh_id').select2({
             placeholder:"Select Warehouse"
@@ -156,6 +159,17 @@
         inventory_stock_table = $('#inventory_stock_table').DataTable({
             "processing": true,
             "serverSide": true,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8 ]
+                    },
+                    title: 'inventory_stock_table_'+time                    
+                },
+            ],
             "language": {
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -201,8 +215,8 @@
     function get_vendor() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>},
             success: function (response) {
                 $('#wh_id').html(response);
             }

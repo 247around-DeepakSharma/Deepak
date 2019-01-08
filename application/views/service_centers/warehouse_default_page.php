@@ -4,7 +4,11 @@
     #datatable1_wrapper{
         margin-top: 20px;
     }
+    .select2.select2-container.select2-container--default{
+        width: 100%!important;
+    }
 </style>
+
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -13,47 +17,119 @@
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true">
+                                    Acknowledge From Partner
+                                </a>
+                            </li>
+                            <li role="presentation">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
-                                    Pending Spares
+                                <!--  Pending Spares--> Send To SF
                                 </a>
                             </li>
                             <li role="presentation">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/defective_spare_parts/0/1">
-                                    Shipped Spares by SF
+                                    Acknowledge From SF
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Pending Spare Quotes
+                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_list">
+                                    Send To Partner
                                 </a>
                             </li>
+                            
+                            
                         </ul>
                         <div id="myTabContent" class="tab-content">
-                            <div class="tab-pane active" id="tabs-2"></div>
-                            <div class="tab-pane" id="tabs-3"></div>
-                            <div class="tab-pane" id="tabs-5">
-                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <div class="x_panel">
-                                        <div class="x_title">
-                                            <table id="datatable1" class="table table-striped table-bordered" style="width:100%">
-                                                <thead>
-                                                    <tr>
-                                                        <th>No</th>
-                                                        <th>Booking ID</th>
-                                                        <th>Spare Part</th>
-                                                        <th>Age Of Requested</th>
-                                                        <th>Model No</th>
-                                                        <th>Serial No</th>
-                                                        <th>Defective Part Pic</th>
-                                                        <th>Serial Number Pic</th>
-                                                        <th>Estimate Cost</th>
-                                                        <th>Submit</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
+                            <div class="tab-pane" id="tabs-2"></div>
+                            <div class="tab-pane" id="tabs-5"></div>
+                            <div class="tab-pane" id="tabs-3"></div>                            
+                            <div class="tab-pane active" id="tabs-6">
+                                <div class="right_col" role="main">
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h3>Spare need to acknowledge</h3>
+                                                    <hr>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="x_content">
+                                                    <div class="success_msg_div" style="display:none;">
+                                                        <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            <strong><span id="success_msg"></span></strong>
+                                                        </div>
+                                                    </div>
+                                                    <div class="error_msg_div" style="display:none;">
+                                                        <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            <strong><span id="error_msg"></span></strong>
+                                                        </div>
+                                                    </div>
+                                                    <div class="x_content_header">
+                                                        <section class="fetch_inventory_data">
+                                                            <div class="row">
+                                                                <div class="form-inline">
+                                                                    <div class="form-group col-md-4">
+                                                                        <select class="form-control" id="partner_id">
+                                                                            <option value="" disabled="">Select Partner</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
+                                                                </div>
+                                                                <div class="approved pull-right">
+                                                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                    </div>
+                                                    <div class="clearfix"></div>
+                                                    <hr>
+                                                    <div class="inventory_spare_list">
+                                                        <table id="inventory_spare_table" class="table table-bordered table-responsive" style="width: 100%;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>No</th>
+                                                                    <th>Booking ID</th>
+                                                                    <th>Appliance</th>
+                                                                    <th>Invoice ID</th>
+                                                                    <th>Spare Type</th>
+                                                                    <th>Spare Part Name</th>
+                                                                    <th>Spare Part Number</th>
+                                                                    <th>Spare Quantity</th>
+                                                                    <th>Courier Name</th>
+                                                                    <th>Courier AWB Number</th>
+                                                                    <th>
+                                                                        Acknowledge
+                                                                        <input type="checkbox" id="ack_all">
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        <!--Modal start-->
+                                        <div id="modal_data" class="modal fade" role="dialog">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <div id="open_model"></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Modal end -->
                                     </div>
                                 </div>
                             </div>
@@ -73,6 +149,26 @@
         </div>
     </div>
     
+     <!-- model -->
+     <!-- Start MSL Real time Tracking model -->
+    <div id="gen_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="gen_model_title"></h4>
+                </div>
+                <div class="modal-body" id="gen_model_body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+   <!-- End MSL Real time Tracking model -->
+     
     <div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -154,26 +250,13 @@
 
 <script type="text/javascript">
     
-//    var spare_parts = '<?php //echo $spare_parts?>';
-//    
-//    $(function () {
-//        if(parseInt(spare_parts) > 0 ){
-//            $("#myTabs li:eq(1) a").tab('show');
-//            //Loading Pending Spare Parts if Spare Parts Present
-//            load_view('employee/partner/get_spare_parts_booking/0/1', '#tabs-2');
-//        }else{
-//            //Loading Pending Bookings in Else case
-//            load_view('employee/partner/pending_booking/0/1', '#tabs-1');
-//        }
-//    
-//    });
-    
     $('#myTabs a').click(function (e) {
         e.preventDefault();
-
         var url = $(this).attr("data-url");
-        var href = this.hash;
+        var href = this.hash;   
         if(href === '#tabs-5'){
+            load_view_send_to_partner(url,href);
+        }else if(href === '#tabs-6'){
             $(this).tab('show');
         }else{
              //Loading view with Ajax data
@@ -182,8 +265,7 @@
        
     });
     
-    function open_upcountry_model(booking_id, amount_due){
-      
+    function open_upcountry_model(booking_id, amount_due){      
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/booking_upcountry_details/'+ booking_id+"/"+amount_due,
@@ -224,7 +306,7 @@
         }); 
     }
     
-    function load_view(url, tab) {
+    function load_view(url, tab) {       
         //Enabling loader
         $('#loading_image').show();
         //Loading view with Ajax data
@@ -234,7 +316,47 @@
             url: "<?php echo base_url() ?>" + url,
             data: {is_ajax:true},
             success: function (data) {
-                $(tab).html(data);
+                $(tab).html(data);                
+                if(tab === '#tabs-2'){
+                    //Adding Validation   
+                    $("#selectall_address").change(function(){
+                        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_manifest').prop('checked', false); 
+                            $('#selectall_manifest').prop('checked', false); 
+                        }
+                    $(".checkbox_address").prop('checked', $(this).prop("checked"));
+                    });
+    
+                    $("#selectall_manifest").change(function(){
+                        var d_m = $('input[name="download_address[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_address').prop('checked', false); 
+                            $('#selectall_address').prop('checked', false); 
+                        }
+                    $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
+                    }); 
+                }
+            },
+            complete: function () {
+                $('#loading_image').hide();
+            }
+        });
+    }
+    
+    
+    function load_view_send_to_partner(url, tab){
+    
+       //Enabling loader
+        $('#loading_image').show();
+        //Loading view with Ajax data
+        $(tab).html("<center>  <img style='width: 46px;' src='<?php echo base_url(); ?>images/loader.gif'/> </center>");
+        $.ajax({
+            type: "POST",
+            url: "<?php echo base_url() ?>" + url,
+            data: {is_ajax:true},
+            success: function (data) {
+                $(tab).html(data);                
                 if(tab === '#tabs-2'){
                     //Adding Validation   
                     $("#selectall_address").change(function(){
@@ -325,7 +447,7 @@
     
     $(document).ready(function () {
         
-        load_view('service_center/spare_parts/0/1', '#tabs-2');
+       // load_view('service_center/spare_parts/0/1', '#tabs-2');
         
         $("#datatable1_filter").hide();
         
@@ -463,5 +585,169 @@
         } else {
             alert("Please Enter Remarks");
         }
+    }
+</script>
+<script>
+
+    var inventory_spare_table;
+    var time = moment().format('D-MMM-YYYY');
+    $(document).ready(function () {
+        get_partner();
+        get_inventory_list();
+    });
+    
+    $('#get_inventory_data').on('click',function(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            inventory_spare_table.ajax.reload();
+        }else{
+            alert("Please Select Partner");
+        }
+    });
+    
+    function get_inventory_list(){
+        inventory_spare_table = $('#inventory_spare_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ]
+                    },
+                    title: 'inventory_spare_table_'+time                    
+                },
+            ],
+            "language": {
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>",
+                "emptyTable":     "No Data Found"
+            },
+            "order": [],
+            "pageLength": 25,
+            "ordering": false,
+            "ajax": {
+                url: "<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh",
+                type: "POST",
+                data: function(d){
+                    
+                    var entity_details = get_entity_details();
+                    d.sender_entity_id = entity_details.sender_entity_id,
+                    d.sender_entity_type = entity_details.sender_entity_type,
+                    d.receiver_entity_id = entity_details.receiver_entity_id,
+                    d.receiver_entity_type = entity_details.receiver_entity_type
+                }
+            },
+            "deferRender": true
+        });
+    }
+    
+    function get_entity_details(){
+        var data = {
+            'sender_entity_id': $('#partner_id').val(),
+            'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id')?>',
+            'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>'
+        };
+        
+        return data;
+    }
+    
+    function get_partner() {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
+            data:{'is_wh' : 1},
+            success: function (response) {
+                $('#partner_id').html(response);
+                $('#partner_id').select2();
+            }
+        });
+    }
+    
+    $('#ack_all').on('click', function () {
+        if ($(this).is(':checked', true))
+        {
+            $(".check_single_row").prop('checked', true);
+        }
+        else
+        {
+            $(".check_single_row").prop('checked', false);
+        }
+    });
+    
+    function process_acknowledge_spare(){
+        var tmp_arr = {};
+        var postData = {};
+        var flag = false;
+        $(".check_single_row:checked").each(function (key) {
+            tmp_arr[key] = {};
+            tmp_arr[key]['inventory_id'] = $(this).attr('data-inventory_id');
+            tmp_arr[key]['quantity'] = $(this).attr('data-quantity');
+            tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
+            tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
+            tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
+            tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
+            tmp_arr[key]['invoice_id'] = $(this).attr('data-invoice_id');
+            tmp_arr[key]['is_wh_micro'] = $(this).attr('data-is_wh_micro');
+            flag = true;
+        });
+        
+        postData['data'] = JSON.stringify(tmp_arr);
+        postData['sender_entity_id'] =  $('#partner_id').val();
+        postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+        postData['receiver_entity_id'] = '<?php echo $this->session->userdata('service_center_id')?>';
+        postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
+        postData['sender_entity_name'] = $('#partner_id option:selected').text();
+        postData['receiver_entity_name'] = '<?php echo $this->session->userdata('wh_name')?>';
+        
+        if(flag){
+            $('#ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/process_acknowledge_spare_send_by_partner_to_wh',
+                data:postData,
+                success:function(response){
+                    $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
+                    obj = JSON.parse(response);
+                    if(obj.status){
+                        $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('#success_msg').html(obj.message);
+                        inventory_spare_table.ajax.reload();
+                    }else{
+                        $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('#error_msg').html(obj.message);
+                    }
+                }
+            });
+        }else{
+            alert("Please Select At Least One Checkbox");
+        }
+    }
+
+    function get_msl_awb_details(courier_code,awb_number,status,id){
+
+            if(courier_code && awb_number && status){
+                $('#'+id).show();
+                $.ajax({
+                    method:"POST",
+                    data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                    url:'<?php echo base_url(); ?>courier_tracking/get_msl_awb_real_time_tracking_details',
+                    success: function(res){
+                        $('#'+id).hide();
+                        $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                        $('#gen_model_body').html(res);
+                        $('#gen_model').modal('toggle');
+                    }
+                });
+            }else{
+                alert('Something Wrong. Please Refresh Page...');
+            }
     }
 </script>

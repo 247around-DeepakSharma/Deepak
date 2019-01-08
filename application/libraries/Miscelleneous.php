@@ -139,9 +139,7 @@ class Miscelleneous {
             $notificationTextArrayVendor['msg'] = array($booking_id);
              $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArrayVendor,$notificationTextArrayVendor);
              
-            // Send New Booking SMS
-            $this->My_CI->notify->send_sms_email_for_booking($booking_id, "Newbooking" );
-             
+            
             //End Sending Push Notification
             // Data to be insert in service center
             $sc_data['current_status'] = "Pending";
@@ -251,6 +249,10 @@ class Miscelleneous {
     }
 
     function _assign_upcountry_booking($booking_id, $data, $query1, $agent_id, $agent_name) {
+        
+        if(empty($agent_id)){
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+        }
        
         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $cus_net_payable = 0;
@@ -339,6 +341,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $booking['amount_due'] = $cus_net_payable;
                         $booking['upcountry_remarks'] = PARTNER_PAID_UPCOUNTRY;
+                        $booking['upcountry_bill_to_partner'] = $data['upcountry_bill_to_partner'];
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
                     } else if ($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -348,6 +351,7 @@ class Miscelleneous {
                         $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['upcountry_partner_approved'] = '0';
                         $booking['upcountry_paid_by_customer'] = 0;
+                        $booking['upcountry_bill_to_partner'] = $data['upcountry_bill_to_partner'];
                         $booking['upcountry_remarks'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
                         $booking['amount_due'] = $cus_net_payable;
                         
@@ -400,7 +404,7 @@ class Miscelleneous {
                         $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(UPCOUNTRY_APPROVAL,$receiverArray,$notificationTextArray);
                         //End Push Notification
                         }
-                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG);
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message1, "",UPCOUNTRY_APPROVAL_TAG, "", $query1[0]['booking_id']);
 
                         $return_status = FALSE;
                     } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
@@ -454,7 +458,7 @@ class Miscelleneous {
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
 
                 $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
-                $cc = "sachinj@247around.com, abhaya@247around.com";
+                $cc = "abhaya@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
 
@@ -1033,6 +1037,7 @@ class Miscelleneous {
             $dealer_data['dealer_name'] = $dealer_name;
             $dealer_data['dealer_phone_number_1'] = $dealer_phone_number;
             $dealer_data['city'] = $requestData['city'];
+            $dealer_data['state'] = $requestData['state'];
             $dealer_data['create_date'] = date('Y-m-d H:i:s');
 
             $dealer_id = $this->My_CI->dealer_model->insert_dealer_details($dealer_data);
@@ -1290,11 +1295,13 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "") {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="") {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
         $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $data['entity_id'] = $entity_id;
+        $data['entity_type'] = $entity_type;
         $data['result'] = $result;
         $data['email_message_id'] = $email_message_id;
 
@@ -1315,8 +1322,9 @@ class Miscelleneous {
 
         //Logging
         log_message('info', __FUNCTION__ . 'File has been uploaded in S3');
+        return $insert_id;
     }
-
+    
     /**
      * @desc This is used to get the balance of partner account
      * @param int $partner_id
@@ -2282,19 +2290,32 @@ class Miscelleneous {
     }
     function is_fake_rescheduled_penalty_valid($bookingDetails,$userPhone){
         log_message('info', __METHOD__.' Function Start '.$userPhone);
-        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
-        $historyWhere['new_state'] =  "InProcess_Rescheduled";
-        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
-        $historyLimitArray['length'] =  1;
-        $historyLimitArray['start'] =  0;
-        $historyOrderBYArray['id'] =  'ASC';
-        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
-                NULL,NULL,array()); 
-        $where['from_number'] = $userPhone;
-        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
-        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
-        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
-        if($logData[0]['count'] >0){
+//        $historyWhere['booking_id'] =  $bookingDetails[0]['booking_id'];
+//        $historyWhere['new_state'] =  "InProcess_Rescheduled";
+//        $historyWhere['service_center_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+//        $historyLimitArray['length'] =  1;
+//        $historyLimitArray['start'] =  0;
+//        $historyOrderBYArray['id'] =  'ASC';
+//        $lastResheduledRequestData = $this->My_CI->reusable_model->get_search_result_data("booking_state_change","*",$historyWhere,NULL,$historyLimitArray,$historyOrderBYArray,
+//                NULL,NULL,array()); 
+//        $where['from_number'] = $userPhone;
+//        $where['(date(create_date) >= "'.date('Y-m-d', strtotime($lastResheduledRequestData[0]['create_date'])).'" AND date(create_date)<="'.date('Y-m-d').'" )'] = NULL;
+//        $logData = $this->My_CI->reusable_model->get_search_result_data("fake_reschedule_missed_call_log log","COUNT(log.id) as count",$where,NULL,NULL,NULL,NULL,NULL,array());
+//        log_message('info', __METHOD__.' Function Start '.print_r($logData,true));
+//        if($logData[0]['count'] >0){
+//            log_message('info', __METHOD__.' Function End With False '.$userPhone);
+//            return false;    
+//        }
+//        else{
+//            log_message('info', __METHOD__.' Function End With True '.$userPhone);
+//            return true;
+//        }
+       $where['booking_id'] =  $bookingDetails[0]['booking_id'];
+       $where['escalation_reason'] =  PENALTY_FAKE_COMPLETED_CUSTOMER_DOES_NOT_WANT;
+       $where['vendor_id'] =  $bookingDetails[0]['assigned_vendor_id'];
+       $alreadyApplicablePenalty = $this->My_CI->reusable_model->get_search_result_data("vendor_escalation_log","COUNT(id) as count",$where,NULL,NULL,NULL,NULL,NULL,array()); 
+       log_message('info', __METHOD__.' Function Start '.print_r($alreadyApplicablePenalty,true));
+        if($alreadyApplicablePenalty[0]['count'] >0){
             log_message('info', __METHOD__.' Function End With False '.$userPhone);
             return false;    
         }
@@ -2392,7 +2413,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking');
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking', "", $booking_id);
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {
@@ -2815,13 +2836,21 @@ function generate_image($base64, $image_name,$directory){
             $where['select'] = "sf_challan_number as challan_number";
         }
         
-        $challan_no_temp = $this->My_CI->inventory_model->get_spare_parts_query($where);
+        $challan_no_temp = $this->My_CI->partner_model->get_spare_parts_by_any($where['select'], $where['where']);
+        
         $challan_no = 1;
         $int_challan_no = array();
+        
         if (!empty($challan_no_temp)) {
+           
             foreach ($challan_no_temp as  $value) {
-                 $explode = explode($challan_id_tmp, $value->challan_number);
-                 array_push($int_challan_no, $explode[1] + 1);
+                $c_explode = explode(",", $value['challan_number']);
+                foreach ($c_explode as $value1) {
+                    $explode = explode($challan_id_tmp, $value1);
+                 
+                    array_push($int_challan_no, $explode[1] + 1);
+                }
+                
             }
             rsort($int_challan_no);
             $challan_no = $int_challan_no[0];
@@ -2885,7 +2914,7 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services";
+            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -2899,7 +2928,7 @@ function generate_image($base64, $image_name,$directory){
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
-            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email");
+            $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
@@ -2982,15 +3011,22 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     function create_entity_login($data){
+        $email_sent = true;
         $check_username = $this->My_CI->dealer_model->entity_login(array('entity' => 'partner', 'user_id' => $data['user_id']));
         if(empty($check_username)) {
             $p_where = array('id' => $data['entity_id']);
             //Getting name of Partner by Partner ID
             $partner_details = $this->My_CI->partner_model->get_all_partner($p_where);
             $data['entity_name'] = $partner_details[0]['public_name'];
+            if(isset($data['email_not_sent'])){ 
+                $email_sent = false;
+                unset($data['email_not_sent']);
+            }
             $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
             if ($s1) {
                 //Log Message
+                
+                if($email_sent){
                 log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $data['entity_id'] . ' with values ' . print_r($data, TRUE));
                 //Getting template from Database to send mail
                 $accountManagerData = $this->get_am_data($data['entity_id']);
@@ -2999,17 +3035,20 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['username'] = $data['user_id'];
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
+                    $bcc = $login_template[5];
                     if($accountManagerData){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
                     //Logging Error
                     log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
+                }
+                
                 }
                 return $s1;
             } else {
@@ -3079,19 +3118,110 @@ function generate_image($base64, $image_name,$directory){
         return $data;
     }
     
-    function check_inventory_stock($inventory_id, $partner_id, $state){
+    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
+        log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
+        $response = array(); 
+
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
+
+        $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+        $is_partner_wh = $partner_details[0]['is_wh'];
+        $is_micro_wh = $partner_details[0]['is_micro_wh'];
+        if (!empty($inventory_part_number)) {
+            //Check Partner Works Micro
+            if ($is_micro_wh == 1) {
+                //check SF inventory stock
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
+                if (!empty($response)) {
+                    //Defective Parts Return To
+                    if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                        $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                    } else {
+                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['defective_return_to_entity_id'] = $partner_id;
+                    }
+                }
+                
+                if (empty($response) && $is_partner_wh == 1) {
+                    
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    if(!empty($response)){
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
+                    }
+                    
+                } 
+                
+            } else if ($is_partner_wh == 1) {
+
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                if(!empty($response)){
+                    $response['defective_return_to_entity_type'] = $response['entity_type'];
+                    $response['defective_return_to_entity_id'] = $response['entity_id'];
+                }
+            }
+
+        } else {
+            return false;
+        }
+
+        if (empty($response) && !empty($inventory_part_number)) {
+            $response['stock'] = false;
+            $response['entity_id'] = $partner_id;
+            $response['entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+            $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
+            $response['inventory_id'] = $inventory_id;
+            $response['is_micro_wh'] = 0;
+            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $response['defective_return_to_entity_id'] = $partner_id;
+//            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+//                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+//                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+//                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+//            } else {
+//                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $response['defective_return_to_entity_id'] = $partner_id;
+//            }
+        }
+        return $response;
+    }
+
+    function get_247aroud_warehouse_in_sf_state($state){
+        $select = "contact_person.entity_id, contact_person.entity_type";
+        $where1 = array('warehouse_state_relationship.state' => $state,'warehouse_details.entity_id' => _247AROUND, 
+            'warehouse_details.entity_type' => _247AROUND_PARTNER_STRING);
+        return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
+    }
+
+    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
-    
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate',array('inventory_id' => $inventory_id));
-       
-        if(!empty($inventory_part_number)){
-            $post['where'] = array('inventory_stocks.inventory_id' => $inventory_id,'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
-            $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
-            $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
-            
-            if(!empty($inventory_stock_details)){
+        
+        $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
+        if (!empty($service_center_id)) {
+            $post['where']['inventory_stocks.entity_id'] = $service_center_id;
+        } else {
+            $post['where']['service_centres.is_wh'] = 1;
+        }
+        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
+        
+        if(!empty($inventory_stock_details)){
+            if(!empty($service_center_id)){
+                $response = array();
+                $response['stock'] = TRUE;
+                $response['entity_id'] = $service_center_id;
+                $response['entity_type'] = _247AROUND_SF_STRING;
+                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
+                $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
+                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                $response['is_micro_wh'] = 1;
+                
+            } else {
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
@@ -3104,37 +3234,15 @@ function generate_image($base64, $image_name,$directory){
                         $response['entity_type'] = _247AROUND_SF_STRING;
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                        $response['inventory_id'] = $inventory_id;
-                        break;
+                        $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
+                        $response['is_micro_wh'] = 2;
                     }
                 }
-     
-                if(empty($response)){
-                   
-                    $response['stock'] = false;
-                    $response['entity_id'] = $partner_id;
-                    $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                    $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                    $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                    $response['inventory_id'] = $inventory_id;
-                }
-                
-            }else{
-                $response = array();
-                $response['stock'] = false;
-                $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
-                $response['entity_id'] = $partner_id;
-                $response['entity_type'] = _247AROUND_PARTNER_STRING;
-                $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
-                $response['estimate_cost'] = round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
-                $response['inventory_id'] = $inventory_id;
             }
-         
-            return $response;
+        } 
+        
+        return $response;
             
-        } else {
-            return false;
-        }
     }
     function is_booking_valid_for_partner_panelty($request_type){
         $is_valid = 1;
@@ -3320,7 +3428,7 @@ function generate_image($base64, $image_name,$directory){
             $tatArray['applicable_on_partner'] = $this->is_booking_valid_for_partner_panelty($values['request_type']);
             $tatArray['sf_closed_date'] = $values['sf_closed_date'];
             $tatArray['around_closed_date'] = $values['around_closed_date'];
-            if (stripos($values['request_type'], 'Repair') !== false) {
+            if (stripos($values['request_type'], 'Repair') !== false || stripos($values['request_type'], 'Repeat') !== false) {
                 $requestType = '1';
             }
             else{
@@ -3500,5 +3608,218 @@ function generate_image($base64, $image_name,$directory){
                 return $finalArray;
             }
         }
+    }
+    function reopen_booking($booking_id, $status){
+            $data['booking_date'] = date('d-m-Y', strtotime($this->My_CI->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->My_CI->input->post('booking_timeslot');
+            $data['current_status'] = _247AROUND_PENDING;
+            $data['internal_status'] = "Booking Opened From " . $status;
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $data['cancellation_reason'] = NULL;
+            $data['closed_date'] = NULL;
+            $data['vendor_rating_stars'] = NULL;
+            $data['vendor_rating_comments'] = NULL;
+            $data['amount_paid'] = NULL;
+            $data['rating_stars'] = NULL;
+            $data['rating_comments'] = NULL;
+            $data['closing_remarks'] = NULL;
+            $data['booking_jobcard_filename'] = NULL;
+            $data['mail_to_vendor'] = 0;
+            $data['service_center_closed_date'] = NULL;
+            //$data['booking_remarks'] = $this->input->post('reason');
+            //check partner status from partner_booking_status_mapping table  
+            $partner_id = $this->My_CI->input->post('partner_id');
+            $actor = $next_action = 'not_define';
+            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
+            }
+
+            if ($data['booking_timeslot'] == "Select") {
+                echo "Please Select Booking Timeslot.";
+            } else {
+                log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
+                $this->My_CI->booking_model->update_booking($booking_id, $data);
+                $assigned_vendor_id = $this->My_CI->input->post("assigned_vendor_id");
+                if (!empty($assigned_vendor_id)) {
+                    $service_center_data['internal_status'] = _247AROUND_PENDING;
+                    $service_center_data['current_status'] = _247AROUND_PENDING;
+                    $service_center_data['update_date'] = date("Y-m-d H:i:s");
+                    $service_center_data['serial_number'] = "";
+                    $service_center_data['cancellation_reason'] = NULL;
+                    $service_center_data['reschedule_reason'] = NULL;
+                    $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
+                    $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
+                    $service_center_data['closed_date'] = NULL;
+                    $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
+                    
+                    if($this->My_CI->input->post('admin_remarks')){
+                        $service_center_data['admin_remarks'] = $remarks = $this->My_CI->input->post('admin_remarks');
+                    }else{
+                        $service_center_data['admin_remarks'] = $remarks = NULL;
+                    }
+                    log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
+                    $this->My_CI->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                    //if booking status is cancelled then do action on inventory
+                    if ($status === _247AROUND_CANCELLED) {
+                        //get the unit details data and update the inventory stock
+                        $booking_unit_details = $this->My_CI->reusable_model->get_search_query('booking_unit_details', 'booking_unit_details.price_tags,booking_unit_details.appliance_capacity', array('booking_unit_details.booking_id' => $booking_id, "booking_unit_details.price_tags like '%" . _247AROUND_WALL_MOUNT__PRICE_TAG . "%'" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                        if (!empty($booking_unit_details)) {
+                            //process each unit if price tag is wall mount
+                            foreach ($booking_unit_details as $value) {
+                                $match = array();
+                                //get the size from the capacity to know the part number
+                                preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                                if (!empty($match)) {
+                                    if ($match[0] <= 32) {
+                                        $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                                    } else if ($match[0] > 32) {
+                                        $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                                    }
+
+                                    $data['receiver_entity_id'] = $assigned_vendor_id;
+                                    $data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['stock'] = -1;
+                                    $data['booking_id'] = $booking_id;
+                                    if($this->My_CI->session->userdata('id')){
+                                        $data['agent_id'] = $this->My_CI->session->userdata('id');
+                                    }
+                                    else{
+                                        $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                                    }
+                                    $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                                    $this->My_CI->miscelleneous->process_inventory_stocks($data);
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                $unit_details['booking_status'] = _247AROUND_PENDING;
+                $unit_details['vendor_to_around'] = "0.00";
+                $unit_details['around_to_vendor'] = "0.00";
+                $unit_details['ud_closed_date'] = NULL;
+
+                log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
+
+                $this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+                $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status, requested_inventory_id, "
+                        . "shipped_inventory_id", array('booking_id' => $booking_id), false);
+                foreach ($spare as $sp) {
+                    if($sp['old_status'] == SPARE_PARTS_REQUESTED ){
+                        
+                        if(!empty($sp['requested_inventory_id'])){
+                            $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id);
+                            if(!empty($stock)){
+
+                                $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
+                                        array('status' => $sp['old_status'], 'entity_type' => $stock['entity_type'],
+                                            'is_micro_wh' => $stock['is_micro_wh'],
+                                            'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
+                                            'defective_return_to_entity_id' => $stock['defective_return_to_entity_id'],
+                                            'partner_id' => $stock['entity_id']));
+                                if($stock['entity_type'] == _247AROUND_SF_STRING){
+                                    $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
+
+                                }
+                                
+                                
+                            } else {
+                                //Update Spare parts details table
+                               $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'],
+                                   "entity_type" => _247AROUND_PARTNER_STRING, "partner_id" => $partner_id));
+                            }
+                        } else {
+                           //Update Spare parts details table
+                          $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'])); 
+                        }
+                        
+                        $this->My_CI->vendor_model->update_service_center_action($booking_id, array('current_status' => 'InProcess', 'internal_status' => SPARE_PARTS_REQUIRED));
+                    } else if(empty($sp['requested_inventory_id'])){
+                        $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status']));
+                    } 
+                }
+                // Update Engineer Action table Status When Booking Opened
+                $en_where = array("engineer_booking_action.booking_id" => $booking_id);
+                $this->My_CI->engineer_model->update_engineer_table(array("current_status" => _247AROUND_PENDING, "internal_status" =>_247AROUND_PENDING), $en_where);
+         
+                if($this->My_CI->session->userdata('id')){
+                    $agentID = $this->My_CI->session->userdata('id');
+                    $agentName = $this->My_CI->session->userdata('employee_id');
+                }
+                else{
+                     $agentID = _247AROUND_DEFAULT_AGENT;
+                     $agentName = _247AROUND_DEFAULT_AGENT_NAME;
+                }
+                //Log this state change as well for this booking          
+                $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, $remarks, $agentID, $agentName,$actor,$next_action, _247AROUND);
+                if (!empty($assigned_vendor_id)) {
+
+                    $up_flag = 1;
+
+                    $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_id . "/" . $up_flag;
+                    $async_data['booking'] = array();
+                    $this->My_CI->asynchronous_lib->do_background_process($url, $async_data);
+
+                    $this->My_CI->booking_utilities->lib_send_mail_to_vendor($booking_id, "");
+                } else {
+                    $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                }
+
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $booking_id;
+                $send['state'] = "OpenBooking";
+                $this->My_CI->asynchronous_lib->do_background_process($url, $send);
+
+                log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->My_CI->session->userdata('employee_id') . " => " . print_r($data, true));
+
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            }
+    }
+    function get_posible_parent_booking(){
+        $contact = $this->My_CI->input->post('contact');
+        $service_id = $this->My_CI->input->post('service_id');
+        $partnerID = $this->My_CI->input->post('partnerID');
+        $dayDiff = $this->My_CI->input->post('day_diff');
+        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
+        $count = count($bookingsArray);
+        if($count == 1){
+            $resultArray['html'] = $bookingsArray[0]['booking_id'];
+            $resultArray['status'] =_ONE_REPEAT_BOOKING_FLAG;
+        }
+        else if($count == 0){
+            $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
+        }
+        else{
+            $html = '<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Booking ID</th>
+      <th scope="col">Appliance</th>
+      <th scope="col">Status</th>
+      <th scope="col">Closed Date</th>
+      <th scope="col"></th>
+    </tr>
+  </thead><tbody>';
+    foreach($bookingsArray as $bookingDetails){
+        $html .= '<tr>
+      <td>'.$bookingDetails['booking_id'].'</td>
+      <td>'.$bookingDetails['services'].'</td>
+      <td>'.$bookingDetails['current_status'].'</td>
+      <td>'.$bookingDetails['closed_date'].'</td>
+      <td><input type="radio" name = "parent_booking_id_options" id="'.$bookingDetails['booking_id'].'" onclick = "parentBooking(this.id)""></td>
+    </tr>';
+    }
+    $html .= '</tbody></table>'; 
+    $resultArray['status'] = _MULTIPLE_REPEAT_BOOKING_FLAG;
+    $resultArray['html'] = $html;
+        }
+        echo json_encode($resultArray);
     }
 }

@@ -208,12 +208,12 @@ class Do_background_upload_excel extends CI_Controller {
         // For shipped data
         if(!empty($shipped_data)){
             $this->process_upload_sd_file($shipped_data,"shipped", $file_name,SNAPDEAL_ID);
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_SHIPPED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_SHIPPED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         //For delivered data
         if(!empty($delivered_data)){
             $this->process_upload_sd_file($delivered_data,"delivered", $file_name,SNAPDEAL_ID);
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],_247AROUND_SNAPDEAL_DELIVERED,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         // for both type of file
         if(!empty($data)){
@@ -224,7 +224,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $type = _247AROUND_SNAPDEAL_SHIPPED;
             }
             log_message("info","both");
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
         
     }
@@ -266,7 +266,7 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     $type = _247AROUND_SNAPDEAL_SHIPPED;
                 }
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES["file"]["tmp_name"], $type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES["file"]["tmp_name"], $type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", SNAPDEAL_ID);
             }
 
             exit();
@@ -275,76 +275,70 @@ class Do_background_upload_excel extends CI_Controller {
     
     function process_upload_sd_file($data,$file_type, $file_name,$default_partner){
         // Warning: Do not Change Validation Orderddd
-	$validate_data = $this->validate_phone_number($data, $file_type, $file_name,$default_partner);
-	$row_data1 = $this->validate_product($validate_data, $file_type, $file_name,$default_partner);
-	$row_data2 = $this->validate_delivery_date($row_data1, $file_type, $file_name,$default_partner);
-	$row_data3 = $this->validate_pincode($row_data2, $file_type, $file_name,$default_partner);
-	$row_data4 = $this->validate_order_id($row_data3);
-	$row_data5 = $this->validate_product_type($row_data4);
-	$row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type,$file_name,$default_partner);
+        $validate_data = $this->validate_phone_number($data, $file_type, $file_name,$default_partner);
+        $row_data1 = $this->validate_product($validate_data, $file_type, $file_name,$default_partner);
+        $row_data2 = $this->validate_delivery_date($row_data1, $file_type, $file_name,$default_partner);
+        $row_data3 = $this->validate_pincode($row_data2, $file_type, $file_name,$default_partner);
+        $row_data4 = $this->validate_order_id($row_data3);
+        $row_data5 = $this->validate_product_type($row_data4);
+        $row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type,$file_name,$default_partner);
         
+        //Send Email to Notify that file is under Process
         $subject = $file_type ." data validated. File is under process";
         $message  = $file_name. " validation Pass. File is under process";
         $this->send_mail_column($subject, $message, TRUE,$file_type,$default_partner,SNAPDEAL_VALIDATION_PASS);
-
-	$count_total_leads_came_today = count($data);
-	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
-                ", Count_total_leads_came_today: " . $count_total_leads_came_today);
-	$count_booking_inserted = 0;
-	$count_booking_updated = 0;
-	$count_booking_not_updated = 0;
-        
-	foreach ($row_data['valid_data'] as $key => $value) {
+        //Collect Details Of generated Leads 
+        $count_total_leads_came_today = count($data);
+        log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Count_total_leads_came_today: " . $count_total_leads_came_today);
+        $count_booking_inserted = 0;
+        $count_booking_updated = 0;
+        $count_booking_not_updated = 0;
+        //Process Phone Number And OrderID Data
+        foreach ($row_data['valid_data'] as $key => $value) {
             $phone = explode('/', $value['phone']);
             $value['pincode'] = trim(str_replace(" ", "", trim($value['pincode'])));
-	    //echo print_r($rowData[0], true), EOL;
-	    if ($value['phone'] == "") {
-		//echo print_r("Phone number null, break from this loop", true), EOL;
-		break;
-	    }
-            
+            //echo print_r($rowData[0], true), EOL;
+            if ($value['phone'] == "") {
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
+            }
             //Sanitizing Brand Name
             if(!empty($value['brand'])){
                 $value['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $value['brand']);
             }
-            
-	    //Insert user if phone number doesn't exist
+             //Insert user if phone number doesn't exist
             $output = $this->user_model->get_users_by_any(array("users.phone_number" => trim($phone[0])));
-	    
+            //Get District Details
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['pincode']));
-            
-	    if (empty($output)) {
-		//User doesn't exist
+            //If user Does not exist
+            if (empty($output)) {
                 $user = array();
                 $user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
                 $user['name'] = $this->miscelleneous->is_user_name_empty(trim($value['customer_name']), $user['user_email'], $phone[0]);
-		$user['phone_number'] = $phone[0];
+                $user['phone_number'] = $phone[0];
                 if(isset($phone[1])){
                     $user['alternate_phone_number'] = $phone[1];
                 }
-		$user['home_address'] = $value['customer_address'];
-		$user['pincode'] = trim($value['pincode']);
-		$user['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];
-		$user['state'] = $distict_details['state'];
-
-		$user_id = $this->user_model->add_user($user);
-
-		//echo print_r($user, true), EOL;
-		//Add sample appliances for this user
-		$count = $this->booking_model->getApplianceCountByUser($user_id);
-		//Add sample appliances if user has < 5 appliances in wallet
-		if ($count < 5) {
-		    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
-		}
-	    } else {
-		//User exists
-		$user_id = $output[0]['user_id'];
-		$user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
-		$user['name'] = $value['customer_name'];
-	    }
-
-	    
-	    //Assigning Booking Source and Partner ID for Brand Requested
+                $user['home_address'] = $value['customer_address'];
+                $user['pincode'] = trim($value['pincode']);
+                $user['city'] = !empty($value['city'])?$value['city']:$distict_details['district'];
+                $user['state'] = $distict_details['state'];
+                //Add User
+                $user_id = $this->user_model->add_user($user);
+                //Add sample appliances for this user
+                $count = $this->booking_model->getApplianceCountByUser($user_id);
+                //Add sample appliances if user has < 5 appliances in wallet
+                if ($count < 5) {
+                    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
+                }
+            }
+            //If user Already Exists
+            else {
+                $user_id = $output[0]['user_id'];
+                $user['user_email'] = (isset($value['email_id']) ? $value['email_id'] : "");
+                $user['name'] = $value['customer_name'];
+            }
+            //Assigning Booking Source and Partner ID for Brand Requested
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
             $value['brand'] = isset($value['service_appliance_data']['brand'])?$value['service_appliance_data']['brand'] :$value['brand'];
@@ -354,10 +348,17 @@ class Do_background_upload_excel extends CI_Controller {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
                 
-                $check_partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['sub_order_id']);
-                
-                if(!is_null($check_partner_booking)){
-                    $partner_booking = $check_partner_booking;
+                //$check_partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['sub_order_id']);
+                $check_partner_booking = $this->booking_model->get_bookings_count_by_any('*', array('order_id' => $value['sub_order_id'], 
+                    "partner_id" => $booking['partner_id']));
+                if(!empty($check_partner_booking)){
+                    $booking['order_id'] = $value['sub_order_id'];
+                    if($booking['partner_id'] == JEEVES_ID){
+                        $partner_booking = $this->check_cancelled_booking_exist($check_partner_booking);
+                    } else {
+                        $partner_booking = $check_partner_booking[0];
+                    }
+                    
                 }else{
                     if (isset($value['order_item_id']) && !empty($value['order_item_id'])) {
                         $booking['order_id'] = $value['sub_order_id'] . "-" . $value['order_item_id'];
@@ -374,8 +375,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //log_message('info', print_r($partner_booking, TRUE));
                 //Check whether order id exists or not
                 if (is_null($partner_booking)) {
-                    log_message('info', __FUNCTION__ . "=> File type: " . $file_type .
-                            ", Order ID NOT found: " . $value['sub_order_id']);
+                    log_message('info', __FUNCTION__ . "=> File type: " . $file_type .", Order ID NOT found: " . $value['sub_order_id']);
                     //order id not found
                     $appliance_details['user_id'] = $booking['user_id'] = $user_id;
                     $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
@@ -425,8 +425,11 @@ class Do_background_upload_excel extends CI_Controller {
                         default :
                             if (isset($value['delivery_end_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_end_date']);
-                            } else {
+                            } 
+                           else if(isset($value['delivery_date'])){
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
+                            } else {
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
                             }
 
                             if ($dateObj2->format('d') == date('d')) {
@@ -437,12 +440,18 @@ class Do_background_upload_excel extends CI_Controller {
                             $mm = $dateObj2->format('m');
                             $dd = $dateObj2->format('d');
                             $booking['partner_source'] = "Snapdeal-shipped-excel";
+                            if($data['partner_id'] == 3){
+                                $booking['partner_source'] = "Paytm-shipped";
+                            }
                             $booking['booking_date'] = $dateObj2->format('d-m-Y');
-
                             // Set EDD only
                             $booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
                             $booking['delivery_date'] = '';
-                            $booking['backup_estimated_delivery_date'] = $value['delivery_date'];
+                            $backup_estimated_delivery_date_f = $dateObj2->format('d-m-Y');
+                            if(isset($value['delivery_date'])){
+                               $backup_estimated_delivery_date_f  = $value['delivery_date'];
+                            }
+                            $booking['backup_estimated_delivery_date'] = $backup_estimated_delivery_date_f;
                             $booking['backup_delivery_date'] = '';
 
                             //Tag internal status for missed call
@@ -636,8 +645,7 @@ class Do_background_upload_excel extends CI_Controller {
                     unset($unit_details);
                 } else {
                     //Order ID found
-                    log_message('info', __FUNCTION__ . "=> File type: " . $file_type .
-                            ", Order ID found: " . $value['sub_order_id']);
+                    log_message('info', __FUNCTION__ . "=> File type: " . $file_type .", Order ID found: " . $value['sub_order_id']);
                     $status = $partner_booking['current_status'];
                     $int_status = $partner_booking['internal_status'];
 
@@ -649,7 +657,7 @@ class Do_background_upload_excel extends CI_Controller {
                                 if (isset($value['fso_delivery_date'])) {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                                 } else if(isset($value['Delivery_Date'])){
-                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
                                 } else {
                                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
                                 }
@@ -712,9 +720,13 @@ class Do_background_upload_excel extends CI_Controller {
                         default :
                             if (isset($value['delivery_end_date'])) {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_end_date']);
-                            } else {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
-                            }
+                            } 
+                            else if(isset($value['Delivery_Date'])){
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['delivery_date']);
+                                } 
+                                else {
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
+                                }
 
                             //$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
                             $new_estimated_delivery_date = $dateObj2->format('Y-m-d H:i:s');
@@ -739,9 +751,20 @@ class Do_background_upload_excel extends CI_Controller {
                                 log_message('info', __FUNCTION__ . ' => EDD update for shipped booking NOT required');
 
                                 $count_booking_not_updated++;
+                                $tmp['order_id'] = $value['sub_order_id'];
+                                $tmp['booking_id'] = $partner_booking['booking_id'];
+                                array_push($this->send_file_back_data, $tmp);
                             }
                             break;
                     }
+                    
+//                    if($partner_booking['partner_id'] == JEEVES_ID && $partner_booking['current_status'] == _247AROUND_CANCELLED){
+//                        if($partner_booking['type'] == _247AROUND_QUERY){
+//                            $this->open_cancelled_query($partner_booking['booking_id'], $partner_booking['partner_id']);
+//                        } else {
+//                            $this->miscelleneous->reopen_booking($partner_booking['booking_id'], _247AROUND_CANCELLED);
+//                        }
+//                    }
                 }
             }
         }
@@ -765,6 +788,62 @@ class Do_background_upload_excel extends CI_Controller {
  
     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
     }
+    /**
+     * @desc if any completed, FOllowup, Rescheduled, Pending booking exist then return array otherwise booking may be cancelled then 
+     * return null( to insert new booking)
+     * @param Array $check_partner_booking
+     * @return boolean|Array
+     */
+    function check_cancelled_booking_exist($check_partner_booking){
+        $is_exit = FALSE;
+        $index = 0;
+        foreach ($check_partner_booking as $key => $value) {
+            if($value['current_status'] == _247AROUND_COMPLETED 
+                    || $value['current_status'] ==_247AROUND_RESCHEDULED
+                    || $value['current_status'] == _247AROUND_FOLLOWUP
+                    || $value['current_status'] == _247AROUND_PENDING){
+                        $is_exit = true;
+                        $index = $key;
+                    }
+        }
+        
+        if($is_exit){
+            return $check_partner_booking[$index];
+        } else {
+            return null;
+        }
+    }
+    /**
+     * @desc This function is used to open cancelled Query
+     * @param String $booking_id
+     * @param int $partner_id
+     * @return true
+     */
+//    function open_cancelled_query($booking_id, $partner_id){
+//        $status = array("current_status" => "FollowUp",
+//            "internal_status" => "Cancelled Query to FollowUp",
+//            "cancellation_reason" => NULL,
+//            "closed_date" => NULL);
+//        
+//        $actor = $next_action = 'not_define';
+//        if ($partner_id) {
+//            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'], $partner_id, $booking_id);
+//            if (!empty($partner_status)) {
+//                $status['partner_current_status'] = $partner_status[0];
+//                $status['partner_internal_status'] = $partner_status[1];
+//                $actor = $status['actor'] = $partner_status[2];
+//                $next_action = $status['next_action'] = $partner_status[3];
+//            }
+//        }
+//        
+//        $this->booking_model->update_booking($booking_id, $status);
+//        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $booking_id), array('booking_status'=> _247AROUND_FOLLOWUP));    
+//
+//        //Log this state change as well for this booking
+//        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP, _247AROUND_CANCELLED, "Cancelled_Query to FollowUp", _247AROUND_DEFAULT_AGENT, 
+//                _247AROUND_DEFAULT_AGENT_NAME,$actor,$next_action, _247AROUND);
+//        return TRUE;
+//    }
 
     /**
      * @desc: This method is used to validate Phone number while upload excel file
@@ -1042,8 +1121,8 @@ class Do_background_upload_excel extends CI_Controller {
     function validate_delivery_date($data, $file_type, $file_name,$partner_id) {
         log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $status = array();
-	$invalid_data = array();
-	foreach ($data['valid_data'] as $key => $value) {
+        $invalid_data = array();
+        foreach ($data['valid_data'] as $key => $value) {
             if(isset($value['fso_delivery_date'])){
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                 
@@ -1052,24 +1131,22 @@ class Do_background_upload_excel extends CI_Controller {
             } else {
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject();
             }
-
-	    if (count($invalid_data) > 4) {
-            	$status['invalid_date'] = $invalid_data;
-
-		// Add Only user
-		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $file_type, $file_name,$partner_id, "Failed! ");
+            if (count($invalid_data) > 4) {
+                $status['invalid_date'] = $invalid_data;
+                // Add Only user
+                $this->add_user_for_invalid($invalid_data);
+                $this->get_invalid_data($status, $file_type, $file_name,$partner_id, "Failed! ");
                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
-		exit();
-	    }
-	    if ($file_type == "delivered") {
-		if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
+                exit();
+            }
+            if ($file_type == "delivered") {
+                if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
                     //Disabling this check as we always get future dates in delivery file
-		    //Future Date
-		    //unset($data['valid_data'][$key]);
-		    //array_push($invalid_data, $value);
-		}
-	    } 
+                    //Future Date
+                    //unset($data['valid_data'][$key]);
+                    //array_push($invalid_data, $value);
+                }
+            } 
 	}
 
 	if (!empty($invalid_data)) {
@@ -1201,7 +1278,7 @@ class Do_background_upload_excel extends CI_Controller {
         // echo $html = $this->load->view('employee/invalid_data',$invalid_data_with_reason);
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "",DELIVERED_FILE_UPLOADED);
         if($file_upload && $partner_id == SNAPDEAL_ID){
-            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$filetype,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id);
+            $this->miscelleneous->update_file_uploads($_FILES["file"]["name"],$_FILES["file"]["tmp_name"],$filetype,FILE_UPLOAD_FAILED_STATUS,$this->email_message_id, "partner", SNAPDEAL_ID);
         }
     }
 
@@ -1383,24 +1460,28 @@ class Do_background_upload_excel extends CI_Controller {
                 //if file uploaded successfully then log else send email 
                 if ($response['status']) {
                     log_message("info", "File Uploaded successfully");
+                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id, "partner", $partner_id);
                     //now send back file with updated booking id to partner
                     if(!empty($this->is_send_file_back) && !empty($this->send_file_back_data) && $this->is_send_file_back !== "null"){
+                        $header_data['file_upload_id'] = $file_upload_id;
+                        $header_data['file_email_subject'] = $this->input->post('file_email_subject');
                         $this->revert_file_to_partner($header_data);
                     }else{
                         log_message("info", "unable to send file back to partner");
                     }
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($header_data['file_name'],TMP_FOLDER.$header_data['file_name'], $upload_file_type,FILE_UPLOAD_SUCCESS_STATUS,$this->email_message_id);
+                    
                 } else {
                     
                     //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id);
+                    $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
+                    
                     
                     //get email details 
+                    $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                     if(empty($this->email_send_to)){
                         if(empty($this->session->userdata('official_email'))){
-                            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                                 $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                             }else{
@@ -1424,7 +1505,23 @@ class Do_background_upload_excel extends CI_Controller {
                     $body .= "<br> <b>File Name</b> ". $header_data['file_name']; 
                     $attachment = TMP_FOLDER.$header_data['file_name'];
                     $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment,FILE_UPLOAD_FAILED_STATUS);
+                    
+                    //Save revert file info
+                    $uploaded_file_name = $this->reusable_model->get_search_query("file_uploads", "file_name", array('id'=>$file_upload_id), null, null, null, null, null, null)->result_array();
+                    $revertData = array(
+                        'revert_file_subject' => $subject."<br/><b>Message</b> - ".$body,
+                        'revert_file_from' => NOREPLY_EMAIL_ID,
+                        'revert_file_to' => $to,
+                        'revert_file_cc' => $cc,
+                        'revert_file_name' => $uploaded_file_name[0]['file_name'],
+                    );
 
+                    $revertDataWhere = array(
+                        'id' => $file_upload_id,
+                    );
+
+                    $this->partner_model->update_file_upload_details($revertDataWhere, $revertData);
+                    
                     log_message('info', __FUNCTION__ . " " . $this->ColumnFailed);
                     $this->session->set_flashdata('file_error', $this->ColumnFailed);
                     redirect(base_url() . "employee/booking_excel/$redirect_to");
@@ -1538,7 +1635,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param $data array
      * @param void 
      */
-    function get_final_file_data($data,$header_data){
+    function get_final_file_data($data,$header_data,$file_type=NULL){
         $tmpArr['unique_id'] = 'Around';
         $tmpArr['referred_date_and_time'] = '';
         $tmpArr['sub_order_id'] = $data[$header_data['sub_order_id']];
@@ -1574,7 +1671,7 @@ class Do_background_upload_excel extends CI_Controller {
         if(isset($data[$header_data['alternate_phone']]) && !empty($data[trim($header_data['alternate_phone'])])){
             $tmpArr['phone'] = $data[$header_data['phone']]."/".$data[$header_data['alternate_phone']];
         }else{
-            $tmpArr['phone'] = $data[$header_data['phone']];
+                $tmpArr['phone'] = $data[$header_data['phone']];
         }
         if(isset($data[$header_data['email_id']]) && !empty($data[$header_data['email_id']])){
             $tmpArr['email_id'] = $data[$header_data['email_id']];
@@ -1597,20 +1694,19 @@ class Do_background_upload_excel extends CI_Controller {
         }else{
             $tmpArr['service_promise_date'] = '';
         }
-        // Check if file contains type_of_data column , it means file have delivered and shipped data both
-        if(isset($data[$header_data['type_of_data']])){
-            if($data[$header_data['type_of_data']] == 'Delivered'){
-                $tmpArr['delivery_date'] = $data['delivery_end_date'];
-                array_push($this->deliveredArray, $tmpArr);
+        if($file_type){
+            if (strpos($file_type, 'shipped') !== false) {
+                if($data['shipped_date']){
+                }
             }
             else{
-                    $tmpArr['delivery_end_date'] = $data['expected_delivery_date'];
-                    array_push($this->shippedArray, $tmpArr);
+                 if($data['delivered_date']){
+                    $tmpArr['delivery_date'] =  $data['delivered_date'];
+                 }
             }
         }
-        else{
-            array_push($this->deliveredArray, $tmpArr);
-        }
+        // Check if file contains type_of_data column , it means file have delivered and shipped data both
+        array_push($this->deliveredArray, $tmpArr);
     }
     
     /**
@@ -1655,17 +1751,19 @@ class Do_background_upload_excel extends CI_Controller {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 $rowData['partner_source'] = $this->input->post('partner_source');
-                $rowData['partner_id'] = $this->input->post('partner_id');;
-                $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']]);
+                $rowData['partner_id'] = $this->input->post('partner_id');
+                $this->get_final_file_data($rowData,$data['actual_header_data'][$response['key']],$data['file_type']);
             }
-            
-            if(!empty($this->deliveredArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+            if($data['file_type']){
+                if (strpos($data['file_type'], 'shipped') !== false) {
+                    $this->process_upload_sd_file($this->deliveredArray,'shipped', $data['file_name'],$this->input->post('partner_id'));
+                }
+                else{
+                    $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
+                }
             }
-            if(!empty($this->shippedArray)){
-                //process file to insert bookings
-                $this->process_upload_sd_file($this->shippedArray,'shipped', $data['file_name'],$this->input->post('partner_id'));
+            else{
+                 $this->process_upload_sd_file($this->deliveredArray,'delivered', $data['file_name'],$this->input->post('partner_id'));
             }
             
             $response['status'] = TRUE;
@@ -1732,8 +1830,29 @@ class Do_background_upload_excel extends CI_Controller {
                 $body = $template[0];
                 $to = $this->revert_file_email;
                 $cc = $template[3] . "," .$from.','. $this->email_send_to;
-                $subject = $template[4];
+                $subject = $template[4].":".$data['file_email_subject'];
                 $attachment = $file_name;
+                
+                //upload and save file to s3
+                $revertData = array(
+                    'revert_file_subject' => $subject,
+                    'revert_file_from' => $from,
+                    'revert_file_to' => $to,
+                    'revert_file_cc' => $cc,
+                    'revert_file_name' => "Updated_file_with_booking_id_" .pathinfo($data['file_name'], PATHINFO_FILENAME). ".xls",
+                );
+                
+                $revertDataWhere = array(
+                    'id' => $data['file_upload_id'],
+                );
+                
+                $this->partner_model->update_file_upload_details($revertDataWhere, $revertData);
+                
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . "Updated_file_with_booking_id_" .pathinfo($data['file_name'], PATHINFO_FILENAME). ".xls";
+                $this->s3->putObjectFile($file_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                
                 
                 //send email
                 $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'revert_upload_file_to_partner');

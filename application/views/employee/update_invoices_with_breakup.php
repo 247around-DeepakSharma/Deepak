@@ -6,7 +6,7 @@
                 Update Invoice (<?php echo $invoice_details[0]['invoice_id'];?>)
             </div>
             <div class="panel-body">
-                <form class="form-horizontal" method="post" action="<?php echo base_url();?>employee/invoice/update_invoice_with_breakup/<?php echo $vendor_partner;?>/<?php echo $invoice_details[0]['vendor_partner_id'];?>/<?php echo $invoice_breakup[0]['invoice_id'];?>">
+                <form enctype="multipart/form-data"  class="form-horizontal" method="post" action="<?php echo base_url();?>employee/invoice/update_invoice_with_breakup/<?php echo $vendor_partner;?>/<?php echo $invoice_details[0]['vendor_partner_id'];?>/<?php echo $invoice_breakup[0]['invoice_id'];?>">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['vertical'])){ echo $invoice_details[0]['vertical'];  } ?>" id="vertical_input">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['category'])){ echo $invoice_details[0]['category'];  } ?>" id="category_input">
                     <input type="hidden" value="<?php if(isset($invoice_details[0]['sub_category'])){ echo $invoice_details[0]['sub_category'];  } ?>" id="sub_category_input">
@@ -180,26 +180,24 @@
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Vertical</label>
+                                    <label for="Due Date" class="col-md-4">Vertical*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')">
+                                        <select class="form-control" name="vertical" id="vertical" onchange="get_category('<?php echo base_url(); ?>')" required>
                                           
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Category</label>
+                                    <label for="Due Date" class="col-md-4">Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')">
-                                           <option>select</option>
+                                        <select class="form-control" name="category" id="category" onchange="get_sub_category('<?php echo base_url(); ?>')" required>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group" >
-                                    <label for="Due Date" class="col-md-4">Sub Category</label>
+                                    <label for="Due Date" class="col-md-4">Sub Category*</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="sub_category" id="sub_category">
-                                           <option>select</option>
+                                        <select class="form-control" name="sub_category" id="sub_category" required>
                                         </select>
                                     </div>
                                 </div>
@@ -227,9 +225,9 @@
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Rate</th>
                                         <th class="text-center">Taxable</th>
-                                        <?php if($invoice_breakup[0]['igst_tax_amount'] > 0){ ?>
+                                        <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
                                         <th class="text-center" colspan="2">IGST </th>
-                                        <?php } else if($invoice_breakup[0]['sgst_tax_amount'] > 0){ ?>
+                                        <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                         <th class="text-center" colspan="2">SGST </th>
                                         <th class="text-center" colspan="2">CGST </th>
                                         <?php }  ?>
@@ -245,8 +243,10 @@
                                         <th class="text-center"></th>
                                         <th class="text-center">Rate</th>
                                         <th class="text-center">Amount</th>
+                                        <?php if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                         <th class="text-center">Rate</th>
                                         <th class="text-center">Amount</th>
+                                         <?php }  ?>
                                         <th class="text-center"></th>
                                     </tr>
                                 </thead>
@@ -262,12 +262,12 @@
                                         <td><input onkeyup="change_prices('<?php echo $key; ?>')" id="<?php echo "qty_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][qty]" value="<?php echo $value['qty'];?>" class="form-control quantity"></td>
                                         <td><input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "rate_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][rate]" value="<?php echo $value['rate'];?>" class="form-control rate"></td>
                                         <td><input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "taxablevalue_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][taxable_value]" value="<?php echo $value['taxable_value'];?>" class="form-control taxable_value" ></td>
-                                        <?php if($value['igst_tax_amount'] > 0){ ?>
+                                        <?php if($value['igst_tax_amount'] != 0){ ?>
                                         <td> <input   id="is_igst" type="hidden" name="is_igst" value="1" >
                                             <input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "igsttaxrate_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][igst_tax_rate]" value="<?php echo $value['igst_tax_rate'];?>" class="form-control igst_tax_rate">
                                         </td>
                                         <td><input id="<?php echo "igsttaxamount_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][igst_tax_amount]" value="<?php echo $value['igst_tax_amount'];?>" class="form-control igst_tax_amount" readonly></td>
-                                        <?php }else if($value['sgst_tax_amount'] > 0){ ?>
+                                        <?php }else if($value['sgst_tax_amount'] != 0){ ?>
                                         <td><input  id="is_igst" type="hidden" name="is_igst" value="0" >
                                             <input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "sgsttaxrate_".$key; ?>" type="text" name="invoice[<?php echo $value['id']; ?>][sgst_tax_rate]" value="<?php echo $value['sgst_tax_rate'];?>" class="form-control sgst_tax_rate">
                                         </td>
@@ -288,10 +288,10 @@
                                         <td id="total_quantity"></td>
                                         <td ></td>
                                         <td id="total_taxablevalue" ></td>
-                                        <?php if($invoice_breakup[0]['igst_tax_amount'] > 0){ ?>
+                                        <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
                                         <td></td>
                                         <td id="total_igst_amount"></td>
-                                        <?php } else if($invoice_breakup[0]['sgst_tax_amount'] > 0){ ?>
+                                        <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                         <td></td>
                                         <td id="total_sgst_amount"></td>
                                         <td></td>

@@ -169,7 +169,7 @@ class accounting_model extends CI_Model {
                 . " IFNULL(sc.service_tax_no, partners.service_tax) as service_tax_no, "
                 . " IFNULL(sc.tin_no, partners.tin) as tin_no, "
                 . " to_date,total_service_charge,"
-                . " `total_additional_service_charge`,vpi.`service_tax`,"
+                . " `total_additional_service_charge`,vpi.`service_tax`, vpi.warehouse_storage_charges, vpi.miscellaneous_charges,"
                 . " `parts_cost`,`parts_count`, `parts_cost`, `vat`,`total_amount_collected`,"
                 . " `around_royalty`,`total_service_charge`,`parts_count`,`reference_invoice_id`,`amount_collected_paid`,"
                 . " `hsn_code`,`cgst_tax_amount`,`igst_tax_amount`,"
@@ -205,8 +205,8 @@ class accounting_model extends CI_Model {
                     vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
         } else {
             $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount,
-                    tds_rate";
-            $group_by = " GROUP BY sc.id";
+                      tds_rate, (SUM(total_service_charge)+ SUM(courier_charges) + SUM(warehouse_storage_charges) + SUM(miscellaneous_charges) + SUM(upcountry_price) + SUM(credit_penalty_amount) + SUM(total_additional_service_charge) - SUM(penalty_amount)) as tds_taxable_amount";
+            $group_by = " GROUP BY sc.id, tds_rate";
         }
         $where = "";
         if ($invoice_data_by === 'invoice_date') {
@@ -337,5 +337,190 @@ class accounting_model extends CI_Model {
         LEFT JOIN `service_centres` as s ON `courier_details`.`receiver_entity_id`= `s`.`id` LEFT JOIN `employee` as e ON `courier_details`.`sender_entity_id` = e.`id` 
         LEFT JOIN `contact_person` ON `courier_details`.`contact_person_id`= `contact_person`.`id` ".$where." ORDER BY `courier_details`.`id` asc ;");
         return $query->result();
+    }
+     /**
+     * @desc: This Function is used to insert gstr2a data
+     * @param: array $data
+     * @return : insert_id
+     */
+    function insert_taxpro_gstr2a_data($data) {
+        $this->db->insert_batch('taxpro_gstr2a_data', $data);
+        return $this->db->insert_id();
+    }
+    
+     /**
+     * @desc: This Function is used to get gstr2a data
+     * @param: array $select, $where
+     * @return : array
+     */
+    function get_taxpro_gstr2a_data($select, $where = array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('taxpro_gstr2a_data');
+
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+    
+    function get_gstr2a_mapping_details($condition, $select){
+        $this->_get_gstr2a_mapping_details($condition, $select);
+        if(isset($condition['length'])){
+            if ($condition['length'] != -1) {
+                $this->db->limit($condition['length'], $condition['start']);
+            }
+        }
+        $query = $this->db->get();
+         log_message("info", $this->db->last_query());
+        return $query->result_array();
+    }
+    
+     /**
+     * @desc: This Function is used to get gstr2a data for gstra2a report
+     * @param: array $select, $where
+     * @return : array
+     */
+    function _get_gstr2a_mapping_details($condition, $select){
+        
+        $this->db->select($select);
+        $this->db->from('taxpro_gstr2a_data');
+        
+        if($condition['entity_type'] == 'vendor'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no');
+        }
+        else if($condition['entity_type'] == 'partner'){
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no');
+        }
+        else if($condition['entity_type'] == 'other'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('gstin_detail', 'gstin_detail.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+        }
+        
+        if(!empty($condition['where'])){
+            $this->db->where($condition['where']);
+        }
+         
+        if (!empty($condition['search'])) {
+            $key = 0;
+            $like = "";
+            foreach ($condition['search'] as $index => $item) {
+                if ($key === 0) { // first loop
+                   // $this->db->like($index, $item);
+                    $like .= "( ".$index." LIKE '%".$item."%' ";
+                } else {
+                    $like .= " OR ".$index." LIKE '%".$item."%' ";
+                }
+                $key++;
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if (!empty($condition['search_value'])) {
+            $like = "";
+            foreach ($condition['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        
+        if(!empty($condition['order_by'])){
+            $this->db->order_by($condition['order_by']);
+        }else if(!empty ($condition['order'])){
+            $this->db->order_by($condition['column_order'][$condition['order'][0]['column']], $condition['order'][0]['dir']);
+        }else{
+            $this->db->order_by('taxpro_gstr2a_data.invoice_number', "asc");
+            $this->db->order_by($condition['column_order'], "asc");
+        }
+    }
+    
+    function update_taxpro_gstr2a_data($id, $data){
+        $this->db->where('id', $id);
+        $this->db->update('taxpro_gstr2a_data', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    function count_all_taxpro_gstr2a_data($post){
+        $this->_count_all_taxpro_gstr2a_data($post);
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
+    function _count_all_taxpro_gstr2a_data($post){
+        $this->db->from('taxpro_gstr2a_data');
+        if($post['entity_type'] == 'vendor'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no');
+        }
+        else if($post['entity_type'] == 'partner'){
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no');
+        }
+        else if($post['entity_type'] == 'other'){
+            $this->db->join('service_centres', 'service_centres.gst_no = taxpro_gstr2a_data.gst_no', 'left');
+            $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no', 'left');
+        }
+        $this->db->where($post['where']);
+    }
+    
+    function count_filtered_taxpro_gstr2a_data($condition, $select){
+        $this->_get_gstr2a_mapping_details($condition, $select);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+    function get_variable_charge($select='*', $where=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('variable_charges_type');
+
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+    
+    /**
+     * @desc This function is used to insert variable charges type
+     * @param String $data
+     * @return insert_id
+     */
+    function insert_into_variable_charge($data){
+        $this->db->insert('variable_charges_type', $data);
+         log_message("info", $this->db->last_query());
+        return $this->db->insert_id();
+    }
+    
+     /**
+     * @desc This function is used to get variable charges type
+     * @param String $select
+     * @param Array $where 
+     * @return Array
+     */
+    function get_vendor_partner_variable_charges($select, $where=array(), $join=false){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if($join == true){
+            $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
+        }
+        $this->db->from('vendor_partner_variable_charges');
+
+        $query = $this->db->get();
+        return $query->result_array(); 
     }
 }

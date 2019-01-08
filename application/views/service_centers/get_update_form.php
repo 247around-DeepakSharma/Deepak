@@ -1,3 +1,4 @@
+
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -145,6 +146,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -152,6 +154,13 @@
                                         <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
                                         <div class="col-md-6">
                                             <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">                                        
+                                        <div class="col-md-6">
+                                            <button type="button" style="margin-left: 95%;" class="btn btn-primary addButton">Request More Parts</button>
                                         </div>
                                     </div>
                                 </div>
@@ -171,8 +180,10 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
                                             </div>
                                             <?php } ?>
                                             
@@ -183,17 +194,17 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" >
+                                                <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
+                                                 <span id="inventory_stock_0"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" >
                                             </div>
-                                            <?php } ?>
-                                            <button type="button" class="btn btn-primary addButton">Request More <br/>Parts</button>
+                                            <?php } ?>                                           
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -232,8 +243,10 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>" placeholder="Parts Type" >
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
                                             </div>
                                             <?php } ?>
                                             
@@ -244,10 +257,11 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_name spare_parts" id="parts_name" >
+                                                <select class="form-control parts_name spare_parts" id="parts_name" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
+                                                <span id="inventory_stock"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
@@ -358,7 +372,6 @@
         });
         
         function part_type_changes(count){
-          
             var model_number_id = $('#model_number_id').val();
            
             var part_type = $('#parts_type_' + count).val();
@@ -566,15 +579,14 @@
        }
     }
     
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
     $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
                 minDate: 0, 
                 maxDate:+7
     });
-    
-    function booking_calendar(){
+     function booking_calendar(){
       
         $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
     }
@@ -609,15 +621,17 @@
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } ?>
 
-        })
+        }) 
     
         // Remove button click handler
         .on('click', '.removeButton', function () {
@@ -626,7 +640,36 @@
                 partIndex = partIndex -1;
             $row.remove();
         });
+        
+    function get_inventory_id(id){       
+        var inventory_id =$("#"+id).find('option:selected').attr("data-inventory"); 
+        var str_arr =id.split("_");
+        indexId=str_arr[2]; 
+        if(inventory_id!=undefined){           
+           $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_inventory_stock_count',
+                    data: {service_centres_id:'<?php echo $this->session->userdata('service_center_id'); ?>',inventory_id:inventory_id,entity_type: '<?php echo _247AROUND_SF_STRING; ?>'},
+                    success:function(data){
+                        obj=JSON.parse(data);                        
+                        $('#inventory_stock_'+indexId).html("Available Stock- "+obj['total_stock']).css({'padding': '5px','font-weight': 'bold'});
+                    }
+                });
+        }
+        
+    }
     
+    $(document).ready(function(){
+        var service_id = "<?php echo $bookinghistory[0]['service_id']; ?>";
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+            data: { service_id:service_id},
+            success:function(data){                       
+                $('.spare_parts_type').html(data);                  
+            }
+        });
+    });
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

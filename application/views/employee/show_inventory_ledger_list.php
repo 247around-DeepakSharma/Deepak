@@ -1,14 +1,14 @@
 <div id="page-wrapper" >
     <div>
-        <h3>Inventory Ledger Details</h3>
+        <h3>Inventory Ledger Details </h3>
         <hr>
         <div class="stocks_table">
             <table class="table table-responsive table-hover table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>S.No.</th>
-                        <th>Receiver Name</th>
+                        <th>S.No.</th>                        
                         <th>Sender Name</th>
+                        <th>Receiver Name</th>
                         <th>Spare Part Name</th>
                         <th>Spare Part Number</th>
                         <th>Spare Quantity</th>
@@ -22,12 +22,11 @@
                     <?php foreach ($brackets as $key => $value){?>
                     <tr>
                         <td><?php echo $key+1;?></td>
-                        <td>
-                            <a href="javascript:void(0);" onclick="get_vendor_stocks('<?php echo $value['receiver_entity_id']?>','<?php echo $value['receiver_entity_type']?>')">
-                                <?php echo $value['receiver'];?>
-                            </a>
-                        </td>
                         <td><?php echo $value['sender'];?></td>
+                        <td>
+<!--                            <a href="javascript:void(0);" onclick="get_vendor_stocks('<?php echo $value['receiver_entity_id']?>','<?php echo $value['receiver_entity_type']?>')"> </a>-->
+                            <?php echo $value['receiver'];?>
+                        </td>                        
                         <td><?php echo $value['part_name'];?></td>
                         <td><?php echo $value['part_number'];?></td>
                         <td><?php echo $value['quantity'];?></td>
@@ -49,7 +48,7 @@
                         <td><?php echo date('d F Y H:i:s', strtotime($value['create_date'])) ; ?></td>
                     </tr>
                     <?php }?>
-                    <tr>
+<!--                    <tr>
                         <th><b>Total Count <span class="badge"><i class="fa fa-info" title="Spare count calculated only for spare shipped by partner to wh and wh to sf only"></i></span></b></th>
                         <th></th>
                         <th></th>
@@ -60,7 +59,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                    </tr>
+                    </tr>-->
                 </tbody>
             </table>
             <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>

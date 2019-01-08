@@ -20,6 +20,7 @@
                                     <th>Status</th>
                                     <th>View</th>
                                     <th>More Action</th>
+                                    <th>Repeat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,7 +48,7 @@
                                             switch ($row['current_status']) {
                                                 case 'Pending':
                                                 case 'Rescheduled':
-                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    $view = 'partner/pending_booking/' . $row['booking_id'];
                                                     break;
 
                                                 case 'Cancelled':
@@ -59,12 +60,29 @@
                                                     break;
 
                                                 default:
-                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    $view = 'partner/pending_booking/' . $row['booking_id'];
                                                     break;
                                             }
                                             ?>
                                         <a href="<?php echo base_url() . $view; ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
                                     </td>
+                                    <?php
+                                    if($row['current_status'] == _247AROUND_COMPLETED){
+                                        $today = strtotime(date("Y-m-d"));
+                                        $closed_date = strtotime($row['closed_date']);
+                                        $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
+                                        if($completedDays < _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS){
+                                            echo "<td><a class='btn btn-sm btn-primary' "
+                                                . "href=" . base_url() . "employee/partner/get_repeat_booking_form/$row[booking_id]/". " target='_blank'title='view'><i class='fa fa-plus' aria-hidden='true'></i></a></td>";
+                                        }
+                                        else{
+                                            echo "<td></td>";
+                                       }
+                                }
+                                else{
+                                    echo "<td></td>";
+                                }
+                                ?>
                                 </tr>
                                 <?php
                                     }

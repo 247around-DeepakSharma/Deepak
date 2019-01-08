@@ -25,10 +25,10 @@
           <div class="x_panel">
                 <div class="x_title">
                     <h2>AM TAT Reporting</h2>
-                     <span class="collape_icon" href="#escalation_data" data-toggle="collapse" style="margin-right: 8px;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#escalation_data" data-toggle="collapse" style="margin-right: 8px;" onclick="initiate_am_tat_report()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div class="table-responsive collapse in" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+                <div class="table-responsive collapse" id="escalation_data" ng-controller="completedBooking_ControllerAM" ng-cloak="">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -134,11 +134,11 @@
                 <div class="x_panel">
                 <div class="x_title">
                     <h2>RM TAT Reporting</h2>
-                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_completed_booking_reports_div" data-toggle="collapse" onclick="initiate_rm_tat_report()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>
                 </div>
-                <div class="x_content collapse in" id="RM_completed_booking_reports_div">
+                <div class="x_content collapse" id="RM_completed_booking_reports_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
@@ -336,7 +336,7 @@
                 <div class="col-md-12">
                     <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
-                <div id="chart_container2" class="chart_containe2"></div>
+                <div id="chart_container2" class="chart_containe2" style="width:100%; height:400px;"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -645,35 +645,28 @@
     
     }
     
-    $(function() {
-     var d = new Date();
-        n = d.getMonth();
-        y = d.getFullYear();
-        date = d.getDate();
+function initiate_am_tat_report(){
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
             timePickerIncrement: 30,
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: y+'-'+n+'-'+date
-        });
-    
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+        }); 
+}
+function initiate_rm_tat_report(){
         var dvSecond = document.getElementById('rm_dashboard_app');
         angular.element(document).ready(function() {
             angular.bootstrap(dvSecond, ['rm_dashboard']);
-            var d = new Date();
-            n = d.getMonth();
-            y = d.getFullYear();
-            date = d.getDate();
             $('#completed_daterange_id').daterangepicker({
                 timePicker: true,
                 timePickerIncrement: 30,
                 locale: {
                      format: 'YYYY-MM-DD'
                 },
-                startDate: y+'-'+n+'-'+date
+                startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
             });
         });
-});
+}
 </script>

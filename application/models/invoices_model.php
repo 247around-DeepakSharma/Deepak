@@ -269,10 +269,12 @@ class invoices_model extends CI_Model {
                     $data[$key]['count_spare_part'] = $sp_d[0]['count'];
                     $data[$key]['max_sp_age'] = $sp_d[0]['max_sp_age'];
                     $data[$key]['shipped_parts'] = $sp_d[0]['parts'];
+                    $data[$key]['challan_value'] = $sp_d[0]['challan_value'];
                 } else {
                     $data[$key]['count_spare_part'] = 0;
                     $data[$key]['max_sp_age'] = 0;
                     $data[$key]['shipped_parts'] = "";
+                    $data[$key]['challan_value'] = 0;
                 }
                 
             } else if (isset($value['public_name'])) {
@@ -302,7 +304,7 @@ class invoices_model extends CI_Model {
     }
     
     function get_pending_defective_parts($service_center_id){
-        $select = "count(spare_parts_details.booking_id) as count, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
@@ -334,7 +336,9 @@ class invoices_model extends CI_Model {
     function getpartner_invoices($partner_id, $from_date, $to_date) {
         log_message('info', __FUNCTION__);
 
-        $sql1 = "SELECT booking_unit_details.id AS unit_id, CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
+        $sql1 = "SELECT booking_unit_details.id AS unit_id,"
+                . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (order_id) END AS order_id, "
+                . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
                 . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."engineer-uploads/', serial_number_pic)) END as serial_number_pic,"
@@ -342,9 +346,10 @@ class invoices_model extends CI_Model {
                 . " `booking_details`.city, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
-                . " `services`.services, users.name,order_id, "
+                . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
+                    CASE WHEN (support_file = '' OR support_file IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."misc-images/', support_file)) END as support_file,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
@@ -577,7 +582,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function get_partner_invoice_data($partner_id, $from_date, $to_date) {
+    function get_partner_invoice_data($partner_id, $from_date, $to_date, $tmp_from_date) {
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -633,7 +638,7 @@ class invoices_model extends CI_Model {
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
                 . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as file';
 
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge");
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();
         $result['pickup_courier'] = array();
         $result['courier'] = array();
@@ -644,6 +649,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
+        $result['micro_warehouse_list'] = array();
         $final_courier = array_merge($courier,$pickup_courier, $warehouse_courier, $defective_return_to_partner);
         
         if (!empty($upcountry_data)) {
@@ -664,7 +670,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($warehouse_courier)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "charges_type" => PACKAGING_RATE_TAG));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
@@ -739,13 +745,13 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "is_fixed" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
                     $c_data[0]['description'] = $value['description'];
                     $c_data[0]['hsn_code'] = $value['hsn_code'];
-                    $c_data[0]['qty'] = 0;
+                    $c_data[0]['qty'] = 1;
                     $c_data[0]['rate'] = $value['fixed_charges'];
                     $c_data[0]['gst_rate'] = $value['gst_rate'];
                     $c_data[0]['product_or_services'] = $value['description'];
@@ -756,17 +762,67 @@ class invoices_model extends CI_Model {
                 
             }
             
-
+            $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+            if (!empty($micro_charges)) {
+                foreach ($micro_charges as $key => $value) {
+                    $micro_wh_lists = $this->invoices_model->calculate_active_microwarehouse($partner_id, $tmp_from_date, $to_date);
+                    if($micro_wh_lists['count'] > 0){
+                        $c_data = array();
+                        $c_data[0]['description'] = $value['description'];
+                        $c_data[0]['hsn_code'] = $value['hsn_code'];
+                        $c_data[0]['qty'] = $micro_wh_lists['count'];
+                        $c_data[0]['rate'] = $value['fixed_charges'];
+                        $c_data[0]['gst_rate'] = $value['gst_rate'];
+                        $c_data[0]['product_or_services'] = $value['description'];
+                        $c_data[0]['taxable_value'] = $micro_wh_lists['count'] * $value['fixed_charges'];
+                        $result['result'] = array_merge($result['result'], $c_data);
+                       
+                        $result['micro_warehouse_list'] = $micro_wh_lists['list'];
+                    }
+                }
+                
+            }
             return $result;
         } else {
             return false;
         }
+    }
+    /**
+     * @desc This function is used to get micro warehouse invoice data for Partner
+     * It will create full amount invoice when Micro warehouse created before requested from date
+     * It will create partial amount invoice when Micro invoice created with in requested Date
+     * @param int $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function calculate_active_microwarehouse($partner_id, $from_date, $to_date){
+        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id, 
+            'micro_wh_mp.create_date < "'.$from_date.'" ' => NULL, "micro_wh_mp.active" => 1));
 
+        $count = 0;
+        if(!empty($micro_wh_lists)){
+            $count = count($micro_wh_lists);
+        } 
+        
+        $micro_wh = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id, 
+            'micro_wh_mp.create_date >= "'.$from_date.'" ' => NULL, "micro_wh_mp.create_date <= '".$to_date."' " => NULL, "micro_wh_mp.active" => 1));
 
-//        } else {
-//            
-//           return false;
-//        }
+        if(!empty($micro_wh)){
+            foreach ($micro_wh as $value) {
+                $datetime1 = date_create(date('Y-m-d', strtotime($value['create_date']))); 
+                $datetime2 = date_create(date('Y-m-d', strtotime($to_date)));
+                $interval = date_diff($datetime1, $datetime2); 
+                $days = $interval->days;
+                if($days > 0){
+                    $count += ($days/30);
+                    $micro_wh_lists[] = $value;
+                }
+            }
+        }
+        
+        return array('count' => sprintf("%.2f", $count), "list" => $micro_wh_lists);
     }
 
     /**
@@ -780,7 +836,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
-        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date);
+        $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
         $anx_data = array();
         $penalty_count = array();
         $penalty_tat = array();
@@ -790,7 +846,6 @@ class invoices_model extends CI_Model {
             if(!empty($anx_data)){
                 $result_data['penalty_discount'] = array();
                 $penalty_data = $this->get_partner_invoice_tat_data($anx_data, $partner_id);
-                
                 if (!empty($penalty_data)) {
                     $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
                     $penalty_tat = $penalty_data['tat'];
@@ -827,7 +882,9 @@ class invoices_model extends CI_Model {
             $data['annexure'] = $anx_data;
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
+            $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
             $data['pickup_courier'] = $result_data['pickup_courier'];
+            $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
           
             return $data;
         } else {
@@ -1166,7 +1223,8 @@ class invoices_model extends CI_Model {
                 round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
-                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh
+                sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh,
+                minimum_guarantee_charge
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -1194,6 +1252,7 @@ class invoices_model extends CI_Model {
         $result['packaging_rate'] = 0;
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
+        $result['micro_warehouse_list'] = array();
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
         $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
@@ -1207,7 +1266,7 @@ class invoices_model extends CI_Model {
                 . '(case when (product_or_services = "Service" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge, '
                 . '(case when (product_or_services = "Product" )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand,'
                 . 'vendor_basic_charges as total_booking_charge, vendor_basic_charges as amount_paid, product_or_services';
-        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges");
+        $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.vendor_invoice_id IS NULL", $from_date, $to_date, "booking_details.assigned_vendor_id", $vendor_id, "vendor_basic_charges", _247AROUND_COMPLETED);
 
         //$warehouse_courier = $this->get_sf_invoice_warehouse_courier_data($vendor_id, $from_date, $to_date, $is_regenerate);
         //$defective_return_to_partner = $this->get_defective_parts_return_partner_sf_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
@@ -1225,22 +1284,10 @@ class invoices_model extends CI_Model {
             $result['upcountry'] = $upcountry_data;
         }
 
-        if (!empty($debit_penalty)) {
-            $d_penalty = array();
-            $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
-            $d_penalty[0]['hsn_code'] = '';
-            $d_penalty[0]['qty'] = '';
-            $d_penalty[0]['rate'] = '';
-            $d_penalty[0]['product_or_services'] = 'Debit Penalty';
-            $d_penalty[0]['taxable_value'] = -sprintf("%1\$.2f",(array_sum(array_column($debit_penalty, 'p_amount'))));
-            $result['booking'] = array_merge($result['booking'], $d_penalty);
-            $result['d_penalty'] = $debit_penalty;
-        }
-
         if (!empty($final_courier_data)) {
             $c_data = array();
             $c_data[0]['description'] = 'Courier Charges';
-            $c_data[0]['hsn_code'] = '';
+            $c_data[0]['hsn_code'] = HSN_CODE;
             $c_data[0]['qty'] = '';
             $c_data[0]['rate'] = '';
             $c_data[0]['product_or_services'] = 'Courier';
@@ -1251,22 +1298,10 @@ class invoices_model extends CI_Model {
             $result['final_courier_data'] = $final_courier_data;
         }
 
-        if (!empty($credit_penalty)) {
-            $cp_data = array();
-            $cp_data[0]['description'] = 'Credit (Penalty Removed)';
-            $cp_data[0]['hsn_code'] = '';
-            $cp_data[0]['qty'] = '';
-            $cp_data[0]['rate'] = '';
-            $cp_data[0]['product_or_services'] = 'Credit Penalty';
-            $cp_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($credit_penalty, 'p_amount'))));
-            $result['booking'] = array_merge($result['booking'], $cp_data);
-            $result['c_penalty'] = $credit_penalty;
-        }
-
         if (!empty($misc)) {
             $m = array();
             $m[0]['description'] = 'Miscellaneous Charge';
-            $m[0]['hsn_code'] = '';
+            $m[0]['hsn_code'] = HSN_CODE;
             $m[0]['qty'] = '';
             $m[0]['rate'] = '';
             $m[0]['product_or_services'] = 'Misc Charge';
@@ -1274,7 +1309,23 @@ class invoices_model extends CI_Model {
             $result['booking'] = array_merge($result['booking'], $m);
             $result['misc'] = $misc;
         }
+        
+        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
+        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
 
+            $c_data = array();
+            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+            $c_data[0]['hsn_code'] = HSN_CODE;
+            $c_data[0]['qty'] = $micro_invoice['count'];
+            $c_data[0]['rate'] = "";
+            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
+            $result['booking'] = array_merge($result['booking'], $c_data);
+            $result['micro_warehouse_list'] = $micro_invoice['list'];
+                
+        }
+        
 //            if (!empty($warehouse_courier)) {
 //                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => PACKAGING_RATE_TAG));
@@ -1293,14 +1344,36 @@ class invoices_model extends CI_Model {
 //                    $result['packaging_quantity'] = count($warehouse_courier);
 //                }
 //            }
-
-
+        if (!empty($credit_penalty)) {
+                $cp_data = array();
+                $cp_data[0]['description'] = 'Credit (Penalty Removed)';
+                $cp_data[0]['hsn_code'] = HSN_CODE;
+                $cp_data[0]['qty'] = '';
+                $cp_data[0]['rate'] = '';
+                $cp_data[0]['product_or_services'] = 'Credit Penalty';
+                $cp_data[0]['taxable_value'] = sprintf("%1\$.2f",(array_sum(array_column($credit_penalty, 'p_amount'))));
+                $result['booking'] = array_merge($result['booking'], $cp_data);
+                $result['c_penalty'] = $credit_penalty;
+        }
+        
+        if (!empty($debit_penalty)) {
+            $d_penalty = array();
+            $d_penalty[0]['description'] = 'Discount (Bookings not updated)';
+            $d_penalty[0]['hsn_code'] = HSN_CODE;
+            $d_penalty[0]['qty'] = '';
+            $d_penalty[0]['rate'] = '';
+            $d_penalty[0]['product_or_services'] = 'Debit Penalty';
+            $d_penalty[0]['taxable_value'] = -sprintf("%1\$.2f",(array_sum(array_column($debit_penalty, 'p_amount'))));
+            $result['booking'] = array_merge($result['booking'], $d_penalty);
+            $result['d_penalty'] = $debit_penalty;
+        }
+        
         if (!empty($result['booking'])) {
             if (!isset($result['booking'][0]['company_name'])) {
                 $select = 'state,company_name,'
                         . ' address as company_address, pincode, district,'
                         . ' is_wh, owner_phone_1, sc_code, primary_contact_email,'
-                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number ';
+                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number,minimum_guarantee_charge ';
 
                 $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
 
@@ -1319,8 +1392,9 @@ class invoices_model extends CI_Model {
                 $result['booking'][0]['company_type'] = $vendor_details[0]['signature_file'];
                 $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
                 $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
+                $result['booking'][0]['minimum_guarantee_charge'] = $vendor_details[0]['minimum_guarantee_charge'];
             }
-
+            
 //            if ($result['booking'][0]['is_wh'] == 1) {
 //                $packaging1 = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
 //                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
@@ -1350,11 +1424,13 @@ class invoices_model extends CI_Model {
                        $result['booking'][0]['gst_number'] = "";
                        return $result;
                    } else {
+                       $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                        return FALSE;
                    }
                 } else {
                     // IF we are getting false as response then we are not creating invoice 
                     log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
+                    $this->session->set_userdata(array('error' => "GST Number is Invalid"));
                     return FALSE;
                 }
             } else {
@@ -1362,8 +1438,48 @@ class invoices_model extends CI_Model {
             }
         } else {
             log_message("info", __METHOD__. " DATA Not Found vendor ID ". $vendor_id);
+
+            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
+    }
+    /**
+     * @desc This function is used to get micro warehouse invoice data
+     * It will create full amount invoice when Micro warehouse created before requested from date
+     * It will create partial amount invoice when Micro invoice created with in requested Date
+     * @param int $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date, $to_date){
+        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", 
+                array('micro_wh_mp.vendor_id' => $vendor_id, 'micro_wh_mp.create_date < "'.$from_date.'" ' => NULL, "micro_wh_mp.active" => 1));
+        $count = 0;
+        $charge = 0;
+        if(!empty($micro_wh_lists)){
+            $count = count($micro_wh_lists);
+            $charge = (array_sum(array_column($micro_wh_lists, 'micro_warehouse_charges')));
+        } 
+        
+        $micro_wh = $this->inventory_model->get_micro_wh_lists_by_partner_id("micro_wh_mp.*, service_centres.company_name", array('micro_wh_mp.vendor_id' => $vendor_id, 
+            'micro_wh_mp.create_date >= "'.$from_date.'" ' => NULL, "micro_wh_mp.create_date <= '".$to_date."' " => NULL, "micro_wh_mp.active" => 1));
+
+        if(!empty($micro_wh)){
+            foreach ($micro_wh as $value) {
+                $datetime1 = date_create(date('Y-m-d', strtotime($value['create_date']))); 
+                $datetime2 = date_create(date('Y-m-d', strtotime($to_date)));
+                $interval = date_diff($datetime1, $datetime2); 
+                $days = $interval->days;
+                if($days > 0){
+                    $count += ($days/30);
+                    $charge += (($days/30) * $value['micro_warehouse_charges']); 
+                    $micro_wh_lists[] = $value;
+                }
+            }
+        }
+        
+        return array('count' => sprintf("%.2f", $count), "list" => $micro_wh_lists, "charge" => sprintf("%.2f", $charge));
     }
 
     /**
@@ -1662,9 +1778,11 @@ class invoices_model extends CI_Model {
 
                 return $r_data;
             } else {
+                $this->session->set_userdata(array('error' => "Invoice amount is not greater than zero"));
                 return FALSE;
             }
         } else {
+            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1703,6 +1821,7 @@ class invoices_model extends CI_Model {
                 }
                 if($is_bill_of_supply){
                     $commission_charge[$key]['rate'] = sprintf("%.2f",$value['taxable_value']/$value['qty']);
+                    $commission_charge[$key]['total_amount'] = $value['taxable_value'];
                     $meta['sub_total_amount'] += $value['taxable_value'];
                     $meta['total_qty'] += $value['qty'];
                     $meta['invoice_template'] = "Buyback-v1.xlsx"; 
@@ -1717,7 +1836,7 @@ class invoices_model extends CI_Model {
                         $meta['cgst_total_tax_amount'] +=  $commission_charge[$key]['cgst_tax_amount'];
                         $meta['sgst_total_tax_amount'] += $commission_charge[$key]['sgst_tax_amount'];
                         $meta['sgst_tax_rate'] = $meta['cgst_tax_rate'] = DEFAULT_TAX_RATE/2;
-                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE/2))));
+                        $commission_charge[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] *(SERVICE_TAX_RATE))));
 
                     } else {
                         $meta['invoice_template'] = "247around_Tax_Invoice_Inter_State.xlsx";
@@ -1766,6 +1885,7 @@ class invoices_model extends CI_Model {
             return $data1;
             
         } else{
+            $this->session->set_userdata(array('error' => "Data Not Found"));
             return FALSE;
         }
     }
@@ -1805,7 +1925,7 @@ class invoices_model extends CI_Model {
             $group_by = " GROUP BY bb_unit_details.service_id ";
         }
         
-        $sql = "SELECT $select
+        $sql = "SELECT $select, 'Product' AS 'product_or_services'
                 
                 
                 FROM `bb_order_details`, bb_unit_details, services, service_centres as sc WHERE 
@@ -2085,19 +2205,23 @@ class invoices_model extends CI_Model {
     }
     
     function get_fixed_variable_charge($where){
-        $this->db->select('*');
+        $this->db->select('vendor_partner_variable_charges.id, vendor_partner_variable_charges.entity_type, vendor_partner_variable_charges.entity_id, vendor_partner_variable_charges.fixed_charges,vendor_partner_variable_charges.percentage_charge, vendor_partner_variable_charges.validity_in_month, variable_charges_type.type as charges_type, variable_charges_type.description, variable_charges_type.hsn_code, variable_charges_type.gst_rate, variable_charges_type.is_fixed');
         $this->db->where($where);
+        $this->db->join('variable_charges_type', 'variable_charges_type.id = vendor_partner_variable_charges.charges_type');
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();
     }
     
     function get_misc_charges_invoice_data($select, $vendor_partner_invoice, 
-            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge){
+            $from_date, $to_date, $vendor_partner,$vendor_partner_id, $sf_partner_charge, $current_status = ""){
         $this->db->select($select, false);
         $this->db->from('miscellaneous_charges');
         $this->db->join('booking_details', 'booking_details.booking_id = miscellaneous_charges.booking_id');
         $this->db->join('services', 'booking_details.service_id = services.id');
-        $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        if(!empty($current_status)){
+            $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        }
+        
         $this->db->where($vendor_partner_invoice, NULL);
         $this->db->where("active", 1);
         $this->db->where($sf_partner_charge. " > 0", NULL);
@@ -2120,22 +2244,26 @@ class invoices_model extends CI_Model {
      * 
      */
     
-     public function get_partners_annual_charges($select, $partner_id = "") {
+     public function get_partners_annual_charges($select, $partner_id = "", $partner_active = "") {
         $wh = "";
+        $partner_wh = "";
         if(!empty($partner_id)){
             $wh = " AND vendor_partner_id = '$partner_id' ";
         }
-        $sql = "SELECT $select FROM vendor_partner_invoices "
-                . "INNER JOIN (SELECT id, MAX(to_date) as date "
-                . "FROM vendor_partner_invoices WHERE "
-                
-                . "invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
-                . $wh
-                . "AND vendor_partner = '"._247AROUND_PARTNER_STRING."'  "
-                . "GROUP BY vendor_partner_id) "
-                . "AS EachItem ON EachItem.id = vendor_partner_invoices.id "
-                . " JOIN partners on partners.id = vendor_partner_id ORDER BY public_name";
-       
+        if(!empty($partner_active)){
+           $partner_wh = " AND partners.is_active = 1 ";
+        }
+        
+        $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
+                . " WHERE partners.id = v.vendor_partner_id "
+                . " AND v.vendor_partner = 'partner' "
+                . " AND invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%'"
+                . " AND to_date IN (SELECT MAX(to_date) FROM vendor_partner_invoices as vp"
+                . " WHERE invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
+                . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
+                . "  $wh $partner_wh ) "
+                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
+        
         $query = $this->db->query($sql);
         return $query->result();
     }
@@ -2452,6 +2580,7 @@ class invoices_model extends CI_Model {
         $w = array('entity_id'=> $partner_id, "entity" => _247AROUND_PARTNER_STRING, "active" => 1);
         $tat_condition = $this->get_tat_invoicing_codition($w);
         $booking_tat_type = array();
+        $penalty_tata_booking_details = array();
         if(!empty($tat_condition)){
             foreach ($tat_condition as $key => $value) {
                 $request_type = ($value['installation_repair'] == 0)?"Installation":"Repair";
@@ -2462,10 +2591,14 @@ class invoices_model extends CI_Model {
                     'leg_1 >="0" ' => NULL,
                     'leg_1 <"'.($value['tat_with_in_days']).'" ' => NULL);
                 
-                $b_data = $this->get_booking_tat_data("*", $b_w, array('booking_id' => $booking_id));
+                $b_data = $this->get_booking_tat_data("*, Case WHEN `request_type` = 0 THEN 'Installation' ELSE 'Repair' END as 'type',"
+                        . " case WHEN `is_upcountry` = 0 THEN 'No' ELSE 'Yes' END as 'upcountry_status'", 
+                        $b_w, array('booking_id' => $booking_id));
+                
+                array_push($penalty_tata_booking_details, $b_data);
+                
                 $tat_condition[$key]['achieved_count'] = count($b_data);
-                
-                
+
                 $b_w1 = array('is_upcountry' => $value['local_upcountry'],
                     'request_type' => $value['installation_repair']);
                 
@@ -2488,10 +2621,18 @@ class invoices_model extends CI_Model {
                 array_push($booking_tat_type, array('booking_type' => $request_type." ".$l_u, "booking_count" => $tat_condition[$key]['total_booking']));
 
             }
-            
+            $i = 0;
+            $a = array();
+            foreach ($penalty_tata_booking_details as $value) {
+                foreach ($value as $value1) {
+                    array_push($a, array('booking_id' => $value1['booking_id'], "type" => $value1['type'], 
+                        "upcountry_status" => $value1['upcountry_status'],"leg_1" => $value1['leg_1'] ));
+                }
+            }
+           
             $tat['tat_count'] = array_map("unserialize", array_unique(array_map("serialize", $booking_tat_type)));
             $tat['tat'] = $tat_condition;
-            
+            $tat['penalty_booking_data'] = $a;
             return $tat;
             
         } else {
@@ -2520,7 +2661,7 @@ class invoices_model extends CI_Model {
      */
     function get_booking_tat_data($select, $where, $where_in){
         log_message('info', __METHOD__ );
-        $this->db->select($select);
+        $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -2600,5 +2741,49 @@ class invoices_model extends CI_Model {
         }
         $query = $this->db->get("invoice_tags");
         return $query->result_array();
+    }
+    
+     /**
+     * @desc This is used to get list of HSN Code Details.     
+     * @table hsn_code_details 
+     * @return array
+     */    
+     function get_hsncode_details($select, $where) {
+        $this->db->select($select);
+        if(!empty($where)){
+             $this->db->where($where);
+        }
+        $query = $this->db->get("hsn_code_details");
+        return $query->result_array();
+    }
+       
+    /**
+     * @desc: This is used to update hsn code details table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_hsn_code_details($where, $data) {
+        $this->db->where($where);
+        $this->db->update('hsn_code_details', $data);
+        log_message('info', __FUNCTION__ . '=> Update HSN Code Details: ' . $this->db->last_query());
+        if ($this->db->affected_rows() > 0) {
+            $result = true;
+        } else {
+            $result = false;
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * @desc: This is used to insert data into booking_debit_credit_details
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_into_booking_debit_credit_detils($data){
+        $this->db->insert('booking_debit_credit_details', $data);
+        return $this->db->insert_id();
     }
 }

@@ -205,30 +205,50 @@
                             </ul>
                         </li>
                         <?php } ?>
-                        <?php if($this->session->userdata('is_wh') == 1){ ?>
+                        <?php  if($this->session->userdata('is_wh') == 1){ ?>
                         <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Inventory <span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Warehouse <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
-                                        <ul class="dropdown-menu">
-                                            <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Spare Details</strong></a></li>
-                                            </li>
+                                        <ul class="dropdown-menu">                                           
+                                            <li><a href="<?php echo base_url();?>service_center/spare_parts"><strong> Send To SF</strong></a></li>
                                             <li class="divider"></li>
-                                            <li><a href="<?php echo base_url();?>service_center/get_shipped_parts_list"><strong> Spare Shipped To SF</strong></a>
-                                            </li>
-                                            <li class="divider"></li>
-                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Defective Spare Shipped By SF</strong></a>
+                                            <li><a href="<?php echo base_url();?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Send To Partner</strong></a>
+                                            </li>                                                                        
+<!--                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Defective Spare Shipped By SF</strong></a>
                                             </li>
                                             <li class="divider"></li>
                                             <li><a href="<?php echo base_url(); ?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Defective Spare Received </strong></a>
                                             </li>
-                                            <li class="divider"></li>
+                                            <li class="divider"></li>-->
                                         </ul>
                                     </li>
-                                    <li class="divider"></li>
+                                     <li class="divider"></li>
+                                    <li class="dropdown dropdown-submenu">
+                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
+                                        <ul class="dropdown-menu">                                           
+                                            <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
+                                            <li class="divider"></li>
+                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Acknowledge Shipped Spares By SF </strong></a>
+                                            </li>                                                                            
+                                        </ul>
+                                    </li>
+                                    <li class="divider"></li>                                    
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                    
+                                </ul>
+                            </li>
+                        <?php }else if ($this->session->userdata('is_micro_wh') == 1) { ?>
+                          <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Micro Warehouse <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+<!--                                    <li role="separator" class="divider"></li> 
+                                    <li><a href="<?php //echo base_url(); ?>service_center/inventory/requested_spare_on_sf"><strong>Spare Parts In Current</strong></a></li>-->
+                                    <li role="separator" class="divider"></li>                          
                                     <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
                                         <ul class="dropdown-menu">
@@ -238,7 +258,7 @@
                                     </li>
 
                                 </ul>
-                            </li>
+                            </li>      
                         <?php } ?>
                         <li>
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>

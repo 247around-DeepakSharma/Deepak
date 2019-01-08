@@ -1155,6 +1155,7 @@ class Partner extends CI_Controller {
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->partner['id'];
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+        $booking['actor'] = $booking['next_action'] = 'not_define';
         if (!empty($partner_status)) {
             $booking['partner_current_status'] = $partner_status[0];
             $booking['partner_internal_status'] = $partner_status[1];
@@ -1163,7 +1164,8 @@ class Partner extends CI_Controller {
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-
+        // Save Data in booking History Table
+        $this->notify->insert_state_change($booking_id,$booking['current_status'] , "Pending", "Cancelled By Partner API", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME,$booking['actor'],$booking['next_action'], _247AROUND);
         $this->service_centers_model->update_service_centers_action_table($booking_id, $details);
         return TRUE;
     }
@@ -1442,6 +1444,9 @@ class Partner extends CI_Controller {
                     $booking['booking_landmark'] = $requestData['landmark'];
                     $booking['booking_pincode'] = trim($requestData['pincode']);
                     $booking['city'] = $requestData['city'];
+                    if(isset($requestData['parent_booking'])){
+                        $booking['parent_booking'] = $requestData['parent_booking'];
+                    }
                     $agent_id = $requestData['agent_id'];
 
                     //Add this as a Booking now
@@ -1507,8 +1512,8 @@ class Partner extends CI_Controller {
                             }
                         }
                     } else {
-                        $booking['current_status'] = "Pending";
-                        $booking['internal_status'] = "Scheduled";
+                        $booking['current_status'] = _247AROUND_PENDING;
+                        $booking['internal_status'] = _247AROUND__SCHEDULED;
                         $booking['type'] = "Booking";
 
                         if (isset($upcountry_data['is_upcountry'])) {
@@ -1524,6 +1529,7 @@ class Partner extends CI_Controller {
                      */
 
                     if (isset($requestData['dealer_phone_number']) && !empty($requestData['dealer_phone_number'])) {
+                        $requestData['state'] = $distict_details['state'];
                         $is_dealer_id = $this->miscelleneous->dealer_process($requestData, $this->partner['id']);
                         if (!empty($is_dealer_id)) {
                             $booking['dealer_id'] = $is_dealer_id;
@@ -1890,7 +1896,7 @@ class Partner extends CI_Controller {
             $this->booking_model->update_booking($booking['booking_id'], $data);
 
             $p_login_details = $this->dealer_model->entity_login(array('entity_id' => $this->partner['id'], "user_id" => strtolower($this->partner['public_name'] . "-STS")));
-            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'], $this->partner['id']);
+            $this->notify->insert_state_change($booking['booking_id'], PRODUCT_DELIVERED, _247AROUND_PENDING, PRODUCT_DELIVERED, $p_login_details[0]['agent_id'], $this->partner['public_name'],$actor,$next_action, $this->partner['id']);
 
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking['booking_id'] . "/" . $up_flag;
@@ -2584,5 +2590,21 @@ exit();
         $response = curl_exec($ch);
         log_message('info', __METHOD__. " Response ". print_r($response, true));
         echo $response;
+    }
+                /*
+     * This function show login li
+     */
+    function manage_partner_contacts(){
+        $partner_id = $this->session->userdata('partner_id');
+        $data['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
+                . "GROUP_CONCAT(agent_filters.state) as  state,entity_login_table.agent_id as login_agent_id,entity_login_table.active as login_active",
+                array("contact_person.entity_type" =>  "partner","contact_person.entity_id"=>$partner_id),
+                array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
+                array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
+         $data['department'] = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
+         $data['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+         $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/contacts', $data);
+        $this->load->view('partner/partner_footer');
     }
 }

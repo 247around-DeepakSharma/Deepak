@@ -1405,7 +1405,7 @@ class Api extends CI_Controller {
                                     . 'through missed call failed for ' . $b['booking_id']);
 
                             //Send email
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "",QUERY_UPDATE_FAILED_MISSED_CALL);
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "",QUERY_UPDATE_FAILED_MISSED_CALL, "", $b['booking_id']);
                         } else {
                             log_message('info', __METHOD__ . '=> Booking confirmation '
                                     . 'through missed call succeeded for ' . $b['booking_id']);
@@ -1415,6 +1415,25 @@ class Api extends CI_Controller {
                              $this->notify->insert_state_change($b['booking_id'], _247AROUND_FOLLOWUP, $b['current_status'], 
                                      "Booking Open After Customer Missed Call",_247AROUND_DEFAULT_AGENT, 
                                      _247AROUND_DEFAULT_AGENT_NAME,ACTOR_FOLLOW_UP,NEXT_ACTION_FOLLOW_UP, _247AROUND);
+                        }
+                    }
+                    else if($b['type'] === 'Booking' && $b['current_status'] === 'Cancelled'){
+                        // If Cancelled date belongs to last 7 days only 
+                        $today = strtotime(date("Y-m-d"));
+                        $cancelled_date = strtotime($b['closed_date']);
+                        $datediff = round(($today - $cancelled_date) / (60 * 60 * 24));
+                        if($datediff < 8){
+                            $postArray['assigned_vendor_id'] =$b['assigned_vendor_id'];
+                            $nextDay = date('Y-m-d', strtotime("+1 days"));
+                            $postArray['booking_date'] = $nextDay;
+                            if(date('w', strtotime($nextDay)) == 7){
+                                $postArray['booking_date'] = date('Y-m-d', strtotime("+2 days"));
+                            }
+                            $postArray['booking_timeslot'] = "4PM-7PM";
+                            $postArray['admin_remarks'] = "Booking get Reopend through customer missed call";
+                            $postArray['partner_id'] = $b['partner_id'];
+                            $reopenBookingUrl = base_url() . "employee/do_background_process/reopen_booking/".$b['booking_id']."/".$b['current_status'];
+                            $this->asynchronous_lib->do_background_process($reopenBookingUrl, $postArray);
                         }
                     }
                 }
@@ -1958,8 +1977,8 @@ class Api extends CI_Controller {
 
                 $booking['type'] = "Booking";
                 $booking['source'] = "SB";
-                $booking['current_status'] = 'Pending';
-                $booking['internal_status'] = 'Scheduled';
+                $booking['current_status'] = _247AROUND_PENDING;
+                $booking['internal_status'] = _247AROUND__SCHEDULED;
 
 //            log_message('info', "User ID:" . $user_id . ", service: " . $searched_service
 //                    . ", date: " . $booking['booking_date'] . ", Address: " . $booking['booking_address']

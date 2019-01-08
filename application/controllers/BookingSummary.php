@@ -962,7 +962,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
             $this->miscelleneous->load_nav_header();
@@ -1008,7 +1010,7 @@ EOD;
     function get_sc_crimes_for_sf() {
         log_message('info', __FUNCTION__);
         if (date('l') != "Sunday") {
-            $vendor_details = $this->vendor_model->getactive_vendor();
+            $vendor_details = $this->vendor_model->getVendorDetails("*", array('is_sf' => 1));
             foreach ($vendor_details as $value) {
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
@@ -1041,7 +1043,7 @@ EOD;
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
 
                         $bcc = "";
-                        $cc = "";
+                        $cc = $rm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);
@@ -1196,7 +1198,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             //Getting Crimes for particular RM for its corresponding SF
             $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
@@ -1303,7 +1307,9 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
-                $where = "AND service_centres.id IN (" . $sf_list . ")";
+                $service_center_array = explode(",",$sf_list);
+                $sc_id = implode("','",$service_center_array);
+                $where = "AND service_centres.id IN ('" . $sc_id . "')";
             }
             //Getting Crimes for particular RM for its corresponding SF
             $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
