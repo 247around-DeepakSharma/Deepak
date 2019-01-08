@@ -1136,7 +1136,7 @@ class Service_centers extends CI_Controller {
                             $is_est_approved = true; 
                         }
                         
-                        if($sp['auto_acknowledeged'] == 1 && $sp['status'] == SPARE_DELIVERED_TO_SF ){
+                        if(($sp['auto_acknowledeged'] == 1 || $sp['auto_acknowledeged'] == 2)&& $sp['status'] == SPARE_DELIVERED_TO_SF ){
                             $spare_shipped_flag = TRUE;
                         }
                         
