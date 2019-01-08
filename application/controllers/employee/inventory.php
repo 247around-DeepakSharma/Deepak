@@ -5143,7 +5143,7 @@ class Inventory extends CI_Controller {
     
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')));
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
