@@ -9609,3 +9609,5 @@ ALTER TABLE `inventory_ledger` ADD `is_wh_micro` INT NOT NULL DEFAULT '0' AFTER 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'minimum_guarantee_mail_template', 'Minimum guarantee to be paid', 'Hi,<br/>\nMinimum guarantee to be paid as below<br/>\nSF Name - %s,<br/> MG amount - Rs. %s, <br/> Invoice Amount - %s.<br/>\nPro data amount to be paid depend on number of days. he has works with previous Month %s.', 'noreply@247around.com', 'accounts@247around.com, anuj@247around.com', 'abhaya@247around.com', '', '1', '2018-12-17 18:30:00');
 
+--Gorakh 08-01-2019
+INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('Shree Anjani', 'ShreeAnjani', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
