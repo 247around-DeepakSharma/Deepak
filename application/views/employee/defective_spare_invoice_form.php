@@ -59,9 +59,9 @@
                                 <th>Part Type</th>
                                 <th>Challan Approx Value</th>
                                 <th>Status</th>
-                                <th>Invoice Value<small> (Including Tax) </small></th>
-                                <th>GST Rate</th>
                                 <th>HSN Code</th>
+                                <th>GST Rate</th>
+                                <th>Invoice Value<small> (Including Tax) </small></th>
                                 <th>Reason</th>
                                 <th>Action</th>
                             </tr>
@@ -90,6 +90,7 @@
             }).done(function(response){
                 response = JSON.parse(response);
                 var remarks = response.remarks;
+                var hsn_code = response.hsn_code;
                 response = response.data;
                 if(response.length == '0'){
                    alert("No data found for this booking id.");
@@ -110,9 +111,9 @@
                             html += "<td>"+ response[i]['shipped_parts_type'] +"</td>";
                             html += "<td><a "+href+" target='_blank'>"+ response[i]['challan_approx_value'] +"</td></a>";
                             html += "<td>"+ response[i]['status'] +"</td>";
-                            html += '<td><input type="hidden" id="spare_product_name_'+i+'" value="'+response[i]['parts_shipped']+'"><input type="number" class="form-control" placeholder="Enter Confirm Value" id="confirm_value_'+i+'"></td>';
-                            html += '<td><select id="gst_rate_'+i+'"><option disabled selected>Select GST Rate</option><option value="5">5</option><option value="12">12</option><option value="18">18</option><option value="28">28</option></select></td>';
-                            html += '<td><input type="number" class="form-control" placeholder="Enter HSN Code" id="hsn_code_'+i+'"></td>';
+                            html += '<td><input type="hidden" id="spare_product_name_'+i+'" value="'+response[i]['parts_shipped']+'"><select class="form-control" onchange="get_gst_rate(this, '+i+')" id="hsn_code_'+i+'">'+hsn_code+'</select></td>';
+                            html += '<td><input type="text" placeholder="GST Rate" class="form-control" id="gst_rate_'+i+'" readonly></td>';
+                            html += '<td><input type="number" class="form-control" placeholder="Enter Confirm Value" id="confirm_value_'+i+'"></td>';
                             html += '<td>';
                             html += '<select id="reason_'+i+'"><option  disabled selected>Select Reason</option>';
                             for(var k=0; k<remarks.length; k++){
@@ -189,7 +190,7 @@
                     $("#booking_id").val(null);
                     $('body').loadingModal('destroy');
                    if(response == true){
-                       alert("Invoice generated sunccessfully");
+                       alert("Invoice generated successfully");
                    }
                    else{
                        alert("Invoice not generated, Try Again");
@@ -207,6 +208,11 @@
         else{
             alert("Please select atleast one checkbox");
         }
+    }
+    
+    
+    function get_gst_rate(select, index){
+        $("#gst_rate_"+index).val($(select).select2().find(":selected").attr("gst_rate"));
     }
 
 </script> 
