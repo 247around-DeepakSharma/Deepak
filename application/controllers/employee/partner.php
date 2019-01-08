@@ -4871,14 +4871,19 @@ class Partner extends CI_Controller {
      *  @param : void
      *  @return :void
      */
-    function tag_spare_invoice(){
+    function tag_spare_invoice() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
+        $partner_details = $this->partner_model->getpartner_details("partners.is_defective_part_return_wh", array('partners.id' => $this->session->userdata('partner_id')), "", "");
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $this->load->view("partner/tag_spare_invoice_send_by_partner",$data);
+        if (!empty($partner_details)) {
+            $data['is_defective_part_return_wh'] = $partner_details[0]['is_defective_part_return_wh'];
+        }
+
+        $this->load->view("partner/tag_spare_invoice_send_by_partner", $data);
         $this->load->view('partner/partner_footer');
     }
-    
+
     function get_partner_roles($department){
        $data =  $this->reusable_model->get_search_result_data("entity_role","role,id",array('department'=>$department,"entity_type"=>"partner"),NULL,NULL,array('role'=>"ASC"),NULL,NULL,array());
        $option = "<option value='' disabled selected>Select Role</option>";

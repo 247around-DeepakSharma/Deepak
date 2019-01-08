@@ -252,6 +252,7 @@
                                             <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                                             <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                             <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                            <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
                                             <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                         </div>
                                     </div>
@@ -402,11 +403,11 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-xs-12 col-md-4 col-md-offset-4">
-                        <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id');?>"/>
-                        <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
+                        <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>"/>
+                        <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name'); ?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
                         <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
-                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
+                        <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                     </div>
                 </div>
@@ -1096,7 +1097,7 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
-        var is_micro = $("on_wh_id").find(':selected').attr('data-warehose');
+        var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
         formData.append("is_wh_micro", is_micro);
     
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
