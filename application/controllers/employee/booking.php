@@ -1354,8 +1354,12 @@ class Booking extends CI_Controller {
                         //update state
                         $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                                 ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
-                        // send sms after rating
-                        $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                        //if 'do not send sms check then does not send sms'
+                        if(!$this->input->post('not_send_sms'))
+                            {
+                            // send sms after rating
+                               $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                            }
                     }
                 }
             }
