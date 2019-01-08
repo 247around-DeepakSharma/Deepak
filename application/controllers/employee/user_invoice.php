@@ -531,6 +531,7 @@ class User_invoice extends CI_Controller {
         $spare_parts_detail_ids = array();
         $data = array();
         $result = "";
+        $email_parts_name = "";
         $partner_id = 0;
         $booking_id = $this->input->post('booking_id');
         $remarks = $this->input->post('remarks');
@@ -546,6 +547,7 @@ class User_invoice extends CI_Controller {
                 $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id', $where, true);
                 $partner_id = $chech_spare[0]['partner_id'];
                 if(!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 2){
+                        $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
                         $amount = $value->confirm_prices;
                         $hsn_code = $value->hsn_codes;
                         $gst_rate = $value->gst_rates;
@@ -573,7 +575,7 @@ class User_invoice extends CI_Controller {
                 
                 //insert entry into booking state change
                 $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids;
-                $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
+                $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
         }
         if(!empty($data)){
             $invoice_type = "Tax Invoice";
@@ -590,14 +592,16 @@ class User_invoice extends CI_Controller {
 
                 $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 
-                $email_tag = INVENTORY_INVOICE;    
+                $email_tag = DEFECTIVE_SPARE_SALE_INVOICE;    
                 $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = $email_template[4];
-                $message = $email_template[0];
+                $subject = vsprintf($email_template[4], array($booking_id));
+                $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
                 $email_from = $email_template[2];
-                $to = $vendor_data['invoice_email_to'].",".$email_template[1];
-                $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
-
+                //$to = $vendor_data['invoice_email_to'].",".$email_template[1];
+                //$cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
+                $to = $email_template[1];
+                $cc = $email_template[3];
+                
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd); 
 
@@ -623,15 +627,17 @@ class User_invoice extends CI_Controller {
 
             if($inserted_invoice){
                 /* Send mail to partner */
-                $email_template = $this->booking_model->get_booking_email_template(SPARE_SALE_INVOICE);
-                $subject = $email_template[4];
-                $message = $email_template[0]; 
+                $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
+                $subject = vsprintf($email_template[4], array($booking_id));
+                $message = vsprintf($email_template[0], array($email_parts_name, $booking_id)); 
                 $email_from = $email_template[2];
                 $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1];
-                $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                //$to = $booking_partner[0]['invoice_email_to'].",".$email_template[1];
+                //$cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                $to = $email_template[1];
+                $cc = $email_template[3];
 
-                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", SPARE_SALE_INVOICE, "", $booking_id);
+                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
                 
                 
                 $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
@@ -775,7 +781,7 @@ class User_invoice extends CI_Controller {
             
             //insert entry into booking state change
             $booking_state_remarks = $remarks." Booking unit id - ".$value->booking_unit_ids;
-            $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE);
+            $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
         }
         if(!empty($data)){
             $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
@@ -793,10 +799,10 @@ class User_invoice extends CI_Controller {
                 $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 
                 /* Send cn mail to partner */
-                $email_tag = "resend_dn_cn_invoice";
+                $email_tag = CREDIT_NOTE_ON_REFUSE_TO_PAY;
                 $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = $email_template[4];
-                $message = $email_template[0];
+                $subject = vsprintf($email_template[4], array($booking_id));
+                $message = vsprintf($email_template[0], array($booking_id, $invoice_id));
                 $email_from = $email_template[2];
                 //$to = $partner_data[0]['invoice_email_to'].",".$email_template[1];
                 //$cc = $partner_data[0]['invoice_email_cc'].",".$email_template[3];
@@ -860,10 +866,10 @@ class User_invoice extends CI_Controller {
                 $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
                 
                  /* Send DN mail to vendor */
-                $email_tag = "resend_dn_cn_invoice";
+                $email_tag = DEBIT_NOTE_ON_REFUSE_TO_PAY;
                 $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = $email_template[4];
-                $message = $email_template[0];
+                $subject = vsprintf($email_template[4], array($booking_id));
+                $message = vsprintf($email_template[0], array($booking_id, $vendor_invoice_id));
                 $email_from = $email_template[2];
                 //$to = $vendor_data[0]['invoice_email_to'].",".$email_template[1];
                 //$cc = $vendor_data[0]['invoice_email_cc'].",".$email_template[3];

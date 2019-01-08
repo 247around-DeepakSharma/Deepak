@@ -204,10 +204,14 @@ class Invoice extends CI_Controller {
             if(($data[0]['category'] == INSTALLATION_AND_REPAIR || $data[0]['category'] == RECURRING_CHARGES) && ($data[0]['sub_category'] == CREDIT_NOTE || $data[0]['sub_category'] == GST_CREDIT_NOTE || $data[0]['sub_category'] == DEBIT_NOTE || $data[0]['sub_category'] == GST_DEBIT_NOTE)){
                 $email_template = $this->booking_model->get_booking_email_template("resend_dn_cn_invoice"); 
                 $email_template_name = "resend_dn_cn_invoice";
+                $subject = $email_template[4];
+                $message = $email_template[0];
             }
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
+                $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+                $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
@@ -224,8 +228,6 @@ class Invoice extends CI_Controller {
                 $to =  $to = $getEmail[0]['invoice_email_to'];
                 $cc = $email_template[3]. ", ". $this->session->userdata("official_email");
             }
-            $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
-            $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             $email_from = $email_template[2];
             $sent = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $detailed_invoice, $main_invoice, $email_template_name);
             if ($sent) {
