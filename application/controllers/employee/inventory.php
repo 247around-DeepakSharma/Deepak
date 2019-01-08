@@ -2825,7 +2825,9 @@ class Inventory extends CI_Controller {
                                             $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
                                             $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
                                             $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-
+                                            
+                                            $ledger_data = array();
+                        
                                             $ledger_data['receiver_entity_id'] = $wh_id;
                                             $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
                                             $ledger_data['sender_entity_id'] = $partner_id;
@@ -5143,7 +5145,7 @@ class Inventory extends CI_Controller {
     
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('id,service_id,part_type,hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
