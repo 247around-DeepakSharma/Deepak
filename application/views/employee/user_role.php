@@ -1,8 +1,30 @@
+<style>
+    #navigation_table_filter{
+        text-align: right;
+    }
+</style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
-<style>.dataTables_filter{display: none;}</style>
+
 <div class="container" style="width:100%">
+     <div class="table_filter">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <select class="form-control filter_table" id="entity_type_data">
+                                <option value="" selected="selected" disabled="">Select Entity Type</option>
+                                <option value="All">All</option>
+                                <?php foreach($entity_type_data as $val){ ?>
+                                <option value="<?php echo $val['entity_type']?>"><?php echo $val['entity_type']?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+     </div>
     <button type="button" style="float:right;margin:10px;" class="btn btn-info" data-toggle="modal" data-target="#add_new_heading">Add New Heading In Menu</button>
 <!--    <div class="right_holder" style="float:right;margin-right:10px;">
         <lable>Entity Type</lable>
@@ -175,7 +197,21 @@
     </div>
   </div>
 <script>
-    //var table = $('#navigation_table').DataTable();
+      var table = $('#navigation_table').DataTable();
+       $("#entity_type_data").change(function() {
+        var entity_type_data=this.value;
+        if(entity_type_data!=='All')
+        {
+                table
+                .columns( 1 )
+                .search( entity_type_data )
+                .draw();
+        }
+        else
+        {
+             location.reload();
+        }
+    } );
         $("#serachInput").change(function () {
             if($('#serachInput').val() !== 'all'){
                 table
