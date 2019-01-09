@@ -3103,7 +3103,7 @@ class Inventory extends CI_Controller {
             $a[$key]['product_or_services'] = "Product";
             $a[$key]['hsn_code'] = $value['hsn_code'];
             $a[$key]['inventory_id'] = $value['inventory_id'];
-            $a[$key]['rate'] = $value['rate'];
+            $a[$key]['rate'] = $value['rate'] * ( 1 + REPAIR_OOW_AROUND_PERCENTAGE);
             $a[$key]['qty'] = $value['qty'];
             $a[$key]['company_name'] = $entity_details[0]['company_name'];
             $a[$key]['company_address'] = $entity_details[0]['company_address'];
