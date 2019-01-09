@@ -83,10 +83,11 @@ class Invoice extends CI_Controller {
         $vendor_partner = $this->input->post('vendor_partner');
         $partner_source_type = $this->input->post('partner_source_type');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
+        $due_date = $this->input->post('due_date');
         if($vendor_type != ""){
             $sf_cp['active'] = $vendor_type;
         }
-          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp, false, $partner_source_type);
+          $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp, $due_date, $partner_source_type);
           if($this->session->userdata('user_group') == 'regionalmanager'){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
           $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
@@ -2781,6 +2782,7 @@ class Invoice extends CI_Controller {
     function download_invoice_summary() {
         //log_message('info', __FUNCTION__ . " Entering....". json_encode($_POST)); 
         $data = $this->input->post('amount_service_center');
+        $due_date = $this->input->post('dowmload_excel_due_date');
         $payment_data = array();
                 
         if (!empty($data)) {
@@ -2837,7 +2839,7 @@ class Invoice extends CI_Controller {
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
-                $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id);
+                $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
                 if(!empty($invoice_data)){
                     array_push($invoice_xl, json_decode(json_encode($invoice_data, true), true));
                 }
@@ -2917,12 +2919,20 @@ class Invoice extends CI_Controller {
      * @param int $service_center_id
      * @return Object
      */
-    function get_paymnet_summary_invoice_data($service_center_id) {
+    function get_paymnet_summary_invoice_data($service_center_id, $due_date=false) {
         $select_invoice = "vendor_partner_invoices.id, vendor_partner_id, name, invoice_id, from_date, to_date, "
                 . "invoice_date, CASE WHEN (amount_collected_paid > 0) THEN (amount_collected_paid - amount_paid) ELSE (amount_collected_paid + amount_paid) END as amount_due";
-        $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
-            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+       
+        if($due_date){
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
             "settle_amount" => 0);
+        }
+        else{
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0); 
+        }
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
