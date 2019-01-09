@@ -228,7 +228,12 @@ class invoices_model extends CI_Model {
             $data = $this->vendor_model->get_vendor_with_bank_details($select, $newWhere);
             $due_date_status = "";
             if($due_date_flag){
-                $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+                if($due_date_flag == 1){
+                    $due_date_status = " AND `due_date` <= CURRENT_DATE() ";
+                }
+                else{
+                   $due_date_status = " AND `due_date` <= '".$due_date_flag."'"; 
+                }
             }
             
         } else if ($vendor_partner == "partner") {
@@ -262,7 +267,7 @@ class invoices_model extends CI_Model {
             $data[$key]['vendor_partner'] = $vendor_partner;
             $data[$key]['final_amount'] = $result[0]['final_amount'];
             $data[$key]['amount_collected_paid'] = $result[0]['amount_collected_paid'];
-//            $data[$key]['is_stand'] = $result[0]['is_stand'];
+//           $data[$key]['is_stand'] = $result[0]['is_stand'];
             if (isset($value['name'])) {
                 $sp_d = $this->get_pending_defective_parts($value['id']);
                 if(!empty($sp_d)){
@@ -297,7 +302,6 @@ class invoices_model extends CI_Model {
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-            
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
             $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             return $result;
