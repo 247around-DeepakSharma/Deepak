@@ -3808,6 +3808,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
     <tr>
       <th scope="col">Booking ID</th>
       <th scope="col">Appliance</th>
+      <th scope="col">Brand</th>
+      <th scope="col">Capacity</th>
       <th scope="col">Status</th>
       <th scope="col">Closed Date</th>
       <th scope="col"></th>
@@ -3817,6 +3819,8 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $html .= '<tr>
       <td>'.$bookingDetails['booking_id'].'</td>
       <td>'.$bookingDetails['services'].'</td>
+      <td>'.$bookingDetails['brand'].'</td>
+      <td>'.$bookingDetails['capacity'].'</td>
       <td>'.$bookingDetails['current_status'].'</td>
       <td>'.$bookingDetails['closed_date'].'</td>
       <td><input type="radio" name = "parent_booking_id_options" id="'.$bookingDetails['booking_id'].'" onclick = "parentBooking(this.id)""></td>

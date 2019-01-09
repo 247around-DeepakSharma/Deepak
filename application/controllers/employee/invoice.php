@@ -49,7 +49,7 @@ class Invoice extends CI_Controller {
      */
     public function index() {
         $this->checkUserSession();
-        $invoicingSummary = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), true);
+        $invoicingSummary = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), date('Y-m-d'));
         $select = "service_centres.name, service_centres.id";
         if($this->session->userdata('user_group') == 'regionalmanager'){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);

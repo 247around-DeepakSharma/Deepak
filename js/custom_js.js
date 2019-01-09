@@ -269,6 +269,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
     var parant_id = $('#parent_id').val();
+    var repeat_reason = $('#repeat_reason').val();
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
    // var customer_paid = $("#grand_total_price").val()
@@ -438,15 +439,29 @@ function addBookingDialog(chanel = '') {
             } 
         }
     }
-    //If anyone select repeat booking then parent ID Shoud not blank
-    if(isRepeatChecked > 0 && isServiceChecked >0){
-        alert("You Can Not Select any other Service in case of Repeat Booking");
-        return false;
+    if(isRepeatChecked > 0){
+        //If Repeat Selected than no other Service Should be Selected
+        if(isServiceChecked >0){
+            alert("You Can Not Select any other Service in case of Repeat Booking");
+            return false;
+        }
+        //If anyone select repeat booking than parent ID Shoud not blank
+        if(!parant_id){
+            alert("Please Select Parent ID");
+            return false;
+        }
+        //If Repeat Booking is Selected than Repeat Reason Should not be blank
+        if(!repeat_reason){
+            alert("Please Write the Repeat Reason");
+            return false;
+        }
     }
+
+  
     if(isRepeatChecked > 0 && !parant_id){
-        alert("Please Select Parent ID");
-        return false;
+        
     }
+    //If Repeat is checked than Repeat Reason Should not be blank
     if (booking_date === "") {
         alert("Please fill Booking date ");
         return false;

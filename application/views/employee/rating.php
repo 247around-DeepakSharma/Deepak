@@ -93,10 +93,15 @@
                                 </div>
             </div>
         </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                             <div class="form-group" style="margin-left:14px;">
                     <div class="checkbox"> <label><input type="checkbox" id="not_reachable" name="not_reachable"><b>Customer Not Reachable</b></label></div>
             </div>
+                </div>
+              <div class="col-md-2">
+                            <div class="form-group" style="margin-left:14px;">
+                                    <div class="checkbox"> <label><input type="checkbox" id="not_send_sms" name="not_send_sms"><b>Do Not Send Sms</b></label></div>
+                            </div>
                 </div>
             </div>
         <div class="col-md-12">

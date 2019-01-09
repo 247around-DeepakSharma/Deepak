@@ -162,6 +162,14 @@
                                 </td>
                             </tr>
                             <?php } ?>
+                             <tr>
+                                <th>Repeat Reason </th>
+                                <td><?php if (!empty($booking_history[0]['repeat_reason'])) {
+                                    echo $booking_history[0]['repeat_reason'];
+                                    } ?></td>
+                                <th> </th>
+                                <td></td>
+                            </tr>
                         </table>
                         <table class="table  table-striped table-bordered" >
                             <tr>

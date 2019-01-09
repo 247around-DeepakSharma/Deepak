@@ -2505,16 +2505,19 @@ class Booking_model extends CI_Model {
         $this->db->_protect_identifiers = FALSE;
         $this->db->_reserved_identifiers = array('NOT');
         $where["DATEDIFF(CURRENT_TIMESTAMP , closed_date) <= ".$dayDiff] = NULL;
-        $where['service_id'] = $service_id;
-        $where['partner_id'] = $partnerID;
+        $where['booking_details.service_id'] = $service_id;
+        $where['booking_details.partner_id'] = $partnerID;
         $where['booking_primary_contact_no'] = $contact;
         $where['current_status'] = _247AROUND_COMPLETED;
         $where["request_type != '".REPEAT_BOOKING_TAG."'"] = NULL;
         $where['NOT EXISTS (SELECT 1 FROM booking_details bd WHERE bd.parent_booking = booking_details.booking_id AND bd.current_status ="Pending" LIMIT 1)'] = NULL;
-        $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date');
+        $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date,'
+                . 'GROUP_CONCAT(appliance_brand) as brand ,GROUP_CONCAT(appliance_capacity) as capacity');
         $this->db->from('booking_details');
         $this->db->where($where);
         $this->db->join("services","services.id = booking_details.service_id");
+        $this->db->join("booking_unit_details","booking_unit_details.booking_id = booking_details.booking_id");
+        $this->db->group_by('booking_unit_details.booking_id');
         $query = $this->db->get();
         return $query->result_array();
     }

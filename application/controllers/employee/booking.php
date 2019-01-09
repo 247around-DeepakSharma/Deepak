@@ -388,6 +388,7 @@ class Booking extends CI_Controller {
         $booking['quantity'] = $quantity;
         $booking['service_center_closed_date'] = NULL;
         $booking['cancellation_reason'] = NULL;
+        $booking['repeat_reason'] = NULL;
         $actor = $next_action = NULL;
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
@@ -432,7 +433,9 @@ class Booking extends CI_Controller {
 
                 break;
         }
-        
+        if($this->input->post('repeat_reason') && $booking['parent_booking'] ){
+            $booking['repeat_reason'] = $this->input->post('repeat_reason');
+        }
         //add support file for order id if it is uploaded
         $support_file = $this->upload_orderId_support_file($booking['booking_id']);
         if ($support_file) {
@@ -532,7 +535,10 @@ class Booking extends CI_Controller {
 
             $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);
-
+            if($booking['parent_booking']){
+            $this->notify->insert_state_change($booking['booking_id'], "Repeat Booking", $new_state, "Parent ID - ".$booking['parent_booking'].", Repeat Reason - ".$booking['repeat_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $actor,$next_action,_247AROUND);
+            }
             return $booking;
         } else {
             return false;
@@ -1370,8 +1376,12 @@ class Booking extends CI_Controller {
                         //update state
                         $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                                 ACTOR_BOOKING_RATING,RATING_NEXT_ACTION,_247AROUND);
-                        // send sms after rating
-                        $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                        //if 'do not send sms check then does not send sms'
+                        if(!$this->input->post('not_send_sms'))
+                            {
+                            // send sms after rating
+                               $this->send_rating_sms($phone_no, $data['rating_stars'],$user_id,$booking_id);
+                            }
                     }
                 }
             }

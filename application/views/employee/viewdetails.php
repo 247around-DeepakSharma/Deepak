@@ -210,6 +210,12 @@
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
                         </tr>
+                        <tr>
+                            <th>Repeat Reason</th>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['repeat_reason'];?></td>
+                            <th ></th>
+                            <td ></td>
+                        </tr>
                     </table>
                     <table class="table  table-striped table-bordered" >
                         <tr>
