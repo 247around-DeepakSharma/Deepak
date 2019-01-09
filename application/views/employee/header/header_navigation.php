@@ -386,7 +386,7 @@
 }
 .navbar-top-links .dropdown-menu li a {
         margin-left: 14px;
-        padding: 3px 8px;
+        padding: 3px 15px;
 }
             </style>
             <script>
