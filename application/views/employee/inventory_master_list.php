@@ -245,7 +245,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" disabled="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
                                     </div>
                                 </div>
                             </div>
@@ -253,7 +253,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" disabled="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="">
                                     </div>
                                 </div>
                             </div>
@@ -519,8 +519,8 @@
         }
         
         if(form_data.type){
-            $('.inventory_part_type').attr("id","edit_part_type_modal_id");
-            $("#edit_part_type_modal_id").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
+            //$('.inventory_part_type').attr("id","part_type");
+            $("#part_type").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
         }
                
         $('#part_name').val(form_data.part_name);
@@ -531,7 +531,7 @@
         $('#price').val(JSON.parse(form_data.price));
         $('#hsn_code').val(form_data.hsn_code);
         $('#gst_rate').val(form_data.gst_rate);
-        $('#type').val(form_data.type);
+        $('#edit_part_type_modal_id').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
         $('#master_list_submit_btn').val('Edit');
@@ -552,7 +552,7 @@
             alert("Please Enter Part Name");
         }else if($('#part_number').val().trim() === "" || $('#part_number').val().trim() === " "){
             alert("Please Enter Part Number");
-        }else if($('#type').val().trim() === "" || $('#type').val().trim() === " "){
+        }else if($('#part_type').val().trim() === "" || $('#part_type').val().trim() === " "){
             alert("Please Enter Part Type");
         }else if($('#price').val().trim() === "" || $('#price').val().trim() === " " || $('#price').val().trim() === '0'){
             alert("Please Enter Valid Price");
