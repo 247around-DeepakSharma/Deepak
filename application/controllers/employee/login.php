@@ -712,6 +712,8 @@ function user_role_management(){
             $structuredData["id_".$navData['id']]['is_active'] = $navData['is_active'];
             $structuredData["id_".$navData['id']]['entity_type'] = $navData['entity_type'];
         }
+        //get entity_type
+        $data['entity_type_data']= $this->reusable_model->get_search_result_data("header_navigation","entity_type",NULL,NULL,NULL,array("level"=>"ASC"),NULL,NULL,array('entity_type'));
         $data['header_navigation'] = $structuredData;
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
@@ -719,7 +721,7 @@ function user_role_management(){
 
         //Get Header 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group']));
+        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group'],'entity_type_data'=>$data['entity_type_data']));
     }
 /*
  * This Function Called From Ajax use to update Groups For Navigation 
