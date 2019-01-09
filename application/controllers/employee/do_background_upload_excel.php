@@ -286,7 +286,7 @@ class Do_background_upload_excel extends CI_Controller {
         //Send Email to Notify that file is under Process
         $subject = $file_type ." data validated. File is under process";
         $message  = $file_name. " validation Pass. File is under process";
-        $this->send_mail_column($subject, $message, TRUE,$file_type,$default_partner,SNAPDEAL_VALIDATION_PASS);
+        $this->send_mail_column($subject, $message, TRUE,$file_type,$default_partner,BOOKING_FILE_VALIDATION_PASS);
         //Collect Details Of generated Leads 
         $count_total_leads_came_today = count($data);
         log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Count_total_leads_came_today: " . $count_total_leads_came_today);
