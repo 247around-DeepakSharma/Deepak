@@ -454,8 +454,8 @@ if(isset($_SESSION['file_error'])){
                               });
             $("#due_date").datepicker({
                 dateFormat: 'yy-mm-dd',
-                setDate: new Date()
             });
+            $('#due_date').datepicker('setDate', new Date());
                               
                });
 </script>
