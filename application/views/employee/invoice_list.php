@@ -88,7 +88,17 @@ ini_set('max_execution_time', 36000000);
                     </div>
                 </div>
             </div>
-            
+            </div>
+            <hr>
+            <div class="row">
+                <?php if(isset($service_center)){ ?>
+                    <div class="col-md-4">
+                        <label for="sf_type" class="col-md-12 col-sm-12">Select Due Date</label>
+                        <div class="form-group col-md-12 col-sm-12">
+                            <input placeholder="Select Due Date" type="text" class="form-control" name="due_date" id="due_date" onchange="getVendor()" />
+                        </div>
+                    </div>
+                <?php } else{ ?>  <input placeholder="Select Due Date" type="hidden" class="form-control" name="due_date" id="due_date" /> <?php }?>
                 <div class="col-md-4">
                      <?php if(isset($service_center)){ $label = 'Select Service Center Type';}else{ $label = 'Select Partner Status' ;} ?>
                         <label for="sf_type" class="col-md-12 col-sm-12"><?php echo $label;?></label>
@@ -130,7 +140,7 @@ ini_set('max_execution_time', 36000000);
                     </div>
                    <?php } ?>
                 </div>
-        </div>
+            </div>
         <?php }?>
         <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
         <div class="row" style="margin-top: 20px;">
@@ -177,6 +187,7 @@ ini_set('max_execution_time', 36000000);
                 <?php } ?>
                 <h2>Invoices Overall Summary</h2>
                 <form action="<?php echo base_url(); ?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
+                    <input type="hidden" id="dowmload_excel_due_date" name="dowmload_excel_due_date" value="<?php echo date('Y-m-d'); ?>">
                 <table class="table table-bordered  table-hover table-striped data"  >
                     <thead>
                         <tr>
@@ -413,22 +424,23 @@ if(isset($_SESSION['file_error'])){
     $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
     
     
-    function getVendor(){
+    function getVendor(){ 
         $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loadring.gif');
         var  partner_source_type = $("#partner_sc").val();
         var vendor_type = $('#sf_type').val();
         $("#invoicing_table").css('display', 'none');
         $('#overall_summary').css('display', 'none');
         var sf_cp = $('#sf_cp').val();
+        var due_date = $("#due_date").val();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/invoice/invoice_listing_ajax/'+vendor_type,
-            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':sf_cp, 'partner_source_type':partner_source_type},
+            data:{'vendor_partner': '<?php echo $vendor_partner; ?>', 'sf_cp':sf_cp, 'partner_source_type':partner_source_type, 'due_date':due_date},
             success: function (data) {
-                console.log(data);
                 $('#loader_gif').attr('src', '');
                 $("#overall_summary").show();
                 $("#overall_summary").html(data);
+                $("#dowmload_excel_due_date").val(due_date);
             }
         });
     }
@@ -440,6 +452,11 @@ if(isset($_SESSION['file_error'])){
             $("#selecctall_amt").change(function(){
                        $(".checkbox_amt").prop('checked', $(this).prop("checked"));
                               });
+            $("#due_date").datepicker({
+                dateFormat: 'yy-mm-dd',
+                setDate: new Date()
+            });
+                              
                });
 </script>
 
