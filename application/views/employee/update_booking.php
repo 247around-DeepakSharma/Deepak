@@ -82,7 +82,6 @@
                 ?>
                 <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id; }  ?> "  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
-                    <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
                     <p id="parent_id_temp" style="display:none;"><?php echo $parentBkng; ?></p>
                     <div class="row">
                         <div class="col-md-12">
@@ -163,6 +162,12 @@
                                           <input class="form-control" name= "dealer_phone_number" value="<?php if(isset($booking_history[0]['dealer_phone_number'])){ echo $booking_history[0]['dealer_phone_number']; } ?>" placeholder="Enter Dealer Mobile No" id="dealer_phone_number" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                            <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($booking_history[0]['dealer_id'])){ echo $booking_history[0]['dealer_id']; } ?>">
                                             <div id="dealer_phone_suggesstion_box"></div>
+                                      </div>
+                                 </div>
+                                <div class="form-group ">
+                                     <label for="dealer_phone_number" class="col-md-4">Parent Booking </label>
+                                      <div class="col-md-6">
+                                          <input  class="form-control" type="text" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id" readonly="readonly">
                                       </div>
                                  </div>
                                 <!--  end col-md-6  -->
@@ -503,6 +508,7 @@
                     </div>
                    
                     <div class="cloned">
+                        <?php if(!$is_repeat) { ?>
                         <?php if(count($unit_details) > 1) { ?>
                         <?php $number = 1; foreach ($unit_details as $key => $booking_unit_details) { ?>
                         <?php if($number > 1) { $clone_number++; ?>
@@ -694,7 +700,7 @@
                                 </div>
                             </div>
                         </div>
-                        <?php  } $number++; } }
+                        <?php  } $number++; } } }
                             ?>
                     </div>
                     <div class="row">
@@ -766,6 +772,15 @@
                                         } ?></textarea>
                                 </div>
                             </div>
+                          
+                            <div class="form-group " style="display:none;" id="repeat_reason_holder">
+                                <label for="type" class="col-md-4">Repeat Reason</label>
+                                <div class="col-md-6">
+                                    <textarea class="form-control" rows="4" name="repeat_reason"  id="repeat_reason" placeholder="Enter Reason to Repeat Booking" ><?php if (isset($booking_history[0]['repeat_reason'])) {
+                                        echo$booking_history[0]['repeat_reason'];
+                                        } ?></textarea>
+                                </div>
+                            </div>
                               <div class="form-group ">
                                 <label for="Internal Status" class="col-sm-4">Internal Status</label>
                                 <div class="col-md-6">
@@ -808,7 +823,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-        <div class="modal-body" id="repeat_booking_body">
+        <div class="modal-body" id="repeat_booking_body" style="padding: 3px;   font-size: 13px;">
       </div>
 <!--      <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -895,7 +910,11 @@
     }
     
      $(document).ready(function () {
-  
+     <?php
+     if($is_repeat){ ?>
+        $('#repeat_reason_holder').show();
+   <?php  }
+     ?>
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -951,6 +970,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
                               alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
                               $('.repeat_Service:checked').prop('checked', false);
+                              $("#repeat_reason_holder").hide();
                           }
                          else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
                              $('.Service:checked').prop('checked', false);
@@ -959,6 +979,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                              });
                              $("#parent_id").val(obj.html);
                              $("#is_repeat").val("1");
+                             $("#repeat_reason_holder").show();
+                             $(".cloned :input").attr("disabled", true);
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
                               $('.Service:checked').prop('checked', false);
@@ -967,6 +989,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                                 });
                               $('#repeat_booking_model').modal('show');
                               $("#repeat_booking_body").html(obj.html);
+                              $("#repeat_reason_holder").show();
+                              $(".cloned :input").attr("disabled", true);
                           }
                       }
                   });
@@ -978,6 +1002,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                 });
                 $("#parent_id").val($("#parent_id_temp").text());
                 $("#is_repeat").val("1");
+                $("#repeat_reason_holder").show();
               }
            }
            else{
@@ -986,6 +1011,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
            });
             $("#parent_id").val("");
             $("#is_repeat").val("");
+            $("#repeat_reason_holder").hide();
+            $(".cloned :input").attr("disabled", false);
            }
     }
     function parentBooking(id){
