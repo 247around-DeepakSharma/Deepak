@@ -126,6 +126,18 @@ foreach($booking_unit_details as $data){
         <p><?php echo $autoRemarks.$booking_details[0]['booking_remarks']?></p>
     </td>
   </tr>
+  <?php
+  if($booking_details[0]['parent_booking']){
+  ?>
+    <tr>
+    <td><p><b>Repeat Remarks</b></p></td>
+    <td colspan="5">
+        <p><?php echo $booking_details[0]['repeat_reason']?></p>
+    </td>
+  </tr>
+  <?php
+  }
+  ?>
   <tr>
     <td><p><b>S.N</b></p></td>
     <td ><p><b>Part No.</b></p></td>
