@@ -399,8 +399,12 @@ class Partner extends CI_Controller {
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
         $post['parent_booking']  = NULL;
+        $post['repeat_reason']  = NULL;
         if($this->input->post('parent_booking')){
             $post['parent_booking'] = $this->input->post('parent_booking');
+        }
+        if($this->input->post('repeat_reason')){
+            $post['repeat_reason'] = $this->input->post('repeat_reason');
         }
         return $post;
     }
