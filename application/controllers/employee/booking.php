@@ -3938,6 +3938,7 @@ class Booking extends CI_Controller {
                     $inputBulkData[]=$value;
             }
         }
+       
          if($receieved_Data['select_type'] == 'mobile'){
             $fieldName = 'booking_details.booking_primary_contact_no';
             $onlyName = "booking_primary_contact_no";
@@ -3949,7 +3950,17 @@ class Booking extends CI_Controller {
         else{
             $fieldName = 'booking_details.booking_id';
             $onlyName = "booking_id";
+            foreach($inputBulkData as $value)
+            {
+                $query_check='Q-';
+                $start_string=substr($value,0,2);
+                if($start_string!==$query_check)
+                {
+                    $inputBulkData[]=$query_check.$value;
+                }
+            }
         }
+        
         $where = array();
         if(array_key_exists('partner_id', $receieved_Data)){
             if($receieved_Data['partner_id'] != 'option_holder'){
@@ -3960,6 +3971,7 @@ class Booking extends CI_Controller {
     }
     function get_bulk_search_result_data($receieved_Data,$select){
         $finalArray = array();
+       
         if(array_key_exists("is_unit_details", $receieved_Data)){
             $joinDataArray["booking_unit_details"] = "booking_unit_details.booking_id=booking_details.booking_id";
         }
