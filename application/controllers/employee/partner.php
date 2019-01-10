@@ -6012,7 +6012,7 @@ class Partner extends CI_Controller {
         $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND collateral.collateral_id = "7" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
         $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id';
         
-        $data['data'] = $this->partner_model->get_partner_contract_detail($select, null, $join, 'left');
+        $data['data'] = $this->partner_model->get_partner_contract_detail($select, array('is_active'=>1), $join, 'left');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_contract_list', $data);
     }
