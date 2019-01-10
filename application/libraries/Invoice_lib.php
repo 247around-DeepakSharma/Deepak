@@ -545,6 +545,20 @@ class Invoice_lib {
                             $vp_details['settle_amount'] = 0;
                         }
                         $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                        
+                    } else if($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Debit' && $data[0]['tds_amount'] == 0 && $value['tds_amount'] > 0){
+                        
+                        $per_tds = 0;
+                        $vp_details['tds_amount'] = $value['tds_amount'];
+                        $vp_details['tds_rate'] = $per_tds;
+                        $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
+                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $value['credit_debit_amount']), 0)) {
+                            $vp_details['settle_amount'] = 1;
+                        } else {
+                            $vp_details['settle_amount'] = 0;
+                        }
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                        $vp_details['amount_collected_paid'] = $amount_collected;
                     } else {
 
                         $vp_details['settle_amount'] = 0;
