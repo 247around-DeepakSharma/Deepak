@@ -3264,8 +3264,11 @@ class Partner extends CI_Controller {
      * @return:void
      */
     function upload_partner_brand_logo($id = "", $name = "") {
+        $partner_logo_deatil = $this->booking_model->get_partner_logo('*', array('partner_id'=>$id));
         $data['partner'] = array('partner_id' => $id,
-            'public_name' => urldecode($name));
+            'public_name' => urldecode($name),
+            'partner_logo_detail' => $partner_logo_deatil,
+        );
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_partner_brand_logo', $data);
     }
@@ -3300,10 +3303,10 @@ class Partner extends CI_Controller {
                 }
             }
             if ($res) {
-                $this->session->set_flashdata('success', 'Partner Logo has been inserted successfully');
+                $this->session->set_flashdata('success', 'Partner Logo has been saved successfully');
                 redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
             } else {
-                $this->session->set_flashdata('failed', 'Error in Inserting Partner Logo. Please Try Again...');
+                $this->session->set_flashdata('failed', 'Error in saving Partner Logo. Please Try Again...');
                 redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
             }
         } else {
