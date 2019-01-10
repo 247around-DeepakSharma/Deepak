@@ -160,6 +160,7 @@
                     </div>                                        
                     <div class="col-md-6 col-md-offset-2">
                         <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">
+                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['booking_partner_id']; ?>">                        
                         <input type="hidden" name="entity_type" value="<?php echo $spare_parts_details['entity_type']; ?>">
                         <input type="hidden" name="spare_id" value="<?php echo $spare_parts_details['id']; ?>">
                         <input type="hidden" name="booking_id" value="<?php echo $spare_parts_details['booking_id']; ?>">
