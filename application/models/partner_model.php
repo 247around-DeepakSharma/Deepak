@@ -793,8 +793,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return Array
      */
     function getpartner_details($select, $where = "", $is_reporting_mail="",$is_am_details = null) {
-
-	$this->db->select($select);
+        $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -808,8 +807,7 @@ function get_data_for_partner_callback($booking_id) {
         }
         $this->db->order_by('partners.public_name', "ASC");
 	$query = $this->db->get();
-
-	return $query->result_array();
+        return $query->result_array();
     }
      
     
