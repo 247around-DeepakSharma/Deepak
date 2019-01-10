@@ -123,6 +123,12 @@
                                         <th>Dealer Phone Number</th>
                                         <td><?php if($booking_history[0]['dealer_id'] || $booking_history[0]['dealer_id']>0){ echo $booking_history[0]['dealer_phone_number_1'];  } ?></td>
                                     </tr>   
+                                     <tr>
+                                        <th>Repeat Reason: </th>
+                                        <td><?php if($booking_history[0]['repeat_reason']){ echo $booking_history[0]['repeat_reason'];  } ?></td>
+                                        <th></th>
+                                        <td></td>
+                                    </tr> 
                                 </table>
                                 <table class="table  table-striped table-bordered" id="relative_holder">
                         <tr>

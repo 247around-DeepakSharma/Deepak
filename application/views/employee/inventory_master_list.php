@@ -245,7 +245,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" disabled="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
                                     </div>
                                 </div>
                             </div>
@@ -253,7 +253,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" disabled="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="">
                                     </div>
                                 </div>
                             </div>
@@ -435,8 +435,10 @@
     });
     
     function get_services(div_to_update,partner_id){
+        
         $.ajax({
             type:'GET',
+            async: false,
             url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
@@ -496,31 +498,56 @@
         
     });
     
+    function update_master_details(){
+    
+    }
+    
+    function get_part_type(service_id,part_type_div){
+         if(service_id!==''){
+            $.ajax({
+                method:'POST',
+                async: false,
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+                data: { service_id:service_id},
+                success:function(data){                
+                    $("#"+part_type_div).html(data);
+                }
+            });
+       }
+    }
+    
     $(document).on("click", "#edit_master_details", function () {
         $('#model_number_div').hide();
         var form_data = $(this).data('id');
-        if(form_data.service_id){
-              // Set the value, creating a new option if necessary
-                if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
-                $('#service_id').val(form_data.service_id).trigger('change');
-                } else { 
-                 // Create a DOM Option and pre-select by default
-                    var newOption = new Option(form_data.services, form_data.service_id, true, true);
-                    // Append it to the select
-                    $('#service_id').append(newOption).trigger('change');
-                }
-        }else{
-            get_services('service_id');
-        }
-        
         if(form_data.entity_id){
             var entity_id_options = "<option value='"+form_data.entity_id+"' selected='' >"+form_data.entity_public_name+"</option>";
             $('#entity_id').html(entity_id_options);
         }
+//        if(form_data.service_id){
+//              // Set the value, creating a new option if necessary
+//                if ($('#service_id').find("option[value='" + form_data.service_id + "']").length) {
+//                $('#service_id').val(form_data.service_id).trigger('change');
+//                } else { 
+//                 // Create a DOM Option and pre-select by default
+//                    var newOption = new Option(form_data.services, form_data.service_id, true, true);
+//                    // Append it to the select
+//                    $('#service_id').append(newOption).trigger('change');
+//                }
+//        }else{
+//            
+//        }
+
+        get_services('service_id', $("#partner_id").val() );
+         if(form_data.service_id){
+            $('#service_id option[value="'+form_data.service_id+'"]').attr('selected','selected'); 
+        }
         
         if(form_data.type){
-            $('.inventory_part_type').attr("id","edit_part_type_modal_id");
-            $("#edit_part_type_modal_id").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
+            
+            get_part_type(form_data.service_id,"part_type", form_data.type);
+            $('#part_type option[value="'+form_data.type+'"]').attr('selected','selected'); 
+            //$('.inventory_part_type').attr("id","part_type");
+           // $("#part_type").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
         }
                
         $('#part_name').val(form_data.part_name);
@@ -531,7 +558,7 @@
         $('#price').val(JSON.parse(form_data.price));
         $('#hsn_code').val(form_data.hsn_code);
         $('#gst_rate').val(form_data.gst_rate);
-        $('#type').val(form_data.type);
+        $('#edit_part_type_modal_id').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
         $('#master_list_submit_btn').val('Edit');
@@ -552,7 +579,7 @@
             alert("Please Enter Part Name");
         }else if($('#part_number').val().trim() === "" || $('#part_number').val().trim() === " "){
             alert("Please Enter Part Number");
-        }else if($('#type').val().trim() === "" || $('#type').val().trim() === " "){
+        }else if($('#part_type').val().trim() === "" || $('#part_type').val().trim() === " "){
             alert("Please Enter Part Type");
         }else if($('#price').val().trim() === "" || $('#price').val().trim() === " " || $('#price').val().trim() === '0'){
             alert("Please Enter Valid Price");
@@ -637,22 +664,11 @@
   
     $("#service_id").on('change',function(){
         var service_id = $(this).val();
-        get_services(service_id,'part_type');
+        get_part_type(service_id,'part_type');
        
     });
     
-    function get_services(service_id,part_type_div){
-         if(service_id!=''){
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-                data: { service_id:service_id},
-                success:function(data){                
-                    $("#"+part_type_div).html(data);                                      
-                }
-            });
-       }
-    }
+    
         
     $("#part_type").on('change',function(){
         var hsn_code_id =$("#part_type").find('option:selected').attr("data-hsn-code-details"); 
@@ -670,7 +686,7 @@
     
     $(".inventory_part_type").click(function(){
        var service_id = $("#service_id").val();
-       get_services(service_id,'edit_part_type_modal_id');
+       get_part_type(service_id,'edit_part_type_modal_id');
     });
     
   }); 

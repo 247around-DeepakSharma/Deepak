@@ -66,7 +66,6 @@
                                          }
                                      }
                                     ?>
-                                    <input type="hidden" value="<?php echo $parentID; ?>" name="parent_booking" id="parent_booking">
                                     <input type="hidden" name="appliance_id" id='appliance_id' value="<?php echo $unit_details[0]['appliance_id']; ?>" />
                                     
                                     <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($booking_history[0]['name'])){ echo $booking_history[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($booking_history[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name" <?php if($is_repeat){ echo "readonly";} ?>>
@@ -184,14 +183,38 @@
                                 <div class="form-group col-md-5 ">
                                     <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
                                     <select style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
-                                      
-                                        <?php for($i =1; $i <26; $i++) { ?>
-                                        <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";}else{if($is_repeat){echo 'disabled';}} ?>><?php echo $i; ?></option>
-                                        <?php }?>
+                                      <?php if(!$is_repeat){
+                                         for($i =1; $i <26; $i++) { ?>
+                                        <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
+                                      <?php } }
+                                      else{
+                                          $unique_appliance = array($unique_appliance[0]);
+                                          ?>
+                                        <option value="1">1</option>
+                                        <?php
+                                      }
+                                      ?>
                                     </select>
                                 </div>
                             </div>
-                            
+                            <div class="col-md-4 ">
+                             <div class="form-group ">
+                                <label for="type" class="col-md-12">Parent Booking</label>
+                                <div class="col-md-12">
+                                    <input class="form-control" type="text" value="<?php echo $parentID; ?>" name="parent_booking" id="parent_booking" readonly = "readonly" >
+                                </div>
+                            </div>
+                            </div>
+                            <div class="col-md-4 ">
+                                <div class="form-group "  id="repeat_reason_holder" style="display:none;">
+                                <label for="type" class="col-md-12">Repeat Reason</label>
+                                <div class="col-md-12">
+                                    <input class="form-control"  name="repeat_reason"  id="repeat_reason" placeholder=" Repeat Reason" ><?php if (isset($booking_history[0]['repeat_reason'])) {
+                                        echo$booking_history[0]['repeat_reason'];
+                                        } ?>
+                                </div>
+                            </div>
+                            </div>
                             <div class="clearfix"></div>
                     </div>
                 </div>
@@ -415,18 +438,27 @@
         var brand = $("#appliance_brand_1").val();
         var dealer_name = $("#dealer_name").val();
         var dealer_phone_number = $("#dealer_phone_number").val();
+        var repeat_reason = $("#repeat_reason").val();
         var parant_id = $('#parent_booking').val();
         var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
         var isServiceChecked = $('.Service:checkbox:checked').length;
-         //If anyone select repeat booking then parent ID Shoud not blank
-        if(isRepeatChecked > 0 && isServiceChecked >0){
-            alert("You Can Not Select any other Service in case of Repeat Booking");
-            return false;
+        
+        if(isRepeatChecked > 0){
+            //If anyone select repeat booking then parent ID Shoud not blank
+            if(isServiceChecked >0){
+                alert("You Can Not Select any other Service in case of Repeat Booking");
+                return false;
+            }
+            if(!parant_id){
+                alert("Please Select Parent ID");
+                return false;
+            }
+            if(!repeat_reason){
+                alert("Please Enter Repeat Reason");
+                return false;
+            }
         }
-        if(isRepeatChecked > 0 && !parant_id){
-            alert("Please Select Parent ID");
-            return false;
-        }
+        
         if(!mobile_number.match(exp1)){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid Mobile");
             return false;
@@ -971,6 +1003,11 @@
   }
   
    $(document).ready(function(){
+       <?php
+       if($is_repeat){ ?>
+           $("#repeat_reason_holder").show();
+      <?php  }
+       ?>
         $("#dealer_phone_number").keyup(function(){
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
@@ -1100,6 +1137,7 @@
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
                               alert("There is not any Posible Parent booking for this booking, It can not be a repeat booking");
                               $('.repeat_Service:checked').prop('checked', false);
+                              $("#repeat_reason_holder").hide();
                           }
                          else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
                              $('.Service:checked').prop('checked', false);
@@ -1107,6 +1145,7 @@
                                 $(this).prop('disabled', true);
                              });
                              $("#parent_booking").val(obj.html);
+                             $("#repeat_reason_holder").show();
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
                               $('.Service:checked').prop('checked', false);
@@ -1115,6 +1154,7 @@
                                 });
                               $('#repeat_booking_model').modal('show');
                               $("#repeat_booking_body").html(obj.html);
+                              $("#repeat_reason_holder").show();
                           }
                       }
                   });

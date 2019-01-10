@@ -1447,6 +1447,10 @@ class Partner extends CI_Controller {
                     if(isset($requestData['parent_booking'])){
                         $booking['parent_booking'] = $requestData['parent_booking'];
                     }
+                    $booking['repeat_reason'] = NULL;
+                    if(isset($requestData['repeat_reason'])){
+                        $booking['repeat_reason'] = $requestData['repeat_reason'];
+                    }
                     $agent_id = $requestData['agent_id'];
 
                     //Add this as a Booking now

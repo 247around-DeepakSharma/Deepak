@@ -399,8 +399,12 @@ class Partner extends CI_Controller {
         $post['dealer_phone_number'] = $this->input->post('dealer_phone_number');
         $post['dealer_id'] = $this->input->post('dealer_id');
         $post['parent_booking']  = NULL;
+        $post['repeat_reason']  = NULL;
         if($this->input->post('parent_booking')){
             $post['parent_booking'] = $this->input->post('parent_booking');
+        }
+        if($this->input->post('repeat_reason')){
+            $post['repeat_reason'] = $this->input->post('repeat_reason');
         }
         return $post;
     }
@@ -4366,7 +4370,11 @@ class Partner extends CI_Controller {
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
                 . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
-                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email, agreement_start_date, agreement_end_date";
+                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email, agreement_start_date, agreement_end_date,"
+                . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
+                . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
+                . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
+                . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period";
         $where = array('is_active' => 1);
        
         $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);
@@ -6009,7 +6017,7 @@ class Partner extends CI_Controller {
         $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND collateral.collateral_id = "7" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
         $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id';
         
-        $data['data'] = $this->partner_model->get_partner_contract_detail($select, null, $join, 'left');
+        $data['data'] = $this->partner_model->get_partner_contract_detail($select, array('is_active'=>1), $join, 'left');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_contract_list', $data);
     }
