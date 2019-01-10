@@ -91,7 +91,7 @@
                     <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
                     <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>"  required>
                     <?php $purchase_price = 0; foreach ($spare_parts as $key => $value) {  ?>
-                    <div class="panel panel-default" >
+                    <div class="div_class panel panel-default" >
                         <div class="panel-body" >
                             <div class="x_content">
                                 <div class="col-md-3">
@@ -422,7 +422,11 @@
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('#'+spare_part_type_id).html(data);              
+                $('#'+spare_part_type_id).html(data);  
+                var section_length = $(".div_class").length
+                 for(i=1; i < section_length; i++){
+                     $("#shippedparttype_"+i).html(data);
+                 }
                 $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
             }
         });
