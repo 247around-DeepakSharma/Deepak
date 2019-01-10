@@ -1366,8 +1366,16 @@ function get_data_for_partner_callback($booking_id) {
      * @return string
      */
     function upload_partner_brand_logo($data){
-        $this->db->insert('partner_brand_logo',$data);
-        return $this->db->insert_id();
+        $this->db->where('partner_id',$data['partner_id']);
+        $logo_exist = $this->db->get('partner_brand_logo');
+        if ( $logo_exist->num_rows() > 0 ){
+            $this->db->where('partner_id',$data['partner_id']);
+            $this->db->update('partner_brand_logo',$data);
+            return $this->db->affected_rows();
+        } else {
+            $this->db->insert('partner_brand_logo',$data);
+            return $this->db->insert_id();
+        }
     }
     
     /**
