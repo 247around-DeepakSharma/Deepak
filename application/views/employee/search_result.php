@@ -439,6 +439,7 @@
                             <th width="60px;">Open</th>
                             <th width="60px;">View</th>
                             <th width="60px;">Rate</th>
+                             <th width="60px;">Repeat</th>
                             <th width="160px;">Penalty</th>
                         </tr>
                     </thead>
@@ -502,6 +503,19 @@
                                 }
                                 ?>
                         </td>
+                        <td>
+                             <?php  if ($row->current_status =='Completed') {
+                                            $today = strtotime(date("Y-m-d"));
+                                            $closed_date = strtotime($row->closed_date);
+                                            $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
+                                            if($completedDays < _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS){
+                                    ?>
+                            <a style="background: #00695C;border-color: #00695C;" target="_blank" href="<?php echo base_url(); ?>employee/booking/get_repeat_booking_form/<?php echo $row->booking_id;?>" class="btn btn-small btn-success btn-sm" title="Create Repeat Booking"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i></a>
+                            <?php
+                                            }
+                                 }
+                                 ?>
+                          </td>
                         <td>
                         <?php
                         echo "<a class='btn btn-sm btn-color col-md-4'"
