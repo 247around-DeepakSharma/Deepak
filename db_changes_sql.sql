@@ -9574,7 +9574,7 @@ CREATE TABLE `inventory_parts_type` (
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 
 --Gorakh 02-Jan-2019
-ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT
+ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT;
 
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('GoJavas', 'gojavas', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
@@ -9632,3 +9632,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'defective_spare_sold_notification', 'Defective Spare Sold', 'Dear Partner\r\nDefective Sapre %s sold to Service Center %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'cn_on_refuse_to_pay', 'Credit Note generated on refuse to pay for booking %s', 'Dear Partner<br>\r\nCredit Note is generated for booking %s<br>\r\nInvoice Id - %s<br/>\r\n247Around\r\n', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP), (NULL, 'dn_on_refuse_to_pay', 'Debit Note generated on refuse to pay for booking %s', 'Dear Partner<br>\r\nDebit Note is generated for booking %s<br>\r\nInvoice Id - %s<br/>\r\n247Around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
+
+--Abhay 11 Jan-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');

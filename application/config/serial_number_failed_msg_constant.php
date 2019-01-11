@@ -50,3 +50,7 @@ define('FAILURE_MSG', 'Please Enter Correct Serial Number');
 //Repeat Booking Failure Massege
 define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Untill Repeat Booking Will not have correcct Serial Number');
 
+//Borly SErial Number Possible Constant
+define('BURLY_CODE','29');
+define('BURLY_SERIALNO_LENGHT','19');
+define('BURLY_SERIAL_NO_VALIDATION_FAILED_MSG','Serial No Should Be 19 Digit numeric code.First Two digits are 29 ,8th and 9th digit shows vendor code,10th and 11th digit shows year,12th and 13th digit shows month only');

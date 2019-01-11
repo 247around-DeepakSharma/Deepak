@@ -18,6 +18,7 @@ define('BRACKETS', 'Brackets');
 define('GST_CREDIT_NOTE', 'GST Credit Note');
 define('GST_DEBIT_NOTE', 'GST Debit Note');
 define('DEFECTIVE_RETURN', 'Defective Return');
+define('NEW_PART_RETURN', 'New Part Return');
 define('OUT_OF_WARRANTY', 'Out-of-Warranty');
 define('IN_WARRANTY', 'In-Warranty');
 define('CUSTOMER_PAYMENT', 'Customer Payment');
