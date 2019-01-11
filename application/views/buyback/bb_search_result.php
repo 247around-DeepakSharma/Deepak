@@ -33,11 +33,11 @@
                                 <th>Exchange Value</th>
                                 <th>SF Charge</th>
                                 <th>Assign CP</th>
+                                <th style="display:none">Assign Collection Partner</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
                             <?php 
                                 foreach($list as $key => $value){ ?>
                             <tr>
@@ -59,12 +59,14 @@
                                         data-placeholder="Select CP" style="width:200px;">
                                         <option value="" selected disabled>Select CP</option>   
                                          <?php foreach ($shop_list as $key => $val) { ?>
-                                                
-                                        <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";}?>><?php echo $val['cp_name']?></option>   
-                                <?php } ?>
+                                             <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";$assign_collection_partner=$val['cp_name'];}?>><?php echo $val['cp_name']?></option>   
+                                        <?php } ?>
                                         </select>
                                 </td>
-                                <td>
+                                <td style="display:none">
+                                    <?php echo $assign_collection_partner;?>
+                                </td>
+                                 <td>
                                     <div class="dropdown">
                                         <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions<span class='caret'></span></button>
                                         <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
@@ -78,12 +80,10 @@
                             <?php }
                                 ?>
                         </tbody>
-                        
-                    </table>
+                   </table>
                     </form>
                     <div class="col-md-12 text-center">
-                           
-                             <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()"  >ReAssign CP</a>
+                            <a href="javascript:void(0);" class="btn btn-md  btn-success" onclick="reAssign()">ReAssign CP</a>
                         </div>
                 </div>
             </div>
@@ -99,7 +99,6 @@
             </div>
             <div class="modal-body">
                 <div id="open_model">
-
                     <table class="table table-bordered table-hover table-responsive">
                         <thead>
                         <th>S.No.</th>
@@ -107,11 +106,8 @@
                         <th>Message</th>   
                         </thead>
                         <tbody id="error_td">
-                            
                         </tbody>
                     </table>
-
-
                 </div>
             </div>
             <div class="modal-footer">
@@ -124,7 +120,7 @@
     $(".assign_cp_id").select2({
              allowClear: true
     });
-    
+
     $(document).ready(function () {
         table = $('#search_datatable1').DataTable({
             "pageLength":'25',
@@ -135,11 +131,14 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                        columns: [1,2,3,4,5,6,7,8,10,12]
                     },
+                    
                     title: 'buyback_order'
                 }
-            ]
+            ],
+            select: true
+         
         });
     });
     
