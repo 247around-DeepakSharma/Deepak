@@ -1067,6 +1067,7 @@ class Buyback_process extends CI_Controller {
             }
         }
         $select = "bb_shop_address.id,bb_shop_address.cp_id, concat(name,'( ' ";
+        $select = "bb_shop_address.id,bb_shop_address.cp_id,name,concat(name,'( ' ";
        
         $select .= ",shop_address_region ";
         $select .= " ) as cp_name";
