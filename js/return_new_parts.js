@@ -18,7 +18,7 @@ function addnewpart(inventory_id, prestock){
                 }
                 
                 if(found === true){
-                    var addQty = $("#qty_" +inventory_id).val();
+                    var addQty = 1;//$("#qty_" +inventory_id).val();
                     var qty = Number(returnItemArray[foundIndex]['quantity']) + Number(addQty);
                     if(Number(prestock) >=  qty){
                         addInArray(inventory_id, qty, foundIndex);
@@ -47,7 +47,10 @@ function remove_inventory(inventory_id, index){
     if(addqty > 0){
         addInArray(inventory_id, addqty, index);
     } else {
+        
         returnItemArray.splice(index, 1);
+        $("#return_new_parts_data").find('tbody').append("");
+        $("#qty_" +inventory_id).val(0);
     }
     crate_table();
     if(returnItemArray.length < 1){
@@ -131,7 +134,10 @@ function crate_table(){
         $("#return_new_parts_data").find('tbody').append(tr1);
     } else
     {
+        $("#return_new_parts_data").remove();
+        $("#sellItem").val("Return new Parts (0)");
         alert("Please add new parts to return");
+        
     }
     
 }
@@ -142,7 +148,10 @@ function open_selected_parts_to_return(){
         $('#myModal').modal('toggle');
     } else
     {
+        $("#return_new_parts_data").remove();
+        $("#sellItem").val("Return new Parts (0)");
         alert("Please add new parts to return");
+        
     }
 }
 
