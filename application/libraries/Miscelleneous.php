@@ -2400,12 +2400,12 @@ class Miscelleneous {
                     }
                 }
                 $vendorContact = $this->My_CI->vendor_model->getVendorContact($escalation['vendor_id']);
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
+                //From will be currently logged in user
+                $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
+                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'].','.$from;
                 //Getting template from Database
                 $template = $this->My_CI->booking_model->get_booking_email_template("escalation_on_booking");
                 if (!empty($template)) {  
-                    //From will be currently logged in user
-                    $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
                     //Sending Mail
                     $email['booking_id'] = $escalation['booking_id'];
                     $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];

@@ -28,24 +28,31 @@
                     <div class="clonedInput" id="clonedInput">
                         <table class="table  table-striped table-bordered">
                             <tr>
-                                <th style="width: 30%;">
+                                <th style="vertical-align: middle;">
                                      <div class="form-group">
+<!--                                        <input class="form-control" type="text" name="partner_name" value="<?php //echo $partner['public_name']?>" disabled="">-->
+                                        <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
+                                        <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
+                                        <?php if(!empty($partner['partner_logo_detail'])){ $action = "Update"; ?>
+                                            <p><?php echo $partner['public_name']?></p>
+                                            <img style="width: 180px; height: 120px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$partner['partner_logo_detail'][0]['partner_logo'];?>">
+                                        <?php }else{ $action = "Upload"; ?> 
+                                            <center>No <?php echo $partner['public_name']?> Brand Logo Uploaded</center>
+                                        <?php } ?>
+                                    </div>
+                                    
+                                </th>
+                                <th style="vertical-align: middle;">
+                                    <div class="form-group">
                                         <label>Choose Files</label>
                                         <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" accept="image/*" required="" multiple/>
+                                        <input type="submit" value="<?php echo $action; ?>" onclick="return check_validation()" class="btn btn-md btn-primary" />
                                         <br><span style="font-size: 12px; margin-top: 10px;" class="text-warning"> Upload Image Dimension Must Be 215*60 px</span>
                                      </div>
                                 </th>
-                                <th style="width: 30%;">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="partner_name" value="<?php echo $partner['public_name']?>" disabled="">
-                                        <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
-                                        <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
-                                        
-                                    </div>
-                                </th>
-                                <th style="width: 30%;">
+<!--                                <th style="width: 30%; vertical-align: middle;">
                                     <input type="submit" value="Upload" onclick="return check_validation()" class="btn btn-md btn-primary" />
-                                </th>
+                                </th>-->
 <!--                                <th class="text-center">
                                     <button class="clone btn btn-sm btn-success" id="add_1">Add New Row</button>
                                 </th>
