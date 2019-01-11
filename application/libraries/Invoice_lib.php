@@ -557,7 +557,7 @@ class Invoice_lib {
                             $vp_details['settle_amount'] = 0;
                         }
                         $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
-                        $vp_details['amount_collected_paid'] = $amount_collected;
+                        $vp_details['amount_collected_paid'] = -$amount_collected;
                     } else {
 
                         $vp_details['settle_amount'] = 0;
