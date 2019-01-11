@@ -91,7 +91,14 @@ class Upcountry_model extends CI_Model {
             return FALSE;
         }
     }
-    
+    /**
+     * 
+     * @param type $booking_city
+     * @param type $booking_pincode
+     * @param type $vendor_details
+     * @param type $partner_data
+     * @return type
+     */
     function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details, $partner_data){
         log_message('info', __METHOD__  );
         $error = array();
@@ -548,7 +555,7 @@ class Upcountry_model extends CI_Model {
                 . " $upcountry_rate"
                 . " FROM `booking_details` AS bd, service_centres AS s "
                 . " WHERE  bd.is_upcountry = '1' "
-                . " AND current_status IN ('Pending', 'Rescheduled','Completed') "
+                . " AND current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."','"._247AROUND_COMPLETED."') "
                 . " AND s.id = assigned_vendor_id  $where"
                 . " AND sub_vendor_id IS NOT NULL "
                 . " $group ";
@@ -699,8 +706,14 @@ class Upcountry_model extends CI_Model {
     }
     /**
      * @desc This method is used to return those upcountry bookings which are waiting to approve upcountry charges by Partner
-     * @param type $partner_id
-     * @return Array
+     * @param int $partner_id
+     * @param State $state
+     * @param int $count
+     * @param Array $where
+     * @param Array $orderBy
+     * @param int $limit
+     * @param int $start
+     * @return Array|boolean
      */
     function get_waiting_for_approval_upcountry_charges($partner_id,$state=0,$count = 0,$where=array(),$orderBy = NULL,$limit = -1,$start =-1){
         $this->db->distinct();

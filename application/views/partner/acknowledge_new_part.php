@@ -2,16 +2,13 @@
     .select2.select2-container.select2-container--default{
         width: 100%!important;
     }
-    #inventory_spare_table_filter{
-        text-align: right;
-    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Inventory Send By Partner To Warehouse</h3>
+                    <h3>Return MSL Need to Acknowledge</h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -36,20 +33,15 @@
                         <section class="fetch_inventory_data">
                             <div class="row">
                                 <div class="form-inline">
-                                    <div class="form-group col-md-3">
-                                        <select class="form-control" id="partner_id">
-                                            <option value="" disabled="">Select Partner</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-3">
+                                    <div class="form-group col-md-4">
                                         <select class="form-control" id="wh_id">
                                             <option value="" disabled="">Select Warehouse</option>
                                         </select>
                                     </div>
-                                    <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
+                                    <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
                                 <div class="approved pull-right">
-                                    <div class="btn btn-info acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
+                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
                                 </div>
                             </div>
                         </section>
@@ -61,7 +53,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-				    <th>Booking ID</th>
+				    
                                     <th>Appliance</th>
                                     <th>Invoice ID</th>
                                     <th>Spare Type</th>
@@ -104,21 +96,20 @@
     var inventory_spare_table;
 
     $(document).ready(function () {
-        $('#wh_id').select2({
-            placeholder:"Select Warehouse"
-        });
-        get_partner();
-        get_vendor();
-        get_inventory_list();
+      get_warehouse();
+      get_inventory_list();
     });
     
+    $('#wh_id').select2({
+            placeholder:"Select Warehouse"
+        });
+    
     $('#get_inventory_data').on('click',function(){
-        var partner_id = $('#partner_id').val();
         var wh_id = $('#wh_id').val();
-        if(partner_id && wh_id){
-            inventory_spare_table.ajax.reload(null, false);
+        if(wh_id){
+            inventory_spare_table.ajax.reload();
         }else{
-            alert("Please Select All Field");
+            alert("Please Select Partner");
         }
     });
     
@@ -136,10 +127,10 @@
                 "emptyTable":     "No Data Found"
             },
             "order": [],
-            "pageLength": 25,
+            "pageLength": 100,
             "ordering": false,
             "ajax": {
-                url: "<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh",
+                url: "<?php echo base_url(); ?>employee/inventory/get_msl_send_by_wh_to_partner",
                 type: "POST",
                 data: function(d){
                     
@@ -148,7 +139,7 @@
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,
-                    d.is_wh_ack = entity_details.is_wh_ack
+                    d.is_partner_ack = entity_details.is_partner_ack;
                 }
             },
             "deferRender": true
@@ -157,35 +148,23 @@
     
     function get_entity_details(){
         var data = {
-            'sender_entity_id': $('#partner_id').val(),
-            'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
-            'receiver_entity_id': $('#wh_id').val(),
-            'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
-            'is_wh_ack':3
+            'sender_entity_id': $('#wh_id').val(),
+            'sender_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
+            'receiver_entity_id': '<?php echo $this->session->userdata('partner_id');?>',
+            'receiver_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'is_partner_ack':3
         };
         
         return data;
     }
     
-    function get_partner() {
+   function get_warehouse() {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
-            data:{'is_wh' : 1},
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'is_wh' : 1,partner_id:'<?php echo $this->session->userdata('partner_id');?>'},
             success: function (response) {
-                $('#partner_id').html(response);
-                $('#partner_id').select2();
-            }
-        });
-    }
-    
-    function get_vendor() {
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
-            data:{'is_wh' : 1},
-            success: function (response) {
-                console.log('response');
+                
                 $('#wh_id').html(response);
             }
         });
@@ -213,25 +192,27 @@
             tmp_arr[key]['ledger_id'] = $(this).attr('data-ledger_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             tmp_arr[key]['part_number'] = $(this).attr('data-part_number');
-            tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['invoice_id'] = $(this).attr('data-invoice_id');
             tmp_arr[key]['is_wh_micro'] = $(this).attr('data-is_wh_micro');
             flag = true;
         });
         
         postData['data'] = JSON.stringify(tmp_arr);
-        postData['sender_entity_id'] =  $('#partner_id').val();
-        postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
-        postData['receiver_entity_id'] = $('#wh_id').val();;
-        postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
-        postData['sender_entity_name'] = $('#partner_id option:selected').text();
-        postData['receiver_entity_name'] = $('#wh_id option:selected').text();
+        postData['sender_entity_id'] =  $('#wh_id').val();
+        postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
+        postData['receiver_entity_id'] = '<?php echo $this->session->userdata('partner_id')?>';
+        postData['receiver_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+        postData['sender_entity_name'] = $('#wh option:selected').text();
+        postData['receiver_entity_name'] = '<?php echo $this->session->userdata('partner_name')?>';
+        postData['wh_type'] = $("#wh_id").find(':selected').attr('data-warehose');
+        postData['is_ack'] = "is_partner_ack";
+        postData['ack_date'] = "partner_ack_date";
         
         if(flag){
             $('#ack_spare').html("<i class='fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/process_acknowledge_spare_send_by_partner_to_wh',
+                url:'<?php echo base_url(); ?>employee/spare_parts/process_acknowledge_msl_send_by_wh_to_partner',
                 data:postData,
                 success:function(response){
                     $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
@@ -239,7 +220,7 @@
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(obj.message);
-                        inventory_spare_table.ajax.reload(null, false);
+                        inventory_spare_table.ajax.reload();
                     }else{
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(obj.message);

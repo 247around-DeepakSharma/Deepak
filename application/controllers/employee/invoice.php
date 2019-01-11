@@ -559,7 +559,7 @@ class Invoice extends CI_Controller {
             $email_from = $email_template[2];
 
             $to = $invoice_email_to;
-            $cc = $invoice_email_cc;
+            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
             $this->upload_invoice_to_S3($meta['invoice_id']);
             $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
 
@@ -5013,7 +5013,6 @@ class Invoice extends CI_Controller {
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = $email_template[4];
-            $email_template[0];
             $emailBody = vsprintf($email_template[0], array($data['company_name'], $data['minimum_guarantee_charge'], $data['invoice_amount'], $data['from_date']));
             $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", MINIMUM_GUARANTEE_MAIL_TEMPLATE);
         }
