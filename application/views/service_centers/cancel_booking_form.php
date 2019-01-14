@@ -71,6 +71,7 @@
                                case DEFECTIVE_PARTS_RECEIVED:
                                case DEFECTIVE_PARTS_SHIPPED:
                                case DEFECTIVE_PARTS_PENDING:
+                               case SPARE_OOW_SHIPPED:
                                     $status = CANCEL_PAGE_SPARE_SHIPPED;
                                     $isdisable= true;
                                     break;
