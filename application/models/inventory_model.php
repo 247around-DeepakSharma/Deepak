@@ -811,7 +811,7 @@ class Inventory_model extends CI_Model {
         }
         
         if($sf_join){
-            $this->db->join('service_centres','service_centres.id = contact_person.entity_id AND entity_id.entity_type = "'._247AROUND_SF_STRING.'"');
+            $this->db->join('service_centres','service_centres.id = contact_person.entity_id AND contact_person.entity_type = "'._247AROUND_SF_STRING.'"');
         }
         $query = $this->db->get();
         return $query->result_array();

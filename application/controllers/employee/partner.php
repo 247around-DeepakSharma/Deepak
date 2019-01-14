@@ -671,6 +671,10 @@ class Partner extends CI_Controller {
         $return_data['is_prepaid'] = 2; // Default set
         if ($is_prepaid == 1) {
             $return_data['is_prepaid'] = 1;
+            if($return_data['prepaid_amount_limit'] > 0){
+                $return_data['prepaid_amount_limit'] = - $return_data['prepaid_amount_limit'];
+            }
+            
         }
         $postpaid = $this->input->post('is_postpaid');
         if($postpaid == 1){
