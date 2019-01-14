@@ -4003,7 +4003,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_with_micro_wh() {
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__ . print_r($this->input->post('partner_id')));
 
         $partner_id = $this->input->post('partner_id');
 

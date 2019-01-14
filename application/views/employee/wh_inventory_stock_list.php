@@ -1,3 +1,5 @@
+<script src="<?php echo base_url();?>js/base_url.js"></script>
+<script src="<?php echo base_url();?>js/return_new_parts.js"></script>
 <style>
     #inventory_stock_table_filter{
         text-align: right;
@@ -23,7 +25,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span></h3>
+                    <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> <span class="pull-right"><input type="button" id="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span></h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -70,6 +72,10 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <?php if($this->session->userdata('userType') == "employee") { ?>
+                                        <th>Return Qty</th>
+                                        <th>Add</th>
+                                    <?php } ?>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -93,10 +99,118 @@
             </div>
         </div>
         <!-- Modal end -->
-    </div>
+        
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" style="min-width:1400px;">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Return New Parts</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="courier_model_form" action="javascript:void(0)" method="post" novalidate="novalidate">
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="awb" class="col-md-4">AWB *</label>
+                                    <div class="col-md-8">
+                                        <input type="text" onblur="check_awb_exist()" class="form-control"  id="awb" name="awb" placeholder="Please Enter AWB" required>
+                                        <input type="hidden" class="form-control"  id="agent_type" name="agent_type"  value="247Around">
+                                        <input type="hidden"  class="form-control"  id="agent_id" name="agent_id" value="<?php echo $this->session->userdata('id');?>" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="courier_name_" class="col-md-4">Courier Name *</label>
+                                    <div class="col-md-8">
+                                        
+                                        <select class="form-control"  name="courier_name" name="courier_name" required>
+                                            <option selected="" disabled="" value="">Select Courier Name</option>
+                                            <?php foreach ($courier_details as $value1) { ?> 
+                                                <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="courier" class="col-md-4">Courier Price *</label>
+                                    <div class="col-md-8">
+                                        <input type="number" class="form-control"  id="courier_price" name="courier_price" placeholder="Please Enter Courier Price" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shipped_date" class="col-md-4">Courier Shipped Date *</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="shipped_date" name="shipped_date" placeholder="Please enter Shipped Date" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shippped_courier_pic" class="col-md-4">Courier Pic *</label>
+                                    <div class="col-md-8">
+                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
+                                        <input type="file" class="form-control"  id="shippped_courier_pic" name="shippped_courier_pic" required>
+                                    </div>
+                                </div>
+                            </div>
+<!--                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shippped_courier_pic" class="col-md-4">Courier Address </label>
+                                    <div class="col-md-8">
+                                        <a href="javascript:void(0)" onclick="print_courier_address()">Print Courier Addess</a>
+                                    </div>
+                                </div>
+                            </div>-->
+                        </div>
+                        
+                    </form>
+                    <div class="text-center">
+                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
+                    </div>
+                    <br/>
+                  <table id="return_new_parts_data" class="table table-bordered table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Appliance</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Number</th>
+                                    <th>Basic Price</th>
+                                    <th>GST Rate</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                    <th>Remove</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="submit_courier_form" onclick="return_new_parts()" >Return New Parts</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+
+            </div>
+         </div>
 </div>
 <script>
-
+    $("#shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     var inventory_stock_table;
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
