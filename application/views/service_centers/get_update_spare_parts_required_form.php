@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-                    Update Spare Parts 
+                    Update Spare Parts                  
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -32,10 +32,15 @@
                                             <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>" <?php if( $value['model_number']==$spare_parts_details['model_number']){ echo 'selected'; } ?>><?php echo $value['model_number']; ?></option>
+                                                <option <?php if($value['model_number'] == $spare_parts_details['model_number']){ echo 'selected';} ?> value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             <input type="hidden" id="model_number" name="model_number">
+                                        </div>
+                                        <?php } else { ?> 
+                                        <div class="col-md-6">
+                                            <input type="hidden" id="model_number_id" name="model_number_id">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo $spare_parts_details['model_number']; ?>" placeholder="Model Number">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -104,8 +109,17 @@
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
-                                            <?php }  ?>                                                                                        
+                                            <?php } else { ?> 
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
+                                            </div>
+                                            <?php } ?>
+                                            
                                         </div>
+                                        
+                                        
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -114,10 +128,17 @@
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
-                                                </select>                                                                                                
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>                                                
                                             </div>
-                                            <?php } ?>                                                                                    
+                                            <?php } else { ?> 
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "<?php echo $spare_parts_details['parts_requested']; ?>" placeholder="Parts Name" >
+                                            </div>
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
+                                        
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -175,6 +196,27 @@
     </div>
 </div>
 </div>
+
+<?php if(empty($spare_parts_details['requested_inventory_id'])){ ?>
+<script>
+$(document).ready(function(){ 
+    defults_inventory_part_type();  
+    function defults_inventory_part_type(){
+        $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+                data: { service_id:<?php echo $spare_parts_details['service_id']; ?>},
+                success:function(data){                       
+                    $('#parts_type').html(data);
+                    $('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                    
+                }
+            });
+    }
+});
+</script>
+<?php } ?>
+<?php if(!empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){    
     
@@ -218,10 +260,9 @@ $(document).ready(function(){
         });
         
     var part_type = "<?php echo $spare_parts_details['parts_requested_type']; ?>"; 
-        
+       load_model_number(); 
        load_parts_type(part_type);
-       load_model_number();
-       
+      
       function load_model_number(){
           var model_number_id = $('#model_number_id').val();
           var model_number = $("#model_number_id option:selected").text();
@@ -270,9 +311,11 @@ function get_inventory_id(id){
         var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
         $("#current_inventory_id").val(inventory_id);
               
-    }    
+}    
     
 </script>
+<?php } ?>
+
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
     .col-md-offset-2 {
