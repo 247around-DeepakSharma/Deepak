@@ -637,14 +637,15 @@ class Service_centers extends CI_Controller {
             log_message('info', __METHOD__.'Status '. print_r($status, true));
             if($status['code']==SUCCESS_CODE)
             {
-                $data=array(is_sn_correct=>1);
+                $data = array('is_sn_correct'=> 1);
                 //update is_sn_correct when gets serial no is valid
-                $this->booking_model->update_is_sn_correct($booking_id,$data);
+                $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id),$data);
             }
             echo json_encode($status, true);
         } else {
             log_message('info',__METHOD__. 'Partner serial no validation is not define');
-            $this->booking_model->update_is_sn_correct($booking_id,$data);
+            $data = array('is_sn_correct'=> 0);
+            $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id),$data);
             echo json_encode(array('code' => SUCCESS_CODE), true);
         }
     }
