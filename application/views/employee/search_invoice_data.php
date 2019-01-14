@@ -114,6 +114,23 @@
         </div>
     </div>
 </div>
+
+ <!--Invoice Payment History Modal-->
+    <div id="invoiceDetailsModal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-body">
+                  <div id="open_model"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+      </div>
+        
+    </div>
+<!-- end Invoice Payment History Modal -->
+
 <script>
     $("#vendor_partner").select2();
     $("#vendor_partner_id, #category, #sub_category, #vertical, #settle").select2();
@@ -254,3 +271,19 @@
         });
     }
 </script>
+<script>
+    function get_invoice_payment_history(button){  
+          var invoice_id = $(button).attr('data-id');
+          if(invoice_id){
+              $.ajax({
+                  type:"POST",
+                  url: "<?php echo base_url(); ?>employee/invoice/get_invoice_payment_history",
+                  data: {'invoice_id':invoice_id},
+                  success:function(response){
+                      $("#open_model").html(response);   
+                      $('#invoiceDetailsModal').modal('toggle');
+                  }
+              });
+          }
+      };
+  </script>

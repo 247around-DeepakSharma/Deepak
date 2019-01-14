@@ -1376,8 +1376,18 @@ class Miscelleneous {
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);
+            
+            if($partner_details[0]['prepaid_amount_limit'] < 0){
+                
+                $prepaid_notification_amount = $partner_details[0]['prepaid_amount_limit']  + $partner_details[0]['prepaid_notification_amount'];
+                
+            } else {
+                $prepaid_notification_amount = $partner_details[0]['prepaid_notification_amount'];
+            }
+            
+            
             // If final amount is greater than notification amount then we will display notification in the Partner CRM
-            if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $partner_details[0]['prepaid_notification_amount']) {
+            if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $prepaid_notification_amount) {
 
                 $d['is_notification'] = TRUE;
             } else {
@@ -2400,12 +2410,12 @@ class Miscelleneous {
                     }
                 }
                 $vendorContact = $this->My_CI->vendor_model->getVendorContact($escalation['vendor_id']);
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
+                //From will be currently logged in user
+                $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
+                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'].','.$from;
                 //Getting template from Database
                 $template = $this->My_CI->booking_model->get_booking_email_template("escalation_on_booking");
                 if (!empty($template)) {  
-                    //From will be currently logged in user
-                    $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
                     //Sending Mail
                     $email['booking_id'] = $escalation['booking_id'];
                     $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
@@ -3225,7 +3235,7 @@ function generate_image($base64, $image_name,$directory){
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
-                                'contact_person.entity_id' => $value['entity_id']));
+                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true);
                     
                     if(!empty($warehouse_details)){
                         $response = array();
