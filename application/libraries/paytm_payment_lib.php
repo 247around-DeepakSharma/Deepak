@@ -176,6 +176,7 @@ class paytm_payment_lib {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
         $output = curl_exec ($ch); // execute echo $output;
+        log_message('info', __FUNCTION__ . "kalyani qr op".$output);
         $this->save_api_response_in_log_table($activity,$output,$data_string,_247AROUND,json_encode($headers));
         return $output;
     }
@@ -313,6 +314,7 @@ class paytm_payment_lib {
         $headers = array('Content-Type:application/json','merchantGuid: '.MERCHANT_GUID,'mid: '.MID,'checksumhash:'.$checkSum); 
         //Send Curl request to paytm API
         $output = $this->_send_curl_request($data_string,$headers,QR_CODE_URL,"QR_Code_generation");
+        
         $outputArray = json_decode($output,true);
         // QR_001 -> SUCCESS, QR-1020 -> IF QR already exist for same input
         //In both case save into databse
