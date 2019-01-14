@@ -1376,8 +1376,18 @@ class Miscelleneous {
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);
+            
+            if($partner_details[0]['prepaid_amount_limit'] < 0){
+                
+                $prepaid_notification_amount = $partner_details[0]['prepaid_amount_limit']  + $partner_details[0]['prepaid_notification_amount'];
+                
+            } else {
+                $prepaid_notification_amount = $partner_details[0]['prepaid_notification_amount'];
+            }
+            
+            
             // If final amount is greater than notification amount then we will display notification in the Partner CRM
-            if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $partner_details[0]['prepaid_notification_amount']) {
+            if (($partner_details[0]['is_prepaid'] == 1) & $final_amount < $prepaid_notification_amount) {
 
                 $d['is_notification'] = TRUE;
             } else {
