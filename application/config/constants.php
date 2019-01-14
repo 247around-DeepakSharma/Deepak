@@ -609,5 +609,8 @@ define("_ONE_REPEAT_BOOKING_FLAG", 1);
 define("_MULTIPLE_REPEAT_BOOKING_FLAG", 3);
 define("IS_SN_CORRECT",0);
 
+//Define Constant for booking upload file type for updating partner Royalty
+define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

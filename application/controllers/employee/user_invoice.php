@@ -20,7 +20,8 @@ class User_invoice extends CI_Controller {
         $this->load->library("invoice_lib");
         $this->load->library('miscelleneous');
         $this->load->library("session");
-
+        $this->load->helper('file');
+        $this->load->dbutil();
     }
    
     function checkUserSession() {
@@ -925,6 +926,7 @@ class User_invoice extends CI_Controller {
         }
     }
 
+
     /**
      * @desc This function is used to return new part to Partner/Warehouse
      */
@@ -1231,6 +1233,55 @@ class User_invoice extends CI_Controller {
         }
 
         return $entity_details[0]['state'];
+    }
+
+    
+    /*
+     * @desc : This function is used to show form for upload partner royalty on bookings
+     * @param : void
+     * @return : view
+    */
+    function update_partner_royalty(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_partner_royalty_form');
+    }
+    
+    /*
+     * @desc : This function is used to download completed bookings for calculating partner royalty 
+     * @param : $partner_id, $close_date
+     * @return : csv
+    */
+    function download_bookings_for_partner_royalty(){
+        $partner_id = $this->input->post("partner_id");
+        $closed_date = explode("- ", $this->input->post("close_date"));
+        $select = "booking_details.booking_id, booking_unit_details.id as booking_unit_id, services.services, booking_details.order_id, booking_details.closed_date,"
+                . "booking_details.request_type ,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
+                . "booking_unit_details.product_or_services, customer_net_payable, partner_net_payable as partner_basic_charge, vendor_basic_charges,"
+                . "customer_paid_basic_charges as customer_paid_service, customer_paid_extra_charges, customer_paid_parts,around_to_vendor, null as 'partner_royalty_charge'";
+        $where = array('booking_details.partner_id'=> $partner_id, 'booking_details.closed_date >= "'.$closed_date[0].'" AND booking_details.closed_date <= "'.$closed_date[1].'"'=>NULL, 'booking_details.current_status'=>'Completed');
+        $joinDataArray["booking_unit_details"] = "booking_unit_details.booking_id=booking_details.booking_id";
+        $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
+        $JoinTypeTableArray = array('services'=>'left');
+        $list = $this->reusable_model->get_search_query('booking_details', $select,  $where, $joinDataArray, "", "", "", $JoinTypeTableArray, "");
+             
+        $newCSVFileName = "partner_royalty_booking_".date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($list, $delimiter, $newline);
+        write_file($csv, $new_report);
+        //Downloading Generated CSV  
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        exit;
     }
 
 }
