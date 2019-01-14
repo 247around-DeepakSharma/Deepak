@@ -47,4 +47,6 @@ define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
 define('DEFAULT_PARTS_TAX_RATE', 28);
 define('DEFAULT_MOBILE_TAX_RATE', 12);
+//Define constant for paid royalty to partner
+define('ROYALTY', 'Royalty');
 ?>
