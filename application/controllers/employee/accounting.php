@@ -1400,40 +1400,42 @@ class Accounting extends CI_Controller {
                 $data_on_invoice_array = $data_on_gstin['inv'];
                 foreach ($data_on_invoice_array as $data_on_invoice) {
                     $checksum = $data_on_invoice['chksum'];
-                    $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
-                    $invoice_val = $data_on_invoice['val'];
-                    $invoice_number = $data_on_invoice['inum'];
-                    $data_on_invoice_items_array = $data_on_invoice['itms'];
-                    foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
-                        $data_on_tax = $data_on_invoice_items['itm_det'];
-                        $gst_rate = $data_on_tax['rt'];
-                        $taxable_val = $data_on_tax['txval'];
-                        if (isset($data_on_tax['iamt'])){
-                            $cgst_val = 0;
-                            $sgst_val = 0;
-                            $igst_val = $data_on_tax['iamt'];
+                    $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                    if(empty($check_checksum)){
+                        $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
+                        $invoice_val = $data_on_invoice['val'];
+                        $invoice_number = $data_on_invoice['inum'];
+                        $data_on_invoice_items_array = $data_on_invoice['itms'];
+                        foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
+                            $data_on_tax = $data_on_invoice_items['itm_det'];
+                            $gst_rate = $data_on_tax['rt'];
+                            $taxable_val = $data_on_tax['txval'];
+                            if (isset($data_on_tax['iamt'])){
+                                $cgst_val = 0;
+                                $sgst_val = 0;
+                                $igst_val = $data_on_tax['iamt'];
+                            }
+                            else{
+                                $cgst_val = $data_on_tax['camt'];
+                                $sgst_val = $data_on_tax['samt'];
+                                $igst_val = 0;
+                            }
+                            $row = array(
+                                'gst_no' => $gst_no,
+                                'invoice_number' => $invoice_number,
+                                'invoice_amount' => $invoice_val,
+                                'gst_rate' => $gst_rate,
+                                'taxable_value' => $taxable_val,
+                                'igst_amount' => $igst_val,
+                                'cgst_amount' => $cgst_val,
+                                'sgst_amount' => $sgst_val,
+                                'invoice_date' => $date,
+                                'checksum' => $checksum,
+                                'gstr2a_period' => $ret_period,
+                                'create_date' => date('Y-m-d H:i:s')
+                            );
                         }
-                        else{
-                            $cgst_val = $data_on_tax['camt'];
-                            $sgst_val = $data_on_tax['samt'];
-                            $igst_val = 0;
-                        }
-                        $row = array(
-                            'gst_no' => $gst_no,
-                            'invoice_number' => $invoice_number,
-                            'invoice_amount' => $invoice_val,
-                            'gst_rate' => $gst_rate,
-                            'taxable_value' => $taxable_val,
-                            'igst_amount' => $igst_val,
-                            'cgst_amount' => $cgst_val,
-                            'sgst_amount' => $sgst_val,
-                            'invoice_date' => $date,
-                            'checksum' => $checksum,
-                            'gstr2a_period' => $ret_period,
-                            'create_date' => date('Y-m-d H:i:s')
-                        );
-                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
-                        if(empty($check_checksum)){
+                        if(!empty($row)){
                             array_push($row_batch, $row);
                         }
                     }
@@ -1475,7 +1477,6 @@ class Accounting extends CI_Controller {
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
         $post['entity_type'] = $this->input->post("entity");
-        log_message('info', 'kalyani'. $post['entity_type']);
         if($post['entity_type'] == 'vendor'){
             $inv_where['vendor_partner'] = 'vendor';
             $inv_where['credit_generated'] = 0;
