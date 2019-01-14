@@ -850,14 +850,20 @@ class Accounting extends CI_Controller {
      */
     function invoice_datatable($invoice_list, $no){
         $row = array();
+        $invoice_links = "";
         if($invoice_list->settle_amount == 1){
             $row[] = '<span class="satteled_row">'.$no.'</span>';
         }
         else{
             $row[] = $no;
         }
+        
+        $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_file_main.'">Main</a></p>';
+        $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_detailed_excel.'">Detail</a>';
+        $invoice_links .= '</p><p style="margin-top:15px;"><a  href="javascript:void(0);" onclick="get_invoice_payment_history(this)" data-id="'.$invoice_list->invoice_id.'">History</a></p>';
+        
         $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
-        $row[] = $invoice_list->invoice_id;
+        $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
         $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));

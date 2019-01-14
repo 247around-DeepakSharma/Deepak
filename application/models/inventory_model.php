@@ -796,7 +796,7 @@ class Inventory_model extends CI_Model {
      *  @param : $where array()  
      *  @return : $res array()
      */
-    function get_warehouse_details($select,$where, $join = true,$is_entity_join = false) {
+    function get_warehouse_details($select,$where, $join = true,$is_entity_join = false, $sf_join = false) {
         $this->db->select($select,FALSE);
         $this->db->where($where,FALSE);
         $this->db->from('warehouse_person_relationship');
@@ -808,6 +808,10 @@ class Inventory_model extends CI_Model {
         
         if($is_entity_join){
              $this->db->join('entity_role','contact_person.role = entity_role.id');
+        }
+        
+        if($sf_join){
+            $this->db->join('service_centres','service_centres.id = contact_person.entity_id AND contact_person.entity_type = "'._247AROUND_SF_STRING.'"');
         }
         $query = $this->db->get();
         return $query->result_array();

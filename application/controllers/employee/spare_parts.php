@@ -1025,7 +1025,7 @@ class Spare_parts extends CI_Controller {
         $internal_status = $this->booking_model->get_internal_status($where_internal_status);
         $hsn_code = $this->invoices_model->get_hsncode_details('hsn_code, gst_rate', array());
         $hsn_code_html = "<option value='' selected disabled>Select HSN Code</option>";
-        foreach ($hsn_code as $key => $value) {
+        foreach ($hsn_code as $value) {
           $hsn_code_html .= "<option value='".$value['hsn_code']."' gst_rate='".$value['gst_rate']."'>".$value['hsn_code']."</option>"; 
         }
         $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
@@ -1036,6 +1036,40 @@ class Spare_parts extends CI_Controller {
         $data['hsn_code'] = $hsn_code_html;
         echo json_encode($data);
     }
-    
+    /**
+     * @desc This function is used to load acknowledge page when warehouse return new inventory to Partner
+     */
+    function partner_acknowledge_new_inventory(){
+        log_message('info', __METHOD__);
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/acknowledge_new_part');
+    }
+    /**
+     * @desc This function is used to process when partner acknowledge to receive new part return inventory
+     */
+    function process_acknowledge_msl_send_by_wh_to_partner(){
+        log_message('info', __METHOD__ . json_encode($this->input->post(), TRUE));
+        
+        $sender_entity_id = $this->input->post('sender_entity_id');
+        $sender_entity_type = $this->input->post('sender_entity_type');
+        $receiver_entity_id = $this->input->post('receiver_entity_id');
+        $receiver_entity_type = $this->input->post('receiver_entity_type');
+        $is_ack = $this->input->post('is_ack');
+        $ack_date = $this->input->post('ack_date');
+        $postData = json_decode($this->input->post('data'));
+        
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
+            foreach ($postData as $value) {
+                $this->inventory_model->update_ledger_details(array($is_ack => 1, $ack_date => date('Y-m-d H:i:s')), array('id' => $value->ledger_id));
+            }
+            $res['status'] = TRUE;
+            $res['message'] = 'Details updated successfully';
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+        
+        echo json_encode($res);
+    }
     
 }

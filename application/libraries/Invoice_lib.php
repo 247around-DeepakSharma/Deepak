@@ -545,6 +545,20 @@ class Invoice_lib {
                             $vp_details['settle_amount'] = 0;
                         }
                         $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                        
+                    } else if($account_statement['partner_vendor'] == "partner" && $credit_debit == 'Debit' && $data[0]['tds_amount'] == 0 && $value['tds_amount'] > 0){
+                        
+                        $per_tds = 0;
+                        $vp_details['tds_amount'] = $value['tds_amount'];
+                        $vp_details['tds_rate'] = $per_tds;
+                        $amount_collected = $data[0]['total_amount_collected'] - $vp_details['tds_amount'];
+                        if (round($amount_collected, 0) == round(($data[0]['amount_paid'] + $value['credit_debit_amount']), 0)) {
+                            $vp_details['settle_amount'] = 1;
+                        } else {
+                            $vp_details['settle_amount'] = 0;
+                        }
+                        $vp_details['amount_paid'] = $data[0]['amount_paid'] + $value['credit_debit_amount'];
+                        $vp_details['amount_collected_paid'] = -$amount_collected;
                     } else {
 
                         $vp_details['settle_amount'] = 0;
@@ -952,6 +966,102 @@ class Invoice_lib {
         
     }
     /**
+     * @desc This function is used to map unsettle inventory invoice with new inventory invoice.
+     * This function is called when we are returning new part from Warehouse/Micro warehouse to Partner
+     * @param Array $postData
+     * @return Array
+     */
+    function get_unsettle_inventory_invoice_data($postData){
+        $mapping_data = array();
+        $settle_data = array();
+        $processData = array();
+        foreach ($postData as $value) {
+            if (!empty($value['inventory_id'])) {
+                
+                $where = array('inventory_id' => $value['inventory_id'],
+                    'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+                if(!empty($unsettle)){
+                    $qty = $value['quantity'];
+                    foreach ($unsettle as $key => $b) {
+                        
+                        $restQty = $b['qty'] - $b['settle_qty'];
+                        if ($restQty == $qty) {
+                            array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
+                            
+                            array_push($mapping_data, array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
+                            
+                           $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
+                           
+                           $qty = $qty - $restQty;
+                           
+                        } else if ($restQty < $qty) {
+                            array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
+                            array_push($mapping_data, array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
+                            
+                            $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
+                            
+                            $qty = 0;
+                        } else {
+                            if ($qty > 0) {
+                                $this->invoices_not_found($value);
+                               
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+        return array(
+            'processData' => $processData,
+            'settle_data' => $settle_data,
+            'mapping_data' => $mapping_data
+        );
+    }
+    /**
+     * @desc This function is used to generate array( return inventory ledger). This array will be use in the invoice generation.
+     * @param Array $processData
+     * @param Array $b
+     * @param int $restQty
+     * @param Array $value
+     * @return Array
+     */
+    function get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value){
+
+        if (!array_key_exists($value['inventory_id']."-".round($b['rate'],0), $processData)) {
+             $processData[$value['inventory_id']."-".round($b['rate'],0)] = array(
+                "qty" => $restQty,
+                "part_name" => $value['part_name'],
+                "part_number" => $value['part_number'],
+                "rate" => $b['rate'],
+                "inventory_id" => $value['inventory_id'],
+                "hsn_code" => $b['hsn_code'],
+                "partner_id" =>  $value['booking_partner_id'],
+                "taxable_value" =>  $b['rate'] * $restQty,
+                "product_or_services" => "Product",
+                "incoming_invoice_id" => $b['invoice_id'],
+                "booking_id" => "",
+                "gst_rate" => ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']),
+                "description" => $value['part_name'] . "Reference Invoice ID " . $b['invoice_id']
+            );
+        } else {
+            $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] + $restQty;
+            
+            $processData[$value['inventory_id']."-".round($b['rate'],0)]['taxable_value'] = processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] * $b['rate'];
+            
+            if (strpos($processData[$value['inventory_id']."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
+                $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
+                $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
+            } 
+        }
+        
+        return $processData;
+    }
+    
+    /**
      * @desc this function is used to return array to insert invoice in the vendor partner invoice table
      * @param Array $response
      * @param String $type_code
@@ -1051,6 +1161,36 @@ class Invoice_lib {
             array_push($invoice_breakup, $invoice_details);
         }
        return $this->ci->invoices_model->insert_invoice_breakup($invoice_breakup);
+    }
+    
+    function insert_couier_data($sender_entity_id, $sender_entity_type, $receiver_entity_id,
+            $receiver_entity_type, $awb_number, $courier_name, $qty, $bill_to_partner, $booking_id_array, 
+            $courier_file, $courier_shipment_date, $courier_charge){
+        $courier_data = array();
+        $courier_data['sender_entity_id'] = $sender_entity_id;
+        $courier_data['sender_entity_type'] = $sender_entity_type;
+        $courier_data['receiver_entity_id'] = $receiver_entity_id;
+        $courier_data['receiver_entity_type'] = $receiver_entity_type;
+        $courier_data['AWB_no'] = $awb_number;
+        $courier_data['courier_name'] = $courier_name;
+        $courier_data['create_date'] = date('Y-m-d H:i:s');
+        $courier_data['quantity'] = $qty;
+        $courier_data['bill_to_partner'] = $bill_to_partner;
+        $courier_data['courier_charge'] = $courier_charge;
+        $courier_data['status']= COURIER_DETAILS_STATUS;
+        if (!empty($booking_id_array)) {
+            $courier_data['booking_id'] = implode(",", $booking_id_array);
+        }
+
+        if (!empty($courier_file['message'])) {
+            $courier_data['courier_file'] = $courier_file;
+        }
+
+        if (!empty($courier_shipment_date)) {
+            $courier_data['shipment_date'] = date('Y-m-d', strtotime($courier_shipment_date));
+        }
+
+        return $this->ci->inventory_model->insert_courier_details($courier_data);
     }
 
 }

@@ -714,11 +714,11 @@
                                             } ?>">
                                             <label for="prepaid_amount_limit" class="col-md-4">Prepaid Minimum Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
-                                                    echo $query[0]['prepaid_amount_limit'];
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)"  min="0"   name="prepaid_amount_limit" id="prepaid_amount_limit" value = "<?php if (isset($query[0]['prepaid_amount_limit'])) {
+                                                    echo abs($query[0]['prepaid_amount_limit']);
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_amount_limit'); ?>
-                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['prepaid_amount_limit'])){ echo $query[0]['prepaid_amount_limit']; }?></span> is minimum pre paid amount</p>
+                                                <p style="font-weight:bold;"><span><?php if(isset($query[0]['prepaid_amount_limit'])){ echo abs($query[0]['prepaid_amount_limit']); }?></span> is minimum pre paid amount</p>
                                             </div>
                                         </div>
                                     </div>
@@ -728,7 +728,7 @@
                                             } ?>">
                                             <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)" id="prepaid_notification_amount"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)" min="0" id="prepaid_notification_amount"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
                                                     echo $query[0]['prepaid_notification_amount'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_notification_amount'); ?>
@@ -777,7 +777,7 @@
                                                 <label for="postpaid_credit_period" class="col-md-4">Postpaid Minimum Days Limit</label>
                                                 <div class="col-md-8">
                                                     <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_credit_period" id="postpaid_credit_period" value = "<?php if (isset($query[0]['postpaid_credit_period'])) {
-                                                        echo $query[0]['postpaid_credit_period'];
+                                                        echo abs($query[0]['postpaid_credit_period']);
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_credit_period'])){ echo $query[0]['postpaid_credit_period']; }?></span> is minimum post paid amount</p>
                                                     <?php echo form_error('postpaid_credit_period'); ?>
@@ -791,7 +791,7 @@
                                                 <label for="postpaid_notification_limit" class="col-md-4">Notification Days Limit</label>
                                                 <div class="col-md-8">
                                                     <input type="number" class="form-control" onkeyup="show_help_text(this)"  name="postpaid_notification_limit" id="postpaid_notification_limit" value = "<?php if (isset($query[0]['postpaid_notification_limit'])) {
-                                                        echo $query[0]['postpaid_notification_limit'];
+                                                        echo abs($query[0]['postpaid_notification_limit']);
                                                         } ?>" >
                                                     <p style="font-weight:bold;"><span><?php if(isset($query[0]['postpaid_notification_limit'])){ echo $query[0]['postpaid_notification_limit'];} ?> </span> is minimum notification amount</p>
                                                     <?php echo form_error('postpaid_notification_limit'); ?>
@@ -2940,7 +2940,23 @@
                                invoice_courier_phone_number:'Please fill correct phone number'
                            },
                            submitHandler: function (form) {
-                               form.submit();
+                               var is_prepaid = $("#is_prepaid").val();
+                               var prepaid_notification_amount = $("#prepaid_notification_amount").val();
+                               var prepaid_amount_limit = $("#prepaid_amount_limit").val();
+                               var return_flag = true; 
+                               if(Number(is_prepaid) === 1){
+                                   if(Number(prepaid_amount_limit) > 0){
+                                       if(Number(prepaid_notification_amount) >= Number(prepaid_amount_limit)){
+                                           alert("Prepaid Amount should be greater than Notification Amount.");
+                                           return_flag = false;
+                                           return false;
+                                       }
+                                   }
+                               }
+                               if(return_flag){
+                                   form.submit();
+                               }
+                               
                            }
                        });
                    }
