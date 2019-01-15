@@ -51,6 +51,7 @@
                                                 <div class="x_title">
                                                     <h3>Spare need to acknowledge</h3>
                                                     <hr>
+                                                    <p id="reject_err"></p>
                                                     <div class="clearfix"></div>
                                                 </div>
                                                 <div class="x_content">
@@ -81,6 +82,9 @@
                                                                     </div>
                                                                     <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                                                 </div>
+                                                                 <div class="approved pull-right" style="margin-left: 20px;">
+                                                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_to_reject_spare();" id="ack_spare">Reject spare</div>
+                                                                </div>
                                                                 <div class="approved pull-right">
                                                                     <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
                                                                 </div>
@@ -106,6 +110,9 @@
                                                                     <th>
                                                                         Acknowledge
                                                                         <input type="checkbox" id="ack_all">
+                                                                    </th>
+                                                                    <th>Rejected
+                                                                        <input type="checkbox" id="reject_all">
                                                                     </th>
                                                                 </tr>
                                                             </thead>
@@ -677,6 +684,7 @@
         if ($(this).is(':checked', true))
         {
             $(".check_single_row").prop('checked', true);
+            $(".check_reject_single_row").prop('checked', false);
         }
         else
         {
@@ -752,4 +760,62 @@
                 alert('Something Wrong. Please Refresh Page...');
             }
     }
+    
+              
+    $('#reject_all').on('click', function () {
+         if($(this).is(':checked', true)){
+             $(".check_reject_single_row").prop('checked', true);
+             $(".check_single_row").prop('checked', false);
+         }else{
+             $(".check_reject_single_row").prop('checked', false);
+         }
+     });
+     
+     function process_to_reject_spare(){
+         var reject_spare_arr = {};
+          var flag = false;
+        $(".check_reject_single_row:checked").each(function(indexId){
+            reject_spare_arr[indexId] = {};
+            reject_spare_arr[indexId]['inventory_id'] = $(this).attr('data-inventory_id');
+            reject_spare_arr[indexId]['quantity'] = $(this).attr('data-quantity');
+            reject_spare_arr[indexId]['ledger_id'] = $(this).attr('data-ledger_id');
+            reject_spare_arr[indexId]['part_name'] = $(this).attr('data-part_name');
+            reject_spare_arr[indexId]['part_number'] = $(this).attr('data-part_number');
+            reject_spare_arr[indexId]['booking_id'] = $(this).attr('data-booking_id');
+            reject_spare_arr[indexId]['invoice_id'] = $(this).attr('data-invoice_id');
+            reject_spare_arr[indexId]['is_wh_micro'] = $(this).attr('data-is_wh_micro');
+            flag = true;
+        });
+        
+        var formData = new FormData(); 
+            formData.append('spares_data', JSON.stringify(reject_spare_arr));
+            formData.append('sender_entity_id', $('#partner_id').val());
+            formData.append('sender_entity_type', '<?php echo _247AROUND_PARTNER_STRING; ?>');
+            
+            
+            
+        if(flag){     
+             
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/spare_parts/send_rejected_spare_to_partner',
+                data:formData,
+                contentType: false,
+                processData: false,
+                success:function(response){             
+                    obj = JSON.parse(response);                    
+                    if(obj.status){                          
+                        $('#reject_err').html("Spart Parts Successfully Rejected").css({'color':'#fff','background':'#85c35e','font-weight':'bold','padding': '5px'});
+                    }else{
+                        $('#reject_err').html("Spart Parts Not Rejected").css({'color':'#fff','background':'#e06464','font-weight':'bold','padding': '5px'});
+                    }
+                }
+            });
+            
+           // $("#reject_spare_modal").modal(); 
+        } else {
+           alert("Please Select At Least One Checkbox");  
+        }
+        
+     }
 </script>
