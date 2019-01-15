@@ -3355,8 +3355,8 @@ class Inventory extends CI_Controller {
         $a .= ")'>".$inventory_list->AWB_no."</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
-        $row[] = $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
-        
+        $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
+        $row[] = "<input type='checkbox' class= 'check_reject_single_row' id='reject_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
         return $row;
     }
     
@@ -3588,7 +3588,9 @@ class Inventory extends CI_Controller {
                 if (!empty($insert_courier_details)) {
                     log_message('info', 'Courier Details added successfully.');
                     $ewaybill_details['courier_details_id'] = $insert_courier_details;
-                    $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details);
+                    if(!empty($eway_bill_by_wh)){
+                       $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details); 
+                    }                   
                     $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
 
                     if (!empty($invoice['processData'])) {
