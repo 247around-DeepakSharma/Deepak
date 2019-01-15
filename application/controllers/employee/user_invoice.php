@@ -1251,11 +1251,17 @@ class User_invoice extends CI_Controller {
     function download_bookings_for_partner_royalty(){
         $partner_id = $this->input->post("partner_id");
         $closed_date = explode("- ", $this->input->post("close_date"));
-        $select = "booking_details.booking_id, booking_unit_details.id as booking_unit_id, services.services, booking_details.order_id, booking_details.closed_date,"
+        $select = "booking_details.booking_id, booking_unit_details.id as booking_unit_id, booking_details.current_status, services.services, booking_details.order_id, booking_details.closed_date,"
                 . "booking_details.request_type ,booking_unit_details.appliance_brand,booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.price_tags,"
-                . "booking_unit_details.product_or_services, customer_net_payable, partner_net_payable as partner_basic_charge, vendor_basic_charges,"
-                . "customer_paid_basic_charges as customer_paid_service, customer_paid_extra_charges, customer_paid_parts,around_to_vendor, null as 'partner_royalty_charge'";
-        $where = array('booking_details.partner_id'=> $partner_id, 'booking_details.closed_date >= "'.$closed_date[0].'" AND booking_details.closed_date <= "'.$closed_date[1].'"'=>NULL, 'booking_details.current_status'=>'Completed');
+                . "booking_unit_details.product_or_services, customer_net_payable, partner_net_payable as partner_basic_charge,"
+                . "customer_paid_basic_charges as customer_paid_service, customer_paid_extra_charges, customer_paid_parts,around_to_vendor,"
+                . "CASE WHEN royalty_paid = 1 THEN 'Yes' ELSE 'No' END as royalty_paid, royalty_amount, royalty_invoice, null as 'partner_royalty_charge'";
+        $where = array(
+            'booking_details.partner_id'=> $partner_id,
+            'booking_details.closed_date >= "'.$closed_date[0].'" AND booking_details.closed_date <= "'.$closed_date[1].'"'=>NULL, 
+            'booking_details.current_status = "Completed" OR booking_details.current_status = "Cancelled"'=> NULL,
+            'booking_details.type' => 'Booking'
+            );
         $joinDataArray["booking_unit_details"] = "booking_unit_details.booking_id=booking_details.booking_id";
         $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
         $JoinTypeTableArray = array('services'=>'left');
