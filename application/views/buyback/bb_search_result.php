@@ -59,7 +59,7 @@
                                         data-placeholder="Select CP" style="width:200px;">
                                         <option value="" selected disabled>Select CP</option>   
                                          <?php foreach ($shop_list as $key => $val) { ?>
-                                             <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";$assign_collection_partner=$val['cp_name'];}?>><?php echo $val['cp_name']?></option>   
+                                             <option value="<?php echo $val['id']?>" <?php if($value->assigned_cp_id == $val['cp_id']) { echo "selected";$assign_collection_partner=$val['name'];}?>><?php echo $val['cp_name']?></option>  
                                         <?php } ?>
                                         </select>
                                 </td>
