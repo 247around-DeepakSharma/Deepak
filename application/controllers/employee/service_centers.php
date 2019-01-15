@@ -1228,7 +1228,7 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);             
-        $data['spare_parts_details'] = $spare_parts_details[0];
+        $data['spare_parts_details'] = $spare_parts_details[0];       
         $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
         $this->load->view('service_centers/header');
@@ -4093,8 +4093,9 @@ class Service_centers extends CI_Controller {
     
     function warehouse_default_page(){
         $this->check_WH_UserSession();
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/warehouse_default_page');
+        $this->load->view('service_centers/warehouse_default_page',$data);
     }
     
     
