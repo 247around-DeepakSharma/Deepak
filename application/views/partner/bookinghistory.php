@@ -95,9 +95,9 @@
                         <form  action="<?php echo base_url()."partner/booking_form"; ?>" method="POST"> 
                             <input type="hidden" name="phone_number" value="<?php echo $data[0]['phone_number']; ?>">
 
-                            <?php $disabled = ""; if(empty($this->session->userdata('status'))){
-                                $disabled = "disabled";
-                            }?>
+                            <?php $disabled = ""; //if(empty($this->session->userdata('status'))){
+                               // $disabled = "disabled";
+                           // }?>
                             <input type="submit" value="New Booking" <?php echo $disabled; ?>  class=" btn btn-md btn-primary col-md-offset-4">
                             <p class="col-md-offset-4" style="color:red;"><?php if(empty($this->session->userdata('status'))){echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; }?></p>
                         </form>

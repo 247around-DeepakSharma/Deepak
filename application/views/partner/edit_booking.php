@@ -159,7 +159,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="booking_date">Booking Date *</label>
-                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day"));}?>">
+                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day"));}?>">
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
