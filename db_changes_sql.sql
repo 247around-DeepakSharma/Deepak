@@ -9621,5 +9621,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
 --Kalyani 12-Jan-2019
-ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
-ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
+ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
+
+--Kalyani 15-Jan-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_partner_onboard_notification', 'New partner added - %s', 'Dear All<br><br>We are glad to announce that we have partnered with one more brand<br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);

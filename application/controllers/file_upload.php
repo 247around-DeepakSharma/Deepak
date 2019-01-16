@@ -1228,11 +1228,11 @@ class File_upload extends CI_Controller {
                                     'booking_unit_id' => $rowData['booking_unit_id'],
                                     'invoice_type' => ROYALTY,
                                     'invoice_id' => $this->input->post('invoice_id'),
-                                    'invoice_basic_amount' => $invoice_basic_amount,
-                                    'invoice_tax_amount' => $invoice_tax_amount,
+                                    'booking_basic_amount' => $invoice_basic_amount,
+                                    'booking_tax_amount' => $invoice_tax_amount,
                                 );
                                 $this->invoices_model->insert_into_booking_debit_credit_detils($royalty_invoice_data);
-                                $this->reusable_model->update_table_where_in('booking_unit_details', array("partner_royalty_invoice_id"=>$this->input->post('invoice_id')), array('id'=>$rowData['booking_unit_id']));
+                                $this->reusable_model->update_table_where_in('booking_unit_details', array("royalty_invoice"=>$this->input->post('invoice_id')), array('id'=>$rowData['booking_unit_id']));
                                 $returnData['status'] = TRUE;
                                 $returnData['message'] = "File Successfully Uploaded";
                             }
