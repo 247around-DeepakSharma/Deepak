@@ -9640,5 +9640,11 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
 ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
 
-----Gorakh 15-01-2018
-ALTER TABLE `spare_parts_details` ADD `spare_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
+----Gorakh 15-01-2019
+ALTER TABLE `spare_parts_details` ADD `part_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
+
+---Gorakh 16-01-2019
+
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES ('	
+spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,<br><br> Spare parts Not Received By Warehouse.<br><br> <b>Please Find Details Below </b><br><br> %s', '', '', '', '', '1', CURRENT_TIMESTAMP);
+
