@@ -83,7 +83,7 @@
                                                                     <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                                                 </div>
                                                                  <div class="approved pull-right" style="margin-left: 20px;">
-                                                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_to_reject_spare();" id="ack_spare">Reject spare</div>
+                                                                    <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_to_reject_spare();">Reject spare</div>
                                                                 </div>
                                                                 <div class="approved pull-right">
                                                                     <div class="btn btn-info btn-sm acknowledge_all_spare" onclick="process_acknowledge_spare();" id="ack_spare">Acknowledge spare received</div>
