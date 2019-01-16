@@ -205,15 +205,15 @@
                         </div>
                         <div class="panel-body">
                             <label class="radio-inline"><input type="radio"  name="status" <?php if (isset($bookinghistory[0]['status'])) {
-                                if ($bookinghistory[0]['status'] == "Spare Parts Requested") {
+                                if ($bookinghistory[0]['status'] == SPARE_PARTS_REQUESTED) {
                                     echo "checked";
                                 }
-                                } ?> value="Spare Parts Requested">Spare Parts Requested</label>
+                                } ?> value="<?php echo SPARE_PARTS_REQUESTED;?>">Spare Parts Requested</label>
                             <label class="radio-inline"><input type="radio" name="status" <?php if (isset($bookinghistory[0]['status'])) {
                                 if ($bookinghistory[0]['status'] == "Shipped") {
                                     echo "checked";
                                 }
-                                } ?> value="Shipped">Spare Shipped</label>
+                                } ?> value="<?php echo SPARE_SHIPPED_BY_PARTNER;?>">Spare Shipped</label>
                             <label class="radio-inline"><input type="radio" name="status" <?php if (isset($bookinghistory[0]['Delivered'])) {
                                 if ($bookinghistory[0]['status'] == "Delivered") {
                                     echo "checked";
