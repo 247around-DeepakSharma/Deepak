@@ -525,8 +525,9 @@
                                     <th class="text-center" data-orderable="false">Booking Id</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Serial Number</th>
-                                    <th class="text-center" data-orderable="false">Parts</th>
+                                    <th class="text-center" data-orderable="false">Parts</th>                                
                                     <th class="text-center" data-orderable="false">Shipped Date</th>
+                                    <th class="text-center" data-orderable="false">Age</th>
                                     <th class="text-center" data-orderable="false">View</th>
                                     <th class="text-center" data-orderable="false">Receive</th>
                                     <th class="text-center" data-orderable="false">Send Email</th> 
@@ -554,7 +555,16 @@
                                     </td>
                                     <td>
                                         <?php if($row['shipped_date'] != "0000-00-00"){echo $row['shipped_date'];} ?>
-                                    </td>
+                                    </td>                                    
+                                    <td>
+                                        <?php
+                                                if (!empty($row['age_of_request'] > 1)) {
+                                                    echo $row['age_of_request'] . " days";
+                                                } else {
+                                                    echo $row['age_of_request'] . " day";
+                                                }
+                                        ?>
+                                    </td>                                    
                                     <td>
                                         <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
