@@ -9625,3 +9625,7 @@ ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NU
 
 --Kalyani 15-Jan-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_partner_onboard_notification', 'New partner added - %s', 'Dear All<br><br>We are glad to announce that we have partnered with one more brand<br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+----Gorakh 15-01-2018
+ALTER TABLE `spare_parts_details` ADD `part_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
+
