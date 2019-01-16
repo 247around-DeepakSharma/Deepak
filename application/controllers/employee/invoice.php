@@ -3885,6 +3885,12 @@ class Invoice extends CI_Controller {
     function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
+        $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
+        if ($c_s_gst) {
+            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+        } else {
+            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+        }
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
             log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $spare[0]['service_center_id']);
