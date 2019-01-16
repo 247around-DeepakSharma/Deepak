@@ -115,3 +115,6 @@ define('DEFECTIVE_SPARE_SALE_INVOICE', 'defective_spare_sale_invoice');
 define('DEFECTIVE_SPARE_SOLED_NOTIFICATION', 'defective_spare_sold_notification');
 define('CREDIT_NOTE_ON_REFUSE_TO_PAY', 'cn_on_refuse_to_pay');
 define('DEBIT_NOTE_ON_REFUSE_TO_PAY', 'dn_on_refuse_to_pay');
+define('MSL_SEND_BY_WH_TO_PARTNER','msl_send_by_wh_to_partner');
+define('MSL_SEND_BY_MICROWH_TO_PARTNER','msl_send_by_microwh_to_partner');
+define('NEW_PARTNER_ONBOARD_NOTIFICATION', 'new_partner_onboard_notification');
