@@ -2264,8 +2264,11 @@ class Invoice extends CI_Controller {
                 "igst_tax_rate" => $meta['igst_tax_rate'],
                 "igst_tax_amount" => $meta["igst_total_tax_amount"],
                 "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
-                "cgst_tax_amount" => $meta["cgst_total_tax_amount"]
-
+                "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
+                "vertical" => BUYBACK_TYPE,
+                "category" => EXCHANGE,
+                "sub_category" => SALE,
+                "accounting" => 1
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
