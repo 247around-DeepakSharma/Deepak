@@ -312,6 +312,7 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Update</th>-->
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Part Lost & Required</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -399,6 +400,28 @@
         </div>
     </div>
 </div>
+
+<div id="courier_lost" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Courier Lost</h4> 
+            </div>
+            <div class="modal-body">
+                <textarea rows="3" class="form-control" id="lost_courier_reason" placeholder="Enter Remarks"></textarea>                
+                <p id="remarks_err"></p>
+            </div>
+            <input type="hidden" id="spare_id" value="">            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="lost_courier">Request Part</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var spare_parts_requested_table;
     var partner_shipped_part;
@@ -928,4 +951,35 @@
             
         }
     }
+    
+    function courier_lost_required(spare_part_id, booking_id){
+       $("#lost_part_reason").val("");
+       $("#courier_lost").modal();
+       $("#spare_id").val(spare_part_id);
+    }
+    
+    $("#lost_courier").on('click',function(){
+        lost_courier_reason = $("#lost_courier_reason").val();
+        spare_id = $("#spare_id").val();    
+        if(lost_courier_reason !=''){
+           $("#remarks_err").html('');
+           if(confirm('Are you sure you want to Request New Spare Part')){
+              $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/spare_parts/lost_courier_request_new_spare_part_from_partner',
+                data:{spare_part_id:spare_id,reason:lost_courier_reason},
+                success:function(res){                    
+                    var obj = JSON.parse(res);
+                    if(obj.status === true){
+                        $("#courier_lost").hide();
+                    }
+                }
+            });
+          } 
+        }else{
+          $("#remarks_err").html("Remarks should not be blank.").css({'color':'red'});
+        }
+        
+    });
+        
 </script>
