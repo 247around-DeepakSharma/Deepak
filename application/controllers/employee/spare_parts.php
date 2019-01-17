@@ -1183,7 +1183,7 @@ class Spare_parts extends CI_Controller {
                     $notificationTextArray['msg'] = array($spare_parts_details[0]['parts_requested'], $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, array(), $notificationTextArray);
                     $new_state = COURIER_LOST." For The ".$parts_requested;
-                    $this->notify->insert_state_change($booking_id, $new_state, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), 'not_define', 'not_define', $partner_id, NULL);
+                    $this->notify->insert_state_change($booking_id, $new_state, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), _247AROUND_PARTNER_STRING, PARTNER_WILL_SEND_NEW_PARTS, $partner_id, NULL);
 
                     $booking['internal_status'] = $internal_status;
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
