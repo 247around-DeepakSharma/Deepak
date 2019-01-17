@@ -37,6 +37,7 @@
                 </div>
                 <div class="x_content collapse in" id="TAT_reporting_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
+                    <form action="" method="post" target="_blank" id="rm_completed_booking_form" style="float: left;width: 1110px;">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -50,11 +51,11 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="    width: 200px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Service Type</label><br>
-                            <select class="form-control filter_table" id="request_type" name="request_type" multiple="">
+                            <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
@@ -88,19 +89,20 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="width: 200px;">
                                          <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" ng-change="ShowRMCompletedBookingBYDateRange()" ng-model="dates">
                             </div>
                     <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
-                                        <select class="form-control"  ng-model="status" id="completed_status">
+                                         <select class="form-control"  ng-model="status" id="completed_status" name="status">
                                             <option value="">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
                     </div>
+                    </form>
                     <button class="btn btn-primary" ng-click="ShowRMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
                 <br>
                 <div class="clear"></div>
@@ -122,7 +124,9 @@
                     <tbody>
                         <tr ng-repeat="x in completedBookingByRM | orderBy:'TAT_16'">
                            <td>{{$index+1}}</td>
-                           <td><a type="button" style="border: none;" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.entity}}</a></td>
+<!--                           <td><a type="button" style="border: none;" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.entity}}</a></td>-->
+                           <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
                            <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
@@ -134,13 +138,127 @@
                         </tr>
                     </tbody>
                 </table>
-                <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
                 <p style="background: #f7a35c;color: #fff;padding: 2px 6px;width: 36%;font-size: 14px;font: 14px/16px Arial;"><span><b>Note*</b></span> TAT has been calculated using "First Booking Date" and "Completion Date"</p>
             </div>
             </div>
         </div>
     </div>
     </div>
+    
+            <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Pending Booking Reports</h2>
+<!--                    <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>-->
+                    <div class="clearfix"></div>
+                </div>
+                <div id="RM_TAT_Reporting_pending">
+                <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerRM" ng-cloak="">
+                    <form action="" method="post" target="_blank" id="rm_pending_booking_form" style="float: left;width: 804px;">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <label for="">Services</label>
+                                <select class="form-control filter_table" id="service_id_rm_pending" name="services">
+                                    <option value="" selected="selected">All</option>
+                                    <?php foreach($services as $val){ ?>
+                                    <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="form-group col-md-3" style="width:200px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Request Type</label>
+                            <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
+                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="Repair_with_part">Repair With Spare</option>  
+                                <option value="Repair_without_part">Repair Without Spare</option>  
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">  
+                            <label for="">Is Free</label>
+                            <select class="form-control filter_table" id="free_paid_rm_pending" name="free_paid">
+                                <option value="" selected="selected">All</option>
+                                <option value="Yes">Yes (In Warranty)</option>
+                                <option value="No">No (Out Of Warranty)</option>  
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Is Upcountry</label>
+                            <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry">
+                                <option value="">All</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No" selected="selected">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                        <input type="hidden" id="pending_dependency" value="">
+                    <div class="form-group col-md-3" style="width:200px;">
+                                <label for="">Initial Booking Date</label>
+                                <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_rm" ng-change="ShowRMPendingBookingBYDateRange()" ng-model="dates">
+                            </div>
+                    </form>
+                    <div class="form-group col-md-3" style="    width: 100px;">
+                    <button class="btn btn-primary" ng-click="ShowRMPendingBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                </div>
+                    <br>
+                <div class="clear"></div>
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                        <tr>
+                            <th>S.no</th>
+                            <th>RM</th>
+                            <th>D0</th>
+                            <th>D1</th>
+                            <th>D2</th>
+                            <th>D3</th>
+                            <th>D4</th>
+                            <th>D5 - D7</th>
+                             <th>D8 - D15</th>
+                             <th>>D15</th>
+                             <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/0/Pending">{{x.entity}}</a></td>-->
+                           <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_pending_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+            </div> 
+            </div>
+        </div>
+    </div>
+    
+    
        <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
         <div class="col-md-6 col-sm-12 col-xs-12">
@@ -276,6 +394,7 @@
   </div>
 <script>
     $('#request_type').select2();
+    $('#request_type_rm_pending').select2();
     function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
@@ -364,6 +483,7 @@
      //get_partner_spare_data_by_status();
        around_monthly_data();
        get_bookings_data_by_rm();
+       initiate_RM_Pending_TAT_Reporting();
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_partner_booking_summary_data/'+<?php echo $this->session->userdata('partner_id')?>,
@@ -639,6 +759,23 @@ function around_monthly_data(){
             create_chart_based_on_bookings_state(response);
         });
     });
+    
+     function initiate_RM_Pending_TAT_Reporting(){
+        // $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="pending_daterange_id_rm"]').daterangepicker({
+            timePicker: true,
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+        });
+    } function open_full_view(id,url,is_am,is_pending,form_id){
+      entity_id = id.split("_")[1];
+      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending;
+      $('#'+form_id).attr('action', final_url);
+      $('#'+form_id).submit();
+    }
     </script>
     <style>
         .highcharts-credits{

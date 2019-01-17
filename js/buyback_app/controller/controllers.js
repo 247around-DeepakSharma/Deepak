@@ -807,7 +807,6 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
             $scope.completedBookingByRM = "";
             $http.get(pending_url).then(function (response) { 
             $("#loader_gif_completed_rm").css("display", "none");
-            $("#loader_gif_pending").css("display", "none");
             $scope.completedBookingByRM = response.data;
          });
     }
@@ -819,6 +818,7 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                 endDate = dateArray[1];
                 status = $("#completed_status").val();
                 service_id = $("#service_id").val();
+                partner_id = $("#partner_id").val();
                 request_type = getMultipleSelectedValues("request_type");
                 free_paid = $("#free_paid").val();
                 upcountry = $("#upcountry").val();
@@ -837,53 +837,20 @@ admin_dashboard.controller('completedBooking_Controller', function ($scope, $htt
                  if(!upcountry){
                     upcountry = "not_set";
                 }
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM");
+                if(!partner_id){
+                    partner_id = "not_set";
+                }
+              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM/0/"+partner_id);
     }
 });
-rm_dashboard.controller('completedBooking_Controller', function ($scope, $http) { 
-    $scope.loadCompletedBookingView = function(pending_url){
-        $("#loader_gif_completed_rm").css("display", "block");
-            $scope.completedBookingByRM = "";
-            $http.get(pending_url).then(function (response) {
-            $("#loader_gif_completed_rm").css("display", "none");
-            $scope.completedBookingByRM = response.data;
-         });
-     }
-     $scope.ShowRMCompletedBookingBYDateRange = function(){
-         dateRange = $("#completed_daterange_id").val();
-                dateArray = dateRange.split(" - ");
-                startDate = dateArray[0];
-                endDate = dateArray[1];
-                status = $("#completed_status").val();
-                service_id = $("#service_id").val();
-                request_type = getMultipleSelectedValues("request_type");
-                free_paid = $("#free_paid").val();
-                upcountry = $("#upcountry").val();
-                if(!status){
-                    status = "not_set";
-                }
-                if(!service_id){
-                    service_id = "not_set";
-                }
-                if(!request_type){
-                    request_type = "not_set";
-                }
-                if(!free_paid){
-                    free_paid = "not_set";
-                }
-                 if(!upcountry){
-                    upcountry = "not_set";
-                }
-              $scope.loadCompletedBookingView(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM");
-    }
-});
+
 //This Function is used to call Completed Booking Days Reports
 admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $http) { 
     $scope.loadCompletedBookingViewAM = function(pending_url){
-        $("#loader_gif_pending_AM").css("display", "block");
+            $("#loader_gif_completed_am").css("display", "block");
             $scope.completedBookingByAM = "";
             $http.get(pending_url).then(function (response) {
-            $("#loader_gif_pending_AM").css("display", "none");
+            $("#loader_gif_completed_am").css("display", "none");
             $scope.completedBookingByAM = response.data;
          });
      }
@@ -894,6 +861,7 @@ admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $h
                 endDate = dateArray[1];
                 status = $("#completed_status_am").val();
                 service_id = $("#service_id_am").val();
+                partner_id = $("#partner_id_am").val();
                 request_type = getMultipleSelectedValues("request_type_am");
                 free_paid = $("#free_paid_am").val();
                 upcountry = $("#upcountry_am").val();
@@ -912,6 +880,95 @@ admin_dashboard.controller('completedBooking_ControllerAM', function ($scope, $h
                  if(!upcountry){
                     upcountry = "not_set";
                 }
-              $scope.loadCompletedBookingViewAM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM");
+                 if(!partner_id){
+                    partner_id = "not_set";
+                }
+              $scope.loadCompletedBookingViewAM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM/0/"+partner_id);
+    }
+});
+
+//This Function is used to call Pending Booking Days Reports
+admin_dashboard.controller('pendingBooking_ControllerRM', function ($scope, $http) { 
+    $scope.loadPendingBookingViewRM = function(pending_url){
+            $("#loader_gif_pending_rm").css("display", "block");
+            $scope.pendingBookingByRM = "";
+            $http.get(pending_url).then(function (response) {
+            $("#loader_gif_pending_rm").css("display", "none");
+            $scope.pendingBookingByRM = response.data;
+         });
+     }
+     $scope.ShowRMPendingBookingBYDateRange = function(){ 
+                dateRange = $("#pending_daterange_id_rm").val();
+                dateArray = dateRange.split(" - ");
+                startDate = dateArray[0];
+                endDate = dateArray[1];
+                service_id = $("#service_id_rm_pending").val();
+                partner_id = $("#partner_id_rm_pending").val();
+                request_type = getMultipleSelectedValues("request_type_rm_pending");
+                free_paid = $("#free_paid_rm_pending").val();
+                upcountry = $("#upcountry_rm_pending").val();
+                status = $("#pending_dependency").val();
+                if(!status){
+                  status = "not_set";
+                }
+                if(!service_id){
+                    service_id = "not_set";
+                }
+                if(!request_type){
+                    request_type = "not_set";
+                }
+                if(!free_paid){
+                    free_paid = "not_set";
+                }
+                 if(!upcountry){
+                    upcountry = "not_set";
+                }
+                 if(!partner_id){
+                    partner_id = "not_set";
+                }
+              $scope.loadPendingBookingViewRM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/RM"+"/Pending/"+partner_id);
+    }
+});
+
+//This Function is used to call Pending Booking Days Reports for AM
+admin_dashboard.controller('pendingBooking_ControllerAM', function ($scope, $http) { 
+    $scope.loadPendingBookingViewAM = function(pending_url){
+            $("#loader_gif_pending_AM").css("display", "block");
+            $scope.pendingBookingByAM = "";
+            $http.get(pending_url).then(function (response) {
+            $("#loader_gif_pending_AM").css("display", "none");
+            $scope.pendingBookingByAM = response.data;
+         });
+     }
+     $scope.ShowAMPendingBookingBYDateRange = function(){ 
+                dateRange = $("#pending_daterange_id_am").val();
+                dateArray = dateRange.split(" - ");
+                startDate = dateArray[0];
+                endDate = dateArray[1];
+                service_id = $("#service_id_am_pending").val();
+                partner_id = $("#partner_id_am_pending").val();
+                request_type = getMultipleSelectedValues("request_type_am_pending");
+                free_paid = $("#free_paid_am_pending").val();
+                upcountry = $("#upcountry_am_pending").val();
+                status = $("#pending_dependency_am").val();
+                if(!status){
+                  status = "not_set";
+                }
+                if(!service_id){
+                    service_id = "not_set";
+                }
+                if(!request_type){
+                    request_type = "not_set";
+                }
+                if(!free_paid){
+                    free_paid = "not_set";
+                }
+                 if(!upcountry){
+                    upcountry = "not_set";
+                }
+                 if(!partner_id){
+                    partner_id = "not_set";
+                }
+              $scope.loadPendingBookingViewAM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM"+"/Pending/"+partner_id);
     }
 });
