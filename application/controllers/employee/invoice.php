@@ -2634,6 +2634,7 @@ class Invoice extends CI_Controller {
         $invoice_id_tmp_1 = str_replace("/","-",$invoice_id_tmp); 
         $invoice_id = str_replace("_","-",$invoice_id_tmp_1);
         $data['invoice_id'] = $invoice_id;
+        $data['reference_invoice_id'] = $this->input->post('reference_invoice_id');
         $data['type'] = $this->input->post('type');
         $data['vendor_partner'] = $vendor_partner;
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
