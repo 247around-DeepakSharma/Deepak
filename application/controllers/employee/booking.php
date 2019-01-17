@@ -2951,6 +2951,20 @@ class Booking extends CI_Controller {
         }
     }
     /**
+     *  @desc : This function is used to show view for booking based on booking status type
+     *  @param : $status string
+     *  @param : $booking_id string
+     *  @return : void();
+     */
+    public function open_pending_bookings(){
+        $data['booking_status'] = "Pending";
+        $data['booking_id'] = "";
+        $bookingIDString = $this->input->post('booking_id_status');
+        $data['bookingIDString'] = $bookingIDString;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/view_pending_bookings', $data);
+    }
+    /**
      * @desc This function is uses to load filter view in the Pending booking Page
      */
     function get_booking_filter_view($status){
@@ -3081,6 +3095,13 @@ class Booking extends CI_Controller {
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
         $is_upcountry = $this->input->post('is_upcountry');
+        $bulk_booking_id = NULL;
+        if($this->input->post('bulk_booking_id')){
+            $bulk_booking_id = $this->input->post('bulk_booking_id');
+        }
+        if($bulk_booking_id){
+            $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
+        }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
                 $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
