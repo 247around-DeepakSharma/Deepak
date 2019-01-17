@@ -54,6 +54,11 @@ class Dashboard extends CI_Controller {
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
+                if($this->session->userdata('user_group') == _247AROUND_AM){
+                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
+                }
+                $partnerWhere['is_active'] = 1;
+                $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $serviceWhere['isBookingActive'] =1;
                 $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
