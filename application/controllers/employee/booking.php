@@ -4096,7 +4096,7 @@ class Booking extends CI_Controller {
         $appliance_list = $this->booking_model->selectservice();
         
         if($this->input->get('is_option_selected')){
-            $option = '<option  selected="" disabled="">Select Appliance</option>';
+            $option = '<option  selected="" disabled="" value="">Select Appliance</option>';
         }else{
             $option = '';
         }

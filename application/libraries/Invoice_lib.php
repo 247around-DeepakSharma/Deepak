@@ -751,6 +751,8 @@ class Invoice_lib {
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
             }
+            
+            log_message('info', __FUNCTION__ . 'Gorakh sf challan debugging spare_id: ' . $spare_id, true);
 
             $sf_challan_number = $spare_parts_details[0]['sf_challan_number'];
 

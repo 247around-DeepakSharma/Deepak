@@ -375,7 +375,7 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT distinct sp.*, bd.partner_id,bd.request_type "
+        $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request, bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"

@@ -904,7 +904,7 @@ class Inventory extends CI_Controller {
         $status_spare = $this->service_centers_model->update_spare_parts($where, $data);
         if($status_spare){
             log_message('info', __FUNCTION__. " Spare Parts Booking is updated");
-            if($data['status'] == "Spare Parts Requested"){
+            if($data['status'] == SPARE_PARTS_REQUESTED){
                 log_message('info', __FUNCTION__. " Change Current Status in Service Center Action table");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = $data['status'];
@@ -1111,7 +1111,7 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id );
                     $data = array('status' => _247AROUND_CANCELLED, "spare_cancelled_date" => date("Y-m-d h:i:s"));
                     $new_state = SPARE_PARTS_CANCELLED;
-                    $old_state = "Spare Parts Requested";
+                    $old_state = SPARE_PARTS_REQUESTED;
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = _247AROUND_COMPLETED;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
@@ -1132,7 +1132,7 @@ class Inventory extends CI_Controller {
                     $where_sp = "spare_parts_details.booking_id = '".$booking_id."' "
                     . " AND spare_parts_details.status NOT IN ('"._247AROUND_COMPLETED."', '"._247AROUND_CANCELLED."') ";
                     $sp = $this->partner_model->get_spare_parts_booking($where_sp);
-                    $data['status'] = "Defective Part Shipped By SF";
+                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
                     $courier_charge = $this->input->post("courier_charge");
                     foreach ($sp as $key => $value) {
@@ -1147,7 +1147,7 @@ class Inventory extends CI_Controller {
                     }
                     
                     $new_state = "Courier Invoice Approved By Admin";
-                    $old_state = "Defective Part Shipped By SF";
+                    $old_state = DEFECTIVE_PARTS_SHIPPED;
                     
                     $b['internal_status'] = "Courier Invoice Approved By Admin";
                     $flag = FALSE;
@@ -1155,31 +1155,31 @@ class Inventory extends CI_Controller {
                     
                     case 'DEFECTIVE_PARTS_SHIPPED_BY_SF':
                         $where = array('id' => $id );
-                        $data = array('status' => "Defective Part Shipped By SF");
+                        $data = array('status' => DEFECTIVE_PARTS_SHIPPED);
                         $sc_data['current_status'] = "InProcess";
-                        $sc_data['internal_status'] = "Defective Part Shipped By SF";
+                        $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         
                         $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                         
-                        $old_state = "Defective Part Rejected By Partner";
-                        $new_state = "Defective Part Shipped By SF";
+                        $old_state = DEFECTIVE_PARTS_REJECTED;
+                        $new_state = DEFECTIVE_PARTS_SHIPPED;
                         
-                        $b['internal_status'] = "Defective Part Shipped By SF";
+                        $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                         break;
                     
                 CASE 'NOT_REQUIRED_PARTS':
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id );
                     $new_state = "Spare Parts Not Required To Partner";
-                    $old_state = "Spare Parts Requested";
+                    $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
                 CASE 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING':
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id );
                     $new_state = "Spare Parts Not Required To Partner";
-                    $old_state = "Spare Parts Requested";
+                    $old_state = SPARE_PARTS_REQUESTED;
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = "Completed";
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
@@ -1466,7 +1466,7 @@ class Inventory extends CI_Controller {
         $sp['defective_part_required'] = 0;
         $sp['date_of_request'] = $sp['create_date'] = date('Y-m-d H:i:s');
         $sp['booking_id'] = $booking_id;
-        $sp['status'] = "Delivered";
+        $sp['status'] = SPARE_DELIVERED_TO_SF;
         $sp['service_center_id'] = $assigned_vendor_id; 
         $sp['model_number'] = $model_number;
         $sp['serial_number'] = $serial_number;
@@ -3667,18 +3667,18 @@ class Inventory extends CI_Controller {
                 $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
                 $courier_details['courier_charge'] = $courier_price_by_wh;
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
-                $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
-                $ewaybill_details['ewaybill_file'] = $ewaybill_file;
-                $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
+//                $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
+//                $ewaybill_details['ewaybill_file'] = $ewaybill_file;
+//                $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
                 $courier_details['status'] = COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
                 
                 if (!empty($insert_courier_details)) {
                     log_message('info', 'Courier Details added successfully.');
-                    $ewaybill_details['courier_details_id'] = $insert_courier_details;
-                    if(!empty($eway_bill_by_wh)){
-                       $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details); 
-                    }                   
+//                    $ewaybill_details['courier_details_id'] = $insert_courier_details;
+//                    if(!empty($eway_bill_by_wh)){
+//                       $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details); 
+//                    }                   
                     $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
 
                     if (!empty($invoice['processData'])) {

@@ -69,6 +69,15 @@
                                 </div>
                                 <?php echo form_error('invoice_id'); ?>
                             </div>
+                             <div class="form-group <?php if( form_error('reference_invoice_id') ) { echo 'has-error';} ?>">
+                                <label for="Vendor Partner" class="col-md-4">Reference Invoice ID</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="reference_invoice_id" id="reference_invoice_id" value="<?php if (isset($invoice_details[0]['reference_invoice_id'])) {
+                                        echo $invoice_details[0]['reference_invoice_id'];
+                                        } ?>" placeholder="Reference Invoice ID" />
+                                </div>
+                                <?php echo form_error('reference_invoice_id'); ?>
+                            </div>
                             <div class="form-group <?php if( form_error('vendor_partner_id') ) { echo 'has-error';} ?>">
                                 <label for="Vendor Partner" class="col-md-4">Entity</label>
                                 <div class="col-md-6">
@@ -77,15 +86,8 @@
                                 </div>
                                  <?php echo form_error('vendor_partner_id'); ?>
                             </div>
-                            <div class="form-group" >
-                                <label for="From Date" class="col-md-4">Period</label>
-                                <div class="col-md-6">
-                                    <div class="input-group input-append date">
-                                        <input id="from_date" class="form-control" placeholder="Select Date" name="from_date" type="text" required readonly='true' style="background-color:#fff;" value="">
-                                        <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
-                                </div>
-                            </div>
+                           
+                           
                             <div class="form-group" >
                                 <label for="Due Date" class="col-md-4">Vertical*</label>
                                 <div class="col-md-6">
@@ -94,13 +96,53 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group" >
+                             <div class="form-group" >
                                 <label for="Due Date" class="col-md-4">Sub Category*</label>
                                 <div class="col-md-6">
                                     <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);" required>
                                     </select>
                                 </div>
                             </div>
+                             <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
+                                <label for="Type Code" class="col-md-4">Type*</label>
+                                <div class="col-md-6">
+                                    <select name="type" class="form-control" id="type_code">
+                                        <option value="" disabled selected>Select Type</option>
+                                        <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
+                                            } ?>>Cash</option>
+                                        <option value="DebitNote" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "DebitNote"){ echo "selected";}
+                                            } ?>>DebitNote</option>
+                                        <option value="CreditNote" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
+                                            } ?>>CreditNote</option>
+                                        <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
+                                            } ?>>FOC</option>
+                                        <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
+                                            } ?>>Buyback</option>
+                                        <option value="<?php echo BUYBACK_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == BUYBACK_VOUCHER){ echo "selected";}
+                                            } ?>><?php echo BUYBACK_VOUCHER; ?></option>
+                                         <option value="<?php echo PARTNER_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == PARTNER_VOUCHER){ echo "selected";}
+                                            } ?>><?php echo PARTNER_VOUCHER; ?></option>
+                                        <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
+                                            } ?>>Stand</option>
+                                        <option value="Parts" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
+                                            } ?>>Parts</option>
+                                        <option value="Liquidation" <?php if (isset($invoice_details[0]['type'])) {
+                                            if($invoice_details[0]['type'] == LIQUIDATION){ echo "selected";}
+                                            } ?>>Liquidation</option>
+                                    </select>
+                                </div>
+                                <?php echo form_error('type'); ?>
+                            </div>
+                           
                             <div class="form-group">
                                 <label for="Number of Booking" class="col-md-4">Number of Booking</label>
                                 <div class="col-md-6">
@@ -216,45 +258,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
-                                <label for="Type Code" class="col-md-4">Type</label>
+                             <div class="form-group" >
+                                <label for="From Date" class="col-md-4">Period</label>
                                 <div class="col-md-6">
-                                    <select name="type" class="form-control" id="type_code">
-                                        <option value="" disabled selected>Select Type</option>
-                                        <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
-                                            } ?>>Cash</option>
-                                        <option value="DebitNote" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "DebitNote"){ echo "selected";}
-                                            } ?>>DebitNote</option>
-                                        <option value="CreditNote" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
-                                            } ?>>CreditNote</option>
-                                        <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
-                                            } ?>>FOC</option>
-                                        <option value="Buyback" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "Buyback"){ echo "selected";}
-                                            } ?>>Buyback</option>
-                                        <option value="<?php echo BUYBACK_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == BUYBACK_VOUCHER){ echo "selected";}
-                                            } ?>><?php echo BUYBACK_VOUCHER; ?></option>
-                                         <option value="<?php echo PARTNER_VOUCHER;?>" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == PARTNER_VOUCHER){ echo "selected";}
-                                            } ?>><?php echo PARTNER_VOUCHER; ?></option>
-                                        <option value="Stand" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "Stand"){ echo "selected";}
-                                            } ?>>Stand</option>
-                                        <option value="Parts" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == "Parts"){ echo "selected";}
-                                            } ?>>Parts</option>
-                                        <option value="Liquidation" <?php if (isset($invoice_details[0]['type'])) {
-                                            if($invoice_details[0]['type'] == LIQUIDATION){ echo "selected";}
-                                            } ?>>Liquidation</option>
-                                    </select>
+                                    <div class="input-group input-append date">
+                                        <input id="from_date" class="form-control" placeholder="Select Date" name="from_date" type="text" required readonly='true' style="background-color:#fff;" value="">
+                                        <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
                                 </div>
-                                <?php echo form_error('type'); ?>
                             </div>
+                            
                             <div class="form-group" >
                                 <label for="Due Date" class="col-md-4">Category*</label>
                                 <div class="col-md-6">
