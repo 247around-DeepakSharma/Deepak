@@ -775,7 +775,7 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function upcountry_partner_invoice($partner_id, $from_date, $to_date){
+    function upcountry_partner_invoice($partner_id, $from_date, $to_date, $spare_requested_unit_id = ""){
         $sql = "SELECT CASE WHEN (bd.partner_id = '".PAYTM_ID."' ) "
                 . "THEN (CONCAT( '', GROUP_CONCAT( DISTINCT ( SUBSTRING_INDEX(bd.order_id, '-', 1) ) ) , '' )) ELSE (CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' )) END AS order_id,"
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
@@ -785,17 +785,19 @@ class Upcountry_model extends CI_Model {
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.partner_id = '$partner_id' "
-                . " AND ud.ud_closed_date >= '$from_date' "
-                . " AND ud.ud_closed_date < '$to_date' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.service_id = services.id"
-                . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
                 . " AND bd.upcountry_partner_approved = 1 "
                 . " AND bd.upcountry_bill_to_partner = 1 "
                 . " AND bd.upcountry_partner_invoice_id IS NULL"
+                
+                . " AND ( ( ud.ud_closed_date >= '$from_date' "
+                . " AND ud.ud_closed_date < '$to_date' "
+                . " AND bd.current_status = 'Completed' "
+                . " ) $spare_requested_unit_id )"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);
