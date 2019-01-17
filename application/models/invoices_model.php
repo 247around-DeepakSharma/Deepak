@@ -1889,7 +1889,8 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit, $profitLoss){
+    function _buyback_invoice_query($vendor_id, $from_date_tmp, $to_date, $is_regenerate, $is_unit, $profitLoss){
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         $is_foc_null = "";
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
