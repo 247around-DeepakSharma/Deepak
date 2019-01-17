@@ -46,6 +46,19 @@
                 <div class="x_content collapse" id="RM_completed_booking_reports_div">
                 <div class="table-responsive" id="escalation_data" ng-controller="completedBooking_Controller" ng-cloak="">
  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <label for="">Partners</label>
+                                <select class="form-control filter_table" id="partner_id" name="partner_id">
+                                    <option value="" selected="selected">All</option>
+                                    <?php foreach($partners as $val){ ?>
+                                    <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
