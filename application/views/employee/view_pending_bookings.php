@@ -150,6 +150,7 @@
         <div class="table_filter" id="table_filter">
             <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px;" class="col-md-offset-6">
         </div>
+        <input type="hidden" id="bookingIDString" value="<?php if(isset($bookingIDString)){ echo $bookingIDString; }  ?>" >
         <hr>
         <div class="bookings_table">
             <table id="datatable1" class="table table-bordered table-responsive">
@@ -308,6 +309,7 @@
                     if ($('#rm_id').length){         d.rm_id          =  $('#rm_id').val();}else{ d.rm_id = ""; }
                     if ($('#is_upcountry').length){  d.is_upcountry   =  $('#is_upcountry').val();}else{ d.rm_id = ""; }
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }
+                    d.bulk_booking_id =  $('#bookingIDString').val();
                     
                     d.internal_status = getMultipleSelectedValues('internal_status');
                     d.request_type = getMultipleSelectedValues('request_type');
