@@ -2634,6 +2634,7 @@ class Invoice extends CI_Controller {
         $invoice_id_tmp_1 = str_replace("/","-",$invoice_id_tmp); 
         $invoice_id = str_replace("_","-",$invoice_id_tmp_1);
         $data['invoice_id'] = $invoice_id;
+        $data['reference_invoice_id'] = $this->input->post('reference_invoice_id');
         $data['type'] = $this->input->post('type');
         $data['vendor_partner'] = $vendor_partner;
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
@@ -4031,40 +4032,29 @@ class Invoice extends CI_Controller {
      */
     function generate_reverse_purchase_invoice($spare_data){
         log_message('info', __METHOD__. " Spare Data ". print_r($spare_data, true));
-        $partner_details = $this->partner_model->getpartner($spare_data['booking_partner_id']);
         
         $invoice_breakup_details = $this->invoices_model->get_breakup_invoice_details("*", array('spare_id' => $spare_data['id'], "invoice_id" => $spare_data['purchase_invoice_id']));
         
         if(!empty($invoice_breakup_details)){
-            $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id("Around");
             $data = array();
             $data[0]['description'] = $invoice_breakup_details[0]['description'];
-            $data[0]['taxable_value'] = $invoice_breakup_details[0]['taxable_value'];
+            $data[0]['vendor_basic_charges'] = 0;
+            $data[0]['vendor_tax'] = 0;
             $data[0]['product_or_services'] = "Product";
-            if(empty($partner_details[0]['gst_number'])){
-            $data[0]['gst_number'] = $partner_details['gst_number'];
-            } else {
-                $data[0]['gst_number'] = 1;
-            }
-            
-            $data[0]['company_name'] = $partner_details[0]['company_name'];
-            $data[0]['company_address'] = $partner_details[0]['address'];
-            $data[0]['district'] = $partner_details[0]['district'];
-            $data[0]['pincode'] = $partner_details[0]['pincode'];
-            $data[0]['state'] = $partner_details[0]['state'];
-            $data[0]['rate'] = $invoice_breakup_details[0]['taxable_value'];;
-            $data[0]['qty'] = 1;
-            $data[0]['hsn_code'] = SPARE_HSN_CODE;
-            $sd = $ed = $invoice_date = date("Y-m-d");
             $gst_rate = $invoice_breakup_details[0]['cgst_tax_rate'] + $invoice_breakup_details[0]['sgst_tax_rate'] + $invoice_breakup_details[0]['igst_tax_rate'];
-            $data[0]['gst_rate'] = $gst_rate;
+            $data[0]['tax_rate'] = $gst_rate;
+            $data[0]['partner_charge'] = $invoice_breakup_details[0]['taxable_value'];
+            $data[0]['booking_id'] = $spare_data['booking_id'];
+            $data[0]['approval_file'] = '';
+            $data[0]['create_date'] = date('Y-m-d H:i:s');
             
-            $a =$this->_reverse_purchase_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $partner_details, $spare_data);
+            $a = $this->booking_model->insert_misc_charges_in_batch($data);
+
             if(!empty($a)){
-                log_message('info', __METHOD__. " Invoice Generated ". $invoice_id);
+                log_message('info', __METHOD__. " Misc Charges Added". $spare_data['booking_id'] );
                 
             } else {
-                log_message('info', __METHOD__. " Invoice Not Generated ". $invoice_id);
+                log_message('info', __METHOD__. " Misc Charges Not Added ". $spare_data['booking_id']);
             }
             
         }
