@@ -25,6 +25,7 @@ class Accounting extends CI_Controller {
         $this->load->model("accounting_model");
         $this->load->model("vendor_model");
         $this->load->model("partner_model");
+        $this->load->model('bb_model');
         $this->load->model('booking_model');
         $this->load->library('miscelleneous');
         $this->load->library("notify");
@@ -1694,4 +1695,32 @@ class Accounting extends CI_Controller {
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
     }
+    /*
+     * @desc - This function is used to download buyback summary report
+     * $daterange
+     * CSV
+     */
+    function download_buyback_summary_report(){
+        ob_start();
+        $daterange = explode("-", $this->input->post("buyback_daterange"));
+        $start_date = date("Y-m-d", strtotime($daterange[0]));
+        $end_date = date("Y-m-d", strtotime($daterange[1]));
+        $where = array(
+            "bb_unit_details.cp_invoice_id IS NOT NULL" => NULL,
+            "vendor_partner_invoices.invoice_date  >=  '".$start_date."'" => NULL,    
+            "vendor_partner_invoices.invoice_date  <=  '".$end_date."'" => NULL, 
+        );
+        $join = array(
+            "vendor_partner_invoices" => "bb_unit_details.cp_invoice_id = vendor_partner_invoices.invoice_id",
+            "services" => "bb_unit_details.service_id = services.id",
+        );
+        $select = "bb_unit_details.partner_id, services.services,"
+                . "bb_unit_details.partner_basic_charge, bb_unit_details.partner_tax_charge, bb_unit_details.cp_basic_charge,"
+                . "bb_unit_details.cp_tax_charge, bb_unit_details.cp_claimed_price, bb_unit_details.cp_invoice_id,"
+                . "vendor_partner_invoices.invoice_date, vendor_partner_invoices.from_date, vendor_partner_invoices.to_date";
+        $data =  $this->bb_model->get_bb_detail($select, $where, $join);
+        $headings = array("partner_id", "service", "partner_basic_charge", "partner_tax_charge", "cp_basic_charge", "cp_tax_charge", "cp_claimed_price", "cp_invoice_id", "invoice_date", "from_date", "to_date");
+        $this->miscelleneous->downloadCSV($data,$headings,"booking_search_summary");  
+    }
+    
 }

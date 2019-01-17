@@ -457,6 +457,26 @@ class Bb_model extends CI_Model {
         return $acknowledge_data;
     }
     
+     /**
+     * @desc: This function is used to get buyback summary report
+     * @param $select, $where, $join
+     * @return array $result
+     */
+    function get_bb_detail($select='*', $where=array(), $join=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+           $this->db->where($where); 
+        }
+        if(!empty($join)){
+            foreach ($join as $table => $condition) {
+                $this->db->join($table, $condition);
+            }
+        }
+        $this->db->from("bb_unit_details");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 //    function test(){
 //        $sql = "SELECT * FROM `bb_charges` WHERE `service_id` IN (28,37)";
 //        $query = $this->db->query($sql);
