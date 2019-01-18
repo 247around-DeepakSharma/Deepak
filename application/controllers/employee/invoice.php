@@ -953,6 +953,9 @@ class Invoice extends CI_Controller {
             foreach ($multipleResponse as $value) {
                  $this->email->attach($value['pdf'], 'attachment');
                  $this->email->attach($value['excel'], 'attachment');
+                 if(isset($value['detailed_excel']) && !empty($value['excel'])){
+                     $this->email->attach($value['detailed_excel'], 'attachment');
+                 }
             }
         } else {
             if(!empty($output_file_excel)){
@@ -2150,7 +2153,7 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($company_name,$sd,$ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-
+             
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG,$response);
                 
             
@@ -2221,6 +2224,7 @@ class Invoice extends CI_Controller {
             $out['pdf'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
             $out['excel'] = $output_file_excel;
             $out['invoice_id'] = $meta['invoice_id'];
+            $out['detailed_excel'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$meta['invoice_id'] . '-detailed.xlsx';
             
             //Send SMS to PoC/Owner
             $this->send_invoice_sms("Buyback",  $meta['sd'], $meta['sub_total_amount'], $meta['owner_phone_1'], $vendor_id);
