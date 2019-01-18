@@ -27,7 +27,10 @@
 <div id="page-wrapper" >
     <div class="container-fluid">
         <div class="payment_history_report" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
-            <h3><strong>Sale/Purchase Invoice Summary Report</strong></h3>
+            <h3>
+                <strong>Sale/Purchase Invoice Summary Report</strong>
+                <button class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#buyback_summary_report_model">Download Buyback Summary</button>
+            </h3>
             <hr>
             <section class="fetch_payment_history" style="padding-left:20px;">
                 <div class="row">
@@ -102,12 +105,41 @@
         </div>
     </div>
 </div> 
+
+<!-- end export data Modal -->
+    <div class="export_modal">
+        <div class="modal fade right" id="buyback_summary_report_model" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" action="<?php echo base_url() ?>employee/accounting/download_buyback_summary_report">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="main_modal_title">Download Buyback Summary Report</h4>
+                    </div>
+                    <div class="modal-body" id="main_modal_body">
+                        <p>Seect Date Range</p>
+                        <input type="text" class="form-control" id="buyback_daterange" name="buyback_daterange">
+                    </div>
+                    <div class="modal-footer">
+                        
+                        <div class="text-right">
+                            <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                            <input type="submit" class="btn btn-success" value="Export" />
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- end export data Modal -->
+
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript">
     var time = moment().format('D-MMM-YYYY');
     $(function () {
-        $('input[name="daterange"]').daterangepicker({
+        $('input[name="daterange"], #buyback_daterange').daterangepicker({
             locale: {
                 format: 'YYYY/MM/DD'
             },
