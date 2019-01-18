@@ -608,5 +608,7 @@ define("_NO_REPEAT_BOOKING_FLAG", 2);
 define("_ONE_REPEAT_BOOKING_FLAG", 1);
 define("_MULTIPLE_REPEAT_BOOKING_FLAG", 3);
 
+define('UPCOUNTRY_OVER_LIMIT_DISTANCE', 200);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

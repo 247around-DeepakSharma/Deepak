@@ -2033,4 +2033,19 @@ function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not
         echo json_encode($json_data);
         
     }
+    
+    function get_upcountry_data(){
+        $data = $this->upcountry_model->get_waiting_for_approval_upcountry_charges("",0,0, array('upcountry_distance > "'.UPCOUNTRY_OVER_LIMIT_DISTANCE.'" ' => NULL));
+         $template = array(
+        'table_open' => '<table  '
+            . ' class="table table-striped table-bordered jambo_table bulk_action">'
+        );
+        $this->table->set_template($template);
+        $this->table->set_heading(array('State','Call Type', 'Age', 'Upcountry Distance'));
+        foreach($data as $value){
+            $age_requested = date_diff(date_create($value['upcountry_update_date']), date_create('today'));
+            $this->table->add_row( $value['state'], $value['request_type'], $age_requested->days. " Days", $value['upcountry_distance']); 
+        }
+        echo $this->table->generate();
+    }
 }
