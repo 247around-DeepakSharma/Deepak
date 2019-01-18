@@ -1402,8 +1402,6 @@ class Accounting extends CI_Controller {
                 $data_on_invoice_array = $data_on_gstin['inv'];
                 foreach ($data_on_invoice_array as $data_on_invoice) {
                     $checksum = $data_on_invoice['chksum'];
-                    $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
-                    if(empty($check_checksum)){
                         $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
                         $invoice_val = $data_on_invoice['val'];
                         $invoice_number = $data_on_invoice['inum'];
@@ -1436,8 +1434,8 @@ class Accounting extends CI_Controller {
                                 'gstr2a_period' => $ret_period,
                                 'create_date' => date('Y-m-d H:i:s')
                             );
-                        }
-                        if(!empty($row)){
+                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                        if(empty($check_checksum)){
                             array_push($row_batch, $row);
                         }
                     }
