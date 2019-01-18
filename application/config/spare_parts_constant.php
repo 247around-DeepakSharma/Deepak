@@ -86,6 +86,8 @@ define("PARTNER_WILL_SEND_NEW_PARTS", "Partner will send new parts");
 
 // Courier Lost 
 define("COURIER_LOST", "Courier Lost");
+//Spare to be billed to partner, partner did not ship new part to sf
+define('BILL_TO_PARTNER_NOT_SHIP_PART_DAYS', 60);
 
 
 
