@@ -1718,7 +1718,7 @@ class Accounting extends CI_Controller {
                 . "vendor_partner_invoices.invoice_date, vendor_partner_invoices.from_date, vendor_partner_invoices.to_date";
         $data =  $this->bb_model->get_bb_detail($select, $where, $join);
         $headings = array("partner_id", "service", "partner_basic_charge", "partner_tax_charge", "cp_basic_charge", "cp_tax_charge", "cp_claimed_price", "cp_invoice_id", "invoice_date", "from_date", "to_date");
-        $this->miscelleneous->downloadCSV($data,$headings,"booking_search_summary");  
+        $this->miscelleneous->downloadCSV($data,$headings,"buyback_summary_report");  
     }
     
 }
