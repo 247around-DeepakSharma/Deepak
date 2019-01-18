@@ -2458,9 +2458,7 @@ class Service_centers extends CI_Controller {
                     
                     
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
-                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_id' => $sp_details[0]['defective_return_to_entity_id']);
+                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
                           
                     switch ($wh_entity_details[1]) {
