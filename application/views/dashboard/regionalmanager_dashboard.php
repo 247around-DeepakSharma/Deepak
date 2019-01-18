@@ -616,6 +616,24 @@ if($this->session->userdata("wrong_pincode_msg")){
             </div>
         </div>
     </div>
+ 
+ <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Upcountry Over Limit Exceed</h2>
+                    <span class="collape_icon" href="#upcountry_table_data_div" data-toggle="collapse" onclick="get_upcountry_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content collapse" id="upcountry_table_data_div">
+                    <div class="table-responsive" id="upcountry_table_data">
+                        <center><img id="upcountry_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- End Missing Pincode Section -->
         </div>
         <div class="clearfix"></div>
@@ -1184,5 +1202,17 @@ if($this->session->userdata("wrong_pincode_msg")){
       final_url = url+entity_id+'/0/'+is_am+'/'+is_pending;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
+    }
+    
+    
+    function get_upcountry_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_upcountry_data';
+        data['partner_id'] = '';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            $("#upcountry_table_data").html(response);
+        });
     }
 </script>
