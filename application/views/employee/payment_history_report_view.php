@@ -117,7 +117,7 @@
                         <h4 class="modal-title" id="main_modal_title">Download Buyback Summary Report</h4>
                     </div>
                     <div class="modal-body" id="main_modal_body">
-                        <p>Seect Date Range</p>
+                        <p>Select Date Range</p>
                         <input type="text" class="form-control" id="buyback_daterange" name="buyback_daterange">
                     </div>
                     <div class="modal-footer">
