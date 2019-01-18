@@ -2824,7 +2824,7 @@ class invoices_model extends CI_Model {
         $this->db->where('s.part_requested_on_approval', 1);
         $this->db->where('ud.booking_status NOT IN ("'._247AROUND_COMPLETED.'", "'._247AROUND_CANCELLED.'") ', NULL);
         $this->db->where('ud.partner_net_payable > 0', NULL);
-        $this->db->where("DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= 30", NULL);
+        $this->db->where("DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= '".BILL_TO_PARTNER_NOT_SHIP_PART_DAYS."' ", NULL);
         $this->db->where('ud.partner_id', $partner_id);
         $query = $this->db->get();
         return  $query->result_array();
