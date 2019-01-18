@@ -2051,7 +2051,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     }
     
      /*
-     *@desc - this function is used to send sms to vendor for filling gst return with invoicing detail
+     *@desc - This function is used to send expiry notification email for CRM and generate invoice for partner
      */
     function send_expiry_mail_and_generate_invoice_for_partner(){ 
         $wh = " AND partners.is_active = 1 ";
@@ -2104,6 +2104,45 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $sms['phone_no'] = $bookingData['booking_primary_contact_no'];
             $sms['smsData']['partner'] = $bookingData['public_name'];
             $this->notify->send_sms_msg91($sms);
+        }
+    }
+    
+    /*
+     *Desc - This function is used to send penalty summary email notification 
+     */
+    function penalty_summary(){
+        $start_date = date("Y-m-01");
+        $end_date = date("Y-m-t");
+        $table_template = array(
+                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+            );
+        $this->table->set_template($table_template);
+        $this->table->set_heading(array('Regional Manager', 'Penalty Resson', 'Total Bookings', 'Total penalty', 'Penalty Amount'));
+        $query = "select employee.full_name, penalty_details.criteria, count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, 
+                count(penalty_on_booking.id) as total_penalty_count, SUM(penalty_on_booking.penalty_amount) as penalty_amount 
+                from penalty_on_booking join employee_relation on FIND_IN_SET(penalty_on_booking.service_center_id, employee_relation.service_centres_id) 
+                join employee on employee.id = employee_relation.agent_id 
+                join penalty_details on penalty_details.id = penalty_on_booking.criteria_id 
+                WHERE penalty_remove_reason IS NULL AND penalty_on_booking.create_date >= '".$start_date."' AND penalty_on_booking.create_date <= '".$end_date."'
+                group by criteria_id, employee_relation.agent_id 
+                ORDER BY `employee`.`full_name` ASC";
+        $data = $this->reusable_model->execute_custom_select_query($query);
+        if(!empty($data)){
+            $table = $this->table->generate($data);
+            $template = $this->booking_model->get_booking_email_template(PENALTY_SUMMARY);
+            if(!empty($template)){
+                $employee = $this->employee_model->get_employee_by_group(array("groups = 'admin' OR groups = 'regionalmanager'"=>NULL));
+                $to = "";
+                foreach ($employee as $key => $value) {
+                    $to .= $value['official_email'].",";
+                }
+                $to_email = rtrim($to, ",");
+                $from = $template[2];
+                $cc = $template[3];
+                $subject = vsprintf($template[4], date("M",strtotime(date("Y-m-d")))); 
+                $message = vsprintf($template[0], array(date("M",strtotime(date("Y-m-d"))), $table));
+                $this->notify->sendEmail($from, $to_email, $cc, "", $subject, $message, "", PENALTY_SUMMARY);
+            }
         }
     }
 }
