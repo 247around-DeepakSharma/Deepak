@@ -736,9 +736,7 @@ class Invoice_lib {
 
 
             $where = array('contact_person.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id'],
-                'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
-                'warehouse_details.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
-                'warehouse_details.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id']);
+                'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type']);
             $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
 
             if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
