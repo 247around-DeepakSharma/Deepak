@@ -1006,7 +1006,11 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     function get_tollfree_and_contact_persons(){
-        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner  FROM contact_person JOIN partners ON partners.id =  contact_person.entity_id UNION SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner FROM partners ";
+        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM contact_person "
+                . "JOIN partners ON partners.id =  contact_person.entity_id LEFT JOIN vendor_partner_variable_charges"
+                . " ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND vendor_partner_variable_charges.charges_type = 3 UNION "
+                . "SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM partners LEFT JOIN vendor_partner_variable_charges "
+                . "ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND vendor_partner_variable_charges.charges_type = 3";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
