@@ -75,6 +75,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr><td colspan="6">No data found</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -153,7 +154,7 @@
     }
     
     $(document).ready(function () {
-        show_upload_file_history();
+       // show_upload_file_history();
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
@@ -182,7 +183,12 @@
         var type = $("#file_type :selected").val();
         var file_type = partner + '-' + type;
         $('#upload_file_type').val(file_type);
-        table.ajax.reload();
+        if(table == null){ 
+            show_upload_file_history();
+        }
+        else{ 
+            table.ajax.reload();
+        }
     });
     
     function show_upload_file_history(){
@@ -225,7 +231,12 @@
                         is_file_send_back = res.data.send_file_back;
                         revert_file_email = res.data.revert_file_to_email;
                         $('#submit_btn').attr('disabled',false);
-                        table.ajax.reload();
+                        if(table == null){ 
+                            show_upload_file_history();
+                        }
+                        else{
+                            table.ajax.reload();
+                        }
                     }else if(res.msg === 'failed'){
                         alert("Select Correct Partner");
                     }else{
