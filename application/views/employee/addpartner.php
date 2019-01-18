@@ -2941,16 +2941,13 @@
                            },
                            submitHandler: function (form) {
                                var is_prepaid = $("#is_prepaid").val();
-                               var prepaid_notification_amount = $("#prepaid_notification_amount").val();
                                var prepaid_amount_limit = $("#prepaid_amount_limit").val();
                                var return_flag = true; 
                                if(Number(is_prepaid) === 1){
-                                   if(Number(prepaid_amount_limit) > 0){
-                                       if(Number(prepaid_notification_amount) >= Number(prepaid_amount_limit)){
-                                           alert("Prepaid Amount should be greater than Notification Amount.");
-                                           return_flag = false;
-                                           return false;
-                                       }
+                                   if(Number(prepaid_amount_limit) < 0){
+                                       alert("Prepaid Amount should be greater than zero");
+                                        return_flag = false;
+                                        return false;
                                    }
                                }
                                if(return_flag){
