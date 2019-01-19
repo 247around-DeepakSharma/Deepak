@@ -878,6 +878,9 @@ class Accounting extends CI_Controller {
         $row[] = ($invoice_list->amount_collected_paid > 0)?  sprintf("%.2f",$invoice_list->amount_collected_paid) : 0;
         $row[] = $invoice_list->amount_paid;
         $row[] = $invoice_list->remarks;
+        $row[] = $invoice_list->vertical;
+        $row[] = $invoice_list->category;
+        $row[] = $invoice_list->sub_category;
         $a_update = '<a href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice_list->vendor_partner.'/'.$invoice_list->invoice_id.'"';
         if($invoice_list->amount_paid > 0){
             $a_update .= " disabled ";

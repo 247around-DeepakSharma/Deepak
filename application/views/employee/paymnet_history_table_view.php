@@ -45,9 +45,11 @@
                     <th>GST Rate</th>
                     <th>Total</th>
                     <th>GST Number</th>
-                    <th>Category</th>
+                    <th>Type</th>
                     <th>Type Code</th>
-                    
+                    <th>Vertical</th>
+                    <th>Category</th>
+                    <th>Sub Category</th>
                 </tr>
             </thead>
             <tbody>
@@ -90,6 +92,9 @@
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo $value['type']; ?></td>
                             <td><?php echo $value['type_code']; ?></td>
+                            <td><?php echo $value['vertical']; ?></td>
+                            <td><?php echo $value['category']; ?></td>
+                            <td><?php echo $value['sub_category']; ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -126,6 +131,9 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
         <?php } ?>
             </tbody>
@@ -159,6 +167,9 @@
                     <th>Reference Invoices</th>
                     <th>Category</th>
                     <th>Type Code</th>
+                    <th>Vertical</th>
+                    <th>Category</th>
+                    <th>Sub Category</th>
                 </tr>
             </thead>
             <tbody>
@@ -193,6 +204,9 @@
                             <td><?php echo $value['reference_invoice_id']; ?></td>
                             <td><?php echo $value['type']; ?></td>
                             <td><?php echo $value['type_code']; ?></td>
+                            <td><?php echo $value['vertical']; ?></td>
+                            <td><?php echo $value['category']; ?></td>
+                            <td><?php echo $value['sub_category']; ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -222,6 +236,9 @@
                             <td><b><?php echo round($t_ac,0); ?></b></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td> 
                             <td></td>
                         </tr>
         <?php } ?>
@@ -260,6 +277,9 @@
                         <th>TDS Amount</th>
                         <th>TDS Rate</th>
                         <th>Amount Paid</th>
+                        <th>Vertical</th>
+                        <th>Category</th>
+                        <th>Sub Category</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -294,6 +314,9 @@
                                 <td><?php echo round($value['tds_amount'],0); $total_tds_amount += $value['tds_amount']; ?></td>
                                 <td><?php echo round($value['tds_rate'],0);  ?></td>
                                 <td><?php echo round($value['amount_collected_paid'],0); $amount_collected_paid += $value['amount_collected_paid']; ?></td>
+                                <td><?php echo $value['vertical']; ?></td>
+                                <td><?php echo $value['category']; ?></td>
+                                <td><?php echo $value['sub_category']; ?></td>
                             </tr>
                     <?php $sn++;
                 }
@@ -324,6 +347,7 @@
                                 <td><b><?php echo round($total_tds_amount,0); ?></b></td>
                                 <td></td>
                                 <td><b><?php echo round($amount_collected_paid,0); ?></b></td>
+                                <td></td><td></td><td></td>
                             </tr>
             <?php } ?>
                 </tbody>
@@ -341,6 +365,9 @@
                         <th>Service Charge</th>
                         <th>TDS Amount</th>
                         <th>TDS Rate</th>
+                        <th>Vertical</th>
+                        <th>Category</th>
+                        <th>Sub Category</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -359,6 +386,9 @@
                                 <td><?php echo round($value['tds_taxable_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_amount'],0); ?></td>
                                 <td><?php echo round($value['tds_rate'],0); ?></td>
+                                <td><?php echo $value['vertical']; ?></td>
+                                <td><?php echo $value['category']; ?></td>
+                                <td><?php echo $value['sub_category']; ?></td>
                             </tr>
                     <?php $sn++;
                 }
@@ -391,6 +421,9 @@
         <th>GST Registration Type</th>
         <th>Category</th>
         <th>Type Code</th>
+        <th>Vertical</th>
+        <th>Category</th>
+        <th>Sub Category</th>
     </thead>
     <tbody>
             <?php if (isset($invoice_data)) { ?> 
@@ -421,6 +454,9 @@
                             <td><?php echo $value['gst_registration_type']; ?></td>
                             <td><?php echo $value['type']; ?></td>
                             <td><?php echo $value['type_code']; ?></td>
+                            <td><?php echo $value['vertical']; ?></td>
+                            <td><?php echo $value['category']; ?></td>
+                            <td><?php echo $value['sub_category']; ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -442,6 +478,9 @@
                             <td><?php echo round($discount_amt,0);?></td>
                             <td><?php echo round($tax,0);?></td>
                             <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -472,7 +511,9 @@
                     <th>GST Number</th>
                     <th>Category</th>
                     <th>Type Code</th>
-                    
+                    <th>Vertical</th>
+                    <th>Category</th>
+                    <th>Sub Category</th>
                 </tr>
             </thead>
             <tbody>
@@ -501,6 +542,9 @@
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo $value['type']; ?></td>
                             <td><?php echo $value['type_code']; ?></td>
+                            <td><?php echo $value['vertical']; ?></td>
+                            <td><?php echo $value['category']; ?></td>
+                            <td><?php echo $value['sub_category']; ?></td>
                         </tr>
                         <?php $sn++;
                     }
@@ -521,6 +565,9 @@
                             <td><b><?php echo round($igst,0); ?></b></td>
                             <td></td>
                             <td><b><?php echo round($grand_total_amount_collected,0); ?></b></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
