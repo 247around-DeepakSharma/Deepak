@@ -564,7 +564,7 @@
                        
                         if(Number(basic_charge) < Number(amount_due)){
                            alert("Please fill amount collected from customer, Amount Due: Rs." + amount_due);
-                           flag = 1;
+                           //flag = 1;
                            }
                              
                     }
