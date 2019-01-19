@@ -230,10 +230,10 @@ class File_upload extends CI_Controller {
                     $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
                                         
                     if(!empty($service_id) && !empty($rowData['part_type'])){
-                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=>$rowData['part_type']),false);
+                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=> strtoupper($rowData['part_type'])),false);
                         if(empty($parts_type_details)){
                             $parts_data['service_id'] = $service_id;
-                            $parts_data['part_type'] = $rowData['part_type'];
+                            $parts_data['part_type'] = strtoupper($rowData['part_type']);
                             $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
                             if(!empty($parts_data)){
                                 $this->inventory_model->insert_inventory_parts_type($parts_data);
