@@ -728,7 +728,7 @@
                                             } ?>">
                                             <label for="prepaid_notification_amount" class="col-md-4">Notification Amt Limit</label>
                                             <div class="col-md-8">
-                                                <input type="number" class="form-control" onkeyup="show_help_text(this)" min="0" id="prepaid_notification_amount"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
+                                                <input type="number" class="form-control" onkeyup="show_help_text(this)" id="prepaid_notification_amount"  name="prepaid_notification_amount" value = "<?php if (isset($query[0]['prepaid_notification_amount'])) {
                                                     echo $query[0]['prepaid_notification_amount'];
                                                     } ?>" >
                                                 <?php echo form_error('prepaid_notification_amount'); ?>
@@ -2941,16 +2941,13 @@
                            },
                            submitHandler: function (form) {
                                var is_prepaid = $("#is_prepaid").val();
-                               var prepaid_notification_amount = $("#prepaid_notification_amount").val();
                                var prepaid_amount_limit = $("#prepaid_amount_limit").val();
                                var return_flag = true; 
                                if(Number(is_prepaid) === 1){
-                                   if(Number(prepaid_amount_limit) > 0){
-                                       if(Number(prepaid_notification_amount) >= Number(prepaid_amount_limit)){
-                                           alert("Prepaid Amount should be greater than Notification Amount.");
-                                           return_flag = false;
-                                           return false;
-                                       }
+                                   if(Number(prepaid_amount_limit) < 0){
+                                       alert("Prepaid Amount should be greater than zero");
+                                        return_flag = false;
+                                        return false;
                                    }
                                }
                                if(return_flag){

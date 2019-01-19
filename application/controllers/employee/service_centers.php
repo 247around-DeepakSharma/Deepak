@@ -70,6 +70,12 @@ class Service_centers extends CI_Controller {
     function pending_booking($booking_id="") {
         $this->checkUserSession();
         $data['booking_id'] = $booking_id;
+        $data['multiple_booking'] = 0;
+        if($this->input->post('booking_id_status')){
+            $temp = explode(",",$this->input->post('booking_id_status'));
+            $data['booking_id'] = implode("','",$temp);
+            $data['multiple_booking'] = 1;
+        }
         $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
         if(!empty($rating_data[0]['rating'])){
             $data['rating'] =  $rating_data[0]['rating'];
@@ -97,6 +103,9 @@ class Service_centers extends CI_Controller {
     }
     
     function pending_booking_on_tab($booking_id = ""){
+        if($this->input->post('booking_list')){
+            $booking_id = $this->input->post('booking_list');
+        }
         $service_center_id = $this->session->userdata('service_center_id');
         $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
         if($this->session->userdata('is_update') == 1){
@@ -2449,9 +2458,7 @@ class Service_centers extends CI_Controller {
                     
                     
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
-                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_id' => $sp_details[0]['defective_return_to_entity_id']);
+                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
                           
                     switch ($wh_entity_details[1]) {
