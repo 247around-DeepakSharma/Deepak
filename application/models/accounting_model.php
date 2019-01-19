@@ -131,7 +131,7 @@ class accounting_model extends CI_Model {
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
                 . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
-                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code "
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code,  vertical, category, sub_category "
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
@@ -176,7 +176,8 @@ class accounting_model extends CI_Model {
                 . "`sgst_tax_amount`,`cgst_tax_rate`,"
                 . "`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
-                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code "
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`,vpi.type,vpi.type_code,"
+                . "vertical, category, sub_category"
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
@@ -197,14 +198,14 @@ class accounting_model extends CI_Model {
      */
     function get_tds_accounting_report($from_date, $to_date, $report_type,$invoice_data_by) {
         $group_by = "";
-        if($report_type == "draft"){
+        if($report_type == "draft"){ 
             $select = "name,company_name, company_type, vpi.invoice_id, vpi.invoice_date,name_on_pan, address, state, gst_taxpayer_type,
                     pan_no, owner_name, vpi.total_service_charge, vpi.type, vpi.reference_invoice_id, vpi.type_code,
                     vpi.total_additional_service_charge, vpi.service_tax, vpi.parts_count, vpi.parts_cost,
                     vpi.total_amount_collected,(total_amount_collected - vpi.tds_amount) as net_amount,
-                    vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no ";
+                    vpi.tds_amount, tds_rate ,abs(vpi.amount_collected_paid) as amount_collected_paid,sc.gst_no, vertical, category, sub_category";
         } else {
-            $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount,
+            $select = "name,company_name,company_type,name_on_pan,pan_no,SUM(tds_amount) as tds_amount, vertical, category, sub_category,
                       tds_rate, (SUM(total_service_charge)+ SUM(courier_charges) + SUM(warehouse_storage_charges) + SUM(miscellaneous_charges) + SUM(upcountry_price) + SUM(credit_penalty_amount) + SUM(total_additional_service_charge) - SUM(penalty_amount)) as tds_taxable_amount";
             $group_by = " GROUP BY sc.id, tds_rate";
         }
@@ -303,7 +304,7 @@ class accounting_model extends CI_Model {
                 . " case when((`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) = 0) Then buyback_tax_amount ELSE (`cgst_tax_amount`+`igst_tax_amount`+`sgst_tax_amount`) END as tax,"
                 . "`cgst_tax_rate`,`igst_tax_rate`,`sgst_tax_rate`,`tds_rate`,"
                 . "`tds_amount`,`upcountry_price`,`penalty_amount`,"
-                . "`credit_penalty_amount`,`courier_charges`,`num_bookings` "
+                . "`credit_penalty_amount`,`courier_charges`,`num_bookings`, vertical, category, sub_category"
                 . " FROM vendor_partner_invoices as vpi LEFT JOIN service_centres as sc ON vendor_partner = 'vendor' "
                 . " AND sc.id = vpi.vendor_partner_id LEFT JOIN partners ON vendor_partner = 'partner' "
                 . " AND partners.id = vpi.vendor_partner_id WHERE "
