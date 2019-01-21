@@ -129,7 +129,7 @@
                                 </select>
                             </td>                            
                             <td>
-                                <input typt='text' name="part_type" id = "part_type" class = "form-control" placeholder="Please Enter Part Type" />
+                                <input typt='text' name="part_type" id = "part_type" class="form-control" placeholder="Please Enter Part Type" style="text-transform: uppercase;" />
                             </td>
                             <td>
                                <select  id="hsn_code" name="hsn_code">                                   
