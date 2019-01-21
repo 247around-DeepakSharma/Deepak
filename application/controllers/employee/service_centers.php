@@ -2090,10 +2090,10 @@ class Service_centers extends CI_Controller {
         if(!empty($service_center_id)){
             //Getting SF Details
             $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-            $filter_option = $this->service_centre_charges_model->get_service_centre_charges_by_any(array('tax_rates.state' =>$sc_details[0]['state'],'length' => -1),'distinct services.id,services.services as product,category,capacity,service_category');
-            $data['category'] = array_unique(array_column($filter_option, 'category'));
-            $data['capacity'] = array_unique(array_column($filter_option, 'capacity'));
-            $data['service_category'] = array_unique(array_column($filter_option, 'service_category'));
+            $filter_option = $this->service_centre_charges_model->get_service_centre_charges_by_any(array('tax_rates.state' =>$sc_details[0]['state'],'length' => -1),'distinct services.id,services.services as product');
+//            $data['category'] = array_unique(array_column($filter_option, 'category'));
+//            $data['capacity'] = array_unique(array_column($filter_option, 'capacity'));
+//            $data['service_category'] = array_unique(array_column($filter_option, 'service_category'));
             $data['appliance'] = array_unique(array_column($filter_option,'product','id'));
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/download_sf_charges_excel', $data);
@@ -3694,14 +3694,14 @@ class Service_centers extends CI_Controller {
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
             //Getting SF Details
-            $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+            //$sc_details = $this->vendor_model->getVendorContact($service_center_id);
             
             $post = $this->get_post_view_data();
-            $new_post = $this->get_filterd_post_data($post,$sc_details[0]['state']);
+            $new_post = $this->get_filterd_post_data($post, '');
             
-            $select = "service_centre_charges.category,service_centre_charges.capacity,"
-                    . "service_centre_charges.service_category,service_centre_charges.vendor_total,service_centre_charges.partner_id, "
-                    . "service_centre_charges.customer_net_payable,service_centre_charges.pod,tax_rates.rate , services.services as product";
+            $select = "service_centre_charges.brand,service_centre_charges.category,service_centre_charges.capacity,"
+                    . "service_centre_charges.service_category,service_centre_charges.vendor_total,service_centre_charges.partner_id, service_centre_charges.vendor_basic_charges, "
+                    . "service_centre_charges.vendor_tax_basic_charges, service_centre_charges.customer_net_payable,service_centre_charges.pod, services.services as product";
             
             //Getting Charges Data
             $list = $this->service_centre_charges_model->get_service_centre_charges_by_any($new_post,$select);
@@ -3734,8 +3734,9 @@ class Service_centers extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $service_category = $this->input->post('service_category');
         
-        $post['where']  = array('tax_rates.state' => $state);
-        
+        if(!empty($state)){
+            $post['where']  = array('tax_rates.state' => $state);
+        }
         if(!empty($product)){
             $post['where']['service_id'] =  $product;
         }
@@ -3750,7 +3751,7 @@ class Service_centers extends CI_Controller {
         }
         
         $post['column_order'] = array(NULL,NULL,'service_id','category','capacity','service_category',NULL,NULL,'vendor_total','customer_net_payable','pod');
-        $post['column_search'] = array();
+        $post['column_search'] = array('service_centre_charges.brand');
         
         return $post;
     }
@@ -3763,18 +3764,19 @@ class Service_centers extends CI_Controller {
 //        $code_source = $booking_sources[0]['code'];
 
         //Calculating vendor base charge 
-        $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
+        // $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
         //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-        $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
+       // $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
         
         $row[] = $no;
         //$row[] = $code_source;
         $row[] = $charges_list->product;
+        $row[] = $charges_list->brand;
         $row[] = $charges_list->category;
         $row[] = $charges_list->capacity;
         $row[] = $charges_list->service_category;
-        $row[] = round($vendor_base_charge, 0);
-        $row[] = round($vendor_tax, 0);
+        $row[] = round($charges_list->vendor_basic_charges, 0);
+        $row[] = round($charges_list->vendor_tax_basic_charges, 0);
         $row[] = round($charges_list->vendor_total, 0);
         $row[] = round($charges_list->customer_net_payable, 0);
         $row[] = $charges_list->pod;
@@ -5491,5 +5493,46 @@ class Service_centers extends CI_Controller {
             echo "Error";
         }
     }
-
+    
+    /*
+     * @desc - This function is used to get distinct category from service_center_price table
+     * @param - $service_id
+     * @return - Selct HTML
+     */
+    function get_service_price_category(){
+        $categories = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id")), 'category', 'category');
+        $html = "<option disabled Selected>Select Category</option>";
+        foreach ($categories as $key => $value) {
+            $html .= "<option value='".$value['category']."'>".$value['category']."</option>";
+        }
+       echo $html;
+    }
+    
+    /*
+     * @desc - This function is used to get distinct capacity from service_center_price table
+     * @param - $service_id, $category
+     * @return - Selct HTML
+     */
+    function get_service_price_capacity(){
+        $capacities = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id"), 'category'=>$this->input->post("category")), 'capacity', 'capacity');
+        $html = "<option disabled Selected>Select Capacity</option>";
+        foreach ($capacities as $key => $value) {
+            $html .= "<option value='".$value['capacity']."'>".$value['capacity']."</option>";
+        }
+        echo $html;
+    }
+    
+    /*
+     * @desc - This function is used to get distinct service category from service_center_price table
+     * @param - $service_id, $category, $capacity
+     * @return - Selct HTML
+     */
+    function get_service_price_service_category(){
+        $service_categories = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id"), 'category'=>$this->input->post("category"), 'capacity'=>$this->input->post("capacity")), 'service_category', 'service_category');
+        $html = "<option disabled Selected>Select Capacity</option>";
+        foreach ($service_categories as $key => $value) {
+            $html .= "<option value='".$value['service_category']."'>".$value['service_category']."</option>";
+        }
+        echo $html;
+    }
 }
