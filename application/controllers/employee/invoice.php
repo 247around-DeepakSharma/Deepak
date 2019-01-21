@@ -3618,7 +3618,7 @@ class Invoice extends CI_Controller {
         $req['length'] = -1;
         $req['select'] = "spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
-        if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id)) {
+        if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
