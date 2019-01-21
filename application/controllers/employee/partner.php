@@ -3201,7 +3201,10 @@ class Partner extends CI_Controller {
                 'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
                 'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
 
-            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
+            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => _247AROUND_CANCELLED));
+            
+            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
+            
             $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
                     $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
@@ -3270,6 +3273,8 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
                     'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
+                
+                $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));
 
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
                 $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, 
