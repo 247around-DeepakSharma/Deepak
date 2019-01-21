@@ -191,7 +191,7 @@
                             </div>                            
                         </div>
                         <br>
-                        <h4 class="modal-title">E-Way Bill Details</h4>
+<!--                        <h4 class="modal-title">E-Way Bill Details</h4>
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
@@ -221,7 +221,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                     </form>
                     <div class="text-center">
                             <span id="same_awb" style="display:none">This AWB already used same price will be added</span>

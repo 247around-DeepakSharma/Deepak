@@ -253,7 +253,7 @@ class Spare_parts extends CI_Controller {
     function oow_parts_shipped_pending_approval($post){
          $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id,"
-                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id";
+                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
@@ -318,7 +318,7 @@ class Spare_parts extends CI_Controller {
     function get_part_shipped_by_partner_tab($post){
         log_message('info', __METHOD__);
         
-        $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.spare_lost, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id,"
                 . "defective_part_required, partner_challan_file, parts_requested";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL);
@@ -587,6 +587,15 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
         
+        if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin"){
+            
+            if($spare_list->spare_lost == '2'){ $required_parts =  'REQUIRED_PARTS'; $text = "Request New Spare Part"; $cl ="btn-info"; $btn_status = "";} else{ $text = "Spare Part Not Required"; $btn_status = "disabled"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-success"; }
+            $row[] = '<button type="button" onclick=courier_lost_required("'.$spare_list->id.'","'.$spare_list->booking_id.'") '.$btn_status.' class="btn btn-sm '.$cl.'">'.$text.'</button>';
+        } else {
+            
+            $row[] = "";
+        }
+        
         return $row;
     }
     
@@ -602,6 +611,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
+        $row[] = $spare_list->purchase_price;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
         if(!empty($spare_list->partner_challan_file)){
             $row[] = '<a href="'.S3_WEBSITE_URL.'vendor-partner-docs/'.$spare_list->partner_challan_file.' " target="_blank">Click Here to view</a>';
@@ -618,7 +628,14 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
         
-        $row[] = $spare_list->sell_invoice_id;
+        if(!empty($spare_list->sell_invoice_id)){
+            $row[] = $spare_list->sell_invoice_id;
+        } else {
+            
+            $row[] = '<a href="'.base_url().'employee/invoice/generate_oow_parts_invoice/'.$spare_list->id.'"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+        }
+        
+        
         if(!empty($spare_list->incoming_invoice_pdf)){
             $row[] = '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$spare_list->incoming_invoice_pdf.'">
                             <img style="width:27px;" src="'.base_url().'images/invoice_icon.png"; /></a>';
@@ -755,11 +772,11 @@ class Spare_parts extends CI_Controller {
         
         $row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($entity_type == _247AROUND_PARTNER_STRING) {
-            $new_state = REQUESTED_SPARED_REMAP . " " . PARTNER_WILL_SEND_NEW_PARTS;
+            $new_state = REQUESTED_SPARED_REMAP;
         } 
         
         if (!empty($row)) {
-            $this->notify->insert_state_change($booking_id, $new_state, '', '', $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
+            $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
             echo 'success';
         }
     }
@@ -1074,4 +1091,128 @@ class Spare_parts extends CI_Controller {
         echo json_encode($res);
     }
     
+        
+     /*
+     * @des - This function is used to get reject spare parts
+     * @param - 
+     * @return - array
+     */
+
+    function send_rejected_spare_to_partner() {
+        log_message('info', json_encode($this->input->post(), true));
+
+        $spare_data = json_decode($this->input->post('spares_data'), true);
+        $sender_entity_id = $this->input->post('sender_entity_id');
+        
+        if (!empty($spare_data)) {
+            $template = array(
+                'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+            );
+            $this->table->set_template($template);
+            $this->table->set_heading(array('Invoice Id', 'Part Name', 'Quantity'));
+            $flag = FALSE;
+            foreach ($spare_data as $key => $val) {
+                $this->table->add_row(array($val['invoice_id'], $val['part_name'], $val['quantity']));
+                /* Here 2 is used to return spare type to partner as is_wh_ack value will 2 */
+               $affected_id = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 2), array('id' => $val['ledger_id']));
+               if(!empty($affected_id)){
+                   $flag = TRUE;
+               }
+            }
+            
+            $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+            
+            if (!empty($wh_incharge_id)) {
+                //get 247around warehouse incharge email
+                $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                    'contact_person.entity_id' => $sender_entity_id,
+                    'contact_person.entity_type' => _247AROUND_PARTNER_STRING
+                );
+
+                $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                if (!empty($email_details)) {
+                    $to = $email_details[0]['official_email'];
+                    $rejectspare_details_table = $this->table->generate();
+                    $this->send_alert_email_to_spare_part_rejected($rejectspare_details_table, $to);
+                }
+            }
+                       
+            if($flag){
+                echo json_encode(array('status'=>TRUE));
+            }else{
+                echo json_encode(array('status'=>FALSE));
+            }
+        }
+    }
+    
+     /*
+     * @des - This function is used to send email
+     * @param - 
+     * @return - true or flase
+     */
+
+    function send_alert_email_to_spare_part_rejected($email_body_data, $to) {
+        log_message('info', __METHOD__ . " email_body" . print_r($email_body_data, TRUE));
+        $template = $this->booking_model->get_booking_email_template("spare_parts_rejected_email");
+        if (!empty($template)) {
+            if (empty($to)) {
+                $to = $template[1];
+            }
+            $subject = $template[4];
+            $emailBody = vsprintf($template[0], $email_body_data);
+            $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_parts_rejected_email', '');
+        }
+    }
+    
+     /*
+     * @des - This function is used to Request New spare part form partner lost part cases
+     * @param - array
+     * @return - json
+     */
+
+    function lost_courier_request_new_spare_part_from_partner() {
+        log_message('info', json_encode($this->input->post(), true));
+        $spare_id = $this->input->post('spare_part_id');
+        $reason = $this->input->post('reason');
+        if (!empty($spare_id)) {
+
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.status,'
+                    . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.actor,booking_details.next_action,booking_details.internal_status';
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);
+            if (!empty($spare_parts_details)) {
+                $service_id = $spare_parts_details[0]['service_id'];
+                $booking_id = $spare_parts_details[0]['booking_id'];
+                $partner_id = $spare_parts_details[0]['booking_partner_id'];          
+                $parts_requested = $spare_parts_details[0]['parts_requested'];
+                $internal_status = SPARE_PARTS_REQUIRED;
+                $data = array('status' => SPARE_PARTS_REQUESTED, "old_status" => $spare_parts_details[0]['status']);
+                $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $data);
+                if ($affected_id) {
+                    $notificationTextArray['msg'] = array($spare_parts_details[0]['parts_requested'], $booking_id);
+                    $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, array(), $notificationTextArray);
+                    $new_state = COURIER_LOST." For The ".$parts_requested;
+                    $this->notify->insert_state_change($booking_id, $new_state, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), _247AROUND_PARTNER_STRING, PARTNER_WILL_SEND_NEW_PARTS, $partner_id, NULL);
+
+                    $booking['internal_status'] = $internal_status;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $booking['actor'] = $partner_status[2];
+                        $booking['next_action'] = $partner_status[3];
+                    }
+
+                    if (!empty($booking_id)) {
+                        $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+                        if ($affctd_id) {
+                            echo json_encode(array('status' => TRUE));
+                        } else {
+                            echo json_encode(array('status' => FALSE));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

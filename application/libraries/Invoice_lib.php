@@ -735,9 +735,7 @@ class Invoice_lib {
 
 
             $where = array('contact_person.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id'],
-                'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
-                'warehouse_details.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type'],
-                'warehouse_details.entity_id' => $spare_parts_details[0]['defective_return_to_entity_id']);
+                'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type']);
             $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
 
             if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
@@ -751,6 +749,8 @@ class Invoice_lib {
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
             }
+            
+            log_message('info', __FUNCTION__ . 'Gorakh sf challan debugging spare_id: ' . $spare_id, true);
 
             $sf_challan_number = $spare_parts_details[0]['sf_challan_number'];
 

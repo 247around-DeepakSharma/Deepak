@@ -68,7 +68,7 @@ define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Compan
 
 define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');
 
-define('REQUESTED_SPARED_REMAP','Requested spare remap to');
+define('REQUESTED_SPARED_REMAP','Requested Spare Re-map To Partner');
 //Defactive part Delivered date by Courier API
 define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_date_by_courier_api');
 //Delivered Spare Status 
@@ -84,6 +84,10 @@ define("COURIER_DETAILS_STATUS", "pick-up");
 // Partner will send new parts
 define("PARTNER_WILL_SEND_NEW_PARTS", "Partner will send new parts");
 
+// Courier Lost 
+define("COURIER_LOST", "Courier Lost");
+//Spare to be billed to partner, partner did not ship new part to sf
+define('BILL_TO_PARTNER_NOT_SHIP_PART_DAYS', 60);
 
 
 
