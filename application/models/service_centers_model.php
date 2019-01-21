@@ -188,7 +188,8 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL){
+
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0){
         $limit = "";
         $where_in = "";
 
@@ -220,11 +221,25 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
                      $where_sc =$where_sc. " AND ".$fieldName;
              }
          }
+
          if($userInfo){
              $join = "JOIN users ON booking_details.user_id = users.user_id";
              $join = $join." JOIN services ON booking_details.service_id = services.id";
              $userSelect = ",users.name,services.services";
          }
+        if($state == 1){
+            $filter_value=1;
+            $stateWhere['agent_filters.agent_id="'.$this->session->userdata('agent_id').'"'] = NULL;
+            $stateWhere['agent_filters.is_active="' .$filter_value.'"']=NULL;
+//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+//            $this->db->where($stateWhere, false);  
+            if(!empty($stateWhere)){
+             foreach ($stateWhere as $stateWhereKey=>$stateWhereKeyValue){
+                     $where_sc =$where_sc. " AND ".$stateWhereKey;
+             }
+         }
+         $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
+        }
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
@@ -242,7 +257,7 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
                 . " $groupBy  $orderBY  $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
-        return $booking;
+         return $booking;
     }
 
     function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
