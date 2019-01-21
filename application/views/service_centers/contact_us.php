@@ -19,10 +19,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="row">
+                <div class="col-md-6">
                 <?php if (isset($rm_details) && !empty($rm_details)) {
                     foreach ($rm_details as $rm) {
                         ?>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="long-card" style="padding: 10px 16px;">
                                     <h5><b>Mr. <?php echo ucwords($rm['full_name']); ?></b></h5> 
                                     <p>Escalation <?php if(isset(explode(',', $rm['designation'])[1])){echo ucwords(explode(',', $rm['designation'])[1]);} ?></p>
@@ -34,6 +35,7 @@
                         </div>
                     <?php }
                 } ?>
+                    </div>
                 <div class="col-md-6">
                     <div class="long-card" style="padding: 10px 16px;">
                     <h5><b>Ms. Vijaya</b></h5> 
