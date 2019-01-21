@@ -1,4 +1,4 @@
-<?php  if ($payment_type !== 'tds' && $payment_type !== BUYBACK && $payment_type !== 'paytm') { 
+<?php  if ($payment_type !== 'tds' && $payment_type !== BUYBACK && $payment_type !== 'paytm' && $payment_type !== 'advance_voucher') { 
     $flag =0;
     if($payment_type == "B"){
         $flag = 1;
@@ -575,4 +575,64 @@
         <?php } ?>
             </tbody>
         </table>
- <?php  } ?>
+ <?php  }else if($payment_type = "advance_voucher"){ ?> 
+     
+        <table class="table table-bordered table-hover table-responsive paginated" id="payment_history_table">
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Advance Voucher Invoice</th>
+                    <th>Partner Name</th>
+                    <th>Credit/Debit</th>
+                    <th>Invoice Id</th>
+                    <th>Invoice Date</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>Service Charge</th>
+                    <th>CGST Amount</th>
+                    <th>CGST Rate</th>
+                    <th>SGST Amount</th>
+                    <th>SGST Rate</th>
+                    <th>IGST Amount</th>
+                    <th>IGST Rate</th>
+                    <th>Toatal Amount Collected</th>
+                    <th>Vertical</th>
+                    <th>Category</th>
+                    <th>Sub Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (isset($invoice_data)) { ?> 
+                    <?php
+                    $sn = 1;
+                    foreach ($invoice_data as $key => $value) {
+                        ?>
+                        <tr>
+                            <td><?php echo $sn; ?></td>
+                            <td><?php echo $value['advance_voucher']; ?></td>
+                            <td><?php echo $value['partner_name']; ?></td>
+                            <td><?php echo $value['credit_debit']; ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
+                            <td><?php echo $value['invoice_date']; ?></td>
+                            <td><?php echo $value['from_date']; ?></td>
+                            <td><?php echo $value['to_date']; ?></td>
+                            <td><?php echo $value['total_service_charge'] + $value['total_additional_service_charge']; ?></td>
+                            <td><?php echo $value['cgst_tax_amount']; ?></td>
+                            <td><?php echo $value['cgst_tax_rate']; ?></td>
+                            <td><?php echo $value['sgst_tax_amount']; ?></td>
+                            <td><?php echo $value['sgst_tax_rate']; ?></td>
+                            <td><?php echo $value['igst_tax_amount']; ?></td>
+                            <td><?php echo $value['igst_tax_rate']; ?></td>
+                            <td><?php echo $value['total_amount_collected']; ?></td>
+                            <td><?php echo $value['vertical']; ?></td>
+                            <td><?php echo $value['category']; ?></td>
+                            <td><?php echo $value['sub_category']; ?></td>
+                        </tr>
+                        <?php $sn++;
+                    }
+                    ?>
+                        
+        <?php } ?>
+            </tbody>
+        </table>
+<?php } ?>
