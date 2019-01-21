@@ -627,7 +627,13 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
         
-        $row[] = $spare_list->sell_invoice_id;
+        if(!empty($spare_list->sell_invoice_id)){
+            $row[] = $spare_list->sell_invoice_id;
+        } else {
+            $row[] = '<a href="'.base_url().'employee/invoice/generate_oow_parts_invoice/'.$spare_list->id.'" class="btn btn-md btn-success">Generate Sale Invoice</a>';
+        }
+        
+        
         if(!empty($spare_list->incoming_invoice_pdf)){
             $row[] = '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$spare_list->incoming_invoice_pdf.'">
                             <img style="width:27px;" src="'.base_url().'images/invoice_icon.png"; /></a>';
