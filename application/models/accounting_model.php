@@ -76,15 +76,16 @@ class accounting_model extends CI_Model {
                 break;
 
             case 'tds' :
-               
                 $return_data = $this->get_tds_accounting_report($from_date, $to_date,$report_type,$invoice_data_by);
                 break;
             case 'buyback' :
-               
                 $return_data = $this->get_buyback_accounting_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
                 break;
             case 'paytm' :
                 $return_data = $this->get_paytm_accounting_report($from_date, $to_date, $partner_vendor,$is_challan_data,$invoice_data_by, $payment_type);
+                break;
+            case 'advance_voucher' :
+                $return_data = $this->get_advance_voucher_accounting_report($from_date, $to_date, $invoice_data_by, $payment_type);
                 break;
         }
 
@@ -223,6 +224,32 @@ class accounting_model extends CI_Model {
       
         $data = $query1->result_array();
        
+        return $data;
+    }
+    
+     /**
+     * @desc: This Function is used to get the final tds PAYMENT REPORT
+     * @param: $from_date string
+     * @param: $to_date string
+     * @param: $partner_vendor string
+     * @return : array
+     */
+    function get_advance_voucher_accounting_report($from_date, $to_date,$invoice_data_by, $payment_type) {
+        $where = "";
+        if ($invoice_data_by === 'invoice_date') {
+            $where .= " AND vpi.`invoice_date`>='$from_date'  AND vpi.`invoice_date` <'$to_date'";
+        } else if ($invoice_data_by === 'period') {
+            $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
+        }
+        
+        $sql ="SELECT vpi.invoice_id as advance_voucher, p.public_name as partner_name, total_service_charge, total_additional_service_charge,
+                cgst_tax_amount, cgst_tax_rate, sgst_tax_amount, sgst_tax_rate, igst_tax_amount, igst_tax_rate, total_amount_collected, invoice_date, from_date,
+                to_date, vertical, category, sub_category, credit_debit, bt.invoice_id
+                FROM vendor_partner_invoices as vpi, bank_transactions as bt, partners as p
+                WHERE vpi.vendor_partner = 'partner' AND vpi.type = 'Partner_Voucher' AND type_code = 'B' AND bt.is_advance = '0' AND bt.invoice_id like CONCAT('%', vpi.invoice_id, '%') AND p.id = vpi.vendor_partner_id AND vendor_partner ='partner' $where";
+
+        $query1 = $this->db->query($sql);
+        $data = $query1->result_array();
         return $data;
     }
     
