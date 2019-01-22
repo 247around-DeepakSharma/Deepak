@@ -1,4 +1,4 @@
-<!-- Kalyani 23-07-2018  --->
+﻿<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9620,6 +9620,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
+<<<<<<< Updated upstream
 --Kalyani 12-Jan-2019
 ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
 
@@ -9636,3 +9637,7 @@ spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,
 
 --Kalyani 18-01-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+--Rajshree 22 Jan 2019
+ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
+
