@@ -253,7 +253,7 @@ class Spare_parts extends CI_Controller {
     function oow_parts_shipped_pending_approval($post){
          $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id,"
-                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id";
+                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
@@ -611,6 +611,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
+        $row[] = $spare_list->purchase_price;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
         if(!empty($spare_list->partner_challan_file)){
             $row[] = '<a href="'.S3_WEBSITE_URL.'vendor-partner-docs/'.$spare_list->partner_challan_file.' " target="_blank">Click Here to view</a>';
@@ -627,7 +628,14 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
         
-        $row[] = $spare_list->sell_invoice_id;
+        if(!empty($spare_list->sell_invoice_id)){
+            $row[] = $spare_list->sell_invoice_id;
+        } else {
+            
+            $row[] = '<a href="'.base_url().'employee/invoice/generate_oow_parts_invoice/'.$spare_list->id.'"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+        }
+        
+        
         if(!empty($spare_list->incoming_invoice_pdf)){
             $row[] = '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$spare_list->incoming_invoice_pdf.'">
                             <img style="width:27px;" src="'.base_url().'images/invoice_icon.png"; /></a>';

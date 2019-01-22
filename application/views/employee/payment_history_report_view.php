@@ -50,6 +50,7 @@
                                             <option value="tds">TDS</option>
                                             <option value="buyback">Buyback</option>
                                             <option value="paytm">Paytm</option>
+                                            <option value="advance_voucher">Advance Voucher</option>
                                         </select>
                                     </div>
                                     
@@ -163,7 +164,7 @@
             var daterange = $('#daterange').val().split('-');
             var from_date = daterange[0];
             var to_date = daterange[1]; 
-            if ((type === 'tds' && partner_vendor === 'partner') || (type === 'tds' && partner_vendor === 'stand')) {
+            if ((type === 'tds' && partner_vendor === 'partner') || (type === 'tds' && partner_vendor === 'stand') || (type === 'advance_voucher' && partner_vendor === 'vendor')) {
                 $('.permission-error').show();
                 $('.download_report').hide();
                 $('.payment_preview').hide();
