@@ -491,6 +491,11 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        
+        if(isset($post['part_type_join']) && $post['type_join'] == true){
+             $this->db->join('inventory_parts_type', 'inventory_master_list.type = inventory_parts_type.part_type '
+                     . 'AND inventory_parts_type.service_id = inventory_master_list.service_id','left');
+        }
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1894,7 +1899,7 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_inventory_parts_type_details($select,$where = array(),$is_join){
+    function get_inventory_parts_type_details($select,$where = array(),$is_join = false){
         $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){

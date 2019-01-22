@@ -9648,9 +9648,17 @@ ALTER TABLE `spare_parts_details` ADD `spare_lost` TINYINT NULL DEFAULT NULL AFT
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES ('	
 spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,<br><br> Spare parts Not Received By Warehouse.<br><br> <b>Please Find Details Below </b><br><br> %s', '', '', '', '', '1', CURRENT_TIMESTAMP);
 
+
 --Kalyani 18-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
 ---Gorakh 16-01-2019
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
+
+--Kalyani 18-01-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+---Abhay 22 Jan
+ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
+ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`

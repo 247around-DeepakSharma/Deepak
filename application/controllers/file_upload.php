@@ -210,7 +210,7 @@ class File_upload extends CI_Controller {
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate');
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', 'around_margin', 'vendor_margin');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
 
@@ -230,14 +230,22 @@ class File_upload extends CI_Controller {
                     $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
                                         
                     if(!empty($service_id) && !empty($rowData['part_type'])){
-                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=> strtoupper($rowData['part_type'])),false);
+                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=> ucwords($rowData['part_type'])),false);
                         if(empty($parts_type_details)){
-                            $parts_data['service_id'] = $service_id;
-                            $parts_data['part_type'] = strtoupper($rowData['part_type']);
-                            $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
-                            if(!empty($parts_data)){
-                                $this->inventory_model->insert_inventory_parts_type($parts_data);
-                            }
+                            if($rowData['around_margin'] > 0 && $rowData['vendor_margin'] > 0){
+                                $parts_data['service_id'] = $service_id;
+                                $parts_data['part_type'] = ucwords($rowData['part_type']);
+                                $parts_data['oow_around_percentage'] = $rowData['around_margin'];
+                                $parts_data['oow_vendor_percentage'] = $rowData['vendor_margin'];
+                                $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
+                                if(!empty($parts_data)){
+                                    $this->inventory_model->insert_inventory_parts_type($parts_data);
+                                }
+                            } else {
+                                $flag = 0;
+                                $msg = "Around & Vendor Margin % should be greater than zero";
+                                break;
+                            } 
                         }
                     }
 

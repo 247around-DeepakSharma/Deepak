@@ -6053,13 +6053,33 @@ class Partner extends CI_Controller {
         if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
             //Update Spare Table
             $where = array('id' => $spare_id);
+            $spare_oow_est_margin = SPARE_OOW_EST_MARGIN;
+            $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
+            $gst_rate = $this->input->post('gst_rate');
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id', array('spare_parts_details.id' => $spare_id), true);
+            if(!empty($spare_data)){
+                
+                $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
+                        array('part_type' => $spare_data[0]['parts_requested_type'], 
+                            'service_id' => $spare_data[0]['service_id']), TRUE);
+                
+                if(!empty($part_type)){
+                    
+                    $spare_oow_est_margin =  ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage'])/100;
+                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
+                    $gst_rate = $part_type[0]['gst_rate'];
+                    
+                }
+            }
+            
+            
             $data['purchase_price'] = $updated_price;
-            $data['sell_price'] = ($updated_price + $updated_price *SPARE_OOW_EST_MARGIN );
+            $data['sell_price'] = ($updated_price + $updated_price * $spare_oow_est_margin );
             $data['estimate_cost_given_date'] = date('Y-m-d');
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if ($response) {
                 //Update Booking_unit_details_table
-                $unit['vendor_basic_percentage'] = ($updated_price * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
+                $unit['vendor_basic_percentage'] = ($updated_price * $repair_oow_vendor_percentage)/$data['sell_price'];
                 $unit['customer_total'] = $data['sell_price'];
                 $unit['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit_where = array('id' => $booking_unit_id);
