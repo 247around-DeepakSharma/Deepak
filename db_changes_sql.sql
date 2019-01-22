@@ -1,3 +1,4 @@
+<!-- Kalyani 23-07-2018  --->
 
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
@@ -9636,6 +9637,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
+<<<<<<< Updated upstream
 --Kalyani 12-Jan-2019
 ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
 ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
@@ -9659,6 +9661,12 @@ ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL 
 --Kalyani 18-01-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
+
 ---Abhay 22 Jan
 ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
 ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
+
+--Rajshree 22 Jan 2019
+ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
+
+
