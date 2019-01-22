@@ -283,6 +283,8 @@ class Service_centers extends CI_Controller {
                 $mismatch_pincode = $this->input->post("mismatch_pincode");
                 $is_update_spare_parts = FALSE;
                 $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
+                //is_sn_correct
+                $is_sn_correct=$this->input->post('is_sn_correct');
                 
                 $model_number = $this->input->post('model_number');
 
@@ -330,7 +332,7 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     $data['current_status'] = "InProcess";
-
+                    $data['is_sn_correct']=$is_sn_correct[$unit_id];
                     $data['booking_id'] = $booking_id;
                     $data['amount_paid'] = $total_amount_paid;
                     $data['update_date'] = date("Y-m-d H:i:s");

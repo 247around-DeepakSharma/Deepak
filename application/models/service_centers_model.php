@@ -256,6 +256,7 @@ function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$off
                     . ' service_center_booking_action.is_broken, '
                     . ' service_center_booking_action.serial_number_pic, '
                     . ' service_center_booking_action.mismatch_pincode, '
+                    . ' service_center_booking_action.is_sn_correct, '
                     . ' service_center_booking_action.model_number');
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');
