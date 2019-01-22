@@ -258,8 +258,8 @@ class service_centre_charges_model extends CI_Model {
             $select = '*';
         }
         $this->db->select($select,FALSE);
-        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code'
-                . ' AND tax_rates.product_type = service_centre_charges.product_type ');
+        // $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code'
+        //        . ' AND tax_rates.product_type = service_centre_charges.product_type ');
         $this->db->join('services','services.id = service_centre_charges.service_id');
         
         if (!empty($post['where'])) {
