@@ -216,19 +216,38 @@ class ApiDataRequest extends CI_Controller {
             echo "Error";
             
         } else {
+            $id = $this->input->post("sp_id");
+            $spare_oow_est_margin = SPARE_OOW_EST_MARGIN;
+            $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
+            $gst_rate = $this->input->post('gst_rate');
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id', array('spare_parts_details.id' => $id), true);
+            if(!empty($spare_data)){
+                
+                $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
+                        array('part_type' => $spare_data[0]['parts_requested_type'], 
+                            'service_id' => $spare_data[0]['service_id']), TRUE);
+                
+                if(!empty($part_type)){
+                   
+                    $spare_oow_est_margin =  ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage'])/100;
+                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
+                    $gst_rate = $part_type[0]['gst_rate'];
+                    
+                }
+            }
             
             $booking_id = $this->input->post("booking_id");
-            $gst_rate = $this->input->post('gst_rate');
+            
             $vendor_id = $this->input->post("assigned_vendor_id");
             $amount_due = $this->input->post("amount_due");
-            $id = $this->input->post("sp_id");
+            
             $estimate_cost = $this->input->post("estimate_cost");
             $partner_id = $this->input->post("partner_id");
             $agent_id = $this->input->post("agent_id");
             $where = array('id' => $id);
             $data['status'] = SPARE_OOW_EST_GIVEN;
             $data['purchase_price'] = $estimate_cost;
-            $data['sell_price'] = ($estimate_cost + $estimate_cost *SPARE_OOW_EST_MARGIN );
+            $data['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
             $data['estimate_cost_given_date'] = date('Y-m-d');
             $data['invoice_gst_rate'] = $gst_rate;
             //Update Spare Parts Table
@@ -238,7 +257,7 @@ class ApiDataRequest extends CI_Controller {
                 //Update Unit Table
                 $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
                 $unit[0]['price_tags'] = REPAIR_OOW_PARTS_PRICE_TAGS;
-                $unit[0]['vendor_basic_percentage'] = ($estimate_cost * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
+                $unit[0]['vendor_basic_percentage'] = ($estimate_cost * $repair_oow_vendor_percentage)/$data['sell_price'];
                 $unit[0]['customer_total'] = $data['sell_price'];
                 $unit[0]['product_or_services'] = "Product";
                 $unit[0]['tax_rate'] = $gst_rate;
