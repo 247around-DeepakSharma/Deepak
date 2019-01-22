@@ -231,6 +231,7 @@
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                                    <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "]" ?>"/>
                                                                     <br/>
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
@@ -327,6 +328,7 @@
                                             <div class="col-md-12 page-header" style="margin: 0px 0 0px;">
                                                 Serial Number:  <b><?php echo $serial_number;?></b>
                                             </div>
+                                           
                                         </div>
                                         <?php } ?>
                                         <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
@@ -782,6 +784,7 @@
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
                         $("#duplicate_sno_required"+index).val('0');
+                        $("#is_sn_correct"+index).val('1');
                     } else if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
                         $("#duplicate_sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);

@@ -103,6 +103,9 @@
          <th>Amount to be Paid By Partner</th>
          <th>Amount Paid</th> 
          <th>Remarks</th> 
+         <th>Vertical</th>
+         <th>Category</th>
+         <th>Sub Category</th>
          <th>Update</th>
          <th>Resend</th>
 <!--         <th>GST CreditNote</th>-->
@@ -167,7 +170,7 @@
                     pageSize: 'LEGAL',
                     title: 'Invoice',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+                       columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18, 19],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -203,7 +206,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], //first column / numbering column
+                    targets: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21], //first column / numbering column
                     orderable: false //set not orderable
                 }
             ],
