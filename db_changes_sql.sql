@@ -1,4 +1,4 @@
-<!-- Kalyani 23-07-2018  --->
+﻿<!-- Kalyani 23-07-2018  --->
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
@@ -9620,6 +9620,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
+<<<<<<< Updated upstream
 --Kalyani 12-Jan-2019
 ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
 
@@ -9627,12 +9628,30 @@ ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NU
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_partner_onboard_notification', 'New partner added - %s', 'Dear All<br><br>We are glad to announce that we have partnered with one more brand<br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
 ----Gorakh 15-01-2019
-ALTER TABLE `spare_parts_details` ADD `part_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
+ALTER TABLE `spare_parts_details` ADD `spare_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
 
 ---Gorakh 16-01-2019
 
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES ('	
 spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,<br><br> Spare parts Not Received By Warehouse.<br><br> <b>Please Find Details Below </b><br><br> %s', '', '', '', '', '1', CURRENT_TIMESTAMP);
 
+
 --Kalyani 18-01-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+
+--Rajshree 22 Jan 2019
+ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
+
+---Abhay 22 Jan
+ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
+ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
+
+--Kalyani 18-01-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+---Gorakh 16-01-2019
+ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
+ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
+
+

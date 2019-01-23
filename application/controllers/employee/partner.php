@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -1766,7 +1765,7 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_PARTNER_STRING);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,parts_requested_type";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -1789,7 +1788,14 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
+        
+        $part_warranty_status = $this->input->post('part_warranty_status');
+        /*
         if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+        } */
+        
+        if ($part_warranty_status !=2) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1836,7 +1842,14 @@ class Partner extends CI_Controller {
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
                             //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            /*
                             if($request_type == REPAIR_OOW_TAG){
+                                $data['status'] = SPARE_OOW_SHIPPED;
+                            } else {
+                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            } */
+                            
+                            if($part_warranty_status == 2){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1860,7 +1873,16 @@ class Partner extends CI_Controller {
                             
                             array_push($spare_id_array, $spare_id);
                             $current_status = "InProcess";
+                            /*
                             if($request_type == REPAIR_OOW_TAG){
+                                $internal_status = SPARE_OOW_SHIPPED;
+                            } else {
+                                $internal_status = SPARE_PARTS_SHIPPED;
+
+                            }                          
+                             */
+                            
+                            if($part_warranty_status == 2){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1883,8 +1905,15 @@ class Partner extends CI_Controller {
                     if (!empty($current_status)) {
 
                         $sc_data['current_status'] = $current_status;
-                        
+                       /* 
                         if($request_type == REPAIR_OOW_TAG){
+                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+                        } else {
+                            $sc_data['internal_status'] = $internal_status;
+                            
+                        }*/
+                        
+                        if($part_warranty_status == 2){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
@@ -2847,7 +2876,7 @@ class Partner extends CI_Controller {
             $this->load->view('partner/partner_default_page_cc', $data);
         }
         else{
-            $this->load->view('partner/partner_default_page', $data);
+            $this->load->view('partner/partner_default_page',$data);
         }
         $this->load->view('partner/partner_footer');
         if(!$this->session->userdata("login_by")){
@@ -5381,13 +5410,22 @@ class Partner extends CI_Controller {
     }
     function partner_review_bookings($offset = 0, $all = 0) {
         $this->checkUserSession();
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+       
         $data['is_ajax'] = $this->input->post('is_ajax');
+        
         if(empty($this->input->post('is_ajax'))){
             $this->miscelleneous->load_partner_nav_header();
-            $this->load->view('partner/get_waiting_to_review');
+            $this->load->view('partner/get_waiting_to_review',$data);
             $this->load->view('partner/partner_footer');
         }else{
-            $this->load->view('partner/get_waiting_to_review');
+            $this->load->view('partner/get_waiting_to_review',$data);
         }
     }
     
@@ -5806,6 +5844,7 @@ class Partner extends CI_Controller {
     }
     function get_review_booking_data(){
         $finalArray = array();
+        $state=0;
         $postData = $this->input->post();
         $columnMappingArray = array("column_2"=>"booking_details.request_type","column_3"=>"sc.cancellation_reason",
             "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')",
@@ -5815,14 +5854,20 @@ class Partner extends CI_Controller {
                $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
           }
          $partner_id = $this->session->userdata('partner_id');
+          if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+         }
          $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
          $whereIN['booking_details.partner_id'] = array($partner_id);
+          if($this->input->post('state')){
+           $where['booking_details.state ="'.$this->input->post('state').'"'] = NULL;
+          }
          $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
          if($this->input->post('booking_id')){
              $whereIN['booking_details.booking_id'] = array($this->input->post('booking_id'));
          }
-           $bookingCount = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,-1,-1,$where,0,NULL,"COUNT(DISTINCT sc.booking_id) as count")[0]['count'];
-           $bookingData = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,$postData['start'],$postData['length'],$where,1,$order_by);
+           $bookingCount = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,-1,-1,$where,0,NULL,"COUNT(DISTINCT sc.booking_id) as count",$state)[0]['count'];
+           $bookingData = $this->service_centers_model->get_admin_review_bookings(NULL,"Cancelled",$whereIN,1,$postData['start'],$postData['length'],$where,1,$order_by,NULL,$state);
            $sn = $postData['start'];
            foreach ($bookingData as $key => $row) {
                 $tempArray = array();
@@ -5864,7 +5909,7 @@ class Partner extends CI_Controller {
               "recordsFiltered" =>  $bookingCount,
               "data" => $finalArray,
           );
-          echo json_encode($output);
+       echo json_encode($output);
     }
     function get_shipped_spare_waiting_for_confirmation(){
       $finalArray = array();

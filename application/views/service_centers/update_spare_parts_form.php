@@ -168,6 +168,17 @@
                                             <?php echo form_error('shipped_parts_name'); ?>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="shipped_parts_name" class="col-md-4"> Part In Warranty *</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control part_warranty_status" id="<?php echo "part_warranty_statusid_".$skey; ?>" name="part[<?php echo $skey; ?>][part_warranty_status]">
+                                                <option selected="" disabled="">Select warranty status</option>
+                                                <option value="1" <?php if($spare_parts[0]->part_warranty_status == 1){ echo 'selected'; } ?>> In-Warranty </option>
+                                                <option value="2" <?php if($spare_parts[0]->part_warranty_status == 2){ echo 'selected'; } ?>> Out-Warranty </option>
+                                            </select>
+                                            <input type="hidden" id="<?php echo "part_warranty_status_".$skey; ?>" name="part[<?php echo $skey;?>][part_warranty_status]" value="">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-5">
                                     <div class="form-group ">
@@ -202,7 +213,7 @@
                                         if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
                                         <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
                                         <div class="col-md-6">
-                                            <textarea class="form-control" id="<?php echo "remarks_".$skey; ?>" name="part[<?php echo $skey;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
+                                            <textarea class="form-control" rows="3" id="<?php echo "remarks_".$skey; ?>" name="part[<?php echo $skey;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
                                             <?php echo form_error('remarks_by_partner'); ?>
                                         </div>
                                     </div>
@@ -250,6 +261,18 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                         </div>
+                                        
+                                        <div class="form-group">
+                                        <label for="shipped_parts_name" class="col-md-4"> Part In Warranty *</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control" id="part_warranty_status">
+                                                <option selected="" disabled="">Select warranty status</option>
+                                                <option value="1"> In-Warranty </option>
+                                                <option value="2"> Out-Warranty </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                        
                                     </div>
                                     <div class="col-md-5">
                                         <div class="form-group ">
@@ -266,7 +289,7 @@
                                         <div class="form-group ">
                                             <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
                                             <div class="col-md-6">
-                                                <textarea class="form-control" id="remarks"  placeholder="Please Enter Remarks"  required></textarea>
+                                                <textarea class="form-control" rows="3" id="remarks"  placeholder="Please Enter Remarks"  required></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -274,7 +297,7 @@
                             </div>
                             <input type="hidden" id="approx_value" value="">
                             <input type="hidden" id="inventory_id">
-                            <input type="hidden"  value="new" id="spare_id">
+                            <input type="hidden"  value="new" id="spare_id">                                                      
                         </div>
                     </div>
                 </div>
@@ -352,6 +375,7 @@
                             <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $spare_parts[0]->partner_id ;?>">
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
                             <input type="hidden" name="is_wh" id="is_wh" value="<?php echo $is_wh ;?>">
+                            <input type="hidden" name="amount_due" value="<?php echo $spare_parts[0]->amount_due; ?>">
                             <input type="submit"  value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
                         </div>
                     </div>
@@ -534,7 +558,9 @@
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
-                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();
+                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end()
+                .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id','part_warranty_status_'+partIndex).end();
+        
     
         })
     
@@ -598,7 +624,9 @@
         
         $('#courier_name').select2();
         
-        
+       $(".part_warranty_status").on('change',function(){                 
+                 $("#part_warranty_status_0").val($(this).val());
+       }); 
     
 </script>
 <?php foreach($spare_parts as $ssKey => $sp) { if(!empty($sp->requested_inventory_id)) { ?><script> change_shipped_model('<?php echo $ssKey; ?>'); </script> <?php } } ?>

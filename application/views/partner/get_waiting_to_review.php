@@ -1,11 +1,36 @@
-      
+<?php if(empty($is_ajax)) { ?>
+<div class="right_col" role="main">
+        <?php
+        if ($this->session->userdata('success')) {
+            echo '<div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('success') . '</strong>
+                        </div>';
+        }
+        ?>
+    <div class="row">
+<?php } ?>      
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
          <div class="x_title">
                     <h2>Review Cancelled Bookings </h2>
                     <div class="pull-right"><a style="float: right;background: #2a3f54;border-color: #2a3f54;"type="button" class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/partner/download_partner_review_bookings/<?php echo $this->session->userdata('partner_id')?>">Download</a>
-            </div>
-                    <div class="clearfix"></div>
+                    </div>
+                    <div class="right_holder" style="float:right;margin-right:10px;">
+                            <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_review()">
+                                <option value="">States</option>
+                                <?php
+                                foreach($states as $state){
+                                    ?>
+                                <option value="<?php echo $state['state'] ?>"><?php echo $state['state'] ?></option>
+                                <?php
+                                }
+                                ?>
+                            </select>            
+                  </div>
+                   <div class="clearfix"></div>
                 </div>
         <input type="text" id="booking_id_search_review" onchange="booking_search_review()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;">
         <div class="x_content">
@@ -35,6 +60,10 @@
         </div>
     </div>
 </div>
+<?php if(empty($is_ajax)) { ?> 
+    </div>
+</div>
+<?php } ?>
         <script>
             $(document).on("click", ".open-AddBookDialog", function () {
                 var myBookId = $(this).data('id');
@@ -84,6 +113,7 @@
                 "type": "POST",
                 "data": function(d){
                     d.booking_id =  $('#booking_id_search_review').val();
+                     d.state =  $('#state_search_waiting').val();
                  }
             },
             "columnDefs": [

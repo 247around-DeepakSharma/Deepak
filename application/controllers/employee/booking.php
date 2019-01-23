@@ -2981,6 +2981,8 @@ class Booking extends CI_Controller {
             $vendorWhere['employee_relation.agent_id'] = $rm_id;
             $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
         }
+        $request_type=array('Repair','Installation');
+        $data['request_type']=$request_type;
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
@@ -3041,7 +3043,7 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
-            users.phone_number, booking_details.*, service_centres.name as service_centre_name,
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
@@ -3086,6 +3088,7 @@ class Booking extends CI_Controller {
         $appliance = $this->input->post('appliance');
         $booking_date = $this->input->post('booking_date');
         $city = $this->input->post('city');
+        $request_type_booking=$this->input->post('request_type_booking');
         $internal_status = $this->input->post('internal_status');
         $request_type = $this->input->post('request_type');
         $current_status = $this->input->post('current_status');
@@ -3141,6 +3144,20 @@ class Booking extends CI_Controller {
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
+        }
+        if(!empty($request_type_booking))
+        {
+            $request_type_first_string="SUBSTRING_INDEX(request_type, ' ', 1)";
+            $repair='Repair';$installation='Installation';$repair_arr=array('Repair','Repeat');
+           if($request_type_booking==$repair)
+           {
+                $post['where']['request_type Like "%Repair%" Or request_type Like "%Repeat%"'] =  NULL;
+           }
+           elseif($request_type_booking==$installation)
+           {
+               $post['where']['request_type Not Like "%Repair%" AND request_type Not Like "%Repeat%"'] =  NULL;
+           }
+               
         }
         if(!empty($booking_id)){
             $post['where']['booking_details.booking_id'] =  $booking_id;
