@@ -314,10 +314,6 @@ function get_inventory_id(id){
 }    
     
 </script>
-<?php }else{ ?>  
-<script>
-$("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});  
-</script>
 <?php } ?>
 
 <style type="text/css">
