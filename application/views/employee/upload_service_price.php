@@ -142,7 +142,7 @@
         
         get_partner_details();
         get_appliance();
-
+        upload_file_history();
         //datatables
 //        table = $('#datatable1').DataTable({
 //            processing: true, //Feature control the processing indicator.
@@ -165,6 +165,11 @@
 //        });
         
         //datatables
+       
+        
+    });
+    
+    function upload_file_history(){ 
         table1 = $('#datatable2').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
@@ -175,7 +180,10 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
-                data: {file_type: '<?php echo _247AROUND_PARTNER_APPLIANCE_DETAILS; ?>'}
+                data: function(d){
+                    d.file_type = '<?php echo _247AROUND_PARTNER_APPLIANCE_DETAILS; ?>';
+                    d.partner_id = $("#partner_id").val();
+                }
             },
              //Set column definition initialisation properties.
             columnDefs: [
@@ -185,7 +193,10 @@
                 }
             ]
         });
-        
+    }
+    
+    $('#partner_id').change(function(){
+        table1.ajax.reload();
     });
     
     function submitForm() {
