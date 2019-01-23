@@ -279,7 +279,7 @@
                                     <?php
                                 }else{
                                     if(trim($main_nav['navData']["id_".$p_id]['title']) == 'Inventory'){
-                                       if(($this->session->userdata('is_wh')==1) || ($this->session->userdata('is_wh')==1 && $this->session->userdata('is_micro_wh')==1)){ 
+                                       if(($this->session->userdata('is_wh')==1) || ($this->session->userdata('is_micro_wh')==1)){ 
                                 ?>
                                     <li>
                                             <a data-toggle="tooltip" data-placement="right" title="" data-original-title="<?php echo $main_nav['navData']["id_".$p_id]['title']?>">
