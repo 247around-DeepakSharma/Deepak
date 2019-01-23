@@ -89,5 +89,9 @@ define("COURIER_LOST", "Courier Lost");
 //Spare to be billed to partner, partner did not ship new part to sf
 define('BILL_TO_PARTNER_NOT_SHIP_PART_DAYS', 60);
 
+// Courier Lost 
+define("PART_APPROVED_BY_ADMIN", "Part Approved By Admin");
+// Spare Part Updated
+define("SPARE_PART_UPDATED", "Spare Part Updated");
 
 
