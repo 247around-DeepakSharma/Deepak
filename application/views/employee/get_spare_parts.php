@@ -149,7 +149,7 @@
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
-                    alert("Approval Successfully");
+                    alert("Approved Successfully");
                     parts_requested_on_approval_table.ajax.reload(null, false);                   
                 } else {
                     alert("Spare Parts Cancellation Failed!");

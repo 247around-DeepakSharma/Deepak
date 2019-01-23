@@ -226,7 +226,7 @@
                                     
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status*</label>                                             
                                             <div class="col-md-6">                                                
                                                 <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" required="">
                                                     <option selected disabled>Select warranty status</option>                                                  

@@ -1299,10 +1299,15 @@ class Spare_parts extends CI_Controller {
                 
                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty*/
                 
-                if ($part_warranty_status == 2) {
+                 if ($part_warranty_status == 2) {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
-                 
+                 }else{
+                     $spare_data['status'] = SPARE_PARTS_REQUESTED;
+                 }
+                
+                if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
+                    
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&
