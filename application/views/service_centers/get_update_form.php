@@ -223,6 +223,20 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="part_warranty" class="col-md-4">Part In *</label>                                             
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control" id="part_warranty_status_0" name="part[0][part_warranty_status]" value = "<?php echo set_value('part_warranty_status'); ?>">
+                                                    <option selected disabled>Select warranty status</option>                                                  
+                                                    <option value="1"> In-Warranty </option>
+                                                    <option value="2"> Out-Warranty </option>
+                                                </select>
+                                            </div>
+                                                                                        
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -287,6 +301,21 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                     <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="part_warranty" class="col-md-4">Part In *</label>                                             
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control" id="part_warranty_status">
+                                                    <option selected disabled>Select warranty status</option>
+                                                    <option value="1"> In-Warranty </option>
+                                                    <option value="2"> Out-Warranty </option>
+                                                </select>
+                                            </div>
+                                                                                        
+                                        </div>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -621,12 +650,14 @@
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } ?>
