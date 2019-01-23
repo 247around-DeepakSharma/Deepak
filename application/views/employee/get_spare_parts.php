@@ -123,8 +123,18 @@
     function approve_spare_part(){
       var remarks =  $('#textarea').val();
       var warranty_status = $('#part_warranty_status').val();
-      var courier_charge = $('#charges').val();
-      if(remarks !== ""){
+      
+      if(warranty_status==''){
+          alert('Please Select Part Warranty Status');
+          return false;
+      }
+      
+      if(remarks==''){
+          alert('Please Enter Remarks');
+          return false;
+      }
+                 
+      if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();
         $.ajax({
@@ -146,9 +156,7 @@
                 }
             }
         });
-      } else {
-          alert("Please Enter Remarks");
-      }
+      } 
     }
     
     
