@@ -45,9 +45,9 @@
                 <div role="tabpanel"> 
                     <div class="col-md-12">
                         <ul class="nav nav-tabs" role="tablist" >
-                            <li role="presentation" class="active"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Requested</a></li>
+                            <li role="presentation" class="active"><a href="#parts_requested_on_approval" aria-controls="parts_requested_on_approval" role="tab" data-toggle="tab">Parts Requested On Approval</a></li>
+                            <li role="presentation" ><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Requested</a></li>
                             <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Given</a></li>
-                  
                             <li role="presentation" ><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Parts Requested</a></li>
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
                             <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
@@ -89,6 +89,22 @@
         
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
+         url_arr = url.split("/");   
+         if(!isNaN(url_arr[8])){
+             $("#reject_btn").html("Approve");             
+             $("#reject_btn").attr("onclick","approve_spare_part()");
+             var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
+                 HTML+= '<option selected="" disabled="">Select warranty status</option>';
+                 HTML+= '<option value="1"> In-Warranty </option>';
+                 HTML+= '<option value="2"> Out-Warranty </option>';
+                 HTML+= '</select>';
+             $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px'});
+             $("#part_warranty_status option[value='"+url_arr[9]+"']").attr('selected','selected');
+         }else{
+            $("#reject_btn").html("Send");             
+             $("#reject_btn").attr("onclick","reject_parts()");            
+             $("#part_warranty_option").html('').css({'padding-bottom':'0px'}); 
+         }
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
@@ -103,6 +119,46 @@
         }
 
     });
+    
+    function approve_spare_part(){
+      var remarks =  $('#textarea').val();
+      var warranty_status = $('#part_warranty_status').val();
+      
+      if(warranty_status==''){
+          alert('Please Select Part Warranty Status');
+          return false;
+      }
+      
+      if(remarks==''){
+          alert('Please Enter Remarks');
+          return false;
+      }
+                 
+      if(remarks !== "" && warranty_status !=''){
+       $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{remarks:remarks,part_warranty_status:warranty_status},
+            success: function(data){
+                 var obj = JSON.parse(data); 
+                $('#reject_btn').attr('disabled',false);
+                if(obj['status']){
+                  //  $("#"+booking_id+"_1").hide()
+                    $("#reject_btn").html("Send");             
+                    $("#reject_btn").attr("onclick","reject_parts()");
+                    $('#myModal2').modal('hide');
+                    alert("Approved Successfully");
+                    parts_requested_on_approval_table.ajax.reload(null, false);                   
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } 
+    }
+    
     
     function reject_parts(){
       var remarks =  $('#textarea').val();

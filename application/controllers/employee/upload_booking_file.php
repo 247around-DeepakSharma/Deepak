@@ -1249,8 +1249,21 @@ class Upload_booking_file extends CI_Controller {
                            'search_value' => trim($this->input->post('search')['value'])
                         );
         
+        $filtered_post_data = array(
+                'length' =>NULL,
+                'start' =>NULL,
+                'file_type' =>trim($this->input->post('file_type')),
+                'search_value' => trim($this->input->post('search')['value'])
+        );
+        
         if (!empty($this->input->post('file_source')) && $this->input->post('file_source') == "partner_file_upload") {
             $post_data['file_type_not_equal_to'] = 'Partner_Summary_Reports';
+            $filtered_post_data['file_type_not_equal_to'] = 'Partner_Summary_Reports';
+        }
+        
+        if(!empty($this->input->post('partner_id'))){
+            $post_data['partner_id'] = $this->input->post("partner_id");
+            $filtered_post_data['partner_id'] = $this->input->post("partner_id");
         }
         
         $list = $this->reporting_utils->get_uploaded_file_history($post_data);
@@ -1263,7 +1276,7 @@ class Upload_booking_file extends CI_Controller {
             $table_data[] = $row;
         }
         $allRecords = $this->reporting_utils->get_uploaded_file_history();
-        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history(array('length' =>NULL,'start' =>NULL,'file_type' =>trim($this->input->post('file_type')),'search_value' => trim($this->input->post('search')['value'])));
+        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history($filtered_post_data);
         $output = array(
             "draw" => $this->input->post('draw'),
             "recordsTotal" => count($allRecords),

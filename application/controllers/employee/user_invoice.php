@@ -1155,21 +1155,8 @@ class User_invoice extends CI_Controller {
         $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
 
         foreach ($invoice as $key => $value) {
-            $select = "oow_around_percentage, oow_vendor_percentage";
-            $post = array();
-
-            $post['where'] = array('inventory_master_list.inventory_id'=> $value['inventory_id']);
-            $post['part_type_join'] = true;
-            
-            $list = $this->inventory_model->get_inventory_stock_list($post,$select);
-            $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-            if(!empty($list)){
-                if($list[0]['oow_around_percentage'] > 0){
-                    $repair_oow_around_percentage = $list[0]['oow_around_percentage']/100;
-                }
-            }
-            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage));
-            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + $repair_oow_around_percentage));
+            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + REPAIR_OOW_AROUND_PERCENTAGE));
+            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + REPAIR_OOW_AROUND_PERCENTAGE));
         }
 
         $invoice[0]['product_or_services'] = "Product";

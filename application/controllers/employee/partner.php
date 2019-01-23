@@ -1765,7 +1765,7 @@ class Partner extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_PARTNER_STRING);
         $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,parts_requested_type";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -1788,7 +1788,14 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
         //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
+        
+        $part_warranty_status = $this->input->post('part_warranty_status');
+        /*
         if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+        } */
+        
+        if ($part_warranty_status !=2) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1835,7 +1842,14 @@ class Partner extends CI_Controller {
                     foreach ($shipped_part_details as $key => $value) {
                         if ($value['shippingStatus'] == 1) {
                             //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            /*
                             if($request_type == REPAIR_OOW_TAG){
+                                $data['status'] = SPARE_OOW_SHIPPED;
+                            } else {
+                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            } */
+                            
+                            if($part_warranty_status == 2){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1859,7 +1873,16 @@ class Partner extends CI_Controller {
                             
                             array_push($spare_id_array, $spare_id);
                             $current_status = "InProcess";
+                            /*
                             if($request_type == REPAIR_OOW_TAG){
+                                $internal_status = SPARE_OOW_SHIPPED;
+                            } else {
+                                $internal_status = SPARE_PARTS_SHIPPED;
+
+                            }                          
+                             */
+                            
+                            if($part_warranty_status == 2){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1882,8 +1905,15 @@ class Partner extends CI_Controller {
                     if (!empty($current_status)) {
 
                         $sc_data['current_status'] = $current_status;
-                        
+                       /* 
                         if($request_type == REPAIR_OOW_TAG){
+                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+                        } else {
+                            $sc_data['internal_status'] = $internal_status;
+                            
+                        }*/
+                        
+                        if($part_warranty_status == 2){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
@@ -6081,33 +6111,13 @@ class Partner extends CI_Controller {
         if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
             //Update Spare Table
             $where = array('id' => $spare_id);
-            $spare_oow_est_margin = SPARE_OOW_EST_MARGIN;
-            $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
-            $gst_rate = $this->input->post('gst_rate');
-            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id', array('spare_parts_details.id' => $spare_id), true);
-            if(!empty($spare_data)){
-                
-                $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
-                        array('part_type' => $spare_data[0]['parts_requested_type'], 
-                            'service_id' => $spare_data[0]['service_id']), TRUE);
-                
-                if(!empty($part_type)){
-                    
-                    $spare_oow_est_margin =  ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage'])/100;
-                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
-                    $gst_rate = $part_type[0]['gst_rate'];
-                    
-                }
-            }
-            
-            
             $data['purchase_price'] = $updated_price;
-            $data['sell_price'] = ($updated_price + $updated_price * $spare_oow_est_margin );
+            $data['sell_price'] = ($updated_price + $updated_price *SPARE_OOW_EST_MARGIN );
             $data['estimate_cost_given_date'] = date('Y-m-d');
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if ($response) {
                 //Update Booking_unit_details_table
-                $unit['vendor_basic_percentage'] = ($updated_price * $repair_oow_vendor_percentage)/$data['sell_price'];
+                $unit['vendor_basic_percentage'] = ($updated_price * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
                 $unit['customer_total'] = $data['sell_price'];
                 $unit['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit_where = array('id' => $booking_unit_id);
