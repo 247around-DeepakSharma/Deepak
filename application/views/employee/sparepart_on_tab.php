@@ -568,7 +568,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '9', status: '<?php echo SPARE_PARTS_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>', part_requested_approval_flag: true}
+                data: {type: '9', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>', part_requested_approval_flag: true}
             },
             //Set column definition initialisation properties.
             columnDefs: [

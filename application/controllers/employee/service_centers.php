@@ -1578,13 +1578,13 @@ class Service_centers extends CI_Controller {
                       $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
  */
                     
-                    $status = SPARE_PARTS_REQUESTED;
+                    $status = SPARE_PART_ON_APPROVAL;
                     $sc_data['internal_status'] = SPARE_PARTS_REQUESTED;
                     
                 } else {
                     $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
 
-                    $status = SPARE_PARTS_REQUESTED;
+                    $status = SPARE_PART_ON_APPROVAL;
                     $sc_data['internal_status'] = $reason;
                 }
 
