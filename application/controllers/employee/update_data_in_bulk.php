@@ -19,7 +19,7 @@ class update_data_in_bulk extends CI_Controller {
     }
     
     function get_missing_pincodes_state_city(){
-       $data =  $this->reusable_model->get_search_result_data("sf_not_exist_booking_details","DISTINCT pincode as pincode",array("(state = '' OR state IS NULL)"=>NULL),NULL,NULL,NULL,NULL,NULL,$groupBY=array('pincode'));
+       $data =  $this->reusable_model->get_search_result_data("sf_not_exist_booking_details","DISTINCT pincode as pincode",array("(state = '' OR state IS NULL)"=>NULL,'is_pincode_valid'=>1),NULL,NULL,NULL,NULL,NULL,$groupBY=array('pincode'));
        $length = count($data);
        for($i = 0; $i<$length-1;$i++){
            if($data[$i]['pincode']) {
