@@ -223,6 +223,20 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status*</label>                                             
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" required="">
+                                                    <option selected disabled>Select warranty status</option>                                                  
+                                                    <option value="1"> In-Warranty </option>
+                                                    <option value="2"> Out-Warranty </option>
+                                                </select>
+                                            </div>
+                                                                                        
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -287,6 +301,21 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                     <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status*</label>                                             
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control" id="part_warranty_status" required="">
+                                                    <option selected disabled>Select warranty status</option>
+                                                    <option value="1"> In-Warranty </option>
+                                                    <option value="2"> Out-Warranty </option>
+                                                </select>
+                                            </div>
+                                                                                        
+                                        </div>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -400,7 +429,7 @@
     });
     
     function submitForm(){
-     
+              
      var checkbox_value = 0;
      $("input[type=radio]:checked").each(function(i) {
          checkbox_value = 1;
@@ -465,7 +494,7 @@
                 var id = $(this).attr('id');
                 if(id !== "parts_name"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Enter Parts Nmae');
+                        alert('Please Enter Parts Name');
                         checkbox_value = 0;
                         return false;
                         
@@ -508,14 +537,23 @@
                 }
             });
 
-            
+           $('.part_in_warranty_status').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "part_in_warranty_status"){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                        alert('Please Select Part Warranty Status');    
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
               
             if(prob_des === "" || prob_des === null){
                 alert("Please Enter problem description");
                 checkbox_value = 0;
                 return false;
             }
-              
+                          
           } else if(around_flag === '1'){
               var parts_name1 = $('#247parts_name').val();
               var reschduled_booking_date = $("#reschduled_booking_date").val();
@@ -621,12 +659,14 @@
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } ?>

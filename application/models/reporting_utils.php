@@ -1802,6 +1802,10 @@ function get_booking_by_service_center_query_data($where,$groupBY){
              $sql .=  " AND file_type != '".trim($post_data['file_type_not_equal_to'])."' ";
         }
         
+        if(!empty($post_data['partner_id'])){
+            $sql .=  " AND entity_type = 'partner' AND entity_id = '".$post_data['partner_id']."'";
+        }
+        
         if(!empty($post_data['search_value'])){
             $sql .= " AND file_name LIKE '%".$post_data['search_value']."%' ";
         }
