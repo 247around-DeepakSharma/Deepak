@@ -3225,7 +3225,7 @@ function generate_image($base64, $image_name,$directory){
                 foreach($inventory_stock_details as $value){
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
-                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true);
+                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true, true);
                     
                     if(!empty($warehouse_details)){
                         $response = array();
