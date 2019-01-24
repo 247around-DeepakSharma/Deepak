@@ -28,15 +28,21 @@ class update_data_in_bulk extends CI_Controller {
                $pincode = $data[$i]['pincode'];
                if($pincodeArray['status'] == 'OK'){
                    // Insert State City in India Pincode    
-                    $state = $pincodeArray['results']['0']['address_components'][2]['long_name'];
-                    $city = $pincodeArray['results']['0']['address_components'][1]['long_name'];
-                    $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
-                   //Update State and City in sf_not_exist_booking_details
-                    $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
-                    $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
-                    $notFoundSfArray['state'] = $resultTemp[0]['state'];
-                    $notFoundSfArray['city'] = $city;
-                    $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
+                   $country = $pincodeArray['results']['0']['address_components'][3]['long_name'];
+                   if($country == 'India'){
+                        $state = $pincodeArray['results']['0']['address_components'][2]['long_name'];
+                        $city = $pincodeArray['results']['0']['address_components'][1]['long_name'];
+                        $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
+                       //Update State and City in sf_not_exist_booking_details
+                        $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        $notFoundSfArray['state'] = $resultTemp[0]['state'];
+                        $notFoundSfArray['city'] = $city;
+                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
+                   }
+                   else{
+                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),array("is_pincode_valid" => 0));
+                   }
                }
                else if($pincodeArray['status'] == 'ZERO_RESULTS'){
                    //Delete Entry from sf_not_exist_booking_details
