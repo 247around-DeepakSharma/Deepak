@@ -2532,10 +2532,4 @@ class Booking_model extends CI_Model {
       $query = $this->db->query($sql);
       return $query->result_array();
     }
-    function update_is_sn_correct($booking_id,$data)
-    {
-        $this->db->where('booking_id',$booking_id);
-        $this->db->update('booking_unit_details',$data);
-       
-    }
-}
+   }
