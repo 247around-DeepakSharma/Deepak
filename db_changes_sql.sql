@@ -9669,4 +9669,13 @@ ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT
 --Rajshree 22 Jan 2019
 ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
 
+--Rajshree 24 Jan 2019
+CREATE TABLE `partner_sample_no_picture` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `sample_no_pic` varchar(255) NOT NULL,
+  `active` enum('0','1') NOT NULL DEFAULT '1',
+  `created_date` date NOT NULL,
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
