@@ -76,7 +76,14 @@
                             <strong>' . $this->session->userdata('error') . '</strong>
                         </div>';
         }
-    ?>
+      if(validation_errors()){?>
+        <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
+            <div class="panel-heading" style="padding:7px 0px 0px 13px">
+                <?php echo validation_errors(); ?>
+            </div>
+        </div>
+        <?php }?>
+   
     <div class="row">
         <div class="clear"></div>
         <div class="panel panel-info">
@@ -1536,17 +1543,60 @@
         <!--             action="<?php //echo base_url(); ?>file_upload/process_upload_serial_number" -->
         <div id="container_7" style="display:none;" class="form_container">
             <!--                  <form class="form-horizontal"  id="fileinfo"  method="POST" enctype="multipart/form-data">-->
+            <input type='hidden' name='sample_no_pic'/>
             <div class="form-group  <?php if (form_error('excel')) {
                 echo 'has-error';
-                } ?>">
-                <label for="excel" class="col-md-1">Upload Serial No</label>
+                } ?> col-lg-12">
+                <label for="excel" class="col-md-3">Upload Serial No</label>
                 <div class="col-md-4">
                     <!--                            <input type="text" name="partner_id"  value="247034" />-->
                     <input type="file" class="form-control" id="SerialNofile"  name="file" >
                 </div>
                 <!--                        <input type= "submit" class="btn btn-danger btn-md"  value="upload">-->
-                <button id="serialNobtn" class="btn btn-primary btn-md"  >Upload</button>
+                <button id="serialNobtn" class="btn btn-primary btn-md col-md-1"  >Upload</button>
             </div>
+            
+            <div class="col-lg-12">
+                <button class="btn" onclick="show_add_samplepic_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Sample Number Picture</button>
+                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data"  style="display:none;">
+                        <?php
+                        if(isset($query[0]['id'])){
+                            if($query[0]['id']){
+                            ?>
+                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                            <?php
+                        }
+                    }
+                    ?> 
+                    <div class="clonedInputSample panel panel-info " id="clonedInputSample">                      
+                        <div class="panel-heading" style=" background-color: #f5f5f5;">
+                             <p style="color: #000;"><b>Sample Number Picture</b></p>
+                             <div class="clone_button_holder" style="float:right;margin-top: -31px;">
+                                <button class="clone1 btn btn-info">Add</button>
+                                <button class="remove1 btn btn-info">Remove</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class='form-group'>
+                                        <label for="SamplePicfile" class="col-md-4">Upload Sample Number Picture *</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control" id="SamplePicfile"  name="SamplePicfile[]" >
+                                        </div>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cloned1"></div>
+                
+                <div class="form-group " style="text-align:center">
+                    <input type="submit" class="btn btn-primary" id="Upload Sample Picture" value="Upload">
+                </div>
+            </form>
+            </div>
+            
             <!--                  </form>-->
             <div class="form-group">
                 <div class="progress">
@@ -1554,6 +1604,47 @@
                 </div>
 
              </div>
+            
+             <hr>
+            <?php
+                if(!empty($result['sample_no_pic'])){
+                    ?>
+            <div id="exist_documents">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Sample No Picture</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $i = 0;
+                                foreach($result['sample_no_pic'] as $value){
+                                    $i ++;
+                                    if(!empty($value['sample_no_pic']))
+                                    {
+                                    $url="https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['sample_no_pic'];
+                                    }
+                                    else
+                                    {
+                                      $url=base_url() . 'images/no_image.png';  
+                                    }
+                                    ?>
+                        <tr>
+                             <th><?php echo $i;?></th>
+                             <th><img src='<?php  echo $url?>' width='60' height='60'></th>
+                             <th>
+                              <a href="javascript:void(0);" onclick="deletesamplenopic(' <?php echo $value['id'] ?>','<?php echo $query[0]['id'] ?>');"><i class="fa fa-trash"></i></a>
+                             </th>
+                        </tr>
+                        <?php 
+                                }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
             </div>     
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
@@ -2663,10 +2754,30 @@
     $("button.clone").on("click", clone);
     
     $("button.remove").on("click", remove);
+     var cloneIndexSample = $(".clonedInputSample").length +1;
     
+    function clone1(){
+       $(this).parents(".clonedInputSample").clone()
+            .appendTo(".cloned1")
+            .on('click', 'button.clone1', clone1)
+            .on('click', 'button.remove1', remove1);
+            $('#filter_holder_'+cloneIndexSample+' .select2').hide();
+          
+       cloneIndexSample++;
+       return false;
+    }  
+    function remove1(){
+       $(this).parents(".clonedInputSample").remove();
+       
+       return false;
+    }
+    $("button.clone1").on("click", clone1);
+    
+    $("button.remove1").on("click", remove1);
      $(document).ready(function () {
     $('#contact_form').hide();
     $('#warehouse_form').hide();
+    $('#sample_no_pic_form').hide();
     $('#bank_detail_form').hide();
     //called when key is pressed in textbox
     $("#grand_total_price").keypress(function (e) {
@@ -3287,6 +3398,7 @@
                }
            });
        });
+       
     });
     <?php } ?>
     function sendAjaxRequest(postData, url,type) {
@@ -3408,7 +3520,9 @@
     function show_add_bank_detail_form(){
        $('#bank_detail_form').show();
     }
-    
+     function show_add_samplepic_form(){
+       $('#sample_no_pic_form').toggle();
+    }
     $(".remove_add_bank").click(function(){
        $("#bank_name, #account_type, #account_number, #ifsc_code, #beneficiary_name, #BD_action").val(null);
        $("#bank_cancelled_check_img_update").css("display", "none");
@@ -4019,6 +4133,19 @@
                      location.reload();
                 }
             });
+        }
+    }
+    function deletesamplenopic(id)
+    {
+        var url="<?php echo base_url()?>";
+        var r=confirm("Do you want to delete this?");
+        if (r==true)
+        {
+          window.location = url+"employee/partner/deletePartnerSampleNo/"+id;
+        }
+        else
+        {
+          return false;
         }
     }
 </script>
