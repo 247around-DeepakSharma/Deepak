@@ -26,16 +26,12 @@ class update_data_in_bulk extends CI_Controller {
            if($pincode) {
                $pincodeJsonData =  $this->miscelleneous->google_map_address_api($pincode);
                $pincodeArray = json_decode($pincodeJsonData,true);
-               echo $pincode;
-               echo "<br>";
                if($pincodeArray['status'] == 'OK'){
                     $addressCompLength = count($pincodeArray['results'][0]['address_components']);
-                    echo $country = $pincodeArray['results']['0']['address_components'][$addressCompLength-1]['long_name'];
+                    $country = $pincodeArray['results']['0']['address_components'][$addressCompLength-1]['long_name'];
                     if($country == 'India'){
-                        echo "<br>";
-                        echo $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
-                        echo "<br>";
-                        echo $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
+                        $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
+                        $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
                         $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
