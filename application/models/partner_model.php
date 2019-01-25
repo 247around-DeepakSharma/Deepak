@@ -1810,5 +1810,10 @@ function get_data_for_partner_callback($booking_id) {
        $this->db->update("contact_person",array('is_active'=>$action));
        return $this->db->affected_rows();
     }
+    function insert_sample_no_pic($data)
+    {
+        $this->db->insert('partner_sample_no_picture',$data);
+        return $this->db->insert_id();
+    }
 }
 
