@@ -1057,6 +1057,7 @@
                 success:function(res){                    
                     var obj = JSON.parse(res);
                     if(obj.status === true){
+                        partner_shipped_part.ajax.reload(null, false);
                         $("#courier_lost").hide();
                     }
                 }
