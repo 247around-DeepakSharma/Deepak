@@ -1483,10 +1483,47 @@ class Miscelleneous {
             $subject = "SF Not Exist in the Pincode " . $booking['booking_pincode'];
             $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE);
         }else{
-            $rm = $this->My_CI->employee_model->get_rm_details();
-            $rm_emails = implode(',', array_column($rm, 'official_email'));
-            $subject = "Pincode Not Exist In India Pincode " . $booking['booking_pincode'];
-            $this->send_sf_not_found_email_to_rm($booking, $rm_emails,$subject, FALSE);
+            $pincodeJsonData = $this->google_map_address_api($booking['booking_pincode']);
+            $pincodeArray = json_decode($pincodeJsonData,true);
+            if($pincodeArray['status'] == 'OK'){
+                $addressCompLength = count($pincodeArray['results'][0]['address_components']);
+                $country = $pincodeArray['results']['0']['address_components'][$addressCompLength-1]['long_name'];
+                 log_message('info', __METHOD__ . "=>Country" . $country ."Pincode =".$pincode);
+                if($country == 'India'){
+                        $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
+                        $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
+                        $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
+                       //Update State and City in sf_not_exist_booking_details
+                        $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        $notFoundSfArray['state'] = $resultTemp[0]['state'];
+                        $notFoundSfArray['city'] = $city;
+                        $notFoundSfArray['is_pincode_valid'] = 1;
+                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
+                   }
+                   else{
+                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),array("is_pincode_valid" => 0));
+                   }
+            }
+            else if($pincodeArray['status'] == 'ZERO_RESULTS'){
+                log_message('info', __METHOD__ . "=>ZERO_RESULT"."Pincode =".$pincode);
+               }
+            else{
+                    $template = $this->My_CI->booking_model->get_booking_email_template("google_api_fail_for_address");
+                    if (!empty($template)) {  
+                        //Sending Mail
+                        $email['pincode'] = $notFoundSfArray['pincode'];
+                        $email['response'] = $pincodeJsonData;
+                        $emailBody = vsprintf($template[0], $email);
+                        $subjectBody = $template[4];
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL,'', '', $subjectBody, $emailBody, "",'google_api_fail_for_address', "", $booking['booking_id']);
+                        //Logging
+                        log_message('info', " API Fail Mail Send successfully" . $emailBody);
+                    } else {
+                        //Logging Error Message
+                        log_message('info', " Error in Getting Email Template for Escalation Mail");
+                    }
+            }
         }
         if (array_key_exists('partner_id', $booking)) {
             $notFoundSfArray['partner_id'] = $booking['partner_id'];
@@ -3832,6 +3869,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         echo json_encode($resultArray);
     }
     function process_if_pincode_valid($pincode,$state,$city){
+        log_message('info', __METHOD__ . "=>Start"."Pincode =".$pincode);
          // Insert State City in India Pincode
         $tempArray['district'] = $city;
         $tempArray['taluk'] = $city;
@@ -3840,8 +3878,10 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         $tempArray['pincode'] = $pincode;
         $insertArray[] = $tempArray;  
         $this->My_CI->vendor_model->insert_india_pincode_in_batch($insertArray);
+        log_message('info', __METHOD__ . "=>End"."Pincode =".$pincode);
     }
     function google_map_address_api($pincode){
+        log_message('info', __METHOD__ . "=>Start"."Pincode =".$pincode);
         $request = "https://maps.google.com/maps/api/geocode/json?address=".$pincode."&sensor=false&region=India&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
         $ch = curl_init();
         curl_setopt_array(
@@ -3850,6 +3890,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         CURLOPT_RETURNTRANSFER => true
         ));
        $output = curl_exec($ch);
+       log_message('info', __METHOD__ . "=>End"."Pincode =".$pincode." , Response - ".$output);
        // $output = '{ "results" : [ { "address_components" : [ { "long_name" : "110051", "short_name" : "110051", "types" : [ "postal_code" ] }, { "long_name" : "New Delhi", "short_name" : "New Delhi", "types" : [ "locality", "political" ] }, { "long_name" : "Delhi", "short_name" : "DL", "types" : [ "administrative_area_level_1", "political" ] }, { "long_name" : "India", "short_name" : "IN", "types" : [ "country", "political" ] } ], "formatted_address" : "New Delhi, Delhi 110051, India", "geometry" : { "bounds" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } }, "location" : { "lat" : 28.6569035, "lng" : 77.28229229999999 }, "location_type" : "APPROXIMATE", "viewport" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } } }, "place_id" : "ChIJ85SOHWD7DDkRI-0i7DDZy-M", "types" : [ "postal_code" ] } ], "status" : "OK" }';
         return $output;
     }

@@ -2293,4 +2293,45 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo $this->table->generate();
     }
+    function get_missing_pincode_data_group_by_state_appliance($agentID = NULL){
+        $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.state) as state ,sf.pincode";
+        if($agentID){
+             $where['sf.rm_id'] = $agentID;
+        }
+       else{
+            $where['sf.rm_id IS NULL'] = NULL;
+       }
+        $where['sf.active_flag'] = 1;
+        $where['sf.is_pincode_valid'] = 1;
+        $orderBYArray['pincodeCount'] = 'DESC';
+        $groupBY = array('state,sf.service_id,sf.pincode');
+        $join['services']  = 'sf.service_id=services.id';
+        $JoinTypeTableArray['services'] = 'left';
+        $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
+        $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'state','services');
+        return $finalPincodeArray;
+    }
+    function send_missing_pincode_details(){
+        log_message('info', __METHOD__ . "=>start");
+       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+               ,NULL,NULL,NULL,NULL,array());
+        $data['serviceData']= $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,NULL,NULL,NULL);
+        $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
+        if (!empty($template)) {
+            foreach($rmServiceCentersData as $rmDetails){
+                log_message('info', __METHOD__ . "=>rm_details =".print_r($rmDetails,TRUE));
+                $data['rmPincodeDetails'] = $this->get_missing_pincode_data_group_by_state_appliance($rmDetails['agent_id']);
+                if($data['rmPincodeDetails']){
+                    $msg = $this->load->view('employee/missing_pincode_report',$data,TRUE);
+                    $email['msg'] = $msg;
+                    $emailBody = vsprintf($template[0], $email);
+                    $subjectBody = $template[4];
+                    $to = $rmDetails['official_email'];
+                    $bcc = $template[5];
+                    log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
+                }
+            }
+        } 
+    }
 }
