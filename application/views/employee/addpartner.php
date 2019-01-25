@@ -1645,6 +1645,9 @@
                     </tbody>
                 </table>
             </div>
+             <?php 
+                 }
+             ?>
             </div>     
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
