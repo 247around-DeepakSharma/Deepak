@@ -629,7 +629,7 @@ class Spare_parts extends CI_Controller {
         
         if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin"){
             
-            if($spare_list->spare_lost == '2'){ $required_parts =  'REQUIRED_PARTS'; $text = "Request New Spare Part"; $cl ="btn-info"; $btn_status = "";} else{ $text = "Spare Part Not Required"; $btn_status = "disabled"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-success"; }
+            if($spare_list->spare_lost == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Request New Spare Part"; $cl ="btn-info"; $btn_status = "";} else{ $text = "Spare Part Not Required"; $btn_status = "disabled"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-success"; }
             $row[] = '<button type="button" onclick=courier_lost_required("'.$spare_list->id.'","'.$spare_list->booking_id.'") '.$btn_status.' class="btn btn-sm '.$cl.'">'.$text.'</button>';
         } else {
             
@@ -1261,7 +1261,7 @@ class Spare_parts extends CI_Controller {
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
                 $parts_requested = $spare_parts_details[0]['parts_requested'];
                 $internal_status = SPARE_PARTS_REQUIRED;
-                $data = array('status' => SPARE_PARTS_REQUESTED, "old_status" => $spare_parts_details[0]['status']);
+                $data = array('spare_lost'=>2, "old_status" => $spare_parts_details[0]['status']);
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $data);
                 if ($affected_id) {
                     $notificationTextArray['msg'] = array($spare_parts_details[0]['parts_requested'], $booking_id);

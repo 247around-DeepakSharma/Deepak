@@ -914,6 +914,9 @@ class Partner extends CI_Controller {
             $all_code[] = $row['code']; 
         }
         $results['all_partner_code'] = $all_code;
+        //Getting Sample no picture details
+        $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id),NULL,NULL,array(),NULL,NULL,array());
+        $result['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
@@ -4177,6 +4180,7 @@ class Partner extends CI_Controller {
             $eData['partner_id'] = $partner_id;
             $eData['data'] = $this->input->post();
             $eData['services'] = $services;
+            $eData['newappliancebrand']=$data;
             $sendUrl = base_url().'employee/do_background_process/send_email_to_sf_on_partner_brand_updation';
             $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
@@ -6609,4 +6613,79 @@ class Partner extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
+    function process_partner_sample_no_pic()
+    {
+        $partner_id=$this->input->post('partner_id');
+        print_r($_FILES);
+        if(isset($_FILES))
+        {
+            $sample_no_pic=$_FILES['SamplePicfile'];
+            $cpt = count($_FILES['SamplePicfile']['name']);
+             $sample_no_pic_array=array();
+            for($i=0; $i<$cpt; $i++)
+                {           
+                    $_FILES['SamplePicfile']['name']= $files['SamplePicfile']['name'][$i];
+                    $_FILES['SamplePicfile']['type']= $files['SamplePicfile']['type'][$i];
+                    $_FILES['SamplePicfile']['tmp_name']= $files['SamplePicfile']['tmp_name'][$i];
+                    $_FILES['SamplePicfile']['error']= $files['SamplePicfile']['error'][$i];
+                    $_FILES['SamplePicfile']['size']= $files['SamplePicfile']['size'][$i];    
+                   //Processing Sample Pic File
+                   
+                    if (($_FILES['SamplePicfile']['error'] != 4) && !empty($_FILES['SamplePicfile']['tmp_name'])) 
+                        {
+                        $tmpFile = $_FILES['SamplePicfile']['tmp_name'];
+                        $extension=explode(".", $_FILES['SamplePicfile']['name'])[1];
+                        $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
+                        move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
+
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "vendor-partner-docs/" . $sample_file;
+                        $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data=array(
+                        'partner_id'=>$partner_id,
+                        'sample_no_pic'=>$sample_file,
+                        'created_date'=>date('Y-m-d'),
+                        'active'=>1
+                        );
+                      //update sample_no_pic
+                        $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
+                        
+                        $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
+                        unlink(TMP_FOLDER . $sample_file);
+
+                        //Logging success for file uppload
+                        log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                      }
+                   
+                }
+                      $msg = "Partner Sample Pic has been updated successfully";
+                       $this->session->set_userdata('success', $msg);
+                  redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+
+        }
+        else
+        {
+           $this->form_validation->set_rules('sample_no_pic', 'Sample No Picture', 'required');
+        }
+    }
+    public function deletePartnerSampleNo($id,$partner_id)
+    {
+        $data=array('active'=>'0');
+        $where=array(id=>$id);
+        $data=$this->reusable_model->update_table('partner_sample_no_picture',$data,$where);
+        if($data>0)
+        {
+           $msg = "Partner Sample Pic has been Deleted successfully";
+           $this->session->set_userdata('success', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
+        else
+        {
+            $msg = "Partner Sample Pic has not been Deleted successfully";
+           $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
+    }
+            
 }

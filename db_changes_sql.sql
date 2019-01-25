@@ -9654,4 +9654,13 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
 
+--Rajshree 24 Jan 2019
+CREATE TABLE `partner_sample_no_picture` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `sample_no_pic` varchar(255) NOT NULL,
+  `active` enum('0','1') NOT NULL DEFAULT '1',
+  `created_date` date NOT NULL,
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
