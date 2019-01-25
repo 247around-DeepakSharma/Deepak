@@ -2426,7 +2426,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_parts_name(){
-        
+                
         $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $where = array();
@@ -2440,6 +2440,11 @@ class Inventory extends CI_Controller {
         
         if($this->input->post('service_id')){
             $where['inventory_master_list.service_id'] = $this->input->post('service_id');
+        }
+        
+        if(!empty($this->input->post('entity_id'))){
+            $where['inventory_master_list.entity_id'] = $this->input->post('entity_id');
+            $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id',$where);
