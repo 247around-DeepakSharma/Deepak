@@ -89,8 +89,8 @@
         
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
-         url_arr = url.split("/");   
-         if(!isNaN(url_arr[8])){
+        var keys = $(this).data('keys');      
+         if(!isNaN(keys)){
              $("#reject_btn").html("Approve");             
              $("#reject_btn").attr("onclick","approve_spare_part()");
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
@@ -99,7 +99,7 @@
                  HTML+= '<option value="2"> Out-Warranty </option>';
                  HTML+= '</select>';
              $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px'});
-             $("#part_warranty_status option[value='"+url_arr[9]+"']").attr('selected','selected');
+             $("#part_warranty_status option[value='"+keys+"']").attr('selected','selected');
          }else{
             $("#reject_btn").html("Send");             
              $("#reject_btn").attr("onclick","reject_parts()");            
