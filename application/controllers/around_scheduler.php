@@ -1427,7 +1427,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         foreach ($rm_details as $rm) {
             $sf_list = $this->vendor_model->get_employee_relation($rm['id']);
             $select = "group_concat(name) as name,group_concat(primary_contact_email,',',owner_email) as email";
-            $where = array('is_gst_doc' => 0, 'active' => 1, '(is_signature_doc IS null OR is_signature_doc = 0)' => NULL, '(signature_file IS Null OR signature_file = "")' => NULL, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
+            $where = array('is_gst_doc' => 0, 'active' => 1, 'on_off'=>1, '(is_signature_doc IS null OR is_signature_doc = 0)' => NULL, '(signature_file IS Null OR signature_file = "")' => NULL, "id IN(" . $sf_list[0]['service_centres_id'] . ")" => NULL);
             $data = $this->vendor_model->getVendorDetails($select, $where);
             if (!empty($data[0]['email'])) {
                 log_message("info", __METHOD__ . " Data Found " . print_r($data, true));
