@@ -489,14 +489,18 @@
                         var model_number = $("#model_number_" + div_no[2]).val();
                         if(model_number === ""){
                             alert("Please Select Model Number");
-                            flag = 1;
                             document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                            return false;
                         }
                     }
                     else{
                         model_text_value = $("#model_number_text_" + div_no[2]).val();
                         if(model_text_value ===""){
-                             alert("Model Number is blank");
+                              alert("Model Number is blank");
+                              document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
+                              flag = 1;
+                              return false;
                         }
                     }
                   

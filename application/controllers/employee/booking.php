@@ -3053,10 +3053,11 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
-            service_centres.district as city, service_centres.primary_contact_name,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
         $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
+        
         unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
@@ -3708,6 +3709,7 @@ class Booking extends CI_Controller {
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
+        $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $order_list->booking_age." days";
         $row[] = $escalation." ".$order_list->partner_internal_status;

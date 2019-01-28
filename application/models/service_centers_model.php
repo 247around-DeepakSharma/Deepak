@@ -393,7 +393,7 @@ class Service_centers_model extends CI_Model {
         $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request, bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
-                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
+                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped' OR sp.status = '".SPARE_PART_ON_APPROVAL."') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
                 . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."') "
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);

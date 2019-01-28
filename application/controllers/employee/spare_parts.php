@@ -1368,10 +1368,8 @@ class Spare_parts extends CI_Controller {
 
                         $pcb['estimate_cost'] = ($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100);
                         $pcb['agent_id'] = $this->session->userdata('id');
-                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
-                                                
-                        $spare_data['purchase_price'] = $inventory_master_details[0]['price'];
-                        
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);                                                
+                                              
                     }
                     
                 } else {                   

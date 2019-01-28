@@ -536,7 +536,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $sn_no1 = 1; foreach($spare_parts_data as $key =>$row){?>
+                                <?php
+                                $sn_no1 = 1; 
+                                foreach($spare_parts_data as $key =>$row){
+                                 ?>
                                 <tr style="text-align: center;">
                                     <td>
                                         <?php echo $sn_no1; ?>
@@ -578,9 +581,9 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?php if($row['request_type']==REPAIR_IN_WARRANTY_TAG){ ?>
+                                        <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == 1 || $row['part_warranty_status'] == 2 ))){ ?>
                                            <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
-                                            <?php } ?>
+                                        <?php } ?>
                                         </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
