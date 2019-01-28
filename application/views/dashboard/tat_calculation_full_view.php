@@ -279,7 +279,7 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
-                             <form action="<?php echo base_url()?>/employee/dashboard/download_tat_report" method="post">
+                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
                                     <input type="hidden" value='<?php echo json_encode($sf);?>' name="data">
                                     <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
                                     </form>
