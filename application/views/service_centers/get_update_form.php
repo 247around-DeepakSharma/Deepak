@@ -1,4 +1,3 @@
-
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -12,15 +11,15 @@
                 </div>
                 <?php } ?>
                 <?php
-            if ($this->session->userdata('error')) {
-                echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong>' . $this->session->userdata('error') . '</strong>
-            </div>';
-            }
-            ?>
+                    if ($this->session->userdata('error')) {
+                        echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('error') . '</strong>
+                    </div>';
+                    }
+                    ?>
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <div class="col-md-12" style="margin-left:-31px;">
                         <div class="col-md-3">
@@ -146,7 +145,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -158,7 +156,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">                                        
+                                    <div class="form-group">
                                         <div class="col-md-6">
                                             <button type="button" style="margin-left: 95%;" class="btn btn-primary addButton">Request More Parts</button>
                                         </div>
@@ -171,6 +169,28 @@
                                 <div class="row">
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                            <div class="col-md-6">
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)"  required="">
+                                                    <option selected disabled>Select Part Warranty Status</option>
+                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
+                                                    <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]" required="">
+                                                    <option selected disabled>Select Technical Problem</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group">
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
@@ -180,13 +200,12 @@
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                             <?php } else { ?> 
-                                            <div class="col-md-6">                                                
+                                            <div class="col-md-6">
                                                 <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
                                             <?php } ?>
-                                            
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -198,7 +217,7 @@
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
-                                                 <span id="inventory_stock_0"></span>
+                                                <span id="inventory_stock_0"></span>
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
@@ -223,103 +242,95 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class = 'col-md-6'>
-                                        <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part Warranty Status*</label>                                             
-                                            <div class="col-md-6">                                                
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" required="">
-                                                    <option selected disabled>Select warranty status</option>                                                  
-                                                    <option value="1"> In-Warranty </option>
-                                                    <option value="2"> Out-Warranty </option>
-                                                </select>
-                                            </div>
-                                                                                        
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div id="template" class="hide">
-                        <div class="panel panel-default spare_clone " style="margin-left:10px; margin-right:10px;" >
-                           
-                            <div class="panel-body" >
-                                <div class="row">
-                                    <div class = 'col-md-6'>
-                                        <div class="form-group">
-                                            <label for="parts_type" class="col-md-4">Parts Type *</label>
-                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                            <div class="col-md-6">
-                                                <select class="form-control parts_type spare_parts" id="parts_type">
-                                                    <option selected disabled>Select Part Type</option>
-                                                </select>
-                                                <span id="spinner" style="display:none"></span>
+                            <div class="panel panel-default spare_clone " style="margin-left:10px; margin-right:10px;" >
+                                <div class="panel-body" >
+                                    <div class = "row">
+                                        <div class = 'col-md-6'>
+                                            <div class="form-group">
+                                                <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                                <div class="col-md-6">
+                                                    <select class="form-control" id="part_warranty_status" >
+                                                        <option selected disabled>Select Part Warranty Status</option>
+                                                        <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
+                                                        <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <?php } else { ?> 
-                                            <div class="col-md-6">                                                
-                                                <select class="form-control spare_parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>">
-                                                    <option selected disabled>Select Part Type</option>
-                                                </select>
-                                            </div>
-                                            <?php } ?>
-                                            
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="parts_name" class="col-md-4">Parts Name *</label>
-                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                            <div class="col-md-6">
-                                                <select class="form-control parts_name spare_parts" id="parts_name" onchange="get_inventory_id(this.id)">
-                                                    <option selected disabled>Select Part Name</option>
-                                                </select>
-                                                <span id="spinner" style="display:none"></span>
-                                                <span id="inventory_stock"></span>
-                                            </div>
-                                            <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
-                                            </div>
-                                            <?php } ?>
-                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
+                                        <div class = 'col-md-6'>
+                                            <div class="form-group">
+                                                <label for="Technical'Issue" class="col-md-4">Technical Problem *</label>                                             
+                                                <div class="col-md-6">
+                                                    <select class="form-control" id="spare_request_symptom">
+                                                        <option selected disabled>Select Technical Problem</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
-                                            <div class="col-md-6">
-                                                <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
+                                    <div class="row">
+                                        <div class = 'col-md-6'>
+                                            <div class="form-group">
+                                                <label for="parts_type" class="col-md-4">Parts Type *</label>
+                                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                                <div class="col-md-6">
+                                                    <select class="form-control parts_type spare_parts" id="parts_type">
+                                                        <option selected disabled>Select Part Type</option>
+                                                    </select>
+                                                    <span id="spinner" style="display:none"></span>
+                                                </div>
+                                                <?php } else { ?> 
+                                                <div class="col-md-6">
+                                                    <select class="form-control spare_parts_type" id="parts_type" value = "<?php echo set_value('parts_type'); ?>">
+                                                        <option selected disabled>Select Part Type</option>
+                                                    </select>
+                                                </div>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="parts_name" class="col-md-4">Parts Name *</label>
+                                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                                <div class="col-md-6">
+                                                    <select class="form-control parts_name spare_parts" id="parts_name" onchange="get_inventory_id(this.id)">
+                                                        <option selected disabled>Select Part Name</option>
+                                                    </select>
+                                                    <span id="spinner" style="display:none"></span>
+                                                    <span id="inventory_stock"></span>
+                                                </div>
+                                                <?php } else { ?> 
+                                                <div class="col-md-6">
+                                                    <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
+                                                </div>
+                                                <?php } ?>
+                                                <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
+                                                <div class="col-md-6">
+                                                    <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
+                                                <div class="col-md-6">
+                                                    <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                     <div class = 'col-md-6'>
-                                        <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part Warranty Status*</label>                                             
-                                            <div class="col-md-6">                                                
-                                                <select class="form-control" id="part_warranty_status" required="">
-                                                    <option selected disabled>Select warranty status</option>
-                                                    <option value="1"> In-Warranty </option>
-                                                    <option value="2"> Out-Warranty </option>
-                                                </select>
-                                            </div>
-                                                                                        
-                                        </div>
-                                    </div>
-                                    
                                 </div>
                             </div>
                         </div>
-                    </div>
                         <div class="row" >
                             <div class="col-md-12" style="margin-left:10px; margin-right:10px;">
                                 <div class="form-group">
@@ -536,7 +547,7 @@
                 }
             });
               
-
+    
             $('.defective_parts_pic').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "defective_parts_pic"){
@@ -558,7 +569,7 @@
                     }
                 }
             });
-
+    
            $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
@@ -595,7 +606,7 @@
               
           }
       }
-
+    
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");
           return false;
@@ -681,18 +692,20 @@
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
-                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
+                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
+                        .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Part Wrranty Status'}).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
-                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
+                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
+                   .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
             <?php } ?>
-
+    
         }) 
     
         // Remove button click handler
@@ -732,6 +745,34 @@
             }
         });
     });
+    
+    
+    function get_symptom(key){
+        var array = [];
+        var postData = {};
+        var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
+        
+        array.push(price_tags);
+        if(array.length > 0){
+            postData['request_type'] = array;
+            postData['service_id'] = '<?php echo $bookinghistory[0]['service_id'];?>';
+            var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
+            $.ajax({
+                method:'POST',
+                url: url,
+                data: postData,
+                success:function(data){ 
+                    console.log(data);
+                    if(data === "Error"){
+                        $('#spare_request_symptom_' + key).html("").change();
+                    } else {
+                        $('#spare_request_symptom_' + key).html(data).change();
+    
+                    }                  
+                }
+            });
+        }
+    }
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

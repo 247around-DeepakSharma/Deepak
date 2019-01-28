@@ -9687,6 +9687,15 @@ ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255)
 --Chhavi 08-01-2019
 ALTER TABLE `booking_details` ADD `repeat_reason` TEXT NULL DEFAULT NULL AFTER `cancellation_reason`;
 
+
 --Chhavi 25-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_api_fail_for_address', 'Google Api Fail to get Missing Pincode', 'Pincode - %s <br>\r\nResponse - %s', 'noreply@247around.com', '', '', '', '1', '2019-01-25 16:41:14');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'missing_pincode_details', 'Missing Pincode overview', 'Please Find the Details of missing pincodes in your area <br>\r\n%s', 'noreply@247around.com', '', '', 'chhavid@247around.com', '1', '2019-01-25 16:41:14');
+
+--Abhay
+ALTER TABLE `booking_details` ADD `booking_request_symptom` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` ADD `completion_symptom` INT(11) NULL DEFAULT NULL AFTER booking_request_symptom;
+ALTER TABLE `booking_details` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER completion_symptom;
+ALTER TABLE `spare_parts_details` ADD `spare_request_symptom` INT(11) NULL DEFAULT NULL AFTER `part_requested_on_approval`;
+ALTER TABLE `service_center_booking_action` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER `is_broken`, ADD `technical_problem` INT(11) NULL DEFAULT NULL AFTER `technical_solution`;
+

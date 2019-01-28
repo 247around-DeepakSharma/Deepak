@@ -267,6 +267,9 @@ class Do_background_process extends CI_Controller {
             $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
             $booking['update_date'] = date('Y-m-d H:i:s');
             $booking['approved_by'] = $approved_by;
+            
+            $booking['completion_symptom'] = $data[0]['technical_problem'];
+            $booking['technical_solution'] = $data[0]['technical_solution'];
             //update booking_details table
             log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
