@@ -30,6 +30,7 @@ class Booking_utilities {
 	$this->My_CI->load->model('employee_model');
 	$this->My_CI->load->model('booking_model');
 	$this->My_CI->load->model('reporting_utils');
+        $this->My_CI->load->model('booking_request_model');
         $this->My_CI->load->library('paytm_payment_lib');
     }
     
@@ -217,8 +218,19 @@ class Booking_utilities {
                 }
             }
             $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
+            if(!empty($booking_details[0]['booking_request_symptom'])){
+                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $booking_details[0]['booking_request_symptom']));
+                 if(!empty($symptom1)){
+                     $symptom =  $symptom1[0]['booking_request_symptom'];
+                 } else {
+                     $symptom =  "";
+                 }
+        
+            } else {
+                $symptom =  "";
+            }
             //Create html for job card
-           $html = $this->My_CI->load->view('employee/jobcard_html', array("booking_details"=>$booking_details,"booking_unit_details"=>$booking_unit_details,'meta'=>$meta,'qr'=>$qr),true);     
+           $html = $this->My_CI->load->view('employee/jobcard_html', array("booking_details"=>$booking_details,"booking_unit_details"=>$booking_unit_details,'meta'=>$meta,'qr'=>$qr, 'symptom' => $symptom),true);     
             //convert html into pdf
            $json_result = $this->My_CI->miscelleneous->convert_html_to_pdf($html,$booking_details[0]['booking_id'],$output_file_pdf,"jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);

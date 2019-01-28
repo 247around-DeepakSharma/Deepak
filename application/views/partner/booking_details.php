@@ -109,13 +109,18 @@
                                             } ?>
                                         </td>
                                     </tr>
-                                    <tr><th>Remarks: </th>
+                                    <tr>
+                                        <th>Remarks: </th>
                                         <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <th>Job Card</th>
-                                        <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
-                                                    <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
-                                            <?php } ?>
+                                        <th>Booking Request Symptom</th>
+                                        <td><?php if(!empty($symptom)){ echo $symptom[0]['booking_request_symptom'];};?>
                                         </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Closing Technical Problem</th>
+                                        <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                                        <th >Technical Solution</th>
+                                        <td style="max-width:200px;"><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                                     </tr>
                                     <tr>
                                         <th>Dealer Name: </th>
@@ -126,8 +131,10 @@
                                      <tr>
                                         <th>Repeat Reason: </th>
                                         <td><?php if($booking_history[0]['repeat_reason']){ echo $booking_history[0]['repeat_reason'];  } ?></td>
-                                        <th></th>
-                                        <td></td>
+                                        <th>Job Card</th>
+                                        <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
+                                                    <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                            <?php } ?></td>
                                     </tr> 
                                 </table>
                                 <table class="table  table-striped table-bordered" id="relative_holder">
