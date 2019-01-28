@@ -4469,6 +4469,9 @@ class Inventory extends CI_Controller {
                         $response = $this->add_appliance_model_data($data);
                         break;
                     case 'edit':
+                        if($this->input->post('status') || $this->input->post('status') == 0){
+                            $data['active'] = $this->input->post('status');
+                        }
                         $response = $this->edit_appliance_model_data($data);
                         break;
                 }
@@ -4513,7 +4516,7 @@ class Inventory extends CI_Controller {
      */
     function edit_appliance_model_data($data) {
         if($this->input->post('model_id')){
-            $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);;
+            $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);
             if (!empty($response)) {
                 $res['response'] = 'success';
                 $res['msg'] = 'Details has been updated successfully';
