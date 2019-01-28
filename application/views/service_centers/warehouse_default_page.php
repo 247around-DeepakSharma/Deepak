@@ -800,7 +800,8 @@
                 data:formData,
                 contentType: false,
                 processData: false,
-                success:function(response){             
+                success:function(response){
+                    inventory_spare_table.ajax.reload();
                     obj = JSON.parse(response);                    
                     if(obj.status){                          
                         $('#reject_err').html("Spart Parts Successfully Rejected").css({'color':'#fff','background':'#85c35e','font-weight':'bold','padding': '5px'});

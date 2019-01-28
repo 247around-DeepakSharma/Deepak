@@ -138,6 +138,13 @@
                                             <textarea class="form-control" id="<?php echo "partstype_".$skey;?>" name="part[<?php echo $skey;?>][parts_type]" readonly="readonly" required><?php echo $sp->parts_requested_type; ?></textarea>
                                         </div>
                                     </div>
+                                    <div class="form-group ">
+                                        <label for="parts_type" class="col-md-4">Symptom</label>
+                                        <div class="col-md-6">
+                                            <input class="form-control" id="<?php echo "symptom_".$skey;?>" value="<?php echo $sp->spare_request_symptom; ?>" name="part[<?php echo $skey;?>][spare_request_symptom]" readonly="readonly" required>
+                                        </div>
+                                    </div>
+                                    
                                     <div class="form-group <?php
                                         if (form_error('shipped_model_number')) {
                                             echo 'has-error';
@@ -182,6 +189,7 @@
                                             <input type="hidden" id="<?php echo "part_warranty_status_".$skey; ?>" name="part[<?php echo $skey;?>][part_warranty_status]" value="">-->
                                         </div>
                                     </div>
+
                                 </div>
                                 <div class="col-md-5">
                                     <div class="form-group ">
@@ -200,6 +208,12 @@
                                             <?php } ?>
                                         </div>
                                     </div>
+                                    <div class="form-group ">
+                                        <label for="parts_type" class="col-md-4">Part Warranty Status</label>
+                                        <div class="col-md-6">
+                                            <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if($sp->spare_request_symptom == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
+                                        </div>
+                                    </div>
                                     <div class="form-group <?php
                                         if (form_error('shipped_part_type')) {
                                             echo 'has-error';
@@ -212,6 +226,7 @@
                                             <?php echo form_error('shipped_part_type'); ?>
                                         </div>
                                     </div>
+                                    
                                     <div class="form-group <?php
                                         if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
                                         <label for="remarks_by_partner" class="col-md-4">Remarks *</label>

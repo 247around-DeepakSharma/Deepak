@@ -932,7 +932,33 @@ function getModelForServiceCategoryCapacity(div_id) {
     }
 }
  
+function get_symptom(symptom_id = ""){
+    var array = [];
+    var postData = {};
+    $(".price_checkbox:checked").each(function (i) {
+        var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+        array.push(price_tags);
 
+    });
+    
+    if(array.length > 0){
+        postData['request_type'] = array;
+        postData['service_id'] = $("#service_id").val();
+        postData['booking_request_symptom'] = symptom_id;
+        var url = baseUrl + '/employee/booking_request/get_booking_request_dropdown';
+        sendAjaxRequest(postData, url).done(function (data) {
+            if(data === "Error"){
+                $('#booking_request_symptom').html("").change();
+                $("#booking_request_symptom").removeAttr('required');
+            } else {
+                $('#booking_request_symptom').html(data).change();
+                $("#booking_request_symptom").attr('required', 'required');
+                
+            }
+        });
+    }
+   
+}
 
 
 
