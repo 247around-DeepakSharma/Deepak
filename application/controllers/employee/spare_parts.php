@@ -1276,8 +1276,7 @@ class Spare_parts extends CI_Controller {
             if (!empty($spare_parts_details)) {
 
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
-                $requested_inventory_id = $spare_parts_details[0]['requested_inventory_id'];
-                $purchase_price = $spare_parts_details[0]['purchase_price'];
+                $requested_inventory_id = $spare_parts_details[0]['requested_inventory_id'];             
                 $entity_type = $spare_parts_details[0]['entity_type'];
                 $service_center_id = $spare_parts_details[0]['service_center_id'];
                 $booking_id = $spare_parts_details[0]['booking_id'];
