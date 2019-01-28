@@ -1115,19 +1115,28 @@ class Miscelleneous {
                 $unbilled_amount = $invoice_amount[1]['amount'];
             }
         }
-
+        // Get Delivered Amount
         $where['where'] = array('assigned_cp_id' => $cp_id, 'cp_invoice_id IS NULL' => NULL);
         $where['where_in'] = array('bb_unit_details.order_status' => array('Delivered', 'Completed'));
-
-        $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as cp_delivered_charge")[0]->cp_delivered_charge;
+        $cp_delivered_charge = $this->My_CI->bb_model->get_bb_order_list($where, " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) "
+                . "ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as cp_delivered_charge")[0]->cp_delivered_charge;
+        
+        // Get Intransit Amount
         $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
-
         $cp_intransit = $this->My_CI->bb_model->get_bb_order_list($where, "SUM(cp_basic_charge + cp_tax_charge) as cp_intransit")[0]->cp_intransit;
+        
+        // Get InProcess Amount
+        $where['where'] = array('assigned_cp_id' =>$cp_id);
+        $where['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
+                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
+        $where['select'] = "SUM(cp_basic_charge + cp_tax_charge) as cp_inprocess";
+        $cp_inProcess = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->cp_inprocess;
+        
         $total_balance = abs($advance_amount) - ( $unbilled_amount + $cp_delivered_charge + $cp_intransit);
-
         $cp_amount['total_balance'] = $total_balance;
         $cp_amount['cp_delivered'] = $cp_delivered_charge;
         $cp_amount['cp_transit'] = $cp_intransit;
+        $cp_amount['in_process'] = $cp_inProcess;
         $cp_amount['unbilled'] = $unbilled_amount;
         $cp_amount['advance'] = $advance_amount;
 
