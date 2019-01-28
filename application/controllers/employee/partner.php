@@ -174,6 +174,21 @@ class Partner extends CI_Controller {
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
         }
+        
+        $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
+        
+        if(!empty($data['booking_history'][0]['booking_request_symptom'])){
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_history'][0]['booking_request_symptom']));
+        
+        } 
+        if(!empty($data['booking_history'][0]['completion_symptom'])){
+            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('completion_request_symptom', array('symptom_completion_request.id' => $data['booking_history'][0]['completion_symptom']));
+        
+        } 
+        if(!empty($data['booking_history'][0]['technical_solution'])){
+            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_history'][0]['technical_solution']));
+        
+        } 
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         //$this->load->view('partner/header');
@@ -399,6 +414,7 @@ class Partner extends CI_Controller {
         $post['dealer_id'] = $this->input->post('dealer_id');
         $post['parent_booking']  = NULL;
         $post['repeat_reason']  = NULL;
+        $post['booking_request_symptom'] = $this->input->post('booking_request_symptom');
         if($this->input->post('parent_booking')){
             $post['parent_booking'] = $this->input->post('parent_booking');
         }
@@ -1533,6 +1549,7 @@ class Partner extends CI_Controller {
             $booking_details['user_id'] = $user['user_id'];
             $booking_details['service_center_closed_date'] = NULL;
             $booking_details['cancellation_reason'] = NULL;
+            $booking_details['booking_request_symptom'] = $post['booking_request_symptom'];
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
 
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
@@ -1767,7 +1784,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_PARTNER_STRING);
-        $where['select'] = "booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+        $where['select'] = "symptom_spare_request.spare_request_symptom, booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
@@ -1775,6 +1792,8 @@ class Partner extends CI_Controller {
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
         $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        
+        
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
@@ -2997,7 +3016,7 @@ class Partner extends CI_Controller {
                 }
                 $checkboxClass = $prices['product_or_services'];
                 $ch  = "check_active_paid('".$i."')";
-                $onclick = 'onclick="final_price(), '.$ch.', set_upcountry()"';
+                $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), get_symptom()"';
                 $tempHelperString = "";
                if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -3012,7 +3031,7 @@ class Partner extends CI_Controller {
                         if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                             $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,true";
-                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -3020,7 +3039,7 @@ class Partner extends CI_Controller {
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
-                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -3037,7 +3056,7 @@ class Partner extends CI_Controller {
                 $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 $html .= " type='checkbox' id='checkbox_" . $i . "'";
                 $html .= "name='prices[]'";
-                $html .= $tempHelperString.$onclick."value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . " ></td><tr>";
+                $html .= $tempHelperString.$onclick."value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . "  data-price_tag='".$prices['service_category']."' ></td><tr>";
                 $i++;
             }
             $html .= "<tr class='text-center'><td>Upcountry Services</td>";

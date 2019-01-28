@@ -290,7 +290,7 @@ class Spare_parts extends CI_Controller {
         log_message('info', __METHOD__);
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.part_warranty_status, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval,"
-                . "defective_part_required, status";
+                . "defective_part_required, status, symptom_spare_request.spare_request_symptom";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
@@ -731,12 +731,14 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_request))?'0 Days':$spare_list->age_of_request." Days";
+        $row[] = $spare_list->spare_request_symptom;
         $c_tag = ($spare_list->part_warranty_status == 2 && $spare_list->status != SPARE_PARTS_REQUESTED)? "QUOTE_REQUEST_REJECTED":"CANCEL_PARTS";
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$c_tag.'" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button>';
         if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
+        
         if($spare_list->part_requested_on_approval == '0'){ $appvl_text = 'Approve'; }else{ $appvl_text = 'Approved'; }
-        $row[] = '<button type="button" data-keys="'.$spare_list->part_warranty_status.'" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/spare_parts/spare_part_on_approval/'.$spare_list->id.'/'.$spare_list->booking_id.'" class="btn btn-info open-adminremarks" data-toggle="modal" id="approval_'.$no.'" data-target="#myModal2">'.$appvl_text.'</button>';
+        $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/spare_parts/spare_part_on_approval/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$no.'/'.$spare_list->part_warranty_status.'" class="btn btn-info open-adminremarks" data-toggle="modal" id="approval_'.$no.'" data-target="#myModal2">'.$appvl_text.'</button>';
         
       //$row[] = 'blank Text';
         
@@ -1125,7 +1127,7 @@ class Spare_parts extends CI_Controller {
         }
         $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
         $booking_id = $this->input->post('booking_id');
-        $where = array("booking_id"=>$booking_id, "sell_invoice_id IS NULL"=>NULL);
+        $where = array("booking_id"=>$booking_id, "status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where);
         $data['remarks'] = $internal_status;
         $data['hsn_code'] = $hsn_code_html;
@@ -1390,7 +1392,6 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        
                     }
                 }
 

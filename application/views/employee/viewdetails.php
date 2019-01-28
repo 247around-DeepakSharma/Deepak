@@ -198,24 +198,32 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
                         <tr>
+                            <th >Booking Request Symptom</th>
+                            <td style="max-width: 330px;"><?php if(!empty($symptom)) { echo $symptom[0]['booking_request_symptom']; } ?></td>
+                            <th>Closing Technical Problem</th>
+                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                        </tr>
+                        
+                        <tr>
+                            <th>Closing Remarks</th>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <th >Technical Solution</th>
+                            <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
+                        </tr>
+                        <tr>
                             <th>Service Promise Date</th>
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
                             <th >Jeeves CD/BD</th>
                             <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                         </tr>
                         <tr>
-                            <th>Closing Remarks</th>
-                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <th>Repeat Reason</th>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['repeat_reason'];?></td>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
                         </tr>
-                        <tr>
-                            <th>Repeat Reason</th>
-                            <td style="max-width: 330px;"><?php echo $booking_history[0]['repeat_reason'];?></td>
-                            <th ></th>
-                            <td ></td>
-                        </tr>
+                        
                     </table>
                     <table class="table  table-striped table-bordered" >
                         <tr>
@@ -477,6 +485,7 @@
                                 <thead>
                                     <tr>
                                         <th >Partner/Warehouse </th>
+                                        <th>Technical Issue</th>
                                         <th >Model Number </th>
                                         <th >Requested Parts </th>
                                         <th >Requested Date</th>
@@ -498,6 +507,7 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
                                         <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                        <td><?php echo $sp['spare_request_symptom'];?></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['create_date']; ?></td>

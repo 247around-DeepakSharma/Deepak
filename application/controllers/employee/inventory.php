@@ -4520,7 +4520,9 @@ class Inventory extends CI_Controller {
                       'entity_id' => $this->input->post('entity_id'),
                       'entity_type' => $this->input->post('entity_type')
             );
-            
+            if($this->input->post('status') || $this->input->post('status') == 0){
+                $data['active'] = $this->input->post('status');
+            }
             if(!empty($data['service_id']) && !empty($data['model_number']) && !empty($data['entity_id']) && !empty($data['entity_type']) ){
                 switch (strtolower($submit_type)) {
                     case 'add':
@@ -4528,9 +4530,6 @@ class Inventory extends CI_Controller {
                         $response = $this->add_appliance_model_data($data);
                         break;
                     case 'edit':
-                        if($this->input->post('status') || $this->input->post('status') == 0){
-                            $data['active'] = $this->input->post('status');
-                        }
                         $response = $this->edit_appliance_model_data($data);
                         break;
                 }

@@ -519,6 +519,7 @@ class Dashboard extends CI_Controller {
         $total_un_settle = 0;
         $total_un_billed_delivered = 0;
         $total_un_billed_in_transit= 0;
+        $total_un_billed_in_process= 0;
         $total_balance= 0;
        
         $template = array(
@@ -527,7 +528,7 @@ class Dashboard extends CI_Controller {
         );
 
         $this->table->set_template($template);
-        $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)', 'Balance (Rs)', "Login"));
+        $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)','Un-billed In-process (Rs)', 'Balance (Rs)', "Login"));
 
         if(!empty($cp)){
             foreach ($cp as  $value) {
@@ -570,11 +571,12 @@ class Dashboard extends CI_Controller {
                  $total_un_settle += $amount_cr_deb['unbilled'];
                  $total_un_billed_delivered += $amount_cr_deb['cp_delivered'];
                  $total_un_billed_in_transit += $amount_cr_deb['cp_transit'];
+                 $total_un_billed_in_process += $amount_cr_deb['in_process'];
                  $total_balance += $amount_cr_deb['total_balance'];
                  $login_button = '<a href="javascript:void(0)" style="background: #4b5056;border:1px solid #4b5056" '
                          . 'class="btn btn-md btn-success" onclick="return login_to_vendor('.$value['id'].')" ">Login</a>';
                  $this->table->add_row($name .$star,round(abs($amount_cr_deb['advance']),0),-round($amount_cr_deb['unbilled'],0), 
-                         -round($amount_cr_deb['cp_delivered'],0),-round($amount_cr_deb['cp_transit'],0), 
+                         -round($amount_cr_deb['cp_delivered'],0),-round($amount_cr_deb['cp_transit'],0), round($amount_cr_deb['in_process'],0),
                          "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
                         round($amount_cr_deb['total_balance'],0).$class. "</a>", $login_button);
 
@@ -586,6 +588,7 @@ class Dashboard extends CI_Controller {
                 "<b>".round($total_un_settle,0)."</b>",
                 "<b>".round($total_un_billed_delivered,0)."</b>",
                 "<b>".round($total_un_billed_in_transit,0),
+                 "<b>".round($total_un_billed_in_process,0),
                 "<b>".round($total_balance,0)."</b>", "");
         echo $this->table->generate();
     }

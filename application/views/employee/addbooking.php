@@ -351,6 +351,14 @@
                                 </div>
                             </div>-->
                             <div class="form-group ">
+                                <label for="type" class="col-md-4">Technical Problem</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
+                                        <option disabled selected>Please Select Any Symptom</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks"  ></textarea>

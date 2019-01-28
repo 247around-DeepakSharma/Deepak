@@ -8,6 +8,7 @@
             <?php }else if($total_charges < 0){ ?>
                     <b class="text-danger bb_counter"><?php echo $total_charges; ?></b>
             <?php } ?>
+                    Disputed (In Review) Amount: Rs. <b class="text-success bb_counter"><?php echo sprintf("%01.0f",$in_process_charges); ?></b>
         </div>
     </div>
 </div>
