@@ -50,7 +50,7 @@
                 display: none !important;
             }
             .highcharts-credits{display:none}
-            .highcharts-button{display: none}
+/*            .highcharts-button{display: none}*/
             #title_count .col-md-3 {
                 width: 23%;
             }
