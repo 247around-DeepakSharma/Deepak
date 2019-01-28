@@ -1,6 +1,5 @@
 <?php if($this->uri->segment(3)){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
-
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
       <?php if ($this->session->userdata('success')) {
@@ -28,6 +27,7 @@
                             <th class="text-center">User Name</th>
                             <th class="text-center">Age of Pending</th>
                             <th class="text-center">Parts Received</th>
+                             <th class="text-center">Amount</th>
                             <th class="text-center">Remarks By Partner</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                             <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>
@@ -52,6 +52,9 @@
                                     </td>
                                     <td>
                                         <?php echo $row['parts_shipped']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['challan_approx_value']; ?>
                                     </td>
 
                                     <td>
