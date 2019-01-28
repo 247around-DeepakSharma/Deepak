@@ -557,7 +557,7 @@ class User_invoice extends CI_Controller {
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                         $data[$key]['taxable_value'] = ($amount  - $tax_charge);
                         $data[$key]['product_or_services'] = "Product";
-                        if(!empty($vendor_data['gst_number'])){
+                        if(!empty($vendor_data['gst_no'])){
                             $data[$key]['gst_number'] = $vendor_data['gst_no'];
                         } else {
                             $data[$key]['gst_number'] = TRUE;
@@ -649,7 +649,7 @@ class User_invoice extends CI_Controller {
                 }
                 $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
                 $where_in = array('id' => $spare_parts_detail_ids);
-                $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id));
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1));
             }
 
             echo $result;
