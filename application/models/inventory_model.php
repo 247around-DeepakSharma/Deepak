@@ -1946,5 +1946,24 @@ class Inventory_model extends CI_Model {
         
     }
     
+    /**
+     * @Desc: This function is used to get inventory mapped model number
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_mapped_model_numbers($select,$where = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('inventory_model_mapping');
+        $this->db->join('appliance_model_details','inventory_model_mapping.model_number_id = appliance_model_details.id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
        
 }
