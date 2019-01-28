@@ -3404,7 +3404,7 @@ class Booking extends CI_Controller {
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
      */ 
-    function get_advance_search_result_data($receieved_Data,$select){
+    function get_advance_search_result_data($receieved_Data,$select,$selectarray=array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
         $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
@@ -3441,10 +3441,31 @@ class Booking extends CI_Controller {
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
-       //process query and get result from database
-        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
-                $whereInArray,$JoinTypeTableArray);
-        //convert database result into a required formate needed for datatales
+      
+       //Performing Sorting on datatable
+       if(!empty($receieved_Data['order']))
+       {
+            $order=$receieved_Data['order'];
+            $column_sort=$order['0']['column'];
+            $sort_type=$order['0']['dir'];
+            if(!empty($selectarray))
+            {
+                $order_by_column=$selectarray[$column_sort];
+                $sorting_type=$sort_type;
+            }
+       }
+       else
+       {
+           $order_by_column='booking_details.booking_id';
+           $sorting_type='ASC';
+       }
+        
+        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
+              //  $whereInArray,$JoinTypeTableArray);
+        //process query and get result from database
+        //After server side shorting
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
+       //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
@@ -3466,7 +3487,9 @@ class Booking extends CI_Controller {
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status";
-        $data = $this->get_advance_search_result_data($receieved_Data,$select);
+        $select_explode=explode(',',$select);
+        array_unshift($select_explode,"s.no");
+        $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
