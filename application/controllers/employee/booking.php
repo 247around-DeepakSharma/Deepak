@@ -844,10 +844,16 @@ class Booking extends CI_Controller {
             }
             $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
             if(in_array($partner_id,$serialNumberMandatoryArray )){
-                $where = array("partner_id" => $partner_id, 'service_id' => $data['booking_history'][0]['service_id'], 
-                            'brand' => $value['brand'], 'category' => $value['category'], 'active'=> 1, 'capacity' => $value['capacity'],
-                            "NULLIF(model, '') IS NOT NULL" => NULL);
-                $data['booking_unit_details'][$keys]['model_dropdown'] =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                $where = array(
+                    "partner_appliance_details.partner_id" => $partner_id, 
+                    'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                    'partner_appliance_details.brand' => $value['brand'],
+                    'partner_appliance_details.category' => $value['category'],
+                    'appliance_model_details.active'=> 1, 
+                    'partner_appliance_details.capacity' => $value['capacity'],
+                    "NULLIF(model, '') IS NOT NULL" => NULL
+                );
+                $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
             }
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
@@ -4470,20 +4476,21 @@ class Booking extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
         
-        $where = array ('service_id' => $service_id,
-                        'partner_id' => $partner_id,
-                        'category' => $category,
+        $where = array ('partner_appliance_details.service_id' => $service_id,
+                        'partner_appliance_details.partner_id' => $partner_id,
+                        'partner_appliance_details.category' => $category,
+                        'appliance_model_details.active' => 1, 
             );
         
         if(!empty($capacity)){
-            $where['capacity'] = $capacity;
+            $where['partner_appliance_details.capacity'] = $capacity;
         }
         
         if ($partner_type == OEM) {
-            $where['brand'] = $brand;
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $where['partner_appliance_details.brand'] = $brand;
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         } else {
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         }
         
         if(!empty($result)){
@@ -4492,7 +4499,7 @@ class Booking extends CI_Controller {
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option .= "<option value='".$value['model']."'>".$value['model']."</option>";
+                    $option .= "<option value='".$value['model_number']."'>".$value['model_number']."</option>";
                 }
                 
             }

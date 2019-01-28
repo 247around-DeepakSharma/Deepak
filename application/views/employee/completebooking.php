@@ -281,7 +281,7 @@
                                                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
                                                                                                 <option value="" selected="" disabled="">Model Number</option>
                                                                                                 <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>  
+                                                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>  
                                                                                                 <?php }?>
                                                                                             </select>
                                                                         </div>

@@ -210,7 +210,7 @@
                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($price['model_data'] as $m) { ?>
-                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>
+                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
                                                                                 
                                                                 <?php }?>
                                                             </select>
