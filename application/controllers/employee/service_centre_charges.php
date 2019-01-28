@@ -957,6 +957,23 @@ class service_centre_charges extends CI_Controller {
         }
         echo $option;
     }
+    
+    function get_service_category_request_type(){
+        $service_id = $this->input->post("service_id");
+        $price_tags = $this->input->post("price_tags");
+        $data = $this->service_centre_charges_model->get_service_request_type(array("service_id" => $service_id), "*");
+        $option = "";
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($price_tags === $value['service_category']) {
+                $option .= " selected ";
+            } else if (count($data) == 1) {
+                $option .= " selected ";
+            }
+            $option .= " data-type = '".$value['product_or_services']."' value='" . $value['id'] . "'>" . $value['service_category'] . "</option>";
+        }
+        echo $option;
+    }
     /**
      * @desc Generate Partner/Vendor Service Charge
      */

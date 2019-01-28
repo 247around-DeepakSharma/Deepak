@@ -761,6 +761,15 @@
                                     </select>
                                 </div>
                             </div>
+                            
+                            <div class="form-group ">
+                                <label for="type" class="col-md-4">Symptom</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
+                                        <option disabled selected>Please Select Any Symptom</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
@@ -1022,6 +1031,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $("#is_repeat").val("1");
         $('#repeat_booking_model').modal('hide');
     }
+    
+    get_symptom('<?php echo $booking_history[0]['booking_request_symptom'];?>');
 </script>
 <style type="text/css">
     #errmsg1

@@ -111,7 +111,17 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="col-md-9">
+                                    <div class="form-group ">
+                                        <label for="symptom" class="col-md-4">Technical Problem</label>
+                                        <div class="col-md-12" style="width:102%">
+                                            <input type="text" class="form-control" id="<?php echo "sparerequestsymptom_". $key; ?>" name="part[<?php echo $key;?>][spare_request_symptom]" readonly="readonly" value="<?php echo $value->spare_request_symptom; ?>" >
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div class="col-md-5">
+                                    <br/><br/>
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Type</label>
                                         <div class="col-md-6">
@@ -165,6 +175,7 @@
                                     
                                 </div>
                                 <div class="col-md-5">
+                                    <br/><br/>
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
                                         <div class="col-md-6">

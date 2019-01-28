@@ -1,26 +1,26 @@
 <style>
     .col-md-3{
-        width: 25%;
+    width: 25%;
     }
     #dealer_list{
-        float:left;
-        width:92%;
-        max-height: 300px;
-        list-style:none;
-        margin-top:0px;
-        padding:0;
-        position: absolute;
-        z-index: 99999;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        overflow-y: auto;
+    float:left;
+    width:92%;
+    max-height: 300px;
+    list-style:none;
+    margin-top:0px;
+    padding:0;
+    position: absolute;
+    z-index: 99999;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    overflow-y: auto;
     }
     #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
 </style>
 <div class="right_col" role="main">
-    <?php
+<?php
     if ($this->session->userdata('success')) {
         echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -30,7 +30,7 @@
                                 </div>';
     }
     ?>
-    <?php
+<?php
     if ($this->session->userdata('error')) {
         echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -40,282 +40,266 @@
                                 </div>';
     }
     ?>
-    <form name="myForm" class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Step 1</h2>
-                        <div class="clearfix"></div>
+<form name="myForm" class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Step 1</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="col-md-4 ">
+                        <div class="form-group col-md-12   <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
+                            <label for="booking_primary_contact_no">Mobile *</label>
+                            <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !="process_addbooking"){ echo  $phone_number; }  ?>" required>
+                            <span id="error_mobile_number" style="color:red"></span>
+                        </div>
                     </div>
-                    <div class="x_content">
-                            
-                            <div class="col-md-4 ">
-                                <div class="form-group col-md-12   <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
-                                    <label for="booking_primary_contact_no">Mobile *</label>
-                                    <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !="process_addbooking"){ echo  $phone_number; }  ?>" required>
-                                    <span id="error_mobile_number" style="color:red"></span>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4" >
-                                <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
-                                    <label for="name">Name * <span id="error_username" style="color: red;"></span></label>
-                                    <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="" />
-                                    <input type="hidden" id="partner_channel" value=""/>
-                                    <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
-                                    <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
-                                    <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
-                                    <input type="hidden" name="is_active" id="is_active" value="<?php echo $this->session->userdata('status');?>" />
-                                    
-                                    <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
-                                    <?php echo form_error('user_name'); ?>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
-                                    <label for="service_name">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select class="form-control"  id="service_name" name="service_id"   required onchange="return enablePincode(),get_city(), get_brands(), get_category(), get_capacity()">
-                                        <option selected disabled>Select Appliance</option>
-                                        <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
-                                            <?php echo $values->services; }    ?>
-                                        </option>
-                                    </select>
-                                    <?php echo form_error('service_id'); ?>
-                                </div>
-                            </div>
-                         
-                            <div class="clearfix"></div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12  <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?> ">
-                                    <label for="booking_pincode">Pincode *   <span id="error_pincode" style="color: red;"></span></label>
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
-                                    <?php echo form_error('booking_pincode'); ?>
-                                </div>
-                            </div>
-                            
-                           <div class="col-md-4 ">
-                                <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                                    <label for="booking_city">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
-                                    <select class="form-control"  id="booking_city" name="city" required>
-                                        <option selected="selected" disabled="disabled">Select City</option>
-                                        <?php if(isset($user[0]['city'])){ ?>
-                                           
-                                        <option selected><?php echo $user[0]['city']; ?></option>
-                                        <?php  }
-                                            ?>
-                                    </select>
-                                    <?php echo form_error('city'); ?>
-                                </div>
-                            </div>
-                            
-                            <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_brand_1">Brand *   <span style="color:grey;display:none" id="brand_loading">Loading ...</span> <span id="error_brand" style="color: red;"></label>
-                                    <select class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category()">
-                                        <option selected disabled value="option1">Select Brand</option>
-                                    </select>
-                                    <?php echo form_error('appliance_brand'); ?>
-                                </div>
-                            </div>
-                            
-                            <div class="clearfix"></div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_category_1">Category *<span style="color:grey;display:none" id="category_loading">Loading ...</span> <span id="error_category" style="color: red;"></label>
-                                    <select class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity()">
-                                        <option selected disabled value="option1">Select Appliance Category</option>
-                                    </select>
-                                    <?php echo form_error('appliance_category'); ?>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_capacity_1">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
-                                    <select class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
-                                        <option selected disabled value="option1">Select Appliance Capacity</option>
-                                    </select>
-                                    <?php echo form_error('appliance_capacity'); ?>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
-                                    <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
-                                    <span id="model_number_2">
-                                    <select class="form-control"  name="model_number" id="model_number_1" >
-                                        <option selected disabled>Select Model</option>
-                                    </select>
-                                    </span>
-                                    <?php echo form_error('model_number'); ?>
-                                </div>
-                            </div>
-                            
-                            <div class="clearfix"></div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                                    <label for="booking_date">Booking Date *</label>
-                                    <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>"  >
-                                    <?php echo form_error('booking_date'); ?>
-                                </div>
-                            </div>
-                             
-                            <div class="col-md-4 ">
-                                <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
-                                    <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
-                                    <select class="form-control"  id="partner_source" name="partner_source" required>
-                                        <option value="" selected disabled>Please select seller channel</option>
-                                        <?php foreach ($channel as $key => $value) { ?>
-                                        <option><?php echo $value['channel_name'];  ?></option>  
-                                       <?php } ?>
-                                    </select>
-                                    <?php echo form_error('partner_source'); ?>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-5 ">
-                                    <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
-                                    <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
-                                      
-                                        <?php for($i =1; $i <11; $i++) { ?>
-                                        <option value="<?php echo $i;?>"><?php echo $i; ?></option>
-                                        <?php }?>
-                                    </select>
-                                </div>
-                                 
-<!--                                <div class="form-group col-md-7  <?php //if( form_error('product_type') ) { echo 'has-error';} ?>">
-                                   <label for="Product Type">Product Type *</label>
-                                     <label class="radio-inline">
-                                        <input type="radio" name="product_type" value="Delivered" checked>Delivered
-                                      </label>
-                                      <label class="radio-inline">
-                                          <input type="radio" name="product_type" value="Shipped">Shipped
-                                      </label>
-                                    <?php //echo form_error('product_type'); ?>
-                                </div>-->
-                            </div>
-                            
-                            <div class="clearfix"></div>
+                    <div class="col-md-4" >
+                        <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
+                            <label for="name">Name * <span id="error_username" style="color: red;"></span></label>
+                            <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="" />
+                            <input type="hidden" id="partner_channel" value=""/>
+                            <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
+                            <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type;?>" />
+                            <input type="hidden" name="partner_code" id="partner_code" value="<?php echo $partner_code;?>" />
+                            <input type="hidden" name="is_active" id="is_active" value="<?php echo $this->session->userdata('status');?>" />
+                            <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php //if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+                            <?php echo form_error('user_name'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
+                            <label for="service_name">Appliance * <span id="error_appliance" style="color: red;"></span></label>
+                            <select class="form-control"  id="service_name" name="service_id"   required onchange="return enablePincode(),get_city(), get_brands(), get_category(), get_capacity()">
+                                <option selected disabled>Select Appliance</option>
+                                <?php foreach ($appliances as $values) { ?>
+                                <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->services;?>" value=<?= $values->id; ?>>
+                                    <?php echo $values->services; }    ?>
+                                </option>
+                            </select>
+                            <?php echo form_error('service_id'); ?>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12  <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?> ">
+                            <label for="booking_pincode">Pincode *   <span id="error_pincode" style="color: red;"></span></label>
+                            <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
+                            <?php echo form_error('booking_pincode'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4 ">
+                        <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
+                            <label for="booking_city">City * <span id="error_city" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
+                            <select class="form-control"  id="booking_city" name="city" required>
+                                <option selected="selected" disabled="disabled">Select City</option>
+                                <?php if(isset($user[0]['city'])){ ?>
+                                <option selected><?php echo $user[0]['city']; ?></option>
+                                <?php  }
+                                    ?>
+                            </select>
+                            <?php echo form_error('city'); ?>
+                        </div>
+                    </div>
+                    <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
+                            <label for="appliance_brand_1">Brand *   <span style="color:grey;display:none" id="brand_loading">Loading ...</span> <span id="error_brand" style="color: red;"></label>
+                            <select class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category()">
+                                <option selected disabled value="option1">Select Brand</option>
+                            </select>
+                            <?php echo form_error('appliance_brand'); ?>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
+                            <label for="appliance_category_1">Category *<span style="color:grey;display:none" id="category_loading">Loading ...</span> <span id="error_category" style="color: red;"></label>
+                            <select class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity()">
+                                <option selected disabled value="option1">Select Appliance Category</option>
+                            </select>
+                            <?php echo form_error('appliance_category'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
+                            <label for="appliance_capacity_1">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
+                            <select class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
+                                <option selected disabled value="option1">Select Appliance Capacity</option>
+                            </select>
+                            <?php echo form_error('appliance_capacity'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
+                            <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
+                            <span id="model_number_2">
+                                <select class="form-control"  name="model_number" id="model_number_1" >
+                                    <option selected disabled>Select Model</option>
+                                </select>
+                            </span>
+                            <?php echo form_error('model_number'); ?>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
+                            <label for="booking_date">Booking Date *</label>
+                            <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>"  >
+                            <?php echo form_error('booking_date'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4 ">
+                        <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
+                            <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
+                            <select class="form-control"  id="partner_source" name="partner_source" required>
+                                <option value="" selected disabled>Please select seller channel</option>
+                                <?php foreach ($channel as $key => $value) { ?>
+                                <option><?php echo $value['channel_name'];  ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php echo form_error('partner_source'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-5 ">
+                            <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
+                            <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
+                                <?php for($i =1; $i <11; $i++) { ?>
+                                <option value="<?php echo $i;?>"><?php echo $i; ?></option>
+                                <?php }?>
+                            </select>
+                        </div>
+                        <!--                                <div class="form-group col-md-7  <?php //if( form_error('product_type') ) { echo 'has-error';} ?>">
+                            <label for="Product Type">Product Type *</label>
+                              <label class="radio-inline">
+                                 <input type="radio" name="product_type" value="Delivered" checked>Delivered
+                               </label>
+                               <label class="radio-inline">
+                                   <input type="radio" name="product_type" value="Shipped">Shipped
+                               </label>
+                             <?php //echo form_error('product_type'); ?>
+                            </div>-->
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Step 2</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="col-md-12">
+                        <div  class="form-group col-md-12">
+                            <table class="table priceList table-striped table-bordered" id="priceList">
+                                <tr class="text-center">
+                                    <th class="text-center">Service Category</th>
+                                    <th class="text-center">Final Charges</th>
+                                    <th class="text-center" id='selected_service'>Selected Services</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group col-md-12  ">
+                            <label for="grand_total">Grand Total *</label>
+                            <input  type="text" class="form-control"  name="grand_total" id="grand_total" value = "<?php echo set_value('grand_total'); ?>" placeholder="0.00" readonly >
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Step 2</h2>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
+    </div>
+    <div class="clearfix"></div>
+    <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Step 3</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12    <?php if (form_error('order_id')) {
+                    echo 'has-error';
+                    } ?>">
+                    <label for="order_id">Order ID <span id="error_order_id" style="color:red"></span></label>
+                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id" />
+                </div>
+            </div>
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12  <?php if (form_error('serial_number')) {
+                    echo 'has-error';
+                    } ?>">
+                    <label for="serial_number">Serial Number <span id="error_serial_number" style="color:red"></span></label>
+                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
+                </div>
+            </div>
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12  <?php if (form_error('dealer_phone_number')) {
+                    echo 'has-error';
+                    } ?>">
+                    <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
+                    <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php echo set_value('dealer_phone_number'); ?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
+                    <div id="dealer_phone_suggesstion_box"></div>
+                </div>
+            </div>
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12  <?php if (form_error('dealer_name')) {
+                    echo 'has-error';
+                    } ?>">
+                    <label for="dealer_name">Dealer Name   <span id="error_dealer_name" style="color:red"></span></label>
+                    <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php echo set_value('dealer_name'); ?>" placeholder="Enter Dealer Name" autocomplete="off">
+                    <input type="hidden" name="dealer_id" id="dealer_id" value="">
+                    <div id="dealer_name_suggesstion_box"></div>
+                </div>
+            </div>
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12" style="margin: 0px;padding: 0px;">
+                    <div class="row">
                         <div class="col-md-12">
-                            <div  class="form-group col-md-12">
-                                <table class="table priceList table-striped table-bordered" id="priceList">
-                                    <tr class="text-center">
-                                        <th class="text-center">Service Category</th>
-                                        <th class="text-center">Final Charges</th>
-                                        <th class="text-center" id='selected_service'>Selected Services</th>
-                                    </tr>
-                                </table>
+                            <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
+                                <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
+                                <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
+                                <?php echo form_error('purchase_date'); ?>
                             </div>
                         </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group col-md-12  ">
-                                <label for="grand_total">Grand Total *</label>
-                                <input  type="text" class="form-control"  name="grand_total" id="grand_total" value = "<?php echo set_value('grand_total'); ?>" placeholder="0.00" readonly >
-
-                            </div>
-                        </div> 
-
                     </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 ">
+                <div class="form-group col-md-12" style="margin: 0px;padding: 0px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
+                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
+                                    <option disabled selected>Select Identified Problem</option>
+                                </select>
+                                <?php echo form_error('booking_request_symptom'); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group col-md-12  <?php if (form_error('query_remarks')) { echo 'has-error';} ?>">
+                    <label for="remarks">Remarks*  <span id="error_remarks" style="color: red;"></label>
+                    <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
+                    <?php echo form_error('query_remarks'); ?>
                 </div>
             </div>
         </div>
         <div class="clearfix"></div>
-        
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Step 3</h2>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="col-md-3 ">
-                            <div class="form-group col-md-12    <?php if (form_error('order_id')) {
-                                    echo 'has-error';
-                                } ?>">
-                                <label for="order_id">Order ID <span id="error_order_id" style="color:red"></span></label>
-                                <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id" />
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 ">
-                            <div class="form-group col-md-12  <?php if (form_error('serial_number')) {
-                            echo 'has-error';
-                        } ?>">
-                                <label for="serial_number">Serial Number <span id="error_serial_number" style="color:red"></span></label>
-                                <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
-
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 ">
-                            <div class="form-group col-md-12  <?php if (form_error('dealer_phone_number')) {
-                            echo 'has-error';
-                        } ?>">
-                                <label for="dealer_phone_number">Dealer Phone Number  <span id="error_dealer_phone_number" style="color:red"></span></label>
-                                <input  type="text" class="form-control"  name="dealer_phone_number" id="dealer_phone_number" value = "<?php echo set_value('dealer_phone_number'); ?>" placeholder="Enter Dealer Phone Number" autocomplete="off">
-                                <div id="dealer_phone_suggesstion_box"></div>
-                            </div>
-                        </div> 
-
-                        <div class="col-md-3 ">
-                            <div class="form-group col-md-12  <?php if (form_error('dealer_name')) {
-                            echo 'has-error';
-                        } ?>">
-                                <label for="dealer_name">Dealer Name   <span id="error_dealer_name" style="color:red"></span></label>
-                                <input  type="text" class="form-control"  name="dealer_name" id="dealer_name" value = "<?php echo set_value('dealer_name'); ?>" placeholder="Enter Dealer Name" autocomplete="off">
-                                <input type="hidden" name="dealer_id" id="dealer_id" value="">
-
-                                <div id="dealer_name_suggesstion_box"></div>
-                            </div>
-                        </div> 
-
-                        <div class="col-md-6 ">
-                            <div class="form-group col-md-12" style="margin: 0px;padding: 0px;">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
-                                    <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                        <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
-                                    <?php echo form_error('purchase_date'); ?>
-                                </div>
-                        </div>
-                                                        </div>
-                </div>
-            </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group col-md-12  <?php if (form_error('query_remarks')) { echo 'has-error';} ?>">
-                                <label for="remarks">Remarks*  <span id="error_remarks" style="color: red;"></label>
-                                <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
-                                <?php echo form_error('query_remarks'); ?>
-                            </div>
-                        </div>
-        </div>
-        <div class="clearfix"></div>
-        
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -324,29 +308,26 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if (form_error('alternate_phone_number')) { echo 'has-error';} ?>">
                                 <label for="booking_alternate_contact_no">Alternate Mobile</label>
                                 <input class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if (isset($user[0]['alternate_phone_number'])) {
                                     echo $user[0]['alternate_phone_number'];
-                                } else {
+                                    } else {
                                     echo set_value('alternate_phone_number');
-                                } ?>" placeholder ="Please Enter Alternate Contact No" >
+                                    } ?>" placeholder ="Please Enter Alternate Contact No" >
                                 <?php echo form_error('alternate_phone_number'); ?>
                             </div>
                         </div>
-                            
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if (form_error('user_email')) { echo 'has-error';} ?>">
                                 <label for="booking_user_email">Email </label>
                                 <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if (isset($user[0]['user_email'])) {
                                     echo $user[0]['user_email'];
-                                } ?>" placeholder="Please Enter User Email">
+                                    } ?>" placeholder="Please Enter User Email">
                                 <?php echo form_error('user_email'); ?>
                             </div>
                         </div>
-                            
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if (form_error('landmark')) { echo 'has-error'; } ?>">
                                 <label for="landmark">Landmark </label>
@@ -355,7 +336,7 @@
                                     } else {
                                     echo set_value('landmark');
                                     } ?>" placeholder="Enter Any Landmark">
-                                    <?php echo form_error('landmark'); ?>
+                                <?php echo form_error('landmark'); ?>
                             </div>
                         </div>
                         <div class="col-md-12 ">
@@ -370,12 +351,10 @@
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>
         </div>
-        
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
@@ -383,33 +362,31 @@
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
                         <input type="hidden" name="product_type" value="Delivered"/>
                         <?php //if(!empty($this->session->userdata('status'))) {?>
-                            <div class="row">
-                                <div class="form-group  col-md-12" >
-                                    <center>
-                                   
-                                        <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
-                                        <p id="error_not_visible" style="color: red"></p>
-                                    </center>
-                                </div>
+                        <div class="row">
+                            <div class="form-group  col-md-12" >
+                                <center>
+                                    <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
+                                    <p id="error_not_visible" style="color: red"></p>
+                                </center>
                             </div>
-                            <?php //} ?>
-                        </form>
-                        <?php if(empty($this->session->userdata('status'))) { ?>
-                            <div class="row">
-                                <div class="form-group  col-md-12" >
-                                    <center>
-                                  
+                        </div>
+                        <?php //} ?>
+</form>
+<?php if(empty($this->session->userdata('status'))) { ?>
+<div class="row">
+<div class="form-group  col-md-12" >
+<center>
 <!--                                        <input type="submit" class="btn btn-primary " disabled value="Submit Booking"><br/><br/><br/>-->
-                                        <p id="error_not_visible" style="color: red; margin-top: 10px;"></p>
-                                    </center>
-                                </div>
-                            </div>
-                        <?php }?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+<p id="error_not_visible" style="color: red; margin-top: 10px;"></p>
+</center>
+</div>
+</div>
+<?php }?>
+</div>
+</div>
+</div>
+</div>
+</form>
 </div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
@@ -496,12 +473,12 @@
         } else {
               display_message("appliance_category_1","error_category","green","");
         }
-//        if(model_value === ""){
-//            display_message("model_number_1","error_model","red","Please Select Model");
-//             return false;
-//        } else {
-//              display_message("model_number_1","error_model","green","");
-//        }
+    //        if(model_value === ""){
+    //            display_message("model_number_1","error_model","red","Please Select Model");
+    //             return false;
+    //        } else {
+    //              display_message("model_number_1","error_model","green","");
+    //        }
         if(partner_source === "" || partner_source === null){
            
             display_message("partner_source","error_seller","red","Please Seller Channel");
@@ -545,29 +522,29 @@
              return false;
         }
         
-//        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
-//            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
-//            return false;
-//        } 
+    //        if(order_id === '' && serial_number === '' && dealer_phone_number === ''){
+    //            alert("Please Fill Any one of these Order Id/Serial Number/Dealer Phone Number");
+    //            return false;
+    //        } 
         
        
         
         
-//        if (order_id === "" && serial_number === ""  ) {
-//             document.getElementById('order_id').style.borderColor = "red";
-//             document.getElementById('serial_number').style.borderColor = "red";
-//            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
-//            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
-//               
-//            return false;
-//        } else {
-//    
-//            document.getElementById('order_id').style.borderColor = "green";
-//            document.getElementById('serial_number').style.borderColor = "green";
-//            document.getElementById('error_order_id').innerHTML = "";
-//            document.getElementById('error_serial_number').innerHTML = "";
-//        }
-
+    //        if (order_id === "" && serial_number === ""  ) {
+    //             document.getElementById('order_id').style.borderColor = "red";
+    //             document.getElementById('serial_number').style.borderColor = "red";
+    //            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
+    //            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
+    //               
+    //            return false;
+    //        } else {
+    //    
+    //            document.getElementById('order_id').style.borderColor = "green";
+    //            document.getElementById('serial_number').style.borderColor = "green";
+    //            document.getElementById('error_order_id').innerHTML = "";
+    //            document.getElementById('error_serial_number').innerHTML = "";
+    //        }
+    
         if(booking_address.trim().length < 1){
              display_message("booking_address","error_address","red","Please Enter Booking Address");
              return false;
@@ -639,7 +616,7 @@
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
-
+    
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
@@ -658,7 +635,7 @@
     $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
-
+    
     $('#purchase_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
@@ -746,8 +723,8 @@
             
             success: function (data) {
                     //First Resetting Options values present if any
-//                    $("#appliance_capacity_1 option[value !='option1']").remove();
-//                    $('#appliance_capacity_1').append(data).change();
+    //                    $("#appliance_capacity_1 option[value !='option1']").remove();
+    //                    $('#appliance_capacity_1').append(data).change();
                      
                 $('#appliance_capacity_1').html(data).change();
                 get_models();
@@ -835,7 +812,7 @@
                      if(data === "ERROR"){
                         
                          // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
-
+    
                      } else { 
                           var data1 = jQuery.parseJSON(data);
                          
@@ -851,7 +828,7 @@
         
         $(this).dequeue();
     });
-
+    
     
     }
     
@@ -875,9 +852,9 @@
                 success: function (data) {
                     if(data !== "ERROR"){
                         $('#booking_city').select2().html(data).change();
-//                        $("#booking_city").select2({
-//                           tags: true
-//                        });
+    //                        $("#booking_city").select2({
+    //                           tags: true
+    //                        });
                           
                        
                          $('#submitform').prop('disabled', false);
@@ -908,11 +885,11 @@
     n = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
-
+    
         var id = this.id.split('checkbox_');
-
+    
         var up_val = $("#is_up_val_" + id[1]).val();
-
+    
         if (Number(up_val) === 1) {
             is_upcountry = 1;
         } else  if (Number(up_val) === -1) {
@@ -939,7 +916,7 @@
                         
                 } else if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 1 ){
                     var partner_approval = Number(data1.partner_upcountry_approval);
-
+    
                         if (data1.message === "UPCOUNTRY BOOKING") {
                             $("#upcountry_charges").text("0.00");
                             $("#checkbox_upcountry").val("upcountry_0_0");
@@ -947,7 +924,7 @@
                             final_price();
                             alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
                             $('#submitform').attr('disabled', false); 
-
+    
                         } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
                             $('#submitform').attr('disabled', true);
                              document.getElementById("checkbox_upcountry").checked = false;
@@ -958,7 +935,7 @@
                             alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance "+ data1.upcountry_distance.toFixed(2) + " KM");
                         } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                             alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " +data1.upcountry_distance.toFixed(2) + " KM");
-
+    
                              $("#upcountry_charges").text("0.00");
                              $("#checkbox_upcountry").val("upcountry_0_0"); 
                              document.getElementById("checkbox_upcountry").checked = false;
@@ -1029,17 +1006,17 @@
       display_message("not_visible","error_not_visible","","");
       $('#submitform').attr('disabled', false);
          
-   }        
+    }        
     
     
-   
-   }        
+    
+    }        
     function final_price(){
         var price = 0;
         var price_array ;
         ch =0;
         var appliance_unit =$("#appliance_unit").val();
-
+    
          $("input[type=checkbox]:checked").each(function(i) {
             price_array = $(this).val().split('_');
             //console.log(price_array);
@@ -1058,23 +1035,23 @@
             $("#grand_total").val(final_price.toFixed(2));
         }
         
-  }
-  
-  function check_active_paid(no){
+    }
+    
+    function check_active_paid(no){
        var is_active = Number($("#is_active").val());
        if(is_active === 0){
            if ($("#checkbox_" + no).is(':checked')) {
                 var price_array = $("#checkbox_"+no).val();
                 var price_array1 = price_array.split('_');
                 var customer_total = Number(price_array1[1]);
-
+    
                 if(customer_total > 0){
                     var partner_net_payable = Number(price_array1[2]);
                     var customer_net_payable = customer_total - partner_net_payable;
                     if(customer_net_payable < 1){
-
+    
                         alert('<?php echo $this->session->userdata("message");?>');
-
+    
                         document.getElementById("checkbox_" + no).checked = false;
                          
                     }
@@ -1082,10 +1059,10 @@
            }
        }
        
-  }
-  
-  
-  $(document).ready(function(){
+    }
+    
+    
+    $(document).ready(function(){
         $("#dealer_phone_number").keyup(function(){
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
@@ -1101,7 +1078,7 @@
                 alert("Please Select Partner");
             }
         });
-	$("#dealer_name").keyup(function(){
+    $("#dealer_name").keyup(function(){
             var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
             if(partner_id !== undefined){
                 var search_term = $(this).val();
@@ -1119,16 +1096,16 @@
     });
     
     function selectDealer(name,ph, id) {
-  
+    
         $("#dealer_phone_number").val(ph);
         $("#dealer_name").val(name);
         $("#dealer_id").val(id);
-
+    
         $("#dealer_phone_suggesstion_box").hide();
         $("#dealer_name_suggesstion_box").hide();
     }
     
-function dealer_setup(partner_id,search_term,search_filed){
+    function dealer_setup(partner_id,search_term,search_filed){
                 
     if(search_term === ""){
         $("#dealer_id").val("");
@@ -1137,7 +1114,7 @@ function dealer_setup(partner_id,search_term,search_filed){
         $("#dealer_phone_suggesstion_box").hide();
         $("#dealer_name_suggesstion_box").hide();
     }else{
-
+    
         $.ajax({
             type: "POST",
             url: baseUrl + "/employee/partner/get_dealer_details",
@@ -1158,18 +1135,46 @@ function dealer_setup(partner_id,search_term,search_filed){
             }
         });
     }
-}
-getPartnerChannel();
-function getPartnerChannel(){
-    var partnerChannelServiceUrl = '<?php echo base_url(); ?>employee/partner/get_partner_channel/';
-    var postData = {};
-    postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
-    postData['channel'] = $("#partner_channel").val();
-    if( postData['partner_id'] !== null){
-        sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
-           $("#partner_source").html("");
-           $("#partner_source").html(data).change();
-        });
     }
-}
+    getPartnerChannel();
+    function getPartnerChannel(){
+        var partnerChannelServiceUrl = '<?php echo base_url(); ?>employee/partner/get_partner_channel/';
+        var postData = {};
+        postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
+        postData['channel'] = $("#partner_channel").val();
+        if( postData['partner_id'] !== null){
+            sendAjaxRequest(postData, partnerChannelServiceUrl).done(function (data) {
+               $("#partner_source").html("");
+               $("#partner_source").html(data).change();
+            });
+        }
+    }
+    
+    function get_symptom(symptom_id = ""){
+        var array = [];
+        var postData = {};
+        $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            array.push(price_tags);
+
+        });
+        if(array.length > 0){
+            postData['request_type'] = array;
+            postData['service_id'] = $("#service_name").val();
+            postData['booking_request_symptom'] = symptom_id;
+            var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
+            sendAjaxRequest(postData, url).done(function (data) {
+                console.log(data);
+                if(data === "Error"){
+                    $('#booking_request_symptom').html("").change();
+                    $("#booking_request_symptom").removeAttr('required');
+                } else {
+                    $('#booking_request_symptom').html(data).change();
+                    $("#booking_request_symptom").attr('required', 'required');
+
+                }
+            });
+        }
+
+    }
 </script>

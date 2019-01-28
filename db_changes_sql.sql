@@ -9655,3 +9655,9 @@ ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAUL
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
 
 
+--Abhay
+ALTER TABLE `booking_details` ADD `booking_request_symptom` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` ADD `completion_symptom` INT(11) NULL DEFAULT NULL AFTER booking_request_symptom;
+ALTER TABLE `booking_details` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER completion_symptom;
+ALTER TABLE `spare_parts_details` ADD `spare_request_symptom` INT(11) NULL DEFAULT NULL AFTER `part_requested_on_approval`;
+ALTER TABLE `service_center_booking_action` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER `is_broken`, ADD `technical_problem` INT(11) NULL DEFAULT NULL AFTER `technical_solution`;
