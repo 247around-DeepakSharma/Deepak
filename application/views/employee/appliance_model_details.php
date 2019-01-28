@@ -189,7 +189,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="status">Status</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="checkbox" class="form-control" id="active_inactive" name="active_inactive">
+                                        <input type="checkbox" class="form-control" id="active_inactive" name="active_inactive" checked>
                                     </div>
                                 </div>
                             </div>
@@ -387,7 +387,6 @@
         else{ 
            status_arr.value = 0;
         }
-        alert(status_arr.value);
         var form_data = $("#applince_model_list_details").serializeArray();
         if(!$('#entity_id').val()){
             alert("Please Select Partner");
