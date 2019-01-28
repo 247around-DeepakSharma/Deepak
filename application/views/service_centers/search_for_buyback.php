@@ -21,6 +21,7 @@
                                 <th>Delivery Date</th>
                                 <th>Status</th>
                                 <th>SF Charge</th>
+                                <th>CP Claimed Price</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -39,6 +40,7 @@
                                 <td><?php echo $value->delivery_date;?></td>
                                 <td><?php if($value->current_status == "Pending"){ echo $value->internal_status; } else { echo $value->current_status."(<strong> ".$value->internal_status."</strong>)";};?></td>
                                 <td><?php echo ($value->cp_basic_charge + $value->cp_tax_charge);?></td>
+                                <td><?php echo ($value->cp_claimed_price)?></td>
                                 <td>
                                     
                                     <?php $ishowDropdown = TRUE; if(($value->current_status == "Delivered" && $value->internal_status == "To Be Claimed Not Delivered" ) ||

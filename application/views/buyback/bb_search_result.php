@@ -32,6 +32,7 @@
                                 <th>Current Status</th>
                                 <th>Exchange Value</th>
                                 <th>SF Charge</th>
+                                <th>CP Claimed Price</th>
                                 <th>Assign CP</th>
                                 <th style="display:none">Assign Collection Partner</th>
                                 <th>Action</th>
@@ -54,6 +55,7 @@
                                 <td><?php echo $value->current_status;?></td>
                                 <td><?php echo $value->partner_basic_charge;?></td>
                                 <td><?php echo ($value->cp_basic_charge + $value->cp_tax_charge);?></td>
+                                <td><?php echo ($value->cp_claimed_price);?></td>
                                 <td>
                                     <select name="assign_cp_id[<?php echo $value->partner_order_id; ?>]" ui-select2  class="assign_cp_id"  class="form-control" 
                                         data-placeholder="Select CP" style="width:200px;">
@@ -131,7 +133,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [1,2,3,4,5,6,7,8,10,12]
+                        columns: [1,2,3,4,5,6,7,8,9,11,13]
                     },
                     
                     title: 'buyback_order'
