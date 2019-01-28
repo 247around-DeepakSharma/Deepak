@@ -1613,6 +1613,8 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
+            DATE_FORMAT(`ud`.`purchase_date`,'%d-%m-%Y') As 'Purchase Date',
+            DATE_FORMAT(`booking_details`.`closed_date`,'%d-%m-%Y') As 'Closed Date',
             booking_details.booking_id AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
