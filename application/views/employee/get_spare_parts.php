@@ -89,8 +89,8 @@
         
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
-         url_arr = url.split("/");   
-         if(!isNaN(url_arr[8])){
+        var keys = $(this).data('keys');      
+         if(!isNaN(keys)){
              $("#reject_btn").html("Approve");             
              $("#reject_btn").attr("onclick","approve_spare_part()");
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
@@ -99,7 +99,7 @@
                  HTML+= '<option value="2"> Out-Warranty </option>';
                  HTML+= '</select>';
              $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px'});
-             $("#part_warranty_status option[value='"+url_arr[9]+"']").attr('selected','selected');
+             $("#part_warranty_status option[value='"+keys+"']").attr('selected','selected');
          }else{
             $("#reject_btn").html("Send");             
              $("#reject_btn").attr("onclick","reject_parts()");            
@@ -123,8 +123,18 @@
     function approve_spare_part(){
       var remarks =  $('#textarea').val();
       var warranty_status = $('#part_warranty_status').val();
-      var courier_charge = $('#charges').val();
-      if(remarks !== ""){
+      
+      if(warranty_status==''){
+          alert('Please Select Part Warranty Status');
+          return false;
+      }
+      
+      if(remarks==''){
+          alert('Please Enter Remarks');
+          return false;
+      }
+                 
+      if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();
         $.ajax({
@@ -139,16 +149,14 @@
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
-                    alert("Approval Successfully");
+                    alert("Approved Successfully");
                     parts_requested_on_approval_table.ajax.reload(null, false);                   
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
             }
         });
-      } else {
-          alert("Please Enter Remarks");
-      }
+      } 
     }
     
     

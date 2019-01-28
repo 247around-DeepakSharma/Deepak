@@ -1810,7 +1810,7 @@ function get_data_for_partner_callback($booking_id) {
        $this->db->update("contact_person",array('is_active'=>$action));
        return $this->db->affected_rows();
     }
-    
+
     /**
      * @Desc: This function is used to add partner appliance detail
      * @params: Array
@@ -1861,5 +1861,12 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
+
+    function insert_sample_no_pic($data)
+    {
+        $this->db->insert('partner_sample_no_picture',$data);
+        return $this->db->insert_id();
+    }
+
 }
 
