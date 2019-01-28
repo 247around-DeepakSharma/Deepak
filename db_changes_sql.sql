@@ -9682,3 +9682,141 @@ ALTER TABLE `service_center_booking_action` ADD `technical_solution` INT(11) NUL
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_api_fail_for_address', 'Google Api Fail to get Missing Pincode', 'Pincode - %s <br>\r\nResponse - %s', 'noreply@247around.com', '', '', '', '1', '2019-01-25 16:41:14');
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'missing_pincode_details', 'Missing Pincode overview', 'Please Find the Details of missing pincodes in your area <br>\r\n%s', 'noreply@247around.com', '', '', 'chhavid@247around.com', '1', '2019-01-25 16:41:14');
 
+--Abhay 
+
+
+--
+-- Table structure for table `symptom_booking_request`
+--
+
+CREATE TABLE `symptom_booking_request` (
+  `id` int(11) NOT NULL,
+  `request_type` int(28) NOT NULL,
+  `booking_request_symptom` varchar(256) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_booking_request`
+--
+ALTER TABLE `symptom_booking_request`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `service_id` (`request_type`,`booking_request_symptom`) USING BTREE,
+  ADD KEY `service_id_2` (`request_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_booking_request`
+--
+ALTER TABLE `symptom_booking_request`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
+-- Table structure for table `symptom_completion_request`
+--
+
+CREATE TABLE `symptom_completion_request` (
+  `id` int(11) NOT NULL,
+  `request_type` int(28) NOT NULL,
+  `completion_request_symptom` varchar(256) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_completion_request`
+--
+ALTER TABLE `symptom_completion_request`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `service_id` (`request_type`,`completion_request_symptom`) USING BTREE,
+  ADD KEY `service_id_2` (`request_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_completion_request`
+--
+ALTER TABLE `symptom_completion_request`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `symptom_completion_solution`
+--
+
+CREATE TABLE `symptom_completion_solution` (
+  `id` int(11) NOT NULL,
+  `request_type` int(11) NOT NULL,
+  `technical_solution` varchar(256) NOT NULL,
+  `active` int(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_completion_solution`
+--
+ALTER TABLE `symptom_completion_solution`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_completion_solution`
+--
+ALTER TABLE `symptom_completion_solution`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `symptom_spare_request`
+--
+
+CREATE TABLE `symptom_spare_request` (
+  `id` int(11) NOT NULL,
+  `request_type` int(28) NOT NULL,
+  `spare_request_symptom` varchar(256) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_spare_request`
+--
+ALTER TABLE `symptom_spare_request`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `service_id` (`request_type`,`spare_request_symptom`),
+  ADD KEY `service_id_2` (`request_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_spare_request`
+--
+ALTER TABLE `symptom_spare_request`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
