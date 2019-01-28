@@ -1772,7 +1772,8 @@ class Partner extends CI_Controller {
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
-        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
+        $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
@@ -2596,9 +2597,16 @@ class Partner extends CI_Controller {
         
         if ($partner_type == OEM) {
             //Getting Unique values of Model for Particular Partner ,service id and brand
-            $where = array("partner_id" => $partner_id, 'service_id' => $service_id, 'brand' => $brand, 'category' => $category, 'active'=> 1, 'capacity' => $capacity);
+            $where = array(
+                "partner_appliance_details.partner_id" => $partner_id,
+                'partner_appliance_details.service_id' => $service_id,
+                'partner_appliance_details.brand' => $brand,
+                'partner_appliance_details.category' => $category,
+                'appliance_model_details.active'=> 1, 
+                'partner_appliance_details.capacity' => $capacity
+            );
 
-            $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
+            $data = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number, model", $where);
         } else {
             $data[0]['model'] = "";
         }
@@ -2619,7 +2627,7 @@ class Partner extends CI_Controller {
                     }
                 }
                 
-                $model .= " value='" . $value['model'] . "'>" . $value['model'] . "</option>";
+                $model .= " value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
             }
             echo $model;
         } else {

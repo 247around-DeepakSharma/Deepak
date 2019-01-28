@@ -512,82 +512,93 @@ class File_upload extends CI_Controller {
         $header_column_need_to_be_present = array('brand', 'category', 'capacity', 'model');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-
         if ($check_header['status']) {
 
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-
+               
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    $subArray = $this->get_sub_array($rowData, array('brand', 'category', 'capacity', 'model'));
-                    array_push($sheetUniqueRowData, implode('_join_', $subArray));
-                    $rowData['partnerid'] = $this->input->post('partner_id');
-                    $rowData['serviceid'] = $this->input->post('service_id');
-                    $this->sanitize_partner_appliance_data_to_insert($rowData);
-                }
-            }
-            
-            //check file contains unique data
-            $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
-            if ($is_file_contains_unique_data['status']) {
-                $partner_id = trim($this->input->post('partner_id'));
-                $service_id = trim($this->input->post('service_id'));
-                if (!empty($partner_id) && !empty($service_id)) {
-                    // for now remove upload file data should be greater then or equal to our database check as we might don't have correct data in this table
-//                        //check if upload file data is less than previous data
-//                        $old_partner_data = $this->partner_model->get_partner_specific_details(array('partner_id' => $partner_id), 'count(id) as total_data');
-//
-//                        if (count($this->dataToInsert) >= $old_partner_data[0]['total_data']) {
-//                            //first delete all the previous data for selected partner and then insert new data
-//                            $delete = $this->partner_model->delete_partner_brand_relation($partner_id);
-//
-//                            if (!empty($delete)) {
-//
-//                                
-//                            } else {
-//                                log_message("info", __METHOD__ . " error in inserting partner appliance file data");
-//                                $response['status'] = FALSE;
-//                                $response['message'] = "Something went wrong in inserting data.";
-//                            }
-//                        } else {
-//                            log_message("info", __METHOD__ . " upload partner appliance file has less data as we have in our database.");
-//                            $response['status'] = FALSE;
-//                            $response['message'] = "upload partner appliance file has less data as we have in our database.";
-//                        }
-                    
-                    $delete = $this->partner_model->delete_partner_brand_relation($partner_id,$service_id);
-                    $insert_id = $this->partner_model->insert_batch_partner_brand_relation($this->dataToInsert);
-
-                    if ($insert_id) {
-                        log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
-                        //check brand_name and service_id is exist in appliance_brand table or not
-                        $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
-                        if ($not_exist_data) {
-                            $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
-                            log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
+                    if (!empty($this->input->post('partner_id')) && !empty($this->input->post('service_id')) && !empty($rowData['model'])) { 
+                        $aplliance_model_where = array(
+                            'service_id' => $this->input->post('service_id'),
+                            'model_number' => $rowData['model'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $this->input->post('partner_id')
+                        );
+                        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+                        if(empty($model_detail)){
+                            $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
                         }
-                        $response['status'] = TRUE;
-                        $response['message'] = "Details inserted successfully.";
-                    } else {
-                        log_message("info", __METHOD__ . " error in inserting partner appliance file data");
-                        $response['status'] = FALSE;
-                        $response['message'] = "Something went wrong in inserting data.";
+                        else{
+                            $appliance_model_id = $model_detail[0]['id'];
+                        }
+
+                        $partner_model_where = array(
+                            "partner_id" => $this->input->post('partner_id'),
+                            "service_id" => $this->input->post('service_id'),
+                            "brand" => $rowData['brand'],
+                            "category" => $rowData['category'],
+                            "capacity" => $rowData['capacity'],
+                            "model" => $appliance_model_id
+                        );
+                        $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id');
+                        if(empty($partner_model_details)){ 
+                            unset($partner_model_where["model"]); 
+                            $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
+                            $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
+                            if(!empty($partner_model_details)){
+                                if($partner_model_details[0]['model'] == NULL){
+                                   $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
+                                }
+                                else if($partner_model_details[0]['model'] != $appliance_model_id){
+                                    unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                    $partner_model_where['model'] = $appliance_model_id;
+                                    $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
+                                }
+                            }
+                            else{
+                                unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                $partner_model_where['model'] = $appliance_model_id;
+                                $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
+                            }
+                        }
+                        else{
+                           $partner_appliance_id =  $partner_model_details[0]['id'];
+                        }
+                        
+                        if ($partner_appliance_id) {
+                            log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
+                            //check brand_name and service_id is exist in appliance_brand table or not
+                            $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
+                            if ($not_exist_data) {
+                                $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
+                                log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
+                            }
+                            $response['status'] = TRUE;
+                            $response['message'] = "Details inserted successfully.";
+                        } else {
+                            log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+                            $response['status'] = FALSE;
+                            $response['message'] = "Something went wrong in inserting data.";
+                        }
                     }
-                } else {
-                    log_message("info", __METHOD__ . " Partner/service id can not be empty");
-                    $response['status'] = FALSE;
-                    $response['message'] = "Please Select Partner And Appliance Both";
+                    else {
+                        log_message("info", __METHOD__ . " Partner/service/model can not be empty");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Please Select Partner And Appliance Both OR Model Number can not be empty";
+                    }
                 }
-            } else {
-                log_message("info", __METHOD__ . " " . $is_file_contains_unique_data['message']);
-                $response['status'] = FALSE;
-                $response['message'] = $is_file_contains_unique_data['message'];
+                else {
+                    log_message("info", __METHOD__ . " Partner/service/model can not be empty");
+                    $response['status'] = FALSE;
+                    $response['message'] = "Please Select Partner And Appliance Both OR Model Number can not be empty";
+                }
             }
         } else {
-            $response['status'] = $check_header['status'];
+            $response['status'] = FALSE;
             $response['message'] = $check_header['message'];
         }
 

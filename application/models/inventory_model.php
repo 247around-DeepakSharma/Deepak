@@ -473,7 +473,7 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-   /**
+    /**
      * @Desc: This function is used to get data from the inventory_stocks table
      * @params: $post array
      * @params: $select string
@@ -491,11 +491,6 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
-        
-        if(isset($post['part_type_join']) && $post['part_type_join'] == true){
-             $this->db->join('inventory_parts_type', 'inventory_master_list.type = inventory_parts_type.part_type '
-                     . 'AND inventory_parts_type.service_id = inventory_master_list.service_id','left');
-        }
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1949,6 +1944,25 @@ class Inventory_model extends CI_Model {
             return false;
         }
         
+    }
+    
+    /**
+     * @Desc: This function is used to get inventory mapped model number
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_mapped_model_numbers($select,$where = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('inventory_model_mapping');
+        $this->db->join('appliance_model_details','inventory_model_mapping.model_number_id = appliance_model_details.id');
+        $query = $this->db->get();
+        return $query->result_array();
     }
     
        

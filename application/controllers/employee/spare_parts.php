@@ -735,8 +735,8 @@ class Spare_parts extends CI_Controller {
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$c_tag.'" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button>';
         if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
-        if($spare_list->part_requested_on_approval == '0'){ $appvl_text = 'For Approval'; }else{ $appvl_text = 'Approved'; }
-        $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/spare_parts/spare_part_on_approval/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$no.'/'.$spare_list->part_warranty_status.'" class="btn btn-info open-adminremarks" data-toggle="modal" id="approval_'.$no.'" data-target="#myModal2">'.$appvl_text.'</button>';
+        if($spare_list->part_requested_on_approval == '0'){ $appvl_text = 'Approve'; }else{ $appvl_text = 'Approved'; }
+        $row[] = '<button type="button" data-keys="'.$spare_list->part_warranty_status.'" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/spare_parts/spare_part_on_approval/'.$spare_list->id.'/'.$spare_list->booking_id.'" class="btn btn-info open-adminremarks" data-toggle="modal" id="approval_'.$no.'" data-target="#myModal2">'.$appvl_text.'</button>';
         
       //$row[] = 'blank Text';
         
@@ -1326,8 +1326,7 @@ class Spare_parts extends CI_Controller {
                 $service_center_id = $spare_parts_details[0]['service_center_id'];
                 $booking_id = $spare_parts_details[0]['booking_id'];
                 $amount_due = $spare_parts_details[0]['amount_due'];
-                $invoice_gst_rate = $spare_parts_details[0]['invoice_gst_rate'];
-                
+                               
                 $data['model_number'] = $spare_parts_details[0]['model_number'];
                 $data['parts_requested'] = $spare_parts_details[0]['parts_requested'];
                 $data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
@@ -1352,10 +1351,12 @@ class Spare_parts extends CI_Controller {
                 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
                     
+                    $inventory_master_details = $this->inventory_model->get_inventory_master_list_data('inventory_id, hsn_code, gst_rate, price', array('inventory_id'=> $requested_inventory_id));
+                                       
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&
-                            $purchase_price > 0 && $entity_type == _247AROUND_SF_STRING) {
+                            $inventory_master_details[0]['price'] > 0 && $entity_type == _247AROUND_SF_STRING) {
 
                         $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
                         $pcb['booking_id'] = $booking_id;
@@ -1363,16 +1364,19 @@ class Spare_parts extends CI_Controller {
                         $pcb['amount_due'] = $amount_due;
                         $pcb['partner_id'] = $partner_id;
                         $pcb['sp_id'] = $spare_id;
-                        $pcb['gst_rate'] = $invoice_gst_rate;
+                        $pcb['gst_rate'] = $inventory_master_details[0]['gst_rate'];
 
-                        $pcb['estimate_cost'] = $purchase_price;
+                        $pcb['estimate_cost'] = ($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100);
                         $pcb['agent_id'] = $this->session->userdata('id');
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                                                
+                        $spare_data['purchase_price'] = $inventory_master_details[0]['price'];
+                        
                     }
                     
                 } else {                   
                         //Send Push Notification 
-                    
+                     
                         array_push($data_to_insert, $data);
                     
                         $receiverArray[array_unique(array_column($data_to_insert, 'entity_type'))[0]] = array(array_unique(array_column($data_to_insert, 'partner_id'))[0]);
@@ -1389,7 +1393,7 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        die();
+                        
                     }
                 }
 
