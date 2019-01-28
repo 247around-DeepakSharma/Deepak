@@ -98,6 +98,18 @@
                         <div class="panel panel-default" style="margin-left:10px; margin-right:10px;">
                             <div class="panel-body" >
                                 <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="defective_parts_pic" class="col-md-4">Part In Warranty*</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control" id="part_warranty_status" name="part_warranty_status">
+                                                    <option selected="" disabled="">Select warranty status</option>
+                                                    <option value="1" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
+                                                    <option value="2" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                </select>
+                                            </div>                                            
+                                        </div>
+                                    </div>
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
@@ -109,8 +121,14 @@
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
-                                            <?php }  ?>                                                                                        
-                                        </div>
+                                            <?php } else { ?> 
+                                            <div class="col-md-6">                                                
+                                                <select class="form-control spare_parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                    <option selected disabled>Select Part Type</option>
+                                                </select>
+                                            </div>
+                                            <?php } ?>   
+                                        </div>                              
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -137,7 +155,7 @@
 
                                            <?php } ?>
                                         </div>
-                                    </div>
+                                    </div>                                    
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
@@ -185,6 +203,27 @@
     </div>
 </div>
 </div>
+
+<?php if(empty($spare_parts_details['requested_inventory_id'])){ ?>
+<script>
+$(document).ready(function(){ 
+    defults_inventory_part_type();  
+    function defults_inventory_part_type(){
+        $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+                data: { service_id:<?php echo $spare_parts_details['service_id']; ?>},
+                success:function(data){                       
+                    $('#parts_type').html(data);
+                    $('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                    
+                }
+            });
+    }
+});
+</script>
+<?php } ?>
+<?php if(!empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){    
     

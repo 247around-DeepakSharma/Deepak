@@ -1323,7 +1323,7 @@ class Spare_parts extends CI_Controller {
 
                         $pcb['estimate_cost'] = $purchase_price;
                         $pcb['agent_id'] = $this->session->userdata('id');
-                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);                                                
                     }
                     
                 } else {                   
