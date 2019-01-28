@@ -168,6 +168,12 @@
                                             <?php echo form_error('shipped_parts_name'); ?>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="shipped_parts_name" class="col-md-4"> Part In Warranty*</label>
+                                        <div class="col-md-6">
+                                            <input type="hidden" id="<?php echo "part_warranty_statusid_".$skey; ?>" name="part[<?php echo $skey; ?>][part_warranty_status]" value="<?php echo $spare_parts[0]->part_warranty_status; ?>">
+                                            <input type="text" class="form-control" value="<?php if($spare_parts[0]->part_warranty_status == 1){ echo 'In-Warranty'; }elseif($spare_parts[0]->part_warranty_status == 2){ echo 'Out-Warranty'; }  ?>" readonly="">
+                            
                                 </div>
                                 <div class="col-md-5">
                                     <div class="form-group ">

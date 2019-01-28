@@ -1224,7 +1224,7 @@ class Service_centers extends CI_Controller {
         $where = array('spare_parts_details.id'=>$spare_id);
         $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
-                . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,'
+                . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);             
@@ -1265,6 +1265,7 @@ class Service_centers extends CI_Controller {
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
             $data['date_of_purchase'] = $this->input->post('dop');
+            $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
             foreach ($parts_requested as $value) {
@@ -4277,16 +4278,19 @@ class Service_centers extends CI_Controller {
             }
 
             if ($courier_image['status']) {
-                
-                $part = $this->input->post("part");
+
+                $part = $this->input->post("part");                
                 $sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
+                $amount_due = $this->input->post('amount_due');
+                $service_center_id = $this->input->post('assigned_vendor_id');
                 $status = false;
-                $can_status = false;
-                foreach($part as $key => $part_details){
-                    if($part_details['shippingStatus'] == 1){
-                        
-                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'],'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                $can_status = false;                
+
+                foreach ($part as $key => $part_details) {
+                    if ($part_details['shippingStatus'] == 1) {
+
+                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
                         if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
                             
                             $status = SPARE_PARTS_SHIPPED;
@@ -4315,23 +4319,25 @@ class Service_centers extends CI_Controller {
                                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $sf_id));
                                 $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $this->input->post('assigned_vendor_id')));
 
-
                                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+
                                 $spare_details = array();
                                 $spare_details[0]['booking_id'] = $booking_id;
                                 $spare_details[0]['parts_shipped'] = $data['parts_shipped'];
                                 $spare_details[0]['challan_approx_value'] = $data['challan_approx_value'];
-
-
+                                
                                 $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $spare_details);
+                            }
 
-                           }
-                            if($part_details['spare_id'] == "new"){
+                       
+                            if ($part_details['spare_id'] == "new") {
+                       
                                 $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
-                                $data['entity_type'] =_247AROUND_SF_STRING;
+                                  
+                                $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['booking_id'] = $booking_id;
                                 $data['partner_id'] = $sf_id;
-                                $data['service_center_id'] = $this->input->post('assigned_vendor_id');
+                                $data['service_center_id'] = $service_center_id;
                                 $data['model_number'] = $part_details['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];
                                 $data['requested_inventory_id'] = $part_details['inventory_id'];
@@ -4347,12 +4353,38 @@ class Service_centers extends CI_Controller {
                                 } else {
                                     $data['parts_requested_type'] = $part_details['parts_name'];
                                 }
-                                
+                             
                                 $data['parts_requested'] = $part_details['parts_name'];
             
                                 
                                 $response = $this->service_centers_model->insert_data_into_spare_parts($data);
                                 $spare_id = $response;
+
+                                $data['parts_requested'] = $part_details['shipped_parts_name'];
+                                                       
+                                $response = $this->service_centers_model->insert_data_into_spare_parts($data);                           
+                                $spare_id = $response;
+                                /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
+
+                                if ($part_details['part_warranty_status'] == 2) {
+
+                                    $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $data['requested_inventory_id']));
+
+                                    if (!empty($inventory_master_list)) {
+
+                                        $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
+                                        $pcb['booking_id'] = $booking_id;
+                                        $pcb['assigned_vendor_id'] = $service_center_id;
+                                        $pcb['amount_due'] = $amount_due;
+                                        $pcb['partner_id'] = $partner_id;
+                                        $pcb['sp_id'] = $spare_id;
+                                        $pcb['gst_rate'] = $inventory_master_list[0]['gst_rate'];
+
+                                        $pcb['estimate_cost'] =  ($inventory_master_list[0]['price'] + ( $inventory_master_list[0]['price'] * $inventory_master_list[0]['gst_rate']) / 100);;
+                                        $pcb['agent_id'] = $this->session->userdata('service_center_id');
+                                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                                    }
+                                }
                             } else {
                                 $where = array('id' => $part_details['spare_id']);
                                 $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -4408,7 +4440,8 @@ class Service_centers extends CI_Controller {
                     }
                 }
                 
-                if($status){
+
+                if ($status) {
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
