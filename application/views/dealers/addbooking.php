@@ -263,7 +263,22 @@
                                     <?php echo form_error('alternate_phone_number'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3 ">
+                <div class="form-group col-md-12" style="margin: 0px;padding: 0px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
+                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
+                                    <option disabled selected>Select Identified Problem</option>
+                                </select>
+                                <?php echo form_error('booking_request_symptom'); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                            <div class="col-md-3">
                                  <div class="form-group col-md-12  ">
                                      <label for="landmark ">Remarks  <span id="error_remarks" style="color: red;"></label>
                                     <textarea class="form-control" rows="2" id="remarks" name="booking_remarks"  placeholder="Enter Remarks" ></textarea>
@@ -913,6 +928,34 @@
             return false;
     }
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+  
+  function get_symptom(symptom_id = ""){
+        var array = [];
+        var postData = {};
+        $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            array.push(price_tags);
+
+        });
+        if(array.length > 0){
+            postData['request_type'] = array;
+            postData['service_id'] = $("#service_name").val();
+            postData['booking_request_symptom'] = symptom_id;
+            var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
+            sendAjaxRequest(postData, url).done(function (data) {
+                console.log(data);
+                if(data === "Error"){
+                    $('#booking_request_symptom').html("").change();
+                    $("#booking_request_symptom").removeAttr('required');
+                } else {
+                    $('#booking_request_symptom').html(data).change();
+                    $("#booking_request_symptom").attr('required', 'required');
+
+                }
+            });
+        }
+
+    }
 </script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 
