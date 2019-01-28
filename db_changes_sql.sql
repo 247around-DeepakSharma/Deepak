@@ -9609,6 +9609,7 @@ ALTER TABLE `inventory_ledger` ADD `is_wh_micro` INT NOT NULL DEFAULT '0' AFTER 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'minimum_guarantee_mail_template', 'Minimum guarantee to be paid', 'Hi,<br/>\nMinimum guarantee to be paid as below<br/>\nSF Name - %s,<br/> MG amount - Rs. %s, <br/> Invoice Amount - %s.<br/>\nPro data amount to be paid depend on number of days. he has works with previous Month %s.', 'noreply@247around.com', 'accounts@247around.com, anuj@247around.com', 'abhaya@247around.com', '', '1', '2018-12-17 18:30:00');
 
+
 --Gorakh 08-01-2019
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('Shree Anjani', 'ShreeAnjani', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 --Kalyani 08-Jan-2019
@@ -9620,7 +9621,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
-<<<<<<< Updated upstream
 --Kalyani 12-Jan-2019
 ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
 
@@ -9654,6 +9654,22 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
 
+--Rajshree 24 Jan 2019
+CREATE TABLE `partner_sample_no_picture` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `sample_no_pic` varchar(255) NOT NULL,
+  `active` enum('0','1') NOT NULL DEFAULT '1',
+  `created_date` date NOT NULL,
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);    
+ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
+ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
+--Chhavi 08-01-2019
+ALTER TABLE `booking_details` ADD `repeat_reason` TEXT NULL DEFAULT NULL AFTER `cancellation_reason`;
+
 
 --Abhay
 ALTER TABLE `booking_details` ADD `booking_request_symptom` INT(11) NULL DEFAULT NULL;
@@ -9661,3 +9677,8 @@ ALTER TABLE `booking_details` ADD `completion_symptom` INT(11) NULL DEFAULT NULL
 ALTER TABLE `booking_details` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER completion_symptom;
 ALTER TABLE `spare_parts_details` ADD `spare_request_symptom` INT(11) NULL DEFAULT NULL AFTER `part_requested_on_approval`;
 ALTER TABLE `service_center_booking_action` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER `is_broken`, ADD `technical_problem` INT(11) NULL DEFAULT NULL AFTER `technical_solution`;
+
+--Chhavi 25-01-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_api_fail_for_address', 'Google Api Fail to get Missing Pincode', 'Pincode - %s <br>\r\nResponse - %s', 'noreply@247around.com', '', '', '', '1', '2019-01-25 16:41:14');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'missing_pincode_details', 'Missing Pincode overview', 'Please Find the Details of missing pincodes in your area <br>\r\n%s', 'noreply@247around.com', '', '', 'chhavid@247around.com', '1', '2019-01-25 16:41:14');
+

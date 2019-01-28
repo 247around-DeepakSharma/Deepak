@@ -210,7 +210,7 @@
                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($price['model_data'] as $m) { ?>
-                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>
+                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
                                                                                 
                                                                 <?php }?>
                                                             </select>
@@ -517,14 +517,18 @@
                         var model_number = $("#model_number_" + div_no[2]).val();
                         if(model_number === ""){
                             alert("Please Select Model Number");
-                            flag = 1;
                             document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                            return false;
                         }
                     }
                     else{
                         model_text_value = $("#model_number_text_" + div_no[2]).val();
                         if(model_text_value ===""){
-                             alert("Model Number is blank");
+                              alert("Model Number is blank");
+                              document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
+                              flag = 1;
+                              return false;
                         }
                     }
                   

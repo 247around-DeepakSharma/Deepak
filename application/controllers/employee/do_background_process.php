@@ -372,6 +372,7 @@ class Do_background_process extends CI_Controller {
         $partnerID= $this->input->post('partner_id');
         $data= $this->input->post('data');
         $services= $this->input->post('services');
+        $new_brand_data=$this->input->post('newappliancebrand');
         log_message('info', __FUNCTION__ . ' Function Start');
         $partnerArray = $this->reusable_model->get_search_result_data("bookings_sources","source,code",array("partner_id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
         foreach($services as $serviceDetails){
@@ -386,11 +387,20 @@ class Do_background_process extends CI_Controller {
         </tr>
         </thead>';
         $sn = 1;
-        foreach($data['brand'] as $appliance=>$brandArray){
+//        foreach($data['brand'] as $appliance=>$brandArray){
+//            $tableString = $tableString.'<tr style="border-bottom: 1px solid #000;">';
+//            $tableString = $tableString.'<td style="font-family: Century Gothic;">'.$sn.'</td>';
+//            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.$serviceArray[$appliance].'</td>';
+//            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.implode(",",array_values($brandArray)).'</td>';
+//            $tableString = $tableString.'</tr>';
+//            $sn++;
+//        }
+         foreach($new_brand_data as $newbranddata){
+             $service_id=$newbranddata['service_id'];
             $tableString = $tableString.'<tr style="border-bottom: 1px solid #000;">';
             $tableString = $tableString.'<td style="font-family: Century Gothic;">'.$sn.'</td>';
-            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.$serviceArray[$appliance].'</td>';
-            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.implode(",",array_values($brandArray)).'</td>';
+            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.$serviceArray[$service_id].'</td>';
+            $tableString = $tableString.'<td style="font-family: Century Gothic;padding-left: 20px;">'.$newbranddata['brand'].'</td>';
             $tableString = $tableString.'</tr>';
             $sn++;
         }

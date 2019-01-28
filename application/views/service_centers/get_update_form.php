@@ -109,7 +109,7 @@
                                             <input type="hidden" id="model_number" name="model_number">
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
                                             <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number">
                                         </div>
@@ -433,7 +433,29 @@
             }
         }
         
-    <?php } ?>
+    <?php } else { ?>
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_appliance_model_number',
+            data: {partner_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>'},
+            success:function(data){
+                if(data){
+                    $("#appliance_model_div").empty();
+                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text()'>";
+                        html += data;
+                        html += "</select>";
+                        html += "<input type='hidden' id='model_number' name='model_number'>";
+                        $("#appliance_model_div").html(html);
+                }
+            }
+        });
+        
+        function model_number_text() {
+            var model_number = $("#model_number_id option:selected").text();
+            $('#model_number').val(model_number);
+        }
+        
+   <?php } ?>
     
     $(document).ready(function (){
        $(".spare_parts").attr("disabled", "true");
@@ -467,7 +489,7 @@
       } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
           
-          if(around_flag === '0'){
+          if(around_flag === '0'){ 
               var model_number = $('#model_number').val();
               var serial_number = $("#serial_number").val();
               var prob_des = $("#prob_desc").val();

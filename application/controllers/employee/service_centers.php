@@ -227,11 +227,16 @@ class Service_centers extends CI_Controller {
                 }
                 
                 if($u['pod'] == 1){
-                    $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
-                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity'],
+                    $where = array(
+                        "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
+                        'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                        'partner_appliance_details.brand' => $b['brand'], 
+                        'partner_appliance_details.category' => $b['category'],
+                        'appliance_model_details.active'=> 1, 
+                        'partner_appliance_details.capacity' => $b['capacity'],
                         "NULLIF(model, '') IS NOT NULL" => NULL);
 
-                    $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                    $m =$this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
                     if(!empty($m)){
                         $bookng_unit_details[$key1]['quantity'][$key2]['model_data'] = $m;
                     }
@@ -1227,8 +1232,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
-                $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
-
+                $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
@@ -1251,7 +1255,7 @@ class Service_centers extends CI_Controller {
         $where = array('spare_parts_details.id'=>$spare_id);
         $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
-                . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,'
+                . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);             
@@ -1292,6 +1296,7 @@ class Service_centers extends CI_Controller {
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
             $data['date_of_purchase'] = $this->input->post('dop');
+            $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
             foreach ($parts_requested as $value) {
@@ -4304,20 +4309,18 @@ class Service_centers extends CI_Controller {
 
             if ($courier_image['status']) {
 
-                $part = $this->input->post("part");
+                $part = $this->input->post("part");                
                 $sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
                 $amount_due = $this->input->post('amount_due');
+                $service_center_id = $this->input->post('assigned_vendor_id');
                 $status = false;
-                $can_status = false;
-                foreach ($part as $key => $part_details) {
-                    $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
-                }
+                $can_status = false;                
 
                 foreach ($part as $key => $part_details) {
                     if ($part_details['shippingStatus'] == 1) {
 
-                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock <> 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
                         if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
 
                             $status = SPARE_PARTS_SHIPPED;
@@ -4357,13 +4360,15 @@ class Service_centers extends CI_Controller {
                                 $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $spare_details);
                             }
 
-
+                       
                             if ($part_details['spare_id'] == "new") {
+                       
                                 $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
+                                  
                                 $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['booking_id'] = $booking_id;
                                 $data['partner_id'] = $sf_id;
-                                $data['service_center_id'] = $this->input->post('assigned_vendor_id');
+                                $data['service_center_id'] = $service_center_id;
                                 $data['model_number'] = $part_details['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];
                                 $data['requested_inventory_id'] = $part_details['inventory_id'];
@@ -4382,8 +4387,8 @@ class Service_centers extends CI_Controller {
                                 }
 
                                 $data['parts_requested'] = $part_details['shipped_parts_name'];
-
-                                $response = $this->service_centers_model->insert_data_into_spare_parts($data);
+                                                       
+                                $response = $this->service_centers_model->insert_data_into_spare_parts($data);                           
                                 $spare_id = $response;
                                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
@@ -4401,7 +4406,7 @@ class Service_centers extends CI_Controller {
                                         $pcb['sp_id'] = $spare_id;
                                         $pcb['gst_rate'] = $inventory_master_list[0]['gst_rate'];
 
-                                        $pcb['estimate_cost'] = ($inventory_master_list[0]['price']);
+                                        $pcb['estimate_cost'] =  ($inventory_master_list[0]['price'] + ( $inventory_master_list[0]['price'] * $inventory_master_list[0]['gst_rate']) / 100);;
                                         $pcb['agent_id'] = $this->session->userdata('service_center_id');
                                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                                     }
@@ -4456,7 +4461,7 @@ class Service_centers extends CI_Controller {
                         $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "");
                     }
                 }
-
+                
                 if ($status) {
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;

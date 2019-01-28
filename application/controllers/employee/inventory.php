@@ -2416,7 +2416,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_parts_name(){
-        
+                
         $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $where = array();
@@ -2430,6 +2430,11 @@ class Inventory extends CI_Controller {
         
         if($this->input->post('service_id')){
             $where['inventory_master_list.service_id'] = $this->input->post('service_id');
+        }
+        
+        if(!empty($this->input->post('entity_id'))){
+            $where['inventory_master_list.entity_id'] = $this->input->post('entity_id');
+            $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id',$where);
@@ -4523,6 +4528,9 @@ class Inventory extends CI_Controller {
                         $response = $this->add_appliance_model_data($data);
                         break;
                     case 'edit':
+                        if($this->input->post('status') || $this->input->post('status') == 0){
+                            $data['active'] = $this->input->post('status');
+                        }
                         $response = $this->edit_appliance_model_data($data);
                         break;
                 }
@@ -4567,7 +4575,7 @@ class Inventory extends CI_Controller {
      */
     function edit_appliance_model_data($data) {
         if($this->input->post('model_id')){
-            $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);;
+            $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);
             if (!empty($response)) {
                 $res['response'] = 'success';
                 $res['msg'] = 'Details has been updated successfully';
@@ -5367,6 +5375,34 @@ class Inventory extends CI_Controller {
                     }
                 }
             }
+        }
+    }
+    
+     /**
+     *  @desc : This function is used to get model number with select html only from appliance_model_detail table
+     *  @param : void
+     *  @return : html
+     */
+    function get_appliance_model_number(){
+        
+        $where = array(
+                'entity_id' => $this->input->post("partner_id"),
+                'entity_type' => _247AROUND_PARTNER_STRING, 
+                'service_id' =>  $this->input->post("service_id"),
+                'active' => 1
+            );
+        $inventory_details = $this->inventory_model->get_appliance_model_details('id,model_number', $where);
+        if(!empty($inventory_details)){
+            $option = '<option selected disabled>Select Model Number</option>';
+            foreach ($inventory_details as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .=" > ";
+                $option .= $value['model_number'] . "</option>";
+            }
+            echo $option;
+        }
+        else{
+            echo false;
         }
     }
 

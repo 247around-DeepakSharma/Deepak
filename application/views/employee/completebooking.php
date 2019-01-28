@@ -58,7 +58,7 @@
                         $status = "1";
                     }
                     ?>
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form"  onSubmit="document.getElementById('submitform').disabled=true;" action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $booking_history[0]['service_center_closed_date']; ?>" name="service_center_closed_date">
                     <div class="row">
                         <div class="col-md-12">
@@ -269,7 +269,7 @@
                                                              <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
-                                                                    <input type="file" style="display:none" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
+                                                                    <input type="file"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
                                                                     
@@ -281,7 +281,7 @@
                                                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
                                                                                                 <option value="" selected="" disabled="">Model Number</option>
                                                                                                 <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                                                <option value="<?php echo $m['model'];?>"><?php echo $m['model'];?></option>  
+                                                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>  
                                                                                                 <?php }?>
                                                                                             </select>
                                                                         </div>
@@ -605,25 +605,15 @@
                 }
     
                 //If Serial Number Invalid then serial number image should be mendatory
-                var requiredPic = $('#sno_required'+ div_no[2]).val();
-                    if(requiredPic === '1'){
+//                var requiredPic = $('#sno_required'+ div_no[2]).val();
+//                    if(requiredPic === '1'){
                         if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
                         }
-                    }
-                    else{
-                        var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
-                        if (numberRegex.test(serial_number)) {
-                            if (serial_number > 0) {
-                                flag = 0;
-                            } else {
-                                document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
-                                flag = 1;
-                            }
-                        }
-                    }
+                    //}
+                   
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
                     if(duplicateSerialNo === '1'){
                         alert('<?php echo DUPLICATE_SERIAL_NUMBER_USED;?>');
@@ -940,7 +930,7 @@
                     var data = jQuery.parseJSON(response);
                     if(data.code === 247){
                         $('body').loadingModal('destroy');
-                        $("#upload_serial_number_pic"+count).css('display', "none");
+                       // $("#upload_serial_number_pic"+count).css('display', "none");
                         $("#error_serial_no" +count).text("");
                         $("#sno_required"+count).val('0');
                         $("#duplicate_sno_required"+count).val('0');
@@ -952,7 +942,7 @@
                     } else {
                         $("#sno_required"+count).val('1');
                         $("#error_serial_no" +count).html(data.message);
-                        $("#upload_serial_number_pic"+count).css('display', "block");
+                        //$("#upload_serial_number_pic"+count).css('display', "block");
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
                     }

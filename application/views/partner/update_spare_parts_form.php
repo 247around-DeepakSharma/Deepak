@@ -151,6 +151,15 @@
                                             </select>
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         </div>
+                                        <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
+                                            <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
+                                                <option value="" disabled="" selected="">Select Model Number</option>
+                                                <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
+                                                <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
+                                        
                                         <?php } else { ?> 
                                         <div class="col-md-6">
                                             <input required="" type="hidden" id="<?php echo "shippedmodelnumberid_".$key;?>" class="shipped_model_number_id" name="part[<?php echo $key; ?>][shipped_model_number_id]">

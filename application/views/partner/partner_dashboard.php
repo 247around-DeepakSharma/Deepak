@@ -785,9 +785,9 @@ function around_monthly_data(){
             margin-bottom: 0px;
             margin-top: 15px;
         }
-        .highcharts-contextbutton{
+/*        .highcharts-contextbutton{
             display: none;
-        }
+        }*/
         .select2-container--default{
             width: 175px !important;
         }

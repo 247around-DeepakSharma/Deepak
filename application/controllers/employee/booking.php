@@ -849,10 +849,16 @@ class Booking extends CI_Controller {
             }
             $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
             if(in_array($partner_id,$serialNumberMandatoryArray )){
-                $where = array("partner_id" => $partner_id, 'service_id' => $data['booking_history'][0]['service_id'], 
-                            'brand' => $value['brand'], 'category' => $value['category'], 'active'=> 1, 'capacity' => $value['capacity'],
-                            "NULLIF(model, '') IS NOT NULL" => NULL);
-                $data['booking_unit_details'][$keys]['model_dropdown'] =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                $where = array(
+                    "partner_appliance_details.partner_id" => $partner_id, 
+                    'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                    'partner_appliance_details.brand' => $value['brand'],
+                    'partner_appliance_details.category' => $value['category'],
+                    'appliance_model_details.active'=> 1, 
+                    'partner_appliance_details.capacity' => $value['capacity'],
+                    "NULLIF(model, '') IS NOT NULL" => NULL
+                );
+                $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
             }
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
@@ -1560,11 +1566,14 @@ class Booking extends CI_Controller {
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By " . $this->session->userdata('employee_id');
+//             <h3>New Brands added By  " . $this->session->userdata('employee_id') . "</h3>    
             $message = "
         <html>
         <head></head>
         <body>
-            <h3>New Brands added By  " . $this->session->userdata('employee_id') . "</h3>    
+           Dear Partner<br>
+           We are glad to announce that we have added below new products to our existing brand. Please extend your support to provide great service to customers.
+           
             <table style='border-collapse:collapse; border: 1px solid black;'> 
                 <thead>
                     <tr style='border-collapse:collapse; border: 1px solid black;'>
@@ -1584,7 +1593,7 @@ class Booking extends CI_Controller {
             <hr />     
         </body>
         </html>";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NEW_BRAND_ADDED_TAG);
+          $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NEW_BRAND_ADDED_TAG);
         }
 
         redirect(base_url() . 'employee/booking/get_add_new_brand_form', 'refresh');
@@ -3072,10 +3081,11 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
-            service_centres.district as city, service_centres.primary_contact_name,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
         $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
+        
         unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
@@ -3426,7 +3436,7 @@ class Booking extends CI_Controller {
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
      */ 
-    function get_advance_search_result_data($receieved_Data,$select){
+    function get_advance_search_result_data($receieved_Data,$select,$selectarray=array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
         $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
@@ -3463,10 +3473,31 @@ class Booking extends CI_Controller {
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
-       //process query and get result from database
-        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
-                $whereInArray,$JoinTypeTableArray);
-        //convert database result into a required formate needed for datatales
+      
+       //Performing Sorting on datatable
+       if(!empty($receieved_Data['order']))
+       {
+            $order=$receieved_Data['order'];
+            $column_sort=$order['0']['column'];
+            $sort_type=$order['0']['dir'];
+            if(!empty($selectarray))
+            {
+                $order_by_column=$selectarray[$column_sort];
+                $sorting_type=$sort_type;
+            }
+       }
+       else
+       {
+           $order_by_column='booking_details.booking_id';
+           $sorting_type='ASC';
+       }
+        
+        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
+              //  $whereInArray,$JoinTypeTableArray);
+        //process query and get result from database
+        //After server side shorting
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
+       //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
@@ -3488,7 +3519,9 @@ class Booking extends CI_Controller {
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status";
-        $data = $this->get_advance_search_result_data($receieved_Data,$select);
+        $select_explode=explode(',',$select);
+        array_unshift($select_explode,"s.no");
+        $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
@@ -3704,6 +3737,7 @@ class Booking extends CI_Controller {
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
+        $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $order_list->booking_age." days";
         $row[] = $escalation." ".$order_list->partner_internal_status;
@@ -4511,20 +4545,21 @@ class Booking extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
         
-        $where = array ('service_id' => $service_id,
-                        'partner_id' => $partner_id,
-                        'category' => $category,
+        $where = array ('partner_appliance_details.service_id' => $service_id,
+                        'partner_appliance_details.partner_id' => $partner_id,
+                        'partner_appliance_details.category' => $category,
+                        'appliance_model_details.active' => 1, 
             );
         
         if(!empty($capacity)){
-            $where['capacity'] = $capacity;
+            $where['partner_appliance_details.capacity'] = $capacity;
         }
         
         if ($partner_type == OEM) {
-            $where['brand'] = $brand;
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $where['partner_appliance_details.brand'] = $brand;
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         } else {
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         }
         
         if(!empty($result)){
@@ -4533,7 +4568,7 @@ class Booking extends CI_Controller {
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option .= "<option value='".$value['model']."'>".$value['model']."</option>";
+                    $option .= "<option value='".$value['model_number']."'>".$value['model_number']."</option>";
                 }
                 
             }
