@@ -1810,10 +1810,63 @@ function get_data_for_partner_callback($booking_id) {
        $this->db->update("contact_person",array('is_active'=>$action));
        return $this->db->affected_rows();
     }
+
+    /**
+     * @Desc: This function is used to add partner appliance detail
+     * @params: Array
+     * @return: last insert id
+     * 
+     */
+    function insert_partner_appliance_detail($data) {
+        $this->db->insert('partner_appliance_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This is used to return Partner appliances details
+     * @param Array $where, $select, $order_by
+     * @return Array
+     */
+    function get_partner_appliance_details($where=array(), $select='*', $order_by =""){
+        $this->db->select($select);
+        
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        
+        if(!empty($order_by)){
+             $this->db->order_by($order_by, 'asc');
+        }
+       
+        $query = $this->db->get('partner_appliance_details');
+       
+        //log_message("info", $this->db->last_query());
+        return $query->result_array();
+    }
+    
+     /**
+     * @desc: This is used to return Partner Specific Brand details
+     * @param Array $where
+     * @return Array
+     */
+    function get_model_number($select='*', $where=array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('appliance_model_details.model_number', 'asc');
+        
+        $this->db->join("appliance_model_details", "appliance_model_details.id = partner_appliance_details.model");
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+
     function insert_sample_no_pic($data)
     {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
+
 }
 
