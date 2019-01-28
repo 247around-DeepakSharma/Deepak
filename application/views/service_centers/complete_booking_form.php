@@ -382,6 +382,34 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
+                                <label for="remark" class="col-md-12">Technical Problem</label>
+                                <div class="col-md-12" >
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Technical Problem</option>
+                                        <?php foreach ($technical_problem as $value) { ?>
+                                        <option value="<?php echo $value['id']?>"><?php echo $value['completion_request_symptom']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-12">Technical Solution</label>
+                                <div class="col-md-12" >
+                                    <select class="form-control" name="technical_solution" id = "technical_solution" <?php if(!empty($technical_solution)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Technical Solution</option>
+                                        <?php foreach ($technical_solution as $value) { ?>
+                                        <option value="<?php echo $value['id']?>"><?php echo $value['technical_solution']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="remark" class="col-md-12">Booking Remarks</label>
                                 <div class="col-md-12" >
                                     <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php
@@ -489,14 +517,18 @@
                         var model_number = $("#model_number_" + div_no[2]).val();
                         if(model_number === ""){
                             alert("Please Select Model Number");
-                            flag = 1;
                             document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                            return false;
                         }
                     }
                     else{
                         model_text_value = $("#model_number_text_" + div_no[2]).val();
                         if(model_text_value ===""){
-                             alert("Model Number is blank");
+                              alert("Model Number is blank");
+                              document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
+                              flag = 1;
+                              return false;
                         }
                     }
                   
@@ -628,6 +660,27 @@
                 document.getElementById('upcountry_charges').style.borderColor = "green";
             }
         }
+        
+        <?php if(!empty($technical_problem)){ ?>
+            var technical_problem = $("#technical_problem").val();
+            
+            if(technical_problem === null){
+                alert('Please Select Technical Problem');
+                document.getElementById('technical_problem').style.borderColor = "red";
+                flag = 1;
+                return false;
+            }
+        <?php } ?>
+        <?php if(!empty($technical_solution)){ ?>
+            var technical_solution = $("#technical_solution").val();
+            
+            if(technical_solution === null){
+                alert('Please Select Technical Solution');
+                document.getElementById('technical_solution').style.borderColor = "red";
+                flag = 1;
+                return false;
+            }
+        <?php } ?>
         var closing_remarks = $("#closing_remarks").val();
         if (closing_remarks === "") {
             alert("Please Enter Remarks");
@@ -646,7 +699,7 @@
                 return false;
             }
         }
-
+        
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
             return true;

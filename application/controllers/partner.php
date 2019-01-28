@@ -1444,6 +1444,7 @@ class Partner extends CI_Controller {
                     $booking['booking_landmark'] = $requestData['landmark'];
                     $booking['booking_pincode'] = trim($requestData['pincode']);
                     $booking['city'] = $requestData['city'];
+                    $booking['booking_request_symptom'] = $requestData['booking_request_symptom'];
                     if(isset($requestData['parent_booking'])){
                         $booking['parent_booking'] = $requestData['parent_booking'];
                     }

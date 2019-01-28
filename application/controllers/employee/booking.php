@@ -31,6 +31,7 @@ class Booking extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->model('penalty_model');
         $this->load->model("dealer_model");
+        $this->load->model('booking_request_model');
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');
@@ -629,6 +630,8 @@ class Booking extends CI_Controller {
         }
         
         $booking['user_id'] = $user_id;
+        
+        $booking['booking_request_symptom'] = $this->input->post('booking_request_symptom');
 
         return $booking;
     }
@@ -827,6 +830,8 @@ class Booking extends CI_Controller {
         $data['prices'] = array();
         //Define Upcountory Price as zero
         $upcountry_price = 0;
+        
+        $unit_price_tags = array();
         //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
             //If partner type is OEM then get price for booking unit brands
@@ -857,6 +862,7 @@ class Booking extends CI_Controller {
             }
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
+                array_push($unit_price_tags, $price_tag['price_tags']);
                 $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
                 // print_r($service_center_data);
                 if (!empty($service_center_data)) {
@@ -883,6 +889,12 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
+        
+        $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.id, completion_request_symptom',
+                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_request.active' => 1), array('request_type.service_category' => $unit_price_tags));
+        
+        $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
+                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $unit_price_tags));
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1288,7 +1300,7 @@ class Booking extends CI_Controller {
                 }
                 $html .= "name='prices[$brand_id][$clone_number][]'";
                // if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= "onclick='final_price(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model'></td><tr>";
+                    $html .= "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
 //                }
 //                else{
 //                    $html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
@@ -1479,6 +1491,22 @@ class Booking extends CI_Controller {
         }
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         $data['cashback_rules'] = $this->paytm_payment_model->get_paytm_cashback_rules(array("active" => 1, "tag" => PAYTM_CASHBACK_TAG));
+        $data['symptom'] =  array();
+        $data['completion_symptom'] =  array();
+        $data['technical_solution'] =  array();
+        if(!empty($data['booking_history'][0]['booking_request_symptom'])){
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_history'][0]['booking_request_symptom']));
+        
+        }
+        
+        if(!empty($data['booking_history'][0]['completion_symptom'])){
+            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('completion_request_symptom', array('symptom_completion_request.id' => $data['booking_history'][0]['completion_symptom']));
+        
+        } 
+        if(!empty($data['booking_history'][0]['technical_solution'])){
+            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_history'][0]['technical_solution']));
+        
+        } 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
@@ -3053,10 +3081,11 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
         $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
-            service_centres.district as city, service_centres.primary_contact_name,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
         $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
+        
         unset($new_post['order_performed_on_count']);
         $data = array();
         $no = $post['start'];
@@ -3708,6 +3737,7 @@ class Booking extends CI_Controller {
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
+        $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $order_list->booking_age." days";
         $row[] = $escalation." ".$order_list->partner_internal_status;

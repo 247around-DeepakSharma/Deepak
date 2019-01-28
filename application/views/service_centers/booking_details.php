@@ -8,7 +8,6 @@
     }
     tr:nth-child(even) {background-color: #f2f2f2}
 </style>
-<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history[0]['booking_jobcard_filename']; ?> " class='btn btn-md btn-warning  pull-right' download style="margin-right: 40px;margin-top:15px;margin-bottom: 10px;"><i class="fa fa-download" aria-hidden="true"></i></a>
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
     <div class="btn-group" role="group">
         <button type="button" id="stars" class="btn btn-primary" href="#tab1" data-toggle="tab">
@@ -72,16 +71,16 @@
                             
                             <tr>
                                 <th >Booking ID </th>
-                                <td><?php echo $booking_history[0]['booking_id']; ?></td>
+                                <td><?php echo $booking_history[0]['booking_id']; ?> <a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history[0]['booking_jobcard_filename']; ?> " class='btn btn-md btn-warning  pull-right' download ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                <th>Amount Due </th>
                                 <td><?php echo $booking_history[0]['amount_due']; ?></td>
                             </tr>
                           
                             <tr>
-                                 <th>Booking date </th>
-                                <td><?php echo $booking_history[0]['booking_date']; ?></td>
-                                <th>Timeslot </th>
-                                <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
+                                 <th>Booking date/Timeslot </th>
+                                <td><?php echo $booking_history[0]['booking_date']."/".$booking_history[0]['booking_timeslot']; ?></td>
+                                <th> Closed Date </th>
+                                <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                                 
                             </tr>
                            
@@ -122,23 +121,41 @@
                                   <th>Closed date </th>
                                 <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                             </tr>
+                            <tr>
+                                <th>Remarks</th>
+                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                <th>Booking Request Symptom</th>
+                                <td><?php if(!empty($symptom)) { echo $symptom[0]['booking_request_symptom']; } ?></td>
+                            </tr>
                            
                             <tr>
                                 <th>Closing Remarks </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
-                                 <th>Rating </th>
-                                <td><?php if (!empty($booking_history[0]['rating_stars'])) {
-                                    echo $booking_history[0]['rating_stars'] . "/5";
-                                    } ?></td>
+                                <th>Closing Technical Problem</th>
+                                <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                                
                             </tr>
                             
                             <tr>
+                                <th>Technical Solution</th>
+                                <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
+                                <th>Rating </th>
+                                <td><?php if (!empty($booking_history[0]['rating_stars'])) {
+                                    echo $booking_history[0]['rating_stars'] . "/5";
+                                    } ?></td>
+                                
+                            </tr>
+                            <tr>
+                                <th>Repeat Reason </th>
+                                <td ><?php if (!empty($booking_history[0]['repeat_reason'])) {
+                                    echo $booking_history[0]['repeat_reason'];
+                                    } ?></td>
                                 <th>Rating Comment </th>
+                                
                                 <td><?php if (!empty($booking_history[0]['rating_comments'])) {
                                     echo $booking_history[0]['rating_comments'];
-                                    } ?></td>
-                                <th>Remarks </th>
-                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                    } ?>
+                                </td>
                             </tr>
                             <?php if($booking_history[0]['is_upcountry'] ==  1){ ?>
                             <tr>
@@ -162,14 +179,7 @@
                                 </td>
                             </tr>
                             <?php } ?>
-                             <tr>
-                                <th>Repeat Reason </th>
-                                <td><?php if (!empty($booking_history[0]['repeat_reason'])) {
-                                    echo $booking_history[0]['repeat_reason'];
-                                    } ?></td>
-                                <th> </th>
-                                <td></td>
-                            </tr>
+                             
                         </table>
                         <table class="table  table-striped table-bordered" >
                             <tr>

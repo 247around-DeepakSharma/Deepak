@@ -185,6 +185,14 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="status">Status</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="checkbox" class="form-control" id="active_inactive" name="active_inactive" checked>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="modal-footer">
@@ -333,7 +341,6 @@
     });
     
     $(document).on("click", "#edit_appliance_model_details", function () {
-        
         var form_data = $(this).data('id');
         if(form_data.service_id){
                 // Set the value, creating a new option if necessary
@@ -354,6 +361,12 @@
             $('#entity_id').html(entity_id_options);
         }
         
+        if(form_data.active === '1'){
+            $("#active_inactive").prop('checked', true);
+        }
+        else{
+            $("#active_inactive").prop('checked', false);
+        }
         
         $('#model_number').val(form_data.model_number);
         $('#model_id').val(form_data.id);
@@ -366,6 +379,14 @@
     $("#model_submit_btn").click(function(){
         event.preventDefault();
         var arr = {};
+        var status_arr = {}
+        status_arr.name = 'status';
+        if($("#active_inactive").is(':checked')){ 
+          status_arr.value = 1;
+        }
+        else{ 
+           status_arr.value = 0;
+        }
         var form_data = $("#applince_model_list_details").serializeArray();
         if(!$('#entity_id').val()){
             alert("Please Select Partner");
@@ -378,6 +399,7 @@
             arr.name = 'submit_type';
             arr.value = $('#model_submit_btn').val();
             form_data.push(arr);
+            form_data.push(status_arr);
             $.ajax({
                 type:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/process_appliance_model_list_data',

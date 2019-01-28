@@ -1438,6 +1438,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
         $this->db->from('spare_parts_details');
+        $this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
@@ -1613,6 +1614,8 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
+            DATE_FORMAT(`ud`.`purchase_date`,'%d-%m-%Y') As 'Purchase Date',
+            DATE_FORMAT(`booking_details`.`closed_date`,'%d-%m-%Y') As 'Closed Date',
             booking_details.booking_id AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
