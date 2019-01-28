@@ -5374,5 +5374,33 @@ class Inventory extends CI_Controller {
             }
         }
     }
+    
+     /**
+     *  @desc : This function is used to get model number with select html only from appliance_model_detail table
+     *  @param : void
+     *  @return : html
+     */
+    function get_appliance_model_number(){
+        
+        $where = array(
+                'entity_id' => $this->input->post("partner_id"),
+                'entity_type' => _247AROUND_PARTNER_STRING, 
+                'service_id' =>  $this->input->post("service_id"),
+                'active' => 1
+            );
+        $inventory_details = $this->inventory_model->get_appliance_model_details('id,model_number', $where);
+        if(!empty($inventory_details)){
+            $option = '<option selected disabled>Select Model Number</option>';
+            foreach ($inventory_details as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .=" > ";
+                $option .= $value['model_number'] . "</option>";
+            }
+            echo $option;
+        }
+        else{
+            echo false;
+        }
+    }
 
 }

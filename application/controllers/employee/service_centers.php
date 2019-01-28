@@ -214,11 +214,16 @@ class Service_centers extends CI_Controller {
                 }
                 
                 if($u['pod'] == 1){
-                    $where = array("partner_id" => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 
-                        'brand' => $b['brand'], 'category' => $b['category'], 'active'=> 1, 'capacity' => $b['capacity'],
+                    $where = array(
+                        "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
+                        'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                        'partner_appliance_details.brand' => $b['brand'], 
+                        'partner_appliance_details.category' => $b['category'],
+                        'appliance_model_details.active'=> 1, 
+                        'partner_appliance_details.capacity' => $b['capacity'],
                         "NULLIF(model, '') IS NOT NULL" => NULL);
 
-                    $m =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                    $m =$this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
                     if(!empty($m)){
                         $bookng_unit_details[$key1]['quantity'][$key2]['model_data'] = $m;
                     }
@@ -1203,8 +1208,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
-                $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
-
+                $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);

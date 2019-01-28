@@ -844,10 +844,16 @@ class Booking extends CI_Controller {
             }
             $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
             if(in_array($partner_id,$serialNumberMandatoryArray )){
-                $where = array("partner_id" => $partner_id, 'service_id' => $data['booking_history'][0]['service_id'], 
-                            'brand' => $value['brand'], 'category' => $value['category'], 'active'=> 1, 'capacity' => $value['capacity'],
-                            "NULLIF(model, '') IS NOT NULL" => NULL);
-                $data['booking_unit_details'][$keys]['model_dropdown'] =$this->partner_model->get_partner_specific_details($where, "model", "model");
+                $where = array(
+                    "partner_appliance_details.partner_id" => $partner_id, 
+                    'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                    'partner_appliance_details.brand' => $value['brand'],
+                    'partner_appliance_details.category' => $value['category'],
+                    'appliance_model_details.active'=> 1, 
+                    'partner_appliance_details.capacity' => $value['capacity'],
+                    "NULLIF(model, '') IS NOT NULL" => NULL
+                );
+                $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
             }
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
@@ -3401,7 +3407,7 @@ class Booking extends CI_Controller {
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
      */ 
-    function get_advance_search_result_data($receieved_Data,$select){
+    function get_advance_search_result_data($receieved_Data,$select,$selectarray=array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
         $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
@@ -3438,10 +3444,31 @@ class Booking extends CI_Controller {
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
         $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left');
-       //process query and get result from database
-        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
-                $whereInArray,$JoinTypeTableArray);
-        //convert database result into a required formate needed for datatales
+      
+       //Performing Sorting on datatable
+       if(!empty($receieved_Data['order']))
+       {
+            $order=$receieved_Data['order'];
+            $column_sort=$order['0']['column'];
+            $sort_type=$order['0']['dir'];
+            if(!empty($selectarray))
+            {
+                $order_by_column=$selectarray[$column_sort];
+                $sorting_type=$sort_type;
+            }
+       }
+       else
+       {
+           $order_by_column='booking_details.booking_id';
+           $sorting_type='ASC';
+       }
+        
+        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
+              //  $whereInArray,$JoinTypeTableArray);
+        //process query and get result from database
+        //After server side shorting
+        $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
+       //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
@@ -3463,7 +3490,9 @@ class Booking extends CI_Controller {
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status";
-        $data = $this->get_advance_search_result_data($receieved_Data,$select);
+        $select_explode=explode(',',$select);
+        array_unshift($select_explode,"s.no");
+        $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
@@ -4486,20 +4515,21 @@ class Booking extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
         
-        $where = array ('service_id' => $service_id,
-                        'partner_id' => $partner_id,
-                        'category' => $category,
+        $where = array ('partner_appliance_details.service_id' => $service_id,
+                        'partner_appliance_details.partner_id' => $partner_id,
+                        'partner_appliance_details.category' => $category,
+                        'appliance_model_details.active' => 1, 
             );
         
         if(!empty($capacity)){
-            $where['capacity'] = $capacity;
+            $where['partner_appliance_details.capacity'] = $capacity;
         }
         
         if ($partner_type == OEM) {
-            $where['brand'] = $brand;
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $where['partner_appliance_details.brand'] = $brand;
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         } else {
-            $result = $this->partner_model->get_partner_specific_details($where, 'model');
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         }
         
         if(!empty($result)){
@@ -4508,7 +4538,7 @@ class Booking extends CI_Controller {
             foreach ($result as $value) {
                 if(!empty(trim($value['model']))){
                     $flag = true;
-                    $option .= "<option value='".$value['model']."'>".$value['model']."</option>";
+                    $option .= "<option value='".$value['model_number']."'>".$value['model_number']."</option>";
                 }
                 
             }
