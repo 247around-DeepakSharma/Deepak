@@ -2989,8 +2989,10 @@ class Service_centers extends CI_Controller {
                     if ($update_id) {
                         log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
                         //update order details table
-                        $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), array('is_delivered' => '1'));
+                        $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), 
+                                array('is_delivered' => '1','current_status' => _247AROUND_BB_DELIVERED,'internal_status' => _247AROUND_BB_DELIVERED));
                         if (!empty($order_details_update_id)) {
+                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_DELIVERED, "Delivered", $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'service_center/buyback/bb_order_details');
@@ -3536,7 +3538,6 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
-        $row[] = ($order_list->cp_claimed_price);
         $row[] = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
