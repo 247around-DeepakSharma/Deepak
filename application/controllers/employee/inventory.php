@@ -5404,5 +5404,39 @@ class Inventory extends CI_Controller {
             echo false;
         }
     }
-
+    
+     /**
+     *  @desc : This function is used to process mapping model number
+     *  @param : $partner_id, $service_id, $brand, $category, $capacity, $model
+     *  @return : array
+     */
+    function process_model_number_mapping(){
+        $return = array();
+        $details = array(
+            "partner_id" => $this->input->post("partner_id"),
+            "service_id" => $this->input->post("service_id"),
+            "brand" => $this->input->post("brand"),
+            "category" => $this->input->post("category"),
+            "capacity" => $this->input->post("capacity"),
+            "model" => $this->input->post("model"),
+        );
+        
+        $data = $this->partner_model->get_partner_appliance_details($details, 'id');
+        if(empty($data)){
+            $insert_id = $this->partner_model->insert_partner_appliance_detail($details);
+            if($insert_id){
+                $return['status'] = true; 
+                $return['message'] = "Model Number Mapped Successfully";    
+            }
+            else{
+                $return['status'] = false; 
+                $return['message'] = "Error Occured while Mapping Model Number";
+            }
+        }
+        else{
+           $return['status'] = false; 
+           $return['message'] = "Model Number Already Mapped";
+        }
+        echo json_encode($return);
+    }
 }
