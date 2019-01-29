@@ -103,6 +103,7 @@
                                 <th>Service Name</th>
                                 <th>Category</th>
                                 <th>SF Charge</th>
+                                <th>CP Claimed Price</th>
                                 <th>Order date</th>
                                 <th>Delivery date</th>
                                 <th>Remarks</th>
@@ -129,6 +130,7 @@
                             <th>Order date</th>
                             <th>Delivery date</th>
                             <th>SF Charge</th>
+                            <th>CP Claimed Price</th>
                             <th>Status</th>
                             
                         </tr>
@@ -151,6 +153,7 @@
                             <th>Order date</th>
                             <th>Delivery date</th>
                             <th>SF Charge</th>
+                            <th>CP Claimed Price</th>
                             <th>Status</th>
                             
                         </tr>
@@ -173,6 +176,7 @@
                             <th>Order date</th>
                             <th>Delivery date</th>
                             <th>SF Charge</th>
+                            <th>CP Claimed Price</th>
                             <th>Status</th>
                             <th>Action</th>
                             
@@ -215,6 +219,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
@@ -259,6 +264,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
@@ -303,6 +309,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
@@ -346,6 +353,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
@@ -389,6 +397,7 @@
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {

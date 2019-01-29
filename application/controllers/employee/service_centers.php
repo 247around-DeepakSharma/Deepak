@@ -3448,7 +3448,7 @@ class Service_centers extends CI_Controller {
      * @desc This function used to get inprocess buyback data
      */
     function get_inprocess_order_data(){
-         $post = $this->get_post_view_data();
+        $post = $this->get_post_view_data();
         $post['where'] = array('assigned_cp_id' => $this->session->userdata('service_center_id'));
         $post['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
                                   'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
@@ -3497,6 +3497,7 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->services;
         $row[] = $order_list->category;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
         $row[] = "<div class='truncate_text' data-toggle='popover' title='" . $order_list->admin_remarks . "'>$order_list->admin_remarks</div>";
@@ -3535,6 +3536,7 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->category;
         $row[] = $order_list->order_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = ($order_list->cp_claimed_price);
         $row[] = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
                             <span class='caret'></span></button>
@@ -3566,6 +3568,7 @@ class Service_centers extends CI_Controller {
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
+        $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
         if($inprocess){
             $row[] = "";
@@ -3696,6 +3699,7 @@ class Service_centers extends CI_Controller {
             
         $data['delivered_charges'] = $cp_delivered_charge;
         $data['in_transit_charges'] = $cp_in_transit_charge;
+        $data['in_process_charges'] = $amount_cr_deb['in_process'];
         $data['total_charges'] = $amount_cr_deb['total_balance'];
         $this->load->view('service_centers/show_bb_charges_summary',$data);
     }
@@ -3916,14 +3920,28 @@ class Service_centers extends CI_Controller {
      */
     function search_for_buyback(){
         $this->check_BB_UserSession();
-        $post['search_value'] = trim($this->input->post('search'));
+        $search_data = trim($this->input->post('search'));
+         if(strpos($search_data,',')){
+            $search_value = explode(',', $search_data);
+        }else{
+            $search_value = explode(" ", $search_data);
+        }
         $post['column_search'] = array('bb_order_details.partner_order_id', 'bb_order_details.partner_tracking_id');
         $post['where'] = array('assigned_cp_id' =>  $this->session->userdata('service_center_id'));
         $post['where_in'] = array();
         $post['column_order'] = array();
         $post['length'] = -1;
-        
-        $list['list'] = $this->cp_model->get_bb_cp_order_list($post);
+        $list['list'] = array();
+        foreach($search_value as $value){
+            if(!empty($value)){
+                $post['search_value'] = trim($value);
+                $data = $this->cp_model->get_bb_cp_order_list($post);
+                if(!empty($data)){
+                    array_push($list['list'], $data[0]);
+                }
+                
+            }
+        }
         $this->load->view('service_centers/search_for_buyback',$list);
             
     }

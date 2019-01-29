@@ -1423,6 +1423,7 @@ class Buyback_process extends CI_Controller {
      public function download_price_list_data() {
         $cp_id = $this->input->post("cp_id");
         $service_name_arr = $this->input->post('appliance_name');
+        $service_cp_id = $this->input->post("service_cp_id");
         $csv_file = array();
         if (!empty($cp_id)) {
             //$key = cp_id, $value = cp_name
@@ -1438,16 +1439,20 @@ class Buyback_process extends CI_Controller {
             }
         } else if ($service_name_arr) {
             //If all is selected then download all appliance data
-            $key = array_search('All', $service_name_arr);
+            $key = array_search('all', $service_name_arr);
             if ($key !== FALSE) {
                 $service_name_arr = array_column($this->booking_model->selectservice(true), 'services', 'id');
             }
-
+            $key2 = array_search('all', $service_cp_id);
+            if ($key2 !== FALSE) {
+                $service_cp_id = array_column($this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1)), 'id');
+            }
+            $where_in['bb_charges.cp_id'] = $service_cp_id;
             foreach ($service_name_arr as $key => $value) {
                 $csv_file_name = TMP_FOLDER . "buyback_price_list_" . strtolower(str_replace(" ", "_", $value));
                 $where = array('bb_charges.partner_id' => AMAZON_SELLER_ID, 'visible_to_partner' => 1, 'bb_shop_address.active' => 1, 'bb_charges.service_id' => $key);
                 //get total data and divide it from 500 to insert only 500 data at a time in one csv
-                $total_data = $this->service_centre_charges_model->get_bb_charges($where, 'count(bb_charges.id) as total_data', true, true);
+                $total_data = $this->service_centre_charges_model->get_bb_charges($where, 'count(bb_charges.id) as total_data', true, true,null,null,false,$where_in);
                 if (!empty($total_data)) {
                     $row_limit = 498;
                     $counter = ceil($total_data[0]['total_data'] / $row_limit);
@@ -1462,7 +1467,7 @@ class Buyback_process extends CI_Controller {
                         } else {
                             $select = "brand as Brand,category as Type, concat(physical_condition, ' | ',working_condition) as 'Product Condition' , city AS 'Location' , partner_total as 'Exchange Offer Value'";
                         }
-                        $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE);
+                        $data = $this->service_centre_charges_model->get_bb_charges($where, $select, true, true, $offset, $row_limit, TRUE,$where_in);
                         if (!empty($data)) {
                             $file_name = $csv_file_name . "_" . $i . ".csv";
                             $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
@@ -2102,7 +2107,7 @@ class Buyback_process extends CI_Controller {
         $this->load->dbutil();
         $this->load->helper('file');
         $this->delimiter = ",";
-        $this->newline = "\r\n";
+        $this->newline = "\n";
         $this->new_report = $this->dbutil->csv_from_result($data, $this->delimiter, $this->newline);
         log_message('info', __FUNCTION__ . ' => Rendered CSV');
         $this->response =  write_file($file_name, $this->new_report);
