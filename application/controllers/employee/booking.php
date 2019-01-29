@@ -4206,6 +4206,23 @@ class Booking extends CI_Controller {
         echo $option;
     }
     
+     /**
+     * @desc: This function is used to get cp_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_cp_id(){
+       $cp_list = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+       $option = '';
+       $option .= '<option value="all" >All</option>';
+        foreach ($cp_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+    
     /**
      * @desc: This function is used to download the data from vendor pincode mapping
      * @params: void

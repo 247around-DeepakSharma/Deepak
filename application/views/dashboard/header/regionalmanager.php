@@ -280,6 +280,10 @@
                                 <div class="form-group">
                                     <select class="form-control" id="modal_service_id" name="service_id[]" multiple="multiple" required=""> 
                                     </select>
+                                     <br>
+                                    <br>
+                                    <select class="form-control" id="modal_cp_id" name="service_cp_id[]" multiple="multiple" required=""> 
+                                    </select>
                                 </div>
                                 <div class="modal-footer">
                                     <div class="text-right">
@@ -319,6 +323,10 @@
                 placeholder: "Select Appliance",
                 allowClear: true
             });
+             $("#modal_cp_id").select2({
+                placeholder: "Select Collection Partner",
+                allowClear: true
+            });
             
             $(document).ready(function(){
                 $('#export_data').click(function(){
@@ -327,6 +335,13 @@
                         url: '<?php echo base_url() ?>employee/booking/get_service_id',
                         success: function (response) {
                             $("#modal_service_id").html(response);
+                        }
+                    });
+                    $.ajax({
+                        type: 'GET',
+                        url: '<?php echo base_url() ?>employee/booking/get_cp_id',
+                        success: function (response) {
+                            $("#modal_cp_id").html(response);
                         }
                     });
                 });
