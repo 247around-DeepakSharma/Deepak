@@ -1380,6 +1380,9 @@ class Api extends CI_Controller {
                             $b['current_status'] === "Cancelled" && $b['type'] === 'Query' &&
                             (date('Y-m-d', strtotime($b['create_date'])) > date('Y-m-d',strtotime('-30 days')))) {
                         $d = array('internal_status' => 'Missed_call_confirmed',
+                            'closed_date' => NULL,
+                            'cancellation_reason' => NULL,
+                            'service_center_closed_date' => NULL,
                             'booking_date' => '', 'booking_timeslot' => '',
                             'delivery_date' => date('Y-m-d H:i:s'),
                             'current_status' => 'FollowUp',
@@ -1409,7 +1412,7 @@ class Api extends CI_Controller {
                         } else {
                             log_message('info', __METHOD__ . '=> Booking confirmation '
                                     . 'through missed call succeeded for ' . $b['booking_id']);
-                            $u = array('booking_status' => 'FollowUp');
+                            $u = array('booking_status' => _247AROUND_FOLLOWUP, 'ud_closed_date' => NULL);
                             //Update unit details
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
                              $this->notify->insert_state_change($b['booking_id'], _247AROUND_FOLLOWUP, $b['current_status'], 
