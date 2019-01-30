@@ -2995,6 +2995,7 @@ class Service_centers extends CI_Controller {
                             $mainTableData['current_status'] = _247AROUND_BB_DELIVERED;
                             $mainTableData['internal_status'] = _247AROUND_BB_DELIVERED;
                             $mainTableData['delivery_date'] = date("Y-m-d");
+                            $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array("order_status" => _247AROUND_BB_DELIVERED));
                         }
                         $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id),$mainTableData);
                         if (!empty($order_details_update_id)) {
