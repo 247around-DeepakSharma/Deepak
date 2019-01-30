@@ -1966,5 +1966,22 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+     /**
+     * @Desc: This function is used to get data from the inventory_ledger table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_details($select,$where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('inventory_ledger');        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
        
 }
