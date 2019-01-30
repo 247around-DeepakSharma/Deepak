@@ -731,7 +731,7 @@ class Around_scheduler extends CI_Controller {
         $data_1 = $this->reusable_model->get_search_result_data("account_holders_bank_details", "service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email", $where, $join, NULL, NULL, NULL, $JoinTypeTableArray);
         $sql = "SELECT service_centres.id,service_centres.name,CONCAT(service_centres.primary_contact_email,',',service_centres.owner_email) as email FROM service_centres WHERE "
                 . "service_centres.id NOT IN (SELECT account_holders_bank_details.entity_id FROM account_holders_bank_details WHERE account_holders_bank_details.entity_type='SF' "
-                . "AND account_holders_bank_details.is_active=1) AND service_centres.active=1";
+                . "AND account_holders_bank_details.is_active=1) AND service_centres.active=1 AND service_centres.on_off=1";
         $data_2 = $this->reusable_model->execute_custom_select_query($sql);
         $data = array_merge($data_1, $data_2);
         if (!empty($data)) {

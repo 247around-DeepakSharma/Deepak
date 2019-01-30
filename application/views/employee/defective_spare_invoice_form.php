@@ -102,7 +102,7 @@
                     for(var i=0; i<response.length; i++){
                         var href = "";
                         if(response[i]['partner_challan_file']){
-                            //href = "href='<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/"+response[i]['partner_challan_file']+"'";
+                            href = "href='<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/"+response[i]['partner_challan_file']+"'";
                         }
                         html += "<tr>";
                             html += "<td>"+ index +"</td>";
@@ -125,7 +125,7 @@
                         html += "</tr>";
                         index++;
                     }
-                    html += "<tr><td colspan='10'><input type='text' id='remarks' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
+                    html += "<tr><td colspan='10'><input type='text' id='remarks' style='height: 50px;' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
                     $("#defective_spare_detail").css("display", "inline-table");
                     $("#defective_spare_detail tbody").html(html);
                     $("select").select2();

@@ -1809,7 +1809,16 @@ function get_tat_conditions_by_filter($startDate=NULL,$endDate=NULL,$status="not
         $csv ="";
         foreach($data as $values){
             $tempArray = array();
-            $tempArray[] = $values['entity'];
+            $entity = $values['entity'];
+            if($this->session->userdata('partner_id')){
+                    if($values['id'] !="00"){
+                        $entity =  "247Around_Service_Center_".$values['id'];
+                    }
+                    else{
+                        $entity =  wordwrap($values['entity'], 30, "<br />\n");
+                    }
+                }
+            $tempArray[] = $entity;
             $tempArray[] = $values['TAT_0'];
             $tempArray[] = $values['TAT_0_per'];
             $tempArray[] = $values['TAT_1'];
