@@ -855,26 +855,32 @@ class Spare_parts extends CI_Controller {
      */
     
     function copy_booking_details_by_spare_parts_id() {
+
         $spare_parts_id = $this->input->post('spare_parts_id');
         $new_booking_id = $this->input->post('new_booking_id');
         $status = $this->input->post('status');
-        
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.id' => $spare_parts_id), false, false);
-        if (!empty($spare_parts_list)) {
-            unset($spare_parts_list[0]['id']);
-            $spare_parts_list[0]['booking_id'] = $new_booking_id;
-            $spare_parts_list[0]['status'] = $status;
-            $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
-            if(!empty($insert_id ) && $insert_id !=''){
-                echo 'success';
-            }else{
-                echo 'fail';
+
+        $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,'
+                . 'spare_parts_details.defective_return_to_entity_type,spare_parts_details.defective_return_to_entity_id, spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
+                . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
+                . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,spare_parts_details.part_warranty_status';
+
+        if (!empty($spare_parts_id)) {
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), false, false);
+            if (!empty($spare_parts_list)) {
+                $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
+                $spare_parts_list[0]['booking_id'] = $new_booking_id;
+                $spare_parts_list[0]['status'] = $status;
+                $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
+                if (!empty($insert_id) && $insert_id != '') {
+                    echo 'success';
+                } else {
+                    echo 'fail';
+                }
             }
-        } 
-        
+        }
     }
-   
-    
+
     /**
      * @desc: This function is used to brackets data table.
      * @params: void
