@@ -88,6 +88,7 @@
                     <h3>Appliance Model List</h3>
                 </div>
                 <div class="col-md-6">
+                    <a class="btn btn-primary pull-right" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-pencil-square-o"></i></a>
                     <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus"></i></a>
                 </div>
             </div>
@@ -208,6 +209,93 @@
         </div>
     </div>
     <!-- Modal end -->
+    
+    <!--Modal start [ map model number ]-->
+      <div id="map_appliance_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_title_action"> Model Mapping </h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+                       <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="model_entity_id">Partner*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="model_entity_id" name="model_entity_id">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="mapping_service_id">Service*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="mapping_service_id" name="mapping_service_id">
+                                              <option selected disabled>Select Service</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="mapping_brand">Brand*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="mapping_brand" name="mapping_brand">
+                                            <option selected disabled>Select Brand</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="mapping_category">Category*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="mapping_category" name="mapping_category">
+                                              <option selected disabled>Select Category</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="mapping_capacity">Capacity*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="mapping_capacity" name="mapping_capacity">
+                                            <option selected disabled>Select Capacity</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="mapping_model_number">Model Number*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="mapping_model_number" name="mapping_model_number">
+                                              <option selected disabled>Select Model Number</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" onclick="model_number_mapping()">Submit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Modal end-->
 </div>
 <script>
     var appliance_model_details_table;
@@ -468,5 +556,121 @@
         appliance_model_details_table.ajax.reload();
     };
     
+    $("#map_model").click(function(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            data:{},
+            success:function(response){
+                $('#model_entity_id').html(response);
+                $('#model_entity_id').select2();
+            }
+        });
+        $('#map_appliance_model').modal('toggle');
+    });
     
+    $("#model_entity_id").change(function(){ 
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
+            data:{partner:$('#model_entity_id').val()},
+            success:function(response){
+                $('#mapping_service_id').html(response);
+                $('#mapping_service_id').select2();
+            }
+        });
+    });
+    
+    $("#mapping_service_id").change(function(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_brands_from_service',
+            data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
+            success:function(response){
+                $('#mapping_brand').html(response);
+                $('#mapping_brand').select2();
+            }
+        });
+        
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_category_from_service',
+            data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
+            success:function(response){
+                $('#mapping_category').html(response);
+                $('#mapping_category').select2();
+            }
+        });
+        
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
+            data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
+            success:function(response){
+                if(response){
+                    $('#mapping_model_number').html(response);
+                    $('#mapping_model_number').select2();
+                }
+            }
+        });
+    });
+    
+    $("#mapping_category").change(function(){
+         $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_capacity_for_partner',
+            data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val(), category:$('#mapping_category').val()},
+            success:function(response){
+                $('#mapping_capacity').html(response);
+                $('#mapping_capacity').select2();
+            }
+        });
+    });
+    
+    function model_number_mapping(){
+        if(!$("#model_entity_id").val()){
+            alert("Please Select Partner");
+            return false;
+        }
+        else if(!$("#mapping_service_id").val()){
+            alert("Please Select Service");
+            return false;
+        }
+        else if(!$("#mapping_brand").val()){
+            alert("Please Select Brand");
+            return false;
+        }
+        else if(!$("#mapping_category").val()){
+            alert("Please Select Category");
+            return false;
+        }
+        else if(!$("#mapping_capacity").val()){
+            alert("Please Select Capacity");
+            return false;
+        }
+        else if(!$("#mapping_model_number").val()){
+            alert("Please Select Model Number");
+            return false;
+        }
+        else{
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url();?>employee/inventory/process_model_number_mapping',
+                data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val(), category:$('#mapping_category').val(), brand:$('#mapping_brand').val(), capacity:$('#mapping_capacity').val(), model: $('#mapping_model_number').val()},
+                success:function(response){
+                    response = JSON.parse(response);
+                    $('#map_appliance_model').modal('toggle');
+                    if(response.status == true){
+                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('#success_msg').html(response.message);
+                    }
+                    else{
+                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('#error_msg').html(response.message);
+                    }
+                    
+                }
+            });
+        }
+    }
 </script>

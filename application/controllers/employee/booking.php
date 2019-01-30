@@ -4210,6 +4210,23 @@ class Booking extends CI_Controller {
         echo $option;
     }
     
+     /**
+     * @desc: This function is used to get cp_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_cp_id(){
+       $cp_list = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+       $option = '';
+       $option .= '<option value="all" >All</option>';
+        foreach ($cp_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+    
     /**
      * @desc: This function is used to download the data from vendor pincode mapping
      * @params: void
@@ -4818,4 +4835,112 @@ class Booking extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
+    
+    /**
+     *  @desc : This function is used to tag courier details by invoice ids
+     *  @return : void();
+     */
+    function tag_courier_details_by_invoice_ids() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/tag_courier_details_by_invoice_id',$data);
+    }
+    
+    
+    /**
+     *  @desc : This function is used to tag courier details by invoice ids
+     *  @return : void();
+     */
+    function process_to_update_courier_details_by_invoice_ids() {
+
+        $invoice_ids = trim($this->input->post('invoice_ids'));
+        $courier_details['AWB_no'] = $this->input->post('awb_by_wh');
+        $courier_details['courier_name'] = $this->input->post('courier_name_by_wh');
+        $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+        $exist_courier_image = $this->input->post('exist_courier_image');
+        $bulk_courier_price = $this->input->post('courier_price_by_wh');
+
+        if (!empty($invoice_ids)) {
+            $invoice_ids_arr = explode(',', $invoice_ids);
+            $total_invoice_id = sizeof($invoice_ids_arr);
+        }
+
+        $courier_id_arr = array();
+        $select = 'id, invoice_id, courier_id';
+        foreach ($invoice_ids_arr as $kay => $val) {
+            $where = array('invoice_id' => $val);
+            $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
+            if (!empty($inventory_ledger)) {
+                $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+            } else {
+                $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                redirect(base_url() . "employee/booking/tag_courier_details_by_invoice_ids");
+            }
+        }
+
+        if ($total_invoice_id > 1) {
+            $courier_details['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+        } else {
+            $courier_details['courier_charge'] = $bulk_courier_price;
+        }
+
+        if (!empty($exist_courier_image)) {
+            $courier_file['message'] = $exist_courier_image;
+        } else {
+            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+        }
+
+        $courier_details['courier_file'] = $courier_file['message'];
+
+        foreach ($courier_id_arr as $key => $courier_id) {
+            $affected_id = $this->inventory_model->update_courier_detail(array('id' => $courier_id), $courier_details);
+        }
+
+        if ($affected_id) {
+            $this->session->set_userdata(array('success' => 'Successfuly Updated.'));
+            redirect(base_url() . "employee/booking/tag_courier_details_by_invoice_ids");
+        }
+    }
+
+    /**
+     *  @desc : This function is used to updater upload the defective spare shipped by warehouse courier file
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function upload_defective_parts_shipped_courier_file($file_details) {
+        log_message("info",__METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['file']['size'] <= 2 * $MB) {
+                $allowed = array('pdf','jpg','png','jpeg');
+                $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['file']['name']));
+
+                    $file_name = 'defective_spare_courier_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
+    }
+
 }
