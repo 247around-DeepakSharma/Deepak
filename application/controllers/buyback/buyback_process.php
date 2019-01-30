@@ -566,7 +566,7 @@ class Buyback_process extends CI_Controller {
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
         
@@ -593,7 +593,7 @@ class Buyback_process extends CI_Controller {
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('" . base_url() . "buyback/buyback_process/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showDialogueBox('".base_url()."buyback/buyback_process/update_not_received_bb_order/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."')>Not Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='".base_url()."buyback/buyback_process/update_bb_report_issue_order_details/".rawurlencode($order_list->partner_order_id)."/".rawurlencode($order_list->service_id)."/".rawurlencode($order_list->city)."/".rawurlencode($order_list->assigned_cp_id)."/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
         
@@ -1274,11 +1274,12 @@ class Buyback_process extends CI_Controller {
      * @param $city string
      * @return void
      */
-    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
+    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id,$current_status){
         $data['order_id'] = rawurldecode($order_id);
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = rawurldecode($cp_id);
+        $data['current_status'] = rawurldecode($current_status);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
@@ -1307,7 +1308,7 @@ class Buyback_process extends CI_Controller {
             $this->session->set_userdata('error', $msg);
             redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' .
                     $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' .
-                    $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                    $this->input->post('city') . '/' . $this->input->post('cp_id'). '/' . $this->input->post('current_status'));
         } else {
             //check input field validation
             $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
@@ -1320,7 +1321,7 @@ class Buyback_process extends CI_Controller {
             if ($this->form_validation->run() === false) {
                 $msg = "Please fill all required field";
                 $this->session->set_userdata('error', $msg);
-                redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id') . '/' . $this->input->post('current_status'));
             } else {
 
                 $order_id = $this->input->post('order_id');
@@ -1336,7 +1337,7 @@ class Buyback_process extends CI_Controller {
                 $upload_images = $this->buyback->process_bb_report_issue_upload_image($this->input->post());
                 if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
                     $this->session->set_userdata('error', $upload_images['msg']);
-                    redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                    redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id') . '/' . $this->input->post('current_status'));
                 } else {
 
                     $physical_condition = isset($physical_condition) ? $physical_condition : '';
@@ -1364,15 +1365,15 @@ class Buyback_process extends CI_Controller {
                     $update_id = $this->cp_model->update_bb_cp_order_action($where, $data);
                     if ($update_id) {
                         log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
-
                         $order_details_where = array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id);
-
-                        $order_details_data = array('current_status' => _247AROUND_BB_TO_BE_CLAIMED,
-                            'internal_status' => _247AROUND_BB_ORDER_MISMATCH,
-                            'acknowledge_date' => date('Y-m-d H:i:s'),
-                            'is_delivered' => '1'
-                        );
-
+                        $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
+                        $order_details_data['internal_status'] = _247AROUND_BB_ORDER_MISMATCH;
+                        $order_details_data['acknowledge_date'] = _date('Y-m-d H:i:s');
+                        $order_details_data['is_delivered'] = _1;
+                         if($this->input->post('current_status') == _247AROUND_BB_IN_TRANSIT){
+                             $order_details_data['delivery_date'] = date('Y-m-d');
+                         }
+                         
                         //update order details table
                         $order_details_update_id = $this->bb_model->update_bb_order_details($order_details_where, $order_details_data);
                         if (!empty($order_details_update_id)) {
@@ -1382,18 +1383,20 @@ class Buyback_process extends CI_Controller {
                                     array('cp_claimed_price' => $cp_claimed_price,
                                         'gst_amount' =>$gst_amount,
                                         'order_status' => _247AROUND_BB_DELIVERED));
-
+                            if($this->input->post('current_status') == _247AROUND_BB_IN_TRANSIT){
+                                $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_DELIVERED, "Delivered", $this->session->userdata('id'), _247AROUND, Null);
+                            }
                             $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_TO_BE_CLAIMED, $remarks, $this->session->userdata('id'), _247AROUND, Null);
 
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'buyback/buyback_process/view_bb_order_details');
                         } else {
                             $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-                            redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                            redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'). '/' . $this->input->post('current_status'));
                         }
                     } else {
                         $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-                        redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                        redirect(base_url() . 'buyback/buyback_process/update_bb_report_issue_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'). '/' . $this->input->post('current_status'));
                     }
                 }
             }

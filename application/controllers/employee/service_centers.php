@@ -2762,12 +2762,13 @@ class Service_centers extends CI_Controller {
      * @param $city string
      * @return void
      */
-    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id){
+    function update_bb_report_issue_order_details($order_id,$service_id,$city,$cp_id,$current_status){
         $this->check_BB_UserSession();
         $data['order_id'] = rawurldecode($order_id);
         $data['service_id'] = rawurldecode($service_id);
         $data['city'] = rawurldecode($city);
         $data['cp_id'] = rawurldecode($cp_id);
+        $data['current_status'] = rawurldecode($current_status);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
         
@@ -2932,7 +2933,7 @@ class Service_centers extends CI_Controller {
         if (!empty($is_inProcess)) {
             $this->session->set_userdata('error', 'Order Already Updated');
             redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' .
-                    $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                    $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id') . '/' . $this->input->post('current_status'));
         } else {
             //check for validation
             $this->form_validation->set_rules('order_id', 'Order Id', 'trim|required');
@@ -2945,7 +2946,7 @@ class Service_centers extends CI_Controller {
             if ($this->form_validation->run() === false) {
                 $msg = "Please fill all required field";
                 $this->session->set_userdata('error', $msg);
-                redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'). '/' . $this->input->post('current_status'));
             } else {
 
                 $order_id = $this->input->post('order_id');
@@ -2962,7 +2963,7 @@ class Service_centers extends CI_Controller {
 
                 if (isset($upload_images['status']) && $upload_images['status'] == 'error') {
                     $this->session->set_userdata('error', $upload_images['msg']);
-                    redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                    redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id') . '/' . $this->input->post('current_status'));
                 } else {
                     $physical_condition = isset($physical_condition) ? $physical_condition : '';
                     if (!empty($physical_condition)) {
@@ -2989,16 +2990,24 @@ class Service_centers extends CI_Controller {
                     if ($update_id) {
                         log_message("info", __METHOD__ . "Cp Action table updated for order id: " . $order_id);
                         //update order details table
-                        $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id), 
-                                array('is_delivered' => '1','current_status' => _247AROUND_BB_DELIVERED,'internal_status' => _247AROUND_BB_DELIVERED));
+                        $mainTableData['is_delivered'] = 1;
+                        if($this->input->post('current_status') == _247AROUND_BB_IN_TRANSIT){
+                            $mainTableData['current_status'] = _247AROUND_BB_DELIVERED;
+                            $mainTableData['internal_status'] = _247AROUND_BB_DELIVERED;
+                            $mainTableData['delivery_date'] = date("Y-m-d");
+                            $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array("order_status" => _247AROUND_BB_DELIVERED));
+                        }
+                        $order_details_update_id = $this->bb_model->update_bb_order_details(array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id),$mainTableData);
                         if (!empty($order_details_update_id)) {
-                            $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_DELIVERED, "Delivered", $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
+                            if($this->input->post('current_status') == _247AROUND_BB_IN_TRANSIT){
+                                $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_DELIVERED, "Delivered", $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
+                            }
                             $this->buyback->insert_bb_state_change($order_id, _247AROUND_BB_IN_PROCESS, $remarks, $this->session->userdata('service_center_agent_id'), NULL, $cp_id);
                             $this->session->set_userdata('success', 'Order has been updated successfully');
                             redirect(base_url() . 'service_center/buyback/bb_order_details');
                         } else {
                             $this->session->set_userdata('error', 'Oops!!! There are some issue in updating order. Please Try Again...');
-                            redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'));
+                            redirect(base_url() . 'service_center/buyback/update_order_details/' . $this->input->post('order_id') . '/' . $this->input->post('service_id') . '/' . $this->input->post('city') . '/' . $this->input->post('cp_id'). '/' . $this->input->post('current_status'));
                         }
                     }
                 }
@@ -3513,7 +3522,7 @@ class Service_centers extends CI_Controller {
           
             $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>";
         }
-        $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+        $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/".rawurlencode(_247AROUND_BB_DELIVERED)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
         $row[] = $a;
@@ -3543,11 +3552,9 @@ class Service_centers extends CI_Controller {
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/".rawurlencode(_247AROUND_BB_IN_TRANSIT)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
-       
-        
         return $row;
     }
     
@@ -3581,7 +3588,7 @@ class Service_centers extends CI_Controller {
                             <span class='caret'></span></button>
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>
-                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "'>Broken/Wrong Product</a></li>
+                              <li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/".rawurlencode($order_list->current_status)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
                     break;

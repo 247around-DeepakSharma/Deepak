@@ -84,7 +84,7 @@ $route['service_center/search_docket_number'] = 'employee/service_centers/search
 $route['service_center/customer_invoice_details'] = 'employee/service_centers/customer_invoice_details';
 
 $route['service_center/buyback/bb_order_details'] = 'employee/service_centers/view_delivered_bb_order_details';
-$route['service_center/buyback/update_order_details/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_report_issue_order_details/$1/$2/$3/$4';
+$route['service_center/buyback/update_order_details/(:any)/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_bb_report_issue_order_details/$1/$2/$3/$4/$5';
 $route['process_report_issue_bb_order_details'] = 'employee/service_centers/process_report_issue_bb_order_details';
 $route['service_center/buyback/update_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_received_bb_order/$1/$2/$3/$4';
 $route['service_center/buyback/update_not_received_bb_order/(:any)/(:any)/(:any)'] = 'employee/service_centers/update_not_received_bb_order/$1/$2/$3/$4';
@@ -191,7 +191,7 @@ $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invo
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
-
+$route['partner/brand_collateral']='employee/partner/brandCollateral';
 
 
 
