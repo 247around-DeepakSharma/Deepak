@@ -7,6 +7,7 @@ define('_247AROUND_BB_PRICE_QUOTE','BB-Price-Quote');
 define('_247AROUND_BB_ORDER_ID_IMAGE_TAG','order_id_image');
 define('_247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG','damaged_order_image');
 define('_247AROUND_BB_DELIVERED','Delivered');
+define('_247AROUND_BB_IN_TRANSIT','In-Transit');
 define('_247AROUND_BB_IN_PROCESS','InProcess');
 define('_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS','Completed');
 define('_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS','Claimed Raised By CP');
