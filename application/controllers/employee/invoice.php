@@ -2417,6 +2417,27 @@ class Invoice extends CI_Controller {
         }
         
     }
+    /*
+     * This function is use to process detailed file of buyback reimburshment 
+     * It update reimburshment invoice id and discount amount against orders in unit detail file
+     */
+    function process_buyback_reimburshment_detailed_file(){
+        log_message('info', __FUNCTION__ . " Entering...." );
+        $temp['file'] = $_FILES['invoice_detailed_excel'];
+        $data = $this->miscelleneous->excel_to_Array_converter($temp,NULL,1);
+        log_message('info', __FUNCTION__ . " File Data".print_r($data,true) );
+        $count = count($data);
+        for($i= 0 ;$i<$count-1;$i++){
+            if($data[$i]['OrderID']){
+                $where['partner_order_id'] =  $data[$i]['OrderID'];
+                $updateDataArray['partner_discount'] = $data[$i]['ReimbursementValue'];
+                $updateDataArray['partner_reimbursement_invoice'] = $this->input->post('invoice_id');
+                 log_message('info', __FUNCTION__ . " File where".print_r($where,true). "Update Data".print_r($updateDataArray,true));
+                $this->bb_model->update_bb_unit_details($where,$updateDataArray);
+            }
+        }
+        log_message('info', __FUNCTION__ . " End" );
+    }
 
     /**
      * @desc: Update/ Insert Partner Invoice Details from panel
@@ -2557,6 +2578,11 @@ class Invoice extends CI_Controller {
                 $status = $this->invoices_model->action_partner_invoice($data);
 
                 if ($status) {
+                    //Process Detailed File For buyback Reimburshment
+                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT) 
+                            && ($this->input->post('vendor_partner_id') == AMAZON_SELLER_ID) ){
+                        $this->process_buyback_reimburshment_detailed_file();
+                    }
                     log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
                 } else {
 

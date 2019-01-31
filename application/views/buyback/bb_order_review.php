@@ -89,6 +89,11 @@
                                 <textarea class="form-control" id="approve_reject_remarks" placeholder="Enter Remarks"></textarea>
                             </div>
                         </div>
+                        <div class="col-md-12 " id="amazone_discount_holder" style="display:none;">
+                            <div class="form-group col-md-12  ">
+                                <label><input type="checkbox" value="" checked="" id="is_amazon_discount"><span>Is Amazon Discount Applicable</span></label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -193,6 +198,9 @@
         $('#model_title').text(title);
         $('#approve_reject_remarks').val("");
         $('#reject_approve_order').modal('toggle');
+        if(type === 'approved'){
+            $("#amazone_discount_holder").show();
+        }
     }
     
     
@@ -202,19 +210,20 @@
         var remarks = $('#approve_reject_remarks').val();
         var status = $('#order_status').val();
         var action_type = $('#action_type').val();
+        var amazon_discount = $('#is_amazon_discount').is(":checked");
         if(remarks){
-            ajax_call(partner_order_id,status,cp_claimed_price,action_type,remarks);
+            ajax_call(partner_order_id,status,cp_claimed_price,action_type,remarks,amazon_discount);
         }else{
             alert('Please Enter Remarks');
         }
     }
     
-    function ajax_call(order_id,status,cp_claimed_price,type,remarks){
+    function ajax_call(order_id,status,cp_claimed_price,type,remarks,amazon_discount){
         $.ajax({
             type: "POST",
             url: "<?php echo base_url(); ?>buyback/buyback_process/approve_reject_bb_order",
             cache: false,
-            data: {'order_ids':order_id,'status':status,'cp_claimed_price':cp_claimed_price,'type':type,'remarks':remarks},
+            data: {'order_ids':order_id,'status':status,'cp_claimed_price':cp_claimed_price,'type':type,'remarks':remarks,'amazon_discount':amazon_discount},
             success: function (response){
                 table1.ajax.reload(null, false);
                 

@@ -788,6 +788,7 @@ class Buyback_process extends CI_Controller {
                     $order_details_data = array();
                     $update_bb_unit_data = array();
                     $bb_cp_order_details_data = array();
+                    $appliancePriceArray = $this->bb_model->get_bb_detail('service_id,(partner_basic_charge+partner_tax_charge) as price', array("partner_order_id" => $value));
                     switch ($status[$key]) {
                         case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
 
@@ -803,6 +804,11 @@ class Buyback_process extends CI_Controller {
                             $bb_cp_order_details_data['admin_remarks'] = $remarks;
                             
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_NOT_DELIVERED;
+                            if($appliancePriceArray[0]['service_id'] == _247AROUND_TV_SERVICE_ID){
+                                if($this->input->post('amazon_discount') == 'true'){
+                                    $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price'];
+                                }
+                            }
 
                             break;
 
@@ -824,7 +830,11 @@ class Buyback_process extends CI_Controller {
                             $update_bb_unit_data['cp_claimed_price'] = $cp_claimed_price[$key];
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_DELIVERED;
                             $update_bb_unit_data['gst_amount'] = $gst_amount;
-                            
+                             if($appliancePriceArray[0]['service_id'] == _247AROUND_TV_SERVICE_ID){
+                                if($this->input->post('amazon_discount') == 'true'){
+                                    $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price']-500;
+                                }
+                            }
                             
                             break;
                     }
