@@ -102,12 +102,22 @@
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Part In Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control" id="part_warranty_status" name="part_warranty_status">
+                                                <select class="form-control" id="part_warranty_status_0" name="part_warranty_status" onchange="get_symptom(0)">
                                                     <option selected="" disabled="">Select warranty status</option>
-                                                    <option value="1" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
-                                                    <option value="2" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
+                                                    <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
                                                 </select>
                                             </div>                                            
+                                        </div>
+                                    </div>
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group">
+                                            <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]" required="">
+                                                    <option selected disabled>Select Technical Problem</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class = 'col-md-6'>
@@ -329,7 +339,50 @@ function get_inventory_id(id){
 $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});  
 </script>
 <?php } ?>
+<script>
+    
+    $(document).ready(function(){
+        var array = [];
+        var postData = {};
+        var price_tags = "<?php if($spare_parts_details['part_warranty_status'] == 1){ echo REPAIR_IN_WARRANTY_TAG; }else{ echo REPAIR_OOW_TAG; } ?>";
+        array.push(price_tags);
+        if(array.length > 0){
+            postData['request_type'] = array;
+            postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
+        }
+        get_technical_problem(postData,'0');
+    });
 
+   function get_symptom(key){      
+        var array = [];
+        var postData = {};
+        var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
+        array.push(price_tags);
+        if(array.length > 0){
+            postData['request_type'] = array;
+            postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
+        }
+        get_technical_problem(postData,key);
+    }
+    
+    function get_technical_problem(postData,key) {
+        var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
+         $.ajax({
+             method:'POST',
+             url: url,
+             data: postData,
+             success:function(data){ 
+                 console.log(data);
+                 if(data === "Error"){
+                     $('#spare_request_symptom_' + key).html("").change();
+                 } else {
+                     $('#spare_request_symptom_' + key).html(data).change();
+
+                 }                  
+             }
+         });
+    }
+</script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
     .col-md-offset-2 {

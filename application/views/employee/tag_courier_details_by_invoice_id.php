@@ -87,7 +87,7 @@
     <div class="row">
         <div class="clear" style="margin-top:0px;"></div>
         <div id="container-4" style="display:block;padding-top: 0px;" class="form_container panel-body">
-            <form name="myForm" class="form-horizontal" id ="taging_invoice_ids" novalidate="novalidate" method="post">            
+            <form name="myForm" class="form-horizontal" id ="taging_invoice_ids" novalidate="novalidate" method="post" enctype="multipart/form-data" action="<?php echo base_url() ?>employee/booking/process_to_update_courier_details_by_invoice_ids">            
                 <div  class = "panel panel-info">
                     <div class="panel-heading" style="background-color:#ECF0F1"><b> Invoice Ids Details </b></div>
                     <div class="panel-body">
@@ -132,7 +132,7 @@
                                 <div class="form-group">
                                     <label for="primary_contact_phone_2" class="col-md-3 vertical-align">Courier Shipped Date*</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shiiped Date" required>
+                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter shipped Date" required>
                                     </div>
                                 </div>
                             </div>
@@ -149,7 +149,7 @@
                                 <div class="form-group">
                                     <label for="invoice_id" class="col-md-3 vertical-align">Invoice Ids*</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control" id="invoice_id" name="invoice_ids" value = "" placeholder="Enter comma separated Invoice id as TXS-CED-0094,TXS-CED-69540,....">
+                                        <input type="text" class="form-control" id="invoice_id" name="invoice_ids" value = "" placeholder="Please enter Invoice ids">
                                         <span style="color:red;">Please Enter comma separated Invoice id * </span>
                                     </div>
                                     

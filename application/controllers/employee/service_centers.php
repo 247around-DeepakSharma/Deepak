@@ -1322,6 +1322,11 @@ class Service_centers extends CI_Controller {
                 if ($value['defective_back_parts_pic']) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
+                
+                if ($value['spare_request_symptom']) {
+                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                }
+                
             }
         }
 
