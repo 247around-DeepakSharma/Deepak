@@ -9823,3 +9823,7 @@ ALTER TABLE `symptom_spare_request`
 
 --Kalyani 30-jan-2019
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Partner', 'Appliance Model Mapping', 'partner/inventory/appliance_model_mapping', 'partner/inventory/appliance_model_mapping', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `bb_unit_details` ADD `partner_discount` INT(10) NOT NULL DEFAULT '0' AFTER `cp_claimed_price`;
+ALTER TABLE `bb_unit_details` ADD `partner_reimbursement_invoice` TEXT NULL DEFAULT NULL AFTER `partner_discount`;
+

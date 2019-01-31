@@ -36,3 +36,4 @@ define('NEW_SHOP_ADDRESS_ADDED','New Shop Address Added');
 define('SHOP_ADDRESS_DEACTIVATED','Shop Address De-Activated');
 define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
+define('BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT','Reimbursement');
