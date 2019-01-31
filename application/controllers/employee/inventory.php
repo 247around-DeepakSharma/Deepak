@@ -5439,4 +5439,63 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($return);
     }
+    
+    /**
+     * @desc: This function is used to get mapped model number for partner
+     * @params: $partner_id
+     * @return: array
+     */
+    function get_partner_mapped_model_details(){
+        $data = $this->get_partner_mapped_model_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("partner_appliance_details", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("partner_appliance_details", "count(model) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output);
+    }
+    
+    function get_partner_mapped_model_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('model');
+        $post['where'] = array('partner_appliance_details.partner_id'=>$this->input->post('partner_id'));
+        $post['join'] = array("services" => "services.id = partner_appliance_details.service_id");
+        $post['joinType'] = array();
+        $select = "services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, partner_appliance_details.model, partner_appliance_details.active";
+        $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_partner_mapped_model_table($model_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    function get_partner_mapped_model_table($model_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->services;
+        $row[] = $model_list->brand;
+        $row[] = $model_list->category;
+        $row[] = $model_list->capacity;
+        $row[] = $model_list->model;
+        if($model_list->active == 1){
+            $row[] = "Active";
+        }
+        else{
+            $row[] = "Inactive";
+        }
+        return $row;
+    }
 }

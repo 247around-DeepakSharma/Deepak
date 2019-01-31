@@ -6714,6 +6714,17 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
+    /**
+     * @desc: This function is used to show the appliance model mapping of the partner
+     * @params: void
+     * @return: void
+     */
+    function show_appliance_model_mapping(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/show_appliance_model_mapping');
+        $this->load->view('partner/partner_footer');
+    }
     public function brandCollateral()
     {
         $partnerArray = array();
