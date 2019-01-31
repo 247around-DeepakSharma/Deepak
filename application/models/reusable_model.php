@@ -141,6 +141,17 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
     }
 
     
+    /**
+     * @desc This is used to get count of all data filtered from given table
+     * @param $table, $select, $where
+     * @return array
+     */  
+    function count_all_filtered_result($table, $select, $post){
+        $this->_get_datatable_data_list($table, $select, $post);
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+    
      /**
      * @desc This is used to get count of all data from given table
      * @param $table, $where
@@ -155,5 +166,71 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         $this->db->update($table,$data);
         return true;
     }
+
+    /**
+     *  @desc : This function is used to get data from any table in datatable format
+     *  @param : $table, $select, $post data
+     *  @return: Array()
+     */
+    function get_datatable_data($table, $select='*', $post) {
+        $this->_get_datatable_data_list($table, $select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     *  @desc : This is the helping function for get_datatable_data
+     *  @param : $table, $select, $post data
+     *  @return: void
+     */
+    function _get_datatable_data_list($table, $select, $post){
+        
+        $this->db->select($select);
+        $this->db->from($table);
+        if(!empty($post['join'])){
+            foreach ($post['join'] as $tableName=>$joinCondition){
+                if(array_key_exists($tableName, $post['joinType'])){
+                    $this->db->join($tableName,$joinCondition, $post['joinType'][$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
+            }
+        }
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if (!empty($post['order'])) {
+            foreach ($post['order'] as $fieldName=>$sortingOrder){
+                $this->db->order_by($fieldName, $sortingOrder);
+            }
+        } 
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
 }
 
