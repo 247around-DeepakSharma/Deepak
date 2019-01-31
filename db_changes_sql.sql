@@ -9820,3 +9820,6 @@ ALTER TABLE `symptom_spare_request`
 --
 ALTER TABLE `symptom_spare_request`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--Kalyani 30-jan-2019
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Partner', 'Appliance Model Mapping', 'partner/inventory/appliance_model_mapping', 'partner/inventory/appliance_model_mapping', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);

@@ -191,9 +191,8 @@ $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invo
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
+$route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
-
-
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';
