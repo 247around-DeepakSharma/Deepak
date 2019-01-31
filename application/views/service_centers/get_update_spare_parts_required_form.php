@@ -353,6 +353,7 @@ $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true
         get_technical_problem(postData,'0');
     });
 
+
    function get_symptom(key){      
         var array = [];
         var postData = {};
@@ -377,11 +378,11 @@ $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true
                      $('#spare_request_symptom_' + key).html("").change();
                  } else {
                      $('#spare_request_symptom_' + key).html(data).change();
-
                  }                  
              }
          });
     }
+    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
