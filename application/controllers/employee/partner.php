@@ -941,7 +941,7 @@ class Partner extends CI_Controller {
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
-                NULL, NULL, NULL, array('services'=>'LEFT'));
+                NULL, NULL, NULL, array('services'=>'LEFT'),'concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
@@ -4363,7 +4363,7 @@ class Partner extends CI_Controller {
             if($file){
                 if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
                         $tmpFile = $_FILES['l_c_file']['tmp_name'];
-                        $contract_file = "Partner-" . $partner . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
+                        $contract_file = "Partner-" . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
                         move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                         //Upload files to AWS
                         $bucket = BITBUCKET_DIRECTORY;
@@ -6714,8 +6714,7 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
-    
-     /**
+    /**
      * @desc: This function is used to show the appliance model mapping of the partner
      * @params: void
      * @return: void
@@ -6726,4 +6725,89 @@ class Partner extends CI_Controller {
         $this->load->view('partner/show_appliance_model_mapping');
         $this->load->view('partner/partner_footer');
     }
+    public function brandCollateral()
+    {
+        $partnerArray = array();
+        $this->miscelleneous->load_nav_header();
+        $partners = $this->partner_model->getpartner();
+        foreach($partners as $partnersDetails){
+            $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
+        }
+        $this->load->view('partner/brand_collateral_partner_filter',array("partnerArray"=>$partnerArray));
+       
+    }
+    public function brandCollateralPartner()
+    {
+       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
+       $receieved_Data = $this->input->post();
+       $id=$receieved_Data['partner_id'];
+       $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
+       if(!empty($receieved_Data['order']))
+       {
+            $order=$receieved_Data['order'];
+            $column_sort=$order['0']['column'];
+            $sort_type=$order['0']['dir'];
+            if(!empty($coloumnarr))
+            {
+                $order_by_column=$coloumnarr[$column_sort];
+                $sorting_type=$sort_type;
+            }
+       }
+       else
+       {
+           $order_by_column='collateral.id';
+           $sorting_type='ASC';
+       }
+       $group_by='concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)';
+       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($id,$limitArray,$order_by_column,$sorting_type);
+       $data=array();
+       $result_final=$results['partner_contracts'];
+       $count=count($result_final);
+       $no = $receieved_Data['start'];
+       if(!empty($results['partner_contracts']))
+       {
+            foreach ($results['partner_contracts'] as $filter_result) {
+                 $no++;
+                 $row = $this->get_brand_partner_filter($filter_result,$no);
+                 $data[] = $row;
+             }
+       }
+       $output = array(
+            "draw" => $receieved_Data['draw'],
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $data,
+            
+        );
+        echo json_encode($output);
+    }
+    
+    public function get_brand_partner_filter($filter_result,$no)
+    {
+        $row=array();
+//        if($filter_result['collateral_tag'] == LEARNING_DOCUMENT)
+//            {
+              if($filter_result['is_file'])
+                  {
+                      $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$filter_result['file'];
+                  }
+                  else
+                  {
+                         $url = $filter_result['file'];
+                  }
+               $row[]=$no;                
+               $row[]=$filter_result['collateral_type'];
+               $row[]= $filter_result['services'];
+               $row[]=$filter_result['brand'] ;
+               $row[]=ucfirst($filter_result['request_type']);
+               $row[]=$this->miscelleneous->get_reader_by_file_type($filter_result['document_type'],$url,"200");
+               $row[]=$filter_result['document_description'];
+              // $row[]="<div class='checkbox'><input type='checkbox' name='coll_id[]' value='". $filter_result['id']."'> </div>";
+               $row[]=date('d-m-Y',strtotime($filter_result['start_date']));
+          //  }
+            
+            return $row;
+           
+    }
+            
 }
