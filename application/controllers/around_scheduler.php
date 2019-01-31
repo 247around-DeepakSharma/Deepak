@@ -1174,11 +1174,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function auto_acknowledge_buyback_order() {
         log_message("info", __METHOD__);
-        $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , delivery_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
-            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => _247AROUND_PENDING);
+        $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , CASE WHEN DATEDIFF(date(bb_state_change.create_date),delivery_date) > 3 THEN DATE_ADD(bb_state_change.create_date, INTERVAL -3 DAY) ELSE delivery_date END ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
+            'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => _247AROUND_PENDING,"bb_state_change.new_state" => _247AROUND_BB_DELIVERED);
         $where['select'] = "bb_order_details.partner_order_id";
-        $where['length'] = -1;
-        $data = $this->cp_model->get_bb_cp_order_list($where);
+        $data = $this->cp_model->get_bb_unit_history_order_list($where['select'],$where['where']);
         if (!empty($data)) {
             foreach ($data as $value) {
                 // Update bb order details
@@ -1189,7 +1188,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                             "auto_acknowledge" => 1));
                 // Update Unit Details
                 $this->bb_model->update_bb_unit_details(array('partner_order_id' => $value->partner_order_id), array("order_status" => "Delivered"));
-
                 $cp['current_status'] = "Delivered";
                 $cp['internal_status'] = 'Delivered';
                 $cp['admin_remarks'] = AUTO_ACK_ADMIN_REMARKS;
