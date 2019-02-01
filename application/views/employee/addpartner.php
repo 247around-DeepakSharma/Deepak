@@ -2170,7 +2170,7 @@
                                             </div>
                                         </div>
                                     </div>    
-                                     <div class="col-md-6">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="validity" class="col-md-4">Fixed Charge*</label>
                                             <div class="col-md-6">
@@ -2192,7 +2192,6 @@
                             </div>
                         </div>
                             <div class="form-group " style="text-align:center">
-                                <input type="hidden" id="variable_charges_id" name="variable_charges_id" value="">
                                 <input type="submit" class="btn btn-primary" value="Save">
                             </div>
                         </div>
@@ -2208,6 +2207,7 @@
                             <th>GST Rate</th>
                             <th style="display:none">Charge Type</th>
                             <th style="display:none">Validity</th>
+                            <th>Current Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -2225,7 +2225,11 @@
                             <td><?php echo $variable_charges['gst_rate']; ?></td>
                             <td style="display:none"><?php echo $variable_charges['type']; ?> </td> 
                             <td style="display:none"><?php echo $variable_charges['validity_in_month']; ?></td> 
-                            <td><button type="button" class="btn btn-info btn-xs" onclick="update_variable_charge(<?php echo $variable_charges['partner_charge_id']; ?>, this)">Update</button></td>
+                            <td><?php if($variable_charges['status'] == 1){ echo "Active"; }else{ echo "Inactive"; }; ?></td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-xs" onclick="update_variable_charge(<?php echo $variable_charges['partner_charge_id']; ?>, this)">Update</button>
+                                <button type="button" class="btn btn-warning btn-xs" onclick="active_deactive_variable_charges(<?php echo $variable_charges['partner_charge_id']; ?>, <?php echo $variable_charges['status']; ?>)"><?php if($variable_charges['status'] == 1){ echo "Inactive"; }else{ echo "Active"; } ?></button>
+                            </td>
                         </tr>
                         <?php
                            }
@@ -2709,6 +2713,61 @@
     </div>
 </div>
 <!--Micro Warehouse Modal ends-->
+<!-- Variable Charges Modal -->
+<div id="variable_charges_edit_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="    background-color: #164f4e;color: #Fff;text-align: center;margin: 0px;border-color: #164f4e;">
+                <button type="button" class="close btn-primary well" style="color:#fff;" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Micro Warehouse History Details</h4>
+            </div>
+            <form >
+            <div class="modal-body">               
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="annual_amount" class="col-md-4">Charge Type *</label>
+                                <div class="col-md-6">
+                                    <select class="form-control input-contact-name"  name="edit_charges_type" onchange="edit_variable_charges_change(this)" id="edit_charges_type" required>
+                                        <option value="" selected disabled>Select Charge Type</option>
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>    
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="validity" class="col-md-4">Fixed Charge*</label>
+                                <div class="col-md-6">
+                                    <input type="number" name="fixed_charges" id="edit_fixed_charges" class="form-control input-contact-name" value="" placeholder="Enter fixed charge amount" required>
+                                </div>
+                            </div>
+                        </div>    
+                    </div>
+                    <div class="col-md-12" id="edit_validity_section" style="display:none">
+                         <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="validity" class="col-md-4">Validity<small>(In Months)</small></label>
+                            <div class="col-md-6">
+                                <input type="number" name="edit_validity" id="edit_validity" class="form-control input-contact-name" value="" placeholder="Enter validity in months">
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="variable_charges_id" name="variable_charges_id" value="">
+                <button type="button" class="btn btn-success" onclick="update_variable_charges()">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Variable Charges Modal End -->
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
@@ -3799,7 +3858,7 @@
     });
     
     $("#sf_id_0").select2();
-    $("#charges_type").select2();
+    $("#charges_type, #edit_charges_type").select2();
     
     function get_vendor_state_wise(state_id, sf_id){
         var state_name = $("#"+state_id).val();       
@@ -3928,15 +3987,15 @@
             url: '<?php echo base_url(); ?>employee/accounting/getVendorPartnerVariableChargesType',
             data: {type:$(button).closest('tr').find('td').eq(5).text()},
             success: function (data) {
-                $("#charges_type").html(data);
+                $("#edit_charges_type").html(data);
             }
         });
-    
-        $("#fixed_charges").val($(button).closest('tr').find('td').eq(2).text());
+        $("#variable_charges_edit_model").modal('show');
+        $("#edit_fixed_charges").val($(button).closest('tr').find('td').eq(2).text());
         $("#variable_charges_id").val(id);
-        $("#validity").val($(button).closest('tr').find('td').eq(6).text());
+        $("#edit_validity").val($(button).closest('tr').find('td').eq(6).text());
         setTimeout(function(){
-            $("#charges_type").val($("#charges_type option:selected" ).val()).trigger('change');
+            $("#edit_charges_type").val($("#edit_charges_type option:selected" ).val()).trigger('change');
         }, 500);
     }
     
@@ -3949,6 +4008,18 @@
             $("#validity_section").hide();
             $("#validity").val(null);
             $("#validity").attr('required', false);
+        }
+    }
+    
+    function edit_variable_charges_change(select){
+        if($('option:selected', select).attr('data-charge-type') == 'annual-charges'){
+            $("#edit_validity_section").show();
+            $("#edit_validity").attr('required', true);
+        }
+        else{
+            $("#edit_validity_section").hide();
+            $("#edit_validity").val(null);
+            $("#edit_validity").attr('required', false);
         }
     }
 
@@ -4150,5 +4221,50 @@
         {
           return false;
         }
+    }
+    
+    function active_deactive_variable_charges(variable_charge_id, action){
+        var status;
+        if(action == 0){
+            status = 1;
+        }
+        else{
+            status = 0; 
+        }
+        if(variable_charge_id){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/accounting/active_deactive_variable_charges',
+                data: {variable_charge_id:variable_charge_id, status:status},
+                success: function (response) {
+                    response = JSON.parse(response);
+                    if(response.status){
+                        alert(response.message);
+                    }
+                    else{
+                       alert(response.message); 
+                    }
+                    location.reload();
+                }
+            });
+        }
+    }
+    
+    function update_variable_charges(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/accounting/edit_partner_variable_charges',
+            data: {partner_id:$("#partner_id").val(), fixed_charges:$("#edit_fixed_charges").val(), charges_type:$("#edit_charges_type").val(), validity:$("#edit_validity").val(), variable_charges_id:$("#variable_charges_id").val()},
+            success: function (response) {
+                if(response){
+                   alert("Variable Charges Updated Successfully");
+                }
+                else{
+                    alert("Error Occured while Updating Data");
+                }
+                $("#variable_charges_edit_model").modal('hide');
+                location.reload();
+            }
+        });
     }
 </script>
