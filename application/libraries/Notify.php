@@ -519,7 +519,9 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+                        //make tiny url
+                        $tinyUrl = $this->miscelleneous->getShortUrl($jobcard_link);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -553,7 +555,7 @@ class Notify {
                 
                         
                     }
-		    
+		    $sms['smsData']['url']=$tinyUrl;
 		    //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
