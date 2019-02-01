@@ -1905,8 +1905,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group <?php if( form_error('warehouse_city') ) { echo 'has-error';} ?>">
                                         <label for="warehouse_city" class="col-md-4">Warehouse City *</label>
-                                        <div class="col-md-6">
-                                            <input  type="text" class="form-control input-contact-name"  name="warehouse_city" id="warehouse_city" value = "" placeholder="Enter Warehouse City" required="">
+                                        <div class="col-md-6">                                            
+                                            <select class="district form-control" name ="warehouse_city" id="warehouse_city" onChange="getPincode_to_warehouse()">  </select>
                                             <?php echo form_error('warehouse_city'); ?>
                                         </div>
                                     </div>
@@ -1930,8 +1930,9 @@
                                     <div class="form-group <?php if( form_error('warehouse_pincode') ) { echo 'has-error';} ?>">
                                         <label for="warehouse_pincode" class="col-md-4">Warehouse Pincode *</label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-contact-name allowNumericWithOutDecimal"  name="warehouse_pincode" id="warehouse_pincode" value = "" minlength="6" maxlength="6" title="Pincode can only be 6 number digit" placeholder="Enter Warehouse Pincode" required="">
-                                            <?php echo form_error('warehouse_pincode'); ?>
+<!--                                        <input  type="text" class="form-control input-contact-name allowNumericWithOutDecimal"  name="warehouse_pincode" id="warehouse_pincode" value = "" minlength="6" maxlength="6" title="Pincode can only be 6 number digit" placeholder="Enter Warehouse Pincode" required="">-->
+                                            <select class="pincode form-control" name ="warehouse_pincode"  id="warehouse_pincode"> </select>
+                                                <?php echo form_error('warehouse_pincode'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -2965,18 +2966,30 @@
                 }
             }
         });
-    }
+    }    
     function getPincode() {
         var district = $(".district").val();
-        var pincode = $(".pincode").val();
+        var pincode = $(".pincode").val(); 
+        pincodeDetails(pincode,district);
+        
+    }
+    
+    function getPincode_to_warehouse() {
+        var district = $("#warehouse_city").val();
+        var pincode = $("#warehouse_pincode").val(); 
+        pincodeDetails(pincode,district);
+
+    }
+    
+    function pincodeDetails(pincode,district){
         $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
-            data: {pincode: pincode, district: district},
-            success: function (data) {
-                $(".pincode").html(data);
-            }
-        });
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
+                data: {pincode: pincode, district: district},
+                success: function (data) {
+                    $(".pincode").html(data);
+                }
+            });
     }
     
     $(function () {
