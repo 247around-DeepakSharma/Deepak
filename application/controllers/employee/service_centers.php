@@ -1946,7 +1946,7 @@ class Service_centers extends CI_Controller {
             //Update Spare Parts table
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
-                $is_requested = $this->partner_model->get_spare_parts_by_any("id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
+                $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
                     . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
                 if ($this->session->userdata('service_center_id')) {
                     $agent_id = $this->session->userdata('service_center_agent_id');
@@ -2332,33 +2332,33 @@ class Service_centers extends CI_Controller {
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $booking_id = $this->input->post('booking_id');
-                $k = 0;
-
                 $partner_id = $this->input->post('booking_partner_id');
 
-
-                //update each spare line item one by one
-                foreach ($defective_part_shipped as $id => $value) {
-                    if ($k == 0) {
+                if (!empty($sp_id) && $sp_id != '') {
+                    
+                    if (!empty($sp_id)) {
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                     } else {
                         $data['courier_charges_by_sf'] = 0;
                     }
                     $data['awb_by_sf'] = $this->input->post('awb_by_sf');
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
-                    $data['defective_part_shipped'] = $value;
+                    $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
 
-                    $where = array('id' => $id);
-                    $this->service_centers_model->update_spare_parts($where, $data);
-                    $k++;
+                    $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
                 }
-                //insert details into state change table                                
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['update_date'] = date('Y-m-d H:i:s');
-                $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+
+                $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
+
+                //insert details into state change table   
+                if (empty($defective_part_pending_details)) {
+                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['update_date'] = date('Y-m-d H:i:s');
+                    $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                }
 
                 if (!empty($this->input->post("shipped_inventory_id"))) {
                     $ledger_data = array(
@@ -2427,6 +2427,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This function is used to download challan/Address
      */
