@@ -1696,4 +1696,79 @@ class Accounting extends CI_Controller {
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
     }
+    
+    /*
+    * @desc - This function is used to update partner's variable charges
+    * @param - $partner_id, $fixed_charges, $charges_type, $validity     
+    * @return - boolean
+    */
+    function edit_partner_variable_charges(){
+        $data = array();
+        $data['entity_type'] = _247AROUND_PARTNER_STRING;
+        $data['entity_id'] = $this->input->post('partner_id');
+        $data['fixed_charges'] = $this->input->post('fixed_charges');
+        $data['charges_type'] = $this->input->post('charges_type');
+        $data['validity_in_month'] = $this->input->post('validity');
+        $data['update_date'] = date("Y-m-d H:i:s");
+        if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
+            $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
+        }else{
+            echo false;
+        }
+        if($result){
+            echo true;
+        } else {
+            echo false;
+        }
+    }
+    
+    /*
+     * @desc - This function is used to download buyback summary report
+     * $daterange
+     * CSV
+     */
+    function download_buyback_summary_report(){
+        ob_start();
+        $daterange = explode("-", $this->input->post("buyback_daterange"));
+        $start_date = date("Y-m-d", strtotime($daterange[0]));
+        $end_date = date("Y-m-d", strtotime($daterange[1]));
+        $where = array(
+            "bb_unit_details.cp_invoice_id IS NOT NULL" => NULL,
+            "vendor_partner_invoices.invoice_date  >=  '".$start_date."'" => NULL,    
+            "vendor_partner_invoices.invoice_date  <=  '".$end_date."'" => NULL, 
+        );
+        $join = array(
+            "bb_order_details" => "bb_order_details.partner_order_id = bb_unit_details.partner_order_id",
+            "vendor_partner_invoices" => "bb_unit_details.cp_invoice_id = vendor_partner_invoices.invoice_id",
+            "services" => "bb_unit_details.service_id = services.id",
+        );
+        $select = "bb_unit_details.partner_id, bb_unit_details.partner_order_id, services.services,"
+                . "bb_unit_details.partner_basic_charge, bb_unit_details.partner_tax_charge, bb_unit_details.cp_basic_charge,"
+                . "bb_unit_details.cp_tax_charge, bb_unit_details.cp_claimed_price, bb_unit_details.cp_invoice_id,"
+                . "vendor_partner_invoices.invoice_date, vendor_partner_invoices.from_date, vendor_partner_invoices.to_date";
+        $data =  $this->bb_model->get_bb_detail($select, $where, $join);
+        $headings = array("partner_id", "partner_order_id", "service", "partner_basic_charge", "partner_tax_charge", "cp_basic_charge", "cp_tax_charge", "cp_claimed_price", "cp_invoice_id", "invoice_date", "from_date", "to_date");
+        $this->miscelleneous->downloadCSV($data,$headings,"buyback_summary_report");  
+    }
+    
+    /*
+    * @desc - This function is used to activate and deactivate variable charges
+    * @param - $status, $variable_charge_id     
+    * @return - json
+    */
+    function active_deactive_variable_charges(){
+        $return = array();
+        $data['status'] = $this->input->post("status");
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charge_id')), $data); 
+        if($result){
+            $return["status"] = true;
+            $return["message"] = "Status Changed Successfully";
+        }
+        else{
+            $return["status"] = false;
+            $return["message"] = "Error Occured while Updating Status";
+        }
+        echo json_encode($return);
+    }
 }
