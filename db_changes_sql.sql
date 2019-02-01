@@ -9826,4 +9826,5 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 
 ALTER TABLE `bb_unit_details` ADD `partner_discount` INT(10) NOT NULL DEFAULT '0' AFTER `cp_claimed_price`;
 ALTER TABLE `bb_unit_details` ADD `partner_reimbursement_invoice` TEXT NULL DEFAULT NULL AFTER `partner_discount`;
+ALTER TABLE `bb_order_details` ADD `auto_acknowledge_date` DATE NULL DEFAULT NULL AFTER `acknowledge_date`;
 
