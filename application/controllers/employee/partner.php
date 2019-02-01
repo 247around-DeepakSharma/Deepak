@@ -934,7 +934,7 @@ class Partner extends CI_Controller {
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
-                . 'collateral_type.document_type,collateral.request_type',
+                . 'collateral_type.document_type,collateral.request_type,collateral.appliance_id,collateral.collateral_id',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'),'concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
@@ -6583,10 +6583,26 @@ class Partner extends CI_Controller {
      */ 
     function deactivate_brand_collateral(){
          $collateralID = $this->input->post('collateral_id');
-         rtrim($collateralID,", ");
-        if($collateralID){
-            $affected_rows = $this->partner_model->deactivate_collateral($collateralID);
-            if($affected_rows){
+         $explode_collataralID=explode(',',$collateralID);
+         foreach($explode_collataralID as $value)
+            {
+               if(!empty($value))
+                {
+                        $explode_arr=explode('+',$value);
+                        $collateral_id=$explode_arr[0];
+                        $service_id=$explode_arr[1];
+                        $brand_name=$explode_arr[2];
+                        $explode_array[]=array(
+                            'collateral_id'=>$collateral_id,
+                            'brand'=>$brand_name,
+                            'appliance_id'=>$service_id
+                        );
+                }
+            }
+           
+            if($explode_array){
+            $affected_rows = $this->partner_model->deactivate_collateral($explode_array);
+             if($affected_rows){
                 echo "Collateral has been deactivated successfully";
             }
         }
@@ -6649,7 +6665,6 @@ class Partner extends CI_Controller {
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
-        print_r($_FILES);
         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];

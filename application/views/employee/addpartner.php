@@ -1509,6 +1509,7 @@
                                 foreach($results['partner_contracts'] as $value){
                                     if($value['collateral_tag'] == LEARNING_DOCUMENT){
                                         $index++;
+                                        $group_data=$value['collateral_id'].'+'.$value['appliance_id'].'+'.$value['brand'];
                                         if($value['is_file']){
                                             $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file'];
                                         }
@@ -1527,7 +1528,7 @@
                             <td><?php echo ucfirst($value['request_type']); ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
-                            <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $value['id'] ?>"> </div></td>
+                            <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
                             <td><?php echo $value['start_date'] ?></td>
                         </tr>
                         <tr>
@@ -4168,22 +4169,36 @@
         {
             if (checkboxes[i].checked) 
             {
-                vals += "'"+checkboxes[i].value+"',";
+                var checkedlength=$('[name="'+fieldName+'"]:checked').length;
+               var last=checkedlength-1;
+                if(i==last)
+                {
+                    vals += checkboxes[i].value;
+                }  
+                else
+                {
+                    vals += checkboxes[i].value+",";
+                }
             }
         }
         return vals;
     }
     function delete_collatrals(){
-        collatrelsID = getMultipleSelectedCheckbox("coll_id[]");
-        if(collatrelsID){
-            $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/deactivate_brand_collateral',
-            data: {collateral_id:collatrelsID},
-            success: function (data) {
-                alert(data);
-            }
-        });
+        var confirmtext=confirm("Are You Want To Delete These Records!");
+        if(confirmtext==true)
+        {
+                collatrelsID = getMultipleSelectedCheckbox("coll_id[]");
+                if(collatrelsID){
+                    $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/partner/deactivate_brand_collateral',
+                    data: {collateral_id:collatrelsID},
+                    success: function (data) {
+                        alert(data);
+                     location.reload();
+                    }
+                });
+                }
         }
     }
     function resend_password(agent_id){

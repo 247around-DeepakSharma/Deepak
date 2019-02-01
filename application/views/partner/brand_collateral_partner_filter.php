@@ -50,8 +50,7 @@
 <script>
     function validform(){
        var partner = $("#partner option:selected").val();
-       alert(partner);
-        if(partner!=='option_holder')
+       if(partner!=='option_holder')
         {
             ad_table.ajax.reload( function ( json ) {} );
          }
