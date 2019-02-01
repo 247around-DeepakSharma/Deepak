@@ -26,6 +26,16 @@
     .dropdown-menu{
         left: -60px;
     }
+            .blinking{
+    animation:blinkingText 0.5s infinite;
+}
+@keyframes blinkingText{
+    0%{     color: red;    }
+    49%{   color: red; }
+    50%{    color: green; }
+    99%{    color:green;  }
+    100%{   color: 008000;    }
+}
 </style>
 <div class="col-md-12" id="bb_charges_summary" style="margin-top:10px;">
     <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
@@ -106,6 +116,7 @@
                                 <th>CP Claimed Price</th>
                                 <th>Order date</th>
                                 <th>Delivery date</th>
+                                <th>Auto<br> acknowledge<br> days</th>
                                 <th>Remarks</th>
                                 <th>Action</th>
                                 
