@@ -1935,7 +1935,7 @@ class Service_centers extends CI_Controller {
             //Update Spare Parts table
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
-                $is_requested = $this->partner_model->get_spare_parts_by_any("id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
+                $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
                     . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
                 if ($this->session->userdata('service_center_id')) {
                     $agent_id = $this->session->userdata('service_center_agent_id');
@@ -2321,33 +2321,33 @@ class Service_centers extends CI_Controller {
                 $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                 $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                 $booking_id = $this->input->post('booking_id');
-                $k = 0;
-
                 $partner_id = $this->input->post('booking_partner_id');
 
-
-                //update each spare line item one by one
-                foreach ($defective_part_shipped as $id => $value) {
-                    if ($k == 0) {
+                if (!empty($sp_id) && $sp_id != '') {
+                    
+                    if (!empty($sp_id)) {
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                     } else {
                         $data['courier_charges_by_sf'] = 0;
                     }
                     $data['awb_by_sf'] = $this->input->post('awb_by_sf');
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
-                    $data['defective_part_shipped'] = $value;
+                    $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
 
-                    $where = array('id' => $id);
-                    $this->service_centers_model->update_spare_parts($where, $data);
-                    $k++;
+                    $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
                 }
-                //insert details into state change table                                
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['update_date'] = date('Y-m-d H:i:s');
-                $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+
+                $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
+
+                //insert details into state change table   
+                if (empty($defective_part_pending_details)) {
+                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['update_date'] = date('Y-m-d H:i:s');
+                    $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                }
 
                 if (!empty($this->input->post("shipped_inventory_id"))) {
                     $ledger_data = array(
@@ -2416,6 +2416,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This function is used to download challan/Address
      */
@@ -3502,9 +3503,9 @@ class Service_centers extends CI_Controller {
         $datetime2 = date_create(date('Y-m-d', strtotime($order_list->auto_acknowledge_date)));
 
         $interval = date_diff($datetime1, $datetime2);
-        $days = $interval->days;
+        $ack_days = $interval->days;
         if ($interval->invert == 1) {
-            $days = -$days;
+            $days = -$ack_days;
         }
         $row[] = $no;
         $row[] = "<a target='_blank' href='" . base_url() . "service_center/buyback/view_bb_order_details/" .
@@ -3516,6 +3517,7 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
+        $row[] = "<p style='color:red;' class='blinking'>".$ack_days."</p>";
         $row[] = "<div class='truncate_text' data-toggle='popover' title='" . $order_list->admin_remarks . "'>$order_list->admin_remarks</div>";
         $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
@@ -3703,17 +3705,10 @@ class Service_centers extends CI_Controller {
             $where['where'] = array('assigned_cp_id' => $cp_id,"$in_transit_date" => NULL);
             $cp_in_transit_charge[$i] = $this->bb_model->get_bb_order_list($where, $select_in_transit);
         }
-
-        //get total in transit charges data
-        
-       
-       $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($cp_id);
-            
-            
+        $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($cp_id);
         $data['delivered_charges'] = $cp_delivered_charge;
         $data['in_transit_charges'] = $cp_in_transit_charge;
-        $data['in_process_charges'] = $amount_cr_deb['in_process'];
-        $data['total_charges'] = $amount_cr_deb['total_balance'];
+        $data['total_charges'] = $amount_cr_deb;
         $this->load->view('service_centers/show_bb_charges_summary',$data);
     }
     

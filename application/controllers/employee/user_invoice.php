@@ -1083,11 +1083,11 @@ class User_invoice extends CI_Controller {
                                 $this->invoices_model->insert_inventory_invoice($value1);
                             }
 
-                            foreach ($invoiceData['settle_data'] as $value2) {
-                                $id = $value2['breakup_invoice_id'];
-                                unset($value2['breakup_invoice_id']);
-                                $this->invoices_model->update_invoice_breakup(array('id' => $id), $value2);
-                            }
+//                            foreach ($invoiceData['settle_data'] as $value2) {
+//                                $id = $value2['breakup_invoice_id'];
+//                                unset($value2['breakup_invoice_id']);
+//                                $this->invoices_model->update_invoice_breakup(array('id' => $id), $value2);
+//                            }
 
                             $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
                             $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
