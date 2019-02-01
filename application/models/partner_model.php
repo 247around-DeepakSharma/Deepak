@@ -1870,6 +1870,25 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
+    function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
+    {
+        $return=null;
+        $this->db->select("collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
+        $this->db->from("collateral");
+        $this->db->where('entity_id',$partner_id);
+        $this->db->where('entity_type','partner');
+        $this->db->where('is_valid',1);
+        $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
+        $this->db->join('services','services.id=collateral.appliance_id','left');
+        $this->db->limit($limitArray['length'],$limitArray['start']);
+        $group_by=array('concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
+       // print_r($group_by);
+        $this->db->group_by($group_by);
+        $this->db->order_by($order_by_column,$sorting_type);
+        $return=$this->db->get()->result_array();
+       // print_r($this->db->last_query());exit();
+        return $return;
+    }
 
 }
 
