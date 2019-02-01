@@ -2344,4 +2344,60 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         } 
     }
+    
+    function send_missing_pincode_details1(){
+        log_message('info', __METHOD__ . "=>start");
+        $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
+         if (!empty($template))
+         {
+                    $result=$this->booking_model->get_india_pincode_group_by_state();
+                    if(count($result)>0)
+                    {
+                        $pincode_state_wise=$result;
+                        foreach($pincode_state_wise as $value)
+                        {
+                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+                        }
+                    }
+                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+                           ,NULL,NULL,NULL,NULL,array());
+                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state();
+                    $active_services=$this->booking_model->get_active_services();
+                    $state_arr=$this->booking_model->get_active_state();
+                    $count = count($vendor_mapping_data);
+                    for($i = 0; $i<$count-1;$i++){ 
+                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
+                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                        }
+                    }
+                                     
+                    foreach($rmData as $value)
+                    {
+                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                         $state_code=$value['state_code'];
+                         $rm_email_id=$value['official_email'];
+                         $explode=explode(',',$state_code);
+                         $rm_arr['rm_'.$value['agent_id']]=$explode;
+                         $data=array(
+                           'service_arr'=>$active_services,
+                           'state_arr'=>$state_arr,
+                           'vendorStructuredArray'=>$vendorStructuredArray,
+                             'rm_arr'=>$rm_arr
+                         );
+                       $msg = $this->load->view('employee/missing_pincode_report',$data,TRUE);
+                       $email['msg'] = $msg;
+                       $emailBody = vsprintf($template[0], $email);
+                       $subjectBody = $template[4];
+                       $to = $rmData['official_email'];
+                       $bcc = $template[5];
+                       log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
+                       $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
+                    }
+               
+                }
+            }
+ 
+    
 }
