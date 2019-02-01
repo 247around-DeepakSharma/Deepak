@@ -1315,6 +1315,11 @@ class Service_centers extends CI_Controller {
                 if ($value['defective_back_parts_pic']) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
+                
+                if ($value['spare_request_symptom']) {
+                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                }
+                
             }
         }
 
@@ -3494,7 +3499,7 @@ class Service_centers extends CI_Controller {
         //log_message("info", __METHOD__);
         $row = array();
         $datetime1 = date_create(date("Y-m-d"));
-        $datetime2 = date_create(date('Y-m-d', strtotime($order_list->delivery_date)));
+        $datetime2 = date_create(date('Y-m-d', strtotime($order_list->auto_acknowledge_date)));
 
         $interval = date_diff($datetime1, $datetime2);
         $days = $interval->days;
