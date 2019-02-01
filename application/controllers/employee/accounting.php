@@ -1695,6 +1695,32 @@ class Accounting extends CI_Controller {
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
     }
+    
+    /*
+    * @desc - This function is used to update partner's variable charges
+    * @param - $partner_id, $fixed_charges, $charges_type, $validity     
+    * @return - boolean
+    */
+    function edit_partner_variable_charges(){
+        $data = array();
+        $data['entity_type'] = _247AROUND_PARTNER_STRING;
+        $data['entity_id'] = $this->input->post('partner_id');
+        $data['fixed_charges'] = $this->input->post('fixed_charges');
+        $data['charges_type'] = $this->input->post('charges_type');
+        $data['validity_in_month'] = $this->input->post('validity');
+        $data['update_date'] = date("Y-m-d H:i:s");
+        if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
+            $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
+        }else{
+            echo false;
+        }
+        if($result){
+            echo true;
+        } else {
+            echo false;
+        }
+    }
+    
     /*
      * @desc - This function is used to download buyback summary report
      * $daterange
@@ -1724,4 +1750,24 @@ class Accounting extends CI_Controller {
         $this->miscelleneous->downloadCSV($data,$headings,"buyback_summary_report");  
     }
     
+    /*
+    * @desc - This function is used to activate and deactivate variable charges
+    * @param - $status, $variable_charge_id     
+    * @return - json
+    */
+    function active_deactive_variable_charges(){
+        $return = array();
+        $data['status'] = $this->input->post("status");
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charge_id')), $data); 
+        if($result){
+            $return["status"] = true;
+            $return["message"] = "Status Changed Successfully";
+        }
+        else{
+            $return["status"] = false;
+            $return["message"] = "Error Occured while Updating Status";
+        }
+        echo json_encode($return);
+    }
 }
