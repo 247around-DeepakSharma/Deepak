@@ -1,15 +1,28 @@
 
 <div class="row">
     <div class="col-md-12" style="font-size: 18px;">
-        <div class="text-center" >
-            Amount Overdue: Rs. 
-            <?php if($total_charges >= 0){ ?>
-                    <b class="text-success bb_counter"><?php echo $total_charges; ?></b>
-            <?php }else if($total_charges < 0){ ?>
-                    <b class="text-danger bb_counter"><?php echo $total_charges; ?></b>
-            <?php } ?>
-                    Disputed (In Review) Amount: Rs. <b class="text-success bb_counter"><?php echo sprintf("%01.0f",$in_process_charges); ?></b>
-        </div>
+        <table class="table table-striped table-bordered table-hover" style="font-size:13px">
+    <thead>
+        <tr>
+            <th>Auto Acknowledge Amount</th>
+            <th>Manual Acknowledge Amount</th>
+            <th>In transit  Amount</th>
+            <th>Delivered Amount</th>
+            <th>Disputed Amount</th>
+            <th>Invoice Generated But<br> Not Settled </th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <td><?php echo sprintf("%01.0f",$total_charges['cp_auto_ack']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['cp_manual_ack']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['cp_transit']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['cp_delivered']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['cp_disputed']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['unbilled']) ?> </td>
+        <td><?php echo sprintf("%01.0f",$total_charges['total_balance']) ?> </td>
+    </tbody>
+        </table>
     </div>
 </div>
 <hr>

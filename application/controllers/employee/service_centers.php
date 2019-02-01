@@ -3516,9 +3516,9 @@ class Service_centers extends CI_Controller {
         $datetime2 = date_create(date('Y-m-d', strtotime($order_list->auto_acknowledge_date)));
 
         $interval = date_diff($datetime1, $datetime2);
-        $days = $interval->days;
+        $ack_days = $interval->days;
         if ($interval->invert == 1) {
-            $days = -$days;
+            $days = -$ack_days;
         }
         $row[] = $no;
         $row[] = "<a target='_blank' href='" . base_url() . "service_center/buyback/view_bb_order_details/" .
@@ -3530,6 +3530,7 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->order_date;
         $row[] = $order_list->delivery_date;
+        $row[] = "<p style='color:red;' class='blinking'>".$ack_days."</p>";
         $row[] = "<div class='truncate_text' data-toggle='popover' title='" . $order_list->admin_remarks . "'>$order_list->admin_remarks</div>";
         $a = "<div class='dropdown'>
                             <button class='btn btn-default dropdown-toggle' type='button' id='menu1' data-toggle='dropdown'>Actions
@@ -3717,17 +3718,10 @@ class Service_centers extends CI_Controller {
             $where['where'] = array('assigned_cp_id' => $cp_id,"$in_transit_date" => NULL);
             $cp_in_transit_charge[$i] = $this->bb_model->get_bb_order_list($where, $select_in_transit);
         }
-
-        //get total in transit charges data
-        
-       
-       $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($cp_id);
-            
-            
+        $amount_cr_deb = $this->miscelleneous->get_cp_buyback_credit_debit($cp_id);
         $data['delivered_charges'] = $cp_delivered_charge;
         $data['in_transit_charges'] = $cp_in_transit_charge;
-        $data['in_process_charges'] = $amount_cr_deb['in_process'];
-        $data['total_charges'] = $amount_cr_deb['total_balance'];
+        $data['total_charges'] = $amount_cr_deb;
         $this->load->view('service_centers/show_bb_charges_summary',$data);
     }
     
