@@ -4264,7 +4264,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
-
+       
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $this->session->userdata('service_center_id') .
                     " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -4351,9 +4351,9 @@ class Service_centers extends CI_Controller {
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 if(!empty($part_details['parts_type'])){
-                                    $data['parts_requested_type'] = $part_details['parts_type'];
+                                    $data['parts_requested_type'] = $part_details['shipped_part_type'];
                                 } else {
-                                    $data['parts_requested_type'] = $part_details['parts_name'];
+                                    $data['parts_requested_type'] = $part_details['shipped_parts_name'];
                                 }
                              
                                 $data['parts_requested'] = $part_details['parts_name'];
