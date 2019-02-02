@@ -6672,11 +6672,11 @@ class Partner extends CI_Controller {
              $sample_no_pic_array=array();
             for($i=0; $i<$cpt; $i++)
                 {           
-                    $_FILES['SamplePicfile']['name']= $files['SamplePicfile']['name'][$i];
-                    $_FILES['SamplePicfile']['type']= $files['SamplePicfile']['type'][$i];
-                    $_FILES['SamplePicfile']['tmp_name']= $files['SamplePicfile']['tmp_name'][$i];
-                    $_FILES['SamplePicfile']['error']= $files['SamplePicfile']['error'][$i];
-                    $_FILES['SamplePicfile']['size']= $files['SamplePicfile']['size'][$i];    
+                    $_FILES['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
+                    $_FILES['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
+                    $_FILES['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
+                    $_FILES['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
+                    $_FILES['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
                    //Processing Sample Pic File
                    
                     if (($_FILES['SamplePicfile']['error'] != 4) && !empty($_FILES['SamplePicfile']['tmp_name'])) 
@@ -6696,6 +6696,7 @@ class Partner extends CI_Controller {
                         'created_date'=>date('Y-m-d'),
                         'active'=>1
                         );
+                      
                       //update sample_no_pic
                         $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
                         
@@ -6712,10 +6713,7 @@ class Partner extends CI_Controller {
                   redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
-        else
-        {
-           $this->form_validation->set_rules('sample_no_pic', 'Sample No Picture', 'required');
-        }
+        
     }
     public function deletePartnerSampleNo($id,$partner_id)
     {
