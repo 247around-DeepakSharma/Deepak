@@ -4792,7 +4792,7 @@ class Service_centers extends CI_Controller {
         //check if call from form submission or direct url
         //used to filter the page by partner id
         
-        $config['per_page'] = 200;
+        $config['per_page'] = 500;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -4804,7 +4804,7 @@ class Service_centers extends CI_Controller {
             $sf_id = $this->session->userdata('service_center_id');
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
@@ -4886,7 +4886,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
