@@ -1174,7 +1174,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function auto_acknowledge_buyback_order() {
         log_message("info", __METHOD__);
-        $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , auto_acknowledge_date ) > 10 " => NULL, 'bb_order_details.current_status' => "Delivered",
+        $where['where'] = array("DATEDIFF( CURRENT_TIMESTAMP , auto_acknowledge_date ) = 0 " => NULL, 'bb_order_details.current_status' => "Delivered",
             'bb_order_details.internal_status' => "Delivered", "bb_cp_order_action.current_status" => _247AROUND_PENDING);
         $where['select'] = "bb_order_details.partner_order_id";
         $where['length'] = -1;
@@ -2139,6 +2139,56 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $subject = vsprintf($template[4], date("M",strtotime(date("Y-m-d")))); 
                 $message = vsprintf($template[0], array(date("M",strtotime(date("Y-m-d"))), $table));
                 $this->notify->sendEmail($from, $to_email, $cc, "", $subject, $message, "", PENALTY_SUMMARY);
+            }
+        }
+    }
+    function send_auto_acknowledge_alert_to_cp(){
+        $tempArray = array();
+        $where['DATEDIFF(auto_acknowledge_date,CURRENT_TIMESTAMP) < 4'] = NULL;
+        $where['bb_order_details.current_status'] = _247AROUND_BB_DELIVERED;
+        $where['bb_order_details.internal_status'] = _247AROUND_BB_DELIVERED;
+        $where['bb_order_details.acknowledge_date IS NULL'] = NULL;
+        $select = "GROUP_CONCAT(bb_order_details.partner_order_id) as order_id_list,service_centres.primary_contact_email,COUNT(bb_order_details.partner_order_id) as booking_count,"
+                . "DATEDIFF(CURRENT_TIMESTAMP , auto_acknowledge_date) as days_left";
+        $data = $this->reusable_model->get_search_result_data("bb_order_details",$select,$where,array('service_centres'=>'service_centres.id = bb_order_details.assigned_cp_id')
+                ,NULL,NULL,NULL,NULL,array("assigned_cp_id","days_left"));
+        if($data){
+        $template = $this->booking_model->get_booking_email_template("auto_acknowledge_alert_to_cp");
+        $count = count($data);
+            for($i = 0;$i<$count-1;$i++){
+                $tempArray[$data[$i]['primary_contact_email']]["day_".$data[$i]['days_left']]  = implode("<br>",explode(",",$data[$i]['order_id_list']));
+            }
+            foreach($tempArray as $key => $value){
+                $table = '<html><head><title></title></head><body>
+        <div bgcolor="#ffffff; " style="border: 1px solid #CCCCCC; width:980px; ">
+            <div style="background-color: #2C9D9C;">
+                <center>
+                    <img src="https://aroundhomzapp.com/images/logo.jpg" alt="" style="border:0" width="" height="" class="CToWUd">
+                </center>
+            </div>
+            <div style="padding: 15px;">
+                <table border="1" cellspacing="0" cellpadding="1px" style="width:100%; table-layout: fixed; ">';
+               
+                    $table .= '<tr><th>Day</th><th>Order List</th></tr>';
+                    if(array_key_exists('day_1', $value)){
+                        $table .='<tr><td style="width:20%;text-align: left;padding-left: 10px;"><b>Afetr Day 1</b></td>
+                            <td style="text-align: left;padding-left: 10px;">'.$value["day_1"].'</td></tr>';
+                    }
+                    if(array_key_exists('day_2', $value)){
+                        $table .='<tr><td style="width:20%;text-align: left;padding-left: 10px;"><b>After Day 2</b></td>';
+                        '<td style="text-align: left;padding-left: 10px;">'.$value["day_2"].'</td></tr>';
+                     }
+                     if(array_key_exists('day_3', $value)){
+                       $table .='<tr><td style="width:20%;text-align: left;padding-left: 10px;"><b>After Day 3</b></td>
+                        <td style="text-align: left;padding-left: 10px;">'.$value["day_3"].'</td></tr>';
+                     }
+                    $table .= '</table></div><div style="float:left; padding: 15px;"><p><b>Best regards, <br>247around Team</b></p></div></div></body></html>';
+                    echo $body = vsprintf($template[0], $table);
+                    echo $to = $key;
+                    $from = $template[2];
+                    $cc = $template[3];
+                    $subject = $template[4];
+                    $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, "",'auto_acknowledge_alert_to_cp');
             }
         }
     }

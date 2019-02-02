@@ -224,72 +224,7 @@
             }
             
         }
-          
-          
-  $('#submit_btn').on('click',function(){
-        $('#submit_btn').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
-        postData ={};
-        postData['awb_by_wh'] = $('#awb_by_wh').val();
-        postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
-        postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
-        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
-        invoice_id = $('#invoice_id').val();  
-        if(invoice_id.indexOf(",") > 0){
-          postData['invoice_ids'] = $('#invoice_id').val();  
-        }
-          
-        var exist_courier_image = $("#exist_courier_image").val();       
-        //Declaring new Form Data Instance  
-        var formData = new FormData();
-                
-        //Getting Files Collection
-        var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
-       
-        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-        for (var i = 0; i < files.length; i++) {
-            formData.append('file', files[i]);
-        }
-        var is_exist_file = false;
-        if(exist_courier_image){
-            is_exist_file = true;
-        }
-        
-        if(files.length >= 1){
-            is_exist_file = true;
-        }
-        
-        //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
-        $.each(postData, function(index, element) {
-            formData.append(index, element);
-        });
-        
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && postData['invoice_ids'] && is_exist_file){
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url() ?>employee/booking/process_to_update_courier_details_by_invoice_ids',
-                data:formData,
-                contentType: false,
-                processData: false,
-                success:function(response){
-                    $('#submit_courier_form').html('Submit').attr('disabled',false);
-                    $('#courier_model').modal('toggle');
-                    obj = JSON.parse(response);
-                    if(obj.status){                        
-                        $('#success_msg').html(obj.message);
-                        alert(obj.message);
-                        window.location.reload();
-                    }else{                        
-                        $('#error_msg').html(obj.message);
-                    }
-                }
-            });
-        }else{
-            $('#submit_btn').html('Submit').attr('disabled',false);
-            alert("Please enter all required field");
-        }
-        
-    });
-          
+                    
 </script> 
 <!--page 1 validations end here-->
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>
