@@ -970,7 +970,7 @@ class Invoice_lib {
      * @param Array $postData
      * @return Array
      */
-    function get_unsettle_inventory_invoice_data($postData){
+    function get_unsettle_inventory_invoice_data($postData, $invoice_id){
         $mapping_data = array();
         $settle_data = array();
         $processData = array();
@@ -989,17 +989,21 @@ class Invoice_lib {
                         if ($restQty == $qty) {
                             array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
                             
-                            array_push($mapping_data, array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
+                            array_push($mapping_data, array('outgoing_invoice_id' => $invoice_id,'incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
                             
                            $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
+                           
+                           $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']),  array('is_settle' => 1, 'settle_qty' => $b['qty']));
                            
                            $qty = $qty - $restQty;
                            
                         } else if ($restQty < $qty) {
                             array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
-                            array_push($mapping_data, array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
+                            array_push($mapping_data, array('outgoing_invoice_id' => $invoice_id,'incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
                             
                             $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
+                            
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']),  array('is_settle' => 1, 'settle_qty' => $b['qty']));
                             
                             $qty = 0;
                         } else {

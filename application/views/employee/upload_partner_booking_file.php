@@ -35,7 +35,7 @@
                     <div class="form-group <?php if( form_error('file_type') ) { echo 'has-error';} ?>" id="file_type" style="display:none;">
                         <label for="excel" class="col-md-1">Select File Type</label>
                         <div class="col-md-4">
-                            <select name="file_type" class="form-control" id="file_type">
+                            <select name="partner_source" class="form-control" id="partner_source">
                                 <option value="" disabled selected>Select File Type</option>
                                 <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
@@ -127,7 +127,7 @@
     
     function submitForm() {
         if( partner_id === '<?php echo SNAPDEAL_ID?>'){
-            var type = $("#file_type :selected").val();
+            var type = $("#partner_source :selected").val();
             file_type = partner + '-' + type;
             partner_source = partner + '-' + type + '-excel';
         }

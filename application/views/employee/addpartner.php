@@ -1509,6 +1509,7 @@
                                 foreach($results['partner_contracts'] as $value){
                                     if($value['collateral_tag'] == LEARNING_DOCUMENT){
                                         $index++;
+                                        $group_data=$value['collateral_id'].'+'.$value['appliance_id'].'+'.$value['brand'];
                                         if($value['is_file']){
                                             $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file'];
                                         }
@@ -1527,7 +1528,7 @@
                             <td><?php echo ucfirst($value['request_type']); ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
-                            <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $value['id'] ?>"> </div></td>
+                            <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
                             <td><?php echo $value['start_date'] ?></td>
                         </tr>
                         <tr>
@@ -1558,7 +1559,7 @@
             
             <div class="col-lg-12">
                 <button class="btn" onclick="show_add_samplepic_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Sample Number Picture</button>
-                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data"  style="display:none;">
+                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" onSubmit="document.getElementById('upload_sample_picture').disabled=true;"  action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data">
                         <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1568,7 +1569,7 @@
                         }
                     }
                     ?> 
-                    <div class="clonedInputSample panel panel-info " id="clonedInputSample">                      
+                    <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
                         <div class="panel-heading" style=" background-color: #f5f5f5;">
                              <p style="color: #000;"><b>Sample Number Picture</b></p>
                              <div class="clone_button_holder" style="float:right;margin-top: -31px;">
@@ -1582,7 +1583,7 @@
                                     <div class='form-group'>
                                         <label for="SamplePicfile" class="col-md-4">Upload Sample Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control" id="SamplePicfile"  name="SamplePicfile[]" >
+                                            <input type="file" class="form-control" id="SamplePicfile_1"  name="SamplePicfile[]" >
                                         </div>
                                      </div>
                                 </div>
@@ -1592,7 +1593,7 @@
                     <div class="cloned1"></div>
                 
                 <div class="form-group " style="text-align:center">
-                    <input type="submit" class="btn btn-primary" id="Upload Sample Picture" value="Upload">
+                    <input type="submit" class="btn btn-primary" id="upload_sample_picture" value="Upload" onclick=" return onsubmit_form()" >
                 </div>
             </form>
             </div>
@@ -1905,8 +1906,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group <?php if( form_error('warehouse_city') ) { echo 'has-error';} ?>">
                                         <label for="warehouse_city" class="col-md-4">Warehouse City *</label>
-                                        <div class="col-md-6">
-                                            <input  type="text" class="form-control input-contact-name"  name="warehouse_city" id="warehouse_city" value = "" placeholder="Enter Warehouse City" required="">
+                                        <div class="col-md-6">                                            
+                                            <select class="district form-control" name ="warehouse_city" id="warehouse_city" onChange="getPincode_to_warehouse()">  </select>
                                             <?php echo form_error('warehouse_city'); ?>
                                         </div>
                                     </div>
@@ -1930,8 +1931,9 @@
                                     <div class="form-group <?php if( form_error('warehouse_pincode') ) { echo 'has-error';} ?>">
                                         <label for="warehouse_pincode" class="col-md-4">Warehouse Pincode *</label>
                                         <div class="col-md-6">
-                                            <input  type="text" class="form-control input-contact-name allowNumericWithOutDecimal"  name="warehouse_pincode" id="warehouse_pincode" value = "" minlength="6" maxlength="6" title="Pincode can only be 6 number digit" placeholder="Enter Warehouse Pincode" required="">
-                                            <?php echo form_error('warehouse_pincode'); ?>
+<!--                                        <input  type="text" class="form-control input-contact-name allowNumericWithOutDecimal"  name="warehouse_pincode" id="warehouse_pincode" value = "" minlength="6" maxlength="6" title="Pincode can only be 6 number digit" placeholder="Enter Warehouse Pincode" required="">-->
+                                            <select class="pincode form-control" name ="warehouse_pincode"  id="warehouse_pincode"> </select>
+                                                <?php echo form_error('warehouse_pincode'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -2821,10 +2823,20 @@
     function clone1(){
        $(this).parents(".clonedInputSample").clone()
             .appendTo(".cloned1")
+            .attr("id", "cat" +  cloneIndexSample)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndexSample);
+               }
+           })
             .on('click', 'button.clone1', clone1)
             .on('click', 'button.remove1', remove1);
-            $('#filter_holder_'+cloneIndexSample+' .select2').hide();
-          
+             //$("#SamplePicfile_"+cloneIndexSample).files.length =0;
+          $("#SamplePicfile_"+cloneIndexSample).val('');
        cloneIndexSample++;
        return false;
     }  
@@ -2965,18 +2977,30 @@
                 }
             }
         });
-    }
+    }    
     function getPincode() {
         var district = $(".district").val();
-        var pincode = $(".pincode").val();
+        var pincode = $(".pincode").val(); 
+        pincodeDetails(pincode,district);
+        
+    }
+    
+    function getPincode_to_warehouse() {
+        var district = $("#warehouse_city").val();
+        var pincode = $("#warehouse_pincode").val(); 
+        pincodeDetails(pincode,district);
+
+    }
+    
+    function pincodeDetails(pincode,district){
         $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
-            data: {pincode: pincode, district: district},
-            success: function (data) {
-                $(".pincode").html(data);
-            }
-        });
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
+                data: {pincode: pincode, district: district},
+                success: function (data) {
+                    $(".pincode").html(data);
+                }
+            });
     }
     
     $(function () {
@@ -4168,22 +4192,36 @@
         {
             if (checkboxes[i].checked) 
             {
-                vals += "'"+checkboxes[i].value+"',";
+                var checkedlength=$('[name="'+fieldName+'"]:checked').length;
+               var last=checkedlength-1;
+                if(i==last)
+                {
+                    vals += checkboxes[i].value;
+                }  
+                else
+                {
+                    vals += checkboxes[i].value+",";
+                }
             }
         }
         return vals;
     }
     function delete_collatrals(){
-        collatrelsID = getMultipleSelectedCheckbox("coll_id[]");
-        if(collatrelsID){
-            $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/deactivate_brand_collateral',
-            data: {collateral_id:collatrelsID},
-            success: function (data) {
-                alert(data);
-            }
-        });
+        var confirmtext=confirm("Are You Want To Delete These Records!");
+        if(confirmtext==true)
+        {
+                collatrelsID = getMultipleSelectedCheckbox("coll_id[]");
+                if(collatrelsID){
+                    $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/partner/deactivate_brand_collateral',
+                    data: {collateral_id:collatrelsID},
+                    success: function (data) {
+                        alert(data);
+                     location.reload();
+                    }
+                });
+                }
         }
     }
     function resend_password(agent_id){
@@ -4267,4 +4305,30 @@
             }
         });
     }
+    //sample no pic validation
+    function onsubmit_form()
+    {
+      var flag=0;
+      var length1=$(".clonedInputSample").length;
+      for(var i=0;i<length1;i++)
+      {
+          var j=i+1;
+         if( document.getElementById('SamplePicfile_'+j).files.length == 0 )
+          {
+               alert('Please Attach Sample Picture File');
+               document.getElementById('SamplePicfile_'+j).style.borderColor = "red";
+               flag = 1;
+            
+          }
+      }
+        if (flag === 0) {
+        return true;
+    
+        } else if (flag === 1) {
+
+            return false;
+        }
+      
+    }
+     
 </script>

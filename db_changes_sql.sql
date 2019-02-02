@@ -9828,3 +9828,6 @@ ALTER TABLE `vendor_partner_variable_charges` ADD `status` TINYINT(1) NOT NULL D
 
 ALTER TABLE `bb_unit_details` ADD `partner_discount` INT(10) NOT NULL DEFAULT '0' AFTER `cp_claimed_price`;
 ALTER TABLE `bb_unit_details` ADD `partner_reimbursement_invoice` TEXT NULL DEFAULT NULL AFTER `partner_discount`;
+ALTER TABLE `bb_order_details` ADD `auto_acknowledge_date` DATE NULL DEFAULT NULL AFTER `acknowledge_date`;
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
+ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;

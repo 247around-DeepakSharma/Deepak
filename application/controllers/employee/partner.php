@@ -939,7 +939,7 @@ class Partner extends CI_Controller {
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
-                . 'collateral_type.document_type,collateral.request_type',
+                . 'collateral_type.document_type,collateral.request_type,collateral.appliance_id,collateral.collateral_id',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'),'concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
@@ -6142,13 +6142,33 @@ class Partner extends CI_Controller {
         if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
             //Update Spare Table
             $where = array('id' => $spare_id);
+            $spare_oow_est_margin = SPARE_OOW_EST_MARGIN;
+            $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
+            $gst_rate = $this->input->post('gst_rate');
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id', array('spare_parts_details.id' => $spare_id), true);
+            if(!empty($spare_data)){
+                
+                $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
+                        array('part_type' => $spare_data[0]['parts_requested_type'], 
+                            'service_id' => $spare_data[0]['service_id']), TRUE);
+                
+                if(!empty($part_type)){
+                    
+                    $spare_oow_est_margin =  ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage'])/100;
+                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
+                    $gst_rate = $part_type[0]['gst_rate'];
+                    
+                }
+            }
+            
+            
             $data['purchase_price'] = $updated_price;
-            $data['sell_price'] = ($updated_price + $updated_price *SPARE_OOW_EST_MARGIN );
+            $data['sell_price'] = ($updated_price + $updated_price * $spare_oow_est_margin );
             $data['estimate_cost_given_date'] = date('Y-m-d');
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if ($response) {
                 //Update Booking_unit_details_table
-                $unit['vendor_basic_percentage'] = ($updated_price * REPAIR_OOW_VENDOR_PERCENTAGE)/$data['sell_price'];
+                $unit['vendor_basic_percentage'] = ($updated_price * $repair_oow_vendor_percentage)/$data['sell_price'];
                 $unit['customer_total'] = $data['sell_price'];
                 $unit['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit_where = array('id' => $booking_unit_id);
@@ -6577,10 +6597,26 @@ class Partner extends CI_Controller {
      */ 
     function deactivate_brand_collateral(){
          $collateralID = $this->input->post('collateral_id');
-         rtrim($collateralID,", ");
-        if($collateralID){
-            $affected_rows = $this->partner_model->deactivate_collateral($collateralID);
-            if($affected_rows){
+         $explode_collataralID=explode(',',$collateralID);
+         foreach($explode_collataralID as $value)
+            {
+               if(!empty($value))
+                {
+                        $explode_arr=explode('+',$value);
+                        $collateral_id=$explode_arr[0];
+                        $service_id=$explode_arr[1];
+                        $brand_name=$explode_arr[2];
+                        $explode_array[]=array(
+                            'collateral_id'=>$collateral_id,
+                            'brand'=>$brand_name,
+                            'appliance_id'=>$service_id
+                        );
+                }
+            }
+           
+            if($explode_array){
+            $affected_rows = $this->partner_model->deactivate_collateral($explode_array);
+             if($affected_rows){
                 echo "Collateral has been deactivated successfully";
             }
         }
@@ -6643,7 +6679,6 @@ class Partner extends CI_Controller {
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
-        print_r($_FILES);
         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
@@ -6651,11 +6686,11 @@ class Partner extends CI_Controller {
              $sample_no_pic_array=array();
             for($i=0; $i<$cpt; $i++)
                 {           
-                    $_FILES['SamplePicfile']['name']= $files['SamplePicfile']['name'][$i];
-                    $_FILES['SamplePicfile']['type']= $files['SamplePicfile']['type'][$i];
-                    $_FILES['SamplePicfile']['tmp_name']= $files['SamplePicfile']['tmp_name'][$i];
-                    $_FILES['SamplePicfile']['error']= $files['SamplePicfile']['error'][$i];
-                    $_FILES['SamplePicfile']['size']= $files['SamplePicfile']['size'][$i];    
+                    $_FILES['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
+                    $_FILES['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
+                    $_FILES['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
+                    $_FILES['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
+                    $_FILES['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
                    //Processing Sample Pic File
                    
                     if (($_FILES['SamplePicfile']['error'] != 4) && !empty($_FILES['SamplePicfile']['tmp_name'])) 
@@ -6675,6 +6710,7 @@ class Partner extends CI_Controller {
                         'created_date'=>date('Y-m-d'),
                         'active'=>1
                         );
+                      
                       //update sample_no_pic
                         $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
                         
@@ -6691,10 +6727,7 @@ class Partner extends CI_Controller {
                   redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
-        else
-        {
-           $this->form_validation->set_rules('sample_no_pic', 'Sample No Picture', 'required');
-        }
+        
     }
     public function deletePartnerSampleNo($id,$partner_id)
     {
