@@ -1559,7 +1559,7 @@
             
             <div class="col-lg-12">
                 <button class="btn" onclick="show_add_samplepic_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Sample Number Picture</button>
-                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data"  style="display:none;">
+                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" onSubmit="document.getElementById('upload_sample_picture').disabled=true;"  action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data">
                         <?php
                         if(isset($query[0]['id'])){
                             if($query[0]['id']){
@@ -1569,7 +1569,7 @@
                         }
                     }
                     ?> 
-                    <div class="clonedInputSample panel panel-info " id="clonedInputSample">                      
+                    <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
                         <div class="panel-heading" style=" background-color: #f5f5f5;">
                              <p style="color: #000;"><b>Sample Number Picture</b></p>
                              <div class="clone_button_holder" style="float:right;margin-top: -31px;">
@@ -1583,7 +1583,7 @@
                                     <div class='form-group'>
                                         <label for="SamplePicfile" class="col-md-4">Upload Sample Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control" id="SamplePicfile"  name="SamplePicfile[]" >
+                                            <input type="file" class="form-control" id="SamplePicfile_1"  name="SamplePicfile[]" >
                                         </div>
                                      </div>
                                 </div>
@@ -1593,7 +1593,7 @@
                     <div class="cloned1"></div>
                 
                 <div class="form-group " style="text-align:center">
-                    <input type="submit" class="btn btn-primary" id="Upload Sample Picture" value="Upload">
+                    <input type="submit" class="btn btn-primary" id="upload_sample_picture" value="Upload" onclick=" return onsubmit_form()" >
                 </div>
             </form>
             </div>
@@ -2823,10 +2823,20 @@
     function clone1(){
        $(this).parents(".clonedInputSample").clone()
             .appendTo(".cloned1")
+            .attr("id", "cat" +  cloneIndexSample)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndexSample);
+               }
+           })
             .on('click', 'button.clone1', clone1)
             .on('click', 'button.remove1', remove1);
-            $('#filter_holder_'+cloneIndexSample+' .select2').hide();
-          
+             //$("#SamplePicfile_"+cloneIndexSample).files.length =0;
+          $("#SamplePicfile_"+cloneIndexSample).val('');
        cloneIndexSample++;
        return false;
     }  
@@ -4295,4 +4305,30 @@
             }
         });
     }
+    //sample no pic validation
+    function onsubmit_form()
+    {
+      var flag=0;
+      var length1=$(".clonedInputSample").length;
+      for(var i=0;i<length1;i++)
+      {
+          var j=i+1;
+         if( document.getElementById('SamplePicfile_'+j).files.length == 0 )
+          {
+               alert('Please Attach Sample Picture File');
+               document.getElementById('SamplePicfile_'+j).style.borderColor = "red";
+               flag = 1;
+            
+          }
+      }
+        if (flag === 0) {
+        return true;
+    
+        } else if (flag === 1) {
+
+            return false;
+        }
+      
+    }
+     
 </script>
