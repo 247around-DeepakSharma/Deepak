@@ -1660,7 +1660,14 @@ class Booking extends CI_Controller {
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
                     
                     $where['brand'] = $value['brand'];
-                    $model = $this->partner_model->get_partner_specific_details($where, 'model');
+                    $model_where = array(
+                       "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
+                       "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
+                       "appliance_model_details.service_id" => $booking_history[0]['service_id'],
+                       "appliance_model_details.active" => 1,
+                       "partner_appliance_details.brand" => $value['brand']
+                    );
+                    $model = $this->partner_model->get_model_number('appliance_model_details.model_number as model', $model_where);
                 } else {
 
                     $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $value['partner_id'], "brand" => $value['brand'],
