@@ -2183,8 +2183,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         <td style="text-align: left;padding-left: 10px;">'.$value["day_3"].'</td></tr>';
                      }
                     $table .= '</table></div><div style="float:left; padding: 15px;"><p><b>Best regards, <br>247around Team</b></p></div></div></body></html>';
-                    echo $body = vsprintf($template[0], $table);
-                    echo $to = $key;
+                    $body = vsprintf($template[0], $table);
+                    $to = $key;
                     $from = $template[2];
                     $cc = $template[3];
                     $subject = $template[4];
