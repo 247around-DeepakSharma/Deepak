@@ -865,8 +865,8 @@ class Spare_parts extends CI_Controller {
      * @return: string
      */
     
-    function copy_booking_details_by_spare_parts_id() {
-
+    function copy_booking_details_by_spare_parts_id() {        
+        log_message('info', __METHOD__ . " " . json_encode($_POST, true));
         $spare_parts_id = $this->input->post('spare_parts_id');
         $new_booking_id = $this->input->post('new_booking_id');
         $status = $this->input->post('status');
@@ -874,16 +874,49 @@ class Spare_parts extends CI_Controller {
         $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,'
                 . 'spare_parts_details.defective_return_to_entity_type,spare_parts_details.defective_return_to_entity_id, spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
-                . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,spare_parts_details.part_warranty_status';
+                . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,'
+                . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id';
 
         if (!empty($spare_parts_id)) {
-            $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), false, false);
+
+            $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
+            
             if (!empty($spare_parts_list)) {
+
                 $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
                 $spare_parts_list[0]['booking_id'] = $new_booking_id;
                 $spare_parts_list[0]['status'] = $status;
+
+                $partner_id = $spare_parts_list[0]['partner_id'];
+                $entity_type = $spare_parts_list[0]['entity_type'];
+                $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
+                $booking_partner_id = $spare_parts_list[0]['booking_partner_id'];
+
+                if (!empty($inventory_id)) {
+                    $select = "(stock - pending_request_count) as actual_stock";
+                    $where = array('entity_id' => $partner_id, 'entity_type' => $entity_type, 'inventory_id' => $inventory_id);
+                    $inventory_stock = $this->inventory_model->get_inventory_stock_count_details($select, $where);
+
+                    if (!empty($inventory_stock)) {
+                        $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $inventory_id, 1);
+                    } else {
+                        $spare_parts_list[0]['partner_id'] = $booking_partner_id;
+                        $spare_parts_list[0]['entity_type'] = _247AROUND_PARTNER_STRING;
+                        $spare_parts_list[0]['is_micro_wh'] = 0;
+                        $spare_parts_list[0]['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $spare_parts_list[0]['defective_return_to_entity_id'] = $booking_partner_id;
+                    }
+                } else {
+                    $spare_parts_list[0]['partner_id'] = $booking_partner_id;
+                    $spare_parts_list[0]['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $spare_parts_list[0]['is_micro_wh'] = 0;
+                    $spare_parts_list[0]['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $spare_parts_list[0]['defective_return_to_entity_id'] = $booking_partner_id;
+                }
+
                 $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
-                if (!empty($insert_id) && $insert_id != '') {
+
+                if (!empty($insert_id)) {
                     echo 'success';
                 } else {
                     echo 'fail';
