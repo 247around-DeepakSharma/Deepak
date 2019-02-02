@@ -4873,51 +4873,63 @@ class Booking extends CI_Controller {
      */
     function process_to_update_courier_details_by_invoice_ids() {
 
-        $invoice_ids = trim($this->input->post('invoice_ids'));
-        $courier_details['AWB_no'] = $this->input->post('awb_by_wh');
-        $courier_details['courier_name'] = $this->input->post('courier_name_by_wh');
-        $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-        $exist_courier_image = $this->input->post('exist_courier_image');
-        $bulk_courier_price = $this->input->post('courier_price_by_wh');
+        $this->form_validation->set_rules('awb_by_wh', 'Enter AWB Number', 'required');
+        $this->form_validation->set_rules('courier_name_by_wh', 'Select Courier Name', 'required');
+        $this->form_validation->set_rules('courier_price_by_wh', 'Enter Courier Price', 'required');
+        $this->form_validation->set_rules('defective_parts_shippped_date_by_wh', 'Enter Shipped Date', 'required');    
+        $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
+        
+        if ($this->form_validation->run()) {
+            $invoice_ids = trim($this->input->post('invoice_ids'));
+            $courier_details['AWB_no'] = $this->input->post('awb_by_wh');
+            $courier_details['courier_name'] = $this->input->post('courier_name_by_wh');
+            $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $exist_courier_image = $this->input->post('exist_courier_image');
+            $bulk_courier_price = $this->input->post('courier_price_by_wh');
 
-        if (!empty($invoice_ids)) {
-            $invoice_ids_arr = explode(',', $invoice_ids);
-            $total_invoice_id = sizeof($invoice_ids_arr);
-        }
+            if (!empty($invoice_ids)) {
+                $invoice_ids_arr = explode(',', $invoice_ids);
+                $total_invoice_id = sizeof($invoice_ids_arr);
+            }
 
-        $courier_id_arr = array();
-        $select = 'id, invoice_id, courier_id';
-        foreach ($invoice_ids_arr as $kay => $val) {
-            $where = array('invoice_id' => $val);
-            $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
-            if (!empty($inventory_ledger)) {
-                $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+            $courier_id_arr = array();
+            $select = 'id, invoice_id, courier_id';
+            foreach ($invoice_ids_arr as $kay => $val) {
+                $where = array('invoice_id' => $val);
+                $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);               
+                if (!empty($inventory_ledger)) {
+                    $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+                } else {
+                    $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                    redirect(base_url() . "employee/booking/tag_courier_details_by_invoice_ids");
+                }
+            }
+            
+            if ($total_invoice_id > 1) {
+                $courier_details['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
             } else {
-                $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                $courier_details['courier_charge'] = $bulk_courier_price;
+            }
+
+            if (!empty($exist_courier_image)) {
+                $courier_file['message'] = $exist_courier_image;
+            } else {
+                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+            }
+
+            $courier_details['courier_file'] = $courier_file['message'];
+
+            foreach ($courier_id_arr as $key => $courier_id) {
+                $affected_id = $this->inventory_model->update_courier_detail(array('id' => $courier_id), $courier_details);
+            }
+
+            if ($affected_id) {
+                $this->session->set_userdata(array('success' => 'Successfuly Updated.'));
                 redirect(base_url() . "employee/booking/tag_courier_details_by_invoice_ids");
             }
-        }
-
-        if ($total_invoice_id > 1) {
-            $courier_details['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
         } else {
-            $courier_details['courier_charge'] = $bulk_courier_price;
-        }
-
-        if (!empty($exist_courier_image)) {
-            $courier_file['message'] = $exist_courier_image;
-        } else {
-            $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
-        }
-
-        $courier_details['courier_file'] = $courier_file['message'];
-
-        foreach ($courier_id_arr as $key => $courier_id) {
-            $affected_id = $this->inventory_model->update_courier_detail(array('id' => $courier_id), $courier_details);
-        }
-
-        if ($affected_id) {
-            $this->session->set_userdata(array('success' => 'Successfuly Updated.'));
+            //Setting success session data 
+            $this->session->set_userdata(array('error' => 'Please Fill Form Details.'));
             redirect(base_url() . "employee/booking/tag_courier_details_by_invoice_ids");
         }
     }
