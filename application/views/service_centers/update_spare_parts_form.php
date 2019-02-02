@@ -175,6 +175,8 @@
                                             <input type="text" class="form-control" value="<?php if($spare_parts[0]->part_warranty_status == 1){ echo 'In-Warranty'; }elseif($spare_parts[0]->part_warranty_status == 2){ echo 'Out-Warranty'; }  ?>" readonly="">
                             
                                 </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-5">
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
