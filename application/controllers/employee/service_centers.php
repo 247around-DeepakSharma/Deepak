@@ -3757,7 +3757,7 @@ class Service_centers extends CI_Controller {
             $post['where']['service_category'] =  $service_category;
         }
         
-        $post['column_order'] = array(NULL,NULL,'service_id','category','capacity','service_category',NULL,NULL,'vendor_total','customer_net_payable','pod');
+        $post['column_order'] = array(NULL,NULL,'brand','category','capacity','service_category', 'vendor_total', NULL, NULL,'customer_net_payable','pod');
         $post['column_search'] = array('service_centre_charges.brand');
         
         return $post;
