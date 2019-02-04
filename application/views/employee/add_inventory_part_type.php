@@ -221,7 +221,7 @@
               <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;"  required=""/>
               <span id="part_type_modal_err"></span>
             </div>
-             <div class="form-group">
+              <div class="form-group">
               <label ></span> Around Margin %</label>
               <input typt='number' name="oow_around_percentage" id = "oow_around_percentage_modal" class = "form-control" placeholder="Please Enter Around Margin %" step="any" required=""/>
               <span id="part_type_modal_err"></span>
@@ -346,11 +346,11 @@
                 success: function(data) {
                     if(data){
                         $("#update_status").html("Sucess").css('color','green');
-                        $("#td_service_id_"+data['id']).html(data['service_name']);
-                        $("#td_part_type_id_"+data['id']).html(data['part_type']);
-                        $("#td_hsncode_id_"+data['id']).html(data['hsn_code']);
-                        $("#td_oow_around_percentage_id_"+data['id']).html(data['oow_around_percentage']);
-                        $("#td_oow_vendor_percentage_id_"+data['id']).html(data['oow_vendor_percentage']);
+                        $("#td_service_id_"+data['id']).text(data['service_name']);
+                        $("#td_part_type_id_"+data['id']).text(data['part_type']);
+                        $("#td_hsncode_id_"+data['id']).text(data['hsn_code']);
+                        $("#td_oow_around_percentage_id_"+data['id']).text(data['oow_around_percentage']);
+                        $("#td_oow_vendor_percentage_id_"+data['id']).text(data['oow_vendor_percentage']);
                         $("#myModal").hide();    
                     }else{
                        $("#update_status").html("Failed").css('color','red'); 

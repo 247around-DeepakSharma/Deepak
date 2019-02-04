@@ -3659,7 +3659,9 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id";
+
+        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id";
+
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
@@ -3668,17 +3670,21 @@ class Invoice extends CI_Controller {
             
             $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
             
-            $repair_around_oow_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-            
-            $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
-                        array('part_type' => $ptype, 
-                            'service_id' => $sp_data[0]->service_id), TRUE);
-                
-                if(!empty($part_type)){
 
-                    $repair_around_oow_percentage = $part_type[0]['oow_around_percentage'];
-                    
-                }
+            $inventory_id = "";
+            if(!empty($sp_data[0]->shipped_inventory_id)){
+                
+                $inventory_id = $sp_data[0]->shipped_inventory_id;
+                
+            } else if($sp_data[0]->requested_inventory_id){
+                
+                $inventory_id = $sp_data[0]->requested_inventory_id;
+            }
+            
+            $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $ptype,
+                    'service_id' => $sp_data[0]->service_id));
+               
+            $repair_around_oow_percentage = $margin['oow_vendor_margin']/100;
             
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";

@@ -9856,4 +9856,48 @@ ALTER TABLE `vendor_partner_variable_charges` ADD `status` TINYINT(1) NOT NULL D
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
 
+
 ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;
+
+ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;
+
+
+--Abhay 
+ALTER TABLE `inventory_master_list` ADD `oow_vendor_margin` DECIMAL(10,2) NOT NULL DEFAULT '15' AFTER `type`, ADD `oow_around_margin` DECIMAL(10,2) NOT NULL DEFAULT '15' AFTER `oow_vendor_margin`;
+
+--
+-- Table structure for table `set_oow_part_type_margin`
+--
+
+CREATE TABLE `set_oow_part_type_margin` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `part_type_id` int(11) NOT NULL,
+  `oow_around_margin` decimal(10,2) NOT NULL,
+  `oow_vendor_margin` decimal(10,2) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `active` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `set_oow_part_type_margin`
+--
+ALTER TABLE `set_oow_part_type_margin`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `partner_id` (`partner_id`,`part_type_id`),
+  ADD KEY `partner_id_2` (`partner_id`,`part_type_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `set_oow_part_type_margin`
+--
+ALTER TABLE `set_oow_part_type_margin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

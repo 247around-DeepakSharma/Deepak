@@ -492,6 +492,11 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        
+//        if(isset($post['type_join']) && $post['type_join'] == true){
+//             $this->db->join('inventory_parts_type', 'inventory_master_list.type = inventory_parts_type.part_type '
+//                     . 'AND inventory_parts_type.service_id = inventory_master_list.service_id','left');
+//        }
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1908,6 +1913,7 @@ class Inventory_model extends CI_Model {
             $this->db->join('services', 'inventory_parts_type.service_id = services.id');
             $this->db->join('hsn_code_details', 'inventory_parts_type.hsn_code_details_id= hsn_code_details.id');
         }
+        $this->db->join('set_oow_part_type_margin', 'set_oow_part_type_margin.part_type_id = inventory_parts_type.id AND set_oow_part_type_margin.active = 1', 'left');
         $this->db->order_by('part_type','ASC');
         $query = $this->db->get('inventory_parts_type');
         return $query->result_array();
@@ -1962,6 +1968,44 @@ class Inventory_model extends CI_Model {
         $this->db->join('appliance_model_details','inventory_model_mapping.model_number_id = appliance_model_details.id');
         $query = $this->db->get();
         return $query->result_array();
+    }
+    /**
+     * @desc This function is used to get vendor margin & around margin for the OOW inventory
+     * @param int $inventory_id
+     * @param Array $part_type_array
+     * @return Array
+     */
+    function get_oow_margin($inventory_id, $part_type_array){
+        $spare_oow_est_margin = SPARE_OOW_EST_MARGIN * 100;
+        $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE * 100;
+        $gst_rate = "";
+        if(!empty($inventory_id)){
+            $inventory = $this->get_inventory_master_list_data('gst_rate, oow_vendor_margin, oow_around_margin', array('inventory_id' => $inventory_id));
+            $spare_oow_est_margin = $inventory[0]['oow_vendor_margin'] + $inventory[0]['oow_around_margin'];
+
+            $repair_oow_vendor_percentage = $inventory[0]['oow_vendor_margin'];
+            $repair_oow_around_percentage = $inventory[0]['oow_around_margin'];
+            $gst_rate = $inventory[0]['gst_rate'];
+        } else if($part_type_array){
+            $part_type = $this->get_inventory_parts_type_details("oow_vendor_margin, oow_around_margin, hsn_code_details.gst_rate", $part_type_array, TRUE);
+
+            if (!empty($part_type)) {
+
+                $spare_oow_est_margin = ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage']);
+                $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
+                $repair_oow_around_percentage = $inventory[0]['oow_around_margin'];
+                $gst_rate = $part_type[0]['gst_rate'];
+            }
+        }
+        
+        return array(
+            'oow_est_margin' => $repair_oow_vendor_percentage,
+            'oow_vendor_margin' => $repair_oow_vendor_percentage,
+            'oow_around_margin' => $repair_oow_around_percentage,
+            'gst_rate' => !(empty($gst_rate))? $gst_rate: ""
+        );
+        
     }
     
      /**

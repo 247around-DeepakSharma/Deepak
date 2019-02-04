@@ -223,7 +223,7 @@ class Courier_tracking extends CI_Controller {
      * @return void 
      */
     function create_awb_number_data($select,$status){
-        $post['length'] = 5;
+        $post['length'] = 2000;
         $post['start'] = 0;
         $post['select'] = $select;
         $post['where'] = array('spare_parts_details.status' => $status);
@@ -639,5 +639,5 @@ class Courier_tracking extends CI_Controller {
             }
         }
     }
-
+    
 }

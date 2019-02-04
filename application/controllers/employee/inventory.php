@@ -2403,8 +2403,8 @@ class Inventory extends CI_Controller {
         $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
         
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-        if($inventory_list->oow_around_percentage > 0){
-            $repair_oow_around_percentage = $inventory_list->oow_around_percentage/100;
+        if($inventory_list->oow_around_margin > 0){
+            $repair_oow_around_percentage = $inventory_list->oow_around_margin/100;
         }
         
         $row[] = '<span id="basic_'.$inventory_list->inventory_id.'">'.round($inventory_list->price *( 1 + $repair_oow_around_percentage),0).'</span>';
@@ -3118,17 +3118,17 @@ class Inventory extends CI_Controller {
         $a = array();
         foreach ($invoice as $key => $value) {
             
-            $select = "oow_around_percentage, oow_vendor_percentage";
+            $select = "oow_vendor_margin, oow_around_margin";
             $post = array();
 
             $post['where'] = array('inventory_master_list.inventory_id'=> $value['inventory_id']);
-            $post['part_type_join'] = true;
             
             $list = $this->inventory_model->get_inventory_stock_list($post,$select);
             $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
             if(!empty($list)){
-                if($list[0]['oow_around_percentage'] > 0){
-                    $repair_oow_around_percentage = $list[0]['oow_around_percentage']/100;
+
+                if($list[0]['oow_around_margin'] > 0){
+                    $repair_oow_around_percentage = $list[0]['oow_around_margin']/100;
                 }
             }
             
@@ -3579,8 +3579,8 @@ class Inventory extends CI_Controller {
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-        $eway_bill_by_wh = $this->input->post('eway_bill_by_wh');
-        $defective_parts_ewaybill_date_by_wh = $this->input->post('defective_parts_ewaybill_date_by_wh');
+        //$eway_bill_by_wh = $this->input->post('eway_bill_by_wh');
+        //$defective_parts_ewaybill_date_by_wh = $this->input->post('defective_parts_ewaybill_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
@@ -5311,7 +5311,8 @@ class Inventory extends CI_Controller {
                 $affected_id = $this->inventory_model->update_inventory_parts_type($data, array('id' => $part_type_id));
 
                 if ($affected_id) {
-                    $select = "inventory_parts_type.part_type,services.services as service_name,hsn_code_details.hsn_code as hsn_code, oow_vendor_percentage, oow_around_percentage ";
+
+                    $select = "inventory_parts_type.part_type,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
                     $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details($select, array('inventory_parts_type.id'=> $part_type_id), TRUE);
                     
                     if (!empty($inventory_parts_type)) {
