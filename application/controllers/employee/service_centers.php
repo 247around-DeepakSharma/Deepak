@@ -1642,7 +1642,7 @@ class Service_centers extends CI_Controller {
                     $data['spare_request_symptom'] = $value['spare_request_symptom'];
                     $data['part_requested_on_approval'] = 0;
                     
-                    if($value['part_warranty_status'] == 1){
+                    if($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS){
                         
                         $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
                         $sc_data['internal_status'] = $reason;
@@ -4372,7 +4372,7 @@ class Service_centers extends CI_Controller {
 
                             /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
-                            if ($part_details['part_warranty_status'] !== 2) {
+                            if ($part_details['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $sf_id));
                                 $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $this->input->post('assigned_vendor_id')));
@@ -4418,7 +4418,7 @@ class Service_centers extends CI_Controller {
                                 $spare_id = $response;
                                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
-                                if ($part_details['part_warranty_status'] == 2) {
+                                if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                     $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $data['requested_inventory_id']));
 
@@ -4462,7 +4462,7 @@ class Service_centers extends CI_Controller {
                                     $this->miscelleneous->process_inventory_stocks($data);
                                 }
 
-                                if ($part_details['part_warranty_status'] == 2) {
+                                if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                                     // Send OOW invoice to aditya
                                     $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $spare_id;
                                     $async_data['booking_id'] = $booking_id;

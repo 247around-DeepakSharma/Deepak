@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-md-3 text-center total_balance">
                         <b>Total Balance : </b>
-                        Rs. <span>{{total_balance}}</span>
+                        Rs. <a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/buyback_full_balance"><span>{{total_balance}}</span></a>
                     </div>
                 </div>
             </div>

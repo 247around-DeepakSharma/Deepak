@@ -1818,7 +1818,7 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         } */
         
-        if ($part_warranty_status !=2) {
+        if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1872,7 +1872,7 @@ class Partner extends CI_Controller {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             } */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1905,7 +1905,7 @@ class Partner extends CI_Controller {
                             }                          
                              */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1936,7 +1936,7 @@ class Partner extends CI_Controller {
                             
                         }*/
                         
-                        if($part_warranty_status == 2){
+                        if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
@@ -6142,26 +6142,16 @@ class Partner extends CI_Controller {
         if($spare_id && $booking_unit_id && $booking_id && $updated_price && $vendor_id && $partner_id){
             //Update Spare Table
             $where = array('id' => $spare_id);
-            $spare_oow_est_margin = SPARE_OOW_EST_MARGIN;
-            $repair_oow_vendor_percentage = REPAIR_OOW_VENDOR_PERCENTAGE;
-            $gst_rate = $this->input->post('gst_rate');
-            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id', array('spare_parts_details.id' => $spare_id), true);
-            if(!empty($spare_data)){
-                
-                $part_type = $this->inventory_model->get_inventory_parts_type_details("*", 
-                        array('part_type' => $spare_data[0]['parts_requested_type'], 
-                            'service_id' => $spare_data[0]['service_id']), TRUE);
-                
-                if(!empty($part_type)){
-                    
-                    $spare_oow_est_margin =  ($part_type[0]['oow_around_percentage'] + $part_type[0]['oow_vendor_percentage'])/100;
-                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_percentage'];
-                    $gst_rate = $part_type[0]['gst_rate'];
-                    
-                }
-            }
+            $gst_rate1 = $this->input->post('gst_rate');
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id, requested_inventory_id', array('spare_parts_details.id' => $spare_id), true);
             
-            
+            $margin = $this->inventory_model->get_oow_margin($spare_data[0]['requested_inventory_id'], array('part_type' => $spare_data[0]['parts_requested_type'],
+                    'service_id' => $spare_data[0]['service_id']));
+               
+            $spare_oow_est_margin = $margin['oow_est_margin']/100;
+            $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];
+            //$gst_rate = !(empty($margin['gst_rate']))?$margin['gst_rate']: $gst_rate1;
+
             $data['purchase_price'] = $updated_price;
             $data['sell_price'] = ($updated_price + $updated_price * $spare_oow_est_margin );
             $data['estimate_cost_given_date'] = date('Y-m-d');
