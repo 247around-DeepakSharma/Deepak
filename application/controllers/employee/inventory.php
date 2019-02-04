@@ -2108,8 +2108,14 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->price;
         $row[] = $stock_list->gst_rate."%";
         $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        if($this->session->userdata('userType') == 'employee'){
+            $row[] = $stock_list->oow_vendor_margin." %";
+            $row[] = $stock_list->oow_around_margin." %";
+        }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
+        
+        
         
         return $row;
     }
@@ -2133,7 +2139,9 @@ class Inventory extends CI_Controller {
                       'description' => trim($this->input->post('description')),
                       'service_id' => $this->input->post('service_id'),
                       'entity_type' => $this->input->post('entity_type'),
-                      'entity_id' => $this->input->post('entity_id')
+                      'entity_id' => $this->input->post('entity_id'),
+                      'oow_vendor_margin' => $this->input->post('oow_vendor_margin'),
+                      'oow_around_margin' => $this->input->post('oow_around_margin')
             );
             
             
@@ -5241,7 +5249,7 @@ class Inventory extends CI_Controller {
     
     function get_add_inventory_part_type() {
 
-        $select = "inventory_parts_type.id,oow_around_percentage, oow_vendor_percentage, inventory_parts_type.part_type,inventory_parts_type.service_id,inventory_parts_type.hsn_code_details_id,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
+        $select = "inventory_parts_type.id, inventory_parts_type.part_type,inventory_parts_type.service_id,inventory_parts_type.hsn_code_details_id,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
         $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details($select, array(), TRUE);
 
         $data = array();
@@ -5263,14 +5271,10 @@ class Inventory extends CI_Controller {
         $this->form_validation->set_rules('service_id', 'Select Appliance', 'required');
         $this->form_validation->set_rules('part_type', 'Enter Part Type', 'required');
         $this->form_validation->set_rules('hsn_code', 'Select HSN Code', 'required');
-        $this->form_validation->set_rules('oow_around_percentage', 'Enter Around Margin %', 'required');
-        $this->form_validation->set_rules('oow_vendor_percentage', 'Enter vendor Margin %', 'required');
         if ($this->form_validation->run()) {
             $data['service_id'] = $this->input->post('service_id');
             $data['part_type'] = strtoupper($this->input->post('part_type'));
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
-            $data['oow_around_percentage'] = $this->input->post('oow_around_percentage');
-            $data['oow_vendor_percentage'] = $this->input->post('oow_vendor_percentage');
             if(!empty($this->input->post('service_id') && !empty($this->input->post('part_type')))){
                 $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $data['service_id'],'part_type'=> strtoupper($data['part_type'])),false);
                 if(empty($parts_type_details)){
@@ -5305,8 +5309,6 @@ class Inventory extends CI_Controller {
             $data['service_id'] = $this->input->post('service_id');
             $data['part_type'] = $this->input->post('part_type');
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
-            $data['oow_around_percentage'] = $this->input->post('oow_around_percentage');
-            $data['oow_vendor_percentage'] = $this->input->post('oow_vendor_percentage');
             if (!empty($data)) {
                 $affected_id = $this->inventory_model->update_inventory_parts_type($data, array('id' => $part_type_id));
 
