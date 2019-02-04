@@ -314,9 +314,9 @@ function get_data_for_partner_callback($booking_id) {
 	if (!empty($capacity)) {
 	    $this->db->where('capacity', $capacity);
 	}
-        if(!empty($brand)){
-            $this->db->where('brand', $brand);
-        }
+        //if(!empty($brand)){
+         $this->db->where('brand', $brand);
+        //}
         
         $this->db->order_by('service_category', 'asc');
 

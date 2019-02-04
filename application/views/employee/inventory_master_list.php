@@ -142,6 +142,8 @@
                         <th>Basic Price</th>
                         <th>GST Rate</th>
                         <th>Total Price</th>
+                        <th>Vendor Margin</th>
+                        <th>Around Margin</th>
                         <th>Edit</th>
                         <th>Get Model</th>
                     </tr>
@@ -206,7 +208,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="type">Part Type*</label>
                                     <div class="col-md-7 col-md-offset-1">                                        
-                                        <select class="form-control inventory_part_type" id="part_type" name="type" tabindex="-1" aria-hidden="true">
+                                        <select class="form-control inventory_part_type" id="part_type" name="type" tabindex="-1" aria-hidden="true" required="">
                                             <option selected="" disabled="">Select Partner</option>                                            
                                         </select>
                                     </div>
@@ -253,7 +255,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="" required="">
                                     </div>
                                 </div>
                             </div>
@@ -271,9 +273,28 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number_id">Model Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="model_number_id" name="model_number_id">
+                                        <select class="form-control" id="model_number_id" name="model_number_id" required="">
                                             <option value="" selected="" disabled="">Please Select Model</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="serial_number">Vendor Margin</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" value="15" id="oow_vendor_margin" name="oow_vendor_margin" placeholder="Vendor Margin">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="model_number_div">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="model_number_id">Around Margin*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" value="15" id="oow_around_margin" name="oow_around_margin" placeholder="Around Margin">
                                     </div>
                                 </div>
                             </div>
@@ -561,6 +582,9 @@
         $('#edit_part_type_modal_id').val(form_data.type);
         $('#description').val(form_data.description);
         $('#inventory_id').val(form_data.inventory_id);
+        $('#inventory_id').val(form_data.inventory_id);
+        $('#oow_vendor_margin').val(form_data.oow_vendor_margin);
+        $('#oow_around_margin').val(form_data.oow_around_margin);
         $('#master_list_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
         $('#inventory_master_list_data').modal('toggle');

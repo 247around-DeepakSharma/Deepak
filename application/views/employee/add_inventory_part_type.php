@@ -93,9 +93,9 @@
             <table class="table">
                 <thead>
                     <tr>                 
-                        <th>Appliances</th>                       
-                        <th>Inventory Part Type</th>  
-                         <th>HSN Code</th>
+                        <th>Appliances *</th>                       
+                        <th>Inventory Part Type *</th>   
+                        <th>HSN Code *</th>
                     </tr>
                 </thead>
                 <tbody>                 
@@ -124,15 +124,15 @@
                 <form name="myForm" class="form-horizontal" id ="brackets" method="POST" action='<?php echo base_url() ?>employee/inventory/process_add_inventory_part_type_form'>
                         <tr>                    
                             <td>
-                                <select class="form-control" id="service_id" name="service_id">
+                                <select class="form-control" id="service_id" name="service_id" required="">
                                     <option selected="" disabled="">Select Appliance</option>  
                                 </select>
                             </td>                            
                             <td>
-                                <input typt='text' name="part_type" id = "part_type" class="form-control" placeholder="Please Enter Part Type" style="text-transform: uppercase;" />
+                                <input typt='text' name="part_type" id = "part_type" class="form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;" required=""/>
                             </td>
                             <td>
-                               <select  id="hsn_code" name="hsn_code">                                   
+                                <select  id="hsn_code" name="hsn_code" required="">                                   
                                     <option selected="" disabled="">Select HSN Code</option>  
                                 </select>
                             </td>
@@ -202,7 +202,7 @@
             </div>
             <div class="form-group">
               <label for="psw"></span> Inventory Part Type</label>
-              <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" />
+              <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;"  required=""/>
               <span id="part_type_modal_err"></span>
             </div>
               <div class="form-group">
@@ -261,13 +261,14 @@
     
     $(".part_type").on('click',function(){
         var parts_type_details = $(this).attr("data-parts-type");
-        part_type_obj = JSON.parse(parts_type_details);
-        part_type_id = part_type_obj['id'];
-        service_id = part_type_obj['service_id'];
-        part_type = part_type_obj['part_type'];
-        hsn_code_details_id = part_type_obj['hsn_code_details_id']; 
+        var part_type_obj = JSON.parse(parts_type_details);
+        var part_type_id = part_type_obj['id'];
+        var service_id = part_type_obj['service_id'];
+        var part_type = part_type_obj['part_type'];
+        var hsn_code_details_id = part_type_obj['hsn_code_details_id']; 
         $("#part_type_modal").val(part_type);
-        $("#part_type_id").val(part_type_id)
+        $("#part_type_id").val(part_type_id);
+        
         get_hsn_code('hsn_code_modal',hsn_code_details_id);    
         get_services('service_id_modal',service_id);         
          $("#myModal").modal();        
@@ -315,10 +316,11 @@
                 success: function(data) {
                     if(data){
                         $("#update_status").html("Sucess").css('color','green');
-                        $("#td_service_id_"+data['id']).html(data['service_name']);
-                        $("#td_part_type_id_"+data['id']).html(data['part_type']);
-                        $("#td_hsncode_id_"+data['id']).html(data['hsn_code']);
+                        $("#td_service_id_"+data['id']).text(data['service_name']);
+                        $("#td_part_type_id_"+data['id']).text(data['part_type']);
+                        $("#td_hsncode_id_"+data['id']).text(data['hsn_code']);
                         $("#myModal").hide();    
+                        location.reload();
                     }else{
                        $("#update_status").html("Failed").css('color','red'); 
                     }
