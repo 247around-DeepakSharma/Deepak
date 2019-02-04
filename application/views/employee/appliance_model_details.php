@@ -88,8 +88,8 @@
                     <h3>Appliance Model List</h3>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-primary pull-right" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-pencil-square-o"></i></a>
-                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus"></i></a>
+                    <a class="btn btn-primary pull-right" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-files-o" style="margin-right:5px"></i>Map Model</a>
+                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus" style="margin-right:5px"></i>Add New Model</a>
                 </div>
             </div>
         </div>
@@ -225,7 +225,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_entity_id">Partner*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="model_entity_id" name="model_entity_id">
+                                        <select class="form-control" id="model_entity_id" name="model_entity_id" onchange="get_mapping_services()">
                                         </select>
                                     </div>
                                 </div>
@@ -234,7 +234,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="mapping_service_id">Service*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="mapping_service_id" name="mapping_service_id">
+                                        <select class="form-control" id="mapping_service_id" name="mapping_service_id" onchange="get_mapping_category()">
                                               <option selected disabled>Select Service</option>
                                         </select>
                                     </div>
@@ -256,8 +256,8 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="mapping_category">Category*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="mapping_category" name="mapping_category">
-                                              <option selected disabled>Select Category</option>
+                                        <select class="form-control" id="mapping_category" name="mapping_category" onchange="get_mapping_capacity()">
+                                            <option selected disabled>Select Category</option>
                                         </select>
                                     </div>
                                 </div>
@@ -279,7 +279,7 @@
                                     <label class="control-label col-md-4" for="mapping_model_number">Model Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="mapping_model_number" name="mapping_model_number">
-                                              <option selected disabled>Select Model Number</option>
+                                             <option selected disabled>Select Model Number</option>
                                         </select>
                                     </div>
                                 </div>
@@ -566,10 +566,11 @@
                 $('#model_entity_id').select2();
             }
         });
+        //$("#mapping_service_id, #mapping_model_number, #mapping_brand, #mapping_category, #mapping_capacity").val(null).trigger('change');
         $('#map_appliance_model').modal('toggle');
     });
     
-    $("#model_entity_id").change(function(){ 
+    function get_mapping_services(){ 
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
@@ -579,14 +580,15 @@
                 $('#mapping_service_id').select2();
             }
         });
-    });
+    }
     
-    $("#mapping_service_id").change(function(){
+    function get_mapping_category(){
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_brands_from_service',
             data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
             success:function(response){
+                response = "<option disabled selected>Select Brand</option>"+response;
                 $('#mapping_brand').html(response);
                 $('#mapping_brand').select2();
             }
@@ -597,6 +599,7 @@
             url:'<?php echo base_url();?>employee/partner/get_category_from_service',
             data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
             success:function(response){
+                response = "<option disabled selected>Select Category</option>"+response;
                 $('#mapping_category').html(response);
                 $('#mapping_category').select2();
             }
@@ -613,19 +616,20 @@
                 }
             }
         });
-    });
+    }
     
-    $("#mapping_category").change(function(){
+    function get_mapping_capacity(){
          $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_capacity_for_partner',
             data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val(), category:$('#mapping_category').val()},
             success:function(response){
+                response = "<option disabled selected>Select Capacity</option>"+response;
                 $('#mapping_capacity').html(response);
                 $('#mapping_capacity').select2();
             }
         });
-    });
+    }
     
     function model_number_mapping(){
         if(!$("#model_entity_id").val()){

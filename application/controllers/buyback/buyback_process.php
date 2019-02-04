@@ -2074,17 +2074,39 @@ class Buyback_process extends CI_Controller {
     }
     
     function get_bb_svc_balance(){
-        $this->table = 'bb_svc_balance';
-        $this->select = 'tv_balance,la_balance,mobile_balance,(tv_balance+la_balance+mobile_balance) as total_balance';
-        $this->order_by = array('create_date' => 'DESC');
-        $this->limit = array('length' => 1,'start' => 0);
-        $data = $this->reusable_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by,NULL,NULL);
-        if(!empty($data)){
-            $response = $data->result_array()[0];
-        }else{
-            $response = "no data found";
+        $where = array();
+        if($this->input->post('dateRange')){
+            $dateRangeArray = explode(" - ",$this->input->post('dateRange'));
+            $where['create_date >= "'.date('Y-m-d',strtotime($dateRangeArray[0])).'"'] = NULL;
+            $where['create_date <= "'.date('Y-m-d',strtotime($dateRangeArray[1])).'"'] = NULL;
         }
-        echo json_encode($response);
+        $this->table = 'bb_svc_balance';
+        $this->select = 'tv_balance,la_balance,mobile_balance,(tv_balance+la_balance+mobile_balance) as total_balance,date(create_date) as date';
+        $this->order_by = array('create_date' => 'DESC');
+        $data = $this->reusable_model->get_search_query($this->table,$this->select , $where,NULL, NULL ,$this->order_by,NULL,NULL);
+        if(empty($where)){
+            if(!empty($data)){
+                $response = $data->result_array()[0];
+            }else{
+                $response = "no data found";
+            }
+            echo json_encode($response);
+        }
+        else{
+            $balanceArray = $data->result_array();
+            $count = count($data->result_array($balanceArray));
+            $html ='';
+            for($i=0;$i<$count;$i++){
+                $html .= '<tr>';
+                $html .= '<td>'.$balanceArray[$i]['date'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['tv_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['la_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['mobile_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['total_balance'].'</td>';
+                $html .= '<tr>';
+            }
+            echo $html;
+        }
     }
     
     
@@ -2231,4 +2253,9 @@ class Buyback_process extends CI_Controller {
 //            }
 //        }
 //    }
+        function buyback_full_balance(){
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $this->load->view('buyback/balance_full_view');
+            $this->load->view('dashboard/dashboard_footer');
+        }
 }

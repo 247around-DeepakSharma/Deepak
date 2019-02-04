@@ -2442,6 +2442,23 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . " End" );
     }
 
+    function process_buyback_cp_credit_note_detailed_file(){
+        log_message('info', __FUNCTION__ . " Entering...." );
+        $temp['file'] = $_FILES['invoice_detailed_excel'];
+        $data = $this->miscelleneous->excel_to_Array_converter($temp,NULL,0);
+        log_message('info', __FUNCTION__ . " File Data".print_r($data,true) );
+        $count = count($data);
+        for($i= 0 ;$i<$count-1;$i++){
+            if($data[$i]['Orderid']){
+                $where['partner_order_id'] =  $data[$i]['Orderid'];
+                $updateDataArray['cp_discount'] = $data[$i]['AmazonPrice'];
+                $updateDataArray['cp_credit_note_invoice'] = $this->input->post('invoice_id');
+                 log_message('info', __FUNCTION__ . " File where".print_r($where,true). "Update Data".print_r($updateDataArray,true));
+                $this->bb_model->update_bb_unit_details($where,$updateDataArray);
+            }
+        }
+        log_message('info', __FUNCTION__ . " End" );
+    }
     /**
      * @desc: Update/ Insert Partner Invoice Details from panel
      * @param String $vendor_partner
@@ -2585,6 +2602,10 @@ class Invoice extends CI_Controller {
                     if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT) 
                             && ($this->input->post('vendor_partner_id') == AMAZON_SELLER_ID) ){
                         $this->process_buyback_reimburshment_detailed_file();
+                    }
+                    //Process Detailed File For buyback CP Credit note
+                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_CP_CREDIT_NOTE_SUBCAT) && ($this->input->post('around_type') == 'B')){
+                        $this->process_buyback_cp_credit_note_detailed_file();
                     }
                     log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
                 } else {
@@ -3642,15 +3663,33 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id";
+        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
+            
+            $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
+            
+            $inventory_id = "";
+            if(!empty($sp_data[0]->shipped_inventory_id)){
+                
+                $inventory_id = $sp_data[0]->shipped_inventory_id;
+                
+            } else if($sp_data[0]->requested_inventory_id){
+                
+                $inventory_id = $sp_data[0]->requested_inventory_id;
+            }
+            
+            $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $ptype,
+                    'service_id' => $sp_data[0]->service_id));
+               
+            $repair_around_oow_percentage = $margin['oow_vendor_margin']/100;
+            
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
-            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * REPAIR_OOW_AROUND_PERCENTAGE;
+            $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
             $data[0]['taxable_value'] = ($amount - $tax_charge);
             $data[0]['product_or_services'] = "Product";
