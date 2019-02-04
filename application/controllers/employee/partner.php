@@ -1818,7 +1818,7 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         } */
         
-        if ($part_warranty_status !=2) {
+        if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1872,7 +1872,7 @@ class Partner extends CI_Controller {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             } */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1905,7 +1905,7 @@ class Partner extends CI_Controller {
                             }                          
                              */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1936,7 +1936,7 @@ class Partner extends CI_Controller {
                             
                         }*/
                         
-                        if($part_warranty_status == 2){
+                        if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
