@@ -2987,7 +2987,7 @@ class Inventory extends CI_Controller {
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
-                    'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
+                    'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
                     $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
