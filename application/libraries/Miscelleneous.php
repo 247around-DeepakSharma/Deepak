@@ -1500,8 +1500,8 @@ class Miscelleneous {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
-            $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
-            $notFoundSfArray['state'] = $result[0]['state'];
+           // $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
+            $notFoundSfArray['state'] = $result[0]['state_id'];
             $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
             $rm_email = $query->result_array();
             if (empty($rm_email)) {
@@ -1522,8 +1522,8 @@ class Miscelleneous {
                         $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
-                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
-                        $notFoundSfArray['state'] = $resultTemp[0]['state'];
+                       // $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
                         $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);

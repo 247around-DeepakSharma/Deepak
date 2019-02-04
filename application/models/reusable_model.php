@@ -108,7 +108,7 @@ class reusable_model extends CI_Model {
     }
     
     function get_rm_for_pincode($pincode){
-        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
+        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
 FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
