@@ -210,7 +210,7 @@ class File_upload extends CI_Controller {
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate');
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', 'around_margin', 'vendor_margin');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
 
@@ -225,27 +225,34 @@ class File_upload extends CI_Controller {
 
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-               
-                    $where['hsn_code'] = $rowData['hsn_code'];
-                    $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
-                                        
-                    if(!empty($service_id) && !empty($rowData['part_type'])){
-                        $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=> strtoupper($rowData['part_type'])),false);
-                        if(empty($parts_type_details)){
-                            $parts_data['service_id'] = $service_id;
-                            $parts_data['part_type'] = strtoupper($rowData['part_type']);
-                            $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
-                            if(!empty($parts_data)){
-                                $this->inventory_model->insert_inventory_parts_type($parts_data);
+                    if($rowData['around_margin'] > 0 && $rowData['vendor_margin'] > 0){
+                        $where['hsn_code'] = $rowData['hsn_code'];
+                        $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
+
+                        if(!empty($service_id) && !empty($rowData['part_type'])){
+                            $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $service_id,'part_type'=> ucwords($rowData['part_type'])),false);
+                            if(empty($parts_type_details)){
+                                    $parts_data['service_id'] = $service_id;
+                                    $parts_data['part_type'] = ucwords($rowData['part_type']);
+                                    $parts_data['hsn_code_details_id'] = $hsncode_data[0]['id'];                            
+                                if(!empty($parts_data)){
+                                    $this->inventory_model->insert_inventory_parts_type($parts_data);
+                                }
+
                             }
                         }
-                    }
-
-                    if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
+                        
+                        if ($rowData['gst_rate'] != $hsncode_data[0]['gst_rate']) {
+                            $flag = 0;
+                            $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
+                            break;
+                        }
+                    } else {
                         $flag = 0;
-                        $msg = "GST Rate of HSN Code (" . $rowData['hsn_code'] . ") should be " . $hsncode_data[0]['gst_rate'];
+                        $msg = "Around & Vendor Margin % should be greater than zero";
                         break;
-                    }                                          
+                    }
+                                          
                     if ($flag == 1) {
                         $rowData['service_id'] = $service_id;
                         //array_push($file_appliance_arr, $rowData['appliance']);
@@ -254,7 +261,7 @@ class File_upload extends CI_Controller {
                          * based on partner_id,service_id and unique number
                          */
 
-                        if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price'])) {
+                        if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price']) && $rowData['around_margin'] > 0 && $rowData['vendor_margin'] > 0) {
                             if (empty($rowData['part_number'])) {
                                 $new_part_number = $this->create_inventory_part_number($partner_id, $service_id, $rowData);
                                 $rowData['part_number'] = $new_part_number;
@@ -407,6 +414,8 @@ class File_upload extends CI_Controller {
         $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;
         $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']):null;
         $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']):null;
+        $tmp_data['oow_vendor_margin'] = (isset($data['vendor_margin']) && !empty($data['vendor_margin'])) ? trim($data['vendor_margin']):REPAIR_OOW_VENDOR_PERCENTAGE;
+        $tmp_data['oow_around_margin'] = (isset($data['around_margin']) && !empty($data['around_margin'])) ? trim($data['around_margin']):(REPAIR_OOW_AROUND_PERCENTAGE * 100);
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
         

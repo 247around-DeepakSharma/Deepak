@@ -93,9 +93,11 @@
             <table class="table">
                 <thead>
                     <tr>                 
-                        <th>Appliances</th>                       
-                        <th>Inventory Part Type</th>  
-                         <th>HSN Code</th>
+                        <th>Appliances *</th>                       
+                        <th>Inventory Part Type *</th>  
+                        <th>Around OOW % *</th>
+                        <th>Vendor OOW % *</th>  
+                        <th>HSN Code *</th>
                     </tr>
                 </thead>
                 <tbody>                 
@@ -124,15 +126,21 @@
                 <form name="myForm" class="form-horizontal" id ="brackets" method="POST" action='<?php echo base_url() ?>employee/inventory/process_add_inventory_part_type_form'>
                         <tr>                    
                             <td>
-                                <select class="form-control" id="service_id" name="service_id">
+                                <select class="form-control" id="service_id" name="service_id" required="">
                                     <option selected="" disabled="">Select Appliance</option>  
                                 </select>
                             </td>                            
                             <td>
-                                <input typt='text' name="part_type" id = "part_type" class="form-control" placeholder="Please Enter Part Type" style="text-transform: uppercase;" />
+                                <input typt='text' name="part_type" id = "part_type" class="form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;" required=""/>
                             </td>
                             <td>
-                               <select  id="hsn_code" name="hsn_code">                                   
+                                <input typt='number' name="oow_around_percentage" id = "oow_around_percentage" class="form-control" placeholder="Please Enter Around Margin %" step="any" required="" />
+                            </td>
+                            <td>
+                                <input typt='number' name="oow_vendor_percentage" id = "oow_vendor_percentage" class="form-control" placeholder="Please Enter Part Vendor Margin %" step="any" required=""/>
+                            </td>
+                            <td>
+                                <select  id="hsn_code" name="hsn_code" required="">                                   
                                     <option selected="" disabled="">Select HSN Code</option>  
                                 </select>
                             </td>
@@ -155,6 +163,8 @@
          <th class="text-center">Id</th>
          <th class="text-center">Services</th>
          <th class="text-center"> Part Type </th>
+         <th class="text-center"> Around Margin % </th>
+         <th class="text-center"> Vendor Margin % </th>
          <th class="text-center"> HSN Code </th>         
          <th class="text-center">Action</th>
       </tr>
@@ -168,6 +178,12 @@
          </td>
          <td style="text-align: center;" id="td_part_type_id_<?php echo $val['id']; ?>">                                            
            <?php echo $val['part_type'];  ?>
+         </td>
+         <td style="text-align: center;" id="td_oow_around_percentage_id_<?php echo $val['id']; ?>">                                            
+           <?php echo $val['oow_around_percentage'];  ?>
+         </td>
+         <td style="text-align: center;" id="td_oow_vendor_percentage_id_<?php echo $val['id']; ?>">                                            
+           <?php echo $val['oow_vendor_percentage'];  ?>
          </td>
          <td style="text-align: center;" id="td_hsncode_id_<?php echo $val['id']; ?>">                                            
            <?php echo $val['hsn_code']; ?>
@@ -202,8 +218,18 @@
             </div>
             <div class="form-group">
               <label for="psw"></span> Inventory Part Type</label>
-              <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" />
+              <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;"  required=""/>
               <span id="part_type_modal_err"></span>
+            </div>
+              <div class="form-group">
+              <label ></span> Around Margin %</label>
+              <input typt='number' name="oow_around_percentage" id = "oow_around_percentage_modal" class = "form-control" placeholder="Please Enter Around Margin %" step="any" required=""/>
+              <span id="part_type_modal_err"></span>
+            </div>
+                <div class="form-group">
+              <label ></span> Vendor Margin %</label>
+              <input typt='number' name="oow_vendor_percentage" id = "oow_vendor_percentage_modal" class = "form-control" placeholder="Please Enter Vendor Margin %" step="any" required=""/>
+              <span id="oow_vendor_percentage_modal_err"></span>
             </div>
               <div class="form-group">
               <label for="psw"></span> HSN Code</label>
@@ -261,13 +287,18 @@
     
     $(".part_type").on('click',function(){
         var parts_type_details = $(this).attr("data-parts-type");
-        part_type_obj = JSON.parse(parts_type_details);
-        part_type_id = part_type_obj['id'];
-        service_id = part_type_obj['service_id'];
-        part_type = part_type_obj['part_type'];
-        hsn_code_details_id = part_type_obj['hsn_code_details_id']; 
+        var part_type_obj = JSON.parse(parts_type_details);
+        var part_type_id = part_type_obj['id'];
+        var service_id = part_type_obj['service_id'];
+        var part_type = part_type_obj['part_type'];
+        var hsn_code_details_id = part_type_obj['hsn_code_details_id']; 
+        var oow_around_percentage = part_type_obj['oow_around_percentage'];
+        var oow_vendor_percentage = part_type_obj['oow_vendor_percentage'];
         $("#part_type_modal").val(part_type);
-        $("#part_type_id").val(part_type_id)
+        $("#part_type_id").val(part_type_id);
+        $("#oow_around_percentage_modal").val(oow_around_percentage);
+        
+        $("#oow_vendor_percentage_modal").val(oow_vendor_percentage);
         get_hsn_code('hsn_code_modal',hsn_code_details_id);    
         get_services('service_id_modal',service_id);         
          $("#myModal").modal();        
@@ -315,9 +346,11 @@
                 success: function(data) {
                     if(data){
                         $("#update_status").html("Sucess").css('color','green');
-                        $("#td_service_id_"+data['id']).html(data['service_name']);
-                        $("#td_part_type_id_"+data['id']).html(data['part_type']);
-                        $("#td_hsncode_id_"+data['id']).html(data['hsn_code']);
+                        $("#td_service_id_"+data['id']).text(data['service_name']);
+                        $("#td_part_type_id_"+data['id']).text(data['part_type']);
+                        $("#td_hsncode_id_"+data['id']).text(data['hsn_code']);
+                        $("#td_oow_around_percentage_id_"+data['id']).text(data['oow_around_percentage']);
+                        $("#td_oow_vendor_percentage_id_"+data['id']).text(data['oow_vendor_percentage']);
                         $("#myModal").hide();    
                     }else{
                        $("#update_status").html("Failed").css('color','red'); 

@@ -276,8 +276,8 @@ ini_set('max_execution_time', 36000000);
                                 <?php if(isset($invoicing_summary[0]['prepaid_data'])){ ?>
                                 <td></td>
                                 <?php } ?>
-                                <td><?php echo -$foc; ?></td>
-                                <td><?php echo $cash; ?></td>
+                                <td><?php echo -sprintf("%.2f", $foc); ?></td>
+                                <td><?php echo sprintf("%.2f", $cash); ?></td>
                                 <td></td>
                                 <?php if (isset($service_center)) { ?>
                                 <td></td>
