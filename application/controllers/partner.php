@@ -1165,7 +1165,7 @@ class Partner extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
         // Save Data in booking History Table
-        $this->notify->insert_state_change($booking_id,$booking['current_status'] , "Pending", "Cancelled By Partner API", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME,$booking['actor'],$booking['next_action'], _247AROUND);
+        $this->notify->insert_state_change($booking_id,$booking['current_status'] , _247AROUND_PENDING, CANCELLED_BY_PARTNER_API, _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME,$booking['actor'],$booking['next_action'], _247AROUND);
         $this->service_centers_model->update_service_centers_action_table($booking_id, $details);
         return TRUE;
     }

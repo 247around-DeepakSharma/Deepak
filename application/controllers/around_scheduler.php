@@ -2130,7 +2130,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $table = $this->table->generate($data);
             $template = $this->booking_model->get_booking_email_template(PENALTY_SUMMARY);
             if(!empty($template)){
-                $employee = $this->employee_model->get_employee_by_group(array("groups = 'admin' OR groups = 'regionalmanager'"=>NULL));
+                $employee = $this->employee_model->get_employee_by_group(array("active"=>1,"groups = 'admin' OR groups = 'regionalmanager'"=>NULL));
                 $to = "";
                 foreach ($employee as $key => $value) {
                     $to .= $value['official_email'].",";
