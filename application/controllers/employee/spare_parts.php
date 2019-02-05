@@ -704,7 +704,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_request))?'0 Days':$spare_list->age_of_request." Days";
-        $c_tag = ($spare_list->part_warranty_status == 2 && $spare_list->status != SPARE_PARTS_REQUESTED)? "QUOTE_REQUEST_REJECTED":"CANCEL_PARTS";
+        $c_tag = ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $spare_list->status != SPARE_PARTS_REQUESTED)? "QUOTE_REQUEST_REJECTED":"CANCEL_PARTS";
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$c_tag.'" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button>';
         if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
@@ -732,7 +732,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_request))?'0 Days':$spare_list->age_of_request." Days";
         $row[] = $spare_list->spare_request_symptom;
-        $c_tag = ($spare_list->part_warranty_status == 2 && $spare_list->status != SPARE_PARTS_REQUESTED)? "QUOTE_REQUEST_REJECTED":"CANCEL_PARTS";
+        $c_tag = ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $spare_list->status != SPARE_PARTS_REQUESTED)? "QUOTE_REQUEST_REJECTED":"CANCEL_PARTS";
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$c_tag.'" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button>';
         if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS'; $cl = "btn-danger"; }
         $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
@@ -1382,7 +1382,7 @@ class Spare_parts extends CI_Controller {
                 
                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty*/
                 
-                 if ($part_warranty_status == 2) {
+                 if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                  }else{
@@ -1427,7 +1427,7 @@ class Spare_parts extends CI_Controller {
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                                                            
-                       if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 && $part_warranty_status == 1) {
+                       if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
@@ -1610,6 +1610,130 @@ class Spare_parts extends CI_Controller {
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
+    }
+    
+    /**
+     *  @desc : This function is used to tag courier details by invoice ids
+     *  @return : void();
+     */
+    function tag_courier_details_by_invoice_ids() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/tag_courier_details_by_invoice_id',$data);
+    }        
+    /**
+     *  @desc : This function is used to tag courier details by invoice ids
+     *  @return : void();
+     */
+    function process_to_update_courier_details_by_invoice_ids() {
+
+        $this->form_validation->set_rules('awb_by_wh', 'Enter AWB Number', 'required');
+        $this->form_validation->set_rules('courier_name_by_wh', 'Select Courier Name', 'required');
+        $this->form_validation->set_rules('courier_price_by_wh', 'Enter Courier Price', 'required');
+        $this->form_validation->set_rules('defective_parts_shippped_date_by_wh', 'Enter Shipped Date', 'required');
+        $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
+
+        if ($this->form_validation->run()) {
+            $invoice_ids = trim($this->input->post('invoice_ids'));
+            $courier_details['AWB_no'] = $this->input->post('awb_by_wh');
+            $courier_details['courier_name'] = $this->input->post('courier_name_by_wh');
+            $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $exist_courier_image = $this->input->post('exist_courier_image');
+            $bulk_courier_price = $this->input->post('courier_price_by_wh');
+
+            if (!empty($invoice_ids)) {
+                $invoice_ids_arr = explode(',', $invoice_ids);
+                $total_invoice_id = count($invoice_ids_arr);
+            }
+
+            $courier_id_arr = array();
+            $select = 'id, invoice_id, courier_id';
+            $flag = true;
+            foreach ($invoice_ids_arr as $kay => $val) {
+                $where = array('invoice_id' => $val);
+                $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
+                if (!empty($inventory_ledger)) {
+                    $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+                } else {
+                    $flag = false;
+                    break;
+                }
+            }
+           
+            if ($flag) {
+
+                if ($total_invoice_id > 1) {
+                    $courier_details['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                } else {
+                    $courier_details['courier_charge'] = $bulk_courier_price;
+                }
+
+                if (!empty($exist_courier_image)) {
+                    $courier_file['message'] = $exist_courier_image;
+                } else {
+                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                }
+
+                $courier_details['courier_file'] = $courier_file['message'];
+
+                foreach ($courier_id_arr as $key => $courier_id) {
+                    $affected_id = $this->inventory_model->update_courier_detail(array('id' => $courier_id), $courier_details);
+                }
+            } else {
+                $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                redirect(base_url() . "employee/spare_parts/tag_courier_details_by_invoice_ids");
+            }
+
+            if ($affected_id) {
+                $this->session->set_userdata(array('success' => 'Successfuly Updated.'));
+                redirect(base_url() . "employee/spare_parts/tag_courier_details_by_invoice_ids");
+            }
+        } else {
+            //Setting success session data 
+            $this->session->set_userdata(array('error' => 'Please Fill Form Details.'));
+            redirect(base_url() . "employee/spare_parts/tag_courier_details_by_invoice_ids");
+        }
+    }
+
+    /**
+     *  @desc : This function is used to updater upload the defective spare shipped by warehouse courier file
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function upload_defective_parts_shipped_courier_file($file_details) {
+        log_message("info",__METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['file']['size'] <= 2 * $MB) {
+                $allowed = array('pdf','jpg','png','jpeg');
+                $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['file']['name']));
+
+                    $file_name = 'defective_spare_courier_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
     }
 
 }
