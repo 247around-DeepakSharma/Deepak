@@ -2323,9 +2323,9 @@ class Service_centers extends CI_Controller {
                 $booking_id = $this->input->post('booking_id');
                 $partner_id = $this->input->post('booking_partner_id');
 
-                if (!empty($sp_id) && $sp_id != '') {
+                if (!empty($sp_id)) {
                     
-                    if (!empty($sp_id)) {
+                    if (!empty($this->input->post('courier_charges_by_sf'))) {
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                     } else {
                         $data['courier_charges_by_sf'] = 0;
