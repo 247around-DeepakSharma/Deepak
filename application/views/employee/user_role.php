@@ -55,7 +55,7 @@
          $isActiveString ='';
          $linkString ='';
          $parentName = array();
-         if($headerMenuData['parent_ids'] != ''){ 
+         if($headerMenuData['parent_ids'] != '' && !empty($header_navigation["id_".$headerMenuData['parent_ids']])){ 
             $parentString = $header_navigation["id_".$headerMenuData['parent_ids']]['title'];
          }
           if($headerMenuData['groups'] != ''){
