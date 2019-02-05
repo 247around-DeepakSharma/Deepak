@@ -1107,7 +1107,7 @@ class Invoice_lib {
                 'around_royalty' => (isset($response['meta']['around_royalty']))?$response['meta']['around_royalty']:0,
                 'due_date' => (isset($response['meta']['due_date']))? date('Y-m-d', strtotime($response['meta']['due_date'])): date('Y-m-d', strtotime("+1 month")),
                 //Amount needs to be collected from Vendor
-                'amount_collected_paid' => ($type =="A")?$response['meta']['sub_total_amount']:(0-$response['meta']['sub_total_amount']),
+                'amount_collected_paid' => ($type_code =="A")?$response['meta']['sub_total_amount']:(0-$response['meta']['sub_total_amount']),
                 //add agent_id
                 'agent_id' => $agent_id,
                 "cgst_tax_rate" => (isset($response['meta']['cgst_tax_rate']))?$response['meta']['cgst_tax_rate']:0,
