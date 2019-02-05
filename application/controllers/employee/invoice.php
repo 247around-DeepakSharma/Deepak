@@ -2597,11 +2597,12 @@ class Invoice extends CI_Controller {
                 if ($status) {
                     //Process Detailed File For buyback Reimburshment
                     if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT) 
-                            && ($this->input->post('vendor_partner_id') == AMAZON_SELLER_ID) ){
+                            && ($this->input->post('vendor_partner_id') == AMAZON_SELLER_ID) && $_FILES['invoice_detailed_excel']['tmp_name'] ){
                         $this->process_buyback_reimburshment_detailed_file();
                     }
                     //Process Detailed File For buyback CP Credit note
-                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_CP_CREDIT_NOTE_SUBCAT) && ($this->input->post('around_type') == 'B')){
+                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_CP_CREDIT_NOTE_SUBCAT) && 
+                            ($this->input->post('around_type') == 'B') && $_FILES['invoice_detailed_excel']['tmp_name']){
                         $this->process_buyback_cp_credit_note_detailed_file();
                     }
                     log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
