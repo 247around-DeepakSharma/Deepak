@@ -592,7 +592,12 @@ class Booking extends CI_Controller {
         $booking['booking_address'] = trim($this->input->post('home_address'));
         $booking['city'] = trim($this->input->post('city'));
         $booking_date = $this->input->post('booking_date');
-        $booking['partner_source'] = $this->input->post('partner_source');
+        if($this->input->post('partner_source')){
+            $booking['partner_source'] = $this->input->post('partner_source');
+        }
+        else{
+            $booking['partner_source'] = NULL;
+        }
         $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
         $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
         // select state, taluk, district by pincode
