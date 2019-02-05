@@ -160,7 +160,7 @@
                         <th>Booking Id</th>
                         <th>User Name / Phone Number</th>
                         <th>Service Name</th>
-                        <th>Brand Name</th>
+                        <th>Brand</th>
                         <th>Booking Date</th>
                         <th>Booking Age</th>
                         <th>Status</th>
