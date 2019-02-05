@@ -187,141 +187,155 @@ class Do_background_process extends CI_Controller {
             log_message('info', "Booking Id " . print_r($booking_id, TRUE));
             
             $data = $this->booking_model->getbooking_charges($booking_id);
-            $current_status = _247AROUND_CANCELLED;
-
-            $upcountry_charges = 0;
-            log_message('info', ": " . " service center data " . print_r($data, TRUE));
-
-            foreach ($data as $key => $value) {
-                $current_status1 = _247AROUND_CANCELLED;
-                if ($value['internal_status'] == _247AROUND_COMPLETED) {
-                    $current_status1 = _247AROUND_COMPLETED;
-                    $current_status = _247AROUND_COMPLETED;
+            $len = count($data);
+            $shouldProcess = TRUE;
+            for($c=0; $c<$len;$c++){
+                $expectredValuesArray = array(_247AROUND_CANCELLED,_247AROUND_COMPLETED);
+                echo $data[$c]['internal_status'];
+                if(!in_array($data[$c]['internal_status'], $expectredValuesArray)){
+                    $shouldProcess = FALSE;
                 }
-
-                if ($key == 0) {
-                    $upcountry_charges = $value['upcountry_charges'];
-                }
-
-                if (!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])) {
-                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
-                            "   Admin:-  " . $value['admin_remarks'];
-                } else if (!empty($value['service_center_remarks']) && empty($value['admin_remarks'])) {
-                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
-                } else if (empty($value['service_center_remarks']) && !empty($value['admin_remarks'])) {
-                    $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
-                } else {
-                    $service_center['closing_remarks'] = "";
-                }
-
-                $service_center['current_status'] = $current_status1;
-                $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
-                $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
-                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
-
-//            if (is_null($value['closed_date'])) {
-//                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
-//            } else {
-//                $unit_details['ud_closed_date'] = $value['closed_date'];
-//            }
-
-                log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-
-                $this->vendor_model->update_service_center_action($booking_id, $service_center);
-                $unit_details['serial_number'] = $value['serial_number'];
-                $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
-                $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
-                $unit_details['customer_paid_parts'] = $value['parts_cost'];
-                $unit_details['is_broken'] = $value['is_broken'];
-                $unit_details['serial_number_pic'] = $value['serial_number_pic'];
-                $unit_details['sf_model_number'] = $value['model_number'];
-                
-                if(!empty($value['serial_number_pic'])){
-                    
-                   $is_inserted =$this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
-                       "serial_number" => $value['serial_number'], "active" =>1, "added_by" => "vendor" ));
-                    $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
-                   if(!empty($is_inserted) && in_array($partner_id, $serialNumberMandatoryPartners)){
-                       //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
-                   } 
-                }
-
-                log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
-                // update price in the booking unit details page
-                $this->booking_model->update_unit_details($unit_details);
-                $this->miscelleneous->update_serial_number_in_appliance_details($unit_details['id']);
             }
+            if($shouldProcess){
+                    $current_status = _247AROUND_CANCELLED;
 
-            $booking['closed_date'] = date("Y-m-d H:i:s");
-//        if (is_null($value['closed_date'])) {
-//            $booking['closed_date'] = date("Y-m-d H:i:s");
-//        } else {
-//            $booking['closed_date'] = $value['closed_date'];
-//        }
+                    $upcountry_charges = 0;
+                    log_message('info', ": " . " service center data " . print_r($data, TRUE));
 
-            $booking['current_status'] = $current_status;
-            $booking['internal_status'] = $current_status;
-            $booking['amount_paid'] = $data[0]['amount_paid'];
-            $booking['closing_remarks'] = $service_center['closing_remarks'];
-            $booking['cancellation_reason'] = NULL;
-            $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
-            $booking['update_date'] = date('Y-m-d H:i:s');
-            $booking['approved_by'] = $approved_by;
-            
-            $booking['completion_symptom'] = $data[0]['technical_problem'];
-            $booking['technical_solution'] = $data[0]['technical_solution'];
-            //update booking_details table
-            log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
+                    foreach ($data as $key => $value) {
+                        $current_status1 = _247AROUND_CANCELLED;
+                        if ($value['internal_status'] == _247AROUND_COMPLETED) {
+                            $current_status1 = _247AROUND_COMPLETED;
+                            $current_status = _247AROUND_COMPLETED;
+                        }
 
-            if ($current_status == _247AROUND_CANCELLED) {
-                $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
-                $booking['internal_status'] = $booking['cancellation_reason'];
-                $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
+                        if ($key == 0) {
+                            $upcountry_charges = $value['upcountry_charges'];
+                        }
+
+                        if (!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])) {
+                            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
+                                    "   Admin:-  " . $value['admin_remarks'];
+                        } else if (!empty($value['service_center_remarks']) && empty($value['admin_remarks'])) {
+                            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
+                        } else if (empty($value['service_center_remarks']) && !empty($value['admin_remarks'])) {
+                            $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
+                        } else {
+                            $service_center['closing_remarks'] = "";
+                        }
+
+                        $service_center['current_status'] = $current_status1;
+                        $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
+                        $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
+                        $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
+
+        //            if (is_null($value['closed_date'])) {
+        //                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
+        //            } else {
+        //                $unit_details['ud_closed_date'] = $value['closed_date'];
+        //            }
+
+                        log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
+
+                        $this->vendor_model->update_service_center_action($booking_id, $service_center);
+                        $unit_details['serial_number'] = $value['serial_number'];
+                        $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
+                        $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
+                        $unit_details['customer_paid_parts'] = $value['parts_cost'];
+                        $unit_details['is_broken'] = $value['is_broken'];
+                        $unit_details['serial_number_pic'] = $value['serial_number_pic'];
+                        $unit_details['sf_model_number'] = $value['model_number'];
+
+                        if(!empty($value['serial_number_pic'])){
+
+                           $is_inserted =$this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id, 
+                               "serial_number" => $value['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                            $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+                           if(!empty($is_inserted) && in_array($partner_id, $serialNumberMandatoryPartners)){
+                               //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $value['service_center_id'], $partner_id, $value['serial_number'], $value['serial_number_pic']);
+                           } 
+                        }
+
+                        log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
+                        // update price in the booking unit details page
+                        $this->booking_model->update_unit_details($unit_details);
+                        $this->miscelleneous->update_serial_number_in_appliance_details($unit_details['id']);
+                    }
+
+                    $booking['closed_date'] = date("Y-m-d H:i:s");
+        //        if (is_null($value['closed_date'])) {
+        //            $booking['closed_date'] = date("Y-m-d H:i:s");
+        //        } else {
+        //            $booking['closed_date'] = $value['closed_date'];
+        //        }
+
+                    $booking['current_status'] = $current_status;
+                    $booking['internal_status'] = $current_status;
+                    $booking['amount_paid'] = $data[0]['amount_paid'];
+                    $booking['closing_remarks'] = $service_center['closing_remarks'];
+                    $booking['cancellation_reason'] = NULL;
+                    $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
+                    $booking['update_date'] = date('Y-m-d H:i:s');
+                    $booking['approved_by'] = $approved_by;
+
+                    $booking['completion_symptom'] = $data[0]['technical_problem'];
+                    $booking['technical_solution'] = $data[0]['technical_solution'];
+                    //update booking_details table
+                    log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
+
+                    if ($current_status == _247AROUND_CANCELLED) {
+                        $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
+                        $booking['internal_status'] = $booking['cancellation_reason'];
+                        $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
+                    }
+
+                    //check partner status from partner_booking_status_mapping table  
+                    $actor = $next_action = 'NULL';
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $booking['is_in_process'] = 0;
+                    $this->booking_model->update_booking($booking_id, $booking);
+                    $this->miscelleneous->process_booking_tat_on_completion($booking_id);
+                    //Update Spare parts details table
+                    $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' => NULL), false);
+                    foreach ($spare as $sp) {
+                        //Update Spare parts details table
+                        $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('old_status' => $sp['status'], 'status' => $current_status));
+                    }
+
+                    //Log this state change as well for this booking
+                   $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
+
+                    $this->notify->send_sms_email_for_booking($booking_id, $current_status);
+
+                    $this->partner_cb->partner_callback($booking_id);
+                    //Generate Customer payment Invoice
+                    if ($data[0]['amount_paid'] > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $current_status == _247AROUND_COMPLETED) {
+                        $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/" . $booking_id . "/" . $agent_id;
+
+                        $ch = curl_init($invoice_url);
+                        curl_setopt_array($ch, array(
+                            CURLOPT_POST => TRUE,
+                            CURLOPT_RETURNTRANSFER => TRUE,
+
+                        ));
+
+                        // Send the request
+                        $response = curl_exec($ch);
+
+                        log_message("info", __METHOD__. " User Invoice Response for booking ID ". $booking_id. " User Invoice ". print_r($response, true) );
+
+                    } else {
+                        log_message("info", __METHOD__." Amount Paid less then 5  for booking ID " . $booking_id . " Amount Paid " . $data[0]['amount_paid']);
+                    }
             }
-
-            //check partner status from partner_booking_status_mapping table  
-            $actor = $next_action = 'NULL';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-                $actor = $booking['actor'] = $partner_status[2];
-                $next_action = $booking['next_action'] = $partner_status[3];
-            }
-            $booking['is_in_process'] = 0;
-            $this->booking_model->update_booking($booking_id, $booking);
-            $this->miscelleneous->process_booking_tat_on_completion($booking_id);
-            //Update Spare parts details table
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' => NULL), false);
-            foreach ($spare as $sp) {
-                //Update Spare parts details table
-                $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('old_status' => $sp['status'], 'status' => $current_status));
-            }
-
-            //Log this state change as well for this booking
-           $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
-            
-            $this->notify->send_sms_email_for_booking($booking_id, $current_status);
-
-            $this->partner_cb->partner_callback($booking_id);
-            //Generate Customer payment Invoice
-            if ($data[0]['amount_paid'] > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $current_status == _247AROUND_COMPLETED) {
-                $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/" . $booking_id . "/" . $agent_id;
-               
-                $ch = curl_init($invoice_url);
-                curl_setopt_array($ch, array(
-                    CURLOPT_POST => TRUE,
-                    CURLOPT_RETURNTRANSFER => TRUE,
-
-                ));
-
-                // Send the request
-                $response = curl_exec($ch);
-                
-                log_message("info", __METHOD__. " User Invoice Response for booking ID ". $booking_id. " User Invoice ". print_r($response, true) );
-                
-            } else {
-                log_message("info", __METHOD__." Amount Paid less then 5  for booking ID " . $booking_id . " Amount Paid " . $data[0]['amount_paid']);
+            else{
+                log_message("info", __METHOD__." Booking ID ( " . $booking_id . ") Internal Status was not in completed or cancelled" . print_r($data,true));
             }
         }
     }
