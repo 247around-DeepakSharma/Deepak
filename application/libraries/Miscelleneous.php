@@ -1119,8 +1119,7 @@ class Miscelleneous {
         $where['where'] = array('assigned_cp_id' => $cp_id, "bb_order_details.auto_acknowledge" => 1, 'cp_invoice_id IS NULL' => NULL);
         $where['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_Damaged_STATUS),
                                   'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_Damaged_STATUS));
-        $where['select'] =  " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) "
-                . "ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as auto_ack_charges";
+        $where['select'] =  " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as auto_ack_charges";
         $auto_ack_charge = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->auto_ack_charges;
         
         //Get manual acknowledge completed amount
