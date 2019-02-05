@@ -91,7 +91,8 @@
                         </div>
                         <div class="col-md-12 " id="amazone_discount_holder" style="display:none;">
                             <div class="form-group col-md-12  ">
-                                <label><input type="checkbox" value="" checked="" id="is_amazon_discount"><span>Is Amazon Discount Applicable</span></label>
+                                <label for="remarks">Amazon Buy Price</label>
+                                 <input type="text" class="form-control"  id="is_amazon_discount"  name="is_amazon_discount" value = "" >
                             </div>
                         </div>
                     </div>
@@ -190,6 +191,24 @@
         }
     }
     
+    function get_order_appliance(partner_order_id){
+        $.ajax({
+            type: "POST",
+            url: "<?php echo base_url(); ?>buyback/buyback_process/get_order_appliance_and_price/"+partner_order_id,
+            cache: false,
+            data: {},
+            success: function (response){
+                data = JSON.parse(response);
+                if(data.service_id == <?php echo _247AROUND_TV_SERVICE_ID ?>){
+                     $("#is_amazon_discount").val('500');
+                }
+                else{
+                    $("#is_amazon_discount").val('0');
+                }
+            }
+        });
+    }
+    
     function open_reject_approve_model(partner_order_id,internal_status,cp_claimed_price, title, type){
         $('#partner_order_id').val(partner_order_id);
         $('#order_status').val(internal_status);
@@ -198,7 +217,9 @@
         $('#model_title').text(title);
         $('#approve_reject_remarks').val("");
         $('#reject_approve_order').modal('toggle');
+        $("#amazone_discount_holder").hide();
         if(type === 'approved'){
+            get_order_appliance(partner_order_id);
             $("#amazone_discount_holder").show();
         }
     }
@@ -210,7 +231,7 @@
         var remarks = $('#approve_reject_remarks').val();
         var status = $('#order_status').val();
         var action_type = $('#action_type').val();
-        var amazon_discount = $('#is_amazon_discount').is(":checked");
+        var amazon_discount = $('#is_amazon_discount').val();
         if(remarks){
             ajax_call(partner_order_id,status,cp_claimed_price,action_type,remarks,amazon_discount);
         }else{
