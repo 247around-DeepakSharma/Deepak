@@ -98,3 +98,7 @@ define("PART_APPROVED_BY_ADMIN", "Part Approved By Admin");
 define("SPARE_PART_UPDATED", "Spare Part Updated");
 
 
+// spare parts in warranty 
+define("SPARE_PART_IN_WARRANTY_STATUS", 1);
+//spare parts in out-of warranty
+define("SPARE_PART_IN_OUT_OF_WARRANTY_STATUS", 2);

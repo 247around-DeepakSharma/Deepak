@@ -9,7 +9,7 @@
     <!-- buyback balance -->
     <div class="row bb_balance">
         <div class="container-fluid" style="background-color:#fff;">
-              <div class="form-group col-md-3"><label for=""> Date</label>
+            <div class="form-group col-md-3" style="float: right;"><label for=""> Date</label>
                   <input type="text" class="form-control" name="daterange" id="daterange_id" onchange="getBalance(this.value)">
               </div>
             <table class="table">

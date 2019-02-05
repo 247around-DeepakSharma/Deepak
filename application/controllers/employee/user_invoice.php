@@ -530,6 +530,7 @@ class User_invoice extends CI_Controller {
         $result = "";
         $email_parts_name = "";
         $partner_id = 0;
+        $invoice_amount = 0;
         $booking_id = $this->input->post('booking_id');
         $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
@@ -548,7 +549,7 @@ class User_invoice extends CI_Controller {
                         $amount = $value->confirm_prices;
                         $hsn_code = $value->hsn_codes;
                         $gst_rate = $value->gst_rates;
-
+                        $invoice_amount = $invoice_amount + $amount;
                         $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
                         $data[$key]['taxable_value'] = ($amount  - $tax_charge);
@@ -594,7 +595,7 @@ class User_invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($booking_id));
                 $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
                 $email_from = $email_template[2];
-                $to = $vendor_data['invoice_email_to'].",".$email_template[1];
+                $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
                 $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
                 //$to = $email_template[1];
                 //$cc = $email_template[3];
@@ -629,7 +630,7 @@ class User_invoice extends CI_Controller {
                 $message = vsprintf($email_template[0], array($email_parts_name, $booking_id)); 
                 $email_from = $email_template[2];
                 $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1];
+                $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
                 $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
                 //$to = $email_template[1];
                 //$cc = $email_template[3];
@@ -645,7 +646,7 @@ class User_invoice extends CI_Controller {
                 }
                 $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
                 $where_in = array('id' => $spare_parts_detail_ids);
-                $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1));
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1, 'sell_price'=>$invoice_amount));
             }
 
             echo $result;
