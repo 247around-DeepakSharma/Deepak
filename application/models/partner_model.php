@@ -1886,6 +1886,27 @@ function get_data_for_partner_callback($booking_id) {
         $return=$this->db->get()->result_array();
         return $return;
     }
+    
+     /**
+     * @desc: This method is used to update partner brand logo
+     * @param: $data
+     * @return: boolean
+     */
+    function update_partner_brand_logo($data){
+        $this->db->trans_start();
+        foreach ($data as $queries) {
+            $this->db->query($queries);
+        }
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE){
+            $this->db->trans_rollback();
+            return FALSE;
+        }
+        else{
+            $this->db->trans_commit();
+            return TRUE;
+        }
+    }
 
  }
 
