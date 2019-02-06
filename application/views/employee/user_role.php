@@ -1,6 +1,6 @@
 <style>
     #navigation_table_filter{
-        text-align: right;
+        display:none;
     }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
