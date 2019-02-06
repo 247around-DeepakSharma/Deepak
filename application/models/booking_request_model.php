@@ -39,8 +39,8 @@ class Booking_request_model extends CI_Model {
      * @param Array $data
      * @return int
      */
-    function insert_booking_request_symptom($data){
-        $this->db->insert('symptom_booking_request', $data);
+    function insert_data($data, $table){
+        $this->db->insert($table, $data);
         return $this->db->insert_id();
     }
     /**
@@ -48,9 +48,9 @@ class Booking_request_model extends CI_Model {
      * @param Array $where
      * @param Array $data
      */
-    function update_booking_request_symptom($where, $data){
+    function update_table($where, $data, $table){
         $this->db->where($where);
-        $this->db->update('symptom_booking_request', $data);
+        $this->db->update($table, $data);
     }
     
     /**
