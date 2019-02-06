@@ -3534,7 +3534,6 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
         if($inprocess){
-            $row[] = "";
             switch ($order_list->internal_status){
                 case _247AROUND_BB_NOT_DELIVERED:
                 case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
@@ -3547,6 +3546,8 @@ class Service_centers extends CI_Controller {
                             </ul>
                           </div>";
                     break;
+                   default:
+                    $row[] = "";
             }
             
         }
