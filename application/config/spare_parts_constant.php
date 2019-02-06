@@ -96,6 +96,8 @@ define("SPARE_PART_ON_APPROVAL", "Spare Part On Approval");
 define("PART_APPROVED_BY_ADMIN", "Part Approved By Admin");
 // Spare Part Updated
 define("SPARE_PART_UPDATED", "Spare Part Updated");
+//constant to define 'bill defective spare part to vendor' internal status
+define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
 
 
 // spare parts in warranty 
