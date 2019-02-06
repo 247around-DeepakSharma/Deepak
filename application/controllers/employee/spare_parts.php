@@ -866,7 +866,7 @@ class Spare_parts extends CI_Controller {
      */
     function copy_booking_details_by_spare_parts_id() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
-        $spare_parts_id = $this->input->post('spare_parts_id');        
+        $spare_parts_id = $this->input->post('spare_parts_id');  
         $status = $this->input->post('status');
         $reason = 'Spare parts Copy By ' . $this->session->userdata('emp_name');
 
@@ -879,7 +879,7 @@ class Spare_parts extends CI_Controller {
         if (!empty($spare_parts_id)) {
 
             $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
-
+            
             if (!empty($spare_parts_list)) {
                 $booking_id = $spare_parts_list[0]['booking_id'];
                 $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
@@ -899,7 +899,7 @@ class Spare_parts extends CI_Controller {
                     $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
                     $spare_parts_id = $insert_id;
                 }
-
+                
                 $parts_stock_not_found = array();
                 $delivered_sp = array();
                 
