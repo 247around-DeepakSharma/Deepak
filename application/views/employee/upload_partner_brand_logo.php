@@ -33,6 +33,7 @@
 <!--                                        <input class="form-control" type="text" name="partner_name" value="<?php //echo $partner['public_name']?>" disabled="">-->
                                         <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
                                         <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
+                                        <input class="form-control" type="hidden" name="logo_priority" value="<?php echo $partner['logo_priority']?>">
                                         <?php if(!empty($partner['partner_logo_detail'])){ $action = "Update"; ?>
                                             <p><?php echo $partner['public_name']?></p>
                                             <img style="width: 180px; height: 120px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$partner['partner_logo_detail'][0]['partner_logo'];?>">

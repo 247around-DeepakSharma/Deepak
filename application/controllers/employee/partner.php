@@ -3357,6 +3357,13 @@ class Partner extends CI_Controller {
             'public_name' => urldecode($name),
             'partner_logo_detail' => $partner_logo_deatil,
         );
+        if(empty($partner_logo_deatil)){
+            $priority = $this->booking_model->get_partner_logo('max(logo_priority) as logo_priority', array())[0]['logo_priority'];
+            $data['partner']['logo_priority'] = $priority + 1;
+        }
+        else{
+            $data['partner']['logo_priority'] = $partner_logo_deatil[0]['logo_priority'];
+        }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_partner_brand_logo', $data);
     }
@@ -3385,6 +3392,7 @@ class Partner extends CI_Controller {
                     $data['partner_id'] = $partner_id;
                     $data['partner_logo'] = $file_name;
                     $data['alt_text'] = $partner_name;
+                    $data['logo_priority'] = $this->input->post("logo_priority");
 
                     //insert partner brand logo path into database
                     $res[$key] = $this->partner_model->upload_partner_brand_logo($data);
@@ -6835,5 +6843,45 @@ class Partner extends CI_Controller {
             return $row;
            
     }
-            
+    
+    /**
+     * @desc: This method is used to load view for setting logo priority on web site
+     * @param: void
+     * @return:view
+     */
+    function partner_logo_priority(){
+        $data['data'] = $this->reusable_model->get_search_query("partner_brand_logo", "partner_brand_logo.id, partners.public_name, partner_logo", array(), array("partners"=>"partners.id = partner_brand_logo.partner_id"), "", array("logo_priority"=>"ASC"), "", "")->result_array();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partner_brand_logo_priority_form', $data);
+    }
+    
+    /**
+     * @desc: This method is used to save the logo priority in partner_brand_logo table
+     * @param: void
+     * @return:json
+     */
+    function save_partner_logo_priority(){
+        $priority_array = $this->input->post("priority_array");
+        $return = array();
+        $queries = array();
+        foreach ($priority_array as $key => $value) {
+            $queries[] = "Update partner_brand_logo set logo_priority = '".$value['priority']."' where id = '".$value['partner_brand_logo_id']."'";
+        }
+        if(!empty($queries)){
+            $rows =  $this->partner_model->update_partner_brand_logo($queries);
+            if($rows){
+               $return['status'] = true;
+               $return['message'] = "Priority Saved Successfully";
+            }
+            else{
+                $return['status'] = false;
+                $return['message'] = "Priority Not Saved, Contact Tech Team";
+            }
+        }
+        else{
+            $return['status'] = false;
+            $return['message'] = "Priority Not Saved, Contact Tech Team"; 
+       }
+        echo json_encode($return);
+    }
 }
