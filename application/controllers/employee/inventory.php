@@ -1135,17 +1135,22 @@ class Inventory extends CI_Controller {
                     $data['status'] = "Defective Part Shipped By SF";
                     $data['approved_defective_parts_by_admin'] = 1;
                     $courier_charge = $this->input->post("courier_charge");
-                    foreach ($sp as $key => $value) {
-                        if($key == 0){
-                            $data['courier_charges_by_sf'] = $courier_charge;
-                        } else {
-                             $data['courier_charges_by_sf'] = 0;
-                        }
-                        
-                        $where = array("id" => $value['id']);
-                        $this->service_centers_model->update_spare_parts($where, $data);
-                    }
                     
+                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '","' . DEFECTIVE_PARTS_SHIPPED . '") ' => NULL));
+                                       
+                   if (empty($defective_part_pending_details)) {
+                        foreach ($sp as $key => $value) {
+                            if ($key == 0) {
+                                $data['courier_charges_by_sf'] = $courier_charge;
+                            } else {
+                                $data['courier_charges_by_sf'] = 0;
+                            }
+
+                            $where = array("id" => $value['id']);
+                            $this->service_centers_model->update_spare_parts($where, $data);
+                        }
+                    }
+
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = "Defective Part Shipped By SF";
                     
