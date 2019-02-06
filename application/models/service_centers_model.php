@@ -867,4 +867,33 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         log_message('info', __METHOD__. "  ".$this->db->last_query());
         return $query->result_array();
     }
+    function dashboard_data_count($from_count,$second_count)
+    {
+        $today_date=date('Y-m-d');
+        $this->db->select($from_count);
+        $this->db->from('sf_dashboard');
+        $this->db->where('date',$today_date);
+        $result=$this->db->get()->row_array();
+        if(!empty($result))
+        {
+            $new_count=$result[$from_count]+1;
+            $data=array($from_count=>$new_count);
+            $this->db->where('date',$today_date);
+            $this->db->update('sf_dashboard',$data);
+            $afftected_Rows=$this->db->affected_rows();
+            $return=$afftected_Rows;
+        }
+        else
+        {
+            $data=array(
+                'date'=>$today_date,
+                $from_count=>1,
+                $second_count=>0
+           );
+            $this->db->insert('sf_dashboard',$data);
+            $return_id=$this->db->insert_id();
+            $return=$return_id;
+        }
+        return $return;
+    }
 }
