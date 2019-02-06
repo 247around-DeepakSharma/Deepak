@@ -914,7 +914,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['entity_id']);
         }
-        $this->cache->clean();
+        
         $this->session->sess_destroy();
         redirect(base_url() . "service_center/login");
     }
@@ -5395,34 +5395,17 @@ class Service_centers extends CI_Controller {
     }
     function sf_dashboard(){
         $this->checkUserSession();
-        //firstly,if we have data in cache then take data from cache otherwise caculate data
-        if(!$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id')))
-        {
-            $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
-            if(!empty($rating_data[0]['rating'])){
-                $data['rating'] = $rating_data[0]['rating'];
-                $data['count'] =  $rating_data[0]['count'];
-            }
-            else{
-                $data['rating'] = 0;
-                $data['count'] =  $rating_data[0]['count'];
-            }
-            $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
-            $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
-                    array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
-        
-             $this->cache->file->save('Sfdashboard_'.$this->session->userdata('service_center_id'), $data);
-             //for testing data come from cache or dynamic calculation store that data in database
-             $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('db_count','cache_count');
-             
+        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+        if(!empty($rating_data[0]['rating'])){
+            $data['rating'] =  $rating_data[0]['rating'];
+            $data['count'] =  $rating_data[0]['count'];
+        }else{
+            $data['rating'] = 0;
+            $data['count'] =  $rating_data[0]['count'];
         }
-        else
-        {
-            $data=$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id'));
-            //for testing data come from cache or dynamic calculation store that data in database
-            $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('cache_count','db_count');
-        }
-       
+        $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
+        $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
+                array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard',$data);
     }
