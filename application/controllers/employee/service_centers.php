@@ -92,11 +92,27 @@ class Service_centers extends CI_Controller {
     }
     
     function get_header_summary(){
-        $service_center_id = $this->session->userdata('service_center_id');
-        $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
-        $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
-        if($this->session->userdata('is_upcountry') == 1){
-            $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+         //firstly,if we have data in cache then take data from cache otherwise caculate data
+        if(!$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id')))
+        {
+            $service_center_id = $this->session->userdata('service_center_id');
+            $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
+            $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
+            if($this->session->userdata('is_upcountry') == 1){
+                $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+            }
+        
+             $this->cache->file->save('Sfdashboard_'.$this->session->userdata('service_center_id'), $data);
+             //for testing data come from cache or dynamic calculation store that data in database
+             $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('db_count','cache_count');
+             
+        }
+        else
+        {
+            $data=$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id'));
+            //for testing data come from cache or dynamic calculation store that data in database
+            $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('cache_count','db_count');
+           
         }
         $this->load->view("service_centers/header_summary", $data);
         
