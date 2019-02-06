@@ -667,6 +667,7 @@
                                     case SPARE_SHIPPED_BY_PARTNER:
                                     case SPARE_DELIVERED_TO_SF:
                                     case DEFECTIVE_PARTS_REJECTED:
+                                    case SPARE_OOW_SHIPPED:
                                     case DEFECTIVE_PARTS_PENDING: ?>
                                         if(unit_id === '<?php echo $value['booking_unit_details_id'];?>'){
                                             <?php 
