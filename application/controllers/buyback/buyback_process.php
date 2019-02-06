@@ -727,7 +727,7 @@ class Buyback_process extends CI_Controller {
             $a .= "open_reject_approve_model(".'"'.$order_list->partner_order_id.'"';
             $a .= ', "'.$order_list->internal_status.'"';
             $a .= ', "'.$order_list->cp_claimed_price.'", "Approve Order", "approved"';
-            $a .= " )' ><i class='fa fa-times-circle'></i></a>";
+            $a .= " )' ><i class='glyphicon glyphicon-ok'></i></a>";
             
             $row[] = $a;
              $row[] = "<label><input type='checkbox' class='flat check_single_row' id='approved_data' data-id='".$order_list->partner_order_id."' data-status='".$order_list->internal_status."' data-cp_claimed_price='".$order_list->cp_claimed_price."'></label>";
@@ -763,7 +763,10 @@ class Buyback_process extends CI_Controller {
         $this->load->view('buyback/bb_order_image_review',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
-    
+    function get_order_appliance_and_price($orderID){
+        $appliancePriceArray = $this->bb_model->get_bb_detail('service_id,(partner_basic_charge+partner_tax_charge) as price', array("partner_order_id" => $orderID));
+        echo json_encode($appliancePriceArray[0]);
+    }
     
     /**
      * @desc Used to approve buyback order in bulk
@@ -805,7 +808,7 @@ class Buyback_process extends CI_Controller {
                             
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_NOT_DELIVERED;
                             if($appliancePriceArray[0]['service_id'] == _247AROUND_TV_SERVICE_ID){
-                                if($this->input->post('amazon_discount') == 'true'){
+                                if($this->input->post('amazon_discount')){
                                     $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price'];
                                 }
                             }
@@ -830,12 +833,9 @@ class Buyback_process extends CI_Controller {
                             $update_bb_unit_data['cp_claimed_price'] = $cp_claimed_price[$key];
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_DELIVERED;
                             $update_bb_unit_data['gst_amount'] = $gst_amount;
-                             if($appliancePriceArray[0]['service_id'] == _247AROUND_TV_SERVICE_ID){
-                                if($this->input->post('amazon_discount') == 'true'){
-                                    $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price']-500;
-                                }
+                            if($this->input->post('amazon_discount')){
+                                $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price']-$this->input->post('amazon_discount');
                             }
-                            
                             break;
                     }
                     $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_bb_unit_data);
@@ -2074,17 +2074,39 @@ class Buyback_process extends CI_Controller {
     }
     
     function get_bb_svc_balance(){
-        $this->table = 'bb_svc_balance';
-        $this->select = 'tv_balance,la_balance,mobile_balance,(tv_balance+la_balance+mobile_balance) as total_balance';
-        $this->order_by = array('create_date' => 'DESC');
-        $this->limit = array('length' => 1,'start' => 0);
-        $data = $this->reusable_model->get_search_query($this->table,$this->select , NULL,NULL, $this->limit ,$this->order_by,NULL,NULL);
-        if(!empty($data)){
-            $response = $data->result_array()[0];
-        }else{
-            $response = "no data found";
+        $where = array();
+        if($this->input->post('dateRange')){
+            $dateRangeArray = explode(" - ",$this->input->post('dateRange'));
+            $where['create_date >= "'.date('Y-m-d',strtotime($dateRangeArray[0])).'"'] = NULL;
+            $where['create_date <= "'.date('Y-m-d',strtotime($dateRangeArray[1])).'"'] = NULL;
         }
-        echo json_encode($response);
+        $this->table = 'bb_svc_balance';
+        $this->select = 'tv_balance,la_balance,mobile_balance,(tv_balance+la_balance+mobile_balance) as total_balance,date(create_date) as date';
+        $this->order_by = array('create_date' => 'DESC');
+        $data = $this->reusable_model->get_search_query($this->table,$this->select , $where,NULL, NULL ,$this->order_by,NULL,NULL);
+        if(empty($where)){
+            if(!empty($data)){
+                $response = $data->result_array()[0];
+            }else{
+                $response = "no data found";
+            }
+            echo json_encode($response);
+        }
+        else{
+            $balanceArray = $data->result_array();
+            $count = count($data->result_array($balanceArray));
+            $html ='';
+            for($i=0;$i<$count;$i++){
+                $html .= '<tr>';
+                $html .= '<td>'.$balanceArray[$i]['date'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['tv_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['la_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['mobile_balance'].'</td>';
+                $html .= '<td>'.$balanceArray[$i]['total_balance'].'</td>';
+                $html .= '<tr>';
+            }
+            echo $html;
+        }
     }
     
     
@@ -2231,4 +2253,47 @@ class Buyback_process extends CI_Controller {
 //            }
 //        }
 //    }
+        function buyback_full_balance(){
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $this->load->view('buyback/balance_full_view');
+            $this->load->view('dashboard/dashboard_footer');
+        }
+        function get_amazon_balance(){
+        $where['vendor_partner_invoices.sub_category'] = BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT;
+        $select = " round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as expected_balance, "
+                . "round(SUM(CASE WHEN partner_reimbursement_invoice IS NOT NULL THEN partner_discount ELSE 0 END)) as invoiced_balance,round(SUM(amount_paid)) as reimburse_amount,";
+        $data = $this->bb_model->get_bb_amazon_balace_details($select);
+            if(!empty($data)){
+                $data[0]['total'] = $data[0]['expected_balance'] + $data[0]['invoiced_balance'] - $data[0]['reimburse_amount'];
+                $response = $data[0];
+            }else{
+                $response = "no data found";
+            }
+            echo json_encode($response);
+        }
+        /**
+     * @desc: This function is used to get buyback completed orders data 
+     * based on month
+     * @param string
+     * @return array
+     */
+    function get_bb_order_detail_data_by_month(){
+        $structuredData = array();
+        $whereIN['bb_cp_order_action.current_status'] = array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS);
+        $whereIN['bb_cp_order_action.internal_status'] = array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS);
+        $where['create_date IS NOT NULL AND create_date >= (NOW() - INTERVAL 13 MONTH)'] = NULL;
+        $orderBY["YEAR(create_date)"] = 'ASC';
+        $orderBY["MONTH(create_date)"] = 'ASC';
+        $select = "DATE_FORMAT(create_date, '%b') AS month,DATE_FORMAT(create_date, '%Y') AS year,COUNT(bb_cp_order_action.partner_order_id) as count,bb_cp_order_action.current_status";
+        $groupBY = array('current_status,month');
+        $data = $this->reusable_model->get_search_result_data("bb_cp_order_action",$select,$where,NULL,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        $count = count($data);
+        for($i=0;$i<$count-1;$i++){
+            $structuredData[$data[$i]['month']][$data[$i]['current_status']] = $data[$i]['count'];
+            $structuredData[$data[$i]['month']]['year'] = $data[$i]['year'];
+        }
+        $finalArray['keys'] = array_keys($structuredData);
+        $finalArray['data'] = $structuredData;
+        return json_encode($finalArray);
+    }
 }

@@ -394,7 +394,7 @@ class Service_centers_model extends CI_Model {
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped' OR sp.status = '".SPARE_PART_ON_APPROVAL."') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
-                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_PARTS_REQUESTED."') "
+                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."') "
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
          //log_message('info', __FUNCTION__  .$this->db->last_query());
@@ -864,5 +864,35 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $query = $this->db->get();
         log_message('info', __METHOD__. "  ".$this->db->last_query());
         return $query->result_array();
+    }
+    
+    function dashboard_data_count($from_count,$second_count)
+    {
+        $today_date=date('Y-m-d');
+        $this->db->select($from_count);
+        $this->db->from('sf_dashboard');
+        $this->db->where('date',$today_date);
+        $result=$this->db->get()->row_array();
+        if(!empty($result))
+        {
+            $new_count=$result[$from_count]+1;
+            $data=array($from_count=>$new_count);
+            $this->db->where('date',$today_date);
+            $this->db->update('sf_dashboard',$data);
+            $afftected_Rows=$this->db->affected_rows();
+            $return=$afftected_Rows;
+        }
+        else
+        {
+            $data=array(
+                'date'=>$today_date,
+                $from_count=>1,
+                $second_count=>0
+           );
+            $this->db->insert('sf_dashboard',$data);
+            $return_id=$this->db->insert_id();
+            $return=$return_id;
+        }
+        return $return;
     }
 }

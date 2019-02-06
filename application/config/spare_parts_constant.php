@@ -100,3 +100,7 @@ define("SPARE_PART_UPDATED", "Spare Part Updated");
 define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
 
 
+// spare parts in warranty 
+define("SPARE_PART_IN_WARRANTY_STATUS", 1);
+//spare parts in out-of warranty
+define("SPARE_PART_IN_OUT_OF_WARRANTY_STATUS", 2);

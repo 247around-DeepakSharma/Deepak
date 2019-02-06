@@ -907,7 +907,7 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['entity_id']);
         }
-        
+        $this->cache->clean();
         $this->session->sess_destroy();
         redirect(base_url() . "service_center/login");
     }
@@ -1642,7 +1642,7 @@ class Service_centers extends CI_Controller {
                     $data['spare_request_symptom'] = $value['spare_request_symptom'];
                     $data['part_requested_on_approval'] = 0;
                     
-                    if($value['part_warranty_status'] == 1){
+                    if($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS){
                         
                         $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
                         $sc_data['internal_status'] = $reason;
@@ -2323,9 +2323,9 @@ class Service_centers extends CI_Controller {
                 $booking_id = $this->input->post('booking_id');
                 $partner_id = $this->input->post('booking_partner_id');
 
-                if (!empty($sp_id) && $sp_id != '') {
+                if (!empty($sp_id)) {
                     
-                    if (!empty($sp_id)) {
+                    if (!empty($this->input->post('courier_charges_by_sf'))) {
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                     } else {
                         $data['courier_charges_by_sf'] = 0;
@@ -4372,7 +4372,7 @@ class Service_centers extends CI_Controller {
 
                             /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
-                            if ($part_details['part_warranty_status'] !== 2) {
+                            if ($part_details['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $sf_id));
                                 $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $this->input->post('assigned_vendor_id')));
@@ -4418,7 +4418,7 @@ class Service_centers extends CI_Controller {
                                 $spare_id = $response;
                                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
-                                if ($part_details['part_warranty_status'] == 2) {
+                                if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                     $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $data['requested_inventory_id']));
 
@@ -4462,7 +4462,7 @@ class Service_centers extends CI_Controller {
                                     $this->miscelleneous->process_inventory_stocks($data);
                                 }
 
-                                if ($part_details['part_warranty_status'] == 2) {
+                                if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                                     // Send OOW invoice to aditya
                                     $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $spare_id;
                                     $async_data['booking_id'] = $booking_id;
@@ -5382,17 +5382,34 @@ class Service_centers extends CI_Controller {
     }
     function sf_dashboard(){
         $this->checkUserSession();
-        $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
-        if(!empty($rating_data[0]['rating'])){
-            $data['rating'] =  $rating_data[0]['rating'];
-            $data['count'] =  $rating_data[0]['count'];
-        }else{
-            $data['rating'] = 0;
-            $data['count'] =  $rating_data[0]['count'];
+        //firstly,if we have data in cache then take data from cache otherwise caculate data
+        if(!$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id')))
+        {
+            $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
+            if(!empty($rating_data[0]['rating'])){
+                $data['rating'] = $rating_data[0]['rating'];
+                $data['count'] =  $rating_data[0]['count'];
+            }
+            else{
+                $data['rating'] = 0;
+                $data['count'] =  $rating_data[0]['count'];
+            }
+            $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
+            $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
+                    array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
+        
+             $this->cache->file->save('Sfdashboard_'.$this->session->userdata('service_center_id'), $data);
+             //for testing data come from cache or dynamic calculation store that data in database
+             $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('db_count','cache_count');
+             
         }
-        $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
-        $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
-                array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
+        else
+        {
+            $data=$this->cache->file->get('Sfdashboard_'.$this->session->userdata('service_center_id'));
+            //for testing data come from cache or dynamic calculation store that data in database
+            $sf_dashboard_id=$this->service_centers_model->dashboard_data_count('cache_count','db_count');
+        }
+       
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/dashboard',$data);
     }

@@ -87,9 +87,9 @@
     <div class="row">
         <div class="clear" style="margin-top:0px;"></div>
         <div id="container-4" style="display:block;padding-top: 0px;" class="form_container panel-body">
-            <form name="myForm" class="form-horizontal" id ="taging_invoice_ids" novalidate="novalidate" method="post" enctype="multipart/form-data" action="<?php echo base_url() ?>employee/booking/process_to_update_courier_details_by_invoice_ids">            
+            <form name="myForm" class="form-horizontal" id ="taging_invoice_ids" novalidate="novalidate" method="post" enctype="multipart/form-data" action="<?php echo base_url() ?>employee/spare_parts/process_to_update_courier_details_by_invoice_ids">            
                 <div  class = "panel panel-info">
-                    <div class="panel-heading" style="background-color:#ECF0F1"><b> Invoice Ids Details </b></div>
+                    <div class="panel-heading" style="background-color:#ECF0F1"><b> Update Courier Details By Invoice Ids </b></div>
                     <div class="panel-body">
                         <div class="col-md-12">
                             <div class="col-md-6">

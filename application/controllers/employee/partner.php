@@ -935,13 +935,14 @@ class Partner extends CI_Controller {
         $result['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
+        $group_by_arr=array(`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,collateral.request_type,collateral.appliance_id,collateral.collateral_id',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
-                NULL, NULL, NULL, array('services'=>'LEFT'),'concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
+                NULL, NULL, NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
@@ -1818,7 +1819,7 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         } */
         
-        if ($part_warranty_status !=2) {
+        if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1872,7 +1873,7 @@ class Partner extends CI_Controller {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             } */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1905,7 +1906,7 @@ class Partner extends CI_Controller {
                             }                          
                              */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1936,7 +1937,7 @@ class Partner extends CI_Controller {
                             
                         }*/
                         
-                        if($part_warranty_status == 2){
+                        if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
@@ -4363,7 +4364,7 @@ class Partner extends CI_Controller {
             if($file){
                 if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
                         $tmpFile = $_FILES['l_c_file']['tmp_name'];
-                        $contract_file = "Partner-" . '-Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
+                        $contract_file = "Partner-" . 'Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
                         move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                         //Upload files to AWS
                         $bucket = BITBUCKET_DIRECTORY;
