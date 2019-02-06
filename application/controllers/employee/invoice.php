@@ -4770,7 +4770,7 @@ class Invoice extends CI_Controller {
                     $total_amount_collected_amount += $data['total_amount'];
                     if ($data['product_or_services'] == "Product" || $data['product_or_services'] == "Parts" || $data['product_or_services'] == "Part") {
                         $parts_charge += $data['taxable_value'];
-                        $parts_qty + $data['qty'];
+                        $parts_qty += $data['qty'];
                     } else {
                         if ($data['product_or_services'] == "Service") {
                             $service_charge += $data['taxable_value'];
