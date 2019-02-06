@@ -488,6 +488,7 @@ class Courier_tracking extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_sf"=>$awb_number), array('defactive_part_received_date_by_courier_api' => date("Y-m-d H:i:s")));
                 if ($response) {
                     $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION, DEFECTIVE_PARTS_SHIPPED, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, "Partner", "Approve or Reject the part", _247AROUND);
+                    $res = TRUE;
                 }
                 else{
                     log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);

@@ -1,6 +1,6 @@
 <style>
     #navigation_table_filter{
-        text-align: right;
+        display:none;
     }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
@@ -55,7 +55,7 @@
          $isActiveString ='';
          $linkString ='';
          $parentName = array();
-         if($headerMenuData['parent_ids'] != ''){ 
+         if($headerMenuData['parent_ids'] != '' && !empty($header_navigation["id_".$headerMenuData['parent_ids']])){ 
             $parentString = $header_navigation["id_".$headerMenuData['parent_ids']]['title'];
          }
           if($headerMenuData['groups'] != ''){
@@ -197,7 +197,15 @@
     </div>
   </div>
 <script>
-      var table = $('#navigation_table').DataTable();
+     $(".roles_group").select2();
+    $(".roles_group_add_new").select2();
+   // var table = $('#navigation_table').DataTable();
+  var table=  $('#navigation_table').DataTable({
+
+                    drawCallback: function() {
+                       $('.roles_group').select2();
+                    }
+                  }) 
        $("#entity_type_data").change(function() {
         var entity_type_data=this.value;
         if(entity_type_data!=='All')
@@ -224,8 +232,7 @@
             }
     } );
     //$('#serachInput').select2();
-    $(".roles_group").select2();
-    $(".roles_group_add_new").select2();
+    
     function updateUserGroup(headerID){
         var rolesGroup = $("#"+headerID).val();
          var url =  '<?php echo base_url();?>employee/login/update_role_group_for_header_navigation';

@@ -597,10 +597,6 @@ define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
 define("_247AROUND_WEBSITE", "247around-Website");
 
-
-//constant to define 'bill defective spare part to vendor' internal status
-define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
-
 //Repeat Booking
 define("_247AROUND_REPEAT_BOOKING_ALLOWED_DAYS", 90);
 define("_PARTNER_REPEAT_BOOKING_ALLOWED_DAYS", 30);
@@ -612,7 +608,7 @@ define("IS_SN_CORRECT",0);
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 
-define('UPCOUNTRY_OVER_LIMIT_DISTANCE', 200);
+define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

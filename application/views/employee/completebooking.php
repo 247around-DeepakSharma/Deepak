@@ -58,7 +58,7 @@
                         $status = "1";
                     }
                     ?>
-                <form name="myForm" class="form-horizontal" id ="booking_form"  onSubmit="document.getElementById('submitform').disabled=true;" action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form"  action="<?php echo base_url() ?>employee/booking/process_complete_booking/<?php echo $booking_id; ?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $booking_history[0]['service_center_closed_date']; ?>" name="service_center_closed_date">
                     <div class="row">
                         <div class="col-md-12">
@@ -667,6 +667,7 @@
                                     case SPARE_SHIPPED_BY_PARTNER:
                                     case SPARE_DELIVERED_TO_SF:
                                     case DEFECTIVE_PARTS_REJECTED:
+                                    case SPARE_OOW_SHIPPED:
                                     case DEFECTIVE_PARTS_PENDING: ?>
                                         if(unit_id === '<?php echo $value['booking_unit_details_id'];?>'){
                                             <?php 

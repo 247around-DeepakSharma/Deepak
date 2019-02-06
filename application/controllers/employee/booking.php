@@ -4117,7 +4117,25 @@ class Booking extends CI_Controller {
         if(isset($result[0])){
             $foundResultArray= array_column($result, $inputData['onlyName'] );
             $notFoundArray=array_diff($inputData['inputBulkData'],$foundResultArray);
-            $selectedFields = array_keys($result[0]);
+            //To remove  booking id that is present in both query as well as booking
+            if($inputData['onlyName']=='booking_id')
+           {
+              foreach($foundResultArray as $foundkey)
+              {
+                  $first_two=substr($foundkey,0,2);
+                  $booking_id=substr($foundkey,2);
+                  if($first_two=='Q-')
+                  {
+                      if(in_array($booking_id,$notFoundArray))
+                      {
+                         $keyremove= array_search ($booking_id,$notFoundArray);
+                         unset($notFoundArray[$keyremove]);
+                      }
+                  }
+              }
+           }
+           //end
+           $selectedFields = array_keys($result[0]);
            foreach ($notFoundArray as $notFoundColumn){
                foreach($selectedFields as $fieldName){
                     $helperArray[$fieldName] = "Not_found";

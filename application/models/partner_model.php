@@ -1614,8 +1614,6 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query("SELECT 
             order_id AS 'Sub Order ID',
-            DATE_FORMAT(`ud`.`purchase_date`,'%d-%m-%Y') As 'Purchase Date',
-            DATE_FORMAT(`booking_details`.`closed_date`,'%d-%m-%Y') As 'Closed Date',
             booking_details.booking_id AS '247BookingID',
             date(booking_details.create_date) AS 'Referred Date',
             ud.appliance_brand AS 'Brand', 
@@ -1624,6 +1622,7 @@ function get_data_for_partner_callback($booking_id) {
             services AS 'Product', 
             ud.appliance_description As 'Description',
             name As 'Customer', users.phone_number as 'Phone Number',
+            DATE_FORMAT(`ud`.`purchase_date`,'%d-%m-%Y') As 'Purchase Date',
             booking_pincode AS 'Pincode', 
             booking_details.city As 'City', 
             booking_details.state As 'State', 
@@ -1635,6 +1634,7 @@ function get_data_for_partner_callback($booking_id) {
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             initial_booking_date As 'First Booking Date', 
             partner_internal_status AS 'Final Status',
+            DATE_FORMAT(`booking_details`.`closed_date`,'%d-%m-%Y') As 'Service Center Close Date',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 
             GROUP_CONCAT(spare_parts_details.date_of_request) As 'Part Request Date', 
             GROUP_CONCAT(spare_parts_details.parts_shipped) As 'Shipped Part', 
@@ -1879,6 +1879,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
     {
         $return=null;
+        $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
         $this->db->from("collateral");
         $this->db->where('entity_id',$partner_id);
@@ -1888,11 +1889,31 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
         $this->db->join('services','services.id=collateral.appliance_id','left');
         $this->db->limit($limitArray['length'],$limitArray['start']);
-        $group_by=array('concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)');
         $this->db->group_by($group_by);
         $this->db->order_by($order_by_column,$sorting_type);
         $return=$this->db->get()->result_array();
         return $return;
+    }
+    
+     /**
+     * @desc: This method is used to update partner brand logo
+     * @param: $data
+     * @return: boolean
+     */
+    function update_partner_brand_logo($data){
+        $this->db->trans_start();
+        foreach ($data as $queries) {
+            $this->db->query($queries);
+        }
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE){
+            $this->db->trans_rollback();
+            return FALSE;
+        }
+        else{
+            $this->db->trans_commit();
+            return TRUE;
+        }
     }
 
 }
