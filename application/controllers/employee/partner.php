@@ -935,7 +935,7 @@ class Partner extends CI_Controller {
         $result['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
-        $group_by_arr=array(`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`);
+        $group_by_arr=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'

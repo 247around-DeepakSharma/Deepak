@@ -3797,7 +3797,7 @@ class Invoice extends CI_Controller {
     /**
      * @desc This function is used to generate reverse invoice for out of warranty booking
      * It will generate for both party(SF/Partner)
-     * @param String $booking_id
+     * @param String $spare_id
      */
     function generate_reverse_oow_invoice($spare_id){
         log_message('info', __METHOD__. " Spare ID ".$spare_id);
