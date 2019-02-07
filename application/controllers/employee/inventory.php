@@ -2485,7 +2485,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_inventory_price(){
-        
+              
         $model_number_id = $this->input->post('model_number_id');
         $part_name = $this->input->post('part_name');
         if(!empty($model_number_id)){
@@ -5195,17 +5195,23 @@ class Inventory extends CI_Controller {
      */
     
     function get_inventory_parts_type() {
-
+        
         $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('service_id' => $this->input->post('service_id')),TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
-
-        foreach ($inventory_parts_type as $value) {
-            $option .= "<option data-hsn-code-details='".$value['hsn_code_details_id']."' value='" . $value['part_type'] . "'";
-            $option .= " > ";
-            $option .= $value['part_type'] . "</option>";
+        
+        if(!empty($this->input->post('request_type'))){
+            foreach ($inventory_parts_type as $value) {
+                $option .= "<option value='" . $value['id'] . "'>";                
+                $option .= $value['part_type'] . "</option>";
+            }
+        } else {
+            foreach ($inventory_parts_type as $value) {
+                $option .= "<option data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
+                $option .= " > ";
+                $option .= $value['part_type'] . "</option>";
+            }
         }
-
         echo $option;
     }
     
