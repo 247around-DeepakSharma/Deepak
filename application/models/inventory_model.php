@@ -2027,5 +2027,25 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+    
+     /**
+     * @Desc: This function is used to get data from the set_oow_part_type_margin table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_oow_part_type_margin_details($select,$where,$where_in){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        if(!empty($where_in)){
+            $this->db->where_in('set_oow_part_type_margin.part_type_id', $where_in);
+        }
+        $this->db->from('set_oow_part_type_margin');  
+        $query = $this->db->get();
+        return $query->result_array();
+    }
        
 }
