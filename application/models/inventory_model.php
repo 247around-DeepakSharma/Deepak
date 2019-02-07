@@ -1996,7 +1996,7 @@ class Inventory_model extends CI_Model {
 
                 $spare_oow_est_margin = ($part_type[0]['oow_vendor_margin'] + $part_type[0]['oow_around_margin']);
                 $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_margin'];
-                $repair_oow_around_percentage = $inventory[0]['oow_around_margin'];
+                $repair_oow_around_percentage = $part_type[0]['oow_around_margin'];
                 $gst_rate = $part_type[0]['gst_rate'];
             }
         }
