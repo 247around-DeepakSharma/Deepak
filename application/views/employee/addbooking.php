@@ -459,6 +459,8 @@
    
    
 });
+
+$("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
 </script>
 <style type="text/css">
 #errmsg1
