@@ -1,7 +1,7 @@
 
 <div id="page-wrapper">
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading">Defective Spare Lost Invoice</div>
+        <div class="panel-heading">Defective Spare Repair OOW Invoice</div>
             <div class="panel-body">
             <div class="row">
                  <?php
@@ -61,7 +61,7 @@
                                 <th>Status</th>
                                 <th>HSN Code</th>
                                 <th>GST Rate</th>
-                                <th>Invoice Value<small> (Including Tax) </small></th>
+                                <th>Purchase Amount</th>
                                 <th>Reason</th>
                                 <th>Action</th>
                             </tr>
@@ -86,7 +86,7 @@
             $.ajax({
                 url:'<?php echo base_url(); ?>employee/spare_parts/get_defective_spare_parts',
                 type:'POST',
-                data:{booking_id:booking_id, page:"<?php echo BILL_DEFECTIVE_SPARE_PART_LOST_PAGE; ?>"}
+                data:{booking_id:booking_id, page : "<?php echo BILL_DEFECTIVE_OOW_SPARE_PART_PAGE; ?>"}
             }).done(function(response){
                 response = JSON.parse(response);
                 var remarks = response.remarks;
@@ -167,7 +167,7 @@
               if($("#remarks").val()){
                 var formData = JSON.stringify(postDataArray);
                 $.ajax({
-                   url:'<?php echo base_url(); ?>employee/user_invoice/process_spare_invoice',
+                   url:'<?php echo base_url(); ?>employee/user_invoice/process_repair_oow_spare_invoice',
                    type:'POST',
                    beforeSend: function(){
                         $('body').loadingModal({
