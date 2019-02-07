@@ -4826,7 +4826,7 @@ class Booking extends CI_Controller {
         }
     }
     function sms_test($number,$text){
-          $this->notify->sendTransactionalSmsMsg91($number,$text);
+          $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
     
     function testDefective(){
