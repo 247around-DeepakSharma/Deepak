@@ -9887,4 +9887,4 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'complete_dealer_booking', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
 
 --Rajshree 05 feb 2019
-CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
