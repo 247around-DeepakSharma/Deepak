@@ -753,7 +753,8 @@ class Notify {
                         curl_close($ch);
         return  $data;
     }
-    function sendTransactionalSmsMsg91($phone_number, $body) {
+    function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
+        $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
@@ -786,7 +787,7 @@ class Notify {
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
             if ($smsBody) {
-                $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody);
+                $status = $this->sendTransactionalSmsMsg91($sms['phone_no'], $smsBody,$sms['tag']);
 
                 log_message('info', __METHOD__ . print_r($status, 1));
 
@@ -889,5 +890,25 @@ class Notify {
 	} else {
 	    log_message('info', __FUNCTION__ . ' Error on saving Email to Database "email_sent" ' . print_r($data, TRUE));
 	}
+    }
+    /*
+     * This Function is use to validate sms length
+     */
+    function validate_sms_length($phone,$body,$tag){
+        $stringLength = strlen($body);
+        if($stringLength > SMS_ALLOWED_LENGTH){
+            $is_exception =  $this->My_CI->vendor_model->getVendorSmsTemplate($tag,true);
+            if(!$is_exception){
+                log_message('info', "Message Length is more than: " . SMS_ALLOWED_LENGTH. "phone". $phone . ",please check tag: '" . $tag);
+                $subject = 'SMS Length is greater than '.SMS_ALLOWED_LENGTH;
+                $message = "SMS Details is below <br>";
+                $message .= "Phone Number : ".$phone."<br>";
+                $message .= "SMS Tag :".$tag."<br>";
+                $message .= "Body :".$body."<br><br>";
+                $message .= "<b>Note</b> If SMS tag is 'tag_not_available' please create a template for this sms and mark is_exception_for_length TRUE (If length is needed more than 160 Character)";
+                $to = DEVELOPER_EMAIL;
+                $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "","sms_length_overruns");
+            }
+        }
     }
 }

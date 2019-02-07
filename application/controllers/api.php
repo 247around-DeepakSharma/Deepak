@@ -520,7 +520,7 @@ class Api extends CI_Controller {
 
                 //Send SMS to Vendor
                 $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं 011-39595200";
-                $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
+                $this->notify->sendTransactionalSmsMsg91($phone_number, $message,SMS_WITHOUT_TAG);
 
      
                 $this->jsonResponseString['response'] = $user_number;
@@ -541,7 +541,7 @@ class Api extends CI_Controller {
 
             //Send SMS to Vendor
             $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं। 011-39595200";
-            $this->notify->sendTransactionalSmsMsg91($extn, $message);
+            $this->notify->sendTransactionalSmsMsg91($extn, $message,SMS_WITHOUT_TAG);
 
             $this->jsonResponseString['response'] = $user_number;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -622,7 +622,7 @@ class Api extends CI_Controller {
         //$message = "AROUND ke grahak $user_number ka pata $address samay pe pahuncho";
         //log_message ('info', "SMS message for address: " . $message);
         //Send Address to Handyman thru SMS
-        $this->notify->sendTransactionalSmsMsg91($handyman_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($handyman_phone, $message,SMS_WITHOUT_TAG);
 
         $this->jsonResponseString['response'] = 'notify';
         $this->sendJsonResponse(array('000012', 'success'));
@@ -814,7 +814,7 @@ class Api extends CI_Controller {
 
         if ($userResult) {
             //Confirm user about number verification
-            $this->notify->sendTransactionalSmsMsg91($phone_number, $message);
+            $this->notify->sendTransactionalSmsMsg91($phone_number, $message,SMS_WITHOUT_TAG);
             $name = $userResult[0]['name'];
             $email = $userResult[0]['user_email'];
             $user_id = $userResult[0]['user_id'];
@@ -2289,7 +2289,7 @@ class Api extends CI_Controller {
 
 //        log_message('info', "SMS text: " . $message);
 
-        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message,SMS_WITHOUT_TAG);
         //$notify = "Sms Sent";
 
         $this->jsonResponseString['response'] = "done";
@@ -2347,7 +2347,7 @@ class Api extends CI_Controller {
 
         //log_message('info', "SMS text: " . $message);
 
-        $this->notify->sendTransactionalSmsMsg91($user_phone, $message);
+        $this->notify->sendTransactionalSmsMsg91($user_phone, $message,SMS_WITHOUT_TAG);
         //$notify = "Sms Sent";
 
         $this->jsonResponseString['response'] = "done";

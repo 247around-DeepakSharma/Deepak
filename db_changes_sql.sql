@@ -9656,13 +9656,16 @@ ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL 
 
 --Rajshree 24 Jan 2019
 CREATE TABLE `partner_sample_no_picture` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `partner_id` int(11) NOT NULL,
   `sample_no_pic` varchar(255) NOT NULL,
   `active` enum('0','1') NOT NULL DEFAULT '1',
   `created_date` date NOT NULL,
-  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);    
 ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
@@ -9883,5 +9886,17 @@ ALTER TABLE `set_oow_part_type_margin`
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'cancel_dealer_booking', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'complete_dealer_booking', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
 
+
 --Rajshree 05 feb 2019
-CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+--Chhavi 4rth Feb
+UPDATE `query_report` SET `query1` = 'SELECT round(AVG((partner_basic_charge+partner_tax_charge)-partner_discount)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id WHERE current_status IN (\'Delivered\', \'In-Transit\',\'New Item In-transit\', \'Completed\');' WHERE `query_report`.`main_description` = 'avg_buying_price' AND active =1;
+UPDATE `query_report` SET `query1` = 'SELECT round(AVG(CASE WHEN (bb_unit_details.cp_claimed_price > 0) THEN (round((bb_unit_details.cp_claimed_price-bb_unit_details.cp_discount),0)) ELSE (round(((bb_unit_details.cp_basic_charge + cp_tax_charge)-cp_discount),0)) END)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id WHERE current_status IN (\'Delivered\', \'In-Transit\',\'New Item In-transit\', \'Completed\');' WHERE `query_report`.`main_description` = 'avg_selling_price' AND active =1;
+
+--Chhavi 7th Feb
+ALTER TABLE `sms_template` ADD `is_exception_for_length` INT(1) NOT NULL DEFAULT '0' AFTER `active`;
+
+

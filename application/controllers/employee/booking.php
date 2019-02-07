@@ -4132,6 +4132,15 @@ class Booking extends CI_Controller {
                          unset($notFoundArray[$keyremove]);
                       }
                   }
+                  else
+                  {
+                      $query_booking_id='Q-'.$foundkey;
+                      if(in_array($query_booking_id,$notFoundArray))
+                      {
+                         $keyremove= array_search ($query_booking_id,$notFoundArray);
+                         unset($notFoundArray[$keyremove]);
+                      }
+                  }
               }
            }
            //end
@@ -4826,7 +4835,7 @@ class Booking extends CI_Controller {
         }
     }
     function sms_test($number,$text){
-          $this->notify->sendTransactionalSmsMsg91($number,$text);
+          $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
     
     function testDefective(){
