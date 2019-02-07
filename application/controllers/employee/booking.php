@@ -4132,6 +4132,15 @@ class Booking extends CI_Controller {
                          unset($notFoundArray[$keyremove]);
                       }
                   }
+                  else
+                  {
+                      $query_booking_id='Q-'.$foundkey;
+                      if(in_array($query_booking_id,$notFoundArray))
+                      {
+                         $keyremove= array_search ($query_booking_id,$notFoundArray);
+                         unset($notFoundArray[$keyremove]);
+                      }
+                  }
               }
            }
            //end

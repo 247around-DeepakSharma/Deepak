@@ -1079,6 +1079,8 @@
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
+                minDate:"1998-01-01",
+                maxDate:today,
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
