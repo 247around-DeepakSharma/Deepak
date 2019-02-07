@@ -606,6 +606,8 @@ define("_ONE_REPEAT_BOOKING_FLAG", 1);
 define("_MULTIPLE_REPEAT_BOOKING_FLAG", 3);
 define("IS_SN_CORRECT",0);
 define('UPCOUNTRY_OVER_LIMIT_DISTANCE', 200);
+define("NOT_DEFINE_SN",2);
+
 
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');

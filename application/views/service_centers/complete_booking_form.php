@@ -837,7 +837,14 @@
                         $("#error_serial_no" +index).text("");
                         $("#sno_required"+index).val('0');
                         $("#duplicate_sno_required"+index).val('0');
+                        if(data.notdefine===1)
+                        {
+                             $("#is_sn_correct"+index).val('2');
+                        }
+                        else
+                        {
                         $("#is_sn_correct"+index).val('1');
+                        }
                     } else if(data.code === Number(<?php echo DUPLICATE_SERIAL_NO_CODE; ?>)){
                         $("#duplicate_sno_required"+index).val('1');
                         $("#error_serial_no" +index).html(data.message);
