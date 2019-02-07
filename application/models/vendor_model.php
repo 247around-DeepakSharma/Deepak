@@ -593,15 +593,19 @@ class vendor_model extends CI_Model {
      *  @param : $sms_tag
      *  @return : template if exists else returns blank
      */
-    function getVendorSmsTemplate($sms_tag) {
-
-        $this->db->select("template");
+    function getVendorSmsTemplate($sms_tag,$otherData = FALSE) {
+        $this->db->select("template,is_exception_for_length");
         $this->db->where('tag', $sms_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('sms_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return $template[0]['template'];
+            if(!$otherData){
+                return $template[0]['template'];
+            }
+            else{
+                return $template[0]['is_exception_for_length'];
+            }
         } else {
             return "";
         }

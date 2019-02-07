@@ -55,7 +55,7 @@ class Around_scheduler extends CI_Controller {
         $tag = "sd_edd_missed_call_reminder";
 
         foreach ($data1 as $value) {
-            $status = $this->notify->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content);
+            $status = $this->notify->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content,SMS_WITHOUT_TAG);
             log_message('info', __METHOD__ . print_r($status, 1));
             if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
                 $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $tag, $status['content']);

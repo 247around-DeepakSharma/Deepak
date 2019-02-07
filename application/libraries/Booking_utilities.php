@@ -340,7 +340,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
             
             //Send SMS to vendor
-            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             
             //For saving SMS to the database on sucess
             $this->My_CI->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],

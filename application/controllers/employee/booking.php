@@ -4816,32 +4816,8 @@ class Booking extends CI_Controller {
             echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
     }
-    function sms_test($number,$text){
-          $this->notify->send_sms_using_knowlarity($number,$text);
-    }
-        function test_bulk_sms(){
-        for($i=1;$i<101;$i++){
-            $phone_number = "";
-            $body = "SMS Testing Knowlarity ".$i;
-            if($i < 26){
-                $phone_number = '8826186751';
-            }
-            else if($i>25 && $i<51){
-                $phone_number = '8826423424';
-            }
-            else if($i>50 && $i<76){
-                $phone_number = '8989517453';
-            }
-            else{
-                $phone_number = '9968235599';
-            }
-           $response = $this->notify->sendTransactionalSmsMsg91($phone_number, $body);
-           echo $phone_number;
-           echo "<br>";
-           echo $body;
-           echo "<pre>";
-           print_r($response);
-        }
+     function sms_test($number,$text){
+          $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
     
     function testDefective(){
