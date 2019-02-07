@@ -2526,24 +2526,24 @@ class Miscelleneous {
         $id = $escalation['vendor_id'];
         if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1){
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             //For saving SMS to the database on sucess
             $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
             $smsBody, $booking_id, "Escalation", $status['content']);
-            $status1 = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
+            $status1 = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             //For saving SMS to the database on sucess
             $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
             $smsBody, $booking_id,"Escalation", $status1['content']);
           } 
           else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             //For saving SMS to the database on sucess
             $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],$smsBody, $booking_id, "Escalation", $status['content']);
           } 
           else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
-            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody);
+            $status = $this->My_CI->notify->sendTransactionalSmsMsg91($contact[0]['owner_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             //For saving SMS to the database on sucess
             $this->My_CI->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
             $smsBody, $booking_id, "Escalation", $status['content']); 

@@ -14,6 +14,7 @@ include('telephony_constant.php');
 include('taxpro_api_constant.php');
 include('invoice_constant.php');
 include('buyback_constant.php');
+include('sms_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes

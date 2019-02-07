@@ -931,8 +931,8 @@ class Partner extends CI_Controller {
         }
         $results['all_partner_code'] = $all_code;
         //Getting Sample no picture details
-        $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id),NULL,NULL,array(),NULL,NULL,array());
-        $result['sample_no_pic']=$sample_no_pic_arr;
+        $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id,'active'=>'1'),NULL,NULL,array(),NULL,NULL,array());
+        $results['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $group_by_arr=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
@@ -6682,20 +6682,20 @@ class Partner extends CI_Controller {
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
-             $sample_no_pic_array=array();
+            $sample_no_pic_array=array();
             for($i=0; $i<$cpt; $i++)
-                {           
-                    $_FILES['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
-                    $_FILES['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
-                    $_FILES['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
-                    $_FILES['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
-                    $_FILES['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
+                {   
+                    $_FILE['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
+                    $_FILE['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
+                    $_FILE['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
+                    $_FILE['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
+                    $_FILE['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
                    //Processing Sample Pic File
                    
-                    if (($_FILES['SamplePicfile']['error'] != 4) && !empty($_FILES['SamplePicfile']['tmp_name'])) 
+                    if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
-                        $tmpFile = $_FILES['SamplePicfile']['tmp_name'];
-                        $extension=explode(".", $_FILES['SamplePicfile']['name'])[1];
+                        $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
+                        $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
                         $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
                         move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
 
@@ -6707,7 +6707,7 @@ class Partner extends CI_Controller {
                         'partner_id'=>$partner_id,
                         'sample_no_pic'=>$sample_file,
                         'created_date'=>date('Y-m-d'),
-                        'active'=>1
+                        'active'=>'1'
                         );
                       
                       //update sample_no_pic
@@ -6728,23 +6728,25 @@ class Partner extends CI_Controller {
         }
         
     }
-    public function deletePartnerSampleNo($id,$partner_id)
+    public function deletePartnerSampleNo()
     {
+        $id=$this->input->post('id');
+        $partner_id=$this->input->post('partner_id');
         $data=array('active'=>'0');
-        $where=array(id=>$id);
+        $where=array('id'=>$id);
         $data=$this->reusable_model->update_table('partner_sample_no_picture',$data,$where);
         if($data>0)
         {
            $msg = "Partner Sample Pic has been Deleted successfully";
-           $this->session->set_userdata('success', $msg);
-            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+          
         }
         else
         {
             $msg = "Partner Sample Pic has not been Deleted successfully";
-           $this->session->set_userdata('error', $msg);
-            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+           
         }
+        echo $msg;
+        
     }
     /**
      * @desc: This function is used to show the appliance model mapping of the partner
@@ -6843,7 +6845,57 @@ class Partner extends CI_Controller {
     }
     
     /**
-     * @desc: This method is used to load view for setting logo priority on web site
+     * @desc: This function is used to tag margin on spare parts
+     * @params: void
+     * @return: void
+     */
+    function process_to_tag_marging_on_spare_parts() {
+        log_message('info', __FUNCTION__ . " Margin of Spare Parts " . json_encode($_POST));
+        $partner_id = $this->input->post('partner_id');
+        $part = $this->input->post('part');
+
+        if (!empty($part)) {
+            $flag = false;
+            foreach ($part as $key => $parts_deails) {
+                $oow_around_margin = $parts_deails['oow_around_margin'];
+                $oow_vendor_margin = $parts_deails['oow_vendor_margin'];
+                $parts_type_list = $parts_deails['parts_type'];
+
+                if (!empty($parts_type_list)) {
+                    $parts_type_ids = implode(',', $parts_type_list);
+                    $select = 'set_oow_part_type_margin.partner_id,set_oow_part_type_margin.part_type_id';
+                    $oow_part_type_margin_list = $this->inventory_model->get_oow_part_type_margin_details($select, array('partner_id' => $partner_id), array('part_type_id' => $parts_type_ids));
+
+                    if (empty($oow_part_type_margin_list)) {
+                        foreach ($parts_type_list as $key => $part_type_id) {
+                            $data['partner_id'] = $partner_id;
+                            $data['oow_around_margin'] = $oow_around_margin;
+                            $data['oow_vendor_margin'] = $oow_vendor_margin;
+                            $data['part_type_id'] = $part_type_id;
+
+                            $last_insert_id = $this->inventory_model->insert_query('set_oow_part_type_margin', $data);
+                            if ($last_insert_id) {
+                                $flag = true;
+                            }
+                        }
+                    } else {
+                        $this->session->set_userdata(array('error' => 'Duplicate entry'));
+                        redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                    }
+                } else {
+                    $this->session->set_userdata(array('error' => 'Please Fill Form Details Properly.'));
+                }
+            }
+
+            if ($flag) {
+                $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+                redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+            }
+        }
+    }
+
+
+    /* @desc: This method is used to load view for setting logo priority on web site
      * @param: void
      * @return:view
      */
@@ -6882,4 +6934,5 @@ class Partner extends CI_Controller {
        }
         echo json_encode($return);
     }
+
 }
