@@ -1297,5 +1297,208 @@ class User_invoice extends CI_Controller {
         exec("rm -rf " . escapeshellarg($csv));
         exit;
     }
+    
+    /*
+     * @desc : This function is used to generate repair oow spare part invoice
+     * @param : void
+     * @return : boolean
+    */
+    function process_repair_oow_spare_invoice(){
+        $data = array();
+        $spare_parts_detail_ids = array();
+        $sd = $ed = $invoice_date = date("Y-m-d");
+        $vendor_email_parts_name = "";
+        $email_parts_name_partner = "";
+        $partner_id = 0;
+        $invoice_amount = 0;
+        $postData = json_decode($this->input->post('postData'));
+        $booking_id = $this->input->post('booking_id');
+        //get detail for assigned vendor
+        $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
+                            . "state,address as company_address, "
+                            . "company_name, pincode, "
+                            . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
+        $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+        foreach ($postData as $key=>$value){ 
+            $spare_parts_detail_ids[] = $value->spare_detail_ids;
+            $spare_id = $value->spare_detail_ids;
+            $amount = $value->confirm_prices;
+            $gst_rate = $value->gst_rates;
+            $hsn_code = $value->hsn_codes;
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id, requested_inventory_id, shipped_inventory_id, booking_details.amount_due, is_micro_wh, booking_details.partner_id', array('spare_parts_details.id' => $spare_id), true);
+            if (!empty($spare_data)) {
+                $partner_id = $spare_data[0]['partner_id'];
+                $vendor_email_parts_name .= $value->spare_product_name.",";
+                $inventory_id = 0;
+                if($spare_data[0]['is_micro_wh'] == 0){
+                    $email_parts_name_partner .= $value->spare_product_name.", ";
+                }
+                if($spare_data[0]['shipped_inventory_id']){
+                   $inventory_id = $spare_data[0]['shipped_inventory_id'];
+                }
+                else{
+                   $inventory_id = $spare_data[0]['requested_inventory_id']; 
+                }
+                $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $spare_data[0]['parts_requested_type'],'service_id' => $spare_data[0]['service_id']));
+                $spare_oow_est_margin = $margin['oow_est_margin']/100;
+                $spare_oow_around_margin = $margin['oow_around_margin']/100;
+                $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];
+                $customer_total = ($amount + ($amount * $spare_oow_est_margin));
+                $around_total = ($amount + ($amount * $spare_oow_around_margin));
+                $invoice_amount = $invoice_amount + $around_total;
+                //insert line item into booking unit table
+                $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+                $unit[0]['price_tags'] = REPAIR_OOW_PARTS_PRICE_TAGS;
+                $unit[0]['vendor_basic_percentage'] = ($amount * $repair_oow_vendor_percentage) / $customer_total;
+                $unit[0]['customer_total'] = $customer_total;
+                $unit[0]['product_or_services'] = "Product";
+                $unit[0]['tax_rate'] = $gst_rate;
+                $unit[0]['create_date'] = date("Y-m-d H:i:s");
+                $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
+                $unit[0]['partner_net_payable'] = 0;
+                $unit[0]['partner_paid_basic_charges'] = 0;
+                $unit[0]['around_paid_basic_charges'] = 0;
+                $unit[0]['around_net_payable'] = 0;
+                $unit[0]['pay_to_sf'] = 0;
+                $unit[0]['pay_from_sf'] = 0;
+                unset($unit[0]['id']);
+                $result = $this->booking_model->_insert_data_in_booking_unit_details($unit[0], 1, 1);
+                if (isset($result['unit_id']) && !empty($result['unit_id'])) {
+                    //Update unit details in spare parts
+                    $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('booking_unit_details_id' => $result['unit_id'], 'invoice_gst_rate'=> $gst_rate));
+                }
+                $booking['amount_due'] = ($spare_data[0]['amount_due'] + $customer_total);
+                $booking['internal_status'] = SPARE_OOW_EST_GIVEN;
+                $actor = $next_action = 'not_define';
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $unit[0]['partner_id'], $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                // Update Booking Table
+                $this->booking_model->update_booking($booking_id, $booking);
+                
+                $sc_data['unit_details_id'] = $result['unit_id'];
+                $sc_data['booking_id'] = $booking_id;
+                $sc_data['service_center_id'] = $value->service_center_ids;
+                $sc_data['current_status'] = _247AROUND_PENDING;
+                $sc_data['update_date'] = date('Y-m-d H:i:s');
+                $sc_data['internal_status'] = SPARE_OOW_EST_GIVEN;
+                //Insert New item In SF Action Table 
+                $this->vendor_model->insert_service_center_action($sc_data);
+                //Insert into booking state change
+                $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", _247AROUND_DEFAULT_AGENT, "", $actor, $next_action, _247AROUND);
+                //prepare job card 
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                
+                //create data for generating invoices
+                $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                $data[$key]['taxable_value'] = ($around_total  - $tax_charge);
+                $data[$key]['product_or_services'] = "Product";
+                if(!empty($vendor_data['gst_no'])){
+                    $data[$key]['gst_number'] = $vendor_data['gst_no'];
+                } else {
+                    $data[$key]['gst_number'] = TRUE;
+                }
+
+                $data[$key]['company_name'] = $vendor_data['company_name'];
+                $data[$key]['company_address'] = $vendor_data['company_address'];
+                $data[$key]['district'] = $vendor_data['district'];
+                $data[$key]['pincode'] = $vendor_data['pincode'];
+                $data[$key]['state'] = $vendor_data['state'];
+                $data[$key]['rate'] = $data[$key]['taxable_value'];
+                $data[$key]['qty'] = 1;
+                $data[$key]['hsn_code'] = $hsn_code;
+                $data[$key]['gst_rate'] = $gst_rate;
+            }
+        }
+        if(!empty($data)){ 
+            $invoice_type = "Tax Invoice";
+            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date);
+            $response['meta']['invoice_id'] = $invoice_id;
+            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+            if($status){
+
+                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                $output_pdf_file_name = $convert['main_pdf_file_name'];
+                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                $response['meta']['copy_file'] = $convert['copy_file'];
+                $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+
+                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                
+                $email_tag = DEFECTIVE_SPARE_SALE_INVOICE; 
+                $vendor_email_parts_name = rtrim($vendor_email_parts_name)."(".$booking_id.")";
+                $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                $subject = vsprintf($email_template[4], array($booking_id));
+                $message = vsprintf($email_template[0], array($vendor_email_parts_name, $booking_id));
+                $email_from = $email_template[2];
+                //$to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                //$cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
+                $to = $email_template[1];
+                $cc = $email_template[3];
+                
+                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+                exec($cmd); 
+
+                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+
+                unlink(TMP_FOLDER.$output_pdf_file_name);
+
+
+                unlink(TMP_FOLDER.$invoice_id.".xlsx");
+                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+
+            }
+            $response['meta']['invoice_id'] = $invoice_id;
+            $response['meta']['vertical'] = SERVICE;
+            $response['meta']['category'] = SPARES;
+            $response['meta']['sub_category'] = OUT_OF_WARRANTY;
+            $response['meta']['accounting'] = 1;
+
+            $this->invoice_lib->insert_invoice_breackup($response);
+            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
+            $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+            if($inserted_invoice){
+                /* Send mail to partner */
+                if($email_parts_name_partner){
+                    $email_parts_name_partner = rtrim($email_parts_name_partner)." (".$booking_id.") ";
+                    $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
+                    $subject = vsprintf($email_template[4], array($booking_id));
+                    $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
+                    $email_from = $email_template[2];
+                    $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
+                    //$to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                    //$cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                    $to = $email_template[1];
+                    $cc = $email_template[3];
+                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
+                }
+
+                $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
+                if($service_center_action[0]['service_center_closed_date']){
+                    $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                }
+                $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
+                $where_in = array('id' => $spare_parts_detail_ids);
+                $spare_update_data = array(
+                    'defective_part_required'=>0, 
+                    'sell_invoice_id'=>$invoice_id, 
+                    'spare_lost'=>1, 
+                    'sell_price'=>$invoice_amount
+                );
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
+            }
+            echo $result;
+        }
+        else{
+            echo false;
+        }
+    }
 
 }

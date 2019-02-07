@@ -1260,12 +1260,25 @@ class Spare_parts extends CI_Controller {
     }
     
      /*
+     * @des - This function is used to load view for bill defective spare to service center
+     * @param - void
+     * @return - view
+     */
+    function defective_spare_oow_invoice(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/defective_spare_oow_invoice_form');
+    }
+    
+     /*
      * @des - This function is used to get parts for booking
      * @param - booking_id
      * @return - array
      */
     function get_defective_spare_parts(){
-        $where_internal_status = array("page" => "bill_defective_spare", "active" => '1');
+        $where_internal_status = array("active" => '1');
+        if($this->input->post("page")){
+            $where_internal_status['page'] = $this->input->post("page");
+        }
         $internal_status = $this->booking_model->get_internal_status($where_internal_status);
         $hsn_code = $this->invoices_model->get_hsncode_details('hsn_code, gst_rate', array());
         $hsn_code_html = "<option value='' selected disabled>Select HSN Code</option>";
