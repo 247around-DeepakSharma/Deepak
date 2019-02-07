@@ -1622,7 +1622,7 @@
                     <tbody>
                         <?php
                             $i = 0;
-                                foreach($result['sample_no_pic'] as $value){
+                                foreach($results['sample_no_pic'] as $value){
                                     $i ++;
                                     if(!empty($value['sample_no_pic']))
                                     {
