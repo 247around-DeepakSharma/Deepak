@@ -1608,7 +1608,7 @@
             
              <hr>
             <?php
-                if(!empty($result['sample_no_pic'])){
+            if(!empty($results['sample_no_pic'])){
                     ?>
             <div id="exist_documents">
                 <table class="table">
@@ -1622,7 +1622,7 @@
                     <tbody>
                         <?php
                             $i = 0;
-                                foreach($result['sample_no_pic'] as $value){
+                                foreach($results['sample_no_pic'] as $value){
                                     $i ++;
                                     if(!empty($value['sample_no_pic']))
                                     {
@@ -4247,13 +4247,23 @@
             });
         }
     }
-    function deletesamplenopic(id)
+    function deletesamplenopic(id,partner_id)
     {
         var url="<?php echo base_url()?>";
         var r=confirm("Do you want to delete this?");
+       
         if (r==true)
         {
-          window.location = url+"employee/partner/deletePartnerSampleNo/"+id;
+         // window.location = url+"employee/partner/deletePartnerSampleNo/"+id+"/"+partner_id;
+          $.ajax({
+                type: 'POST',
+                url: "<?php echo base_url(); ?>employee/partner/deletePartnerSampleNo",
+                data:{id:id,partner_id:partner_id},
+                success: function (data) {
+                     alert(data);
+                     location.reload();
+                }
+            });
         }
         else
         {

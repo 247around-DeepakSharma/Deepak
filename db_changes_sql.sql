@@ -9656,13 +9656,16 @@ ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL 
 
 --Rajshree 24 Jan 2019
 CREATE TABLE `partner_sample_no_picture` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `partner_id` int(11) NOT NULL,
   `sample_no_pic` varchar(255) NOT NULL,
   `active` enum('0','1') NOT NULL DEFAULT '1',
   `created_date` date NOT NULL,
-  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);    
 ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;

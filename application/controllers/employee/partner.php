@@ -931,8 +931,8 @@ class Partner extends CI_Controller {
         }
         $results['all_partner_code'] = $all_code;
         //Getting Sample no picture details
-        $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id),NULL,NULL,array(),NULL,NULL,array());
-        $result['sample_no_pic']=$sample_no_pic_arr;
+        $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id,'active'=>'1'),NULL,NULL,array(),NULL,NULL,array());
+        $results['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $group_by_arr=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
@@ -6682,20 +6682,20 @@ class Partner extends CI_Controller {
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
-             $sample_no_pic_array=array();
+            $sample_no_pic_array=array();
             for($i=0; $i<$cpt; $i++)
-                {           
-                    $_FILES['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
-                    $_FILES['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
-                    $_FILES['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
-                    $_FILES['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
-                    $_FILES['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
+                {   
+                    $_FILE['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
+                    $_FILE['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
+                    $_FILE['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
+                    $_FILE['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
+                    $_FILE['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
                    //Processing Sample Pic File
                    
-                    if (($_FILES['SamplePicfile']['error'] != 4) && !empty($_FILES['SamplePicfile']['tmp_name'])) 
+                    if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
-                        $tmpFile = $_FILES['SamplePicfile']['tmp_name'];
-                        $extension=explode(".", $_FILES['SamplePicfile']['name'])[1];
+                        $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
+                        $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
                         $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
                         move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
 
@@ -6707,7 +6707,7 @@ class Partner extends CI_Controller {
                         'partner_id'=>$partner_id,
                         'sample_no_pic'=>$sample_file,
                         'created_date'=>date('Y-m-d'),
-                        'active'=>1
+                        'active'=>'1'
                         );
                       
                       //update sample_no_pic
@@ -6728,23 +6728,25 @@ class Partner extends CI_Controller {
         }
         
     }
-    public function deletePartnerSampleNo($id,$partner_id)
+    public function deletePartnerSampleNo()
     {
+        $id=$this->input->post('id');
+        $partner_id=$this->input->post('partner_id');
         $data=array('active'=>'0');
-        $where=array(id=>$id);
+        $where=array('id'=>$id);
         $data=$this->reusable_model->update_table('partner_sample_no_picture',$data,$where);
         if($data>0)
         {
            $msg = "Partner Sample Pic has been Deleted successfully";
-           $this->session->set_userdata('success', $msg);
-            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+          
         }
         else
         {
             $msg = "Partner Sample Pic has not been Deleted successfully";
-           $this->session->set_userdata('error', $msg);
-            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+           
         }
+        echo $msg;
+        
     }
     /**
      * @desc: This function is used to show the appliance model mapping of the partner
