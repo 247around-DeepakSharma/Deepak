@@ -1829,8 +1829,9 @@ class Booking extends CI_Controller {
     function reject_booking_from_review() {
         $postArray = $this->input->post();
         $where['is_in_process'] = 0;
-        $whereIN['booking_id'] = $postArray['booking_id']; 
-        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        $whereIN['booking_id'] = $postArray['booking_id'];
+        $whereIN['current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
+        $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
