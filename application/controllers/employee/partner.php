@@ -6845,7 +6845,57 @@ class Partner extends CI_Controller {
     }
     
     /**
-     * @desc: This method is used to load view for setting logo priority on web site
+     * @desc: This function is used to tag margin on spare parts
+     * @params: void
+     * @return: void
+     */
+    function process_to_tag_marging_on_spare_parts() {
+        log_message('info', __FUNCTION__ . " Margin of Spare Parts " . json_encode($_POST));
+        $partner_id = $this->input->post('partner_id');
+        $part = $this->input->post('part');
+
+        if (!empty($part)) {
+            $flag = false;
+            foreach ($part as $key => $parts_deails) {
+                $oow_around_margin = $parts_deails['oow_around_margin'];
+                $oow_vendor_margin = $parts_deails['oow_vendor_margin'];
+                $parts_type_list = $parts_deails['parts_type'];
+
+                if (!empty($parts_type_list)) {
+                    $parts_type_ids = implode(',', $parts_type_list);
+                    $select = 'set_oow_part_type_margin.partner_id,set_oow_part_type_margin.part_type_id';
+                    $oow_part_type_margin_list = $this->inventory_model->get_oow_part_type_margin_details($select, array('partner_id' => $partner_id), array('part_type_id' => $parts_type_ids));
+
+                    if (empty($oow_part_type_margin_list)) {
+                        foreach ($parts_type_list as $key => $part_type_id) {
+                            $data['partner_id'] = $partner_id;
+                            $data['oow_around_margin'] = $oow_around_margin;
+                            $data['oow_vendor_margin'] = $oow_vendor_margin;
+                            $data['part_type_id'] = $part_type_id;
+
+                            $last_insert_id = $this->inventory_model->insert_query('set_oow_part_type_margin', $data);
+                            if ($last_insert_id) {
+                                $flag = true;
+                            }
+                        }
+                    } else {
+                        $this->session->set_userdata(array('error' => 'Duplicate entry'));
+                        redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                    }
+                } else {
+                    $this->session->set_userdata(array('error' => 'Please Fill Form Details Properly.'));
+                }
+            }
+
+            if ($flag) {
+                $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+                redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+            }
+        }
+    }
+
+
+    /* @desc: This method is used to load view for setting logo priority on web site
      * @param: void
      * @return:view
      */
@@ -6884,4 +6934,5 @@ class Partner extends CI_Controller {
        }
         echo json_encode($return);
     }
+
 }

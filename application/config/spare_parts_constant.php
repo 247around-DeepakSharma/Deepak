@@ -104,3 +104,7 @@ define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vend
 define("SPARE_PART_IN_WARRANTY_STATUS", 1);
 //spare parts in out-of warranty
 define("SPARE_PART_IN_OUT_OF_WARRANTY_STATUS", 2);
+
+//internal status page constant
+define("BILL_DEFECTIVE_OOW_SPARE_PART_PAGE", "bill_defective_oow_spare_part");
+define("BILL_DEFECTIVE_SPARE_PART_LOST_PAGE", "bill_defective_spare_part_lost");

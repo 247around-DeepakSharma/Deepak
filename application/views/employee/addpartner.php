@@ -120,6 +120,7 @@
                         <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
+                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <?php
                             }
                             else{
@@ -136,6 +137,7 @@
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
+                        <li><a id="13" href="#tabs-13"onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <?php
                             }
                             ?>
@@ -2446,6 +2448,79 @@
                     </div>
                 </div>
          </div>
+            
+            
+            <div id="container_13" style="display:none" class="form_container">
+            <form name="document_form" class="form-horizontal" id ="add_spare_part_margin" action="<?php echo base_url() ?>employee/partner/process_to_tag_marging_on_spare_parts" method="POST" enctype="multipart/form-data">
+                
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Add Margin</b></p>
+                            <!-- <button type="button" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" class="btn btn-primary addPartMargin">Add More Parts</button>-->
+                        </div>
+                        <div class="panel-body contract_holder" id="contract_holder_1">
+                           <div class="panel panel-default" id="hide_spare" >
+                       
+                        <div class="panel panel-default">
+                            <div class="panel-body" >
+                                <div class="row">                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_name">Appliance *</label>   
+                                                <select class="form-control appliainces_select" onchange="get_part_type('0')" id="appliainces_0" name="part[0][appliance]" >
+                                                    <option selected disabled>Select Appliance</option>
+                                                </select> 
+                                            <span id="appliance_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class = 'col-md-6'>
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_type">Parts Type *</label>
+                                            <div class="checkbox" style="float:right;"><input type="checkbox" onchange="select_all_part_type()" id="spare_part_all" value="">Select All</div>
+                                            <select class="form-control" id="parts_type_0" name="part[0][parts_type][]" multiple="multiple">
+                                            </select>
+                                            <span id="parts_type_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                         <label for="defective_parts_pic">Around Margin</label>
+                                        <div class="form-group" style="padding: 10px;">
+                                            <input type="number" class="form-control" id="oow_around_margin_0" name="part[0][oow_around_margin]" value = "" placeholder="Around Margin" >
+                                        <span id="oow_around_margin_err"></span>
+                                        </div>
+                                          
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="defective_parts_pic">Vendor Margin</label>
+                                        <div class="form-group" style="padding: 10px;">
+                                            <input type="number" class="form-control" id="oow_vendor_margin_0" name="part[0][oow_vendor_margin]" value = "" placeholder="Vendor Margin" >
+                                        <span id="oow_vendor_margin_err"></span>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- multiple parts section -->                      
+                    </div>
+                        </div>
+                        <div id="cloned"></div>
+                        <div class="clear clear_bottom">   
+                            <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
+                            <center><input type="Submit" value="Save" class="btn btn-primary" id="submit_spare_parts"></center>
+                        </div>
+                    </div>
+                    
+                </div>
+               
+            </form>
+            
+        </div>
+            
+            
        </div>
     </div>
 </div>
@@ -4340,5 +4415,106 @@
         }
       
     }
-     
+    
+    
+    $('#parts_type_0').select2({
+        placeholder: "Select part type",
+        allowClear: true,
+        includeSelectAllOption:true,
+        tags: true
+    });
+            
+    get_services('<?php echo $query[0]['id']; ?>');
+    
+    function get_services(partner_id){        
+        $.ajax({
+            type:'GET',
+            async: false,
+            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
+            data:{is_option_selected:true,partner_id:partner_id},
+            success:function(response){
+                $(".appliainces_select").html(response);
+                $("#appliainces_0").select2();
+                $("#spare_part_all").attr("disabled", false);
+            }
+        });
+    }
+    
+   function get_part_type(id){
+   var service_id = $("#appliainces_"+id).val();
+         if(service_id!==''){
+            $.ajax({
+                method:'POST',
+                async: false,
+                url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+                data: {request_type:'part_type_to_margin',service_id:service_id},
+                success:function(data){    
+                    $("#parts_type_"+id).html(data);
+                }
+            });
+       }
+    }
+    
+    function select_all_part_type(){
+    if ($('#spare_part_all').is(":checked"))
+    {
+    $('#parts_type_0 option').prop('selected', true);
+    $('#parts_type_0').select2({
+       placeholder: "All Selected",
+       allowClear: true,
+       tags: true
+    });
+    }
+    else{
+    $('#parts_type_0 option').prop('selected', false);
+    $('#l_c_capacity').select2({
+       placeholder: "Select All",
+       allowClear: true,
+       tags: true
+    });
+    }
+    }
+    
+    $("#submit_spare_parts").click(function(){
+        
+        var appliainces = $("#appliainces_0").val();
+        var parts_type = $("#parts_type_0").val();
+        var oow_around_margin = $("#oow_around_margin_0").val();
+        var oow_vendor_margin = $("#oow_vendor_margin_0").val();
+        
+        if(appliainces == '' || appliainces == null){
+            $("#appliance_err").html("Please select appliance ").css('color','red');
+            return false;
+        }else{
+            $("#appliance_err").html('');
+        }
+        
+        if(parts_type == '' || parts_type == null){
+            $("#parts_type_err").html("Please select part type ").css('color','red');
+            return false;
+        }else{
+            $("#parts_type_err").html('');
+        }
+        
+        if(oow_around_margin == '' || oow_around_margin == null){
+            $("#oow_around_margin_err").html("Please select part type ").css('color','red');
+            return false;
+        }else{
+            $("#oow_around_margin_err").html('');
+        }
+        
+        if(oow_vendor_margin == '' || oow_vendor_margin == null){
+            $("#oow_vendor_margin_err").html("Please select part type ").css('color','red');
+            return false;
+        }else{
+            $("#oow_vendor_margin_err").html('');
+        }
+        
+        if((appliainces != '' || appliainces != null) && (parts_type != '' || parts_type != null) && (oow_vendor_margin != '' || oow_vendor_margin != null) && (oow_vendor_margin != '' || oow_vendor_margin != null)){
+            return true;
+        }
+        
+        
+    });
+        
 </script>
