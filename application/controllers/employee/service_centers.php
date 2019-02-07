@@ -678,7 +678,7 @@ class Service_centers extends CI_Controller {
     /**
      * @desc this function is used to validate serial no from ajax.
      */
-    function validate_booking_serial_number(){
+     function validate_booking_serial_number(){
         
         log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
         $serial_number = $this->input->post('serial_number');
@@ -690,19 +690,11 @@ class Service_centers extends CI_Controller {
         $model_number = $this->input->post("model_number");
         $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
         if (!empty($status)) {
+            $status['notdefine']=0;
             log_message('info', __METHOD__.'Status '. print_r($status, true));
-            if($status['code']==SUCCESS_CODE)
-            {
-                $status['notdefine']=0;
-                $data=array(is_sn_correct=>1);
-                //update is_sn_correct when gets serial no is valid
-                $this->booking_model->update_is_sn_correct($booking_id,$data);
-            }
             echo json_encode($status, true);
         } else {
             log_message('info',__METHOD__. 'Partner serial no validation is not define');
-            $data=array(is_sn_correct=>2);
-            $this->booking_model->update_is_sn_correct($booking_id,$data);
             echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
         }
     }
