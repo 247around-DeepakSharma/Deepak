@@ -333,12 +333,23 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
             } else {
                 $bookingdate = $dd . " " . $mm;
             }
-
+            $request_type=$getbooking[0]['request_type'];
+            $search_string='(Service Center Visit)';
+            //if request type is service center visit then customer address will not send in sms body
+            if (strpos($request_type,$search_string) !== false)
+            {
+               $smsBody = "Booking - " . substr($getbooking[0]['name'], 0, 20) . ", " . $getbooking[0]['booking_primary_contact_no'] 
+                    . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" 
+                    . $getbooking[0]['booking_timeslot']
+                    . ", ". $getbooking[0]['booking_pincode'] . ". 247around"; 
+            }
+            else
+            {
             $smsBody = "Booking - " . substr($getbooking[0]['name'], 0, 20) . ", " . $getbooking[0]['booking_primary_contact_no'] 
                     . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" 
                     . $getbooking[0]['booking_timeslot'] .  ", " . substr($getbooking[0]['booking_address'], 0, 60)
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
-            
+            }
             //Send SMS to vendor
             $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             
