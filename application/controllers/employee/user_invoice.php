@@ -1310,7 +1310,6 @@ class User_invoice extends CI_Controller {
         $vendor_email_parts_name = "";
         $email_parts_name_partner = "";
         $partner_id = 0;
-        $invoice_amount = 0;
         $postData = json_decode($this->input->post('postData'));
         $booking_id = $this->input->post('booking_id');
         //get detail for assigned vendor
@@ -1345,14 +1344,13 @@ class User_invoice extends CI_Controller {
                 $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];
                 $customer_total = ($amount + ($amount * $spare_oow_est_margin));
                 $around_total = ($amount + ($amount * $spare_oow_around_margin));
-                $invoice_amount = $invoice_amount + $around_total;
                 //insert line item into booking unit table
                 $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
                 $unit[0]['price_tags'] = REPAIR_OOW_PARTS_PRICE_TAGS;
-                $unit[0]['vendor_basic_percentage'] = ($amount * $repair_oow_vendor_percentage) / $customer_total;
+                $unit[0]['vendor_basic_percentage'] = ($around_total * $repair_oow_vendor_percentage) / $customer_total;
                 $unit[0]['customer_total'] = $customer_total;
                 $unit[0]['product_or_services'] = "Product";
-                $unit[0]['tax_rate'] = $gst_rate;
+                $unit[0]['tax_rate'] = '18';
                 $unit[0]['create_date'] = date("Y-m-d H:i:s");
                 $unit[0]['ud_update_date'] = date("Y-m-d H:i:s");
                 $unit[0]['partner_net_payable'] = 0;
@@ -1365,33 +1363,24 @@ class User_invoice extends CI_Controller {
                 $result = $this->booking_model->_insert_data_in_booking_unit_details($unit[0], 1, 1);
                 if (isset($result['unit_id']) && !empty($result['unit_id'])) {
                     //Update unit details in spare parts
-                    $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('booking_unit_details_id' => $result['unit_id'], 'invoice_gst_rate'=> $gst_rate));
-                }
-                $booking['amount_due'] = ($spare_data[0]['amount_due'] + $customer_total);
-                $booking['internal_status'] = SPARE_OOW_EST_GIVEN;
-                $actor = $next_action = 'not_define';
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $unit[0]['partner_id'], $booking_id);
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
+                    $spare_update_data = array(
+                        'booking_unit_details_id' => $result['unit_id'],
+                        'invoice_gst_rate' => $gst_rate,
+                        'defective_part_required'=>0, 
+                        'spare_lost'=>1, 
+                        'sell_price'=>$customer_total,
+                        'purchase_price'=>$amount,
+                    );
+                    $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_update_data);
                 }
                 // Update Booking Table
-                $this->booking_model->update_booking($booking_id, $booking);
+                $amount_due = ($spare_data[0]['amount_due'] + $customer_total);
+                $this->booking_model->update_booking($booking_id, array('amount_due'=>$amount_due));
                 
-                $sc_data['unit_details_id'] = $result['unit_id'];
-                $sc_data['booking_id'] = $booking_id;
-                $sc_data['service_center_id'] = $value->service_center_ids;
-                $sc_data['current_status'] = _247AROUND_PENDING;
-                $sc_data['update_date'] = date('Y-m-d H:i:s');
-                $sc_data['internal_status'] = SPARE_OOW_EST_GIVEN;
-                //Insert New item In SF Action Table 
-                $this->vendor_model->insert_service_center_action($sc_data);
-                //Insert into booking state change
-                $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", _247AROUND_DEFAULT_AGENT, "", $actor, $next_action, _247AROUND);
-                //prepare job card 
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                // Send OOW invoice to Inventory Manager
+                $url = base_url() . "employee/miscelleneous/check_unit_in_sc/".$booking_id;
+                $async_data = array();
+                $this->asynchronous_lib->do_background_process($url, $async_data);
                 
                 //create data for generating invoices
                 $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
@@ -1436,10 +1425,10 @@ class User_invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($booking_id));
                 $message = vsprintf($email_template[0], array($vendor_email_parts_name, $booking_id));
                 $email_from = $email_template[2];
-                //$to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                //$cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
-                $to = $email_template[1];
-                $cc = $email_template[3];
+                $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
+                //$to = $email_template[1];
+                //$cc = $email_template[3];
                 
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd); 
@@ -1471,10 +1460,10 @@ class User_invoice extends CI_Controller {
                     $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
                     $email_from = $email_template[2];
                     $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                    //$to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                    //$cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
-                    $to = $email_template[1];
-                    $cc = $email_template[3];
+                    $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                    $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                    //$to = $email_template[1];
+                    //$cc = $email_template[3];
                     $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
                 }
 
@@ -1487,10 +1476,7 @@ class User_invoice extends CI_Controller {
                 $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
                 $where_in = array('id' => $spare_parts_detail_ids);
                 $spare_update_data = array(
-                    'defective_part_required'=>0, 
                     'sell_invoice_id'=>$invoice_id, 
-                    'spare_lost'=>1, 
-                    'sell_price'=>$invoice_amount
                 );
                 $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
             }
