@@ -550,7 +550,8 @@ class Notify {
                     }else{
                         $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
                         //make tiny url
-                        $tinyUrl = $this->miscelleneous->getShortUrl($jobcard_link);
+                        $jobcard_link=str_replace(" ", "%20", $jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -581,11 +582,10 @@ class Notify {
                         } else {
                             $sms['tag'] = "add_new_booking";
                         }
-                
+                         $sms['smsData']['url']=$tinyUrl;
                         
                     }
-		    $sms['smsData']['url']=$tinyUrl;
-		    //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+		   //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
@@ -609,7 +609,37 @@ class Notify {
                         
                         $this->send_sms_msg91($dealerSms);
                     }
-
+                    // send sms to user for  Brand Collateral file link
+                    $data = $this->My_CI->service_centers_model->get_collateral_for_service_center_bookings($query1[0]['booking_id']);
+                    if(!empty($data))
+                    {
+                            $finalString = 'Your Brand Collateral ->   '.nl2br ("\n");
+                            $index =0;
+                            foreach($data as $collatralData){
+                                   if($collatralData['is_file']){
+                                    $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                 }
+                                else{
+                                    $brand_coll_url = $collatralData['file'];
+                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                }
+                                //make tiny url
+                                $brand_coll_tinyUrl = $this->My_CI->miscelleneous->getShortUrl($brand_coll_url);
+                                $finalString .= ' '.$index.'.     ';
+                                $finalString .= $collatralData['collateral_type'].'        ';
+                                $finalString .=  '       '.$brand_coll_tinyUrl.'          ';
+                                $finalString .=nl2br ("\n");
+                                $index++;
+                            }
+                            $smsbody=$finalString;
+                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['primary_contact_phone_1'],$smsbody,SMS_WITHOUT_TAG);
+            
+                            //For saving SMS to the database on sucess
+                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
+                                    $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+                     }
+                              
 		    break;
 
 		case 'Default_tax_rate':
