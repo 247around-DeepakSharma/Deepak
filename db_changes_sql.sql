@@ -9931,3 +9931,8 @@ UPDATE `query_report` SET `query1` = 'SELECT round(AVG(CASE WHEN (bb_unit_detail
 ALTER TABLE `sms_template` ADD `is_exception_for_length` INT(1) NOT NULL DEFAULT '0' AFTER `active`;
 
 
+CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--Kalyani 06-02-2018
+UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
+UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
