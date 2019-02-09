@@ -89,6 +89,18 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <select class="form-control" id="completed_booking">
+                            <option value="" selected="selected" disabled="">Select Completed Booking Type</option>
+                             <option value="a">All</option>
+                            <option value="b">Completed by Service Center (In Review)</option>
+                            <option value="c">Completed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-md-12">
         <div class="col-md-3">
@@ -120,6 +132,14 @@
        });
        $('#ratings').select2({
            placeholder: "Select Rating",
+           allowClear: true
+       });
+        $('#request_type_booking').select2({
+           placeholder: "Select Request Type",
+           allowClear: true
+       });
+       $('#completed_booking').select2({
+           placeholder: "Select Completed Booking Type",
            allowClear: true
        });
         $('.filter_table').click(function(){ 
