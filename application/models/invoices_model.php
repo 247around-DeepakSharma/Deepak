@@ -2404,7 +2404,7 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
-    
+        
     function _querySearchInvoicesdata($select, $post){
         $this->db->from('vendor_partner_invoices');
         $this->db->select($select, FALSE);
@@ -2446,8 +2446,60 @@ class invoices_model extends CI_Model {
         if(isset($post['group_by']) && !empty($post['group_by'])){
             $this->db->group_by($post['group_by']);
         }
+    }  
+     /**
+     * @desc This function is used to get invoice Data
+     * @param String $select
+     * @param Array $post
+     * @return Array
+     */
+    function searchPartnersListData($select, $post){
+        
+        $this->_querySearchPartnersLisdata($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
     }
-    /**
+    
+        function _querySearchPartnersLisdata($select, $post){
+            
+        $this->db->from('partners');
+        $this->db->select($select, FALSE);
+        
+        $this->db->join('employee', 'employee.id = partners.account_manager_id');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+         if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+                
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+     /**
      * @desc This function is used to  get count of all invoice
      * @param Array $post
      */
