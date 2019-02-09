@@ -655,7 +655,7 @@
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
                 minDate: 0, 
-                maxDate:+7
+                maxDate:0
     });
      function booking_calendar(){
       

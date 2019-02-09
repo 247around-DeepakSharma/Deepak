@@ -9891,7 +9891,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 
 CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
-CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
 --Chhavi 4rth Feb
 UPDATE `query_report` SET `query1` = 'SELECT round(AVG((partner_basic_charge+partner_tax_charge)-partner_discount)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id WHERE current_status IN (\'Delivered\', \'In-Transit\',\'New Item In-transit\', \'Completed\');' WHERE `query_report`.`main_description` = 'avg_buying_price' AND active =1;
 UPDATE `query_report` SET `query1` = 'SELECT round(AVG(CASE WHEN (bb_unit_details.cp_claimed_price > 0) THEN (round((bb_unit_details.cp_claimed_price-bb_unit_details.cp_discount),0)) ELSE (round(((bb_unit_details.cp_basic_charge + cp_tax_charge)-cp_discount),0)) END)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id WHERE current_status IN (\'Delivered\', \'In-Transit\',\'New Item In-transit\', \'Completed\');' WHERE `query_report`.`main_description` = 'avg_selling_price' AND active =1;
@@ -9900,3 +9900,8 @@ UPDATE `query_report` SET `query1` = 'SELECT round(AVG(CASE WHEN (bb_unit_detail
 ALTER TABLE `sms_template` ADD `is_exception_for_length` INT(1) NOT NULL DEFAULT '0' AFTER `active`;
 
 
+CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--Kalyani 06-02-2018
+UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
+UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;

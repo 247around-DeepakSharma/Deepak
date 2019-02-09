@@ -1497,19 +1497,20 @@ class Miscelleneous {
             $booking['order_id'] = 'Not_Generated';
         }
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
+        $pincode =  $booking['booking_pincode'];
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
         if (!empty($result)) {
-           // $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
+            $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state_id'];
             $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
             $rm_email = $query->result_array();
             if (empty($rm_email)) {
                 $rm_email[0]['official_email'] = NULL;
             }
-            $subject = "SF Not Exist in the Pincode " . $booking['booking_pincode'];
+            $subject = "SF Not Exist in the Pincode " . $pincode;
             $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE);
         }else{
-            $pincodeJsonData = $this->google_map_address_api($booking['booking_pincode']);
+            $pincodeJsonData = $this->google_map_address_api($pincode);
             $pincodeArray = json_decode($pincodeJsonData,true);
             if($pincodeArray['status'] == 'OK'){
                 $addressCompLength = count($pincodeArray['results'][0]['address_components']);
@@ -1518,17 +1519,17 @@ class Miscelleneous {
                 if($country == 'India'){
                         $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
                         $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
-                        $this->miscelleneous->process_if_pincode_valid($pincode,$state,$city);
+                        $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
-                        $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
-                       // $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
+                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
-                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
+                        $this->My_CI->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),$notFoundSfArray);
                    }
                    else{
-                        $this->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),array("is_pincode_valid" => 0));
+                        $this->My_CI->vendor_model->update_not_found_sf_table(array("pincode"=>$pincode),array("is_pincode_valid" => 0));
                    }
             }
             else if($pincodeArray['status'] == 'ZERO_RESULTS'){
