@@ -612,5 +612,7 @@ define("IS_SN_CORRECT",0);
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 
+define('UPCOUNTRY_OVER_LIMIT_DISTANCE', 200);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

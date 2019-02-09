@@ -592,8 +592,9 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' New Partner has been added with ID ' . $partner_id . " Done By " . $this->session->userdata('employee_id'));
                     log_message('info', __FUNCTION__ . ' Partner Added Details : ' . print_r($this->input->post(), TRUE));
                     //Adding details in Booking State Change
-                   // $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    // $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                     //Sending Mail for Updated details
+                    /* This is old template for email */
                     $html = "<p>Following Partner has been Added :</p><ul>";
                     foreach ($return_data['partner'] as $key => $value) {
                         $html .= "<li><b>" . $key . '</b> =>';
@@ -605,11 +606,28 @@ class Partner extends CI_Controller {
                     } else {
                         $to = ANUJ_EMAIL_ID. ",". $this->session->userdata("official_email");
                     }
-                    
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "", NEW_PARTNER_ADDED_EMAIL_TAG);
                     
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",NEW_PARTNER_ADDED_EMAIL_TAG);
-                   
+                    // Send new brand onboard notification email to all employee
+                    $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+                    if(!empty($email_template)){
+                        $account_manager_name = $this->employee_model->getemployeefromid($this->input->post('account_manager_id'))[0]['full_name'];
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                        );
+                        $this->table->set_template($template);
+                        $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager'));
+                        $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
+                        $html_table = $this->table->generate();
+                        
+                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                    }
+                    
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;

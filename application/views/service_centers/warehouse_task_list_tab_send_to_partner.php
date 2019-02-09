@@ -240,7 +240,7 @@
 
 <script>
     $('#defective_parts_send_to_partner').DataTable({
-        pageLength:20,
+        pageLength:500,
         dom: 'Bfrtip',
         buttons: [
             {

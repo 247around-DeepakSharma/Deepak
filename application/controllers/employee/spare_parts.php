@@ -1044,7 +1044,7 @@ class Spare_parts extends CI_Controller {
         }
         $select = "id, booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, status, partner_challan_file";
         $booking_id = $this->input->post('booking_id');
-        $where = array("booking_id"=>$booking_id, "status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL);
+        $where = array("booking_id"=>$booking_id, "status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL, "is_micro_wh != 1" => NULL);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where);
         $data['remarks'] = $internal_status;
         $data['hsn_code'] = $hsn_code_html;

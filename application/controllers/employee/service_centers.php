@@ -3534,7 +3534,6 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_basic_charge + $order_list->cp_tax_charge);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
         if($inprocess){
-            $row[] = "";
             switch ($order_list->internal_status){
                 case _247AROUND_BB_NOT_DELIVERED:
                 case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:
@@ -3547,6 +3546,8 @@ class Service_centers extends CI_Controller {
                             </ul>
                           </div>";
                     break;
+                   default:
+                    $row[] = "";
             }
             
         }
@@ -3757,7 +3758,7 @@ class Service_centers extends CI_Controller {
             $post['where']['service_category'] =  $service_category;
         }
         
-        $post['column_order'] = array(NULL,NULL,'service_id','category','capacity','service_category',NULL,NULL,'vendor_total','customer_net_payable','pod');
+        $post['column_order'] = array(NULL,NULL,'brand','category','capacity','service_category', 'vendor_total', NULL, NULL,'customer_net_payable','pod');
         $post['column_search'] = array('service_centre_charges.brand');
         
         return $post;
@@ -4235,7 +4236,8 @@ class Service_centers extends CI_Controller {
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,parts_requested_type, inventory_invoice_on_booking";
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,"
+                . "parts_requested_type, inventory_invoice_on_booking,spare_parts_details.part_warranty_status";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -4263,7 +4265,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
-
+       
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $this->session->userdata('service_center_id') .
                     " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -4350,9 +4352,9 @@ class Service_centers extends CI_Controller {
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 if(!empty($part_details['parts_type'])){
-                                    $data['parts_requested_type'] = $part_details['parts_type'];
+                                    $data['parts_requested_type'] = $part_details['shipped_part_type'];
                                 } else {
-                                    $data['parts_requested_type'] = $part_details['parts_name'];
+                                    $data['parts_requested_type'] = $part_details['shipped_parts_name'];
                                 }
                              
                                 $data['parts_requested'] = $part_details['parts_name'];
@@ -4791,7 +4793,7 @@ class Service_centers extends CI_Controller {
         //check if call from form submission or direct url
         //used to filter the page by partner id
         
-        $config['per_page'] = 200;
+        $config['per_page'] = 500;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -4803,7 +4805,7 @@ class Service_centers extends CI_Controller {
             $sf_id = $this->session->userdata('service_center_id');
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
@@ -4885,7 +4887,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
