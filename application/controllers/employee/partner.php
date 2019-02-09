@@ -5664,7 +5664,7 @@ class Partner extends CI_Controller {
                     }
                      $tempString4 = '</ul>';
                      $tempArray[] =  $tempString2 . $tempString3 .$tempString4;
-                     if(!empty($row['is_gst_doc'])){
+                     if(empty($row['gst_no'])){
                          $tempString5 = '<a class="btn btn-sm btn-success" href="#" title="GST number not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>';
                      }
                      else if(empty ($row['signature_file'])) {
