@@ -244,7 +244,8 @@
                     if ($('#city').length){          d.city         =  $('#city').val();}else{ d.city = ""; }
                     if ($('#ratings').length){d.ratings =  $('#ratings').val();}else{ d.ratings = ""; }
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }
-                     if ($('#request_type_booking').length){d.request_type_booking =  $('#request_type_booking').val();}else{ d.request_type_booking = ""; }
+                    if ($('#request_type_booking').length){d.request_type_booking =  $('#request_type_booking').val();}else{ d.request_type_booking = ""; }
+                    if ($('#completed_booking').length){d.completed_booking =  $('#completed_booking').val();}else{ d.completed_booking = ""; }
                  }
             },
             "deferRender": true,
