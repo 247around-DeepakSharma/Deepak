@@ -374,7 +374,9 @@
                         <center>
                             <input type="hidden" name="product_type" value="Delivered"/>
                             <input type="hidden" id="not_visible" name="not_visible" value="0"/>
-                            <input type="submit" id="submitform" class="btn btn-success "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
+                            <?php if($booking_history[0]['partner_id'] == $this->session->userdata('partner_id')) { ?>
+                                <input type="submit" id="submitform" class="btn btn-success "<?php if(count($unique_appliance) > 1){ echo "disabled";}?> onclick="return check_validation()" value="Submit Booking">
+                            <?php } ?>
                             <p id="error_not_visible" style="color: red"></p>
                         </center>
                     </div>

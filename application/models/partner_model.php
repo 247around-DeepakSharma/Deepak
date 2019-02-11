@@ -160,12 +160,12 @@ function get_data_for_partner_callback($booking_id) {
          if($limit){
              $limitSuubQuery = "LIMIT $offset, $limit";
          }
-        $where .= "  booking_details.partner_id = '" . $partner_id . "'";
+        $where .= " ( booking_details.partner_id = '" . $partner_id . "' OR booking_details.origin_partner_id = '".$partner_id."') ";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."' "
-                    . " AND (booking_details.current_status IN ('Pending','Rescheduled','FollowUp')) ";
+                    . " AND (booking_details.current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."')) ";
         } else {
-            $where .= " AND (booking_details.current_status IN ('Pending', 'Rescheduled')) AND booking_details.service_center_closed_date IS NULL ";
+            $where .= " AND (booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')) AND booking_details.service_center_closed_date IS NULL ";
         }
          if($stateValue){
               $where .= " AND (booking_details.state = '$stateValue') ";
@@ -182,11 +182,7 @@ function get_data_for_partner_callback($booking_id) {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
-            WHERE  $where AND booking_details.upcountry_partner_approved ='1' AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc JOIN booking_details bd ON "
-                  . "bd.booking_id = sc.booking_id JOIN partners ON bd.partner_id = partners.id WHERE sc.booking_id = booking_details.booking_id AND sc.current_status = 'InProcess' "
-                  . "AND (partners.booking_review_for IS NOT NULL "
-                  . "AND bd.amount_due = 0) AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) "
-                  . "AND bd.partner_id IN ('".$partner_id."') AND sc.internal_status IN ('Cancelled','Completed')) "
+            WHERE  $where AND booking_details.upcountry_partner_approved ='1'  "
                   . "$orderSubQuery $limitSuubQuery"
         );
           $temp = $query->result();
@@ -389,7 +385,7 @@ function get_data_for_partner_callback($booking_id) {
             $subQueryArray[$values['Title']] = $values['sub_query'];
         }
         if(!$whereConditions){
-            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('Cancelled','Completed')))";
+            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
         }
         else{
             $where = $whereConditions;
@@ -412,7 +408,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
-            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
+            WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
     } 
     
     //Return all leads shared by Partner in the last 30 days
@@ -428,7 +424,7 @@ function get_data_for_partner_callback($booking_id) {
 			BD.booking_id = UD.booking_id AND
 			BD.service_id = services.id AND
 			BD.user_id = users.user_id AND
-			BD.partner_id = $partner_id AND
+			( BD.partner_id = $partner_id OR BD.origin_partner_id = $partner_id ) AND
 			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
 			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
 
@@ -455,19 +451,19 @@ function get_data_for_partner_callback($booking_id) {
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
         
-        $where1 = array('booking_details.partner_id' => $partner_id, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
+        $where1 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
         $current_month_booking_temp = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
         $current_month_booking = $this->bookings_by_status($current_month_booking_temp);
         
-        $where2 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
+        $where2 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
         $today_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
         $today_booking = $this->bookings_by_status($today_booking_temp);
         
-        $where3 = array('booking_details.partner_id' => $partner_id, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
+        $where3 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
         $yesterday_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
         $yesterday_booking = $this->bookings_by_status($yesterday_booking_temp);
         
-        $where4 = array('booking_details.partner_id' => $partner_id, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
+        $where4 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
         
         $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
 

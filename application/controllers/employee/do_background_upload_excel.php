@@ -347,6 +347,7 @@ class Do_background_upload_excel extends CI_Controller {
             if ($data) {
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
+                $booking['origin_partner_id'] = $default_partner;
                 
                 //$check_partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['sub_order_id']);
                 $check_partner_booking = $this->booking_model->get_bookings_count_by_any('*', array('order_id' => $value['sub_order_id'], 

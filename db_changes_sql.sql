@@ -9665,8 +9665,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 
 ---Abhay 22 Jan
-ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
-ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
+-- ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
+-- ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
 
 --Rajshree 22 Jan 2019
 ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
@@ -9912,6 +9912,7 @@ ALTER TABLE `set_oow_part_type_margin`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
+
 --Rajshree 04 feb 2019
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s' WHERE `sms_template`.`tag` = 'add_new_booking';
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s.%s\r\n' WHERE `sms_template`.`tag` = 'upcountry_add_new_booking';
@@ -9936,3 +9937,10 @@ CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 --Kalyani 06-02-2018
 UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
 UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
+
+CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL AFTER `service_category`;
+
+--Abhay
+ALTER TABLE `booking_details` ADD `origin_partner_id` VARCHAR(64) NULL DEFAULT NULL AFTER `partner_id`;
