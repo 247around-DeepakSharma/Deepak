@@ -1980,7 +1980,6 @@ function get_data_for_partner_callback($booking_id) {
 
     /*
      * @desc This function is used to  get count of all Parters
-     * @param Array $post
      */
     public function _count_all_parters($post) {
         $this->db->from('partners');

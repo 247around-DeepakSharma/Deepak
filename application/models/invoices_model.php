@@ -2446,6 +2446,7 @@ class invoices_model extends CI_Model {
             $this->db->group_by($post['group_by']);
         }
 
+
     }
     /**
      * @desc This function is used to  get count of all invoice
