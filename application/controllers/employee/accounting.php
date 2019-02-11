@@ -738,11 +738,6 @@ class Accounting extends CI_Controller {
             case 'admin_search':
                 $data = $this->getSearchedInvoicingData($post);
                 break;
-            case 'partners_managed_by_account_manager':
-                $post['column_order'] = array(NULL, 'vendor_partner_invoices.id');
-                $post['column_search'] = array('employee.full_name');
-                $data = $this->getPartnersManagedByAccountManagerData($post);
-                break;           
             default :
                break; 
         }
@@ -752,6 +747,39 @@ class Accounting extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->invoices_model->count_all_invoices($post),
             "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }
+    
+    
+    /**
+     * @desc This function is generalize used to get the data for partners datatable
+     * @param request_type
+     */
+    function get_partners_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getInvoiceDataTablePost();
+        $post['column_order'] = array(NULL, 'employee.full_name');
+        $post['column_search'] = array('employee.full_name');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'partners_managed_by_account_manager':   
+                $post['where']['is_active'] = 1;
+                $data = $this->getPartnersManagedByAccountManagerData($post);
+                break;           
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->partner_model->count_all_partners($post),
+            "recordsFiltered" =>  $this->partner_model->count_filtered_partner('*', $post),
             "data" => $data,
         );
         
@@ -779,7 +807,7 @@ class Accounting extends CI_Controller {
     }
         
     /**
-     * @desc Filter invoice data from Invoice Search page from admin
+     * @desc Filter Partner data 
      * @param type $post
      * @return type
      */
@@ -788,7 +816,7 @@ class Accounting extends CI_Controller {
         $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
                 . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
                 . "employee.official_email";
-        $list = $this->invoices_model->searchPartnersListData($select, $post);
+        $list = $this->partner_model->searchPartnersListData($select, $post);
         $no = $post['start'];
         $data = array();
         foreach ($list as $partners_list) {
@@ -807,23 +835,9 @@ class Accounting extends CI_Controller {
      */
     function Partners_datatable($partners_list, $no){
         $row = array();
-              
-        $row[] = $no;
-            
-        $row[] = $partners_list->company_name;
-        $row[] = $partners_list->public_name;
-//        $row[] = $partners_list->company_type;
-//        $row[] = $partners_list->address;
-//        $row[] = $partners_list->district;
-//        $row[] = $partners_list->state;
-//        $row[] = $partners_list->pincode;
-//        $row[] = $partners_list->primary_contact_name;
-//        $row[] = $partners_list->primary_contact_email;
-//        $row[] = $partners_list->customer_care_contact;
-        $row[] = $partners_list->full_name;
-//        $row[] = $partners_list->official_email;
-//        $row[] = $partners_list->phone;
-       
+         $row[] = $no;
+         $row[] = $partners_list->full_name;
+         $row[] = $partners_list->public_name;
         return $row;
     }
      /**

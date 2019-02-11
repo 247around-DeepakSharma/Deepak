@@ -11,21 +11,10 @@
             <section class="show_invoice_id_data">
                 <table class="table table-bordered  table-hover table-striped data" id="partners_list_table"  >
                     <thead>
-                        <tr >
+                        <tr>
                             <th>No</th>
-                            <th>Company Name</th>
-                            <th>Public Name</th>
-<!--                            <th>Company Type</th>
-                            <th>Address</th>
-                            <th>City</th>
-                            <th>State</th>
-                            <th>Pin code</th>
-                            <th>Primary Contact Name</th>
-                            <th>Email</th>
-                            <th>Phone No.</th>-->
-                            <th>Account Manager Name</th>
-<!--                            <th>Email</th>
-                            <th>Phone No.</th>-->
+                             <th>Account Manager Name</th>
+                             <th>Public Name</th>
                         </tr>
                     </thead>
                 </table>
@@ -72,7 +61,7 @@
             ],
          // Load data for the table's content from an Ajax source
             ajax: {
-                url: "<?php echo base_url();?>employee/accounting/get_invoice_searched_data",
+                url: "<?php echo base_url();?>employee/accounting/get_partners_searched_data",
                 type: "POST",
                 data: function(d){
                        d.request_type = "partners_managed_by_account_manager",
@@ -84,7 +73,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2,3], //first column / numbering column
+                    targets: [0,1,2], //first column / numbering column
                     orderable: false //set not orderable
                 }
             ],
