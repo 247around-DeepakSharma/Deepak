@@ -1977,6 +1977,7 @@ function get_data_for_partner_callback($booking_id) {
 
         return $query;
     }
+
     /*
      * @desc This function is used to  get count of all Parters
      * @param Array $post
