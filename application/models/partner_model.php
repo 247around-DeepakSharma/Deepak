@@ -1917,7 +1917,7 @@ function get_data_for_partner_callback($booking_id) {
     }
     
      /**
-     * @desc This function is used to get invoice Data
+     * @desc This function is used to get Partners Data
      * @param String $select
      * @param Array $post
      * @return Array
@@ -1978,7 +1978,7 @@ function get_data_for_partner_callback($booking_id) {
     
     
      /**
-     * @desc This function is used to  get count of all invoice
+     * @desc This function is used to  get count of all Partners
      * @param Array $post
      */
     public function count_all_partners($post) {
@@ -1988,7 +1988,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query;
     }
     /**
-     * @desc This function is used to  get count of all invoice
+     * @desc This function is used to  get count of all Parters
      * @param Array $post
      */
     public function _count_all_parters($post) {
@@ -2009,7 +2009,7 @@ function get_data_for_partner_callback($booking_id) {
     
     
     /**
-     * @desc This function is used to get count of filtered invoice Data
+     * @desc This function is used to get count of filtered Partners Data
      * @param String $select
      * @param Array $post
      * @return Int
