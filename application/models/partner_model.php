@@ -1907,6 +1907,111 @@ function get_data_for_partner_callback($booking_id) {
             return TRUE;
         }
     }
+    
+     /**
+     * @desc This function is used to get invoice Data
+     * @param String $select
+     * @param Array $post
+     * @return Array
+     */
+    function searchPartnersListData($select, $post){
+        
+        $this->_querySearchPartnersLisdata($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+        function _querySearchPartnersLisdata($select, $post){
+            
+        $this->db->from('partners');
+        $this->db->select($select, FALSE);
+        
+        $this->db->join('employee', 'employee.id = partners.account_manager_id');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+         if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+         if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+                
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    
+     /**
+     * @desc This function is used to  get count of all invoice
+     * @param Array $post
+     */
+    public function count_all_partners($post) {
+        $this->_count_all_parters($post);
+        $query = $this->db->count_all_results();
+
+        return $query;
+    }
+    /**
+     * @desc This function is used to  get count of all invoice
+     * @param Array $post
+     */
+    public function _count_all_parters($post) {
+        $this->db->from('partners');
+       
+        $this->db->join('employee', 'employee.id = partners.account_manager_id', "LEFT");
+        if(isset($post['where'])){
+            $this->db->where($post['where']);
+        }
+        
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+    }
+    
+    
+    /**
+     * @desc This function is used to get count of filtered invoice Data
+     * @param String $select
+     * @param Array $post
+     * @return Int
+     */
+    function count_filtered_partner($select, $post) {
+        $this->_querySearchPartnersLisdata($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
 
  }
 
