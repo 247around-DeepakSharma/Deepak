@@ -9656,8 +9656,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ---Gorakh 16-01-2019
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
-
-
-
+--Gorakh 11-02-2019-----
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Partners Managed By Account Manager ', '', 'employee/accounting/partners_managed_by_account_manager', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 
