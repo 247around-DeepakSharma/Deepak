@@ -1907,7 +1907,7 @@ function get_data_for_partner_callback($booking_id) {
     }
     
      /**
-     * @desc This function is used to get Partners Data
+     * @desc This function is used to get invoice Data
      * @param String $select
      * @param Array $post
      * @return Array
@@ -1968,6 +1968,7 @@ function get_data_for_partner_callback($booking_id) {
     
     
      /**
+
      * @desc This function is used to  get count of all Partners
      * @param Array $post
      */
