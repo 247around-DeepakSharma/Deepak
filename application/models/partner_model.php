@@ -1805,5 +1805,207 @@ function get_data_for_partner_callback($booking_id) {
        $this->db->update("contact_person",array('is_active'=>$action));
        return $this->db->affected_rows();
     }
+
+    /**
+     * @Desc: This function is used to add partner appliance detail
+     * @params: Array
+     * @return: last insert id
+     * 
+     */
+    function insert_partner_appliance_detail($data) {
+        $this->db->insert('partner_appliance_details', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This is used to return Partner appliances details
+     * @param Array $where, $select, $order_by
+     * @return Array
+     */
+    function get_partner_appliance_details($where=array(), $select='*', $order_by =""){
+        $this->db->select($select);
+        
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        
+        if(!empty($order_by)){
+             $this->db->order_by($order_by, 'asc');
+        }
+       
+        $query = $this->db->get('partner_appliance_details');
+       
+        //log_message("info", $this->db->last_query());
+        return $query->result_array();
+    }
+    
+     /**
+     * @desc: This is used to return Partner Specific Brand details
+     * @param Array $where
+     * @return Array
+     */
+    function get_model_number($select='*', $where=array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('appliance_model_details.model_number', 'asc');
+        
+        $this->db->join("appliance_model_details", "appliance_model_details.id = partner_appliance_details.model");
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+
+    function insert_sample_no_pic($data)
+    {
+        $this->db->insert('partner_sample_no_picture',$data);
+        return $this->db->insert_id();
+    }
+    function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
+    {
+        $return=null;
+        $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
+        $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
+        $this->db->from("collateral");
+        $this->db->where('entity_id',$partner_id);
+        $this->db->where('entity_type','partner');
+        $this->db->where('is_valid',1);
+        $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
+        $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
+        $this->db->join('services','services.id=collateral.appliance_id','left');
+        $this->db->limit($limitArray['length'],$limitArray['start']);
+        $this->db->group_by($group_by);
+        $this->db->order_by($order_by_column,$sorting_type);
+        $return=$this->db->get()->result_array();
+        return $return;
+    }
+    
+     /**
+     * @desc: This method is used to update partner brand logo
+     * @param: $data
+     * @return: boolean
+     */
+    function update_partner_brand_logo($data){
+        $this->db->trans_start();
+        foreach ($data as $queries) {
+            $this->db->query($queries);
+        }
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE){
+            $this->db->trans_rollback();
+            return FALSE;
+        }
+        else{
+            $this->db->trans_commit();
+            return TRUE;
+        }
+    }
+    
+     /**
+     * @desc This function is used to get Partners Data
+     * @param String $select
+     * @param Array $post
+     * @return Array
+     */
+    function searchPartnersListData($select, $post){
+        
+        $this->_querySearchPartnersLisdata($select, $post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+        function _querySearchPartnersLisdata($select, $post){
+            
+        $this->db->from('partners');
+        $this->db->select($select, FALSE);
+        
+        $this->db->join('employee', 'employee.id = partners.account_manager_id');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where'], FALSE);
+        }
+        if (isset($post['where_in'])) {
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+         if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+         if (!empty($post['order'])) { // here order processing
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else if (isset($post['order_by'])) {
+            $order = $post['order_by'];
+            $this->db->order_by(key($order), $order[key($order)]);
+        }
+                
+        if(isset($post['group_by']) && !empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    
+     /**
+     * @desc This function is used to  get count of all Partners
+     * @param Array $post
+     */
+    public function count_all_partners($post) {
+        $this->_count_all_parters($post);
+        $query = $this->db->count_all_results();
+
+        return $query;
+    }
+    /**
+     * @desc This function is used to  get count of all Parters
+     * @param Array $post
+     */
+    public function _count_all_parters($post) {
+        $this->db->from('partners');
+       
+        $this->db->join('employee', 'employee.id = partners.account_manager_id', "LEFT");
+        if(isset($post['where'])){
+            $this->db->where($post['where']);
+        }
+        
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+    }
+    
+    
+    /**
+     * @desc This function is used to get count of filtered Partners Data
+     * @param String $select
+     * @param Array $post
+     * @return Int
+     */
+    function count_filtered_partner($select, $post) {
+        $this->_querySearchPartnersLisdata($select, $post);
+
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
 }
 
