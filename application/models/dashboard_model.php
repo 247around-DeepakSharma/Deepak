@@ -445,12 +445,13 @@ class dashboard_model extends CI_Model {
      * @return array
      */
     function get_spare_parts_count_group_by_status($partner_id = ''){
-        $this->db->select('count(id) as count,status,group_concat(booking_id) as booking_id');
+        $this->db->select('count(spare_parts_details.id) as count,status,group_concat(spare_parts_details.booking_id) as booking_id');
         $this->db->from('spare_parts_details');
+        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->group_by('status');
         
         if(!empty($partner_id)){
-            $this->db->where('partner_id',$partner_id);
+            $this->db->where('booking_details.partner_id',$partner_id);
         }
         $query = $this->db->get();
         return $query->result_array();
