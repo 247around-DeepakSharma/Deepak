@@ -207,6 +207,8 @@ class Partner extends CI_Controller {
                                 $booking['partner_id'] = $is_partner_id['partner_id'];
                                 $booking['source'] = $this->initialized_variable->get_partner_data()[0]['code'];
                                 $booking['create_date'] = date("Y-m-d H:i:s");
+                                
+                                $booking['origin_partner_id'] = $this->partner['id'];
 
                                 $unit_details['partner_id'] = $booking['partner_id'];
                                 $booking['order_id'] = $requestData['orderID'];

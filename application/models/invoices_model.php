@@ -2404,7 +2404,7 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
-    
+        
     function _querySearchInvoicesdata($select, $post){
         $this->db->from('vendor_partner_invoices');
         $this->db->select($select, FALSE);
@@ -2446,8 +2446,8 @@ class invoices_model extends CI_Model {
         if(isset($post['group_by']) && !empty($post['group_by'])){
             $this->db->group_by($post['group_by']);
         }
-    }
-    /**
+    }  
+     /**
      * @desc This function is used to  get count of all invoice
      * @param Array $post
      */

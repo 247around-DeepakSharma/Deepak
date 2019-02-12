@@ -432,6 +432,8 @@ class Courier_tracking extends CI_Controller {
                         $b_status = $this->booking_model->update_booking($parts_details[2], $booking);
                         if ($b_status) {
                             
+                            $this->miscelleneous->send_spare_delivered_sms_to_customer($parts_details[0], $parts_details[2]);
+                            
                             $this->notify->insert_state_change($parts_details[2], SPARE_PARTS_DELIVERED, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
 
                             $sc_data['current_status'] = _247AROUND_PENDING;
