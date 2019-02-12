@@ -105,10 +105,11 @@ class Partner_model extends CI_Model {
  * @param: booking id
  */
 function get_data_for_partner_callback($booking_id) {
-        $this->db->select("*");
+        $this->db->select("booking_details.*, services.services");
         $this->db->from("booking_details");
         $this->db->where("booking_id", $booking_id);
         $this->db->join("partner_callback", "partner_callback.partner_id = booking_details.partner_id AND callback_string = partner_source");
+        $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->where("partner_callback.active", 1);
         $query = $this->db->get();
         if ($query->num_rows > 0) {
@@ -1305,7 +1306,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
-                    . " AND `partner_id` = '$partner_id' ". $where_phone
+                    . " AND ( `partner_id` = '$partner_id' OR origin_partner_id = '$partner_id' )". $where_phone
                     . " ";
             $query = $this->db->query($sql);
             $response = $query->result_array();
