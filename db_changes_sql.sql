@@ -9913,3 +9913,6 @@ ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL 
 
 --Abhay
 ALTER TABLE `booking_details` ADD `origin_partner_id` VARCHAR(64) NULL DEFAULT NULL AFTER `partner_id`;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_requested_customer_tag', 'Request of %s for %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP), (NULL, 'sms_requested_dealer_sms_tag', 'Request of %s for %s %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP);
+--Abahy
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'sms_delivered_customer_tag', 'Great News! Expected delivery of %s, %s is today. Engineer will visit in the time slot. For queries dial 9555000247, 247around', '', '1', '0', '2019-02-11 17:53:17');
