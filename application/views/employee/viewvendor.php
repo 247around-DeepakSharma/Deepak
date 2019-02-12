@@ -71,32 +71,58 @@
        
         <h1>Service Center</h1>
             <div class="col-md-12" id="state_form">
-                <div class="pull-right" style="margin-bottom: 20px;">
-                <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+                <div class="row">
+<!--                    <div class="pull-right" style="margin-bottom: 20px; margin-right: 20px;">-->
+                    <div class="col-sm-2 col-lg-2 col-md-2">
+                        <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                            <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
+                                    <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                                    <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
+                            </select> 
+                        </form>
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                            <select name="state" id="state"  class="form-control" style="width:100%" onchange="get_city()">
+                                <option value="">Select State</option>
+                                <?php
+                                    if(!empty($state_list))
+                                    {
+                                        foreach($state_list as $value)
+                                        {
+                                ?>
+                                 <option value="<?php echo $value['statevalue']?>"><?php echo $value['state'];?></option>
+                                <?php
+                                        }
+                                    }
+                                ?>
+                            </select> 
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                            <select name="city" id="city"  class="form-control" style="width:100%" onchange="get_sf_cp()">
+                                <option value="">Select City</option>
+                            </select> 
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                        <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
+                                <option value="sf">Service Center</option>
+                                <option value="cp">Collection Partner</option>
+                                <option value="wh">Warehouse</option>
+                        </select>
+                    </div> 
             </div>
-
-            <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
-                <div class="col-sm-7">
-                    <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
-                        <label for="active_state">Show Vendor &nbsp; &nbsp;</label>
-                        <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
-                            <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
-                            <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
-                        </select> 
+<!--                </div>-->
+                <div class="row">
+                    <div class="pull-right" style="margin-bottom: 20px;padding-top:8px">
+                        <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+                    </div>
+                    <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;margin-bottom: 20px;">
+                        <input type="submit" value="Download Charges List" class="btn btn-primary" />
                     </form>
                 </div>
-                
-                <div class="col-sm-5">
-                    <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
-                        <option value="sf">Service Center</option>
-                        <option value="cp">Collection Partner</option>
-                        <option value="wh">Warehouse</option>
-                    </select>
-                </div> 
-            </div>
-                <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
+            
+<!--                <form method="POST" action ="<?php //echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
                         <input type="submit" value="Download Charges List" class="btn btn-primary" />
-                </form>
+                </form>-->
     <div id="vendor_sf_cp_list">        
  <?php } ?>
         <table class="table table-bordered table-condensed" id="vender_details">
@@ -109,6 +135,7 @@
           	<th class="jumbotron">PoC Number</th>
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
+                <th class="jumbotron">City/State</th>
           	<th class="jumbotron">Sub District Office</th>
                 <th class='jumbotron'>Go To Invoice Page</th>
           	<th class="jumbotron">Temporary</th>
@@ -128,7 +155,7 @@
               ?>
           <tr>
             <td><?php echo $x;?></td>
-            <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
+            <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'].'('.$row['id'].')';?></a></td>
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
             </td>
@@ -151,6 +178,9 @@
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
           	</td>
+                <td>
+                       <?php echo (!empty($row['district'])?$row['district']:'').'/' .(!empty($row['state'])?$row['state']:''); ?>
+                </td>
                 <td>
                     <?php if ($row['is_upcountry'] == 1) { ?>
                         <a style= "background-color: #fff;" target="_blank" class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i></a>
@@ -222,6 +252,14 @@
     </div>
 </div>      
 <script type='text/javascript'>
+   $('#state').select2({
+           placeholder: "Select State",
+           allowClear: true
+       });
+   $('#city').select2({
+           placeholder: "Select City",
+           allowClear: true
+       });
     function login_to_vendor(vendor_id){
         var c = confirm('Login to Service Center CRM?');
         if(c){
@@ -236,15 +274,36 @@
             return false;
         }
     }
-    
+
+    function get_city()
+    {
+      var state_name = $("#state").val();
+      if(state_name){
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/vendor/get_city',
+                data:{'state':state_name},
+                success:function(html){
+                   $("#city").select2("val", "");
+                   $('#city').html(html);
+                   get_sf_cp();
+               }
+            }); 
+        }else{
+            $('#city').html('<option value="">Select State first</option>');
+            
+        }
+    }
     function get_sf_cp(){
         var sf_cp = $('#sf_cp').val();
         var active_state = $('#active_state').val();
+        var state=$('#state').val();
+        var city=$('#city').val();
         $('#vendor_sf_cp_list').html('<div class="col-md-6 col-md-offset-6" style="margin-top: 46px;"><img src="/images/loadring.gif"></div>');
         $.ajax({
                 method: "POST",
                 url:'<?php echo base_url()."employee/vendor/get_filterd_sf_cp_data" ?>',
-                data: {'sf_cp':sf_cp,'active_state':active_state},
+                data: {'sf_cp':sf_cp,'active_state':active_state,'state':state,'city':city},
                 success: function (data) {
                     //console.log(data);
                     if(data === 'No Data Found'){
