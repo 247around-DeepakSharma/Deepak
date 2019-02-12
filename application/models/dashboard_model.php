@@ -478,7 +478,7 @@ class dashboard_model extends CI_Model {
     function get_oot_spare_parts_count_by_partner(){
         $sql = "SELECT COUNT(spare_parts_details.booking_id) AS 'spare_count', "
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as 'spare_amount',"
-                . " spare_parts_details.partner_id,partners.public_name "
+                . " booking_details.partner_id,partners.public_name "
                 . " FROM spare_parts_details "
                 . " JOIN booking_details ON booking_details.booking_id = spare_parts_details.booking_id"
                 . " JOIN partners ON booking_details.partner_id = partners.id "
@@ -489,6 +489,7 @@ class dashboard_model extends CI_Model {
                 . "GROUP BY spare_parts_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
+        
         return $query->result_array();
     }
     
