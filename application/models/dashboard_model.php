@@ -486,7 +486,7 @@ class dashboard_model extends CI_Model {
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > '".SF_SPARE_OOT_DAYS."'"
                 . "AND spare_parts_details.defective_part_required = 1 "
                 . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') "
-                . "GROUP BY spare_parts_details.partner_id "
+                . "GROUP BY booking_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
         
