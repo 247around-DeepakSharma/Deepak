@@ -754,6 +754,39 @@ class Accounting extends CI_Controller {
         
     }
     
+    
+    /**
+     * @desc This function is generalize used to get the data for partners datatable
+     * @param request_type
+     */
+    function get_partners_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getInvoiceDataTablePost();
+        $post['column_order'] = array(NULL, 'employee.full_name');
+        $post['column_search'] = array('employee.full_name');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'partners_managed_by_account_manager':   
+                $post['where']['is_active'] = 1;
+                $data = $this->getPartnersManagedByAccountManagerData($post);
+                break;           
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->partner_model->count_all_partners($post),
+            "recordsFiltered" =>  $this->partner_model->count_filtered_partner('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }
+    
     /**
      * @desc Filter invoice data from Invoice Search page from admin
      * @param type $post
@@ -772,7 +805,41 @@ class Accounting extends CI_Controller {
         }
         return $data;
     }
+        
+    /**
+     * @desc Filter Partner data 
+     * @param type $post
+     * @return type
+     */
+     
+    function getPartnersManagedByAccountManagerData($post){
+        $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
+                . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
+                . "employee.official_email";
+        $list = $this->partner_model->searchPartnersListData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $partners_list) {
+            $no++;
+            $row =  $this->Partners_datatable($partners_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
     
+    /**
+     * @desc This is used to generate Data table row
+     * @param Array $invoice_list
+     * @param int $no
+     * @return Array
+     */
+    function Partners_datatable($partners_list, $no){
+        $row = array();
+         $row[] = $no;
+         $row[] = $partners_list->full_name;
+         $row[] = $partners_list->public_name;
+        return $row;
+    }
      /**
      * @desc This function is used to get service center invoice data
      * @param type $post
@@ -903,12 +970,14 @@ class Accounting extends CI_Controller {
      * @return Array
      */
     function getInvoiceDataTablePost(){
-
+        
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
-        $post['search_value'] = trim($search['value']);
-        
+        if(!empty($search['value'])){
+           $post['search_value'] = trim($search['value']); 
+        }
+                
         $post['order'] = $this->input->post('order');
         $post['draw'] = $this->input->post('draw');
         
@@ -943,7 +1012,7 @@ class Accounting extends CI_Controller {
             $post['where']['invoice_date <= "'.$period[1].'"'] = NULL;
         }
 
-        if($settle_amount != 2){
+        if(!empty($settle_amount) && ($settle_amount != 2)){
             $post['where']['settle_amount'] = $settle_amount;
         }
         
@@ -969,6 +1038,9 @@ class Accounting extends CI_Controller {
         
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
+        }
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
         }
         return $post;
     }
@@ -1769,5 +1841,15 @@ class Accounting extends CI_Controller {
             $return["message"] = "Error Occured while Updating Status";
         }
         echo json_encode($return);
+    }
+     /*
+    * @desc - This function is used to List the partner details 
+    * @param - void    
+    * @return - array
+    */
+    
+    function partners_managed_by_account_manager(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partners_list_managed_by_account_manager');
     }
 }

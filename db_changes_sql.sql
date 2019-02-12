@@ -9644,8 +9644,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
 
 ---Abhay 22 Jan
-ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
-ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
+-- ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
+-- ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
 
 --Kalyani 18-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
@@ -9880,6 +9880,7 @@ ALTER TABLE `set_oow_part_type_margin`
 
 
 
+
 --Rajshree 04 feb 2019
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s' WHERE `sms_template`.`tag` = 'add_new_booking';
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s.%s\r\n' WHERE `sms_template`.`tag` = 'upcountry_add_new_booking';
@@ -9905,3 +9906,13 @@ CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 --Kalyani 06-02-2018
 UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
 UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
+
+CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL AFTER `service_category`;
+
+--Abhay
+ALTER TABLE `booking_details` ADD `origin_partner_id` VARCHAR(64) NULL DEFAULT NULL AFTER `partner_id`;
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_requested_customer_tag', 'Request of %s for %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP), (NULL, 'sms_requested_dealer_sms_tag', 'Request of %s for %s %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP);
+--Abahy
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'sms_delivered_customer_tag', 'Great News! Expected delivery of %s, %s is today. Engineer will visit in the time slot. For queries dial 9555000247, 247around', '', '1', '0', '2019-02-11 17:53:17');

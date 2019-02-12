@@ -970,7 +970,8 @@ class Spare_parts extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
-
+                    $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_list[0]['parts_requested'], $this->input->post('new_booking_id'));
+            
                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
 
                     if (!empty($affected_id)) {
@@ -1519,6 +1520,8 @@ class Spare_parts extends CI_Controller {
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                  }else{
                      $spare_data['status'] = SPARE_PARTS_REQUESTED;
+                     
+                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id);
                  }
                 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
@@ -1698,6 +1701,9 @@ class Spare_parts extends CI_Controller {
                         $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        
+                        $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                        
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
                             $this->session->set_userdata($userSession);
