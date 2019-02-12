@@ -3921,4 +3921,78 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
        // $output = '{ "results" : [ { "address_components" : [ { "long_name" : "110051", "short_name" : "110051", "types" : [ "postal_code" ] }, { "long_name" : "New Delhi", "short_name" : "New Delhi", "types" : [ "locality", "political" ] }, { "long_name" : "Delhi", "short_name" : "DL", "types" : [ "administrative_area_level_1", "political" ] }, { "long_name" : "India", "short_name" : "IN", "types" : [ "country", "political" ] } ], "formatted_address" : "New Delhi, Delhi 110051, India", "geometry" : { "bounds" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } }, "location" : { "lat" : 28.6569035, "lng" : 77.28229229999999 }, "location_type" : "APPROXIMATE", "viewport" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } } }, "place_id" : "ChIJ85SOHWD7DDkRI-0i7DDZy-M", "types" : [ "postal_code" ] } ], "status" : "OK" }';
         return $output;
     }
+    /**
+     * @desc This function is used to send SMS to customer/Dealer when SF requested new parts from partner
+     * @param String $part_type
+     * @param String $booking_id
+     */
+    function send_spare_requested_sms_to_customer($part_type, $booking_id){
+        if(!empty($booking_id)){
+            $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
+            if(!empty($booking_details)){
+                $sms['tag'] = SPARE_REQUESTED_CUSTOMER_SMS_TAG;
+                $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
+                $sms['smsData']['part_type'] = $part_type;
+                $sms['smsData']['booking_id'] = $booking_id;
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $booking_details[0]['user_id'];
+                $this->My_CI->notify->send_sms_msg91($sms);
+                
+                
+                if(!empty($booking_details[0]['dealer_id'])){
+                   $dealer_details =  $this->My_CI->dealer_model->get_dealer_details('dealer_phone_number_1', array('dealer_id' => $booking_details[0]['dealer_id']));
+                   if(!empty($dealer_details)){
+                        $sms1['tag'] = SPARE_REQUESTED_DEALER_SMS_TAG;
+                        $sms1['phone_no'] = $dealer_details[0]['dealer_phone_number_1'];
+                        $sms1['smsData']['part_type'] = $part_type;
+                        $sms1['smsData']['user_name'] = $booking_details[0]['name'];
+                        $sms1['smsData']['booking_id'] = $booking_id;
+                        $sms1['booking_id'] = $booking_id;
+                        $sms1['type'] = "dealer";
+                        $sms1['type_id'] = $booking_details[0]['dealer_id'];
+                        $this->My_CI->notify->send_sms_msg91($sms1);
+                   }
+                }
+            }
+        }
+    }
+    /**
+     * @desc This function is used to send sms to Customer and dealer when new part delivered to SF
+     * @param int $spare_id
+     * @param Strng $booking_id
+     */
+    function send_spare_delivered_sms_to_customer($spare_id, $booking_id){
+        if(!empty($booking_id)){
+            $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
+            if(!empty($booking_details)){
+                $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("spare_parts_details.id" =>$spare_id));
+                $part_type = $getsparedata[0]['parts_requested_type'];
+                $sms['tag'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
+                $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
+                $sms['smsData']['part_type'] = $part_type;
+                $sms['smsData']['booking_id'] = $booking_id;
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $booking_details[0]['user_id'];
+                $this->My_CI->notify->send_sms_msg91($sms);
+                
+                
+                if(!empty($booking_details[0]['dealer_id'])){
+                   $dealer_details =  $this->My_CI->dealer_model->get_dealer_details('dealer_phone_number_1', array('dealer_id' => $booking_details[0]['dealer_id']));
+                   if(!empty($dealer_details)){
+                        $sms1['tag'] = SPARE_DELIVERED_DEALER_SMS_TAG;
+                        $sms1['phone_no'] = $dealer_details[0]['dealer_phone_number_1'];
+                        $sms1['smsData']['part_type'] = $part_type;
+                        $sms1['smsData']['user_name'] = $booking_details[0]['name'];
+                        $sms1['smsData']['booking_id'] = $booking_id;
+                        $sms1['booking_id'] = $booking_id;
+                        $sms1['type'] = "dealer";
+                        $sms1['type_id'] = $booking_details[0]['dealer_id'];
+                        $this->My_CI->notify->send_sms_msg91($sms1);
+                   }
+                }
+            }
+        }
+    }
 }
