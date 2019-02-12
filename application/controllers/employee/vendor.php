@@ -748,6 +748,7 @@ class vendor extends CI_Controller {
         }
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
+        $state_list = $this->vendor_model->get_state_data($id);
         if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
@@ -756,7 +757,7 @@ class vendor extends CI_Controller {
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data,'push_notification'=>$pushNotification));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification));
     }
     
     function get_filterd_sf_cp_data(){
@@ -765,6 +766,8 @@ class vendor extends CI_Controller {
             
             $sf_cp_type = $this->input->post('sf_cp');
             $active_state = $this->input->post('active_state');
+            $state=$this->input->post('state');
+            $city=$this->input->post('city');
             if($active_state === 'all'){
                 $active = '';
             }else{
@@ -788,7 +791,7 @@ class vendor extends CI_Controller {
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh);
+            $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh,$state,$city);
             if(!empty($query)){
                 $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
             }else{
@@ -5358,4 +5361,25 @@ class vendor extends CI_Controller {
         $this->session->set_flashdata('success', "SMS Sent Successfully");
         redirect(base_url() . 'employee/vendor/send_broadcast_sms_to_vendors');
     }
+
+    function get_city()
+    {
+       $state_value=$this->input->post('state'); 
+       $city_arr=$this->vendor_model->get_city_bystate($state_value);
+       $city_option='<option value="">Select City</option>';
+       if(count($city_arr)>0)
+       {
+           foreach($city_arr as $value)
+           {
+           $city_option.='<option value="'.$value['city'].'">'.$value['city'].'</option>';
+           }
+       }
+//       else
+//       {
+//           $city_option.='<option value="">No City Found For This State</option>';
+//       }
+      
+       echo $city_option;
+    }
 }
+
