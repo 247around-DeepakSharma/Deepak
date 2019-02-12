@@ -115,8 +115,9 @@
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Personal Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Group</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">CRM Login</th>
+                        
                         <?php if($session_data['user_group'] == _247AROUND_ADMIN){?>
+                           <th class="jumbotron" style="padding:1px;text-align: center">CRM Login</th>
                            <th class="jumbotron" style="padding:1px;text-align: center">Action</th>
                         <?php }?>
                     </tr>
@@ -158,19 +159,8 @@
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
                            
                             <td  <?php echo $style?>><b><?php echo $value['groups']?></b></td>
-                            <?php 
-                                if($value['groups'] == 'admin'){
-                                    if($session_data['user_group'] == _247AROUND_ADMIN){
-                            ?>
-                                        <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
-                            <?php   } else{ ?>
-                                        <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" disabled>Login</a></td>
-                            <?php } ?>
-                            <?php } else{ ?>
-                                <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>  
-                            <?php } ?>
                             <?php if($session_data['user_group'] == _247AROUND_ADMIN) {?>
-                            <!--     <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>-->
+                            <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                                 <a href="<?php base_url()?>deactive_employee/<?php echo $value['id']; ?>" class="btn btn-sm btn-warning" title="Deactive Employee" > <i class="fa fa-check-square" aria-hidden="true"></i></a>
