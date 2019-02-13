@@ -18,12 +18,13 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '') {
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$state='',$city='') {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
         $where_final = "";
         $cp = "";
+        $where_state_city="";
         if($is_cp != ''){
             $cp = " AND service_centres.is_cp = $is_cp";
         }
@@ -40,6 +41,14 @@ class vendor_model extends CI_Model {
         }
         if($sf_list != ""){
             $where_sf .= "service_centres.id  IN (" .$sf_list.")";
+        }
+        if(!empty($state) && empty($city))
+        {
+            $where_state_city ="AND service_centres.state='$state'";
+        }
+        elseif(!empty($state) && !empty($city))
+        {
+            $where_state_city="AND service_centres.state='$state' AND service_centres.district='$city'";
         }
         if($vendor_id != "" && $active != "" ){
             $where_final = 'where '.$where_id." AND ".$where_active.$cp ;
@@ -66,7 +75,7 @@ class vendor_model extends CI_Model {
         $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND "
-                . "account_holders_bank_details.entity_type='SF ' AND account_holders_bank_details.is_active=1 $where_final";
+                . "account_holders_bank_details.entity_type='SF ' AND account_holders_bank_details.is_active=1 $where_final $where_state_city";
         $query = $this->db->query($sql);
        return $query->result_array();
     }
@@ -1939,6 +1948,22 @@ class vendor_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    function get_state_data()
+    {
+        $this->db->select('state,UPPER( `state` ) as statevalue');
+        $this->db->from('state_code');
+        $result=$this->db->get()->result_array();
+        return $result;
+    }
+    function get_city_bystate($state_value)
+    {
+        $this->db->select('distinct(district) as city');
+        $this->db->from('service_centres');
+        $this->db->where('state',$state_value);
+        $result=$this->db->get()->result_array();
+        return $result;
     }
     
 }

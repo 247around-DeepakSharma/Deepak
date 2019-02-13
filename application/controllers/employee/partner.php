@@ -2320,7 +2320,7 @@ class Partner extends CI_Controller {
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
                         'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
+                        'booking_details.request_type' => REPAIR_OOW_TAG,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
                         'status' => DEFECTIVE_PARTS_RECEIVED,
@@ -5550,7 +5550,8 @@ class Partner extends CI_Controller {
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            if ($row->type != _247AROUND_QUERY) { 
+            if ($row->type != _247AROUND_QUERY) {
+                if($row->partner_id == $this->session->userdata('partner_id')){
                 $tempArray[]= '<div class="dropdown">
                                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
                                                     <span class="caret"></span></button>
@@ -5566,6 +5567,9 @@ class Partner extends CI_Controller {
                                                          </li>
                                                     </ul>
                                                 </div>';
+                } else {
+                    $tempArray[] =  "";
+                }
             }
             else{
               $tempArray[] =  "";

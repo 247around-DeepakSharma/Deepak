@@ -4075,6 +4075,7 @@ class Booking extends CI_Controller {
     }
     function get_input_for_bulk_search($receieved_Data){
         $inputBulkData = array();
+        $copy_inputBulkData=array();
         $inputBulkDataTemp = explode("\n",$receieved_Data['bulk_input']);
         $result = array_map('trim', $inputBulkDataTemp);
         foreach($inputBulkDataTemp as $value){
@@ -4099,13 +4100,17 @@ class Booking extends CI_Controller {
         else{
             $fieldName = 'booking_details.booking_id';
             $onlyName = "booking_id";
-            foreach($inputBulkData as $value)
+            $copy_inputBulkData=$inputBulkData;
+            foreach($copy_inputBulkData as $value)
             {
                 $query_check='Q-';
                 $start_string=substr($value,0,2);
                 if($start_string!==$query_check)
                 {
-                    $inputBulkData[]=$query_check.$value;
+                    $copy_inputBulkData[]=$query_check.$value;
+                    if (($key = array_search($value,$inputBulkData)) !== false) {
+                        unset($inputBulkData[$key]);
+                    }
                 }
             }
         }
@@ -4116,7 +4121,7 @@ class Booking extends CI_Controller {
                 $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
             }
         }
-        return array("inputBulkData"=>$inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
+        return array("inputBulkData"=>$inputBulkData,"copy_inputBulkData"=>$copy_inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
     }
     function get_bulk_search_result_data($receieved_Data,$select){
         $finalArray = array();
@@ -4135,7 +4140,7 @@ class Booking extends CI_Controller {
         $whereArray = NULL;
         $whereInArray = NULL;
         if($receieved_Data['bulk_input']){
-            $whereInArray[$inputData['fieldName']] = $inputData['inputBulkData'];
+            $whereInArray[$inputData['fieldName']] = $inputData['copy_inputBulkData'];
         }
         if($inputData['where']){
             $whereArray = $inputData['where'];
@@ -4148,35 +4153,8 @@ class Booking extends CI_Controller {
         if(isset($result[0])){
             $foundResultArray= array_column($result, $inputData['onlyName'] );
             $notFoundArray=array_diff($inputData['inputBulkData'],$foundResultArray);
-            //To remove  booking id that is present in both query as well as booking
-            if($inputData['onlyName']=='booking_id')
-           {
-              foreach($foundResultArray as $foundkey)
-              {
-                  $first_two=substr($foundkey,0,2);
-                  $booking_id=substr($foundkey,2);
-                  if($first_two=='Q-')
-                  {
-                      if(in_array($booking_id,$notFoundArray))
-                      {
-                         $keyremove= array_search ($booking_id,$notFoundArray);
-                         unset($notFoundArray[$keyremove]);
-                      }
-                  }
-                  else
-                  {
-                      $query_booking_id='Q-'.$foundkey;
-                      if(in_array($query_booking_id,$notFoundArray))
-                      {
-                         $keyremove= array_search ($query_booking_id,$notFoundArray);
-                         unset($notFoundArray[$keyremove]);
-                      }
-                  }
-              }
-           }
-           //end
-           $selectedFields = array_keys($result[0]);
-           foreach ($notFoundArray as $notFoundColumn){
+            $selectedFields = array_keys($result[0]);
+            foreach ($notFoundArray as $notFoundColumn){
                foreach($selectedFields as $fieldName){
                     $helperArray[$fieldName] = "Not_found";
                    if($fieldName == $inputData['onlyName']){

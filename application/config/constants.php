@@ -462,9 +462,6 @@ define('_247AROUND_CP_STRING','CP');
 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
 
-//Booking Rescheduled Confirmation SMS Constant
-define('BOOKING_RESCHEDULED_CONFIRMATION_SMS','rescheduled_confirmation_sms');
-
 define('ENGINEER_COMPLETE_STATUS',"InProcess_Engg_Completed" );
 define('ENGINEER_CANCELLED_STATUS',"InProcess_Engg_Cancelled" );
 
