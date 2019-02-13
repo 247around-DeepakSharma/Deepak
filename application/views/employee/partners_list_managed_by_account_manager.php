@@ -61,7 +61,7 @@
             ],
          // Load data for the table's content from an Ajax source
             ajax: {
-                url: "<?php echo base_url();?>employee/accounting/get_partners_searched_data",
+                url: "<?php echo base_url();?>employee/partner/get_partners_searched_data",
                 type: "POST",
                 data: function(d){
                        d.request_type = "partners_managed_by_account_manager",

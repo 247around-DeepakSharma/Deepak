@@ -6562,4 +6562,364 @@ class Partner extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
+
+    function process_partner_sample_no_pic()
+    {
+        $partner_id=$this->input->post('partner_id');
+        if(isset($_FILES))
+        {
+            $sample_no_pic=$_FILES['SamplePicfile'];
+            $cpt = count($_FILES['SamplePicfile']['name']);
+            $sample_no_pic_array=array();
+            for($i=0; $i<$cpt; $i++)
+                {   
+                    $_FILE['SamplePicfile']['name']= $_FILES['SamplePicfile']['name'][$i];
+                    $_FILE['SamplePicfile']['type']= $_FILES['SamplePicfile']['type'][$i];
+                    $_FILE['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
+                    $_FILE['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
+                    $_FILE['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
+                   //Processing Sample Pic File
+                   
+                    if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
+                        {
+                        $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
+                        $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
+                        $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
+                        move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
+
+                        //Upload files to AWS
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "vendor-partner-docs/" . $sample_file;
+                        $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data=array(
+                        'partner_id'=>$partner_id,
+                        'sample_no_pic'=>$sample_file,
+                        'created_date'=>date('Y-m-d'),
+                        'active'=>'1'
+                        );
+                      
+                      //update sample_no_pic
+                        $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
+                        
+                        $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
+                        unlink(TMP_FOLDER . $sample_file);
+
+                        //Logging success for file uppload
+                        log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                      }
+                   
+                }
+                      $msg = "Partner Sample Pic has been updated successfully";
+                       $this->session->set_userdata('success', $msg);
+                  redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+
+        }
+        
+    }
+    public function deletePartnerSampleNo()
+    {
+        $id=$this->input->post('id');
+        $partner_id=$this->input->post('partner_id');
+        $data=array('active'=>'0');
+        $where=array('id'=>$id);
+        $data=$this->reusable_model->update_table('partner_sample_no_picture',$data,$where);
+        if($data>0)
+        {
+           $msg = "Partner Sample Pic has been Deleted successfully";
+          
+        }
+        else
+        {
+            $msg = "Partner Sample Pic has not been Deleted successfully";
+           
+        }
+        echo $msg;
+        
+    }
+    /**
+     * @desc: This function is used to show the appliance model mapping of the partner
+     * @params: void
+     * @return: void
+     */
+    function show_appliance_model_mapping(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/show_appliance_model_mapping');
+        $this->load->view('partner/partner_footer');
+    }
+    public function brandCollateral()
+    {
+        $partnerArray = array();
+        $this->miscelleneous->load_nav_header();
+        $partners = $this->partner_model->getpartner();
+        foreach($partners as $partnersDetails){
+            $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
+        }
+        $this->load->view('partner/brand_collateral_partner_filter',array("partnerArray"=>$partnerArray));
+       
+    }
+    public function brandCollateralPartner()
+    {
+       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
+       $receieved_Data = $this->input->post();
+       $id=$receieved_Data['partner_id'];
+       $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
+       if(!empty($receieved_Data['order']))
+       {
+            $order=$receieved_Data['order'];
+            $column_sort=$order['0']['column'];
+            $sort_type=$order['0']['dir'];
+            if(!empty($coloumnarr))
+            {
+                $order_by_column=$coloumnarr[$column_sort];
+                $sorting_type=$sort_type;
+            }
+       }
+       else
+       {
+           $order_by_column='collateral.id';
+           $sorting_type='ASC';
+       }
+       $group_by='concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)';
+       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($id,$limitArray,$order_by_column,$sorting_type);
+       $data=array();
+       $result_final=$results['partner_contracts'];
+       $count=count($result_final);
+       $no = $receieved_Data['start'];
+       if(!empty($results['partner_contracts']))
+       {
+            foreach ($results['partner_contracts'] as $filter_result) {
+                 $no++;
+                 $row = $this->get_brand_partner_filter($filter_result,$no);
+                 $data[] = $row;
+             }
+       }
+       $output = array(
+            "draw" => $receieved_Data['draw'],
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $data,
+            
+        );
+        echo json_encode($output);
+    }
+    
+    public function get_brand_partner_filter($filter_result,$no)
+    {
+        $row=array();
+//        if($filter_result['collateral_tag'] == LEARNING_DOCUMENT)
+//            {
+              if($filter_result['is_file'])
+                  {
+                      $url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$filter_result['file'];
+                  }
+                  else
+                  {
+                         $url = $filter_result['file'];
+                  }
+               $row[]=$no;                
+               $row[]=$filter_result['collateral_type'];
+               $row[]= $filter_result['services'];
+               $row[]=$filter_result['brand'] ;
+               $row[]=ucfirst($filter_result['request_type']);
+               $row[]=$this->miscelleneous->get_reader_by_file_type($filter_result['document_type'],$url,"200");
+               $row[]=$filter_result['document_description'];
+              // $row[]="<div class='checkbox'><input type='checkbox' name='coll_id[]' value='". $filter_result['id']."'> </div>";
+               $row[]=date('d-m-Y',strtotime($filter_result['start_date']));
+          //  }
+            
+            return $row;
+           
+    }
+    
+    /**
+     * @desc: This function is used to tag margin on spare parts
+     * @params: void
+     * @return: void
+     */
+    function process_to_tag_marging_on_spare_parts() {
+        log_message('info', __FUNCTION__ . " Margin of Spare Parts " . json_encode($_POST));
+        $partner_id = $this->input->post('partner_id');
+        $part = $this->input->post('part');
+
+        if (!empty($part)) {
+            $flag = false;
+            foreach ($part as $key => $parts_deails) {
+                $oow_around_margin = $parts_deails['oow_around_margin'];
+                $oow_vendor_margin = $parts_deails['oow_vendor_margin'];
+                $parts_type_list = $parts_deails['parts_type'];
+
+                if (!empty($parts_type_list)) {
+                    $parts_type_ids = implode(',', $parts_type_list);
+                    $select = 'set_oow_part_type_margin.partner_id,set_oow_part_type_margin.part_type_id';
+                    $oow_part_type_margin_list = $this->inventory_model->get_oow_part_type_margin_details($select, array('partner_id' => $partner_id), array('part_type_id' => $parts_type_ids));
+
+                    if (empty($oow_part_type_margin_list)) {
+                        foreach ($parts_type_list as $key => $part_type_id) {
+                            $data['partner_id'] = $partner_id;
+                            $data['oow_around_margin'] = $oow_around_margin;
+                            $data['oow_vendor_margin'] = $oow_vendor_margin;
+                            $data['part_type_id'] = $part_type_id;
+
+                            $last_insert_id = $this->inventory_model->insert_query('set_oow_part_type_margin', $data);
+                            if ($last_insert_id) {
+                                $flag = true;
+                            }
+                        }
+                    } else {
+                        $this->session->set_userdata(array('error' => 'Duplicate entry'));
+                        redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                    }
+                } else {
+                    $this->session->set_userdata(array('error' => 'Please Fill Form Details Properly.'));
+                }
+            }
+
+            if ($flag) {
+                $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+                redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+            }
+        }
+    }
+
+
+    /* @desc: This method is used to load view for setting logo priority on web site
+     * @param: void
+     * @return:view
+     */
+    function partner_logo_priority(){
+        $data['data'] = $this->reusable_model->get_search_query("partner_brand_logo", "partner_brand_logo.id, partners.public_name, partner_logo", array(), array("partners"=>"partners.id = partner_brand_logo.partner_id"), "", array("logo_priority"=>"ASC"), "", "")->result_array();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partner_brand_logo_priority_form', $data);
+    }
+    
+    /**
+     * @desc: This method is used to save the logo priority in partner_brand_logo table
+     * @param: void
+     * @return:json
+     */
+    function save_partner_logo_priority(){
+        $priority_array = $this->input->post("priority_array");
+        $return = array();
+        $queries = array();
+        foreach ($priority_array as $key => $value) {
+            $queries[] = "Update partner_brand_logo set logo_priority = '".$value['priority']."' where id = '".$value['partner_brand_logo_id']."'";
+        }
+        if(!empty($queries)){
+            $rows =  $this->partner_model->update_partner_brand_logo($queries);
+            if($rows){
+               $return['status'] = true;
+               $return['message'] = "Priority Saved Successfully";
+            }
+            else{
+                $return['status'] = false;
+                $return['message'] = "Priority Not Saved, Contact Tech Team";
+            }
+        }
+        else{
+            $return['status'] = false;
+            $return['message'] = "Priority Not Saved, Contact Tech Team"; 
+       }
+        echo json_encode($return);
+    }
+    
+    /*
+    * @desc - This function is used to List the partner details 
+    * @param - void    
+    * @return - array
+    */
+    
+    function partners_managed_by_account_manager(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partners_list_managed_by_account_manager');
+    }
+    
+    
+    /**
+     * @desc Get POST data from DataTable
+     * @return Array
+     */
+    function getPartnerDataTablePost(){
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+       if(!empty($search['value'])){
+           $post['search_value'] = trim($search['value']); 
+        }
+        $post['where']['is_active'] = 1;
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
+        }
+        return $post;
+    }
+    
+    
+    /**
+     * @desc This function is generalize used to get the data for partners datatable
+     * @param request_type
+     */
+    function get_partners_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getPartnerDataTablePost();
+        $post['column_order'] = array(NULL, 'employee.full_name');
+        $post['column_search'] = array('employee.full_name');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'partners_managed_by_account_manager':                  
+                $data = $this->getPartnersManagedByAccountManagerData($post);
+                break;           
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->partner_model->count_all_partners($post),
+            "recordsFiltered" =>  $this->partner_model->count_filtered_partner('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }    
+     /**
+     * @desc Filter Partner data 
+     * @param type $post
+     * @return type
+     */
+     
+    function getPartnersManagedByAccountManagerData($post){
+        $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
+                . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
+                . "employee.official_email";
+        $list = $this->partner_model->searchPartnersListData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $partners_list) {
+            $no++;
+            $row =  $this->Partners_datatable($partners_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+       /**
+     * @desc This is used to generate Data table row
+     * @param Array $invoice_list
+     * @param int $no
+     * @return Array
+     */
+    function Partners_datatable($partners_list, $no){
+        $row = array();
+         $row[] = $no;
+         $row[] = $partners_list->full_name;
+         $row[] = $partners_list->public_name;
+        return $row;
+    }
+    
 }
