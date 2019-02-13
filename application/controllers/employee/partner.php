@@ -6927,4 +6927,143 @@ class Partner extends CI_Controller {
         }
     }
 
+    /* @desc: This method is used to load view for setting logo priority on web site
+     * @param: void
+     * @return:view
+     */
+    function partner_logo_priority(){
+        $data['data'] = $this->reusable_model->get_search_query("partner_brand_logo", "partner_brand_logo.id, partners.public_name, partner_logo", array(), array("partners"=>"partners.id = partner_brand_logo.partner_id"), "", array("logo_priority"=>"ASC"), "", "")->result_array();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partner_brand_logo_priority_form', $data);
+    }
+    
+    /**
+     * @desc: This method is used to save the logo priority in partner_brand_logo table
+     * @param: void
+     * @return:json
+     */
+    function save_partner_logo_priority(){
+        $priority_array = $this->input->post("priority_array");
+        $return = array();
+        $queries = array();
+        foreach ($priority_array as $key => $value) {
+            $queries[] = "Update partner_brand_logo set logo_priority = '".$value['priority']."' where id = '".$value['partner_brand_logo_id']."'";
+        }
+        if(!empty($queries)){
+            $rows =  $this->partner_model->update_partner_brand_logo($queries);
+            if($rows){
+               $return['status'] = true;
+               $return['message'] = "Priority Saved Successfully";
+            }
+            else{
+                $return['status'] = false;
+                $return['message'] = "Priority Not Saved, Contact Tech Team";
+            }
+        }
+        else{
+            $return['status'] = false;
+            $return['message'] = "Priority Not Saved, Contact Tech Team"; 
+       }
+        echo json_encode($return);
+    }
+    
+    /*
+    * @desc - This function is used to List the partner details 
+    * @param - void    
+    * @return - array
+    */
+    
+    function partners_managed_by_account_manager(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partners_list_managed_by_account_manager');
+    }
+    
+    
+    /**
+     * @desc Get POST data from DataTable
+     * @return Array
+     */
+    function getPartnerDataTablePost(){
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+       if(!empty($search['value'])){
+           $post['search_value'] = trim($search['value']); 
+        }
+        $post['where']['is_active'] = 1;
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
+        }
+        return $post;
+    }
+    
+    
+    /**
+     * @desc This function is generalize used to get the data for partners datatable
+     * @param request_type
+     */
+    function get_partners_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getPartnerDataTablePost();
+        $post['column_order'] = array(NULL, 'employee.full_name');
+        $post['column_search'] = array('employee.full_name');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'partners_managed_by_account_manager':                  
+                $data = $this->getPartnersManagedByAccountManagerData($post);
+                break;           
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->partner_model->count_all_partners($post),
+            "recordsFiltered" =>  $this->partner_model->count_filtered_partner('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }    
+     /**
+     * @desc Filter Partner data 
+     * @param type $post
+     * @return type
+     */
+     
+    function getPartnersManagedByAccountManagerData($post){
+        $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
+                . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
+                . "employee.official_email";
+        $list = $this->partner_model->searchPartnersListData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $partners_list) {
+            $no++;
+            $row =  $this->Partners_datatable($partners_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+       /**
+     * @desc This is used to generate Data table row
+     * @param Array $invoice_list
+     * @param int $no
+     * @return Array
+     */
+    function Partners_datatable($partners_list, $no){
+        $row = array();
+         $row[] = $no;
+         $row[] = $partners_list->full_name;
+         $row[] = $partners_list->public_name;
+        return $row;
+    }
+    
 }
