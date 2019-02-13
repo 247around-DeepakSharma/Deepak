@@ -2448,7 +2448,8 @@ class invoices_model extends CI_Model {
 
 
     }
-    /**
+ 
+     /**
      * @desc This function is used to  get count of all invoice
      * @param Array $post
      */

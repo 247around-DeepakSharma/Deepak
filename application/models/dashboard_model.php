@@ -421,12 +421,13 @@ class dashboard_model extends CI_Model {
      * @return array
      */
     function get_spare_parts_count_group_by_status($partner_id = ''){
-        $this->db->select('count(id) as count,status,group_concat(booking_id) as booking_id');
+        $this->db->select('count(spare_parts_details.id) as count,status,group_concat(spare_parts_details.booking_id) as booking_id');
         $this->db->from('spare_parts_details');
+        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->group_by('status');
         
         if(!empty($partner_id)){
-            $this->db->where('partner_id',$partner_id);
+            $this->db->where('booking_details.partner_id',$partner_id);
         }
         $query = $this->db->get();
         return $query->result_array();
@@ -478,18 +479,18 @@ class dashboard_model extends CI_Model {
     function get_oot_spare_parts_count_by_partner(){
         $sql = "SELECT COUNT(spare_parts_details.booking_id) AS 'spare_count', "
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as 'spare_amount',"
-                . "spare_parts_details.partner_id,partners.public_name "
-                . "FROM spare_parts_details "
-                . "JOIN partners ON spare_parts_details.partner_id = partners.id "
-                . "JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
-                . "WHERE service_center_booking_action.closed_date IS NOT NULL "
-                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > '".SF_SPARE_OOT_DAYS."'"
+                . " booking_details.partner_id,partners.public_name "
+                . " FROM spare_parts_details "
+                . " JOIN booking_details ON booking_details.booking_id = spare_parts_details.booking_id"
+                . " JOIN partners ON booking_details.partner_id = partners.id "
+                . "WHERE booking_details.service_center_closed_date IS NOT NULL "
+                . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > '".SF_SPARE_OOT_DAYS."'"
                 . "AND spare_parts_details.defective_part_required = 1 "
                 . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') "
-                . "AND service_center_booking_action.current_status =  'InProcess'"
-                . "GROUP BY spare_parts_details.partner_id "
+                . "GROUP BY booking_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
+        
         return $query->result_array();
     }
     
