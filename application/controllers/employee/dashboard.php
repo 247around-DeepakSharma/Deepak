@@ -1855,6 +1855,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             return array("where"=>$where,"joinType"=>$joinType,"join"=>$join);
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+            $conditionArray['where_in'] = array();
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -1917,7 +1918,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
             $conditionsArray['where']['partners.is_active'] = 1;
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         else if($for == "RM"){
             if($this->session->userdata('partner_id') ){
@@ -1938,7 +1939,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending);  
@@ -1975,7 +1976,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
-        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending);
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
@@ -2010,7 +2011,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
         //Get Data Group by State
-        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($stateRawData)){
             $stateDataTemp = $this->get_tat_data_in_structured_format($stateRawData,$is_pending);
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
