@@ -2879,14 +2879,30 @@ class Invoice extends CI_Controller {
                 
                 $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
 
-                $sc_details['rm_name'] = $rm[0]['full_name'];
+                $sc_details['rm_name'] = (!empty($rm))? $rm[0]['full_name']:"";;
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
                 $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
+                
                 $sc_details['defective_parts'] = $defective_parts;
                 $sc_details['defective_parts_max_age'] = $defective_parts_max_age;
                 $sc_details['shipped_parts_name'] = $parts_name;
                 $sc_details['challan_value'] = $challan_value;
+                
+                $oot_shipped = $this->invoices_model->get_oot_shipped_defective_parts($service_center_id);
+                
+                $sc_details['oot_defective_parts_shipped'] = (!empty($oot_shipped))? $oot_shipped[0]['count']:"";
+                $sc_details['oot_defective_parts_max_age'] = (!empty($oot_shipped))? $oot_shipped[0]['max_sp_age']:"";
+                $sc_details['oot_part_type'] = (!empty($oot_shipped))? $oot_shipped[0]['parts']:"";
+                $sc_details['oot_challan_value'] = (!empty($oot_shipped))? $oot_shipped[0]['challan_value']:"";
+                
+                $shipped_parts = $this->invoices_model->get_intransit_defective_parts($service_center_id);
+                
+                $sc_details['defective_parts_shipped'] = (!empty($shipped_parts))? $shipped_parts[0]['count']:"";
+                $sc_details['defective_parts_shipped_max_age'] = (!empty($shipped_parts))? $shipped_parts[0]['max_sp_age']:"";
+                $sc_details['defective_shipped_part_type'] = (!empty($shipped_parts))? $shipped_parts[0]['parts']:"";
+                $sc_details['shipped_challan_value'] = (!empty($shipped_parts))? $shipped_parts[0]['challan_value']:"";
+
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
@@ -3022,10 +3038,22 @@ class Invoice extends CI_Controller {
         $sc_details['remarks'] = "Remarks";
         $sc_details['gst_no'] = "GST Number";
         $sc_details['is_signature'] = "Signature Exist";
+        
         $sc_details['defective_parts'] = "No Of Defective Parts";
         $sc_details['defective_parts_max_age'] = "Max Age of Spare Pending";
-        $sc_details['shipped_parts_name'] = "Shipped Parts Name";
-        $sc_details['challan_value'] = "Challan Approx Value";
+        $sc_details['shipped_parts_name'] = "Shipped Parts Type";
+        $sc_details['challan_value'] = "Defective Challan Approx Value";
+        
+        $sc_details['oot_defective_parts_shipped'] = "No Of OOT Shipped Part";
+        $sc_details['oot_defective_parts_max_age'] = "Max Age of OOT Spare Pending";
+        $sc_details['oot_part_type'] = "OOT Shipped Parts Type";
+        $sc_details['oot_challan_value'] = "OOT Challan Approx Value";
+        
+        $sc_details['defective_parts_shipped'] = "No Of Defective Parts shipped";
+        $sc_details['defective_parts_shipped_max_age'] = "Max Age of Shipped Part";
+        $sc_details['defective_shipped_part_type'] = "Shipped Parts Type";
+        $sc_details['shipped_challan_value'] = "Shipped Challan Approx Value";
+
         $sc_details['is_verified'] = "Bank Account Verified";
         $sc_details['amount_type'] = "Type";
         $sc_details['sf_id'] = "SF/CP Id";

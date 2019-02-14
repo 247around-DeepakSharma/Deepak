@@ -879,6 +879,24 @@ function user_role_management(){
             } 
         } 
     }
+    
+    /*
+     * @desc - This function is used to get all employees in select form(html)
+     * @param - void
+     * @return - html
+     */
+    function get_all_employee(){
+        $html = "";
+        $employee = $this->employee_model->get_employee();
+        if(!empty($employee)){
+            $html = "<option selected disabled>Select Employee</option>";
+            $html .= "<option value='All'>All</option>";
+            foreach ($employee as $key => $value) {
+                $html .= "<option value='".$value['id']."'>".$value['full_name']."</option>";
+            }
+        }
+        echo $html;
+    }
 }
 /* End of file welcome.php */
 /* Location: ./application/controllers/welcome.php */

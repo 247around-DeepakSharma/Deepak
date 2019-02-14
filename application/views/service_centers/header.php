@@ -31,6 +31,7 @@
         <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
         <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.marquee/1.3.1/jquery.marquee.min.js"></script>
         <style type="text/css">
             .navbar{
             min-height: 80px;
@@ -71,6 +72,62 @@
                 left: 70px;
                 position: relative;
                 background-color: green;
+            }
+            .notification:hover {
+                background: red;
+            }
+
+            .notification .badge {
+                position: absolute;
+                top: 0px;
+                right: -2px;
+                padding: 3px 6px;
+                border-radius: 50%;
+                background-color: red;
+                color: white;
+            }
+            .notification { 
+                background: none;
+            }
+            /* MODAL FADE LEFT RIGHT BOTTOM */
+            .export_modal .modal.fade:not(.in).left .modal-dialog {
+                -webkit-transform: translate3d(-25%, 0, 0);
+                transform: translate3d(-25%, 0, 0);
+            }
+            .export_modal .modal.fade:not(.in).right .modal-dialog {
+                -webkit-transform: translate3d(25%, 0, 0);
+                transform: translate3d(25%, 0, 0);
+            }
+            .export_modal .modal.fade:not(.in).bottom .modal-dialog {
+                -webkit-transform: translate3d(0, 25%, 0);
+                transform: translate3d(0, 25%, 0);
+            }
+            .export_modal .modal.right .modal-dialog {
+                position:absolute;
+                top:0;
+                right:0;
+                margin:0;
+            }
+            .export_modal .modal.right .modal-content {
+                min-height:100vh;
+                border:0;
+                border-radius: 0px;
+            }
+            .export_modal .modal.right .modal-footer {
+                position: fixed;
+                left: 0;
+                right: 0;
+            }
+            .export_modal .modal-header .close {
+                margin-top: -2px;
+                position: absolute;
+                top: 4px;
+                left: -30px;
+                background-color: #183247;
+                width: 30px;
+                height: 30px;
+                opacity: 1;
+                color: #fff;
             }
         </style>
         
@@ -324,12 +381,22 @@
                                     </ul>
   </div></li>-->
                         <li><a href="<?php echo base_url()?>employee/service_centers/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
+                        <li>
+                            <a href="#" class="notification" onclick="read_dashboard_notification()">
+                                <i class="fa fa-bell"></i>
+                                <span class="badge" id="dashboard_notification_count">0</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <!-- /.navbar-collapse -->
             </div>
             <!-- /.container-fluid -->
         </nav>
+        <div style="width: 100%; background: bisque; display: none" id="marquee_div">
+                <div class="marquee"></div>
+                <div style="text-align: right; margin-top: -20px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
+            </div>
         <div class="main_search">
                     <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #2C9D9C">
     <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
@@ -355,6 +422,33 @@
         </style>
     </body>
 </html>
+
+<!-- Start Dashboard Notification Modal -->
+    <div class="export_modal">
+        <div class="modal fade right" id="dashboard_notification" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" action="">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="main_modal_title">247around Notifications</h4>
+                    </div>
+                    <div class="modal-body" id="main_modal_body" style="height: 630px; overflow-y: auto;">
+                        <table style="width: 100%; line-height: 40px;" id="dashboard_notification_table">
+                            
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-right">
+                            <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                         </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- End -->
 
 <script>
     $("#partner_tollfree").click(function(){
@@ -408,6 +502,34 @@
             url: '<?php echo base_url(); ?>employee/service_centers/get_contact_us_page',
             success: function (data) {
                     $("#contactUsModalData").html(data);   
+            }
+        });
+        
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo  base_url()?>employee/dashboard/get_dashboard_notification/<?php echo _247AROUND_SF_STRING; ?>',
+            success: function(data) {
+                data = JSON.parse(data);
+                var marquee = data.marquee_msg;
+                var marquee_html = "";
+                $("#dashboard_notification_count").text(data.notification);
+                if(marquee.length>0){
+                    $("#marquee_div").show();
+                    for(var i=0; i<marquee.length; i++){
+                       marquee_html +=  marquee[i]['message']+" ";
+                    }
+                    $(".marquee").text(marquee_html);
+                    $('.marquee').marquee({
+                                duration: 30000,
+                                     gap: 100,
+                        delayBeforeStart: 0,
+                               direction: 'left',
+                              duplicated: false
+                    });
+                }
+                else{ 
+                    $("#marquee_div").hide();
+                }
             }
         });
         
@@ -496,7 +618,42 @@
         });
     }
      <?php } ?>
-
+    
+    
+    function read_dashboard_notification(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo  base_url()?>employee/dashboard/read_dashboard_notification',
+            data : {entity_type : "<?php echo _247AROUND_SF_STRING; ?>", entity_id : "<?php echo $this->session->userdata('service_center_id'); ?>"},
+            success: function(response) {
+                response = JSON.parse(response);
+                var html = "";
+                var seen_style = "border-bottom: 1px solid #77777761;";
+                if(response.length > 0){
+                    $("#marquee_div").show();
+                    for(var i=0; i<response.length; i++){
+                        if(response[i]['seen'] == '0'){
+                            seen_style += "color: #065ba3; font-weight:600;";
+                        }
+                        var date = new Date(response[i]['create_date']);
+                        var month = date .getMonth() + 1;
+                        var day = date .getDate();
+                        var year = date .getFullYear();
+                        html += "<tr style='"+seen_style+"'><td>"+response[i]['message']+"</td><td style='text-align: right'>"+day+"-"+month+"-"+year+"</td></tr>";
+                    }
+                    $("#dashboard_notification_count").text(0);
+                }
+                else{
+                    html += "<tr><td>No New Notification Found...</td></tr>";
+                }
+                $("#dashboard_notification_table").html(html);
+                $('#dashboard_notification').modal('show');
+            }
+        });
+    }
+    function marquee_close(){
+         $("#marquee_div").hide();
+    }
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
@@ -532,4 +689,10 @@
     .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
     .dropdown-submenu:hover>a:after{border-left-color:#555;}
     .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+    .marquee {
+        width: 98%;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background: bisque;
+    }
 </style>
