@@ -58,6 +58,25 @@
         <link href="<?php echo base_url() ?>css/sweetalert.css" rel="stylesheet">
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
         <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.marquee/1.3.1/jquery.marquee.min.js"></script>
+        <style>
+        .notification:hover {
+            background: red;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: 0px;
+            right: -2px;
+            padding: 3px 6px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+        }
+        .notification { 
+            background: none;
+        }
+        </style>
        
         <?php if(ENVIRONMENT === 'production') { ?> 
             <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -182,16 +201,28 @@
                     </ul>
                 </li>
                 <li><a href="<?php echo base_url()?>employee/login/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
-                                <div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
-                                    <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('id'); ?>,'employee')"></a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 18px;border: 1px solid #2c9d9c;
-                                            height: auto;max-height: 650px;overflow-x: hidden;"> 
-                                    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-                                    </ul>
-  </div>
+                <li>
+                    <a href="#" class="notification" onclick="read_dashboard_notification()">
+                        <i class="fa fa-comments"></i>
+                        <span class="badge" id="dashboard_notification_count">0</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="dropdown">
+                        <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('id'); ?>,'employee')"></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 18px;border: 1px solid #2c9d9c;
+                                height: auto;max-height: 650px;overflow-x: hidden;"> 
+                        <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </nav>
-        
+            <div style="width: 100%; background: bisque; display: none" id="marquee_div">
+                <div class="marquee"></div>
+                <div style="text-align: right; margin-top: -20px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
+            </div>
+        </div>
         <!-- end export data Modal -->
         <div class="export_modal">
             <div class="modal fade right" id="sidebar-right" tabindex="-1" role="dialog">
@@ -226,8 +257,38 @@
                 </div>
             </div>
         </div>
+        <!-- end export data Modal -->
         
-         <!-- end export data Modal -->
+        
+        
+    <!-- Start Dashboard Notification Modal -->
+    <div class="export_modal">
+        <div class="modal fade right" id="dashboard_notification" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" action="">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="main_modal_title">247around Notifications</h4>
+                    </div>
+                        <div class="modal-body" id="main_modal_body" style="height: 630px; overflow-y: auto;">
+                        <table style="width: 100%; line-height: 40px;" id="dashboard_notification_table">
+                            
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-right">
+                            <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                         </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End -->
+        
+        
         <script type="text/javascript">
             
             $("#modal_service_id").select2({
@@ -386,7 +447,31 @@
 }
 .navbar-top-links .dropdown-menu li a {
         margin-left: 14px;
-        padding: 3px 8px;
+        padding: 3px 15px;
+        
+        .notification {
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            padding: 15px 26px;
+            position: relative;
+            display: inline-block;
+            border-radius: 2px;
+        }
+
+        .notification:hover {
+            background: red;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            padding: 5px 10px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+        }
 }
             </style>
             <script>
@@ -500,7 +585,34 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
                        }
                     });
                 });
-             });
+                $.ajax({
+                        type: 'POST',
+                        url: '<?php echo  base_url()?>employee/dashboard/get_dashboard_notification/<?php echo _247AROUND_EMPLOYEE_STRING; ?>',
+                        success: function(data) {
+                            data = JSON.parse(data);
+                            var marquee = data.marquee_msg;
+                            var marquee_html = "";
+                            $("#dashboard_notification_count").text(data.notification);
+                            if(marquee.length>0){
+                                $("#marquee_div").show();
+                                for(var i=0; i<marquee.length; i++){
+                                   marquee_html +=  marquee[i]['message']+" ";
+                                }
+                                $(".marquee").text(marquee_html);
+                                $('.marquee').marquee({
+                                            duration: 30000,
+                                                 gap: 100,
+                                    delayBeforeStart: 0,
+                                           direction: 'left',
+                                          duplicated: false
+                                });
+                            }
+                            else{ 
+                                $("#marquee_div").hide();
+                            }
+                        }
+                    });
+            });
 function outbound_call(phone_number){
         var confirm_call = confirm("Call Partner ?");
         if (confirm_call == true) {      
@@ -514,13 +626,55 @@ function outbound_call(phone_number){
             return false;
         }
     }
-                </script>
+    
+    function read_dashboard_notification(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo  base_url()?>employee/dashboard/read_dashboard_notification',
+            data : {entity_type : "<?php echo _247AROUND_EMPLOYEE_STRING; ?>", entity_id : "<?php echo $this->session->userdata('id'); ?>"},
+            success: function(response) {
+                response = JSON.parse(response);
+                var html = "";
+                var seen_style = "border-bottom: 1px solid #77777761;";
+                if(response.length > 0){
+                    for(var i=0; i<response.length; i++){
+                        if(response[i]['seen'] == '0'){
+                            seen_style += "color: #065ba3; font-weight:600";
+                        }
+                        var date = new Date(response[i]['create_date']);
+                        var month = date .getMonth() + 1;
+                        var day = date .getDate();
+                        var year = date .getFullYear();
+                        html += "<tr style='"+seen_style+"'><td>"+response[i]['message']+"</td><td style='text-align: right'>"+day+"-"+month+"-"+year+"</td></tr>";
+                    }
+                    $("#dashboard_notification_count").text(0);
+                }
+                else{
+                    html += "<tr><td>No New Notification Found...</td></tr>";
+                }
+                $("#dashboard_notification_table").html(html);
+                $('#dashboard_notification').modal('show');
+            }
+        });
+    }
+    
+    function marquee_close(){
+         $("#marquee_div").hide();
+    }
+</script>
                 
-                <style>
-                    #partner_toll_free_table_filter{
-                        padding-left: 30px;
-                    }
-                    #partner_toll_free_table_length{
-                        display: none;
-                    }
-                    </style>
+<style>
+    #partner_toll_free_table_filter{
+        padding-left: 30px;
+    }
+    #partner_toll_free_table_length{
+        display: none;
+    }
+    .marquee {
+        width: 98%;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background: bisque;
+    }
+</style>
+ 

@@ -47,6 +47,7 @@
         <script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
         <script src="<?php echo base_url() ?>js/partner.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.marquee/1.3.1/jquery.marquee.min.js"></script>
         <style>
             .right_col{
                 min-height:700px!important;
@@ -214,6 +215,7 @@
                             <?php $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$this->session->userdata('partner_logo');?>
                             <a class="navbar-brand" href="#"><img src="<?php echo $src;?>" alt="partner_logo"></a>
                         </div>
+                       
 <!--                        <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
                         </div>-->
@@ -226,6 +228,12 @@
                                     </ul>
                                 </div>
                              </li>-->
+                            <li>
+                                <a href="#" class="notification" onclick="read_dashboard_notification()">
+                                    <i class="fa fa-bell"></i>
+                                    <span class="badge" id="dashboard_notification_count">0</span>
+                                </a>
+                            </li>
                             <li class="">
                                 <a href="javascript:void(0);" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <?php echo $partner_name; ?>                                     
@@ -256,8 +264,13 @@
                             </li>
                         </ul>
                     </nav>
+                    <div id="marquee_div">
+                        <div class="marquee"></div>
+                        <div style="text-align: right; margin-top: -20px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
+                    </div>
                 </div>
             </div>
+             
             <div class="col-md-3 left_col menu_fixed">
                 <div class="left_col scroll-view" style="width:100%;">
                     <br>
@@ -333,8 +346,8 @@
                                         <?php
                                     }
                                 }
-                            ?>
-                               
+                        
+                                ?>
                             </ul>
                         </div>
                     </div>
@@ -345,8 +358,34 @@
                     </div>
                     <!-- /menu footer buttons -->
             </div>
-        </div>    
+        </div>
     </div>
+     <!-- Start Dashboard Notification Modal -->
+    <div class="export_modal">
+        <div class="modal fade right" id="dashboard_notification" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" action="">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="main_modal_title">247around Notifications</h4>
+                    </div>
+                    <div class="modal-body" id="main_modal_body" style="height: 630px; overflow-y: auto;">
+                        <table style="width: 100%; line-height: 40px;" id="dashboard_notification_table">
+                            
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-right">
+                            <div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                         </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End -->
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
     background-color: #2c9d9c;
@@ -375,8 +414,78 @@
         margin-left: 14px;
         padding: 3px 8px;
 }
+/* MODAL FADE LEFT RIGHT BOTTOM */
+    .export_modal .modal.fade:not(.in).left .modal-dialog {
+        -webkit-transform: translate3d(-25%, 0, 0);
+        transform: translate3d(-25%, 0, 0);
+    }
+    .export_modal .modal.fade:not(.in).right .modal-dialog {
+        -webkit-transform: translate3d(25%, 0, 0);
+        transform: translate3d(25%, 0, 0);
+    }
+    .export_modal .modal.fade:not(.in).bottom .modal-dialog {
+        -webkit-transform: translate3d(0, 25%, 0);
+        transform: translate3d(0, 25%, 0);
+    }
+    .export_modal .modal.right .modal-dialog {
+        position:absolute;
+        top:0;
+        right:0;
+        margin:0;
+    }
+    .export_modal .modal.right .modal-content {
+        min-height:100vh;
+        border:0;
+        border-radius: 0px;
+    }
+    .export_modal .modal.right .modal-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+    }
+    .export_modal .modal-header .close {
+        margin-top: -2px;
+        position: absolute;
+        top: 4px;
+        left: -30px;
+        background-color: #183247;
+        width: 30px;
+        height: 30px;
+        opacity: 1;
+        color: #fff;
+    }
+    .notification:hover {
+        background: red;
+    }
 
-            </style>
+    .notification .badge {
+        position: absolute;
+        top: 0px;
+        right: -2px;
+        padding: 3px 6px;
+        border-radius: 50%;
+        background-color: red;
+        color: white;
+    }
+    .notification { 
+        background: none;
+    }
+    .marquee {
+        width: 98%;
+        overflow: hidden;
+    }
+    #marquee_div {
+        margin-top: 50px !important;
+        margin-left: 40px;
+        background: bisque;
+        height: 25px;
+        padding-top: 5px;
+        display: none;
+    }
+    .nav-sm .container.body .col-md-3.left_col {
+        margin-top: 50px;
+    }
+</style>
             <script>
                 function get_notifications(entity_id,entity_type){
                     $.ajax({
@@ -388,4 +497,68 @@
                     }
                     });
                 }
-                </script>
+                
+                $( document ).ready(function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo  base_url()?>employee/dashboard/get_dashboard_notification/<?php echo _247AROUND_PARTNER_STRING; ?>',
+                        success: function(data) {
+                            data = JSON.parse(data);
+                            var marquee = data.marquee_msg;
+                            var marquee_html = "";
+                            $("#dashboard_notification_count").text(data.notification);
+                            if(marquee.length>0){
+                                $("#marquee_div").show();
+                                for(var i=0; i<marquee.length; i++){
+                                   marquee_html +=  marquee[i]['message']+" ";
+                                }
+                                $(".marquee").text(marquee_html);
+                                $('.marquee').marquee({
+                                            duration: 30000,
+                                                 gap: 100,
+                                    delayBeforeStart: 0,
+                                           direction: 'left',
+                                          duplicated: false,
+                                });
+                            }
+                            else{ 
+                                $("#marquee_div").hide();
+                            }
+                        }
+                    });
+                });
+                
+                function read_dashboard_notification(){
+                    $.ajax({
+                        type: 'POST',
+                        url: '<?php echo  base_url()?>employee/dashboard/read_dashboard_notification',
+                        data : {entity_type : "<?php echo _247AROUND_PARTNER_STRING; ?>", entity_id : "<?php echo $this->session->userdata('partner_id'); ?>"},
+                        success: function(response) {
+                            response = JSON.parse(response);
+                            var html = "";
+                            var seen_style = "border-bottom: 1px solid #77777761;";
+                            if(response.length > 0){
+                                for(var i=0; i<response.length; i++){
+                                    if(response[i]['seen'] == '0'){
+                                        seen_style = "color: #065ba3; font-weight:600;";
+                                    }
+                                    var date = new Date(response[i]['create_date']);
+                                    var month = date .getMonth() + 1;
+                                    var day = date .getDate();
+                                    var year = date .getFullYear();
+                                    html += "<tr style='"+seen_style+"'><td>"+response[i]['message']+"</td><td style='text-align: right'>"+day+"-"+month+"-"+year+"</td></tr>";
+                                }
+                                $("#dashboard_notification_count").text(0);
+                            }
+                            else{
+                                html += "<tr><td>No New Notification Found...</td></tr>";
+                            }
+                            $("#dashboard_notification_table").html(html);
+                            $('#dashboard_notification').modal('show');
+                        }
+                    });
+                }
+        function marquee_close(){
+            $("#marquee_div").hide();
+        }        
+</script>
