@@ -9947,3 +9947,43 @@ ALTER TABLE `booking_details` ADD `origin_partner_id` VARCHAR(64) NULL DEFAULT N
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_requested_customer_tag', 'Request of %s for %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP), (NULL, 'sms_requested_dealer_sms_tag', 'Request of %s for %s %s is placed. You’ll get an SMS on delivery. Thanks, 247around, 9555000247', '', '1', CURRENT_TIMESTAMP);
 --Abahy
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'sms_delivered_customer_tag', 'Great News! Expected delivery of %s, %s is today. Engineer will visit in the time slot. For queries dial 9555000247, 247around', '', '1', '0', '2019-02-11 17:53:17');
+
+--Kalyani 14-Feb-2019
+--
+-- Table structure for table `dashboard_notifications`
+--
+
+CREATE TABLE `dashboard_notifications` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(255) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `marquee` tinyint(1) NOT NULL,
+  `seen` tinyint(1) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `update_date` datetime NOT NULL,
+  `create_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dashboard_notifications`
+--
+ALTER TABLE `dashboard_notifications`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `dashboard_notifications`
+--
+ALTER TABLE `dashboard_notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
