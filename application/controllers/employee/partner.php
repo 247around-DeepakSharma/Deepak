@@ -2320,7 +2320,7 @@ class Partner extends CI_Controller {
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
                         'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
+                        'booking_details.request_type' => REPAIR_OOW_TAG,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
                         'status' => DEFECTIVE_PARTS_RECEIVED,
@@ -5550,7 +5550,8 @@ class Partner extends CI_Controller {
             else { 
                 $helperString = ' style="background-color: #26b99a;border-color:#26b99a;color:#fff;padding: 5px 0px;margin: 0px"';
             }
-            if ($row->type != _247AROUND_QUERY) { 
+            if ($row->type != _247AROUND_QUERY) {
+                if($row->partner_id == $this->session->userdata('partner_id')){
                 $tempArray[]= '<div class="dropdown">
                                                     <button class="btn btn-sm btn-primary" type="button" data-toggle="dropdown" style="border: 1px solid #2a3f54;background: #2a3f54;padding: 4px 24px;">Action
                                                     <span class="caret"></span></button>
@@ -5566,6 +5567,9 @@ class Partner extends CI_Controller {
                                                          </li>
                                                     </ul>
                                                 </div>';
+                } else {
+                    $tempArray[] =  "";
+                }
             }
             else{
               $tempArray[] =  "";
@@ -5675,7 +5679,7 @@ class Partner extends CI_Controller {
                     }
                      $tempString4 = '</ul>';
                      $tempArray[] =  $tempString2 . $tempString3 .$tempString4;
-                     if(!empty($row['is_gst_doc'])){
+                     if(empty($row['gst_no']) && empty ($row['signature_file'])){
                          $tempString5 = '<a class="btn btn-sm btn-success" href="#" title="GST number not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>';
                      }
                      else if(empty ($row['signature_file'])) {
@@ -6934,5 +6938,104 @@ class Partner extends CI_Controller {
        }
         echo json_encode($return);
     }
-
+    
+    /*
+    * @desc - This function is used to List the partner details 
+    * @param - void    
+    * @return - array
+    */
+    
+    function partners_managed_by_account_manager(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partners_list_managed_by_account_manager');
+    }
+    
+    
+    /**
+     * @desc Get POST data from DataTable
+     * @return Array
+     */
+    function getPartnerDataTablePost(){
+        
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+       if(!empty($search['value'])){
+           $post['search_value'] = trim($search['value']); 
+        }
+        $post['where']['is_active'] = 1;
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
+        }
+        return $post;
+    }
+    
+    
+    /**
+     * @desc This function is generalize used to get the data for partners datatable
+     * @param request_type
+     */
+    function get_partners_searched_data(){
+        log_message("info", __METHOD__);
+        $post = $this->getPartnerDataTablePost();
+        $post['column_order'] = array(NULL, 'employee.full_name');
+        $post['column_search'] = array('employee.full_name');
+        $data = array();
+        
+        switch ($this->input->post('request_type')){
+            case 'partners_managed_by_account_manager':                  
+                $data = $this->getPartnersManagedByAccountManagerData($post);
+                break;           
+            default :
+               break; 
+        }
+        
+       
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->partner_model->count_all_partners($post),
+            "recordsFiltered" =>  $this->partner_model->count_filtered_partner('*', $post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+        
+    }    
+     /**
+     * @desc Filter Partner data 
+     * @param type $post
+     * @return type
+     */
+     
+    function getPartnersManagedByAccountManagerData($post){
+        $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
+                . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
+                . "employee.official_email";
+        $list = $this->partner_model->searchPartnersListData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $partners_list) {
+            $no++;
+            $row =  $this->Partners_datatable($partners_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
+       /**
+     * @desc This is used to generate Data table row
+     * @param Array $invoice_list
+     * @param int $no
+     * @return Array
+     */
+    function Partners_datatable($partners_list, $no){
+        $row = array();
+         $row[] = $no;
+         $row[] = $partners_list->full_name;
+         $row[] = $partners_list->public_name;
+        return $row;
+    }
+    
 }

@@ -870,8 +870,8 @@ class Spare_parts extends CI_Controller {
         $status = $this->input->post('status');
         $reason = 'Spare parts Copy By ' . $this->session->userdata('emp_name');
 
-        $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,spare_parts_details.date_of_request,spare_parts_details.shipped_inventory_id,'
-                . 'spare_parts_details.defective_return_to_entity_type,spare_parts_details.defective_return_to_entity_id, spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
+        $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,spare_parts_details.date_of_request,'
+                . ', spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
                 . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,'
                 . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id,booking_details.service_id';
@@ -880,26 +880,24 @@ class Spare_parts extends CI_Controller {
 
             $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
             
-            if (!empty($spare_parts_list)) {
-                $booking_id = $spare_parts_list[0]['booking_id'];
-                $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
-                if (!empty($this->input->post('new_booking_id'))) {
+            if (!empty($spare_parts_list)) {               
+                    $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
                     $spare_parts_list[0]['booking_id'] = $this->input->post('new_booking_id');
-                }
-                $spare_parts_list[0]['status'] = $status;
-                $entity_type = $spare_parts_list[0]['entity_type'];
-                $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
-                $partner_id = $spare_parts_list[0]['booking_partner_id'];
-                $service_id = $spare_parts_list[0]['service_id'];
+                    $booking_id = $this->input->post('new_booking_id');
 
-                if (!empty($spare_parts_list[0])) {
-                    unset($spare_parts_list[0]['shipped_inventory_id']);
+                    $spare_parts_list[0]['status'] = $status;
+                    $entity_type = $spare_parts_list[0]['entity_type'];
+                    $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
+                    $partner_id = $spare_parts_list[0]['booking_partner_id'];
+                    $service_id = $spare_parts_list[0]['service_id'];
+
+                if (!empty($spare_parts_list[0])) {                  
                     unset($spare_parts_list[0]['booking_partner_id']);
                     unset($spare_parts_list[0]['service_id']);
                     $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
                     $spare_parts_id = $insert_id;
                 }
-                
+             
                 $parts_stock_not_found = array();
                 $delivered_sp = array();
                 
@@ -954,11 +952,11 @@ class Spare_parts extends CI_Controller {
                     array_push($delivered_sp, $data);
                     $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                 }
-
+              
                 if (!empty($spare_parts_id)) {
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_parts_id), $data);
                 }
-
+               
                 if ($affected_id) {
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
@@ -970,10 +968,11 @@ class Spare_parts extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
-
+                    $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_list[0]['parts_requested'], $this->input->post('new_booking_id'));
+            
                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
 
-                    if (!empty($affected_id)) {
+                    if ($affected_id) {
                         echo 'success';
                     } else {
                         echo 'fail';
@@ -1519,6 +1518,8 @@ class Spare_parts extends CI_Controller {
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                  }else{
                      $spare_data['status'] = SPARE_PARTS_REQUESTED;
+                     
+                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id);
                  }
                 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
@@ -1698,6 +1699,9 @@ class Spare_parts extends CI_Controller {
                         $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        
+                        $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                        
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
                             $this->session->set_userdata($userSession);

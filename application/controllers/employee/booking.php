@@ -3146,6 +3146,7 @@ class Booking extends CI_Controller {
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
         $is_upcountry = $this->input->post('is_upcountry');
+        $completed_booking=$this->input->post('completed_booking');
         $bulk_booking_id = NULL;
         if($this->input->post('bulk_booking_id')){
             $bulk_booking_id = $this->input->post('bulk_booking_id');
@@ -3155,7 +3156,29 @@ class Booking extends CI_Controller {
         }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-                $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                if($booking_status == _247AROUND_COMPLETED) 
+                {
+                        if(!empty($completed_booking))
+                            {
+                                $post['where']['type']= 'Booking';
+                                    switch ($completed_booking){
+                                        case 'a':
+                                            $post['where']['(service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed") OR (current_status="'.$booking_status.'")'] = NULL;
+                                            break;
+                                        case 'b':
+                                            $post['where']['service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed"'] = NULL;
+                                            break;
+                                        case 'c':
+                                           $post['where']  = array('current_status' => $booking_status);
+                                            break;
+                                    }
+                            }
+                        else
+                            {
+                               $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                            }
+                }
+               
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
                     $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (current_status = '"._247AROUND_PENDING."' ))"=>NULL,
@@ -3322,7 +3345,14 @@ class Booking extends CI_Controller {
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
         $row[] = $order_list->city;
-        $row[] = date("d-m-Y", strtotime($order_list->closed_date));
+        if(!empty($order_list->closed_date))
+        {
+            $row[] = date("d-m-Y", strtotime($order_list->closed_date));
+        }
+        else
+        {
+            $row[] ="" ;
+        }
         $row[] = $call_btn;
         if($booking_status === _247AROUND_COMPLETED){
             $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
@@ -4045,6 +4075,7 @@ class Booking extends CI_Controller {
     }
     function get_input_for_bulk_search($receieved_Data){
         $inputBulkData = array();
+        $copy_inputBulkData=array();
         $inputBulkDataTemp = explode("\n",$receieved_Data['bulk_input']);
         $result = array_map('trim', $inputBulkDataTemp);
         foreach($inputBulkDataTemp as $value){
@@ -4069,13 +4100,17 @@ class Booking extends CI_Controller {
         else{
             $fieldName = 'booking_details.booking_id';
             $onlyName = "booking_id";
-            foreach($inputBulkData as $value)
+            $copy_inputBulkData=$inputBulkData;
+            foreach($copy_inputBulkData as $value)
             {
                 $query_check='Q-';
                 $start_string=substr($value,0,2);
                 if($start_string!==$query_check)
                 {
-                    $inputBulkData[]=$query_check.$value;
+                    $copy_inputBulkData[]=$query_check.$value;
+                    if (($key = array_search($value,$inputBulkData)) !== false) {
+                        unset($inputBulkData[$key]);
+                    }
                 }
             }
         }
@@ -4086,7 +4121,7 @@ class Booking extends CI_Controller {
                 $where['booking_details.partner_id'] = $receieved_Data['partner_id'];
             }
         }
-        return array("inputBulkData"=>$inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
+        return array("inputBulkData"=>$inputBulkData,"copy_inputBulkData"=>$copy_inputBulkData,"fieldName"=>$fieldName,"onlyName"=>$onlyName,"where"=>$where);
     }
     function get_bulk_search_result_data($receieved_Data,$select){
         $finalArray = array();
@@ -4105,7 +4140,7 @@ class Booking extends CI_Controller {
         $whereArray = NULL;
         $whereInArray = NULL;
         if($receieved_Data['bulk_input']){
-            $whereInArray[$inputData['fieldName']] = $inputData['inputBulkData'];
+            $whereInArray[$inputData['fieldName']] = $inputData['copy_inputBulkData'];
         }
         if($inputData['where']){
             $whereArray = $inputData['where'];
@@ -4118,35 +4153,8 @@ class Booking extends CI_Controller {
         if(isset($result[0])){
             $foundResultArray= array_column($result, $inputData['onlyName'] );
             $notFoundArray=array_diff($inputData['inputBulkData'],$foundResultArray);
-            //To remove  booking id that is present in both query as well as booking
-            if($inputData['onlyName']=='booking_id')
-           {
-              foreach($foundResultArray as $foundkey)
-              {
-                  $first_two=substr($foundkey,0,2);
-                  $booking_id=substr($foundkey,2);
-                  if($first_two=='Q-')
-                  {
-                      if(in_array($booking_id,$notFoundArray))
-                      {
-                         $keyremove= array_search ($booking_id,$notFoundArray);
-                         unset($notFoundArray[$keyremove]);
-                      }
-                  }
-                  else
-                  {
-                      $query_booking_id='Q-'.$foundkey;
-                      if(in_array($query_booking_id,$notFoundArray))
-                      {
-                         $keyremove= array_search ($query_booking_id,$notFoundArray);
-                         unset($notFoundArray[$keyremove]);
-                      }
-                  }
-              }
-           }
-           //end
-           $selectedFields = array_keys($result[0]);
-           foreach ($notFoundArray as $notFoundColumn){
+            $selectedFields = array_keys($result[0]);
+            foreach ($notFoundArray as $notFoundColumn){
                foreach($selectedFields as $fieldName){
                     $helperArray[$fieldName] = "Not_found";
                    if($fieldName == $inputData['onlyName']){

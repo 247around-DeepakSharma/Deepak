@@ -276,7 +276,7 @@ class Buyback {
                     if ($this->POST_DATA['tracking_id'] != 0 || $order_data[0]['partner_tracking_id'] != $this->POST_DATA['tracking_id']) {
                         $bb_order_details['partner_tracking_id'] = $this->POST_DATA['tracking_id'];
                     }
-                    if ($this->POST_DATA['city'] != 0 || $order_data[0]['city'] != $this->POST_DATA['city']) {
+                    if ($this->POST_DATA['city'] && $order_data[0]['city'] != $this->POST_DATA['city']) {
                         $bb_order_details['city'] = $this->POST_DATA['city'];
                     }
                     if ($this->POST_DATA['partner_order_id'] != 0 || $order_data[0]['partner_order_id'] != $this->POST_DATA['partner_order_id']) {
@@ -604,6 +604,7 @@ class Buyback {
 
                 if ($update_unit_details) {
                     $bb_order_details['assigned_cp_id'] = $bb_charges[0]['cp_id'];
+                    $bb_order_details['city'] = $bb_charges[0]['city'];
                     $is_status = $this->My_CI->bb_model->update_bb_order_details($where_bb_order, $bb_order_details);
                     if ($is_status) {
                         $this->My_CI->cp_model->action_bb_cp_order_action(array('partner_order_id' => $order_id), array('cp_id' => $bb_charges[0]['cp_id'], "partner_order_id" => $order_id,

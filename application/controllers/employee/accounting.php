@@ -753,7 +753,7 @@ class Accounting extends CI_Controller {
         echo json_encode($output);
         
     }
-    
+        
     /**
      * @desc Filter invoice data from Invoice Search page from admin
      * @param type $post
@@ -772,7 +772,7 @@ class Accounting extends CI_Controller {
         }
         return $data;
     }
-    
+            
      /**
      * @desc This function is used to get service center invoice data
      * @param type $post
@@ -903,12 +903,14 @@ class Accounting extends CI_Controller {
      * @return Array
      */
     function getInvoiceDataTablePost(){
-
+        
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
-        $post['search_value'] = trim($search['value']);
-        
+        if(!empty($search['value'])){
+           $post['search_value'] = trim($search['value']); 
+        }
+                
         $post['order'] = $this->input->post('order');
         $post['draw'] = $this->input->post('draw');
         
@@ -943,7 +945,7 @@ class Accounting extends CI_Controller {
             $post['where']['invoice_date <= "'.$period[1].'"'] = NULL;
         }
 
-        if($settle_amount != 2){
+        if(!empty($settle_amount) && ($settle_amount != 2)){
             $post['where']['settle_amount'] = $settle_amount;
         }
         
@@ -969,6 +971,9 @@ class Accounting extends CI_Controller {
         
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
+        }
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
         }
         return $post;
     }

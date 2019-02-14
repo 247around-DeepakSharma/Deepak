@@ -124,7 +124,7 @@ if ($this->uri->segment(3)) {
                                             <?php } ?>
                                         </td>
                                         <td>
-                                            <?php if(!empty($row['is_gst_doc'])){ ?> 
+                                            <?php if(!empty($row['gst_no']) && empty($row['signature_file'])){ ?> 
                                                 <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
                                             <?php }else if(empty ($row['signature_file'])) { ?> 
                                                 <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-close"></i></a>

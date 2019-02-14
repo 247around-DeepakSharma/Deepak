@@ -821,6 +821,7 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    $partner_id = NULL;
     if($this->session->userdata('partner_id')){
         $partner_id = $this->session->userdata('partner_id');
     }
