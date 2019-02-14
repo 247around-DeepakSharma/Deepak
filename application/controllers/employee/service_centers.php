@@ -1597,7 +1597,11 @@ class Service_centers extends CI_Controller {
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
-
+                    
+                    if (array_key_exists("spare_id",$data)){
+                        unset($data['spare_id']); 
+                    }
+                   
                     $data['parts_requested'] = $value['parts_name'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
