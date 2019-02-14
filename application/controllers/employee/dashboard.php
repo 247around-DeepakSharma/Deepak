@@ -2401,6 +2401,222 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                
                 }
             }
- 
     
+    /*
+     * @desc - This function is used to load the form for adding and updating dashboard notifications
+     * @param - void
+     * @return - view
+     */
+    function dashboard_notifications(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/dashboard_notification_form');
+    }
+    
+    /*
+     * @desc - This function is used to insert dashboard notifications
+     * @param - form data
+     * @return - set succucess or failure in session temporarly
+     */
+    function process_dashboard_notification(){
+        $data = array();
+        $entities = $this->input->post("entity");
+        $date_range = explode("/", $this->input->post("date_range"));
+        $is_marquee = 0;
+        if($this->input->post("is_marquee")){
+          $is_marquee = 1;  
+        }
+        $notification = array(
+            "entity_type" => $this->input->post("entity_type"),
+            "message" => $this->input->post("message"),
+            "start_date" => $date_range[0],
+            "end_date" => $date_range[1],
+            "marquee" => $is_marquee,
+            "create_date" => date("Y-m-d H:i:s")
+        );
+        foreach ($entities as $entity) {
+            if($entity == "All"){
+                $all_entity_ids = array();
+                if($this->input->post("entity_type") == _247AROUND_PARTNER_STRING){
+                    $all_entity_ids = $this->partner_model->getpartner("", true);
+                }
+                if($this->input->post("entity_type") == _247AROUND_SF_STRING){
+                    $all_entity_ids = $this->vendor_model->getVendorDetails("id", array("active"=>1));
+                }
+                if($this->input->post("entity_type") == _247AROUND_EMPLOYEE_STRING){
+                    $all_entity_ids = $this->employee_model->get_employee();
+                }
+                foreach ($all_entity_ids as $key => $value) {
+                    $notification['entity_id'] = $value['id'];
+                    array_push($data,$notification);
+                }
+                break;
+            }
+            else{
+                $notification['entity_id'] = $entity;
+                array_push($data,$notification);
+            }
+        }
+        $return = $this->dashboard_model->insert_dashboard_notification($data);
+        if($return){
+            $this->session->set_userdata('error', 'Error occured while inserting data.');
+        }
+        else{
+            $this->session->set_userdata('success', 'Save Successfully');
+        }
+        redirect(base_url() . 'employee/dashboard/dashboard_notifications');
+    }
+    
+    /*
+     * @desc - This function is used to get dashboard notifications in datatable format
+     * @param - form data
+     * @return - json data
+     */
+    function get_dashboard_notifications(){
+        $data = $this->get_dashboard_notifications_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("dashboard_notifications", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("dashboard_notifications", "count(dashboard_notifications.id) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output);
+    }
+    
+     /*
+     * @desc - This function is the helping function for get_dashboard_notifications used to get dashboard notifications in datatable format
+     * @param - form data
+     * @return - array
+     */
+    function get_dashboard_notifications_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['column_order'] = array();
+        $post['column_search'] = array("message", "entity_type", "partners.public_name", "service_centres.name", "employee.full_name");
+        $post['where'] = array();
+        $post['join'] = array(
+                            "employee" => "employee.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_EMPLOYEE_STRING."'",
+                            "partners" => "partners.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_PARTNER_STRING."'",
+                            "service_centres" => "service_centres.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_SF_STRING."'",
+                        );
+        
+        $post['joinType'] = array(
+                "employee"=>"LEFT",
+                "partners"=>"LEFT", 
+                "service_centres"=>"LEFT"
+            );
+        $select = "( CASE WHEN partners.public_name IS NOT NULL THEN partners.public_name WHEN service_centres.name IS NOT NULL THEN service_centres.name ELSE employee.full_name END ) as entity_name, dashboard_notifications.*";
+        $list = $this->reusable_model->get_datatable_data("dashboard_notifications", $select, $post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $notification_list) {
+            $no++;
+            $row = $this->get_dashboard_notification_table($notification_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+     /*
+     * @desc - This function is the helping function for get_dashboard_notifications used to form table data
+     * @param - $notification_list, $no
+     * @return - array
+     */
+    function get_dashboard_notification_table($notification_list, $no){
+        $row = array();
+        $json_data = json_encode($notification_list);
+        $row[] = $no;
+        $row[] = $notification_list->entity_type;
+        $row[] = $notification_list->entity_name;
+        $row[] = $notification_list->message; 
+        if($notification_list->marquee == 1){
+            $row[] = "Yes";
+        }
+        else{
+            $row[] = "No";
+        }
+        $row[] = date("jS F Y", strtotime($notification_list->start_date));
+        $row[] = date("jS F Y", strtotime($notification_list->end_date));
+        $row[] = "<button type='button' class='btn btn-primary btn-xs' data-id='".$json_data."' onclick='edit_notification(this)'><i class='fa fa-pencil-square-o' style='margin-right: 5px;'></i>Edit</button>";
+        return $row;
+    }
+     /*
+     * @desc - This function is used to update dashboard notifications
+     * @param - from data
+     * @return - boolean
+     */
+    function update_dashboard_notifications(){
+        $data = array(
+            "message" => $this->input->post("message"),
+            "marquee" => $this->input->post("marquee"),
+            "start_date" => $this->input->post("start_date"),
+            "end_date" => $this->input->post("end_date"),
+            "update_date" => date("Y-m-d H:i:s")
+        );
+        $this->dashboard_model->update_dashboard_notification($data, array("id"=> $this->input->post("notification_id")));
+        echo true;
+    }
+    
+    /*
+     * @desc - This function is used to get dashboard notifications for paerticular entity
+     * @param - $entity_type
+     * @return - json data
+     */
+    function get_dashboard_notification($entity_type){
+        $return = array();
+        $data = array(
+            "seen" => 0,
+            "is_active" => 1,
+            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "marquee" => 0
+        );
+        if($entity_type == _247AROUND_PARTNER_STRING){
+            $data['entity_id'] = $this->session->userdata('partner_id');
+            $data['entity_type'] = _247AROUND_PARTNER_STRING;
+        }
+        else if($entity_type == _247AROUND_SF_STRING){
+            $data['entity_id'] = $this->session->userdata('service_center_id');
+            $data['entity_type'] = _247AROUND_SF_STRING;
+        }
+        else{
+            $data['entity_id'] = $this->session->userdata('id');
+            $data['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        }
+        $return['notification'] = $this->dashboard_model->get_dashboard_notification("count(id) as notifications", $data)[0]['notifications'];
+        unset($data['seen']);
+        $data['marquee'] = 1;
+        $return['marquee_msg'] = $this->dashboard_model->get_dashboard_notification("id, message", $data);
+        log_message('info', __METHOD__ . "=>query".$this->db->last_query());
+        echo json_encode($return);
+    }
+    
+    /*
+     * @desc - This function is used to mark dashboard notifications as read for perticular entity
+     * @param - $entity_type, $entity_id
+     * @return - json data
+     */
+    function read_dashboard_notification(){
+       $where = array(
+            "entity_type" => $this->input->post("entity_type"),
+            "entity_id" => $this->input->post("entity_id"),
+            "is_active" => 1,
+            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "marquee" => 0
+        );
+        $notifications = $this->dashboard_model->get_dashboard_notification("id, message, seen, create_date", $where, array("id"=>"desc"), "15");
+        $where['seen'] = 0;
+        $data['seen'] = 1;
+        $this->dashboard_model->update_dashboard_notification($data, $where);
+        echo json_encode($notifications);
+    }
 }

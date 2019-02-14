@@ -27,6 +27,7 @@ class Miscelleneous {
         $this->My_CI->load->model('penalty_model');
         $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
+        $this->My_CI->load->model('dashboard_model');
     }
 
     /**
