@@ -1963,9 +1963,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $stateData;
     }
     function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE){
-        echo "<pre>";
-        print_r($this->input->post());
-        exit();
         $endDate = date("Y-m-d");
         $startDate =  date('Y-m-d', strtotime('-30 days'));
         $partner_id = $status =  "not_set";
