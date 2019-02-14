@@ -543,7 +543,7 @@ class User_invoice extends CI_Controller {
         foreach ($postData as $key=>$value){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('spare_parts_details.id' => $value->spare_detail_ids);
-                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id', $where, true);
+                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, service_id', $where, true);
                 $partner_id = $chech_spare[0]['partner_id'];
                 if(!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 1){
                         if($chech_spare[0]['is_micro_wh'] == 0){
@@ -551,6 +551,17 @@ class User_invoice extends CI_Controller {
                         }
                         $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
                         $amount = $value->confirm_prices;
+                        $inventory_id = "";
+                        if($chech_spare[0]['shipped_inventory_id']){
+                            $inventory_id = $chech_spare[0]['shipped_inventory_id'];
+                         }
+                        if($inventory_id){
+                            $inventry_amount = $this->inventory_model->get_inventory_master_list_data("price", array("inventory_id"=>$inventory_id));
+                            $amount = $inventry_amount[0]['price'];
+                        }
+                        $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']));
+                        $spare_oow_around_margin = $margin['oow_around_margin']/100;
+                        $amount = ($amount + ($amount * $spare_oow_around_margin));
                         $hsn_code = $value->hsn_codes;
                         $gst_rate = $value->gst_rates;
                         $invoice_amount = $invoice_amount + $amount;
@@ -1328,7 +1339,7 @@ class User_invoice extends CI_Controller {
             if (!empty($spare_data)) {
                 $partner_id = $spare_data[0]['partner_id'];
                 $vendor_email_parts_name .= $value->spare_product_name.",";
-                $inventory_id = 0;
+                $inventory_id = "";
                 if($spare_data[0]['is_micro_wh'] == 0){
                     $email_parts_name_partner .= $value->spare_product_name.", ";
                 }
