@@ -2530,21 +2530,29 @@ class Booking_model extends CI_Model {
       $query = $this->db->query($sql);
       return $query->result_array();
     }
-    function get_india_pincode_group_by_state()
+    function get_india_pincode_group_by_state($array=array())
     {
         $return_arr=array();
-        $this->db->select('distinct(`india_pincode`.`state`),count(`india_pincode`.`state`) as state_pincode_count,state_code.id as state_id');
+        $this->db->select('distinct(`india_pincode`.`state`),count(DISTINCT pincode) as state_pincode_count,state_code.id as state_id');
         $this->db->from('india_pincode');
         $this->db->join('state_code','india_pincode.state=state_code.state','left');
-        $this->db->group_by('`state_code`.`id`');
+        if(!empty($array))
+        {
+            $this->db->where_in('state_code.id',$array);
+        }
+        $this->db->group_by('india_pincode.state');
         $result=$this->db->get()->result_array();
         return $result;
     }
-    function get_vendor_mapping_groupby_applliance_state()
+    function get_vendor_mapping_groupby_applliance_state($array=array())
     {
-        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id ,Appliance_ID,count(Appliance_ID) as total_pincode');
+        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id ,Appliance_ID,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
+        if(!empty($array))
+        {
+            $this->db->where_in('state_code.id',$array);
+        }
         $this->db->group_by('vendor_pincode_mapping.Appliance_ID');
         $this->db->group_by('vendor_pincode_mapping.State');
         $result=$this->db->get()->result_array();
@@ -2585,4 +2593,20 @@ class Booking_model extends CI_Model {
         }
         return $return;
     }
+    
+    function get_vendor_mapping_groupby_state($where_in=array())
+    {
+        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
+        $this->db->from('vendor_pincode_mapping');
+        $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
+         if(!empty($where_in))
+        {
+            $this->db->where_in('state_code.id',$where_in);
+        }
+        $this->db->group_by('state_code.id');
+        $result=$this->db->get()->result_array();
+        return $result;
+           
+    }
+   
    }
