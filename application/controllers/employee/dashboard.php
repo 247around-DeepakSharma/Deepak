@@ -1813,7 +1813,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"', $where)){
+                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
                     unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
                     unset($where['booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"']);
                 }
