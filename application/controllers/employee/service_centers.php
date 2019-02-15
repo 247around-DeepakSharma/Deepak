@@ -4341,7 +4341,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
-        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+        //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $this->session->userdata('service_center_id') .
@@ -4390,7 +4390,7 @@ class Service_centers extends CI_Controller {
 
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
-                            $data['challan_approx_value'] = $this->input->post('approx_value');
+                            $data['challan_approx_value'] = $part_details['approx_value'];
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
 
                             /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
