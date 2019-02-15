@@ -1711,7 +1711,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalArray = array();
         foreach($data as $tatData){
             if($tatData['TAT']<0){
-                $finalArray[$tatData['entity']]['TAT_0'] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
             }
@@ -1800,29 +1800,30 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
-                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;                        
+                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;                        
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
-                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;
+                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
-                        $where['booking_details.request_type NOT LIKE "%Repair%"'] = NULL;
+                        $where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%"', $where)){
-                    unset($where['booking_details.request_type NOT LIKE "%Repair%"']);
-                    unset($where['booking_details.request_type LIKE "%Repair%"']);
+                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"', $where)){
+                    unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
+                    unset($where['booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
                     unset($where['spare_parts_details.booking_id IS NOT NULL']);
                 }
                 if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    $where['(spare_parts_details.booking_id IS NOT NULL AND booking_details.request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND booking_details.request_type NOT LIKE "%Repair%")']= NULL;
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND (booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")) '
+                        . 'OR (spare_parts_details.booking_id IS NULL AND (booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"))']= NULL;
                 }
             }
             //Filter on free or paid
