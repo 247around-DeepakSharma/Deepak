@@ -37,8 +37,8 @@ class Service_centers_model extends CI_Model {
         $booking = "";
         $day = " ";
         if($booking_id !=""){
-            $booking = " AND bd.booking_id = '".$booking_id."' ";
-        } 
+            $booking = " AND bd.booking_id IN ('".$booking_id."') ";
+        }
         $status = "";
         for($i =1; $i < 4;$i++ ){
             if($booking_id !=""){

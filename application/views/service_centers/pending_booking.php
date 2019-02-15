@@ -2,7 +2,11 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
     <div class="row" >
-        <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
+        <?php 
+        if(!$multiple_booking){ 
+            $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); 
+        }
+        ?>
         <?php
             if ($this->session->userdata('success')) {
             echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -389,16 +393,24 @@ span.stars span {
     }
     
     function pending_booking_on_tab(){
+    booking_list = "";
+     <?php   if($multiple_booking){ ?>
+             var booking_list = "<?php echo $booking_id ?>";
+            <?php  $booking_id ="";
+             ?>
+       <?php }
+       else{
+           if(empty($booking_id)){
+               $booking_id ="";
+           }
+       }
+       ?>
        $.ajax({
          type: 'POST',
-         <?php if(!empty($booking_id)){ ?>
-             url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/'+ "<?php echo $booking_id; ?>",
-         <?php } else { ?>
-             url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/',
-         <?php } ?>
+         data: {booking_list: booking_list},
+         url: '<?php echo base_url(); ?>employee/service_centers/pending_booking_on_tab/'+ "<?php echo $booking_id; ?>",
          success: function (data) {
           $("#tab-content").html(data);   
-    
          }
        });
     

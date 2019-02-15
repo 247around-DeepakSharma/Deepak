@@ -70,6 +70,12 @@ class Service_centers extends CI_Controller {
     function pending_booking($booking_id="") {
         $this->checkUserSession();
         $data['booking_id'] = $booking_id;
+        $data['multiple_booking'] = 0;
+        if($this->input->post('booking_id_status')){
+            $temp = explode(",",$this->input->post('booking_id_status'));
+            $data['booking_id'] = implode("','",$temp);
+            $data['multiple_booking'] = 1;
+        }
         $rating_data = $this->service_centers_model->get_vendor_rating_data($this->session->userdata('service_center_id'));
         if(!empty($rating_data[0]['rating'])){
             $data['rating'] =  $rating_data[0]['rating'];
@@ -97,6 +103,9 @@ class Service_centers extends CI_Controller {
     }
     
     function pending_booking_on_tab($booking_id = ""){
+        if($this->input->post('booking_list')){
+            $booking_id = $this->input->post('booking_list');
+        }
         $service_center_id = $this->session->userdata('service_center_id');
         $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
         if($this->session->userdata('is_update') == 1){
@@ -1597,7 +1606,11 @@ class Service_centers extends CI_Controller {
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
-
+                    
+                    if (array_key_exists("spare_id",$data)){
+                        unset($data['spare_id']); 
+                    }
+                   
                     $data['parts_requested'] = $value['parts_name'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
@@ -4264,8 +4277,8 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+        
 
-       
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $this->session->userdata('service_center_id') .
                     " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -4314,7 +4327,7 @@ class Service_centers extends CI_Controller {
                             
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
-                            $data['challan_approx_value'] = $this->input->post('approx_value');
+                            $data['challan_approx_value'] = $part_details['approx_value'];
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             
                             if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
