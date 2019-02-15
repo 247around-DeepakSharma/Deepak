@@ -26,11 +26,17 @@
          <th>Due Date</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>
+        <?php if($invoice_array[0]['vendor_partner'] == "vendor"){ ?>
          <th>Additional Service Charges</th>
+        <?php } ?>
          <th>Parts / Stands</th>
+        <?php if($invoice_array[0]['vendor_partner'] == "vendor"){ ?>
          <th>TDS Amount</th>
-         <th style="display:none;">Upcountry Charges</th>
-         <th style="display:none;">Courier Charges</th>
+        <?php } ?>
+        <?php if($invoice_array[0]['vendor_partner'] == "partner"){ ?>
+         <th>Upcountry Charges</th>
+         <th>Courier Charges</th>
+        <?php } ?>
          <th>Penalty</th>
          <th>GST Amount</th>
          <th>Amount to be Paid By 247Around</th>
@@ -79,11 +85,22 @@
           <td><?php echo $invoice['due_date'];?></td>
          <td><?php echo $invoice['total_amount_collected'];?></td>
          <td><?php echo (sprintf("%.2f",($invoice['total_service_charge'] + $invoice['service_tax']))); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
-         <td><?php echo sprintf("%.2f",$invoice['total_additional_service_charge']); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
+         
+         <?php if($invoice["vendor_partner"] == "vendor"){ ?>
+            <td><?php echo sprintf("%.2f",$invoice['total_additional_service_charge']); $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
+         <?php } ?>
+            
          <td><?php echo (sprintf("%.2f",($invoice['parts_cost'] + $invoice['vat']))); $sum_total_parts_cost +=($invoice['parts_cost'] + $invoice['vat']); ?></td>
+         
+         <?php if($invoice["vendor_partner"] == "vendor"){ ?>
          <td id="<?php echo 'tds_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['tds_amount']); $sum_tds +=$invoice['tds_amount'];?></td>
-         <td style="display:none;" id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".sprintf("%.2f",$invoice['upcountry_price']);} else { echo sprintf("%.2f",$invoice['upcountry_price']); } ?></td>
-         <td style="display:none;" id="<?php echo 'courier_charges_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['courier_charges']); ?></td>
+         <?php } ?>
+         
+         <?php if($invoice["vendor_partner"] == "partner"){ ?>
+         <td id="<?php echo 'upcountry_'.$count; ?>"><?php if($invoice['type'] == "Cash" && $invoice['vendor_partner'] == "vendor") { echo "-".sprintf("%.2f",$invoice['upcountry_price']);} else { echo sprintf("%.2f",$invoice['upcountry_price']); } ?></td>
+         <td id="<?php echo 'courier_charges_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['courier_charges']); ?></td>
+         <?php } ?>
+         
          <td id="<?php echo 'penalty_'.$count; ?>"><?php echo "-".sprintf("%.2f",$invoice['penalty_amount']); ?></td>
          <td id="<?php echo 'gst_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['igst_tax_amount'] + $invoice['cgst_tax_amount'] + $invoice['sgst_tax_amount']); ?></td>
          <td id="<?php echo 'pay_247'.$count; ?>" ><?php  if($invoice['amount_collected_paid'] < 0){ echo sprintf("%.2f",$invoice['amount_collected_paid']); $pay_by_247 += ($invoice['amount_collected_paid'] );} else {echo "0.00"; } ?></td>
