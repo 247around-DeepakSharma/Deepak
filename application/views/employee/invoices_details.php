@@ -40,7 +40,7 @@
       </div>
       <div class="row">
         <div class="form-group col-md-4">
-            <label for="state" class="col-sm-4">Vendor Name</label>
+            <label for="state" class="col-sm-4"> <?php if(isset($service_center)){ echo "Vendor Name"; }else{ echo "Partner Name"; } ?> </label>
             <div class="col-md-8">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
