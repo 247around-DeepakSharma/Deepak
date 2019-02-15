@@ -1788,7 +1788,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
 
     function get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id){
-        $where = $joinType  = $join = $requestTypeArray = array();
+        $where = $joinType  = $join = $requestTypeArray = $where_in = array();
         //Filter on service ID
         if($service_id !="not_set"){
                  $where['booking_details.service_id'] = $service_id;
@@ -1852,10 +1852,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($this->session->userdata('partner_id')){
                $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
             }
-            return array("where"=>$where,"joinType"=>$joinType,"join"=>$join);
+            return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
-            $conditionArray['where_in'] = array();
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
