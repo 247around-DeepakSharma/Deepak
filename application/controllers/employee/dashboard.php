@@ -61,6 +61,55 @@ class Dashboard extends CI_Controller {
                 $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $serviceWhere['isBookingActive'] =1;
                 $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                //missing pincode data
+                $result=$this->booking_model->get_india_pincode_group_by_state(array());
+                    if(count($result)>0)
+                    {
+                        $pincode_state_wise=$result;
+                        foreach($pincode_state_wise as $value)
+                        {
+                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+                        }
+                    }
+                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+                           ,NULL,NULL,NULL,NULL,array());
+                    $active_services=$this->booking_model->get_active_services();
+                    $state_arr=$this->booking_model->get_active_state();
+                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $count = count($vendor_mapping_data);
+                    for($i = 0; $i<=$count-1;$i++){ 
+                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
+                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
+                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                                          
+                        }
+                    }
+                    
+
+                    foreach($rmData as $value)
+                    {
+                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                         $state_code=$value['state_code'];
+                         $rm_name=$value['full_name'];
+                         $rm_id=$value['agent_id'];
+                         $explode=explode(',',$state_code);
+                                                       
+                         $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
+                         $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
+                         $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                    }
+                  
+                    $missing_pincode_rm=array(
+                           'service_arr'=>$active_services,
+                           'state_arr'=>$state_arr,
+                           'vendorStructuredArray'=>$vendorStructuredArray,
+                            'rm_arr'=>$rm_arr,
+                            'india_pincode'=>$india_pincode
+                           );
+                    $data['missing_pincode_rm']=$missing_pincode_rm;
+               
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -1806,6 +1855,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             return array("where"=>$where,"joinType"=>$joinType,"join"=>$join);
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+            $conditionArray['where_in'] = array();
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -1868,7 +1918,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
             $conditionsArray['where']['partners.is_active'] = 1;
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         else if($for == "RM"){
             if($this->session->userdata('partner_id') ){
@@ -1889,7 +1939,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending);  
@@ -1926,7 +1976,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
-        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending);
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
@@ -1961,7 +2011,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
         //Get Data Group by State
-        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($stateRawData)){
             $stateDataTemp = $this->get_tat_data_in_structured_format($stateRawData,$is_pending);
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
@@ -2353,8 +2403,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         log_message('info', __METHOD__ . "=>start");
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
          if (!empty($template))
-         {
-                    $result=$this->booking_model->get_india_pincode_group_by_state();
+                {
+                    $result=$this->booking_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
@@ -2365,7 +2415,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state();
+                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
                     $active_services=$this->booking_model->get_active_services();
                     $state_arr=$this->booking_model->get_active_state();
                     $count = count($vendor_mapping_data);
@@ -2401,7 +2451,274 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                
                 }
-            }
- 
+
+             }
+                function pincode_rm_wise($rm_id)
+                {
+                    $vendorStructuredArray=array();
+                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",array("employee_relation.agent_id"=>$rm_id),array("employee"=>"employee_relation.agent_id = employee.id")
+                           ,NULL,NULL,NULL,NULL,array());
+                     
+                     $state_code=$rmData['0']['state_code'];
+                     $explode_state_arr=explode(',',$state_code);
+                     $result=$this->booking_model->get_india_pincode_group_by_state($explode_state_arr);
+                    
+                    if(count($result)>0)
+                    {
+                        $pincode_state_wise=$result;
+                        foreach($pincode_state_wise as $value)
+                        {
+                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+                        }
+                    }
+                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state($explode_state_arr);
+                    $state_arr=$this->booking_model->get_active_state();
+                    $active_services=$this->booking_model->get_active_services();
+                    $count = count($vendor_mapping_data);
+                    for($i = 0; $i<=$count-1;$i++){ 
+                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
+                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['Total_pincode']=$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                      }
+                    }
+                        log_message('info', __METHOD__ . "=>rm_details =".print_r($rmData['0'],TRUE));
+
+                        $data=array(
+                           'service_arr'=>$active_services,
+                           'state_arr'=>$state_arr,
+                           'vendorStructuredArray'=>$vendorStructuredArray,
+                            'rm_arr'=>$explode_state_arr
+                         );
+                 if($this->session->userdata('userType') == 'employee'){
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+                }
+                else if($this->session->userdata('userType') == 'partner'){
+                    $this->miscelleneous->load_partner_nav_header();
+                }
+                $this->load->view('dashboard/rm_state_wise_pincode_view',$data);
+                $this->load->view('dashboard/dashboard_footer');
+               
+           }
+
+    /*
+     * @desc - This function is used to load the form for adding and updating dashboard notifications
+     * @param - void
+     * @return - view
+     */
+    function dashboard_notifications(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/dashboard_notification_form');
+    }
     
+    /*
+     * @desc - This function is used to insert dashboard notifications
+     * @param - form data
+     * @return - set succucess or failure in session temporarly
+     */
+    function process_dashboard_notification(){
+        $data = array();
+        $entities = $this->input->post("entity");
+        $date_range = explode("/", $this->input->post("date_range"));
+        $is_marquee = 0;
+        if($this->input->post("is_marquee")){
+          $is_marquee = 1;  
+        }
+        $notification = array(
+            "entity_type" => $this->input->post("entity_type"),
+            "message" => $this->input->post("message"),
+            "start_date" => $date_range[0],
+            "end_date" => $date_range[1],
+            "marquee" => $is_marquee,
+            "create_date" => date("Y-m-d H:i:s")
+        );
+        foreach ($entities as $entity) {
+            if($entity == "All"){
+                $all_entity_ids = array();
+                if($this->input->post("entity_type") == _247AROUND_PARTNER_STRING){
+                    $all_entity_ids = $this->partner_model->getpartner("", true);
+                }
+                if($this->input->post("entity_type") == _247AROUND_SF_STRING){
+                    $all_entity_ids = $this->vendor_model->getVendorDetails("id", array("active"=>1));
+                }
+                if($this->input->post("entity_type") == _247AROUND_EMPLOYEE_STRING){
+                    $all_entity_ids = $this->employee_model->get_employee();
+                }
+                foreach ($all_entity_ids as $key => $value) {
+                    $notification['entity_id'] = $value['id'];
+                    array_push($data,$notification);
+                }
+                break;
+            }
+            else{
+                $notification['entity_id'] = $entity;
+                array_push($data,$notification);
+            }
+        }
+        $return = $this->dashboard_model->insert_dashboard_notification($data);
+        if($return){
+            $this->session->set_userdata('error', 'Error occured while inserting data.');
+        }
+        else{
+            $this->session->set_userdata('success', 'Save Successfully');
+        }
+        redirect(base_url() . 'employee/dashboard/dashboard_notifications');
+    }
+    
+    /*
+     * @desc - This function is used to get dashboard notifications in datatable format
+     * @param - form data
+     * @return - json data
+     */
+    function get_dashboard_notifications(){
+        $data = $this->get_dashboard_notifications_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("dashboard_notifications", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("dashboard_notifications", "count(dashboard_notifications.id) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output);
+    }
+    
+     /*
+     * @desc - This function is the helping function for get_dashboard_notifications used to get dashboard notifications in datatable format
+     * @param - form data
+     * @return - array
+     */
+    function get_dashboard_notifications_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['column_order'] = array();
+        $post['column_search'] = array("message", "entity_type", "partners.public_name", "service_centres.name", "employee.full_name");
+        $post['where'] = array();
+        $post['join'] = array(
+                            "employee" => "employee.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_EMPLOYEE_STRING."'",
+                            "partners" => "partners.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_PARTNER_STRING."'",
+                            "service_centres" => "service_centres.id = dashboard_notifications.entity_id and dashboard_notifications.entity_type = '"._247AROUND_SF_STRING."'",
+                        );
+        
+        $post['joinType'] = array(
+                "employee"=>"LEFT",
+                "partners"=>"LEFT", 
+                "service_centres"=>"LEFT"
+            );
+        $select = "( CASE WHEN partners.public_name IS NOT NULL THEN partners.public_name WHEN service_centres.name IS NOT NULL THEN service_centres.name ELSE employee.full_name END ) as entity_name, dashboard_notifications.*";
+        $list = $this->reusable_model->get_datatable_data("dashboard_notifications", $select, $post);
+        
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $notification_list) {
+            $no++;
+            $row = $this->get_dashboard_notification_table($notification_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+     /*
+     * @desc - This function is the helping function for get_dashboard_notifications used to form table data
+     * @param - $notification_list, $no
+     * @return - array
+     */
+    function get_dashboard_notification_table($notification_list, $no){
+        $row = array();
+        $json_data = json_encode($notification_list);
+        $row[] = $no;
+        $row[] = $notification_list->entity_type;
+        $row[] = $notification_list->entity_name;
+        $row[] = $notification_list->message; 
+        if($notification_list->marquee == 1){
+            $row[] = "Yes";
+        }
+        else{
+            $row[] = "No";
+        }
+        $row[] = date("jS F Y", strtotime($notification_list->start_date));
+        $row[] = date("jS F Y", strtotime($notification_list->end_date));
+        $row[] = "<button type='button' class='btn btn-primary btn-xs' data-id='".$json_data."' onclick='edit_notification(this)'><i class='fa fa-pencil-square-o' style='margin-right: 5px;'></i>Edit</button>";
+        return $row;
+    }
+     /*
+     * @desc - This function is used to update dashboard notifications
+     * @param - from data
+     * @return - boolean
+     */
+    function update_dashboard_notifications(){
+        $data = array(
+            "message" => $this->input->post("message"),
+            "marquee" => $this->input->post("marquee"),
+            "start_date" => $this->input->post("start_date"),
+            "end_date" => $this->input->post("end_date"),
+            "update_date" => date("Y-m-d H:i:s")
+        );
+        $this->dashboard_model->update_dashboard_notification($data, array("id"=> $this->input->post("notification_id")));
+        echo true;
+    }
+    
+    /*
+     * @desc - This function is used to get dashboard notifications for paerticular entity
+     * @param - $entity_type
+     * @return - json data
+     */
+    function get_dashboard_notification($entity_type){
+        $return = array();
+        $data = array(
+            "seen" => 0,
+            "is_active" => 1,
+            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "marquee" => 0
+        );
+        if($entity_type == _247AROUND_PARTNER_STRING){
+            $data['entity_id'] = $this->session->userdata('partner_id');
+            $data['entity_type'] = _247AROUND_PARTNER_STRING;
+        }
+        else if($entity_type == _247AROUND_SF_STRING){
+            $data['entity_id'] = $this->session->userdata('service_center_id');
+            $data['entity_type'] = _247AROUND_SF_STRING;
+        }
+        else{
+            $data['entity_id'] = $this->session->userdata('id');
+            $data['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        }
+        $return['notification'] = $this->dashboard_model->get_dashboard_notification("count(id) as notifications", $data)[0]['notifications'];
+        unset($data['seen']);
+        $data['marquee'] = 1;
+        $return['marquee_msg'] = $this->dashboard_model->get_dashboard_notification("id, message", $data);
+        log_message('info', __METHOD__ . "=>query".$this->db->last_query());
+        echo json_encode($return);
+    }
+    
+    /*
+     * @desc - This function is used to mark dashboard notifications as read for perticular entity
+     * @param - $entity_type, $entity_id
+     * @return - json data
+     */
+    function read_dashboard_notification(){
+       $where = array(
+            "entity_type" => $this->input->post("entity_type"),
+            "entity_id" => $this->input->post("entity_id"),
+            "is_active" => 1,
+            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "marquee" => 0
+        );
+        $notifications = $this->dashboard_model->get_dashboard_notification("id, message, seen, create_date", $where, array("id"=>"desc"), "15");
+        $where['seen'] = 0;
+        $data['seen'] = 1;
+        $this->dashboard_model->update_dashboard_notification($data, $where);
+        echo json_encode($notifications);
+    }
 }
+

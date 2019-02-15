@@ -607,6 +607,80 @@
             </div>
         </div>
     </div>
+    <!-- RM Missing & coverage Pincode  -->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>RM Pincode Report</h2>
+                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="RM_Pincode_Reporting" class="x_content collapse">
+                <div class="table-responsive" id="rm_pincode_data">
+                  <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>State</th> 
+                        <?php
+                           foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
+                            ?>
+                        <th><?php echo $servicevalue;?></th>
+                  <?php
+                  }
+                    ?>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <?php
+                         foreach($missing_pincode_rm['rm_arr'] as $value){
+                        ?>   
+                        <tr>
+<!--                                <td><?php //echo $value['full_name'];?></td>-->
+                                <td><a type="button"  class="btn btn-info" target="_blank" 
+                                      href='<?php echo base_url(); ?>employee/dashboard/pincode_rm_wise/<?php echo $value['rm_id'] ?>'><?php echo $value['full_name'];?></a></td>
+                               <?php
+                                foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
+                                     $missing_pincode=0;
+                                     $missing_pincode_per=0;$total_pincode=0;
+                                    foreach($value['state_code'] as $value1)
+                                      {
+                                        if(array_key_exists('state_'.$value1,$missing_pincode_rm['india_pincode']))
+                                        {
+                                            $total_pincode=$total_pincode+$missing_pincode_rm['india_pincode']['state_'.$value1];
+                                        }
+                                      if(isset($missing_pincode_rm['state_arr'][$value1]))
+                                       {
+                                   if(isset($missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey])){
+                                        $missing_pincode=$missing_pincode+$missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey]['missing_pincode'];
+                                       }
+                                     
+                                       }
+                                      }
+                                          
+                                      $missing_pincode_decimal=$missing_pincode/$total_pincode;
+                                      $missing_pincode_per=round(($missing_pincode_decimal*100),0);
+                                    ?>
+                                <?php //echo $total_pincode.'<br>'; ?>
+                                <?php// echo $missing_pincode.'(';  ?>
+                               <td> <?php echo wordwrap($missing_pincode_per.'%'); ?></td>
+                                <?php    
+                               
+                                }
+                                ?>
+                        </tr>
+           <?php }
+           ?>
+                        
+                    </tbody>
+                </table>
+               
+            </div>
+            </div> 
+            </div>
+        </div>
+    </div>
     
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">

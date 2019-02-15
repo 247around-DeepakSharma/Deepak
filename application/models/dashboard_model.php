@@ -727,4 +727,49 @@ class dashboard_model extends CI_Model {
        $query = $this->db->query($sql);
        return $query->result_array();
     }
+    
+     /*
+     * @desc - This function is used to isert dashboard notifications in batch
+     * @param - $data
+     * @return - boolean
+     */
+    function insert_dashboard_notification($data){
+        return $this->db->insert_batch("dashboard_notifications", $data);
+    }
+    
+     /*
+     * @desc - This function is used to update dashboard notifications
+     * @param - $data, $where
+     * @return - void
+     */
+    function update_dashboard_notification($data, $where){
+        $this->db->where($where);
+        $this->db->update("dashboard_notifications", $data);
+    }
+    
+     /*
+     * @desc - This function is used to get dashboard notifications
+     * @param - $select, $where, $orderBYArray, $limit
+     * @return - array
+     */
+    function get_dashboard_notification($select="*", $where=array(), $orderBYArray=array(), $limit=""){
+        $this->db->select($select);
+        
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+       
+        if(!empty($orderBYArray)){
+            foreach ($orderBYArray as $fieldName=>$sortingOrder){
+                $this->db->order_by($fieldName, $sortingOrder);
+            }
+        }
+        
+        if($limit){
+           $this->db->limit($limit);
+        }
+        $this->db->from('dashboard_notifications');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }
