@@ -68,7 +68,6 @@
 </div>
 <script>
     function loadData(is_download = null){
-        alert(is_download);
         select_type = document.getElementById("select_type").value;
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
