@@ -1173,10 +1173,18 @@ class Accounting extends CI_Controller {
             $row[] = $no;
         }
         $row[] = $order_list->invoice_id;
+        if($order_list->amount_collected_paid > 0){
+            $row[] = "247Around";
+        }
+        else{
+            $row[] = "Partner";
+        }
         $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
         $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->total_amount_collected;
+        $row[] = $order_list->amount_paid;
+        $row[] = sprintf("%.2f", $order_list->total_amount_collected-$order_list->amount_paid);
         $html = '<ul style=" list-style-type: none;">';
         if(!empty($order_list->invoice_file_main)) { 
           $html .=  '<li style="display: inline; font-size: 30px;"><a title="Main File"  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li>';

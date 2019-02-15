@@ -1009,6 +1009,18 @@ class Booking extends CI_Controller {
         $getbooking = $this->booking_model->getbooking_history($booking_id);
 
         if ($getbooking) {
+             $spare_shipped_flag = FALSE;
+               if (isset($getbooking['spare_parts'])) {
+
+                    foreach ($getbooking['spare_parts'] as $sp) {
+                        
+                        if(($sp['auto_acknowledeged'] == 1 || $sp['auto_acknowledeged'] == 2)&& $sp['status'] == SPARE_DELIVERED_TO_SF ){
+                            $spare_shipped_flag = TRUE;
+                            $getbooking['spare_shipped_flag']=$spare_shipped_flag;
+                        }
+                    }
+               }
+            
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reschedulebooking', array('data' => $getbooking));
         } else {
@@ -1036,7 +1048,9 @@ class Booking extends CI_Controller {
 //        $data['current_status'] = 'Rescheduled';
 //        $data['internal_status'] = 'Rescheduled';
         $data['update_date'] = date("Y-m-d H:i:s");
-
+        $reason=!empty($this->input->post('reason'))?$this->input->post('reason'):'';
+        $reason_remark=!empty($this->input->post('remark'))?$this->input->post('remark'):'';
+        $data['reschedule_reason']=$reason.' - '.$reason_remark;
         //check partner status
         //$partner_id = $this->input->post('partner_id');
         $actor = $next_action = NULL;
@@ -1054,10 +1068,10 @@ class Booking extends CI_Controller {
             log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
             $this->booking_model->update_booking($booking_id, $data);
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-
+            $reschedule_reason=$reason.' - '.$remark;
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, _247AROUND_RESCHEDULED, $this->session->userdata('id'), 
+            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
 //            $service_center_data['internal_status'] = _247AROUND_PENDING;

@@ -61,9 +61,37 @@
                         <?php echo form_error('booking_timeslot'); ?>
                       </div>
                     </div>
-
-
-                  </div>
+                      <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>">
+                      <label for="reason" class="col-md-4">Reschedule Reason</label><?php echo  $data['spare_shipped_flag']?>
+                      <div class="col-md-6">
+                        <select name="reason" class= "form-control" required="" >
+                            <option value="">Select</option>
+                            <?php
+                                if($data[0]['is_upcountry'] == 1)
+                                {
+                            ?>
+                            <option value="<?php echo RESCHEDULE_FOR_UPCOUNTRY;?>"> <?php echo RESCHEDULE_FOR_UPCOUNTRY;?></option> 
+                            <?php
+                                }
+                            ?>
+                             <option value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE;?>"> <?php echo CUSTOMER_ASK_TO_RESCHEDULE;?></option> 
+                             <option value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?>"> <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?></option> 
+                             <?php if(!empty($data['spare_shipped_flag'])){ ?>
+                             <option value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF;?>"><?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF;?></option>
+                             <?php } ?>
+                           
+                        </select>
+                        <?php echo form_error('reason'); ?>
+                      </div>
+                    </div>
+                     <div class="form-group <?php if( form_error('remark') ) { echo 'has-error';} ?>">
+                      <label for="remarks" class="col-md-4">Remarks </label>
+                      <div class="col-md-6">
+                         <textarea class="form-control remarks"  id="remark" name="remark" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
+                      </div>
+                        <?php echo form_error('remark'); ?>
+                      </div>
+              </div>
 
                   <div class="col-md-6">
 

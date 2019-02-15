@@ -155,7 +155,7 @@
               ?>
           <tr>
             <td><?php echo $x;?></td>
-            <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'].'('.$row['id'].')';?></a></td>
+            <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'].'  ('.$row['id'].')';?></a></td>
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
             </td>
@@ -179,7 +179,7 @@
                 </button>
           	</td>
                 <td>
-                       <?php echo (!empty($row['district'])?$row['district']:'').'/' .(!empty($row['state'])?$row['state']:''); ?>
+                       <?php echo (!empty($row['district'])?$row['district']:'').'  /  ' .(!empty($row['state'])?$row['state']:''); ?>
                 </td>
                 <td>
                     <?php if ($row['is_upcountry'] == 1) { ?>
