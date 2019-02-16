@@ -37,6 +37,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
+        $this->load->library("paytm_callback");
         
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
@@ -7038,4 +7039,7 @@ class Partner extends CI_Controller {
         return $row;
     }
     
+    function test(){
+        echo $this->paytm_callback->getCode();
+    }
 }
