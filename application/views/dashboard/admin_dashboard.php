@@ -1103,7 +1103,7 @@
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+            startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
         });
     }
     function initiate_AM_Pending_TAT_Reporting(){
@@ -1114,7 +1114,7 @@
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+            startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>",
         });
     }
     
