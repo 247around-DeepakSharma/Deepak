@@ -85,11 +85,11 @@ class partner_cb {
         $callback_array[$jeeves_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
 	$callback_array[$jeeves_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
         
-        $callback_array[PAYTM]['Pending'] = 'bookingUpdateStatusCallback';
-	$callback_array[PAYTM]['FollowUp'] = 'bookingUpdateStatusCallback';
-	$callback_array[PAYTM]['Rescheduled'] = 'bookingUpdateStatusCallback';
-        $callback_array[PAYTM]['Completed'] = 'bookingUpdateStatusCallback';
-	$callback_array[PAYTM]['Cancelled'] = 'bookingUpdateStatusCallback';
+        $callback_array[PAYTM]['Pending'] = 'booking_updated_request';
+	$callback_array[PAYTM]['FollowUp'] = 'booking_updated_request';
+	$callback_array[PAYTM]['Rescheduled'] = 'booking_updated_request';
+        $callback_array[PAYTM]['Completed'] = 'booking_completed_request';
+	$callback_array[PAYTM]['Cancelled'] = 'booking_cancelled_request';
 
 	if (isset($callback_array[$partner_id][$state])) {
 	    return $callback_array[$partner_id][$state];
