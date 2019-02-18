@@ -704,6 +704,8 @@ class Buyback_process extends CI_Controller {
             //$row[] = $order_list->physical_condition;
             //$row[] = $order_list->working_condition;
             $row[] = $order_list->cp_claimed_price;
+            $row[] = $order_list->cp_price;
+            $row[] = $order_list->partner_price;
             if($order_list->internal_status === _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS){
                 $row[] = "<span class='label label-warning'>$order_list->internal_status</span>";
             }else if($order_list->internal_status === _247AROUND_BB_Damaged_STATUS){
