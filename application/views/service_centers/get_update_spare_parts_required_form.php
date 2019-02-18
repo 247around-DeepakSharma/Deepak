@@ -150,7 +150,12 @@
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>                                                                                                
                                             </div>
-                                            <?php } ?>                                                                                    
+                                            <?php } else { ?> 
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" value = "<?php echo $spare_parts_details['parts_requested']; ?>" placeholder="Parts Name" >
+                                            </div>
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
