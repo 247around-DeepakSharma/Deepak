@@ -1888,7 +1888,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
-                $conditionArray['where']['booking_details.actor'] = $status; 
+                $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL; 
              //Group by on booking_tat
