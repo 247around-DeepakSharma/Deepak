@@ -9,9 +9,9 @@
             <div class="container" >
                 <form method="POST" action="<?php echo base_url();?>employee/booking/download_booking_bulk_search_snapshot">
                     <div class="form-group">
-                        <input type="submit" class="btn btn-small btn-success" id="download" style="float: right;margin: 10px 0px;" value="Download CSV">
+                        <input type="submit" class="btn btn-small btn-success" id="download" style="float: right;margin: 10px 0px;" value="Download CSV" onsubmit="loadData('download')">
                         <select class="form-control" name="select_type" id="select_type">
-                            <option>Select Type</option>
+                            <option value="">Select Type</option>
                             <option value="mobile">Mobile</option>
                             <option value="booking_id">BookingID</option>
                             <option value="order_id">OrderID</option>
@@ -67,8 +67,7 @@
     </div>
 </div>
 <script>
-    $("#partner").select2();
-    function loadData(){
+    function loadData(is_download = null){
         select_type = document.getElementById("select_type").value;
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
@@ -77,7 +76,12 @@
         }
         else{
         if(select_type && bulk_input){
-            ad_table.ajax.reload( function ( json ) {} );
+            if(is_download){
+                return true;
+            }
+            else{
+                ad_table.ajax.reload( function ( json ) {} );
+           }
         }
         else{
            alert("Please provide Bulk values and Select Type Both");

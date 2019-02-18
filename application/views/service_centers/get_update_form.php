@@ -112,7 +112,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number" required="">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -134,7 +134,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number" required="">
                                         </div>
                                     </div>
                                 </div>
@@ -202,7 +202,7 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" required="">
                                             </div>
                                             <?php } ?>                                           
                                         </div>
@@ -465,7 +465,7 @@
                 var id = $(this).attr('id');
                 if(id !== "parts_name"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Enter Parts Nmae');
+                        alert('Please Enter Parts Name');
                         checkbox_value = 0;
                         return false;
                         
