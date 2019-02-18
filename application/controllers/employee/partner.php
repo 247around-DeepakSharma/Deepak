@@ -38,7 +38,7 @@ class Partner extends CI_Controller {
         $this->load->model("push_notification_model");
         $this->load->library('table');
         $this->load->library("invoice_lib");
-        
+        $this->load->library("paytm_cb");
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -6922,4 +6922,8 @@ class Partner extends CI_Controller {
         return $row;
     }
     
+    function test($booking_id){
+        $k = $this->paytm_cb->get_auth_token();
+        echo $k;
+    }
 }

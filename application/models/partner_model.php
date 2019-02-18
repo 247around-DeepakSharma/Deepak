@@ -2011,6 +2011,26 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get();
         return $query->num_rows();
     }
-
+    
+    function get_api_authentication_details($select="*", $where=array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("api_authentication");
+        return $query->result_array();
+    }
+    
+    function update_api_authentication_details($where, $data) {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->update("api_authentication", $data);
+        if ($this->db->affected_rows() > 0) {
+            $res = TRUE;
+        } else {
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
 }
 
