@@ -1293,7 +1293,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $this->checkUserSession();
-
+        
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -2447,10 +2447,14 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
         $challan_booking_id = $this->input->post('download_challan');
+        $declaration_detail = $this->input->post('coueriers_declaration');
         if(!empty($booking_address)){
             $this->print_partner_address();
         } else if(!empty ($challan_booking_id)){
             $this->print_challan_file();
+        }
+        else if(!empty ($declaration_detail)){
+            $this->print_declaration_detail();
         }
     }
     /**
@@ -2550,7 +2554,97 @@ class Service_centers extends CI_Controller {
         
         $this->load->view('service_centers/print_partner_address',$booking_history);
        
+    }  
+    /**
+     * @desc: This is used to print Concern Details
+     */
+    function print_declaration_detail() {
+        log_message('info', __METHOD__ . json_encode($_POST, true));
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        $booking_declaration_detail = $this->input->post('coueriers_declaration');
+
+        $booking_declaration_detail_list['coueriers_declaration'] = array();
+        $i = 0;
+
+        if (!empty($booking_declaration_detail)) {
+
+            foreach ($booking_declaration_detail as $partner_id => $spare_id_array) {
+              
+                foreach ($spare_id_array as $spare_id) {
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_shipped,"
+                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id";
+
+                    $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, false);
+
+                    $select = "partners.id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode";
+                    if (!empty($sp_details[0]['partner_id'])) {
+                        $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['partner_id']), $join = NULL, $joinType = NULL);
+                    } else {
+                        $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
+                    }
+
+                    $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
+
+                    $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
+
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_type'] = $partner_details[0]->company_type;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_name'] = $partner_details[0]->company_name;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['address'] = $partner_details[0]->address;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['district'] = $partner_details[0]->district;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['state'] = $partner_details[0]->state;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['pincode'] = $partner_details[0]->pincode;
+
+                    $i++;
+                }
+            }
+        } else {
+            //Logging
+            log_message('info', __FUNCTION__ . ' No Download Address from POST');
+        }
+
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $output_file = "declaration-" .$service_center_id . "-" . date('dmY');
+        $output_file_pdf = $output_file . ".pdf";
+        /* Create html for job card */
+        $html = $this->load->view('service_centers/print_couriers_declaration_details', $booking_declaration_detail_list, true);
+        /* convert html into pdf */
+        $json_result = $this->miscelleneous->convert_html_to_pdf($html,'', $output_file_pdf,"vendor-partner-docs");
+        
+       //$json_result = '{"response":"Success","response_msg":"PDF generated Successfully and uploaded on S3","output_pdf_file":"DraftDeclaration -SFId1-15-02-2019 15:58:18.pdf","bucket_dir":"bookings-collateral-test","id":""}';
+       $pdf_response = json_decode($json_result,TRUE);
+       
+       $file = $pdf_response['output_pdf_file'];
+               
+        $zip = 'zip '.TMP_FOLDER.'declaration_file.zip ';
+        
+       if(file_exists(TMP_FOLDER . 'declaration_file.zip')){
+            unlink(TMP_FOLDER . 'declaration_file.zip');
+        }
+        
+                           
+        if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($file), TMP_FOLDER.$file)){
+            $zip .= TMP_FOLDER. $file. " ";
+        }   
+
+        $res = 0;
+        system($zip, $res);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename='declaration_file.zip\'");
+
+        $res2 = 0;
+        system(" chmod 777 " . TMP_FOLDER . 'declaration_file.zip ', $res2);
+        readfile(TMP_FOLDER .  'declaration_file.zip');
+        if(file_exists(TMP_FOLDER .  'declaration_file.zip')){
+             unlink(TMP_FOLDER . 'declaration_file.zip');
+        }
+        
     }
+    
     /**
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id

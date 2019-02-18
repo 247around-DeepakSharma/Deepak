@@ -1,6 +1,4 @@
 
-
-
 <style>
     h2{
         text-decoration: underline; 
@@ -15,25 +13,21 @@
         border: 1px solid black;
     }
     th {
-    text-align: left;
+        text-align: left;
     }
 </style>
 
 <!DOCTYPE html>
 <html>
     <body> 
-        <?php foreach ($concern_details as $value) { ?>
+        <?php foreach ($coueriers_declaration as $value) { ?>
             <br><br> 
             <p>
             <h2>TO WHOMSOEVER IT MAY CONCERN</h2>
         </p>
         <br><br><br> 
         <p>
-            I/ We hereby confirm that the <?php if (!empty($value['public_name'])) {
-            echo $value['public_name'];
-        } else {
-            echo $value['primary_contact_name'];
-        } ?> Home Appliances Spare Parts is being
+            I/ We hereby confirm that the <?php echo $value['public_name']; ?> <?php echo $value['appliance_name']; ?> Spare Parts is being
 
             sent to SF Name . ( Address :- <?php echo $value['address']; ?>, <?php echo $value['district']; ?> ,<?php echo $value['state']; ?>,
 
@@ -48,25 +42,18 @@
                 <th>Shipped Part</th>
                 <th style="width:20%">Spare Amount</th> 
             </tr>
-            <?php
-            if (!empty($value['spare_parts_list'])) {
-                $i = 1;
-                foreach ($value['spare_parts_list'] as $val) {
-                    ?>
-                    <tr>
-                        <td><?php echo $i; ?></td>
-                        <td><?php echo $val['parts_shipped']; ?></td>
-                        <td><?php echo $val['challan_approx_value']; ?></td>
-                    </tr>
-            <?php $i++;
-        }
-    } ?>
+            <tr>
+                <td>1</td>
+                <td><?php echo $value['parts_shipped']; ?></td>
+                <td><?php echo $value['challan_approx_value']; ?></td>
+            </tr>
+
         </table>
         <br><br><br><br>
         <p>Thanking you.</p>
         <br><br><br>
         <p>Authorized Signatory.</p>
-        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> 
+        <br><br><br><br><br><br><br><br><br><br><br><br>
 <?php } ?>
 </body>
 </html>
