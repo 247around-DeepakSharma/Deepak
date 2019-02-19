@@ -2027,6 +2027,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if(!$is_pending){
             $status = 'Completed';
         }
+        else{
+            $status = '247around:Vendor';
+        }
         $service_id  = $free_paid = 'not_set';
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -2034,7 +2037,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $endDate = $dateArray[1];
         }
         if($this->input->post('status')){
-            $status = $this->input->post('status');
+            $status = implode(":",$this->input->post('status'));
         }
         if($this->input->post('services')){
             $service_id = $this->input->post('services');
@@ -2089,7 +2092,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
-                $_POST['status'] = $status;
+                $_POST['status'] = explode(":",$status);
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;
