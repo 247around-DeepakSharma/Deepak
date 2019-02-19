@@ -1580,7 +1580,7 @@ class Service_centers extends CI_Controller {
                 $price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');
-                $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+                $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_micro_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
 
                 if (stristr($price_tags, "Out Of Warranty")) {
                     $data['defective_part_required'] = 0;
@@ -1632,7 +1632,17 @@ class Service_centers extends CI_Controller {
                      * (need to discuss) what we will do if no warehouse have this inventory.
                      */
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                    if (!empty($partner_details[0]['is_wh'])) {
+                    
+                    $is_warehouse = false;
+                    if(!empty($partner_details[0]['is_wh'])){
+                        
+                        $is_warehouse = TRUE;
+                        
+                    } else if(!empty($partner_details[0]['is_micro_wh'])){
+                        $is_warehouse = TRUE;
+                    }
+                 
+                    if (!empty($is_warehouse) ) {
                         
                         $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                         if (!empty($warehouse_details)) {
