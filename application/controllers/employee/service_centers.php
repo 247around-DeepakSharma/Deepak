@@ -2565,11 +2565,11 @@ class Service_centers extends CI_Controller {
                
               
                 foreach ($spare_id_array as $spare_id) {
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_shipped,"
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_requested,"
                             . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name";
 
                     $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
-
+                    
                     $select = "partners.id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode";
                     
                     $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
