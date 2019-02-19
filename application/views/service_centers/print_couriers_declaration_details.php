@@ -29,7 +29,7 @@
         <p>
             I/ We hereby confirm that the <?php echo $value['public_name']; ?> <?php echo $value['appliance_name']; ?> Spare Parts is being
 
-            sent to SF Name . ( Address :- <?php echo $value['address']; ?>, <?php echo $value['district']; ?> ,<?php echo $value['state']; ?>,
+            sent to <strong><?php echo $value['name']; ?> </strong>  ( Address :- <?php echo $value['address']; ?>, <?php echo $value['district']; ?> ,<?php echo $value['state']; ?>,
 
             Pin Code  <?php echo $value['pincode']; ?>) is for the repair purpose and not for sale. It doesn’t
 

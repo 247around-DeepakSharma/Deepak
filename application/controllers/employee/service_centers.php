@@ -2447,14 +2447,10 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
         $challan_booking_id = $this->input->post('download_challan');
-        $declaration_detail = $this->input->post('coueriers_declaration');
         if(!empty($booking_address)){
             $this->print_partner_address();
         } else if(!empty ($challan_booking_id)){
             $this->print_challan_file();
-        }
-        else if(!empty ($declaration_detail)){
-            $this->print_declaration_detail();
         }
     }
     /**
@@ -2570,25 +2566,25 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_declaration_detail)) {
 
             foreach ($booking_declaration_detail as $partner_id => $spare_id_array) {
+                
+                
+               
               
                 foreach ($spare_id_array as $spare_id) {
                     $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_shipped,"
-                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id";
+                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name";
 
-                    $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, false);
+                    $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
 
                     $select = "partners.id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode";
-                    if (!empty($sp_details[0]['partner_id'])) {
-                        $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['partner_id']), $join = NULL, $joinType = NULL);
-                    } else {
-                        $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
-                    }
-
+                    
+                    $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
+                                       
                     $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
 
                     $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
-
+                   
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['company_type'] = $partner_details[0]->company_type;
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['company_name'] = $partner_details[0]->company_name;
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
@@ -4310,7 +4306,7 @@ class Service_centers extends CI_Controller {
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
                 . " AND wh_ack_received_part != 0 ";
         
-        $select = "spare_parts_details.booking_id, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
@@ -4814,15 +4810,18 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $booking_address = $this->input->post('download_address');
         $booking_manifest = $this->input->post('download_courier_manifest');
-
+        $declaration_detail = $this->input->post('coueriers_declaration');
+        
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
         } else if (!empty($booking_manifest)) {
 
             $this->download_mainfest($booking_manifest);
-        } else if (empty($booking_address) && empty($booking_manifest)) {
+        } else if (empty($booking_address) && empty($booking_manifest) && empty ($declaration_detail)) {
             echo "Please Select Any Checkbox";
+        }else if(!empty ($declaration_detail)){
+            $this->print_declaration_detail();
         }
     }
     
