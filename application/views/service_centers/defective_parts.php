@@ -30,8 +30,7 @@
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Remarks By Partner</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
-                            <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>
-                            <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
+                            <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>                            
                             <th class="text-center">Update</th>
                            </tr>
                        </thead>
@@ -63,10 +62,8 @@
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file'];?>" />
-                                    </td>                                    
-                                    <td>
-                                           <input type="checkbox" class="form-control concern_detail" onclick="remove_select_all_concern_detail()" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>" />
-                                    </td>
+                                    </td>                                  
+                      
                                     <td>
                                          <a href="<?php echo base_url() ?>service_center/update_defective_parts/<?php echo $row['id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
@@ -76,7 +73,9 @@
                             </tbody>
                         </table>
                       
-                      <center>  <input type= "submit"  class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; width: 10%; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print / Download" ></center>
+                      <center> 
+                          <input type= "submit"  class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print Shipment Address / Challan File" >
+                      </center>
                   </form>
 
                         </div>
@@ -108,14 +107,7 @@ function check_checkbox(){
        }
 
     //});
-    
-    if(flag === 0){
-           var c_m = $('.concern_detail:checked');
-           if(c_m.length > 0){
-               flag = 1;  
-           }
-       }
-    
+        
     if(flag ===0 ){
         alert("Please Select Atleast One Checkbox");
         return false;
@@ -124,12 +116,9 @@ function check_checkbox(){
 
 $("#selectall_address").change(function(){
        var d_m = $('.checkbox_challan:checked');
-        var d_m_d = $('.concern_detail:checked');
-        if (d_m.length > 0 || d_m_d.length >0) {
+        if (d_m.length > 0) {
             $('.checkbox_challan').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
-            $('.concern_detail').prop('checked', false);
-            $('#selectall_concern_detail').prop('checked', false);
         }
        
        $(".checkbox_address").prop('checked', $(this).prop("checked"));
@@ -137,62 +126,29 @@ $("#selectall_address").change(function(){
 
 $("#selectall_challan_file").change(function () {
         var d_m = $('.checkbox_address:checked');
-        var d_m_d = $('.concern_detail:checked');
-        if (d_m.length > 0 || d_m_d.length >0) {
+        if (d_m.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('#selectall_address').prop('checked', false);
-            $('.concern_detail').prop('checked', false);
-            $('#selectall_concern_detail').prop('checked', false);
         }
         $(".checkbox_challan").prop('checked', $(this).prop("checked"));
     });
     
-    $("#selectall_concern_detail").change(function () {
-        var d_m = $('.checkbox_address:checked');
-        var d_m_d = $('.checkbox_challan:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-            $('#selectall_challan_file').prop('checked', false);
-            $('.checkbox_address').prop('checked', false);
-            $('#selectall_address').prop('checked', false);
-        }
-        $(".concern_detail").prop('checked', $(this).prop("checked"));
-    });
-
 function remove_select_all(){
     $('#selectall_address').prop('checked', false); 
     var d_m = $('.checkbox_challan:checked');
-    var d_m_d = $('.concern_detail:checked');
-    if (d_m.length > 0 || d_m_d.length > 0) {
+    if (d_m.length > 0) {
             $('.checkbox_challan').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
-            $('.concern_detail').prop('checked', false);
-            $('#selectall_concern_detail').prop('checked', false);
     }
 }
 
 function remove_select_all_challan(){
     $('#selectall_challan_file').prop('checked', false); 
     var d_m = $('.checkbox_address:checked');
-    var d_m_d = $('.concern_detail:checked');
     if (d_m.length > 0 || d_m_d.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('#selectall_address').prop('checked', false);
-            $('.concern_detail').prop('checked', false);
-            $('#selectall_concern_detail').prop('checked', false);
     }
-}
-function remove_select_all_concern_detail(){
-    $('#selectall_concern_detail').prop('checked', false); 
-    var d_m = $('.checkbox_challan:checked');
-    var d_m_add = $('.checkbox_address:checked');
-    if (d_m.length > 0 || d_m_add.length > 0) {
-        $('.checkbox_address').prop('checked', false);
-        $('#selectall_address').prop('checked', false);
-        $('.checkbox_challan').prop('checked', false);
-        $('#selectall_challan_file').prop('checked', false);
-    }
-
 }
 
 </script>
