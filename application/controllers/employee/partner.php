@@ -6837,46 +6837,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/show_appliance_model_mapping');
         $this->load->view('partner/partner_footer');
     }
-    /**
-     * @desc: This method is used to load view for setting logo priority on web site
-     * @param: void
-     * @return:view
-     */
-    function partner_logo_priority(){
-        $data['data'] = $this->reusable_model->get_search_query("partner_brand_logo", "partner_brand_logo.id, partners.public_name, partner_logo", array(), array("partners"=>"partners.id = partner_brand_logo.partner_id"), "", array("logo_priority"=>"ASC"), "", "")->result_array();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/partner_brand_logo_priority_form', $data);
-    }
     
-    /**
-     * @desc: This method is used to save the logo priority in partner_brand_logo table
-     * @param: void
-     * @return:json
-     */
-    function save_partner_logo_priority(){
-        $priority_array = $this->input->post("priority_array");
-        $return = array();
-        $queries = array();
-        foreach ($priority_array as $key => $value) {
-            $queries[] = "Update partner_brand_logo set logo_priority = '".$value['priority']."' where id = '".$value['partner_brand_logo_id']."'";
-        }
-        if(!empty($queries)){
-            $rows =  $this->partner_model->update_partner_brand_logo($queries);
-            if($rows){
-               $return['status'] = true;
-               $return['message'] = "Priority Saved Successfully";
-            }
-            else{
-                $return['status'] = false;
-                $return['message'] = "Priority Not Saved, Contact Tech Team";
-            }
-        }
-        else{
-            $return['status'] = false;
-            $return['message'] = "Priority Not Saved, Contact Tech Team"; 
-       }
-        echo json_encode($return);
-    }
     
     /**
      * @desc: This function is used to tag margin on spare parts
