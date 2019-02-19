@@ -43,8 +43,8 @@
                 <th style="width:20%">Spare Amount</th> 
             </tr>
             <tr>
-                <td>1</td>
-                <td><?php echo $value['parts_shipped']; ?></td>
+                <td>1.</td>
+                <td><?php echo $value['parts_requested']; ?></td>
                 <td><?php echo $value['challan_approx_value']; ?></td>
             </tr>
 
