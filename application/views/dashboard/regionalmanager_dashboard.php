@@ -238,11 +238,10 @@
                 </div>
                     <div class="form-group col-md-3">
                                          <label for="">Dependency</label>
-                                         <select class="form-control"  ng-model="status" id="pending_dependency" name="status[]" multiple="">
-                                            <option value="">All</option>
-                                            <option value="247Around" selected="">247Around</option>
+                                         <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
+                                            <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor" selected="">Vendor</option>
+                                            <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:200px;">
@@ -543,11 +542,10 @@
                 </div>
                     <div class="form-group col-md-3">
                                          <label for="">Dependency</label>
-                                         <select class="form-control"  ng-model="status" id="pending_dependency_am" name="status" multiple="">
-                                            <option value="">All</option>
-                                            <option value="247Around" selected="">247Around</option>
+                                         <select class="form-control" id="pending_dependency_am" name="status" multiple="">
+                                            <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor" selected="">Vendor</option>
+                                            <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:200px;">
