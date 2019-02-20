@@ -2039,7 +2039,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], TRUE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], '', FALSE);
         }
     }
     
@@ -2597,7 +2597,7 @@ class Service_centers extends CI_Controller {
 
         $service_center_id = $this->session->userdata('service_center_id');
 
-        $output_file = "declaration-" .$service_center_id . "-" . date('dmY');
+        $output_file = "declaration-" .$service_center_id . "-" . date('dmYHis');
         $output_file_pdf = $output_file . ".pdf";
         /* Create html for job card */
         $html = $this->load->view('service_centers/print_couriers_declaration_details', $booking_declaration_detail_list, true);
