@@ -1982,7 +1982,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $endDate = $dateArray[1];
         }
         if($this->input->post('status')){
-            $status = implode(":",$this->input->post('status'));
+            if(is_array($this->input->post('status'))){
+                $status = implode(":",$this->input->post('status'));
+            }
+            else{
+                $status = $this->input->post('status');
+            }
         }
         if($this->input->post('services')){
             $service_id = $this->input->post('services');
@@ -2037,7 +2042,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
+                 if(is_array($status)){
                 $_POST['status'] = explode(":",$status);
+            }
+            else{
+                $_POST['status'] = $status;
+            }
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;

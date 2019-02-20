@@ -4584,7 +4584,7 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
-        $newCSVFileName = "Booking_summary_" . date('Y-m-d') .rand(10,100). ".csv";
+        $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
         if($status != 'All'){
