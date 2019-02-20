@@ -229,11 +229,10 @@
                 </div>
                     <div class="form-group col-md-3">
                                          <label for="">Dependency</label>
-                                         <select class="form-control"  ng-model="status" id="pending_dependency_am" name="status">
-                                            <option value="" ng-selected="true">All</option>
-                                            <option value="247Around" >247Around</option>
+                                         <select class="form-control" id="pending_dependency_am" name="status" multiple="">
+                                            <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor">Vendor</option>
+                                            <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:200px;">
@@ -263,12 +262,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in pendingBookingByAM | orderBy:'TAT_16'">
+<tr ng-repeat="x in pendingBookingByAM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','pending','am_pending_booking_form')">{{x.entity}}</button></td>
-                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                                       <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
+                                            <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
+                                             </form></td>
+                                              <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_1_bookings}}">
+                                            <input type="submit" value="{{x.TAT_1}} ({{x.TAT_1_per}}%)" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_2_bookings}}">
+                            <input type="submit" value="{{x.TAT_2}} ({{x.TAT_2_per}}%)" ng-if="x.TAT_2 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_2}} ({{x.TAT_2_per}}%)" ng-if="x.TAT_2 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_3_bookings}}">
+                             <input type="submit" value="{{x.TAT_3}} ({{x.TAT_3_per}}%)" ng-if="x.TAT_3 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_3}} ({{x.TAT_3_per}}%)" ng-if="x.TAT_3 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_4_bookings}}">
+                              <input type="submit" value="{{x.TAT_4}} ({{x.TAT_4_per}}%)" ng-if="x.TAT_4 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_4}} ({{x.TAT_4_per}}%)" ng-if="x.TAT_4 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_5_bookings}}">
+                      <input type="submit" value="{{x.TAT_5}} ({{x.TAT_5_per}}%)" ng-if="x.TAT_5 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_5}} ({{x.TAT_5_per}}%)" ng-if="x.TAT_5 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_8_bookings}}">
+                            <input type="submit" value="{{x.TAT_8}} ({{x.TAT_8_per}}%)" ng-if="x.TAT_8 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_8}} ({{x.TAT_8_per}}%)" ng-if="x.TAT_8 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_16_bookings}}">
+                              <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
+                                             </form></td>
+                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                        </tr>
+                        <tr ng-repeat="x in pendingBookingByAM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
+                            <td>{{$index+1}}</td>
+                           <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','pending','am_pending_booking_form')">{{x.entity}}</button></td>
+                            <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
                            <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
@@ -276,7 +318,7 @@
                            <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
-                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -495,11 +537,10 @@
                 </div>
                     <div class="form-group col-md-3">
                                          <label for="">Dependency</label>
-                                         <select class="form-control"  ng-model="status" id="pending_dependency" name="status">
-                                            <option value="" ng-selected="true">All</option>
-                                            <option value="247Around">247Around</option>
+                                         <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
+                                            <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor">Vendor</option>
+                                            <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:200px;">
@@ -529,12 +570,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'">
+ <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/0/Pending">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
-                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                                       <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
+                                            <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
+                                             </form></td>
+                                              <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_1_bookings}}">
+                                            <input type="submit" value="{{x.TAT_1}} ({{x.TAT_1_per}}%)" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_2_bookings}}">
+                            <input type="submit" value="{{x.TAT_2}} ({{x.TAT_2_per}}%)" ng-if="x.TAT_2 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_2}} ({{x.TAT_2_per}}%)" ng-if="x.TAT_2 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_3_bookings}}">
+                             <input type="submit" value="{{x.TAT_3}} ({{x.TAT_3_per}}%)" ng-if="x.TAT_3 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_3}} ({{x.TAT_3_per}}%)" ng-if="x.TAT_3 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_4_bookings}}">
+                              <input type="submit" value="{{x.TAT_4}} ({{x.TAT_4_per}}%)" ng-if="x.TAT_4 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_4}} ({{x.TAT_4_per}}%)" ng-if="x.TAT_4 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_5_bookings}}">
+                      <input type="submit" value="{{x.TAT_5}} ({{x.TAT_5_per}}%)" ng-if="x.TAT_5 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_5}} ({{x.TAT_5_per}}%)" ng-if="x.TAT_5 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_8_bookings}}">
+                            <input type="submit" value="{{x.TAT_8}} ({{x.TAT_8_per}}%)" ng-if="x.TAT_8 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_8}} ({{x.TAT_8_per}}%)" ng-if="x.TAT_8 <= 0" class="btn btn-success">
+                                             </form></td>
+                                             <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_16_bookings}}">
+                              <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
+                                             </form></td>
+                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                        </tr>
+                        <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
+                            <td>{{$index+1}}</td>
+                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                            <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
                            <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
@@ -542,7 +626,7 @@
                            <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
-                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -703,6 +787,8 @@
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
     $('#request_type_am').select2();
+    $('#pending_dependency').select2();
+    $('#pending_dependency_am').select2();
         function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
@@ -1003,7 +1089,7 @@ function initialise_AM_TAT_reporting(){
            locale: {
                format: 'YYYY-MM-DD'
            },
-           startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+           startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
        });
        });
     }
@@ -1018,7 +1104,7 @@ function initialise_AM_TAT_reporting(){
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+            startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
         });
        });
     }

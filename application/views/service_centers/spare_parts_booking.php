@@ -71,6 +71,7 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Update</th>
                                     <th class="text-center">Reject</th>
                                     <th class="text-center">SF GST Declaration</th>
+                                    <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
                                 </tr>
@@ -133,6 +134,9 @@ if ($this->uri->segment(3)) {
                                             <?php } ?>
                                         </td>
                                         <td>
+                                            <input type="checkbox" class="form-control concern_detail" onclick="remove_select_all_couriers_declaration()" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
+                                        </td>
+                                        <td>
                                             <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
                                         <td>
@@ -153,7 +157,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                        <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print / Download" > </center>
                     </form>
                 </div>
             </div>
@@ -227,35 +231,75 @@ if ($this->uri->segment(3)) {
 
     $("#selectall_address").change(function () {
         var d_m = $('input[name="download_courier_manifest[]"]:checked');
-        if (d_m.length > 0) {
+        var d_m_d = $('.concern_detail:checked');
+        if (d_m.length > 0 || d_m_d.length > 0) {
             $('.checkbox_manifest').prop('checked', false);
             $('#selectall_manifest').prop('checked', false);
+            $('.concern_detail').prop('checked', false);
+            $('#selectall_concern_detail').prop('checked', false);
         }
         $(".checkbox_address").prop('checked', $(this).prop("checked"));
     });
     $("#selectall_manifest").change(function () {
         var d_m = $('input[name="download_address[]"]:checked');
-        if (d_m.length > 0) {
+        var d_m_d = $('.concern_detail:checked');
+        if (d_m.length > 0 || d_m_d.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('#selectall_address').prop('checked', false);
+            $('.concern_detail').prop('checked', false);
+            $('#selectall_concern_detail').prop('checked', false);
+            
         }
         $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
     });
+    
+    
+    $("#selectall_concern_detail").change(function () {
+       var d_m = $('.checkbox_address:checked');
+       var d_m_d = $('.checkbox_challan:checked');
+       if (d_m.length > 0 || d_m_d.length > 0) {
+           $('.checkbox_challan').prop('checked', false);
+           $('#selectall_challan_file').prop('checked', false);
+           $('.checkbox_address').prop('checked', false);
+           $('#selectall_address').prop('checked', false);
+       }
+       $(".concern_detail").prop('checked', $(this).prop("checked"));
+    });
+
+    function remove_select_all_couriers_declaration(){
+     $('#selectall_concern_detail').prop('checked', false); 
+     var d_m = $('.checkbox_manifest:checked');
+     var d_m_add = $('.checkbox_address:checked');
+     if (d_m.length > 0 || d_m_add.length > 0) {
+         $('.checkbox_address').prop('checked', false);
+         $('#selectall_address').prop('checked', false);
+         $('.checkbox_manifest').prop('checked', false);
+         $('#selectall_manifest').prop('checked', false);
+     }
+
+    }
 
     function check_checkbox(number) {
+        
 
         if (number === 1) {
             var d_m = $('input[name="download_courier_manifest[]"]:checked');
-            if (d_m.length > 0) {
+            var d_m_d = $('.concern_detail:checked');
+            if (d_m.length > 0 || d_m_d.length > 0) {
                 $('.checkbox_manifest').prop('checked', false);
                 $('#selectall_manifest').prop('checked', false);
+                $('.concern_detail').prop('checked', false);
+                $('#selectall_concern_detail').prop('checked', false);
             }
 
         } else if (number === 0) {
             var d_m = $('input[name="download_address[]"]:checked');
-            if (d_m.length > 0) {
+            var d_m_d = $('.concern_detail:checked');
+            if (d_m.length > 0 || d_m_d.length > 0) {
                 $('.checkbox_address').prop('checked', false);
                 $('#selectall_address').prop('checked', false);
+                $('.concern_detail').prop('checked', false);
+                $('#selectall_concern_detail').prop('checked', false);
             }
         }
 
@@ -316,7 +360,9 @@ if ($this->uri->segment(3)) {
     function checkValidationForBlank(){
         var address = $('.checkbox_address:checkbox:checked');
         var manifest = $('.checkbox_manifest:checkbox:checked');
-        if(address.length != 0 || manifest.length !=0){
+        var courier_declaration = $('.concern_detail:checkbox:checked');
+                
+        if(address.length != 0 || manifest.length !=0 || courier_declaration.length !=0){
             return true;
         }
         else{

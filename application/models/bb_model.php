@@ -229,11 +229,12 @@ class Bb_model extends CI_Model {
      */
     private function _get_bb__review_order_list_query($search_value, $order) {
         $this->db->from('bb_cp_order_action as cp_action');
-
+        $this->db->join('bb_unit_details as unit', 'unit.partner_order_id = cp_action.partner_order_id');
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
         $this->db->join('bb_order_details as bb', 'cp_action.partner_order_id = bb.partner_order_id');
         $this->db->select('cp_action.id,cp_action.partner_order_id,cp_action.cp_id,cp_action.category,cp_action.brand,cp_action.physical_condition,
-            cp_action.working_condition,cp_action.remarks,cp_action.internal_status,cp_action.cp_claimed_price, cp.name,bb.partner_tracking_id');
+            cp_action.working_condition,cp_action.remarks,cp_action.internal_status,cp_action.cp_claimed_price, cp.name,bb.partner_tracking_id,(cp_basic_charge+cp_tax_charge) as cp_price
+            ,(partner_basic_charge+partner_tax_charge) as partner_price');
         $this->db->where('cp_action.current_status', _247AROUND_BB_IN_PROCESS);
         if (!empty($search_value)) { // if datatable send POST for search
             $like = "";

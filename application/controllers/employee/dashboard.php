@@ -1813,7 +1813,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"', $where)){
+                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
                     unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
                     unset($where['booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"']);
                 }
@@ -1888,7 +1888,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
-                $conditionArray['where']['booking_details.actor'] = $status; 
+                $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL; 
              //Group by on booking_tat
@@ -2027,6 +2027,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if(!$is_pending){
             $status = 'Completed';
         }
+        else{
+            $status = '247around:Vendor';
+        }
         $service_id  = $free_paid = 'not_set';
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -2034,7 +2037,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $endDate = $dateArray[1];
         }
         if($this->input->post('status')){
-            $status = $this->input->post('status');
+            if(is_array($this->input->post('status'))){
+                $status = implode(":",$this->input->post('status'));
+            }
+            else{
+                $status = $this->input->post('status');
+            }
         }
         if($this->input->post('services')){
             $service_id = $this->input->post('services');
@@ -2089,7 +2097,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
+                 if(is_array($status)){
+                $_POST['status'] = explode(":",$status);
+            }
+            else{
                 $_POST['status'] = $status;
+            }
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;

@@ -235,11 +235,9 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'">
-                           <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/0/Pending">{{x.entity}}</a></td>-->
-                           <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
-                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
+                            <td>{{$index+1}}</td>
+                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" >{{x.entity}}</button></td>
+                            <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
                            <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
@@ -247,7 +245,7 @@
                            <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
-                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -768,7 +766,7 @@ function around_monthly_data(){
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+            startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
         });
     } function open_full_view(id,url,is_am,is_pending,form_id){
       entity_id = id.split("_")[1];
