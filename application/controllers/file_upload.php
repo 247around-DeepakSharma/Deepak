@@ -90,7 +90,7 @@ class File_upload extends CI_Controller {
                         $response['message'] = 'Something Went wrong!!!';
                 }
                 
-                //save file into database send send response based on file upload status
+                //save file into database send send response based on file upload status               
                 if($response['status']){
                     
                     //save file and upload on s3
@@ -100,7 +100,7 @@ class File_upload extends CI_Controller {
                     //save file and upload on s3
                     $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                     $this->session->set_flashdata('file_error', $response['message']);
-                    
+                                      
                 }
                 
                 //send email
@@ -217,6 +217,7 @@ class File_upload extends CI_Controller {
         if ($check_header['status']) {
             $invalid_data = array();
             $flag = 1;
+            $valid_flage = 1;
             $msg = "";
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
@@ -225,7 +226,10 @@ class File_upload extends CI_Controller {
 
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-               
+                    
+                    if(!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) 
+                             && !empty($rowData['part_type'])  && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0)){
+                                                
                     $where['hsn_code'] = $rowData['hsn_code'];
                     $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
                                         
@@ -267,43 +271,57 @@ class File_upload extends CI_Controller {
                             array_push($invalid_data, array('part_name' => $rowData['part_name'], 'part_number' => $rowData['part_number'], 'hsn_code' => $rowData['hsn_code'], 'basic_price' => $rowData['basic_price']));
                         }
                     }
+                        
+                    }else{
+                        $valid_flage = 0;
+                        break;            
+                    }
+                    
+
                 }
             }
-
+            
+                        
             if ($flag == 1) {
-                $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
 
-                if ($is_file_contains_unique_data['status']) {
+                if ($valid_flage == 1) {
+                    $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
 
-                    $insert_id = $this->inventory_model->insert_batch_inventory_master_list_data($this->dataToInsert);
-                    if ($insert_id) {
-                        log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
-                        $response['status'] = TRUE;
+                    if ($is_file_contains_unique_data['status']) {
 
-                        $message = "Details inserted successfully.";
+                        $insert_id = $this->inventory_model->insert_batch_inventory_master_list_data($this->dataToInsert);
+                        if ($insert_id) {
+                            log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
+                            $response['status'] = TRUE;
 
-                        if (!empty($invalid_data)) {
-                            $template = array(
-                                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                            );
+                            $message = "Details inserted successfully.";
 
-                            $this->table->set_template($template);
+                            if (!empty($invalid_data)) {
+                                $template = array(
+                                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                                );
 
-                            $this->table->set_heading(array('Part Name', 'Part Number', 'HSN Code', 'Basic Price'));
-                            foreach ($invalid_data as $value) {
-                                $this->table->add_row($value['part_name'], $value['part_number'], $value['hsn_code'], $value['basic_price']);
+                                $this->table->set_template($template);
+
+                                $this->table->set_heading(array('Part Name', 'Part Number', 'HSN Code', 'Basic Price'));
+                                foreach ($invalid_data as $value) {
+                                    $this->table->add_row($value['part_name'], $value['part_number'], $value['hsn_code'], $value['basic_price']);
+                                }
+
+                                $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
+                                $message .= $this->table->generate();
                             }
 
-                            $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
-                            $message .= $this->table->generate();
+                            $response['message'] = $message;
                         }
-
-                        $response['message'] = $message;
+                    } else {
+                        log_message("info", __METHOD__ . $is_file_contains_unique_data['message']);
+                        $response['status'] = FALSE;
+                        $response['message'] = $is_file_contains_unique_data['message'];
                     }
                 } else {
-                    log_message("info", __METHOD__ . $is_file_contains_unique_data['message']);
-                    $response['status'] = FALSE;
-                    $response['message'] = $is_file_contains_unique_data['message'];
+                    $response['status'] = false;
+                    $response['message'] = 'Excel file details is incorrect.';
                 }
             } else {
                 $response['status'] = FALSE;
