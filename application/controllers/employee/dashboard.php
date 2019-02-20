@@ -61,56 +61,35 @@ class Dashboard extends CI_Controller {
                 $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $serviceWhere['isBookingActive'] =1;
                 $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-                //missing pincode data
-                $result=$this->booking_model->get_india_pincode_group_by_state(array());
-                    if(count($result)>0)
-                    {
-                        $pincode_state_wise=$result;
-                        foreach($pincode_state_wise as $value)
-                        {
-                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
-                        }
-                    }
-                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
-                           ,NULL,NULL,NULL,NULL,array());
-                    $active_services=$this->booking_model->get_active_services();
-                    $state_arr=$this->booking_model->get_active_state();
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
-                    $count = count($vendor_mapping_data);
-                    for($i = 0; $i<=$count-1;$i++){ 
-                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
-                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
-                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
-                                          
-                        }
-                    }
-                    
-
-                    foreach($rmData as $value)
-                    {
-                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
-                         $state_code=$value['state_code'];
-                         $rm_name=$value['full_name'];
-                         $rm_id=$value['agent_id'];
-                         $explode=explode(',',$state_code);
-                                                       
-                         $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
-                         $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
-                         $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
-                    }
-                  
-                    $missing_pincode_rm=array(
-                           'service_arr'=>$active_services,
-                           'state_arr'=>$state_arr,
-                           'vendorStructuredArray'=>$vendorStructuredArray,
-                            'rm_arr'=>$rm_arr,
-                            'india_pincode'=>$india_pincode
-                           );
-                    $data['missing_pincode_rm']=$missing_pincode_rm;
-               
-                $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
+                
+               //am booking details
+//                $am_where=array('active'=>'1','groups'=>'accountmanager');
+//                
+//                $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array());
+//            
+//               foreach($am_data as $value)
+//               {
+//                   $am_data_new['am_'.$value['id']]=$value['full_name'];
+//               }
+//               $am_partner_array=$this->booking_model->get_am_partner();
+//               if(!empty($am_partner_array))
+//               {
+//                    foreach($am_partner_array as $key=>$value)
+//                    {
+//                        $am['am_'.$value['account_manager_id']]['partner_id']=$value['partnerId'];
+//                         $partner_id=array_map('intval', explode(',', $value['partnerId']));
+//                        $partner_id_in = implode("','",$partner_id);
+//                        $rm_report=$this->booking_model->get_am_booking_data($partner_id_in); 
+//                         $am['am_'.$value['account_manager_id']]['booking_data']=$rm_report;
+//                    }
+//                           
+//               }
+//               $data['am_booking_data']=array(
+//                   'am_booking_data'=>$am,
+//                   'am_data'=>$am_data
+//               );
+                          
+              $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
             $this->load->view('employee/header/push_notification');
@@ -2037,7 +2016,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $endDate = $dateArray[1];
         }
         if($this->input->post('status')){
-            $status = implode(":",$this->input->post('status'));
+            if(is_array($this->input->post('status'))){
+                $status = implode(":",$this->input->post('status'));
+            }
+            else{
+                $status = $this->input->post('status');
+            }
         }
         if($this->input->post('services')){
             $service_id = $this->input->post('services');
@@ -2092,7 +2076,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
+                 if(is_array($status)){
                 $_POST['status'] = explode(":",$status);
+            }
+            else{
+                $_POST['status'] = $status;
+            }
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;
@@ -2722,6 +2711,57 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data['seen'] = 1;
         $this->dashboard_model->update_dashboard_notification($data, $where);
         echo json_encode($notifications);
+    }
+    
+    function get_rm_missing_pincode_data()
+    {
+        $result=$this->booking_model->get_india_pincode_group_by_state(array());
+                    if(count($result)>0)
+                    {
+                        $pincode_state_wise=$result;
+                        foreach($pincode_state_wise as $value)
+                        {
+                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+                        }
+                    }
+                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+                           ,NULL,NULL,NULL,NULL,array());
+                    $active_services=$this->booking_model->get_active_services();
+                    $state_arr=$this->booking_model->get_active_state();
+                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $count = count($vendor_mapping_data);
+                    for($i = 0; $i<=$count-1;$i++){ 
+                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
+                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
+                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
+                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                                          
+                        }
+                    }
+                     foreach($rmData as $value)
+                    {
+                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                         $state_code=$value['state_code'];
+                         $rm_name=$value['full_name'];
+                         $rm_id=$value['agent_id'];
+                         $explode=explode(',',$state_code);
+                                                       
+                         $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
+                         $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
+                         $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                    }
+                  
+                    $missing_pincode_rm=array(
+                           'service_arr'=>$active_services,
+                           'state_arr'=>$state_arr,
+                           'vendorStructuredArray'=>$vendorStructuredArray,
+                            'rm_arr'=>$rm_arr,
+                            'india_pincode'=>$india_pincode
+                           );
+                  //make view
+                    $rmmissingview=$this->load->view('dashboard/rm_missing_report',$missing_pincode_rm,true);
+                    echo $rmmissingview;
     }
 }
 

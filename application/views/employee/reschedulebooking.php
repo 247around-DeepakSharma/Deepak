@@ -62,7 +62,7 @@
                       </div>
                     </div>
                       <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>">
-                      <label for="reason" class="col-md-4">Reschedule Reason</label><?php echo  $data['spare_shipped_flag']?>
+                      <label for="reason" class="col-md-4">Reschedule Reason</label>
                       <div class="col-md-6">
                         <select name="reason" class= "form-control" required="" >
                             <option value="">Select</option>

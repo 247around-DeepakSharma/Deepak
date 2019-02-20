@@ -1068,6 +1068,7 @@ class Buyback_process extends CI_Controller {
         $post['column_order'] = array();
         $post['length'] = -1;
         $list['list'] = array();
+        $search_value = array_unique($search_value);
         foreach($search_value as $value){
             if(!empty($value)){
                 $post['search_value'] = trim($value);
