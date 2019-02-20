@@ -125,7 +125,8 @@
 
     $(document).ready(function () {
         table = $('#search_datatable1').DataTable({
-            "pageLength":'25',
+            "pageLength":'500',
+            "lengthMenu": [[100, 200, 500,-1], [100, 200, 500, "All"]],
             dom: 'Bfrtip',
             buttons: [
                 'pageLength',
