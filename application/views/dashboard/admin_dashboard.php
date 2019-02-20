@@ -607,81 +607,24 @@
             </div>
         </div>
     </div>
-    <!-- RM Missing & coverage Pincode  -->
-    <div class="row">
+    <!-- get rm missing pincode ajax request-->
+     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
-                <div class="x_title" style="padding-left: 0px;">
+                <div class="x_title">
                     <h2>RM Pincode Report</h2>
-                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse" onclick="get_rm_missing_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_Pincode_Reporting" class="x_content collapse">
-                <div class="table-responsive" id="rm_pincode_data">
-                  <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>State</th> 
-                        <?php
-                           foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
-                            ?>
-                        <th><?php echo $servicevalue;?></th>
-                  <?php
-                  }
-                    ?>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        
-                        <?php
-                         foreach($missing_pincode_rm['rm_arr'] as $value){
-                        ?>   
-                        <tr>
-<!--                                <td><?php //echo $value['full_name'];?></td>-->
-                                <td><a type="button"  class="btn btn-info" target="_blank" 
-                                      href='<?php echo base_url(); ?>employee/dashboard/pincode_rm_wise/<?php echo $value['rm_id'] ?>'><?php echo $value['full_name'];?></a></td>
-                               <?php
-                                foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
-                                     $missing_pincode=0;
-                                     $missing_pincode_per=0;$total_pincode=0;
-                                    foreach($value['state_code'] as $value1)
-                                      {
-                                        if(array_key_exists('state_'.$value1,$missing_pincode_rm['india_pincode']))
-                                        {
-                                            $total_pincode=$total_pincode+$missing_pincode_rm['india_pincode']['state_'.$value1];
-                                        }
-                                      if(isset($missing_pincode_rm['state_arr'][$value1]))
-                                       {
-                                   if(isset($missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey])){
-                                        $missing_pincode=$missing_pincode+$missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey]['missing_pincode'];
-                                       }
-                                     
-                                       }
-                                      }
-                                          
-                                      $missing_pincode_decimal=$missing_pincode/$total_pincode;
-                                      $missing_pincode_per=round(($missing_pincode_decimal*100),0);
-                                    ?>
-                                <?php //echo $total_pincode.'<br>'; ?>
-                                <?php// echo $missing_pincode.'(';  ?>
-                               <td> <?php echo wordwrap($missing_pincode_per.'%'); ?></td>
-                                <?php    
-                               
-                                }
-                                ?>
-                        </tr>
-           <?php }
-           ?>
-                        
-                    </tbody>
-                </table>
-               
-            </div>
-            </div> 
+                <div class="x_content collapse" id="RM_Pincode_Reporting">
+                    <div class="table-responsive" id="rm_pincode_data">
+                        <center><img id="missing_rm_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -988,8 +931,45 @@
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
+    $('#pending_dependency').select2();
+    $('#pending_dependency_am').select2();
     
-        function getMultipleSelectedValues(fieldName){
+    $('#am_id').select2();
+//    $('#am_id').on('change', function() {
+//        var am_id=[];
+//        var result=1;
+//           var am_id=$('#am_id').val();
+//           alert(am_id);
+//           var length=am_id.length;
+//           alert(length);
+//           if((length<2)||(length>4))
+//           {
+//               alert("Please Select Min 2 and  Max 4 AM For comparision");
+//             result=0;  
+//            return false;
+//           }
+//           if(result==1)
+//           {var html="";
+//               for(var i=0;i>length;i++)
+//               {
+//               var html+='<div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">'
+//                        +'<div class="item form-group">'
+//                         +'<div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">'
+//                               +'<label for=""><?php// echo $am_booking_data['am_data']?></label>'
+//                                +'<select class="form-control filter_table" id="am_id" name="am_id[]" multiple>'
+//                                    +'<option value="" selected="selected">All</option>'
+//                                    <?php //foreach($am_booking_data['am_data'] as $val){ ?>
+//                                    +'<option value="<?php// echo $val['id']?>"><?php //echo $val['full_name']?></option>''
+//                                    <?php //} ?>
+//                               +'</select>'
+//                            +'</div>'
+//                        +'</div>'
+//                    +'</div>';
+//              }
+//           }
+//        });
+
+     function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
     var length = fieldObj.length;
@@ -1249,6 +1229,17 @@
         
         sendAjaxRequest(data,url,post_request).done(function(response){
             $("#upcountry_table_data").html(response);
+        });
+    }
+    
+    function get_rm_missing_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_rm_missing_pincode_data';
+        data['partner_id'] = '';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+           $("#rm_pincode_data").html(response);
         });
     }
     

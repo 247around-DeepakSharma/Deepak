@@ -2574,6 +2574,7 @@ class Booking_model extends CI_Model {
         $this->db->select('id,services');
         $this->db->from('services');
         $this->db->where('isBookingActive',1);
+        $this->db->order_by('services','ASC');
         $result=$this->db->get()->result_array();
         if(count($result)>0)
         {
@@ -2616,6 +2617,43 @@ class Booking_model extends CI_Model {
         $result=$this->db->get()->result_array();
         return $result;
            
+    }
+    
+    function get_am_partner()
+    {
+        $this->db->select('group_concat(partners.id) as partnerId,employee.id as account_manager_id,employee.groups');
+        $this->db->from('partners');
+        $this->db->join('employee','partners.account_manager_id=employee.id','left');
+        $this->db->where('groups','accountmanager');
+        $this->db->where('partners.is_active','1');
+        $this->db->where('employee.active','1');
+        $this->db->group_by('partners.account_manager_id');
+        $result=$this->db->get()->result_array();
+        return $result;
+    }
+    
+    function get_am_booking_data($partner_id)
+    {
+        $sql="select  sum(case when (request_type like '%Repeat%' or request_type like '%Repair%') and(internal_status='InProcess_Completed'"
+                ."and service_center_closed_date IS NOT NULL) or (current_status='Completed') then 1 else 0 end) `repair_completed`,"
+                ."sum(case when (request_type  LIKE '%Repeat%' or request_type  LIKE '%Repair%') and(current_status='Pending') then 1 else 0 end) `repair_pending`,"
+                ."sum(case when (request_type like '%Repeat%' or  request_type LIKE'%Repair%') and(current_status='Cancelled') then 1 else 0 end) `repair_cancalled`,"
+                ."sum(case when (request_type not like '%Repeat%' AND request_type not like '%Repair%') and(internal_status='InProcess_Completed' and service_center_closed_date IS NOT NULL)"
+                ."or (current_status='Completed') then 1 else 0 end) `install_completed`, sum(case when (request_type not LIKE '%Repeat%' AND request_type not LIKE '%Repair%') and(current_status='Pending')"
+                ."then 1 else 0 end) `install_pending`,"
+                 ."sum(case when (request_type not like '%Repeat%' AND  request_type not LIKE'%Repair%') and(current_status='Cancelled') "
+                ."then 1 else 0 end) `install_cancalled`"
+                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
+                ."and partner_id IN ('".$partner_id."')";
+        $query = $this->db->query($sql);
+        $result =  $query->result_array();
+       if(!empty($result))
+        {
+            $result=$result['0'];
+            $result['repair_total']=$result['repair_completed']+$result['repair_pending']+$result['repair_cancalled'];
+            $result['install_total']=$result['install_completed']+$result['install_pending']+$result['install_cancalled'];
+        } 
+        return $result;
     }
    
    }
