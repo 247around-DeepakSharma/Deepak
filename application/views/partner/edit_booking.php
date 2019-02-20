@@ -300,7 +300,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                            <label for="booking_request_symptom">Technicala Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                            <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                             <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
                                                 <option disabled selected>Select Identified Problem</option>
                                             </select>
