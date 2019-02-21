@@ -57,11 +57,11 @@ class Booking_request extends CI_Controller {
                 $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), "symptom_booking_request");
                 $insert_id = true;
             } else{
-                $this->session->set_userdata(array('error' => "Sympton is already added"));
+                $this->session->set_userdata(array('error' => "Symptom is already added"));
                 $insert_id = FALSE;
             }
             if($insert_id){
-                $this->session->set_userdata(array('success' => "Successfully, Sympton added"));
+                $this->session->set_userdata(array('success' => "Successfully, Symptom added"));
                 redirect(base_url(). "employee/booking_request/add_new_booking_request_symptom");
             } else{
                 redirect(base_url(). "employee/booking_request/add_new_booking_request_symptom");
@@ -165,11 +165,11 @@ class Booking_request extends CI_Controller {
                 $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom_spare_request');
                 $insert_id = true;
             } else{
-                $this->session->set_userdata(array('error' => "Sympton is already added"));
+                $this->session->set_userdata(array('error' => "Symptom is already added"));
                 $insert_id = FALSE;
             }
             if($insert_id){
-                $this->session->set_userdata(array('success' => "Successfully, Sympton added"));
+                $this->session->set_userdata(array('success' => "Successfully, Symptom added"));
                 redirect(base_url(). "employee/booking_request/add_new_spare_request_symptom");
             } else{
                 redirect(base_url(). "employee/booking_request/add_new_spare_request_symptom");
@@ -216,11 +216,11 @@ class Booking_request extends CI_Controller {
                 $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom_completion_request');
                 $insert_id = true;
             } else{
-                $this->session->set_userdata(array('error' => "Sympton is already added"));
+                $this->session->set_userdata(array('error' => "Symptom is already added"));
                 $insert_id = FALSE;
             }
             if($insert_id){
-                $this->session->set_userdata(array('success' => "Successfully, Sympton added"));
+                $this->session->set_userdata(array('success' => "Successfully, Symptom added"));
                 redirect(base_url(). "employee/booking_request/add_new_completion_technical_problem");
             } else{
                 redirect(base_url(). "employee/booking_request/add_new_completion_technical_problem");
@@ -266,11 +266,11 @@ class Booking_request extends CI_Controller {
                 $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom_completion_solution');
                 $insert_id = true;
             } else{
-                $this->session->set_userdata(array('error' => "Sympton is already added"));
+                $this->session->set_userdata(array('error' => "Symptom is already added"));
                 $insert_id = FALSE;
             }
             if($insert_id){
-                $this->session->set_userdata(array('success' => "Successfully, Sympton added"));
+                $this->session->set_userdata(array('success' => "Successfully, Symptom added"));
                 redirect(base_url(). "employee/booking_request/add_technical_solution");
             } else{
                 redirect(base_url(). "employee/booking_request/add_technical_solution");

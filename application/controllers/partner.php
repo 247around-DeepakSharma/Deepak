@@ -90,6 +90,14 @@ class Partner extends CI_Controller {
                         //Sanitizing Brands Before Adding
                         $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
                     }
+                    
+                    $orderID =  $requestData['orderID'];
+            
+                    if(isset($requestData['itemID']) && !empty($requestData['itemID'])){
+
+                        $requestData['orderID'] = $requestData['orderID'] . "-" . $requestData['itemID'];
+                    }
+            
                     //Check whether the required details are present in the request
                     //And request doesn't exist in database
                     $is_valid = $this->validate_submit_request_data($requestData);
@@ -369,7 +377,7 @@ class Partner extends CI_Controller {
                                 // }
                                 //Send response
                                 $this->jsonResponseString['response'] = array(
-                                    "orderID" => $booking['order_id'],
+                                    "orderID" => $orderID,
                                     "247aroundBookingID" => $booking_id,
                                     "247aroundBookingStatus" => $booking['current_status']);
                                 $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
