@@ -980,6 +980,19 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Geyser")) {
                     $data['valid_data'][$key]['appliance'] = 'Geyser';
                 }
+                if (stristr($prod, "Smart Speaker")) {
+                    $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
+                }
+                if (stristr($prod, "Cooler")) {
+                    $data['valid_data'][$key]['appliance'] = 'Air Cooler';
+                }
+                if (stristr($prod, "Purifier")) {
+                    $data['valid_data'][$key]['appliance'] = 'Purifier';
+                }
+                if (stristr($prod, "Stove")) {
+                    $data['valid_data'][$key]['appliance'] = 'Gas Stove';
+                }
+                
                 // Block Microvare cooking. If its exist in the Excel file
                 if (stristr($prod, "microwave cooking")) {
                     $flag = 1;

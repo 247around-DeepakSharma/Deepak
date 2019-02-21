@@ -534,8 +534,9 @@ class dashboard_model extends CI_Model {
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount , 'Total' as spare_status";
         }
 
-        $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
-                . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
+        $where = "spare_parts_details.status NOT IN ('" . _247AROUND_CANCELLED . "')"
+                . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "') "
+                . " AND spare_parts_details.parts_shipped IS NOT NULL "
                 . " AND booking_details.partner_id = $partner_id";
 
         $sql = $select . " FROM spare_parts_details"
@@ -559,9 +560,10 @@ class dashboard_model extends CI_Model {
                 . "IFNULL(ROUND(SUM(spare_parts_details.challan_approx_value)),0) as spare_amount, 'Partner Out of Tat' as spare_status";
         }
 
-        $where = "spare_parts_details.status NOT IN ('" . SPARE_PARTS_REQUESTED . "','" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')"
+        $where = "spare_parts_details.status NOT IN ('" . _247AROUND_CANCELLED . "')"
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "','" . _247AROUND_RESCHEDULED . "')"
                 . " AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > '".PARTNER_SPARE_OOT_DAYS."'"
+                . " AND spare_parts_details.parts_shipped IS NOT NULL "
                 . " AND booking_details.partner_id = $partner_id";
 
         $sql = $select . " FROM spare_parts_details"
@@ -587,7 +589,8 @@ class dashboard_model extends CI_Model {
         }
         
         $where = "spare_parts_details.defective_part_required = 1 "
-                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " "
+                . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS. " "
+                . " AND spare_parts_details.parts_shipped IS NOT NULL "
                 . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
         
         if(!empty($partner_id)){
@@ -595,7 +598,6 @@ class dashboard_model extends CI_Model {
         }
         
         $sql = $select . " FROM spare_parts_details"
-                . " JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
                 . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id "
                 . " WHERE $where ";
         
@@ -634,6 +636,7 @@ class dashboard_model extends CI_Model {
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > ".PARTNER_SPARE_OOT_DAYS. " "
+                . " AND spare_parts_details.parts_shipped IS NOT NULL "
                 . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
         
         if(!empty($partner_id)){
