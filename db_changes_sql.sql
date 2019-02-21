@@ -9956,3 +9956,52 @@ ALTER TABLE `dashboard_notifications`
 ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+--Kalyani 21-Feb-2019
+
+CREATE TABLE `api_authentication` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(45) DEFAULT NULL,
+  `url` varchar(500) DEFAULT NULL,
+  `url_tag` varchar(255) DEFAULT NULL,
+  `auth_token` varchar(500) DEFAULT NULL,
+  `client_id` varchar(500) DEFAULT NULL,
+  `client_secret` varchar(500) DEFAULT NULL,
+  `user_name` varchar(500) DEFAULT NULL,
+  `password` varchar(500) DEFAULT NULL,
+  `state` varchar(256) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `api_authentication`
+--
+
+INSERT INTO `api_authentication` (`id`, `entity_id`, `entity_type`, `url`, `url_tag`, `auth_token`, `client_id`, `client_secret`, `user_name`, `password`, `state`, `create_date`) VALUES
+(1, 3, 'partner', 'http://lgfac-servicesengine-stg.paytmmall.com/v1/vendor/update', 'booking_update', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-18 12:08:22'),
+(2, 3, 'partner', 'https://persona-staging.paytm.com/oauth2/authorize', 'code', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-18 12:19:00'),
+(3, 3, 'partner', 'https://persona-staging.paytm.com/oauth2/token', 'authtoken', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-20 11:22:21');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `api_authentication`
+--
+ALTER TABLE `api_authentication`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `api_authentication`
+--
+ALTER TABLE `api_authentication`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'paytm_booking_updation_fail', 'Paytm booking updation fail %s', 'Dear Team, <br>Paytm booking updation fail.</br><p>Response -%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
