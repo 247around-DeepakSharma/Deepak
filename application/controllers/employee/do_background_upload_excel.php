@@ -986,12 +986,30 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Cooler")) {
                     $data['valid_data'][$key]['appliance'] = 'Air Cooler';
                 }
-                if (stristr($prod, "Purifier")) {
-                    $data['valid_data'][$key]['appliance'] = 'Purifier';
+                if (stristr($prod, "Air Purifier")) {
+                    $data['valid_data'][$key]['appliance'] = 'Air Purifier';
                 }
                 if (stristr($prod, "Stove")) {
                     $data['valid_data'][$key]['appliance'] = 'Gas Stove';
                 }
+
+                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                        || stristr($prod, "Juicer Mixer Grinder") 
+                        || stristr($prod, "Air Fryer") 
+                        || stristr($prod, "Cookware") 
+                        || stristr($prod, "Gas Burner") 
+                        || stristr($prod, "Hand Blender") 
+                        || stristr($prod, "Kettle")
+                        || stristr($prod, "Massager")
+                        || stristr($prod, "Nutri Blender") 
+                        || stristr($prod, "OTG") 
+                        || stristr($prod, "Steamer") 
+                        || stristr($prod, "Toaster") 
+                        || stristr($prod, "Vaccum Cleaner")) {
+                    
+                    $data['valid_data'][$key]['appliance']= 'SHA';
+                }
+
                 
                 // Block Microvare cooking. If its exist in the Excel file
                 if (stristr($prod, "microwave cooking")) {

@@ -196,6 +196,36 @@ class Partner extends CI_Controller {
                                     $lead_details['Product'] = 'Geyser';
                                 }
 
+                                if (stristr($prod, "Smart Speaker")) {
+                                    $lead_details['Product'] = 'Smart Speaker';
+                                }
+                                if (stristr($prod, "Cooler")) {
+                                    $lead_details['Product'] = 'Air Cooler';
+                                }
+                                if (stristr($prod, "Purifier")) {
+                                    $lead_details['Product'] = 'Purifier';
+                                }
+                                if (stristr($prod, "Stove")) {
+                                    $lead_details['Product'] = 'Gas Stove';
+                                }
+                                
+                                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                                    || stristr($prod, "Juicer Mixer Grinder") 
+                                    || stristr($prod, "Air Fryer") 
+                                    || stristr($prod, "Cookware") 
+                                    || stristr($prod, "Gas Burner") 
+                                    || stristr($prod, "Hand Blender") 
+                                    || stristr($prod, "Kettle")
+                                    || stristr($prod, "Massager")
+                                    || stristr($prod, "Nutri Blender") 
+                                    || stristr($prod, "OTG") 
+                                    || stristr($prod, "Steamer") 
+                                    || stristr($prod, "Toaster") 
+                                    || stristr($prod, "Vaccum Cleaner")) {
+
+                                $lead_details['Product'] = 'SHA';
+                            }
+
 
                                 log_message('info', 'Product type matched: ' . $lead_details['Product']);
 
