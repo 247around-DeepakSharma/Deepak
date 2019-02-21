@@ -1166,13 +1166,21 @@
         $('#repeat_booking_model').modal('hide');
     }
     
-    
+    function escapeRegExp(string){
+       return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function replaceAll(str, term, replacement) {
+        return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    }
       function get_symptom(symptom_id = ""){
         var array = [];
         var postData = {};
         $(".price_checkbox:checked").each(function (i) {
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
-            array.push(price_tags);
+            var price_tags1 = replaceAll(price_tags, '(Free)', '');
+            var price_tags2 = replaceAll(price_tags1, '(Paid)', '')
+            array.push(price_tags2);
     
         });
         if(array.length > 0){
