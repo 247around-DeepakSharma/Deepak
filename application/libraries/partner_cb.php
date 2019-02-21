@@ -24,6 +24,7 @@ class partner_cb {
 
 	$this->My_CI->load->model('partner_model');
 	$this->My_CI->load->library('partner_sd_cb');
+        $this->My_CI->load->library('paytm_cb');
     }
 
     /**
