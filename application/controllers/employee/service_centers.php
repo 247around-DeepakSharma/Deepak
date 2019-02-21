@@ -2562,10 +2562,8 @@ class Service_centers extends CI_Controller {
             foreach ($booking_declaration_detail as $partner_id => $spare_id_array) {
                 
                 
-               
-              
                 foreach ($spare_id_array as $spare_id) {
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_requested,"
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested,"
                             . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name, "
                             . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district";
 
@@ -2576,10 +2574,20 @@ class Service_centers extends CI_Controller {
                     $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
                                        
                     $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
+                    
+                    if(!empty($sp_details[0]['requested_inventory_id'])){
+                        $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price,inventory_master_list.gst_rate', array('inventory_master_list.inventory_id' => $sp_details[0]['requested_inventory_id']));
+                        
+                        $challan_value = round($inventory_details[0]['price'] *( 1 + $inventory_details[0]['gst_rate']/100), 0);                        
+                     
+                    } else {
+                        $challan_value = '0.00';
+                    }
 
                     $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
-                                    
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['challan_approx_value'] = $challan_value;
+                                                     
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
                     
                     $i++;
@@ -2589,7 +2597,7 @@ class Service_centers extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' No Download Address from POST');
         }
-
+        
         $service_center_id = $this->session->userdata('service_center_id');
 
         $output_file = "declaration-" .$service_center_id . "-" . date('dmYHis');
