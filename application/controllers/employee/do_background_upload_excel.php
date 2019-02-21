@@ -993,6 +993,9 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Stove")) {
                     $data['valid_data'][$key]['appliance'] = 'Gas Stove';
                 }
+                if (stristr($prod, "Mixer Grinder")) {
+                    $lead_details['Product'] = 'SHA';
+                }
                 
                 // Block Microvare cooking. If its exist in the Excel file
                 if (stristr($prod, "microwave cooking")) {
