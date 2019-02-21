@@ -7028,8 +7028,5 @@ class Partner extends CI_Controller {
         return $row;
     }
     
-    function test($booking_id){
-        $k = $this->paytm_cb->get_auth_token();
-        echo $k;
-    }
+   
 }
