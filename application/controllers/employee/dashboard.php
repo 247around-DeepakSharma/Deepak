@@ -2690,6 +2690,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
     function get_rm_missing_pincode_data()
     {
+        $rm_arr=array();$vendorStructuredArray=array();
         $result=$this->booking_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
@@ -2741,7 +2742,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
     function get_am_booking_data()
     {
-               
+               $am=array();
+               $am_data=array();
               // am booking details
                 $am_where=array('active'=>'1','groups'=>'accountmanager');
                 
@@ -2790,7 +2792,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
     function compair_am_booking_data()
     {
-//       
+            $am=array();$am_data=array();
 //       $v="am_partner%5B30%5D%5B%5D=247115&am_partner%5B30%5D%5B%5D=247124&am_partner%5B30%5D%5B%5D=247132&am_partner%5B30%5D%5B%5D=247077&am_partner%5B30%5D%5B%5D=247128&am_partner%5B30%5D%5B%5D=247030&am_partner%5B30%5D%5B%5D=247136&am_partner%5B30%5D%5B%5D=247126&am_partner%5B30%5D%5B%5D=247102&am_partner%5B30%5D%5B%5D=247076&am_partner%5B19%5D%5B%5D=247034&am_partner%5B19%5D%5B%5D=247106&am_partner%5B19%5D%5B%5D=247068&am_partner%5B19%5D%5B%5D=247111&am_partner%5B19%5D%5B%5D=247069&am_partner%5B19%5D%5B%5D=247117&am_partner%5B19%5D%5B%5D=247109&am_partner%5B19%5D%5B%5D=247070&am_partner%5B19%5D%5B%5D=247036&am_partner%5B19%5D%5B%5D=247118&am_partner%5B19%5D%5B%5D=247066&am_partner%5B19%5D%5B%5D=247048";
          parse_str($this->input->post('amdata'),$formdata);//This will convert the string to array
         $ammaster = $formdata['am_partner'];
