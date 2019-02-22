@@ -755,7 +755,7 @@
                     brand: brand,category:category,capacity:capacity,
                     partner_type:partner_type},           
             success: function (data) {
-                if(data === "Data Not Found"){   
+                if($.trim(data) === "Data Not Found"){  
                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                     $("#model_number_2").html(input).change();
                 } else {
