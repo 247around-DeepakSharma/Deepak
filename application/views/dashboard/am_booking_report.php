@@ -16,6 +16,7 @@
                     <tbody>
                         
                         <?php
+                        if(!empty($am_booking_data)){
                          foreach($am_booking_data['am_data'] as $value){
                         ?>   
                         <tr>
@@ -53,6 +54,7 @@
                                 ?>
                         </tr>
            <?php }
+           }
            ?>
                         
                     </tbody>

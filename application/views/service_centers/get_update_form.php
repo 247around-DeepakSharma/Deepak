@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-                    Update Booking
+                    Update Booking                    
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -32,8 +32,7 @@
                             <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                         </div>
                     </div>
-                    <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id;
-                        ?>">
+                    <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
@@ -108,7 +107,7 @@
                                             </select>
                                             <input type="hidden" id="model_number" name="model_number">
                                         </div>
-                                        <?php } else { ?> 
+                                        <?php } else if($partner_wh_status == false) { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
                                             <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number" required="">
@@ -199,7 +198,7 @@
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
-                                            <?php } else { ?> 
+                                            <?php } else if($partner_wh_status == false) { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
                                                     <option selected disabled>Select Part Type</option>
@@ -303,7 +302,7 @@
                                                     <span id="spinner" style="display:none"></span>
                                                     <span id="inventory_stock"></span>
                                                 </div>
-                                                <?php } else { ?> 
+                                                <?php } else if($partner_wh_status == false){ ?> 
                                                 <div class="col-md-6">
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
                                                 </div>
