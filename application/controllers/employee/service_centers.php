@@ -1169,15 +1169,20 @@ class Service_centers extends CI_Controller {
     function update_booking_status($code) {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode(urldecode($code));
+        $booking_id = base64_decode(urldecode($code));        
         if (!empty($booking_id) || $booking_id != 0) {
             $data['booking_id'] = $booking_id;
             $where_internal_status = array("page" => "update_sc", "active" => '1');
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-           
-
+            
+           $partners_details = $this->partner_model->get_partner_contract_detail('partners.public_name, partners.is_wh, partners.is_micro_wh', array( 'partners.id' => $data['bookinghistory'][0]['partner_id'] ), array(), array());
+           $data['partner_wh_status'] = false;
+           if(!empty($partners_details[0]->is_wh ) || !empty($partners_details[0]->is_micro_wh)){
+               $data['partner_wh_status'] = true;              
+           }
+          
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
                 $data['internal_status'] = array();
