@@ -548,7 +548,7 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
                         //make tiny url
                         $jobcard_link=str_replace(" ", "%20", $jobcard_link);
                         $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
@@ -614,7 +614,7 @@ class Notify {
                     if(!empty($data))
                     {
                             $finalString = 'Your Brand Collateral ->   '.nl2br ("\n");
-                            $index =0;
+                            $index =1;
                             foreach($data as $collatralData){
                                    if($collatralData['is_file']){
                                     $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
@@ -633,7 +633,7 @@ class Notify {
                                 $index++;
                             }
                             $smsbody=$finalString;
-                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['primary_contact_phone_1'],$smsbody,SMS_WITHOUT_TAG);
+                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
                             $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
