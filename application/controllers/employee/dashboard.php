@@ -2672,7 +2672,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
        }
        function get_rm_missing_pincode_data()
     {
-        $result=$this->booking_model->get_india_pincode_group_by_state(array());
+           $vendorStructuredArray=array();
+           $rm_arr=array();
+           $result=$this->booking_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
@@ -2696,19 +2698,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                           
                         }
                     }
-                     foreach($rmData as $value)
+                    if(!empty($rmData))
                     {
-                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
-                         $state_code=$value['state_code'];
-                         $rm_name=$value['full_name'];
-                         $rm_id=$value['agent_id'];
-                         $explode=explode(',',$state_code);
-                                                       
-                         $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
-                         $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
-                         $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                            foreach($rmData as $value)
+                           {
+                                log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                                $state_code=$value['state_code'];
+                                $rm_name=$value['full_name'];
+                                $rm_id=$value['agent_id'];
+                                $explode=explode(',',$state_code);
+
+                                $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
+                                $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
+                                $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                           }
                     }
-                  
                     $missing_pincode_rm=array(
                            'service_arr'=>$active_services,
                            'state_arr'=>$state_arr,
@@ -2723,7 +2727,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
     function get_am_booking_data()
     {
-               
+               $am=array();
+               $am_data=array();
               // am booking details
                 $am_where=array('active'=>'1','groups'=>'accountmanager');
                 
