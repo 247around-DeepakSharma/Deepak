@@ -548,7 +548,7 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
                         //make tiny url
                         $jobcard_link=str_replace(" ", "%20", $jobcard_link);
                         $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
@@ -584,8 +584,9 @@ class Notify {
                         }
                          $sms['smsData']['url']=$tinyUrl;
                         
+                        
                     }
-		   //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+		   $sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
@@ -636,7 +637,7 @@ class Notify {
                             $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
+                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
                                     $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
                      }
                               
@@ -657,8 +658,6 @@ class Notify {
 		    //$to = "abhaya@247around.com";
 		    $state_not_found_message = " Pincode(" . $query1[0]['booking_pincode'] . ") is not found booking id is " . $query1[0]['booking_id'];
 		    //$this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
-
-
 		    break;
 		   
 	    }
