@@ -551,7 +551,7 @@ class Notify {
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
                         //make tiny url
                         $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
-                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link_new);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
