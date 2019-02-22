@@ -61,34 +61,9 @@ class Dashboard extends CI_Controller {
                 $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $serviceWhere['isBookingActive'] =1;
                 $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-                
-               //am booking details
-//                $am_where=array('active'=>'1','groups'=>'accountmanager');
-//                
-//                $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array());
-//            
-//               foreach($am_data as $value)
-//               {
-//                   $am_data_new['am_'.$value['id']]=$value['full_name'];
-//               }
-//               $am_partner_array=$this->booking_model->get_am_partner();
-//               if(!empty($am_partner_array))
-//               {
-//                    foreach($am_partner_array as $key=>$value)
-//                    {
-//                        $am['am_'.$value['account_manager_id']]['partner_id']=$value['partnerId'];
-//                         $partner_id=array_map('intval', explode(',', $value['partnerId']));
-//                        $partner_id_in = implode("','",$partner_id);
-//                        $rm_report=$this->booking_model->get_am_booking_data($partner_id_in); 
-//                         $am['am_'.$value['account_manager_id']]['booking_data']=$rm_report;
-//                    }
-//                           
-//               }
-//               $data['am_booking_data']=array(
-//                   'am_booking_data'=>$am,
-//                   'am_data'=>$am_data
-//               );
-                          
+                $am_where=array('active'=>'1','groups'=>'accountmanager');
+                $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
+                $data['am_data']=$am_data;
               $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -2744,6 +2719,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $rmmissingview=$this->load->view('dashboard/rm_missing_report',$missing_pincode_rm,true);
                     echo $rmmissingview;
     }
+    
+    
 
 }
 

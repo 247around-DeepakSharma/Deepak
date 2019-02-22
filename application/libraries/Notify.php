@@ -549,7 +549,6 @@ class Notify {
                         $sms['smsData'] = array();
                     }else{
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
-                         print_r($jobcard_link);
                         //make tiny url
                         $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
                         $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);print_r($jobcard_link_new);exit();
@@ -637,8 +636,8 @@ class Notify {
                             $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
-                                    $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
+                                $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
                      }
                               
 		    break;
