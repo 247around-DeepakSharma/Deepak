@@ -664,16 +664,15 @@
     });
     
     get_city();
-    get_brands();
+    //get_brands();
     
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
         service_id =  $("#service_name").val();
-        
         partner_type = $("#partner_type").val();
         
-        
+        if(service_id){
          $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -693,70 +692,75 @@
                 $('#brand_loading').css("display", "none");
             }
         });
+        }
     }
     
     //This function is used to get Category for partner id , service , brands specified
     
-    function get_category(){
+    function get_category(){ 
         service_id =  $("#service_name").val();
         brand =  $("#appliance_brand_1").val();
         
         partner_type = $("#partner_type").val();
-       
-        $.ajax({
-            type: 'POST',
-            beforeSend: function(){
-                $('#category_loading').css("display", "inherit");
-            },
-            url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
-            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand: brand,
-                    partner_type:partner_type},
-            success: function (data) {
-                              
-                //First Resetting Options values present if any
-                $("#appliance_category_1 option[value !='option1']").remove();
-                $('#appliance_category_1').append(data).change();
-                get_capacity();
-            },
-            complete: function(){
-                $('#category_loading').css("display", "none");
-            }            
-        });
+        if(service_id && brand){ 
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                    $('#category_loading').css("display", "inherit");
+                },
+                url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
+                data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                        brand: brand,
+                        partner_type:partner_type},
+                success: function (data) {
+
+                    //First Resetting Options values present if any
+                    $("#appliance_category_1 option[value !='option1']").remove();
+                    $('#appliance_category_1').append(data).change();
+                    //get_capacity();
+                },
+                complete: function(){
+                    $('#category_loading').css("display", "none");
+                }            
+            });
+        }
         
     }
     
     //This function is used to get Capacity and Model
-    function get_capacity(){
+    function get_capacity(){ 
         service_id =  $("#service_name").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         
         partner_type = $("#partner_type").val();
         
-        $.ajax({
-            type: 'POST',
-            beforeSend: function(){
-                $('#capacity_loading').css("display", "inherit");
-            },
-            url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
-            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
-                    brand: brand,category:category, 
-                    partner_type:partner_type},
-            
-            success: function (data) {
-                    //First Resetting Options values present if any
-//                    $("#appliance_capacity_1 option[value !='option1']").remove();
-//                    $('#appliance_capacity_1').append(data).change();
-                     
-                $('#appliance_capacity_1').html(data).change();
-                get_models();
-                getPrice();
-            },
-            complete: function(){
-                $('#capacity_loading').css("display", "none");
-            }  
-        });
+        if(service_id && brand && category){ 
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                    $('#capacity_loading').css("display", "inherit");
+                },
+                url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
+                data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                        brand: brand,category:category, 
+                        partner_type:partner_type},
+
+                success: function (data) {
+                        //First Resetting Options values present if any
+        //                    $("#appliance_capacity_1 option[value !='option1']").remove();
+        //                    $('#appliance_capacity_1').append(data).change();
+
+                    $('#appliance_capacity_1').html(data).change();
+                    get_models();
+                    getPrice();
+                },
+                complete: function(){
+                    $('#capacity_loading').css("display", "none");
+                }  
+            });
+        }
+        
     }
     
     //This function is used to get Model for corresponding previous data's
@@ -770,7 +774,7 @@
         if(capacity === null && capacity === ""){
             capacity = '';
         }
-        
+        if(service_id && brand && category){
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -790,6 +794,7 @@
                 }
             }
         });
+        }
     }
     
     function getPrice() {
