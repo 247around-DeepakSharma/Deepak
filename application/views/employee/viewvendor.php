@@ -35,7 +35,8 @@
     }
     
     function createPinCodeForm(id,name){
-       document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
+      // document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
+       $('#download_pin_code').attr('data-vendor_id', id);
        document.getElementById("upload_pin_code").href ="upload_pin_code_vendor/"+id;
        document.getElementById("v_name").innerHTML = name;
     }
@@ -338,8 +339,8 @@
         <h4 class="modal-title" id="v_name" align="center"></h4>
       </div>
       <div class="modal-body" align="center">
-          <a id='download_pin_code' class='btn btn-info' href="">Download Pin code</a>
-          <a id='upload_pin_code' class='btn btn-info' href="vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
+          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()">Download Pin code</a>
+          <a id='upload_pin_code' class='btn btn-info' href="<?php echo base_url();?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -482,5 +483,32 @@
     function model_for_sms(phone_no, vendor_id){
         $("#poc_phone_no").text(phone_no);
         $("#sms_vendor_id").val(vendor_id);
+    }
+    
+    function download_pincode_file(){
+        var vendor_id = $("#download_pin_code").data("vendor_id");
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/'+vendor_id,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                var jsondata = JSON.parse(data);
+                
+                if(jsondata['response'] === "success"){
+                    //$("#spareDownload").css("display", "block");
+                    //$("#messageSpare").text("");
+                   // $("#spareDownload").attr("disabled", false).html("Download Spare");
+                    window.location.href = jsondata['path'];
+                } else if(jsondata['response'] === "failed"){
+                    alert(jsondata['message']);
+                   // $("#spareDownload").attr("disabled", false).html("Download Spare");
+                    //$("#messageSpare").text("");
+                } else {
+                     //$("#spareDownload").attr("disabled", false).html("Download Spare");
+                }
+            }
+        });
     }
      </script>

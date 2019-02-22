@@ -2610,14 +2610,19 @@ class Booking_model extends CI_Model {
            
     }
     
-    function get_am_partner()
+    function get_am_partner($am_id=array())
     {
-        $this->db->select('group_concat(partners.id) as partnerId,employee.id as account_manager_id,employee.groups');
+        $this->db->select('group_concat(partners.id) as partnerId,employee.id as account_manager_id,employee.full_name');
         $this->db->from('partners');
         $this->db->join('employee','partners.account_manager_id=employee.id','left');
         $this->db->where('groups','accountmanager');
         $this->db->where('partners.is_active','1');
         $this->db->where('employee.active','1');
+        if(!empty($am_id))
+        {
+            $this->db->where_in('partners.account_manager_id',$am_id);
+        }
+        $this->db->order_by('employee.full_name');
         $this->db->group_by('partners.account_manager_id');
         $result=$this->db->get()->result_array();
         return $result;
