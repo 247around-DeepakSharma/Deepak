@@ -2456,9 +2456,9 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__. json_encode($_POST, true));
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-        $zip = 'zip '.TMP_FOLDER.'challan_file.zip ';
-        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
-            unlink(TMP_FOLDER . 'challan_file.zip');
+        $zip = 'zip '.TMP_FOLDER.'challan_file'.date('dmYHis').'.zip ';
+        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
+            unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
         }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
@@ -2473,13 +2473,13 @@ class Service_centers extends CI_Controller {
         system($zip, $res);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"challan_file.zip\"");
+        header("Content-Disposition: attachment; filename=\"challan_file".date('dmYHis').".zip\"");
 
         $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . 'challan_file.zip ', $res2);
-        readfile(TMP_FOLDER .  'challan_file.zip');
-        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
-             unlink(TMP_FOLDER . 'challan_file.zip');
+        system(" chmod 777 " . TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip ', $res2);
+        readfile(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip');
+        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
+             unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
         }
     }
 
@@ -2562,11 +2562,10 @@ class Service_centers extends CI_Controller {
             foreach ($booking_declaration_detail as $partner_id => $spare_id_array) {
                 
                 
-               
-              
                 foreach ($spare_id_array as $spare_id) {
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_requested,"
-                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name";
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested,"
+                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name, "
+                            . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district";
 
                     $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
                     
@@ -2575,18 +2574,22 @@ class Service_centers extends CI_Controller {
                     $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
                                        
                     $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
+                    
+                    if(!empty($sp_details[0]['requested_inventory_id'])){
+                        $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price,inventory_master_list.gst_rate', array('inventory_master_list.inventory_id' => $sp_details[0]['requested_inventory_id']));
+                        
+                        $challan_value = round($inventory_details[0]['price'] *( 1 + $inventory_details[0]['gst_rate']/100), 0);                        
+                     
+                    } else {
+                        $challan_value = '0.00';
+                    }
 
                     $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
-                   
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_type'] = $partner_details[0]->company_type;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_name'] = $partner_details[0]->company_name;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['challan_approx_value'] = $challan_value;
+                                                     
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['address'] = $partner_details[0]->address;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['district'] = $partner_details[0]->district;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['state'] = $partner_details[0]->state;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['pincode'] = $partner_details[0]->pincode;
-
+                    
                     $i++;
                 }
             }
@@ -2594,7 +2597,7 @@ class Service_centers extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' No Download Address from POST');
         }
-
+        
         $service_center_id = $this->session->userdata('service_center_id');
 
         $output_file = "declaration-" .$service_center_id . "-" . date('dmYHis');
@@ -2604,35 +2607,27 @@ class Service_centers extends CI_Controller {
         /* convert html into pdf */
         $json_result = $this->miscelleneous->convert_html_to_pdf($html,'', $output_file_pdf,"vendor-partner-docs");
         
-       //$json_result = '{"response":"Success","response_msg":"PDF generated Successfully and uploaded on S3","output_pdf_file":"DraftDeclaration -SFId1-15-02-2019 15:58:18.pdf","bucket_dir":"bookings-collateral-test","id":""}';
        $pdf_response = json_decode($json_result,TRUE);
-       
-       $file = $pdf_response['output_pdf_file'];
-               
-        $zip = 'zip '.TMP_FOLDER.'declaration_file.zip ';
-        
-       if(file_exists(TMP_FOLDER . 'declaration_file.zip')){
-            unlink(TMP_FOLDER . 'declaration_file.zip');
-        }
-        
-                           
-        if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($file), TMP_FOLDER.$file)){
-            $zip .= TMP_FOLDER. $file. " ";
-        }   
+       if($pdf_response['response'] == "Success"){
+           
+           if(file_exists(TMP_FOLDER . $output_file_pdf)){
+                unlink(TMP_FOLDER . $output_file_pdf);
+            }
 
-        $res = 0;
-        system($zip, $res);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename='declaration_file.zip\'");
-
-        $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . 'declaration_file.zip ', $res2);
-        readfile(TMP_FOLDER .  'declaration_file.zip');
-        if(file_exists(TMP_FOLDER .  'declaration_file.zip')){
-             unlink(TMP_FOLDER . 'declaration_file.zip');
-        }
-        
+            if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($output_file_pdf), TMP_FOLDER.$output_file_pdf)){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_pdf\"");
+                $res2 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $output_file_pdf, $res2);
+                readfile(TMP_FOLDER .  $output_file_pdf);
+                if(file_exists(TMP_FOLDER .  $output_file_pdf)){
+                     unlink(TMP_FOLDER . $output_file_pdf);
+                }
+            }
+       } else {
+           echo "File not generated";
+       }
     }
     
     /**

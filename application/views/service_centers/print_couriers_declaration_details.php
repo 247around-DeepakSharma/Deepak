@@ -35,7 +35,7 @@
 
             carry any commercial value.
         </p>
-        <br><br><br><br>
+        <br>
         <table>
             <tr>
                 <th>S.No</th>
@@ -49,11 +49,10 @@
             </tr>
 
         </table>
-        <br><br><br><br>
-        <p>Thanking you.</p>
         <br><br><br>
+        <p>Thanking you.</p>      
         <p>Authorized Signatory.</p>
-        <br><br><br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <?php } ?>
 </body>
 </html>
