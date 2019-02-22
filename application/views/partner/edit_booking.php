@@ -300,7 +300,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                            <label for="booking_request_symptom">Technicala Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                            <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                             <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
                                                 <option disabled selected>Select Identified Problem</option>
                                             </select>
@@ -1168,13 +1168,21 @@
         $('#repeat_booking_model').modal('hide');
     }
     
-    
+    function escapeRegExp(string){
+       return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function replaceAll(str, term, replacement) {
+        return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    }
       function get_symptom(symptom_id = ""){
         var array = [];
         var postData = {};
         $(".price_checkbox:checked").each(function (i) {
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
-            array.push(price_tags);
+            var price_tags1 = replaceAll(price_tags, '(Free)', '');
+            var price_tags2 = replaceAll(price_tags1, '(Paid)', '')
+            array.push(price_tags2);
     
         });
         if(array.length > 0){

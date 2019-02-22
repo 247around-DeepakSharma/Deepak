@@ -90,6 +90,14 @@ class Partner extends CI_Controller {
                         //Sanitizing Brands Before Adding
                         $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
                     }
+                    
+                    $orderID =  $requestData['orderID'];
+            
+                    if(isset($requestData['itemID']) && !empty($requestData['itemID'])){
+
+                        $requestData['orderID'] = $requestData['orderID'] . "-" . $requestData['itemID'];
+                    }
+            
                     //Check whether the required details are present in the request
                     //And request doesn't exist in database
                     $is_valid = $this->validate_submit_request_data($requestData);
@@ -183,10 +191,38 @@ class Partner extends CI_Controller {
                                 if (stristr($prod, "Chimney")) {
                                     $lead_details['Product'] = 'Chimney';
                                 }
-
                                 if (stristr($prod, "Geyser")) {
                                     $lead_details['Product'] = 'Geyser';
                                 }
+                                if (stristr($prod, "Smart Speaker")) {
+                                    $lead_details['Product'] = 'Smart Speaker';
+                                }
+                                if (stristr($prod, "Cooler")) {
+                                    $lead_details['Product'] = 'Air Cooler';
+                                }
+                                if (stristr($prod, "Purifier")) {
+                                    $lead_details['Product'] = 'Purifier';
+                                }
+                                if (stristr($prod, "Stove")) {
+                                    $lead_details['Product'] = 'Gas Stove';
+                                }
+                                
+                                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                                    || stristr($prod, "Juicer Mixer Grinder") 
+                                    || stristr($prod, "Air Fryer") 
+                                    || stristr($prod, "Cookware") 
+                                    || stristr($prod, "Gas Burner") 
+                                    || stristr($prod, "Hand Blender") 
+                                    || stristr($prod, "Kettle")
+                                    || stristr($prod, "Massager")
+                                    || stristr($prod, "Nutri Blender") 
+                                    || stristr($prod, "OTG") 
+                                    || stristr($prod, "Steamer") 
+                                    || stristr($prod, "Toaster") 
+                                    || stristr($prod, "Vaccum Cleaner")) {
+
+                                $lead_details['Product'] = 'SHA';
+                            }
 
 
                                 log_message('info', 'Product type matched: ' . $lead_details['Product']);
@@ -369,7 +405,7 @@ class Partner extends CI_Controller {
                                 // }
                                 //Send response
                                 $this->jsonResponseString['response'] = array(
-                                    "orderID" => $booking['order_id'],
+                                    "orderID" => $orderID,
                                     "247aroundBookingID" => $booking_id,
                                     "247aroundBookingStatus" => $booking['current_status']);
                                 $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
