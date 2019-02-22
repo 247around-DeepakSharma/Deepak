@@ -549,6 +549,7 @@ class Notify {
                         $sms['smsData'] = array();
                     }else{
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
+                        print_r($jobcard_link);exit();
                         //make tiny url
                         $jobcard_link=str_replace(" ", "%20", $jobcard_link);
                         $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
