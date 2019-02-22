@@ -64,7 +64,8 @@ class Dashboard extends CI_Controller {
                 $am_where=array('active'=>'1','groups'=>'accountmanager');
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
-              $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
+                $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
+
             }
             $this->load->view('dashboard/dashboard_footer');
             $this->load->view('employee/header/push_notification');
@@ -2719,8 +2720,90 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $rmmissingview=$this->load->view('dashboard/rm_missing_report',$missing_pincode_rm,true);
                     echo $rmmissingview;
     }
+
+    function get_am_booking_data()
+    {
+               
+              // am booking details
+                $am_where=array('active'=>'1','groups'=>'accountmanager');
+                
+                $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array());
+            
+               foreach($am_data as $value)
+               {
+                   $am_data_new['am_'.$value['id']]=$value['full_name'];
+               }
+               $am_partner_array=$this->booking_model->get_am_partner();
+               if(!empty($am_partner_array))
+               {
+                    foreach($am_partner_array as $key=>$value)
+                    {
+                        $am['am_'.$value['account_manager_id']]['partner_id']=$value['partnerId'];
+                        $partner_id=array_map('intval', explode(',', $value['partnerId']));
+                        $partner_id_in = implode("','",$partner_id);
+                        $rm_report=$this->booking_model->get_am_booking_data($partner_id_in); 
+                        $am['am_'.$value['account_manager_id']]['booking_data']=$rm_report;
+                    }
+                           
+               }
+               $data['am_booking_data']=array(
+                   'am_booking_data'=>$am,
+                   'am_data'=>$am_data
+               );
+               $am_view=$this->load->view('dashboard/am_booking_report',$data,true);
+               echo $am_view;
+    }
     
+    function get_am_drop_data()
+    {
+        $am_id=$this->input->post('am_id');
+        $am_partner_array=$this->booking_model->get_am_partner($am_id);
+        $partnerWhere['is_active'] = 1;
+        $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+       
+        $data=array(
+            'am_compare'=>$am_partner_array,
+            'partner_arr'=>$partner_arr
+        );
+      
+        $view_am=$this->load->view('dashboard/am_compare',$data,true);
+        echo $view_am;
+    }
     
+    function compair_am_booking_data()
+    {
+//       
+//       $v="am_partner%5B30%5D%5B%5D=247115&am_partner%5B30%5D%5B%5D=247124&am_partner%5B30%5D%5B%5D=247132&am_partner%5B30%5D%5B%5D=247077&am_partner%5B30%5D%5B%5D=247128&am_partner%5B30%5D%5B%5D=247030&am_partner%5B30%5D%5B%5D=247136&am_partner%5B30%5D%5B%5D=247126&am_partner%5B30%5D%5B%5D=247102&am_partner%5B30%5D%5B%5D=247076&am_partner%5B19%5D%5B%5D=247034&am_partner%5B19%5D%5B%5D=247106&am_partner%5B19%5D%5B%5D=247068&am_partner%5B19%5D%5B%5D=247111&am_partner%5B19%5D%5B%5D=247069&am_partner%5B19%5D%5B%5D=247117&am_partner%5B19%5D%5B%5D=247109&am_partner%5B19%5D%5B%5D=247070&am_partner%5B19%5D%5B%5D=247036&am_partner%5B19%5D%5B%5D=247118&am_partner%5B19%5D%5B%5D=247066&am_partner%5B19%5D%5B%5D=247048";
+         parse_str($this->input->post('amdata'),$formdata);//This will convert the string to array
+        $ammaster = $formdata['am_partner'];
+
+       $compair_am_id= array_keys($ammaster);
+      
+                $am_where=array('active'=>'1','groups'=>'accountmanager');
+                $where_in=array('id'=>$compair_am_id);
+                $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),$where_in,NULL,array());
+               foreach($am_data as $value)
+               {
+                   $am_data_new['am_'.$value['id']]=$value['full_name'];
+               }
+              
+               if(!empty($ammaster))
+               {
+                    foreach($ammaster as $key=>$value)
+                    {
+                        $partner_id_in = implode("','",$value);
+                        $rm_report=$this->booking_model->get_am_booking_data($partner_id_in); 
+                        $am['am_'.$key]['booking_data']=$rm_report;
+                    }
+                           
+               }
+               $data['am_booking_data']=array(
+                   'am_booking_data'=>$am,
+                   'am_data'=>$am_data
+               );
+              $am_view=$this->load->view('dashboard/am_booking_report',$data,true);
+              echo $am_view;
+    }
 
 }
 

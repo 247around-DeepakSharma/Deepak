@@ -1,4 +1,5 @@
-                    <table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered" style="margin-top:30px;">
+
                     <thead>
                         <tr>
                             <th>AM Name</th> 
@@ -55,6 +56,6 @@
            ?>
                         
                     </tbody>
-                </table>
-            
+   </table>
+           
 
