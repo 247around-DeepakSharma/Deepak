@@ -549,10 +549,10 @@ class Notify {
                         $sms['smsData'] = array();
                     }else{
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
-                        print_r($jobcard_link);exit();
+                         print_r($jobcard_link);
                         //make tiny url
-                        $jobcard_link=str_replace(" ", "%20", $jobcard_link);
-                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
+                        $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);print_r($jobcard_link_new);exit();
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
