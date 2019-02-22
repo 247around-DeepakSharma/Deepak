@@ -280,8 +280,8 @@
         <h4 class="modal-title" id="v_name" align="center"></h4>
       </div>
       <div class="modal-body" align="center">
-          <a id='download_pin_code' class='btn btn-info' href="#" onclick="download_pincode_file()">Download Pin code</a>
-          <a id='upload_pin_code' class='btn btn-info' href="vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
+          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()">Download Pin code</a>
+          <a id='upload_pin_code' class='btn btn-info' href="<?php echo base_url();?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
