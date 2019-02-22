@@ -1,3 +1,8 @@
+<style>
+    .disabled_button{
+        pointer-events:none;
+    }
+</style>
 <div role="tabpanel" class="tab-pane" id="estimate_cost_given">
     <div class="container-fluid">
         <div class="row" >
@@ -18,41 +23,6 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div role="tabpanel" class="tab-pane active" id="parts_requested_on_approval">
-    <div class="container-fluid">
-        <div class="row" >
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-body" >
-                        <table id="parts_requested_on_approval_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
-                            <thead >
-                                <tr>
-                                    <th class="text-center" >No</th>
-                                    <th class="text-center" data-orderable="false">Booking Id</th>
-                                    <th class="text-center" data-orderable="false">User</th>
-                                    <th class="text-center" data-orderable="false">Mobile</th>
-                                    <th class="text-center" data-orderable="false">Service Center</th>
-                                    <th class="text-center" data-orderable="false">Partner</th>
-                                    <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Booking Type</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Symptom</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Approval</th>
-                                <!--<th class="text-center" data-orderable="false">Parts Requested Count</th>-->
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,7 +102,7 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="spare_parts_requested">
+<div role="tabpanel" class="tab-pane active" id="spare_parts_requested">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
@@ -150,9 +120,10 @@
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!--                                        <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Approval</th>
+                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -173,7 +144,9 @@
                 <h4 class="modal-title" id="modal-title">Reject Parts</h4>
             </div>
             <div class="modal-body">
+                <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title"></h4>
                 <div id="part_warranty_option"></div>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks</h4>
                 <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
                 <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
             </div>
@@ -467,7 +440,6 @@
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
     var estimate_cost_given_table
-    var parts_requested_on_approval_table;
     var oow_part_shipped_table;
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -546,43 +518,7 @@
           }
         });
         
-        
-         parts_requested_on_approval_table = $('#parts_requested_on_approval_table').DataTable({
-            processing: true, //Feature control the processing indicator.
-            serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 8, "desc" ]], //Initial no order.
-            pageLength: 50,
-            dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    text: 'Export',
-                    exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
-                    },
-                    title: 'spare_cost_given'
-                }
-            ],
-            // Load data for the table's content from an Ajax source
-            ajax: {
-                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
-                type: "POST",
-                data: {type: '9', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>', part_requested_approval_flag: true}
-            },
-            //Set column definition initialisation properties.
-            columnDefs: [
-                {
-                    "targets": [0,1,2,3,4], //first column / numbering column
-                    "orderable": false //set not orderable
-                }
-            ],
-            "fnInitComplete": function (oSettings, response) {
-            
-            $(".dataTables_filter").addClass("pull-right");
-          }
-        });
-        
+       
     estimate_cost_requested_table = $('#estimate_cost_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
@@ -621,11 +557,11 @@
         });
     
     
-    //datatables
+    //datatables    
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 8, "desc" ]], //Initial no order.
+            order: false, //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
 
@@ -1068,6 +1004,13 @@
           $("#remarks_err").html("Remarks should not be blank.").css({'color':'red'});
         }
         
+    });
+    
+    
+    $(document).ready(function(){         
+     spare_parts_requested_table.ajax.reload( function ( json ) { 
+            $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        } );
     });
         
 </script>

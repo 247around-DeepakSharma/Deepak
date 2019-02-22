@@ -1079,9 +1079,12 @@ class Inventory extends CI_Controller {
         if(!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))){
             $this->checkUserSession();
         } 
-         
+       
         if(!empty($id)){
-            $remarks = $this->input->post("remarks");
+            $remarks = $this->input->post("remarks");                
+            if (!empty($this->input->post("spare_cancel_reason"))) {
+                $remarks = $remarks . " " . $this->input->post("spare_cancel_reason");
+            }
             $flag = true;
             $b = array();
             switch ($requestType){
@@ -1104,7 +1107,7 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-          
+         
                     $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
@@ -1115,7 +1118,7 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = _247AROUND_COMPLETED;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-          
+                             
                     $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                     break;
                 

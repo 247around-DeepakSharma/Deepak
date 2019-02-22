@@ -228,7 +228,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" >
                                             </div>
@@ -236,7 +236,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" >
                                             </div>
@@ -313,7 +313,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Pic *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
                                                 </div>
@@ -321,7 +321,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Pic *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
                                                 </div>
