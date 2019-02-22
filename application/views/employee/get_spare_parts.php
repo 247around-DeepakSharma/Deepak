@@ -44,11 +44,10 @@
             <div class="panel-body">
                 <div role="tabpanel"> 
                     <div class="col-md-12">
-                        <ul class="nav nav-tabs" role="tablist" >
-                            <li role="presentation" class="active"><a href="#parts_requested_on_approval" aria-controls="parts_requested_on_approval" role="tab" data-toggle="tab">Parts Requested On Approval</a></li>
-                            <li role="presentation" ><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Requested</a></li>
+                        <ul class="nav nav-tabs" role="tablist">                           
+                            <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Requested</a></li>
                             <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Quote Given</a></li>
-                            <li role="presentation" ><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Parts Requested</a></li>
+                            <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
                             <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
                             <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">SF Received Part</a></li>
@@ -89,22 +88,35 @@
         
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
-        var keys = $(this).data('keys');      
-         if(!isNaN(keys)){
+        var keys = $(this).data('keys'); 
+         if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
              $("#reject_btn").attr("onclick","approve_spare_part()");
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
                  HTML+= '<option selected="" disabled="">Select warranty status</option>';
                  HTML+= '<option value="1"> In-Warranty </option>';
-                 HTML+= '<option value="2"> Out-Warranty </option>';
+                 HTML+= '<option value="2"> Out Of Warranty </option>';
                  HTML+= '</select>';
-             $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px'});
+             $("#status_label").css({'display':'block'}).html("Spare Part Status By SF");
+             $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'});
              $("#part_warranty_status option[value='"+keys+"']").attr('selected','selected');
-         }else{
-            $("#reject_btn").html("Send");             
-             $("#reject_btn").attr("onclick","reject_parts()");            
-             $("#part_warranty_option").html('').css({'padding-bottom':'0px'}); 
-         }
+        }else if(keys == 'spare_parts_cancel'){
+            var HTML = ''; 
+            HTML = '<select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value="">';
+            HTML+= '<option selected="" disabled="">Select Spare Cancel Reason</option>';
+            HTML+= '<option value="1"> Text-One </option>';
+            HTML+= '<option value="2">  Text-Two </option>';
+            HTML+= '</select>';
+            $("#status_label").css({'display':'block'}).html("Spare Cancel Reason");
+            $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'}); 
+            $("#reject_btn").html("Reject");             
+            $("#reject_btn").attr("onclick","reject_parts()");
+        }else{
+            $("#reject_btn").html("Reject");  
+            $("#status_label").css({'display':'none'});
+            $("#reject_btn").attr("onclick","reject_parts()");                     
+            $("#part_warranty_option").css({'display':'none'});
+        }
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
@@ -150,7 +162,7 @@
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    parts_requested_on_approval_table.ajax.reload(null, false);                   
+                    spare_parts_requested_table.ajax.reload(null, false);                   
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
@@ -164,13 +176,15 @@
       var remarks =  $('#textarea').val();
       //var booking_id = $('#modal-title').text();
       var courier_charge = $('#charges').val();
+      var reason = $('#spare_cancel_reason').val();
+      
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks,courier_charge:courier_charge},
+            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
             success: function(data){
                 $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){

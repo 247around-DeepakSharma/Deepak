@@ -21,6 +21,7 @@ class Miscelleneous {
         $this->My_CI->load->model('booking_model');
         $this->My_CI->load->model('upcountry_model');
         $this->My_CI->load->model('partner_model');
+        $this->My_CI->load->model('dealer_model');
         $this->My_CI->load->model('inventory_model');
         $this->My_CI->load->library('form_validation');
         $this->My_CI->load->model('service_centers_model');
@@ -3923,11 +3924,11 @@ function generate_image($base64, $image_name,$directory){
      * @param String $part_type
      * @param String $booking_id
      */
-    function send_spare_requested_sms_to_customer($part_type, $booking_id){
+    function send_spare_requested_sms_to_customer($part_type, $booking_id, $sms_tag){
         if(!empty($booking_id)){
             $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
             if(!empty($booking_details)){
-                $sms['tag'] = SPARE_REQUESTED_CUSTOMER_SMS_TAG;
+                $sms['tag'] = $sms_tag;
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
