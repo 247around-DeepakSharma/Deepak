@@ -1965,5 +1965,80 @@ class vendor_model extends CI_Model {
         $result=$this->db->get()->result_array();
         return $result;
     }
-    
+     /*
+     * @desc This is used to get distinct count of pincode of particular state from india pincode table
+     */
+    function get_india_pincode_group_by_state($array=array())
+    {
+        $return_arr=array();
+        $this->db->select('distinct(`india_pincode`.`state`),count(DISTINCT pincode) as state_pincode_count,state_code.id as state_id');
+        $this->db->from('india_pincode');
+        $this->db->join('state_code','india_pincode.state=state_code.state','left');
+        if(!empty($array))
+        {
+            $this->db->where_in('state_code.id',$array);
+        }
+        $this->db->group_by('india_pincode.state');
+        $result=$this->db->get()->result_array();
+        return $result;
+    }
+    /*
+     * @desc This is used to get distinct count of pincode group by state and appliance from vendor pincode mapping
+     */
+    function get_vendor_mapping_groupby_applliance_state($array=array())
+    {
+        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id ,Appliance_ID,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
+        $this->db->from('vendor_pincode_mapping');
+        $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
+        if(!empty($array))
+        {
+            $this->db->where_in('state_code.id',$array);
+        }
+        $this->db->group_by('vendor_pincode_mapping.Appliance_ID');
+        $this->db->group_by('vendor_pincode_mapping.State');
+        $result=$this->db->get()->result_array();
+        return $result;
+           
+    }
+     /*
+     * @desc This is used to get active service from services table
+     */
+        function get_active_services()
+    {
+        $return=array();
+        $this->db->select('id,services');
+        $this->db->from('services');
+        $this->db->where('isBookingActive',1);
+        $this->db->order_by('services','ASC');
+        $result=$this->db->get()->result_array();
+        if(count($result)>0)
+        {
+            foreach($result as $value)
+            {
+                $id=$value['id'];
+                $return[$id]=$value['services'];
+            }
+        }
+        return $return;
+    }
+     /*
+     * @desc This is used to get active state from state_code table
+     */
+    function get_active_state()
+    {
+        $return=array();
+        $this->db->select('id,state');
+        $this->db->from('state_code');
+        $result=$this->db->get()->result_array();
+        if(count($result)>0)
+        {
+            foreach($result as $value)
+            {
+                $id=$value['id'];
+                $return[$id]=$value['state'];
+            }
+        }
+        return $return;
+    }
+          
 }

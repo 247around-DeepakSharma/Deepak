@@ -2371,7 +2371,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
          if (!empty($template))
                 {
-                    $result=$this->booking_model->get_india_pincode_group_by_state(array());
+                    $result=$this->vendor_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
@@ -2382,9 +2382,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
-                    $active_services=$this->booking_model->get_active_services();
-                    $state_arr=$this->booking_model->get_active_state();
+                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $active_services=$this->vendor_model->get_active_services();
+                    $state_arr=$this->vendor_model->get_active_state();
                     $count = count($vendor_mapping_data);
                     for($i = 0; $i<$count-1;$i++){ 
                         if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
@@ -2428,7 +2428,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                      
                      $state_code=$rmData['0']['state_code'];
                      $explode_state_arr=explode(',',$state_code);
-                     $result=$this->booking_model->get_india_pincode_group_by_state($explode_state_arr);
+                     $result=$this->vendor_model->get_india_pincode_group_by_state($explode_state_arr);
                     
                     if(count($result)>0)
                     {
@@ -2438,9 +2438,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
                         }
                     }
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state($explode_state_arr);
-                    $state_arr=$this->booking_model->get_active_state();
-                    $active_services=$this->booking_model->get_active_services();
+                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state($explode_state_arr);
+                    $state_arr=$this->vendor_model->get_active_state();
+                    $active_services=$this->vendor_model->get_active_services();
                     $count = count($vendor_mapping_data);
                     for($i = 0; $i<=$count-1;$i++){ 
                         if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
@@ -2691,7 +2691,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_rm_missing_pincode_data()
     {
         $rm_arr=array();$vendorStructuredArray=array();
-        $result=$this->booking_model->get_india_pincode_group_by_state(array());
+        $result=$this->vendor_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
@@ -2702,9 +2702,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
-                    $active_services=$this->booking_model->get_active_services();
-                    $state_arr=$this->booking_model->get_active_state();
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $active_services=$this->vendor_model->get_active_services();
+                    $state_arr=$this->vendor_model->get_active_state();
+                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
                     $count = count($vendor_mapping_data);
                     for($i = 0; $i<=$count-1;$i++){ 
                         if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
@@ -2715,19 +2715,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                           
                         }
                     }
-                     foreach($rmData as $value)
+                    if(!empty($rmData))
                     {
-                         log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
-                         $state_code=$value['state_code'];
-                         $rm_name=$value['full_name'];
-                         $rm_id=$value['agent_id'];
-                         $explode=explode(',',$state_code);
-                                                       
-                         $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
-                         $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
-                         $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                        foreach($rmData as $value)
+                       {
+                            log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                            $state_code=$value['state_code'];
+                            $rm_name=$value['full_name'];
+                            $rm_id=$value['agent_id'];
+                            $explode=explode(',',$state_code);
+
+                            $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
+                            $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
+                            $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
+                       }
                     }
-                  
                     $missing_pincode_rm=array(
                            'service_arr'=>$active_services,
                            'state_arr'=>$state_arr,
@@ -2753,7 +2755,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                {
                    $am_data_new['am_'.$value['id']]=$value['full_name'];
                }
-               $am_partner_array=$this->booking_model->get_am_partner();
+               $am_partner_array=$this->partner_model->get_am_partner();
                if(!empty($am_partner_array))
                {
                     foreach($am_partner_array as $key=>$value)
@@ -2777,7 +2779,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_am_drop_data()
     {
         $am_id=$this->input->post('am_id');
-        $am_partner_array=$this->booking_model->get_am_partner($am_id);
+        $am_partner_array=$this->partner_model->get_am_partner($am_id);
         $partnerWhere['is_active'] = 1;
         $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
        

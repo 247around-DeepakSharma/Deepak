@@ -548,10 +548,14 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$query1[0]['booking_jobcard_filename'];
+                        $booking_id=$query1[0]['booking_id'];
+                        $jobcard="BookingJobCard-".$booking_id.".pdf";
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
+                        log_message('info', __METHOD__. " ". print_r($jobcard,true));
+                        log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
                         //make tiny url
-                        $jobcard_link=str_replace(" ", "%20", $jobcard_link);
-                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
+                        $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link_new);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -562,8 +566,8 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
-
+                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
                         } 
@@ -584,9 +588,8 @@ class Notify {
                         }
                          $sms['smsData']['url']=$tinyUrl;
                         
-                        
                     }
-		   $sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+		   //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
