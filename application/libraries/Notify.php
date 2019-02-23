@@ -548,10 +548,13 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+                        $jobcard=$query1[0]['booking_jobcard_filename'];
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
+                        log_message('info', __METHOD__. " ". print_r($jobcard,true));
+                        log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
                         //make tiny url
-                        $jobcard_link=str_replace(" ", "%20", $jobcard_link);
-                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
+                        $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link_new);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -562,8 +565,8 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
-
+                        
+                        log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
                         } 
@@ -636,8 +639,8 @@ class Notify {
                             $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
-                                    $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
+                                $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
                      }
                               
 		    break;

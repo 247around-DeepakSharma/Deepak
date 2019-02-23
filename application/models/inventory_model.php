@@ -382,8 +382,11 @@ class Inventory_model extends CI_Model {
         if (!empty($post['order'])) { // here order processing
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else if (isset($this->order)) {
-            $order = $this->order;
-            $this->db->order_by(key($order), $order[key($order)]);
+//            $order = $this->order;
+//            $this->db->order_by(key($order), $order[key($order)]);
+            $this->db->order_by('spare_parts_details.part_requested_on_approval', 'ASC');
+        
+             $this->db->order_by('spare_parts_details.date_of_request', 'DESC');
         }
     }
     

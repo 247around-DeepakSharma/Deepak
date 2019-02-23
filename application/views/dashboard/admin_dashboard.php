@@ -625,6 +625,58 @@
             </div>
         </div>
     </div>
+    <!-- get rm missing pincode ajax request-->
+    <!-- get Am Total Booking Call data-->
+     <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>AM Booking Report</h2>
+                    <span class="collape_icon" href="#am_booking_report" data-toggle="collapse" onclick="get_am_booking_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
+                    <div class="clearfix"></div>
+                </div>
+                
+                <div class="x_content collapse" id="am_booking_report">
+                       <div class="table-responsive" id="am_booking_report_data">
+                        <?php
+                        if(!empty($am_data))
+                        {
+                            ?>
+                        
+                                
+                                    <div class="col-md-3" id="am">
+                                        <div class="item form-group">
+                                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                                <label for=""> AM For Comparision</label>
+                                                <select class="form-control filter_table" id="am_id" name="am_id[]" multiple>
+                                                    <?php foreach($am_data as $val){ ?>
+                                                    <option value="<?php echo $val['id']?>"><?php echo $val['full_name']?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                           <div id="amcompair">
+                            
+                           </div>
+                                                             
+                           <?php
+                           }
+                        ?>
+                           <div>
+                           <center><img id="compair_am_booking_loader" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                           </div>
+                           <div id="am_report">
+                                <center><img id="missing_am_booking_loader" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                           </div>
+                    </div>
+                </div>
+              
+            </div>
+        </div>
+    </div>
+    <!-- get Am Total Booking Call data-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -933,41 +985,49 @@
     $('#request_type_am_pending').select2();
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
+     $('#am_id').select2();
     
-    $('#am_id').select2();
-//    $('#am_id').on('change', function() {
-//        var am_id=[];
-//        var result=1;
-//           var am_id=$('#am_id').val();
-//           alert(am_id);
-//           var length=am_id.length;
-//           alert(length);
-//           if((length<2)||(length>4))
-//           {
-//               alert("Please Select Min 2 and  Max 4 AM For comparision");
-//             result=0;  
-//            return false;
-//           }
-//           if(result==1)
-//           {var html="";
-//               for(var i=0;i>length;i++)
-//               {
-//               var html+='<div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">'
-//                        +'<div class="item form-group">'
-//                         +'<div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">'
-//                               +'<label for=""><?php// echo $am_booking_data['am_data']?></label>'
-//                                +'<select class="form-control filter_table" id="am_id" name="am_id[]" multiple>'
-//                                    +'<option value="" selected="selected">All</option>'
-//                                    <?php //foreach($am_booking_data['am_data'] as $val){ ?>
-//                                    +'<option value="<?php// echo $val['id']?>"><?php //echo $val['full_name']?></option>''
-//                                    <?php //} ?>
-//                               +'</select>'
-//                            +'</div>'
-//                        +'</div>'
-//                    +'</div>';
-//              }
-//           }
-//        });
+    $('#am_id').on('change', function() {
+        var am_id=[];
+        var result=1;
+           var am_id=$('#am_id').val();
+           var length=am_id.length;
+           
+           if((length<2)||(length>4))
+           {
+             alert("Please Select Min 2 and  Max 4 AM For comparision");
+             result=0;  
+             return false;
+           }
+           if(result==1)
+           {
+               var confirm_var=confirm("Do you want to compare more AM?");
+                 if(confirm_var==false)
+               {
+                        var data = {};
+                        url = '<?php echo base_url(); ?>employee/dashboard/get_am_drop_data';
+                        data['am_id'] = am_id;
+                        $('#compair_am_booking_loader').fadeIn();
+                        sendAjaxRequest(data,url,post_request).done(function(response){
+                         $('#compair_am_booking_loader').hide();  
+                        $("#amcompair").html(response);
+                        });
+                }
+           }
+        });
+     function getcompairamdata()
+    {
+        data = {};
+        //var amdata=$("#am_partner").val();
+        var amdata=$('#rm_compair_booking_form').serialize();
+        url = '<?php echo base_url();?>employee/dashboard/compair_am_booking_data';
+        data['amdata'] = amdata;
+        $('#compair_am_booking_loader').fadeIn();
+        sendAjaxRequest(data,url,post_request).done(function(response){
+           $('#compair_am_booking_loader').hide();
+           $("#am_report").html(response);
+        });
+    }
 
      function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
@@ -1240,6 +1300,18 @@
         
         sendAjaxRequest(data,url,post_request).done(function(response){
            $("#rm_pincode_data").html(response);
+        });
+    }
+    
+    function get_am_booking_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_am_booking_data';
+        data['partner_id'] = '';
+        $('#missing_am_booking_loader').fadeIn();
+        sendAjaxRequest(data,url,post_request).done(function(response){
+         $('#missing_am_booking_loader').hide();
+        $("#am_report").html(response);
         });
     }
     
