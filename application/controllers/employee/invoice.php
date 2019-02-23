@@ -4916,6 +4916,7 @@ class Invoice extends CI_Controller {
                         }
 
                         $main['around_royalty'] = 0;
+                        $main['total_amount_collected'] = $total_amount_collected_amount;
                         $main['amount_collected_paid'] = -($main['total_amount_collected'] - $tds['tds'] - $main['rcm']);
                         $main['tds_amount'] = $tds['tds'];
                         $main['tds_rate'] = $tds['tds_rate'];
