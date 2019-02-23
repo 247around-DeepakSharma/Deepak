@@ -333,6 +333,7 @@ class Notify {
     function send_sms_email_for_booking($booking_id, $current_status) { 
 	log_message("info",__METHOD__);
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+        log_message("info", "query1 ".print_r($query1,true));
 	if (!empty($query1)) {
 
 	    //SMS and Emails are sent using Templates which are defined in sms_template and
@@ -548,7 +549,8 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard=$query1[0]['booking_jobcard_filename'];
+                        $booking_id=$query1[0]['booking_id'];
+                        $jobcard="BookingJobCard-".$booking_id.".pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
                         log_message('info', __METHOD__. " ". print_r($jobcard,true));
                         log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
@@ -565,7 +567,7 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                        
+                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";

@@ -6861,8 +6861,12 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Margin of Spare Parts " . json_encode($_POST));
         $partner_id = $this->input->post('partner_id');
         $part = $this->input->post('part');
+        $around_margin = $part[0]['oow_around_margin'];
+        $vendor_margin = $part[0]['oow_vendor_margin'];
 
-        if (!empty($part)) {
+        if (!empty($part) && (!empty($around_margin) && $around_margin > 0 && $around_margin <= 30 ) &&
+                (!empty($vendor_margin) && $vendor_margin > 0 && $vendor_margin <= 15 ) &&
+                ($around_margin >= $vendor_margin)) {
             $flag = false;
             foreach ($part as $key => $parts_deails) {
                 $oow_around_margin = $parts_deails['oow_around_margin'];
@@ -6899,6 +6903,9 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
+        } else {
+            $this->session->set_userdata(array('error' => 'Please Check Around Margin and Vendor Margin.'));
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
 
