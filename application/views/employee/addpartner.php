@@ -4483,14 +4483,14 @@
             $("#parts_type_err").html('');
         }
         
-        if(oow_around_margin == '' || oow_around_margin == null){
+        if(oow_around_margin == '' || oow_around_margin == null || oow_around_margin == 0){
             $("#oow_around_margin_err").html("Please select part type ").css('color','red');
             return false;
         }else{
             $("#oow_around_margin_err").html('');
         }
         
-        if(oow_vendor_margin == '' || oow_vendor_margin == null){
+        if(oow_vendor_margin == '' || oow_vendor_margin == null || oow_vendor_margin == 0){
             $("#oow_vendor_margin_err").html("Please select part type ").css('color','red');
             return false;
         }else{
