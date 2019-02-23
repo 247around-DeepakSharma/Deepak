@@ -549,7 +549,7 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard=$query1[0]['booking_jobcard_filename'];
+                        $jobcard="BookingJobCard-".$query1[0]['booking_id']."pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
                         log_message('info', __METHOD__. " ". print_r($jobcard,true));
                         log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
