@@ -4360,7 +4360,7 @@ class Invoice extends CI_Controller {
                         $invoice['amount_collected_paid'] = -$total_amount_collected;
                         $invoice['vertical'] = SERVICE;
                         $invoice['category'] = SPARES;
-                        $invoice['sub_category'] = IN_WARRANTY;
+                        $invoice['sub_category'] = OUT_OF_WARRANTY;
                         $invoice['accounting'] = 1;
 
                         $this->invoices_model->action_partner_invoice($invoice);
@@ -4823,6 +4823,7 @@ class Invoice extends CI_Controller {
                 $main['category'] = $this->input->post("category");
                 $main['sub_category'] = $this->input->post("sub_category");
                 $main['accounting'] = $this->input->post("accounting");
+                $main['rcm'] = 0;
 
                 $gst_amount = 0;
                 $service_charge = 0;
