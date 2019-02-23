@@ -672,7 +672,7 @@
         service_id =  $("#service_name").val();
         partner_type = $("#partner_type").val();
         
-        if(service_id){
+        //if(service_id){
          $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -692,7 +692,7 @@
                 $('#brand_loading').css("display", "none");
             }
         });
-        }
+        //}
     }
     
     //This function is used to get Category for partner id , service , brands specified
@@ -702,7 +702,7 @@
         brand =  $("#appliance_brand_1").val();
         
         partner_type = $("#partner_type").val();
-        if(service_id && brand){ 
+        //if(service_id && brand){ 
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
@@ -723,7 +723,7 @@
                     $('#category_loading').css("display", "none");
                 }            
             });
-        }
+        //}
         
     }
     
@@ -735,7 +735,7 @@
         
         partner_type = $("#partner_type").val();
         
-        if(service_id && brand && category){ 
+        //if(service_id && brand && category){ 
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
@@ -759,7 +759,7 @@
                     $('#capacity_loading').css("display", "none");
                 }  
             });
-        }
+        //}
         
     }
     
@@ -774,7 +774,7 @@
         if(capacity === null && capacity === ""){
             capacity = '';
         }
-        if(service_id && brand && category){
+        //if(service_id && brand && category){
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -794,7 +794,7 @@
                 }
             }
         });
-        }
+        //}
     }
     
     function getPrice() {
