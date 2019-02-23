@@ -427,7 +427,8 @@
     }
     
     function download_pincode_file(){
-        var vendor_id = $("#download_pin_code").data("vendor_id");
+        var vendor_id = $("#download_pin_code").attr('data-vendor_id');
+        
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/'+vendor_id,
@@ -436,7 +437,7 @@
             processData: false,
             success: function (data) {
                 var jsondata = JSON.parse(data);
-                
+                console.log(jsondata);
                 if(jsondata['response'] === "success"){
                     //$("#spareDownload").css("display", "block");
                     //$("#messageSpare").text("");
