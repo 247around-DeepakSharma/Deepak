@@ -307,12 +307,11 @@ function get_data_for_partner_callback($booking_id) {
             }
         }
 
-      	if (!empty($capacity)) {
-      	    $this->db->where('capacity', $capacity);
-      	}
-        //if(!empty($brand)){
-         $this->db->where('brand', $brand);
-        //}
+
+        if (!empty($capacity)) {
+            $this->db->where('capacity', $capacity);
+        }
+        $this->db->where('brand', $brand);
         
         $this->db->order_by('service_category', 'asc');
 
@@ -1367,8 +1366,16 @@ function get_data_for_partner_callback($booking_id) {
      * @return string
      */
     function upload_partner_brand_logo($data){
-        $this->db->insert('partner_brand_logo',$data);
-        return $this->db->insert_id();
+        $this->db->where('partner_id',$data['partner_id']);
+        $logo_exist = $this->db->get('partner_brand_logo');
+        if ( $logo_exist->num_rows() > 0 ){
+            $this->db->where('partner_id',$data['partner_id']);
+            $this->db->update('partner_brand_logo',$data);
+            return $this->db->affected_rows();
+        } else {
+            $this->db->insert('partner_brand_logo',$data);
+            return $this->db->insert_id();
+        }
     }
     
     /**
@@ -1813,13 +1820,13 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
+
     /**
      * @Desc: This function is used to add partner appliance detail
      * @params: Array
      * @return: last insert id
      * 
      */
-    
     function insert_partner_appliance_detail($data) {
         $this->db->insert('partner_appliance_details', $data);
         return $this->db->insert_id();
@@ -1864,7 +1871,14 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
-    
+
+
+    function insert_sample_no_pic($data)
+    {
+        $this->db->insert('partner_sample_no_picture',$data);
+        return $this->db->insert_id();
+    }
+
     function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
     {
         $return=null;
@@ -1966,7 +1980,7 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     
-     /**
+    /**
      * @desc This function is used to  get count of all Partners
      * @param Array $post
      */
@@ -1976,6 +1990,7 @@ function get_data_for_partner_callback($booking_id) {
 
         return $query;
     }
+
     /**
      * @desc This function is used to  get count of all Parters
      * @param Array $post

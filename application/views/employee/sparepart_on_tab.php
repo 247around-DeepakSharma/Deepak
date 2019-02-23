@@ -52,6 +52,7 @@
                                 <th class="text-center" data-orderable="false">Requested Part</th>
                                 <th class="text-center" data-orderable="false">Shipped Part</th>
                                 <th class="text-center" data-orderable="false">Booking Type</th>
+                                <th class="text-center" data-orderable="false">Estimate Cost</th>
                                 <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                 <th class="text-center" data-orderable="false">Challan File</th>
                                 <th class="text-center" data-orderable="false">Is Defective Parts Required</th>

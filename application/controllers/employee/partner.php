@@ -38,7 +38,6 @@ class Partner extends CI_Controller {
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
-        
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -637,7 +636,8 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = DEVELOPER_EMAIL;//ALL_EMP_EMAIL;
+                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
@@ -705,6 +705,10 @@ class Partner extends CI_Controller {
         $return_data['is_prepaid'] = 2; // Default set
         if ($is_prepaid == 1) {
             $return_data['is_prepaid'] = 1;
+            if($return_data['prepaid_amount_limit'] > 0){
+                $return_data['prepaid_amount_limit'] = - $return_data['prepaid_amount_limit'];
+            }
+            
         }
         $postpaid = $this->input->post('is_postpaid');
         if($postpaid == 1){
@@ -3257,7 +3261,10 @@ class Partner extends CI_Controller {
                 'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
                 'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
 
-            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => 'Cancelled'));
+            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => _247AROUND_CANCELLED));
+            
+            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
+            
             $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
                     $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
@@ -3326,6 +3333,8 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
                     'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
+                
+                $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));
 
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
                 $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, 
@@ -3343,10 +3352,12 @@ class Partner extends CI_Controller {
      * @return:void
      */
     function upload_partner_brand_logo($id = "", $name = "") {
+        $partner_logo_deatil = $this->booking_model->get_partner_logo('*', array('partner_id'=>$id));
         $data['partner'] = array('partner_id' => $id,
             'public_name' => urldecode($name),
             'partner_logo_detail' => $partner_logo_deatil,
         );
+
         if(empty($partner_logo_deatil)){
             $priority = $this->booking_model->get_partner_logo('max(logo_priority) as logo_priority', array())[0]['logo_priority'];
             $data['partner']['logo_priority'] = $priority + 1;
@@ -3354,6 +3365,7 @@ class Partner extends CI_Controller {
         else{
             $data['partner']['logo_priority'] = $partner_logo_deatil[0]['logo_priority'];
         }
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_partner_brand_logo', $data);
     }
@@ -3389,10 +3401,10 @@ class Partner extends CI_Controller {
                 }
             }
             if ($res) {
-                $this->session->set_flashdata('success', 'Partner Logo has been inserted successfully');
+                $this->session->set_flashdata('success', 'Partner Logo has been saved successfully');
                 redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
             } else {
-                $this->session->set_flashdata('failed', 'Error in Inserting Partner Logo. Please Try Again...');
+                $this->session->set_flashdata('failed', 'Error in saving Partner Logo. Please Try Again...');
                 redirect(base_url() . "employee/partner/upload_partner_brand_logo/" . $partner_id . "/" . $partner_name, 'refresh');
             }
         } else {
@@ -4644,7 +4656,7 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
-        $newCSVFileName = "Booking_summary_" . date('Y-m-d') .rand(10,100). ".csv";
+        $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
         if($status != 'All'){
@@ -4833,7 +4845,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $CSVData = array();
         $partner_id = $this->session->userdata('partner_id');
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('Shipped') ";
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status IN ('".Shipped."') ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Customer Name","Booking ID","Shipped Parts","Courier Name","AWB","Challan","Shipped Date","Remarks");
         foreach($data as $sparePartBookings){
@@ -6668,6 +6680,7 @@ class Partner extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
+
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
@@ -6741,6 +6754,19 @@ class Partner extends CI_Controller {
         echo $msg;
         
     }
+
+    /**
+     * @desc: This function is used to show the appliance model mapping of the partner
+     * @params: void
+     * @return: void
+     */
+    function show_appliance_model_mapping(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/show_appliance_model_mapping');
+        $this->load->view('partner/partner_footer');
+    }
+
     public function brandCollateral()
     {
         $partnerArray = array();
@@ -6825,19 +6851,6 @@ class Partner extends CI_Controller {
             return $row;
            
     }
-    
-     /**
-     * @desc: This function is used to show the appliance model mapping of the partner
-     * @params: void
-     * @return: void
-     */
-    function show_appliance_model_mapping(){
-        $this->checkUserSession();
-        $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/show_appliance_model_mapping');
-        $this->load->view('partner/partner_footer');
-    }
-    
     
     /**
      * @desc: This function is used to tag margin on spare parts

@@ -592,7 +592,12 @@ class Booking extends CI_Controller {
         $booking['booking_address'] = trim($this->input->post('home_address'));
         $booking['city'] = trim($this->input->post('city'));
         $booking_date = $this->input->post('booking_date');
-        $booking['partner_source'] = $this->input->post('partner_source');
+        if($this->input->post('partner_source')){
+            $booking['partner_source'] = $this->input->post('partner_source');
+        }
+        else{
+            $booking['partner_source'] = NULL;
+        }
         $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
         $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
         // select state, taluk, district by pincode
@@ -3152,7 +3157,9 @@ class Booking extends CI_Controller {
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
         $is_upcountry = $this->input->post('is_upcountry');
+
         $completed_booking=$this->input->post('completed_booking');
+
         $bulk_booking_id = NULL;
         if($this->input->post('bulk_booking_id')){
             $bulk_booking_id = $this->input->post('bulk_booking_id');
@@ -4249,7 +4256,7 @@ class Booking extends CI_Controller {
         $appliance_list = $this->booking_model->selectservice();
         
         if($this->input->get('is_option_selected')){
-            $option = '<option  selected="" disabled="">Select Appliance</option>';
+            $option = '<option  selected="" disabled="" value="">Select Appliance</option>';
         }else{
             $option = '';
         }

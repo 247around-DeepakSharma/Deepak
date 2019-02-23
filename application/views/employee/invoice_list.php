@@ -93,9 +93,9 @@ ini_set('max_execution_time', 36000000);
             <div class="row">
                 <?php if(isset($service_center)){ ?>
                     <div class="col-md-4">
-                        <label for="sf_type" class="col-md-12 col-sm-12">Select Due Date</label>
+                        <label for="due_date" class="col-md-12 col-sm-12">Select Due Date</label>
                         <div class="form-group col-md-12 col-sm-12">
-                            <input placeholder="Select Due Date" type="text" class="form-control" name="due_date" id="due_date" onchange="getVendor()" />
+                            <input placeholder="Select Due Date" type="text" class="form-control" value="<?php echo date('Y-m-d'); ?>" name="due_date" id="due_date" onchange="getVendor()" />
                         </div>
                     </div>
                 <?php } else{ ?>  <input placeholder="Select Due Date" type="hidden" class="form-control" name="due_date" id="due_date" /> <?php }?>
@@ -455,7 +455,7 @@ if(isset($_SESSION['file_error'])){
             $("#due_date").datepicker({
                 dateFormat: 'yy-mm-dd',
             });
-            $('#due_date').datepicker('setDate', new Date());
+           // $('#due_date').datepicker('setDate', new Date());
                               
                });
 </script>

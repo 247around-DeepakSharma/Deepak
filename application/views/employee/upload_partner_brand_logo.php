@@ -28,9 +28,9 @@
                     <div class="clonedInput" id="clonedInput">
                         <table class="table  table-striped table-bordered">
                             <tr>
-                                <th style="width: 30%;">
-                                    <div class="form-group">
-<!--                                    <input class="form-control" type="text" name="partner_name" value="<?php //echo $partner['public_name']?>" disabled="">-->
+                                <th style="vertical-align: middle;">
+                                     <div class="form-group">
+<!--                                        <input class="form-control" type="text" name="partner_name" value="<?php //echo $partner['public_name']?>" disabled="">-->
                                         <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
                                         <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
                                         <input class="form-control" type="hidden" name="logo_priority" value="<?php echo $partner['logo_priority']?>">
@@ -47,20 +47,13 @@
                                     <div class="form-group">
                                         <label>Choose Files</label>
                                         <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" accept="image/*" required="" multiple/>
+                                        <input type="submit" value="<?php echo $action; ?>" onclick="return check_validation()" class="btn btn-md btn-primary" />
                                         <br><span style="font-size: 12px; margin-top: 10px;" class="text-warning"> Upload Image Dimension Must Be 215*60 px</span>
                                      </div>
                                 </th>
-                                <th style="width: 30%;">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="partner_name" value="<?php echo $partner['public_name']?>" disabled="">
-                                        <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
-                                        <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
-                                        
-                                    </div>
-                                </th>
-                                <th style="width: 30%;">
+<!--                                <th style="width: 30%; vertical-align: middle;">
                                     <input type="submit" value="Upload" onclick="return check_validation()" class="btn btn-md btn-primary" />
-                                </th>
+                                </th>-->
 <!--                                <th class="text-center">
                                     <button class="clone btn btn-sm btn-success" id="add_1">Add New Row</button>
                                 </th>
@@ -162,7 +155,3 @@
 </script>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('failed')){$this->session->unset_userdata('failed');} ?>
-
-
-
-

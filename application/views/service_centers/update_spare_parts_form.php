@@ -175,6 +175,7 @@
                                             <?php echo form_error('shipped_parts_name'); ?>
                                         </div>
                                     </div>
+
                                     <div class="form-group">
                                         <label for="shipped_parts_name" class="col-md-4"> Part In Warranty*</label>
                                         <div class="col-md-6">

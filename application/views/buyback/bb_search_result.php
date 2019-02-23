@@ -125,7 +125,8 @@
 
     $(document).ready(function () {
         table = $('#search_datatable1').DataTable({
-            "pageLength":'25',
+            "pageLength":'500',
+            "lengthMenu": [[100, 200, 500,-1], [100, 200, 500, "All"]],
             dom: 'Bfrtip',
             buttons: [
                 'pageLength',
@@ -133,7 +134,8 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [1,2,3,4,5,6,7,8,9,11,13]
+
+                        columns: [1,2,3,4,5,6,7,8,10,12]
                     },
                     
                     title: 'buyback_order'

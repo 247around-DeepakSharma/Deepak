@@ -373,7 +373,7 @@ class accounting_model extends CI_Model {
      * @return : insert_id
      */
     function insert_taxpro_gstr2a_data($data) {
-        $this->db->insert_batch('taxpro_gstr2a_data', $data);
+        $this->db->insert_ignore_duplicate_batch('taxpro_gstr2a_data', $data);
         return $this->db->insert_id();
     }
     

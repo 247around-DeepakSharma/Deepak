@@ -18,6 +18,7 @@ define('BRACKETS', 'Brackets');
 define('GST_CREDIT_NOTE', 'GST Credit Note');
 define('GST_DEBIT_NOTE', 'GST Debit Note');
 define('DEFECTIVE_RETURN', 'Defective Return');
+define('NEW_PART_RETURN', 'New Part Return');
 define('OUT_OF_WARRANTY', 'Out-of-Warranty');
 define('IN_WARRANTY', 'In-Warranty');
 define('CUSTOMER_PAYMENT', 'Customer Payment');
@@ -46,5 +47,7 @@ define('SERVICE_TAX_RATE', 0.18);
 define('DEFAULT_TAX_RATE', 18);
 define('DEFAULT_PARTS_TAX_RATE', 28);
 define('DEFAULT_MOBILE_TAX_RATE', 12);
-
+//Define constant for paid royalty to partner
+define('ROYALTY', 'Royalty');
+define('SALE', 'Sale');
 ?>

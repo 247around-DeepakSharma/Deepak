@@ -692,10 +692,17 @@ class Service_centers extends CI_Controller {
         if (!empty($status)) {
             $status['notdefine']=0;
             log_message('info', __METHOD__.'Status '. print_r($status, true));
+            if($status['code']==SUCCESS_CODE)
+            {
+                $data = array('is_sn_correct'=> 1);
+                //update is_sn_correct when gets serial no is valid
+                $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => $booking_id),$data);
+            }
             echo json_encode($status, true);
         } else {
             log_message('info',__METHOD__. 'Partner serial no validation is not define');
             echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
+
         }
     }
 
@@ -1634,6 +1641,7 @@ class Service_centers extends CI_Controller {
                 
                 $status = SPARE_PART_ON_APPROVAL;
 
+
                 $data['date_of_request'] = $data['create_date'] = date('Y-m-d H:i:s');
                 $data['remarks_by_sc'] = $this->input->post('reason_text');
 
@@ -1647,7 +1655,11 @@ class Service_centers extends CI_Controller {
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
-
+                    
+                    if (array_key_exists("spare_id",$data)){
+                        unset($data['spare_id']); 
+                    }
+                   
                     $data['parts_requested'] = $value['parts_name'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
@@ -1685,7 +1697,17 @@ class Service_centers extends CI_Controller {
                      * (need to discuss) what we will do if no warehouse have this inventory.
                      */
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                    if (!empty($partner_details[0]['is_wh'])) {
+                    
+                    $is_warehouse = false;
+                    if(!empty($partner_details[0]['is_wh'])){
+                        
+                        $is_warehouse = TRUE;
+                        
+                    } else if(!empty($partner_details[0]['is_micro_wh'])){
+                        $is_warehouse = TRUE;
+                    }
+                 
+                    if (!empty($is_warehouse) ) {
                         
                         $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                         if (!empty($warehouse_details)) {
@@ -1875,7 +1897,7 @@ class Service_centers extends CI_Controller {
             $in['inventory_id'] = $data['shipped_inventory_id'];
             $this->miscelleneous->process_inventory_stocks($in);
             
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, TRUE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,'', FALSE);
         }
     }
     /**
@@ -2161,10 +2183,10 @@ class Service_centers extends CI_Controller {
         if(!empty($service_center_id)){
             //Getting SF Details
             $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-            $filter_option = $this->service_centre_charges_model->get_service_centre_charges_by_any(array('tax_rates.state' =>$sc_details[0]['state'],'length' => -1),'distinct services.id,services.services as product,category,capacity,service_category');
-            $data['category'] = array_unique(array_column($filter_option, 'category'));
-            $data['capacity'] = array_unique(array_column($filter_option, 'capacity'));
-            $data['service_category'] = array_unique(array_column($filter_option, 'service_category'));
+            $filter_option = $this->service_centre_charges_model->get_service_centre_charges_by_any(array('tax_rates.state' =>$sc_details[0]['state'],'length' => -1),'distinct services.id,services.services as product');
+//            $data['category'] = array_unique(array_column($filter_option, 'category'));
+//            $data['capacity'] = array_unique(array_column($filter_option, 'capacity'));
+//            $data['service_category'] = array_unique(array_column($filter_option, 'service_category'));
             $data['appliance'] = array_unique(array_column($filter_option,'product','id'));
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/download_sf_charges_excel', $data);
@@ -2349,9 +2371,11 @@ class Service_centers extends CI_Controller {
                 $booking_id = $this->input->post('booking_id');
                 $partner_id = $this->input->post('booking_partner_id');
 
+
                 if (!empty($sp_id)) {
                     
                     if (!empty($this->input->post('courier_charges_by_sf'))) {
+
                         $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
                     } else {
                         $data['courier_charges_by_sf'] = 0;
@@ -2522,9 +2546,7 @@ class Service_centers extends CI_Controller {
                     
                     
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
-                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_type' => $sp_details[0]['defective_return_to_entity_type'],
-                        'warehouse_details.entity_id' => $sp_details[0]['defective_return_to_entity_id']);
+                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
                           
                     switch ($wh_entity_details[1]) {
@@ -3712,6 +3734,8 @@ class Service_centers extends CI_Controller {
                             </ul>
                           </div>";
                     break;
+                   default:
+                    $row[] = "";
             }
             
         }
@@ -3860,14 +3884,14 @@ class Service_centers extends CI_Controller {
         $service_center_id  =  $this->session->userdata('service_center_id');
         if(!empty($service_center_id)){
             //Getting SF Details
-            $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+            //$sc_details = $this->vendor_model->getVendorContact($service_center_id);
             
             $post = $this->get_post_view_data();
-            $new_post = $this->get_filterd_post_data($post,$sc_details[0]['state']);
+            $new_post = $this->get_filterd_post_data($post, '');
             
-            $select = "service_centre_charges.category,service_centre_charges.capacity,"
-                    . "service_centre_charges.service_category,service_centre_charges.vendor_total,service_centre_charges.partner_id, "
-                    . "service_centre_charges.customer_net_payable,service_centre_charges.pod,tax_rates.rate , services.services as product";
+            $select = "service_centre_charges.brand,service_centre_charges.category,service_centre_charges.capacity,"
+                    . "service_centre_charges.service_category,service_centre_charges.vendor_total,service_centre_charges.partner_id, service_centre_charges.vendor_basic_charges, "
+                    . "service_centre_charges.vendor_tax_basic_charges, service_centre_charges.customer_net_payable,service_centre_charges.pod, services.services as product";
             
             //Getting Charges Data
             $list = $this->service_centre_charges_model->get_service_centre_charges_by_any($new_post,$select);
@@ -3900,8 +3924,9 @@ class Service_centers extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $service_category = $this->input->post('service_category');
         
-        $post['where']  = array('tax_rates.state' => $state);
-        
+        if(!empty($state)){
+            $post['where']  = array('tax_rates.state' => $state);
+        }
         if(!empty($product)){
             $post['where']['service_id'] =  $product;
         }
@@ -3915,8 +3940,8 @@ class Service_centers extends CI_Controller {
             $post['where']['service_category'] =  $service_category;
         }
         
-        $post['column_order'] = array(NULL,NULL,'service_id','category','capacity','service_category',NULL,NULL,'vendor_total','customer_net_payable','pod');
-        $post['column_search'] = array();
+        $post['column_order'] = array(NULL,NULL,'brand','category','capacity','service_category', 'vendor_total', NULL, NULL,'customer_net_payable','pod');
+        $post['column_search'] = array('service_centre_charges.brand');
         
         return $post;
     }
@@ -3929,18 +3954,19 @@ class Service_centers extends CI_Controller {
 //        $code_source = $booking_sources[0]['code'];
 
         //Calculating vendor base charge 
-        $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
+        // $vendor_base_charge = $charges_list->vendor_total / (1 + ($charges_list->rate / 100));
         //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
-        $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
+       // $vendor_tax = $charges_list->vendor_total - $vendor_base_charge;
         
         $row[] = $no;
         //$row[] = $code_source;
         $row[] = $charges_list->product;
+        $row[] = $charges_list->brand;
         $row[] = $charges_list->category;
         $row[] = $charges_list->capacity;
         $row[] = $charges_list->service_category;
-        $row[] = round($vendor_base_charge, 0);
-        $row[] = round($vendor_tax, 0);
+        $row[] = round($charges_list->vendor_basic_charges, 0);
+        $row[] = round($charges_list->vendor_tax_basic_charges, 0);
         $row[] = round($charges_list->vendor_total, 0);
         $row[] = round($charges_list->customer_net_payable, 0);
         $row[] = $charges_list->pod;
@@ -4408,6 +4434,7 @@ class Service_centers extends CI_Controller {
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         $where['select'] = "symptom_spare_request.spare_request_symptom,booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
+
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
@@ -4491,11 +4518,11 @@ class Service_centers extends CI_Controller {
                                 $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $this->input->post('assigned_vendor_id')));
 
                                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+
                                 $spare_details = array();
                                 $spare_details[0]['booking_id'] = $booking_id;
                                 $spare_details[0]['parts_shipped'] = $data['parts_shipped'];
                                 $spare_details[0]['challan_approx_value'] = $data['challan_approx_value'];
-
                                 $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $spare_details);
                             }
 
@@ -4518,17 +4545,21 @@ class Service_centers extends CI_Controller {
                                 $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
+
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
                                 if (!empty($part_details['shipped_part_type'])) {
+
                                     $data['parts_requested_type'] = $part_details['shipped_part_type'];
                                 } else {
                                     $data['parts_requested_type'] = $part_details['shipped_parts_name'];
                                 }
 
+
                                 $data['parts_requested'] = $part_details['shipped_parts_name'];
                                                        
                                 $response = $this->service_centers_model->insert_data_into_spare_parts($data);                           
                                 $spare_id = $response;
+
                                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
 
                                 if ($part_details['part_warranty_status'] == 2) {
@@ -4950,7 +4981,7 @@ class Service_centers extends CI_Controller {
         //check if call from form submission or direct url
         //used to filter the page by partner id
         
-        $config['per_page'] = 200;
+        $config['per_page'] = 500;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -4962,7 +4993,7 @@ class Service_centers extends CI_Controller {
             $sf_id = $this->session->userdata('service_center_id');
             
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
@@ -5044,7 +5075,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
@@ -5691,5 +5722,46 @@ class Service_centers extends CI_Controller {
             echo "Error";
         }
     }
-
+    
+    /*
+     * @desc - This function is used to get distinct category from service_center_price table
+     * @param - $service_id
+     * @return - Selct HTML
+     */
+    function get_service_price_category(){
+        $categories = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id")), 'category', 'category');
+        $html = "<option disabled Selected>Select Category</option>";
+        foreach ($categories as $key => $value) {
+            $html .= "<option value='".$value['category']."'>".$value['category']."</option>";
+        }
+       echo $html;
+    }
+    
+    /*
+     * @desc - This function is used to get distinct capacity from service_center_price table
+     * @param - $service_id, $category
+     * @return - Selct HTML
+     */
+    function get_service_price_capacity(){
+        $capacities = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id"), 'category'=>$this->input->post("category")), 'capacity', 'capacity');
+        $html = "<option disabled Selected>Select Capacity</option>";
+        foreach ($capacities as $key => $value) {
+            $html .= "<option value='".$value['capacity']."'>".$value['capacity']."</option>";
+        }
+        echo $html;
+    }
+    
+    /*
+     * @desc - This function is used to get distinct service category from service_center_price table
+     * @param - $service_id, $category, $capacity
+     * @return - Selct HTML
+     */
+    function get_service_price_service_category(){
+        $service_categories = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id"), 'category'=>$this->input->post("category"), 'capacity'=>$this->input->post("capacity")), 'service_category', 'service_category');
+        $html = "<option disabled Selected>Select Capacity</option>";
+        foreach ($service_categories as $key => $value) {
+            $html .= "<option value='".$value['service_category']."'>".$value['service_category']."</option>";
+        }
+        echo $html;
+    }
 }

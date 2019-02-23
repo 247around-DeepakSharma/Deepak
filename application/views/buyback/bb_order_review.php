@@ -40,6 +40,8 @@
 <!--                                    <th>Physical Condition</th>
                                     <th>Working condition</th>-->
                                     <th>CP Claimed Price</th>
+                                    <th>CP Price</th>
+                                    <th>Partner Price</th>
                                     <th>Internal Status</th>
                                     <th>Remarks</th>
                                     <th>View Image</th>

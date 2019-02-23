@@ -237,7 +237,8 @@
                     <tbody>
                         <tr>
                             <td><b>Installation</b></td>
-                            <td id="Installation_Pending_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
+
+                            <td id="Installation_Pending_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Installation_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
@@ -248,7 +249,7 @@
                         </tr>
                         <tr>
                             <td><b>Repair Without Spare</b></td>
-                            <td id="Repair_without_part_Pending_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
+                            <td id="Repair_without_part_Pending_0" ><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
                             <td id="Repair_without_part_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>

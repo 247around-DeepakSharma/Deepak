@@ -46,8 +46,8 @@ class vendor extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('invoice_lib');
+       $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
-        $this->load->helper('file');
         $this->load->model('push_notification_model');
     }
 
@@ -4006,7 +4006,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_with_micro_wh() {
-        log_message('info', __METHOD__ );
+        log_message('info', __METHOD__ . print_r($this->input->post('partner_id')));
 
         $partner_id = $this->input->post('partner_id');
 
@@ -4088,17 +4088,40 @@ class vendor extends CI_Controller {
            * This Function will return excel containing all pincode mapping combination for a vendor
            * @input - VendorID
            */
-        function download_vendor_pin_code($vendorID){ 
-                    ob_start();
-                    $join = array("service_centres"=>"service_centres.id = pm.Vendor_ID","services"=>"services.id=pm.Appliance_ID");
-                    $orderBYArray = array("services.services"=>"ASC");
-                    $pincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping pm","pm.Pincode,service_centres.name as Vendor_Name,services.services as Appliance",
-                            array("pm.Vendor_ID"=>$vendorID),$join,NULL,$orderBYArray,NULL,NULL,array('Appliance','pm.Pincode'));
-                    $config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
-                    log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
-                    $this->miscelleneous->downloadExcel($pincodeArray,$config);
-          } 
-         /*
+        function download_vendor_pin_code($vendorID) {
+        //ob_start();
+        $join = array("service_centres" => "service_centres.id = pm.Vendor_ID", "services" => "services.id=pm.Appliance_ID");
+        $orderBYArray = array("services.services" => "ASC");
+        $pincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping pm", "pm.Pincode,service_centres.name as Vendor_Name,services.services as Appliance", array("pm.Vendor_ID" => $vendorID), $join, NULL, $orderBYArray, NULL, NULL, array('Appliance', 'pm.Pincode'));
+        //$config = array('template' => "vendor_pin_code.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
+        log_message('info', __FUNCTION__ . ' Download Data ' . print_r($pincodeArray, TRUE));
+        $template = 'vendor_pin_code.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+            'id' => 'order',
+            'repeat' => TRUE,
+            'data' => $pincodeArray
+        ));
+
+        $output_file_dir = TMP_FOLDER;
+        $output_file = "SF-" . $vendorID . "-vendor_pincode_file-" . date('y-m-d');
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $R->render('excel', $output_file_excel);
+
+        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
+    }
+
+    /*
           * This function will return the view to upload the vendor pin code mapping file
           */
          function upload_pin_code_vendor($vendorID){

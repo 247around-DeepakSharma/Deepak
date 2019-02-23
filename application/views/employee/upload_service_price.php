@@ -92,8 +92,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-control" id="service_id" required="" name="service_id">
-                            <option value="" disabled="">Select Appliance</option>
+                        <select class="form-control" id="service_id" name="service_id">
+<!--                            <option value="" disabled="">Select Appliance</option>-->
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -241,9 +241,11 @@
             $.ajax({
                 type: 'GET',
                 url: '<?php echo base_url() ?>employee/booking/get_service_id',
+                data: {'is_option_selected':true},
                 success: function (response) {
                     if(response){
                         $('#service_id').html(response);
+                        $("#service_id option[value=all]").remove();
                     }else{
                         console.log(response);
                     }

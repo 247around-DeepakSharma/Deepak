@@ -825,6 +825,7 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    $partner_id = NULL;
     if($this->session->userdata('partner_id')){
         $partner_id = $this->session->userdata('partner_id');
     }
@@ -1700,6 +1701,38 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            }
+            else if($tatData['TAT']>=0 && $tatData['TAT']<5){
+                $finalArray[$tatData['entity']]['TAT_'.$tatData['TAT']][] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            }
+            else if($tatData['TAT']>4 && $tatData['TAT']<8){
+                $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            }
+            else if($tatData['TAT']>7 && $tatData['TAT']<16){
+                $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            }
+            else{
+                $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            }
+        }
+         $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray));
+         return $structuredArray;   
+    }
+    function get_tat_data_in_structured_format_completed($data){
+       $finalArray = array();
+        foreach($data as $tatData){
+            if($tatData['TAT']<0){
+                $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData['TAT']>=0 && $tatData['TAT']<5){
@@ -1741,7 +1774,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $structuredArray;
     }
     function get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id){
-        $where = $joinType  = $join = $requestTypeArray = array();
+
+        $where = $joinType  = $join = $requestTypeArray = $where_in = array();
+
         //Filter on service ID
         if($service_id !="not_set"){
                  $where['booking_details.service_id'] = $service_id;
@@ -1753,29 +1788,30 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
-                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;                        
+                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;                        
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
-                        $where['booking_details.request_type LIKE "%Repair%"'] = NULL;
+                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
-                        $where['booking_details.request_type NOT LIKE "%Repair%"'] = NULL;
+                        $where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%"', $where) && array_key_exists('booking_details.request_type LIKE "%Repair%"', $where)){
-                    unset($where['booking_details.request_type NOT LIKE "%Repair%"']);
-                    unset($where['booking_details.request_type LIKE "%Repair%"']);
+                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
+                    unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
+                    unset($where['booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
                     unset($where['spare_parts_details.booking_id IS NOT NULL']);
                 }
                 if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    $where['(spare_parts_details.booking_id IS NOT NULL AND booking_details.request_type LIKE "%Repair%") OR (spare_parts_details.booking_id IS NULL AND booking_details.request_type NOT LIKE "%Repair%")']= NULL;
+                    $where['(spare_parts_details.booking_id IS NOT NULL AND (booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")) '
+                        . 'OR (spare_parts_details.booking_id IS NULL AND (booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"))']= NULL;
                 }
             }
             //Filter on free or paid
@@ -1805,7 +1841,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($this->session->userdata('partner_id')){
                $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
             }
-            return array("where"=>$where,"joinType"=>$joinType,"join"=>$join);
+            return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
+
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
@@ -1840,7 +1877,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
-                $conditionArray['where']['booking_details.actor'] = $status; 
+
+                $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
+
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL; 
              //Group by on booking_tat
@@ -1870,7 +1909,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
             $conditionsArray['where']['partners.is_active'] = 1;
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         else if($for == "RM"){
             if($this->session->userdata('partner_id') ){
@@ -1891,7 +1930,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending);  
@@ -1928,7 +1967,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
-        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending);
             $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
@@ -1963,7 +2002,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
         //Get Data Group by State
-        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,NULL,$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($stateRawData)){
             $stateDataTemp = $this->get_tat_data_in_structured_format($stateRawData,$is_pending);
             $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
@@ -1979,6 +2018,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if(!$is_pending){
             $status = 'Completed';
         }
+
+        else{
+            $status = '247around:Vendor';
+        }
+
         $service_id  = $free_paid = 'not_set';
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -1986,7 +2030,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $endDate = $dateArray[1];
         }
         if($this->input->post('status')){
-            $status = $this->input->post('status');
+            if(is_array($this->input->post('status'))){
+                $status = implode(":",$this->input->post('status'));
+            }
+            else{
+                $status = $this->input->post('status');
+            }
         }
         if($this->input->post('services')){
             $service_id = $this->input->post('services');
@@ -2041,7 +2090,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
+
+                 if(is_array($status)){
+                $_POST['status'] = explode(":",$status);
+            }
+            else{
                 $_POST['status'] = $status;
+            }
+
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;
@@ -2308,6 +2364,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo $this->table->generate();
     }
+
     function get_missing_pincode_data_group_by_state_appliance($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.state) as state ,sf.pincode";
 //        if($agentID){
@@ -2811,4 +2868,3 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
 
 }
-

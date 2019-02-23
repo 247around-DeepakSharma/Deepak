@@ -1229,5 +1229,67 @@ class File_upload extends CI_Controller {
         $v['data'] = $main_data;
         return $v;
     }
+    
+    /**
+     * @desc - This function is used to update partner royalty on specified bookings
+     * @param Array $data (excel data)
+     * @return Array
+     */
+    function process_partner_royalty_file_upload(){ 
+            $data = array();
+            $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+            $file_status = $this->get_upload_file_type();
+            if ($file_status['status']) {
+                $data = $this->read_upload_file_header($file_status);
+                if ($data['status']) {
+                    $data['post_data']['file_type'] = PARTNER_ROYALTY_FILE_TYPE;
+                    //column which must be present in the  upload inventory file
+                    $header_column_need_to_be_present = array('partner_royalty_charge');
+                    //check if required column is present in upload file header
+                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
+                    if ($check_header['status']) {
+                        $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                        //get file data to process
+                        for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                            $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
+                            if(!empty(array_filter($sanitizes_row_data))){
+                                $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                                $invoice_tax_amount = (($rowData['partner_royalty_charge'] * 18)/100);
+                                $invoice_basic_amount = $rowData['partner_royalty_charge'] - $invoice_tax_amount;
+                                $royalty_invoice_data = array(
+                                    'entity_type' => _247AROUND_PARTNER_STRING,
+                                    'entity_id' => $this->input->post('partner_id'),
+                                    'booking_id' => $rowData['booking_id'],
+                                    'booking_unit_id' => $rowData['booking_unit_id'],
+                                    'invoice_type' => ROYALTY,
+                                    'invoice_id' => $this->input->post('invoice_id'),
+                                    'booking_basic_amount' => $invoice_basic_amount,
+                                    'booking_tax_amount' => $invoice_tax_amount,
+                                );
+                                $this->invoices_model->insert_into_booking_debit_credit_detils($royalty_invoice_data);
+                                $this->reusable_model->update_table_where_in('booking_unit_details', array("royalty_invoice"=>$this->input->post('invoice_id')), array('id'=>$rowData['booking_unit_id']));
+                                $returnData['status'] = TRUE;
+                                $returnData['message'] = "File Successfully Uploaded";
+                            }
+                        }
+                        
+                        $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
+                      
+                    } else {
+                        $returnData['status'] = FALSE;
+                        $returnData['message'] = "File upload Failed. ".$check_header['message'];
+                    }
+                } else {
+                    $returnData['status'] = FALSE;
+                    $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+                }
+            } else {
+                $returnData['status'] = FALSE;
+                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+            }
+            echo json_encode($returnData);
+    }
 
 }
+

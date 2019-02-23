@@ -297,25 +297,65 @@ class invoices_model extends CI_Model {
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-             log_message("info", __METHOD__."kalyani query ".$this->db->last_query()); 
+            
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
             $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             return $result;
     }
-    
+    /**
+     * @desc Sf did not ship defective parts(TAT breached)
+     * @param int $service_center_id
+     * @return Array
+     */
     function get_pending_defective_parts($service_center_id){
         $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
-            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > 15 " => NULL
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
         $group_by = "spare_parts_details.service_center_id";
         $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
         return $data;
         
+    }
+    /**
+     * @desc This function is used to get those defective parts who has not shipped with in TAT
+     * @param int $service_center_id
+     * @return Array
+     */
+    function get_oot_shipped_defective_parts($service_center_id){
+        $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(service_center_closed_date)) as max_sp_age";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
+            
+        );
+        $group_by = "spare_parts_details.service_center_id";
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
+        return $data;
+    }
+    /**
+     * @desc Defective Part shipped by SF but not receive by Partner
+     * @param int $service_center_id
+     * @return Array
+     */
+    function get_intransit_defective_parts($service_center_id){
+        $select = "count(spare_parts_details.booking_id) as count, SUM(challan_approx_value) as challan_value, GROUP_CONCAT( DISTINCT shipped_parts_type) as parts, DATEDIFF(CURRENT_TIMESTAMP, MIN(defective_part_shipped_date)) as max_sp_age";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
+            
+        );
+        $group_by = "spare_parts_details.service_center_id";
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
+        return $data;
     }
 
     /**
@@ -1912,7 +1952,8 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function _buyback_invoice_query($vendor_id, $from_date, $to_date, $is_regenerate, $is_unit, $profitLoss){
+    function _buyback_invoice_query($vendor_id, $from_date_tmp, $to_date, $is_regenerate, $is_unit, $profitLoss){
+        $from_date = date('Y-m-d', strtotime('-3 months', strtotime($from_date_tmp)));
         $is_foc_null = "";
         if ($is_regenerate == 0) {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
@@ -2446,7 +2487,8 @@ class invoices_model extends CI_Model {
         }
 
     }
-    /**
+ 
+     /**
      * @desc This function is used to  get count of all invoice
      * @param Array $post
      */

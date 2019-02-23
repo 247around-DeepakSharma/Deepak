@@ -1621,7 +1621,7 @@ class vendor_model extends CI_Model {
             $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
                 . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
-                . "AND employee_relation.agent_id = employee.id";
+                . "AND employee_relation.agent_id = employee.id ORDER BY employee_relation.agent_id DESC";
             $response = $this->db->query($sql)->result_array();
         }else{
             $response = false;

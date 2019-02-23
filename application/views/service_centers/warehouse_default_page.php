@@ -648,7 +648,8 @@
                     d.sender_entity_id = entity_details.sender_entity_id,
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.receiver_entity_id = entity_details.receiver_entity_id,
-                    d.receiver_entity_type = entity_details.receiver_entity_type
+                    d.receiver_entity_type = entity_details.receiver_entity_type,
+                    d.is_wh_ack = entity_details.is_wh_ack
                 }
             },
             "deferRender": true
@@ -660,7 +661,8 @@
             'sender_entity_id': $('#partner_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id')?>',
-            'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>'
+            'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
+            'is_wh_ack':0
         };
         
         return data;

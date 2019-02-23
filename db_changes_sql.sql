@@ -9575,7 +9575,7 @@ CREATE TABLE `inventory_parts_type` (
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 
 --Gorakh 02-Jan-2019
-ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT
+ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT;
 
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('GoJavas', 'gojavas', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
@@ -9643,6 +9643,13 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
 ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
 
+--Kalyani 12-Jan-2019
+ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
+
+--Kalyani 15-Jan-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_partner_onboard_notification', 'New partner added - %s', 'Dear All<br><br>We are glad to announce that we have partnered with one more brand<br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+
 ----Gorakh 15-01-2019
 ALTER TABLE `spare_parts_details` ADD `spare_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
 
@@ -9652,13 +9659,13 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, 
 spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,<br><br> Spare parts Not Received By Warehouse.<br><br> <b>Please Find Details Below </b><br><br> %s', '', '', '', '', '1', CURRENT_TIMESTAMP);
 
 
---Kalyani 18-01-2018
-
+--Kalyani 18-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
 ---Gorakh 16-01-2019
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
+
 
 --Kalyani 18-01-2018
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
@@ -9987,3 +9994,5 @@ ALTER TABLE `dashboard_notifications`
 ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+--Gorakh 11-02-2019-----
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Partners Managed By Account Manager ', '', 'employee/accounting/partners_managed_by_account_manager', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

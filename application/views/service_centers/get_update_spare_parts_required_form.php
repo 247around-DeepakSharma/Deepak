@@ -3,9 +3,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-
-                    Update Spare Parts 
-
+                    Update Spare Parts                  
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -34,10 +32,15 @@
                                             <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>" <?php if( $value['model_number']==$spare_parts_details['model_number']){ echo 'selected'; } ?>><?php echo $value['model_number']; ?></option>
+                                                <option <?php if($value['model_number'] == $spare_parts_details['model_number']){ echo 'selected';} ?> value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             <input type="hidden" id="model_number" name="model_number">
+                                        </div>
+                                        <?php } else { ?> 
+                                        <div class="col-md-6">
+                                            <input type="hidden" id="model_number_id" name="model_number_id">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo $spare_parts_details['model_number']; ?>" placeholder="Model Number">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -86,9 +89,7 @@
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-
                                         <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
-
                                       <?php } ?>
                                     </div>
                                 </div>
@@ -125,7 +126,6 @@
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-
                                                 <select class="form-control parts_type spare_parts" id="parts_type"  name="part[0][parts_type]">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
@@ -137,7 +137,8 @@
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
-                                            <?php } ?>   
+                                            <?php } ?>
+                                            
                                         </div>                              
                                     </div>
                                     <div class="col-md-6">
@@ -145,10 +146,10 @@
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-
                                                 <select class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
-                                                </select>                                                                                                
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>                                                
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
@@ -157,6 +158,7 @@
                                             <?php } ?>
                                             <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
+                                        
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -167,7 +169,6 @@
                                             </div>
                                             <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" id="display_defective_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
-
                                            <?php } ?>
                                         </div>
                                     </div>                                    
@@ -175,7 +176,6 @@
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                             <div class="col-md-6">
-
                                                 <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic" name="defective_back_parts_pic[0]">
                                                 <input type="hidden" class="form-control spare_parts" id="old_defective_back_parts_pic" name="old_defective_back_parts_pic" value="<?php echo $spare_parts_details['defective_back_parts_pic']; ?>">
                                             </div>
@@ -200,7 +200,6 @@
                         <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                     </div>                                        
                     <div class="col-md-6 col-md-offset-2">
-
                         <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">
                         <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['booking_partner_id']; ?>">                        
                         <input type="hidden" name="entity_type" value="<?php echo $spare_parts_details['entity_type']; ?>">
@@ -209,7 +208,6 @@
                         <input type="hidden" name="previous_inventory_id" value="<?php echo $spare_parts_details['requested_inventory_id']; ?>"> 
                         <input type="hidden" name="current_inventory_id" id="current_inventory_id" value="">
                         
-
                         <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
                 </form>
@@ -282,10 +280,9 @@ $(document).ready(function(){
         });
         
     var part_type = "<?php echo $spare_parts_details['parts_requested_type']; ?>"; 
-        
+       load_model_number(); 
        load_parts_type(part_type);
-       load_model_number();
-       
+      
       function load_model_number(){
           var model_number_id = $('#model_number_id').val();
           var model_number = $("#model_number_id option:selected").text();
@@ -320,7 +317,6 @@ $(document).ready(function(){
                         $('#parts_name').html(data);  
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
                         $("#current_inventory_id").val(inventory_id);
-
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });
@@ -335,13 +331,8 @@ function get_inventory_id(id){
         var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
         $("#current_inventory_id").val(inventory_id);
               
-    }    
-    
-</script>
+}  
 
-<?php }else{ ?>  
-<script>
-$("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});  
 </script>
 <?php } ?>
 <script>
@@ -357,7 +348,6 @@ $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true
         }
         get_technical_problem(postData,'0');
     });
-
 
    function get_symptom(key){      
         var array = [];
@@ -383,11 +373,11 @@ $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true
                      $('#spare_request_symptom_' + key).html("").change();
                  } else {
                      $('#spare_request_symptom_' + key).html(data).change();
+
                  }                  
              }
          });
     }
-    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
@@ -402,6 +392,3 @@ $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true
     }
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
-
-
-

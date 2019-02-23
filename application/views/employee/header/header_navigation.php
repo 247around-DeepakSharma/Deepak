@@ -416,10 +416,10 @@
             #partner_tollfree,
 #partner_tollfree:focus,
 #partner_tollfree:active{
-	border:1px solid black;
-	background:none;
-	outline:none;
-	padding:0;
+    border:1px solid black;
+    background:none;
+    outline:none;
+    padding:0;
 }
 
             .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
@@ -677,4 +677,4 @@ function outbound_call(phone_number){
         background: bisque;
     }
 </style>
- 
+                

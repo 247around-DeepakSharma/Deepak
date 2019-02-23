@@ -99,6 +99,7 @@ define("SPARE_PART_UPDATED", "Spare Part Updated");
 //constant to define 'bill defective spare part to vendor' internal status
 define("BIll_DEFECTIVE_SPARE_PART_TO_VENDOR", "Bill_Defective_Spare_Part_To_Vendor");
 
+
 // spare parts in warranty 
 define("SPARE_PART_IN_WARRANTY_STATUS", 1);
 //spare parts in out-of warranty
@@ -107,3 +108,10 @@ define("SPARE_PART_IN_OUT_OF_WARRANTY_STATUS", 2);
 //internal status page constant
 define("BILL_DEFECTIVE_OOW_SPARE_PART_PAGE", "bill_defective_oow_spare_part");
 define("BILL_DEFECTIVE_SPARE_PART_LOST_PAGE", "bill_defective_spare_part_lost");
+
+//Defective Part Pending OOT day
+define('DEFECTIVE_PART_PENDING_OOT_DAYS', 15);
+//sf shipped defective parts after tat breach 
+define('SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH', 15);
+//Defective parts shipped 
+define('DEFECTIVE_PART_SHIPPED_OOT_DAYS', 15);
