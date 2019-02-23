@@ -40,14 +40,14 @@ class File_upload extends CI_Controller {
     public function process_upload_file(){ 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
         //get file extension and file tmp name
-         
+        
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
         if ($file_status['status']) { 
             
             //get file header
             $data = $this->read_upload_file_header($file_status);
-            
+          
             $data['post_data'] = $this->input->post();
             
             if(!empty( $data['post_data']['partner_id'])){
@@ -213,7 +213,7 @@ class File_upload extends CI_Controller {
         $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', 'around_margin', 'vendor_margin');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-
+        
         if ($check_header['status']) {
             $invalid_data = array();
             $flag = 1;
@@ -226,9 +226,12 @@ class File_upload extends CI_Controller {
 
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    
-                    if(!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) 
-                             && !empty($rowData['part_type'])  && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0)){
+                                        
+                    if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
+                            !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
+                            (!empty($rowData['around_margin']) && $rowData['around_margin'] > 0 && $rowData['around_margin'] <= 30 ) &&
+                            (!empty($rowData['vendor_margin']) && $rowData['vendor_margin'] > 0 && $rowData['vendor_margin'] <= 15 ) &&
+                            ($rowData['around_margin'] >= $rowData['vendor_margin'])) {
                                                 
                     $where['hsn_code'] = $rowData['hsn_code'];
                     $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
@@ -262,7 +265,7 @@ class File_upload extends CI_Controller {
                          * if its value is not presnet then create new part number
                          * based on partner_id,service_id and unique number
                          */
-
+                        
                         if (!empty($rowData['hsn_code']) && !empty($rowData['basic_price']) && $rowData['around_margin'] > 0 && $rowData['vendor_margin'] > 0) {
                             if (empty($rowData['part_number'])) {
                                 $new_part_number = $this->create_inventory_part_number($partner_id, $service_id, $rowData);
@@ -285,7 +288,7 @@ class File_upload extends CI_Controller {
 
                 }
             }
-            
+           
                         
             if ($flag == 1) {
 

@@ -476,7 +476,7 @@ class Do_background_upload_excel extends CI_Controller {
                     //preg_replace('/[^(\x20-\x7F)]*/','', $string);
                     $appliance_details['description'] = $unit_details['appliance_description'] = preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type']);
 
-                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : $value['category'];
 
                     $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($value['service_appliance_data']['capacity']) ? $value['service_appliance_data']['capacity'] : '';
                     $appliance_details['model_number'] = $unit_details['model_number'] = $value['model'];
@@ -671,16 +671,16 @@ class Do_background_upload_excel extends CI_Controller {
 
                                 $sms_count = 0;
 
-                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : $value['category'];
                                 $capacity = isset($value['service_appliance_data']['capacity']) ? $value['service_appliance_data']['capacity'] : '';
                                 $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['brand'];
 
                                 $this->initialized_variable->fetch_partner_data($partner_booking['partner_id']);
 
                                 if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', $brand, false);
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], $value['request_type'], $brand, false);
                                 } else {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', "", false);
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], $value['request_type'], "", false);
                                 }
 
                                 $is_price = array();
@@ -1678,6 +1678,12 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['brand'] = $data[$header_data['brand']];
         }else{
             $tmpArr['brand'] = '';
+        }
+        
+         if(isset($data[$header_data['category']]) && !empty($data[$header_data['category']])){
+            $tmpArr['category'] = $data[$header_data['category']];
+        }else{
+            $tmpArr['category'] = '';
         }
         
         if(isset($data[$header_data['request_type']]) && !empty($data[$header_data['request_type']])){
