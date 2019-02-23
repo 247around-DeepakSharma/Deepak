@@ -333,6 +333,7 @@ class Notify {
     function send_sms_email_for_booking($booking_id, $current_status) { 
 	log_message("info",__METHOD__);
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+        log_message("info", "query1 ".print_r($query1,true));
 	if (!empty($query1)) {
 
 	    //SMS and Emails are sent using Templates which are defined in sms_template and
