@@ -2413,7 +2413,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
          if (!empty($template))
                 {
-                    $result=$this->booking_model->get_india_pincode_group_by_state(array());
+                    $result=$this->vendor_model->get_india_pincode_group_by_state(array());
                     if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
@@ -2424,9 +2424,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
-                    $active_services=$this->booking_model->get_active_services();
-                    $state_arr=$this->booking_model->get_active_state();
+                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $active_services=$this->vendor_model->get_active_services();
+                    $state_arr=$this->vendor_model->get_active_state();
                     $count = count($vendor_mapping_data);
                     for($i = 0; $i<$count-1;$i++){ 
                         if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
@@ -2458,9 +2458,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                        log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                     }
+     
                 }
-            }
-        /*
+
+             }
+     /*
      * @desc - This function is used to load the form for adding and updating dashboard notifications
      * @param - void
      * @return - view
@@ -2729,10 +2731,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
        }
        function get_rm_missing_pincode_data()
     {
-           $vendorStructuredArray=array();
-           $rm_arr=array();
-           $result=$this->booking_model->get_india_pincode_group_by_state(array());
-                    if(count($result)>0)
+           $rm_arr=array();$vendorStructuredArray=array();
+           $result=$this->vendor_model->get_india_pincode_group_by_state(array());
+               if(count($result)>0)
                     {
                         $pincode_state_wise=$result;
                         foreach($pincode_state_wise as $value)
@@ -2742,9 +2743,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     }
                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
-                    $active_services=$this->booking_model->get_active_services();
-                    $state_arr=$this->booking_model->get_active_state();
-                    $vendor_mapping_data=$this->booking_model->get_vendor_mapping_groupby_applliance_state(array());
+                    $active_services=$this->vendor_model->get_active_services();
+                    $state_arr=$this->vendor_model->get_active_state();
+                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
                     $count = count($vendor_mapping_data);
                     for($i = 0; $i<=$count-1;$i++){ 
                         if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
@@ -2795,7 +2796,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                {
                    $am_data_new['am_'.$value['id']]=$value['full_name'];
                }
-               $am_partner_array=$this->booking_model->get_am_partner();
+               $am_partner_array=$this->partner_model->get_am_partner();
                if(!empty($am_partner_array))
                {
                     foreach($am_partner_array as $key=>$value)
@@ -2819,7 +2820,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_am_drop_data()
     {
         $am_id=$this->input->post('am_id');
-        $am_partner_array=$this->booking_model->get_am_partner($am_id);
+        $am_partner_array=$this->partner_model->get_am_partner($am_id);
         $partnerWhere['is_active'] = 1;
         $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
        
@@ -2834,7 +2835,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
     function compair_am_booking_data()
     {
-//       
+     
 //       $v="am_partner%5B30%5D%5B%5D=247115&am_partner%5B30%5D%5B%5D=247124&am_partner%5B30%5D%5B%5D=247132&am_partner%5B30%5D%5B%5D=247077&am_partner%5B30%5D%5B%5D=247128&am_partner%5B30%5D%5B%5D=247030&am_partner%5B30%5D%5B%5D=247136&am_partner%5B30%5D%5B%5D=247126&am_partner%5B30%5D%5B%5D=247102&am_partner%5B30%5D%5B%5D=247076&am_partner%5B19%5D%5B%5D=247034&am_partner%5B19%5D%5B%5D=247106&am_partner%5B19%5D%5B%5D=247068&am_partner%5B19%5D%5B%5D=247111&am_partner%5B19%5D%5B%5D=247069&am_partner%5B19%5D%5B%5D=247117&am_partner%5B19%5D%5B%5D=247109&am_partner%5B19%5D%5B%5D=247070&am_partner%5B19%5D%5B%5D=247036&am_partner%5B19%5D%5B%5D=247118&am_partner%5B19%5D%5B%5D=247066&am_partner%5B19%5D%5B%5D=247048";
          parse_str($this->input->post('amdata'),$formdata);//This will convert the string to array
         $ammaster = $formdata['am_partner'];
