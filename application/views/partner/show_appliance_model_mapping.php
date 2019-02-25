@@ -30,11 +30,11 @@
                             <thead>
                                 <tr>
                                     <th>S.No</th>
+                                    <th>Model Number</th>
                                     <th>Appliance</th>
                                     <th>Brand</th>
                                     <th>Category</th>
                                     <th>Capacity</th>
-                                    <th>Model Number</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
