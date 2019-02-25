@@ -205,7 +205,8 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
-                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="" selected="selected">All</option>
+                                <option value="Installation">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -230,8 +231,8 @@
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry" multiple="">
                                 <option value="">All</option>
-                                <option value="Yes" selected="selected">Yes</option>
-                                 <option value="No" selected="selected">No</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No">No</option>
                             </select>
                         </div>
                     </div>
@@ -508,8 +509,8 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am_pending" name="request_type[]" multiple="">
-                                <option value="">All</option>
-                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="" selected="selected">All</option>
+                                <option value="Installation" >Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -533,9 +534,9 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry" multiple="">
-                                <option value="">All</option>
-                                <option value="Yes" selected="selected">Yes</option>
-                                 <option value="No" selected="selected">No</option>
+                                <option value="" selected="selected">All</option>
+                                <option value="Yes">Yes</option>
+                                 <option value="No">No</option>
                             </select>
                         </div>
                     </div>
