@@ -1339,7 +1339,7 @@ class User_invoice extends CI_Controller {
             if (!empty($spare_data)) {
                 $partner_id = $spare_data[0]['partner_id'];
                 $vendor_email_parts_name .= $value->spare_product_name.",";
-                $inventory_id = "";
+                $inventory_id = 0;
                 if($spare_data[0]['is_micro_wh'] == 0){
                     $email_parts_name_partner .= $value->spare_product_name.", ";
                 }

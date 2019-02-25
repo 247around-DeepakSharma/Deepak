@@ -2530,7 +2530,6 @@ class Booking_model extends CI_Model {
       $query = $this->db->query($sql);
       return $query->result_array();
     }
-    
     function get_am_booking_data($partner_id)
     {
         $sql="select  sum(case when (request_type like '%Repeat%' or request_type like '%Repair%') and(internal_status='InProcess_Completed'"

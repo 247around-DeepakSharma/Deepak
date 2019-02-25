@@ -953,7 +953,7 @@ class Invoice extends CI_Controller {
             foreach ($multipleResponse as $value) {
                  $this->email->attach($value['pdf'], 'attachment');
                  $this->email->attach($value['excel'], 'attachment');
-                 if(isset($value['detailed_excel']) && !empty($value['excel'])){
+                 if(isset($value['detailed_excel'])){
                      $this->email->attach($value['detailed_excel'], 'attachment');
                  }
             }
@@ -2145,14 +2145,12 @@ class Invoice extends CI_Controller {
                 }
                 $to = $owner_email. ", " . $primary_contact_email;
                 
-                $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
-                
-
                 //get email template from database
                 $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 $subject = vsprintf($email_template[4], array($company_name,$sd,$ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
+                $cc = $rem_email_id.",".$email_template[3];
              
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG,$response);
                 

@@ -1294,7 +1294,6 @@ class Service_centers extends CI_Controller {
      * @$_POST form data 
      */
     function update_spare_parts_details() {
-
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $this->checkUserSession();
@@ -1350,7 +1349,8 @@ class Service_centers extends CI_Controller {
         $entity_type = $this->input->post('entity_type');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
         $current_inventory_id = $this->input->post('current_inventory_id');
-
+        $booking_id = $this->input->post('booking_id');     
+        
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
                 $data['requested_inventory_id'] = $current_inventory_id;
@@ -1403,6 +1403,7 @@ class Service_centers extends CI_Controller {
         $where = array('id' => $this->input->post('spare_id'));
         $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($affected_row == TRUE) {
+            $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "",  $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
             $userSession = array('success' => 'Spare Parts Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
@@ -1643,7 +1644,11 @@ class Service_centers extends CI_Controller {
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
-
+                    
+                    if (array_key_exists("spare_id",$data)){
+                        unset($data['spare_id']); 
+                    }
+                   
                     $data['parts_requested'] = $value['parts_name'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
@@ -1681,7 +1686,17 @@ class Service_centers extends CI_Controller {
                      * (need to discuss) what we will do if no warehouse have this inventory.
                      */
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                    if (!empty($partner_details[0]['is_wh'])) {
+                    
+                    $is_warehouse = false;
+                    if(!empty($partner_details[0]['is_wh'])){
+                        
+                        $is_warehouse = TRUE;
+                        
+                    } else if(!empty($partner_details[0]['is_micro_wh'])){
+                        $is_warehouse = TRUE;
+                    }
+                 
+                    if (!empty($is_warehouse) ) {
                         
                         $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                         if (!empty($warehouse_details)) {
@@ -1871,7 +1886,7 @@ class Service_centers extends CI_Controller {
             $in['inventory_id'] = $data['shipped_inventory_id'];
             $this->miscelleneous->process_inventory_stocks($in);
             
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, TRUE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,'', FALSE);
         }
     }
     /**
@@ -3706,6 +3721,8 @@ class Service_centers extends CI_Controller {
                             </ul>
                           </div>";
                     break;
+                   default:
+                    $row[] = "";
             }
             
         }

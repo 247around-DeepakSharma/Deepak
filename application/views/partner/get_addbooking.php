@@ -641,7 +641,7 @@
     });
     
     get_city();
-    //get_brands();
+    get_brands();
     
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner

@@ -4089,6 +4089,7 @@ class vendor extends CI_Controller {
            * @input - VendorID
            */
         function download_vendor_pin_code($vendorID) {
+        log_message('info',__METHOD__. " Vendor ID ". $vendorID);
         //ob_start();
         $join = array("service_centres" => "service_centres.id = pm.Vendor_ID", "services" => "services.id=pm.Appliance_ID");
         $orderBYArray = array("services.services" => "ASC");

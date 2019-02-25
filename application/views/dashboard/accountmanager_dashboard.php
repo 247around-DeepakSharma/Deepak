@@ -318,7 +318,7 @@
                            <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
-                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>

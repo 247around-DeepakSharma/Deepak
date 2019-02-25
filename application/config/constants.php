@@ -606,7 +606,6 @@ define("NOT_DEFINE_SN",2);
 
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
-
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
 
 /* End of file constants.php */
