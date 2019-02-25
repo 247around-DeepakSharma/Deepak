@@ -2889,17 +2889,17 @@ class Invoice extends CI_Controller {
                 
                 $oot_shipped = $this->invoices_model->get_oot_shipped_defective_parts($service_center_id);
                 
-                $sc_details['oot_defective_parts_shipped'] = (!empty($oot_shipped))? $oot_shipped[0]['count']:"";
-                $sc_details['oot_defective_parts_max_age'] = (!empty($oot_shipped))? $oot_shipped[0]['max_sp_age']:"";
+                $sc_details['oot_defective_parts_shipped'] = (!empty($oot_shipped))? $oot_shipped[0]['count']:"0";
+                $sc_details['oot_defective_parts_max_age'] = (!empty($oot_shipped))? $oot_shipped[0]['max_sp_age']:"0";
                 $sc_details['oot_part_type'] = (!empty($oot_shipped))? $oot_shipped[0]['parts']:"";
-                $sc_details['oot_challan_value'] = (!empty($oot_shipped))? $oot_shipped[0]['challan_value']:"";
+                $sc_details['oot_challan_value'] = (!empty($oot_shipped))? $oot_shipped[0]['challan_value']:"0";
                 
                 $shipped_parts = $this->invoices_model->get_intransit_defective_parts($service_center_id);
                 
-                $sc_details['defective_parts_shipped'] = (!empty($shipped_parts))? $shipped_parts[0]['count']:"";
-                $sc_details['defective_parts_shipped_max_age'] = (!empty($shipped_parts))? $shipped_parts[0]['max_sp_age']:"";
-                $sc_details['defective_shipped_part_type'] = (!empty($shipped_parts))? $shipped_parts[0]['parts']:"";
-                $sc_details['shipped_challan_value'] = (!empty($shipped_parts))? $shipped_parts[0]['challan_value']:"";
+                $sc_details['defective_parts_shipped'] = (!empty($shipped_parts))? $shipped_parts[0]['count']:"0";
+                $sc_details['defective_parts_shipped_max_age'] = (!empty($shipped_parts))? $shipped_parts[0]['max_sp_age']:"0";
+                $sc_details['defective_shipped_part_type'] = (!empty($shipped_parts))? $shipped_parts[0]['parts']:"0";
+                $sc_details['shipped_challan_value'] = (!empty($shipped_parts))? $shipped_parts[0]['challan_value']:"0";
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
