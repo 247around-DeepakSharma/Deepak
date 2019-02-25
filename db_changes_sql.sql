@@ -10126,5 +10126,3 @@ COMMIT;
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
-
-
