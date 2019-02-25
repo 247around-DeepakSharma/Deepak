@@ -526,7 +526,6 @@ class User_invoice extends CI_Controller {
      * @param - form data
      * @return - boolean
      */
-
     function process_spare_invoice(){ 
         $postData = json_decode($this->input->post('postData'));
         $spare_parts_detail_ids = array();
@@ -540,14 +539,14 @@ class User_invoice extends CI_Controller {
         $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
-                            . "state,address as company_address, "
+                            . "state,address as company_address, owner_phone_1"
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
         foreach ($postData as $key=>$value){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('spare_parts_details.id' => $value->spare_detail_ids);
-                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id', $where, true);
+                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, service_id', $where, true);
                 $partner_id = $chech_spare[0]['partner_id'];
                 if(!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 1){
                         if($chech_spare[0]['is_micro_wh'] == 0){
@@ -555,6 +554,17 @@ class User_invoice extends CI_Controller {
                         }
                         $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
                         $amount = $value->confirm_prices;
+                        $inventory_id = "";
+                        if($chech_spare[0]['shipped_inventory_id']){
+                            $inventory_id = $chech_spare[0]['shipped_inventory_id'];
+                         }
+                        if($inventory_id){
+                            $inventry_amount = $this->inventory_model->get_inventory_master_list_data("price", array("inventory_id"=>$inventory_id));
+                            $amount = $inventry_amount[0]['price'];
+                        }
+                        $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']));
+                        $spare_oow_around_margin = $margin['oow_around_margin']/100;
+                        $amount = ($amount + ($amount * $spare_oow_around_margin));
                         $hsn_code = $value->hsn_codes;
                         $gst_rate = $value->gst_rates;
                         $invoice_amount = $invoice_amount + $amount;
@@ -577,7 +587,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
-                        
+                        $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];;
                         //insert entry into booking state change
                         $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids;
                         $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);

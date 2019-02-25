@@ -49,3 +49,4 @@ define("DISTANCE_WITHIN_MUNICIPAL_LIMIT", "Distance Within Municipal Limit");
 //Customer and partner both do not pay upcountry charges for this request
 define("CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG", "Upcountry Charges Not Paid by Partner AND Customer");
 
+define('UPCOUNTRY_OVER_LIMIT_DISTANCE', 200);

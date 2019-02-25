@@ -2322,10 +2322,8 @@ class Inventory extends CI_Controller {
             if($this->input->post('service_id')){
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-            
-            $post['part_type_join'] = true;
 
-            $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type, oow_around_percentage, oow_vendor_percentage";
+            $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
             //RM Specific stocks
 //            $sfIDArray =array();
@@ -2373,11 +2371,10 @@ class Inventory extends CI_Controller {
         $post['column_order'] = array();
         $post['column_search'] = array('part_name','part_number','serial_number','type','services.id','services.services');
         $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')),'inventory_stocks.stock <> 0' => NULL);
-        $post['part_type_join'] = true;
         if($this->input->post('is_show_all')){
             unset($post['where']['inventory_stocks.stock <> 0']);
         }
-        $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type, oow_around_percentage, oow_vendor_percentage";
+        $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
         
         //RM Specific stocks
         $sfIDArray =array();
@@ -2424,7 +2421,6 @@ class Inventory extends CI_Controller {
         }
         
         $row[] = '<span id="basic_'.$inventory_list->inventory_id.'">'.round($inventory_list->price *( 1 + $repair_oow_around_percentage),0).'</span>';
-
         $row[] = '<span id="gst_rate_'.$inventory_list->inventory_id.'">'.$inventory_list->gst_rate.'</span>';
         $row[] = '<span id="total_amount_'.$inventory_list->inventory_id.'">'.number_format((float)($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate/100))), 2, '.', '')."</span>";
         if($this->session->userdata('userType') == "employee"){
