@@ -155,7 +155,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
-                    <h2>RM Pending Bookings Reports</h2>
+                    <h2>RM Open Call Reports</h2>
                     <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -194,8 +194,8 @@
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair_with_part">Repair With Spare</option>  
-                                <option value="Repair_without_part">Repair Without Spare</option>  
+                                <option value="Repair_with_part" selected="selected">Repair With Spare</option>  
+                                <option value="Repair_without_part" selected="selected">Repair Without Spare</option>  
                             </select>
                         </div>
                 </div>
@@ -216,9 +216,9 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry">
+                            <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry" multiple="">
                                 <option value="">All</option>
-                                <option value="Yes">Yes</option>
+                                <option value="Yes" selected="selected">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
                         </div>
@@ -494,7 +494,7 @@
 <!--                AM reporting-->
                 <div class="x_panel">
                     <div class="x_title" style="pending-left:0px;">
-                    <h2>AM Pending Bookings Report</h2>
+                    <h2>AM Open Call Report</h2>
                     <span class="collape_icon" href="#AM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_AM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -534,8 +534,8 @@
                             <select class="form-control filter_table" id="request_type_am_pending" name="request_type[]" multiple="">
                                 <option value="">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair_with_part">Repair With Spare</option>  
-                                <option value="Repair_without_part">Repair Without Spare</option>  
+                                <option value="Repair_with_part" selected="selected">Repair With Spare</option>  
+                                <option value="Repair_without_part" selected="selected">Repair Without Spare</option>  
                             </select>
                         </div>
                 </div>
@@ -556,9 +556,9 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry">
+                            <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry" multiple="">
                                 <option value="">All</option>
-                                <option value="Yes">Yes</option>
+                                <option value="Yes" selected="selected">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
                         </div>
@@ -1073,7 +1073,11 @@
 
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
+
      $('#am_id').select2();
+    $('#upcountry_rm_pending').select2();
+    $('#upcountry_am_pending').select2();
+
     
     $('#process').click(function(){
         var am_id=[];
