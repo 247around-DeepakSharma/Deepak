@@ -1505,8 +1505,8 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     
                     //save file and upload on s3
+
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
-                    
                     
                     //get email details 
                     $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));

@@ -75,7 +75,8 @@ class Login extends CI_Controller {
                 $data['agent_id'] = $this->session->all_userdata()['id'];
                 $data['entity_id'] = _247AROUND;
                 
-                $login_id = $this->employee_model->add_login_logout_details($data);
+                //$login_id = $this->employee_model->add_login_logout_details($data);
+                $login_id = 1;
                 //Adding Log Details
                 if($login_id){
                     log_message('info',__FUNCTION__.' Logging details have been captured for employee. Details are : '.print_r($data, TRUE));

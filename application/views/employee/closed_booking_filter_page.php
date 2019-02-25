@@ -5,7 +5,7 @@
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control" id="partner_id">
-                        <option value="" selected="selected" disabled="">Select Partner</option>
+                        <option value="" selected="selected" disabled="">Partner</option>
                         <?php foreach($partners as $val){ ?>
                         <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                         <?php } ?>
@@ -17,7 +17,7 @@
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control" id="sf_id">
-                        <option value="" selected="selected" disabled="">Select Service Center</option>
+                        <option value="" selected="selected" disabled="">Service Center</option>
                         <?php foreach($sf as $val){ ?>
                         <option value="<?php echo $val['id']?>"><?php echo $val['name']?></option>
                         <?php } ?>
@@ -29,7 +29,7 @@
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control" id="appliance">
-                        <option value="" selected="selected" disabled="">Select Services</option>
+                        <option value="" selected="selected" disabled="">Services</option>
                         <?php foreach($services as $val){ ?>
                         <option value="<?php echo $val->id?>"><?php echo $val->services?></option>
                         <?php } ?>
@@ -43,7 +43,7 @@
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control" id="ratings">
-                        <option value="" selected="selected" disabled="">Select Rating</option>
+                        <option value="" selected="selected" disabled="">Rating</option>
                         <option value="a">Booking With Ratings</option>
                         <option value="b">Booking Without Ratings</option>
                         <option value="c">All</option>
@@ -55,7 +55,7 @@
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control" id="city">
-                        <option value="" selected="selected" disabled="">Select City</option>
+                        <option value="" selected="selected" disabled="">City</option>
                         <?php foreach($cities as $val){ ?>
                         <option value="<?php echo $val['city']?>"><?php echo $val['city']?></option>
                         <?php } ?>
@@ -76,7 +76,7 @@
                 <div class="item form-group">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <select class="form-control" id="request_type_booking">
-                            <option value="" selected="selected" disabled="">Select Request Type</option>
+                            <option value="" selected="selected" disabled="">Request Type</option>
                             <?php
                                 foreach($request_type as $value)
                                 {
@@ -93,7 +93,7 @@
                 <div class="item form-group">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <select class="form-control" id="completed_booking">
-                            <option value="" selected="selected" disabled="">Select Completed Booking Type</option>
+                            <option value="" selected="selected" disabled="">Completed Type</option>
                              <option value="a">All</option>
                             <option value="b">Completed by Service Center (In Review)</option>
                             <option value="c">Completed</option>
@@ -115,31 +115,31 @@
 </div>
 <script>
     $('#partner_id').select2({
-           placeholder: "Select Partner",
+           placeholder: "Partner",
            allowClear: true
        });
        $('#sf_id').select2({
-           placeholder: "Select Service Center",
+           placeholder: "Service Center",
            allowClear: true
        });
        $('#appliance').select2({
-           placeholder: "Select Appliance",
+           placeholder: "Appliance",
            allowClear: true
        });
        $('#city').select2({
-           placeholder: "Select City",
+           placeholder: "City",
            allowClear: true
        });
        $('#ratings').select2({
-           placeholder: "Select Rating",
+           placeholder: "Rating",
            allowClear: true
        });
         $('#request_type_booking').select2({
-           placeholder: "Select Request Type",
+           placeholder: "Request Type",
            allowClear: true
        });
        $('#completed_booking').select2({
-           placeholder: "Select Completed Booking Type",
+           placeholder: "Completed Booking Type",
            allowClear: true
        });
         $('.filter_table').click(function(){ 

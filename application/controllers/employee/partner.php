@@ -38,7 +38,6 @@ class Partner extends CI_Controller {
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
-        
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -637,7 +636,8 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = DEVELOPER_EMAIL;//ALL_EMP_EMAIL;
+                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
@@ -667,7 +667,6 @@ class Partner extends CI_Controller {
             $this->get_add_partner_form();
         }
     }
-
     function get_partner_form_data() {
         $return_data['company_name'] = trim($this->input->post('company_name'));
         $return_data['company_type'] = trim($this->input->post('company_type'));
@@ -4655,7 +4654,7 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
-        $newCSVFileName = "Booking_summary_" . date('Y-m-d') .rand(10,100). ".csv";
+        $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
         if($status != 'All'){

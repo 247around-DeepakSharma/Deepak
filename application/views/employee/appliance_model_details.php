@@ -136,8 +136,8 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>Appliance</th>
                         <th>Model Number</th>
+                        <th>Appliance</th>
                         <th>Edit</th>
                         <th>Get Part Details</th>
                     </tr>
@@ -160,26 +160,6 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="entity_id">Partner*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="entity_id" name="entity_id">
-                                            <option value="" selected="" disabled="">Please Select Entity Type First</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="service_id" name="service_id"></select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number">Model Number *</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control" id="model_number" name="model_number">
@@ -188,7 +168,27 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="status">Status</label>
+                                    <label class="control-label col-md-4" for="entity_id">Partner*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="entity_id" name="entity_id">
+                                            <option value="" selected="" disabled="">Please Select Entity Type First</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="service_id" name="service_id"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="status">Active</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="checkbox" class="form-control" id="active_inactive" name="active_inactive" checked>
                                     </div>
