@@ -1872,13 +1872,6 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
 
-
-    function insert_sample_no_pic($data)
-    {
-        $this->db->insert('partner_sample_no_picture',$data);
-        return $this->db->insert_id();
-    }
-
     function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
     {
         $return=null;
