@@ -1,7 +1,7 @@
 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>State</th> 
+                            <th>RM/Services</th> 
                         <?php
                             foreach($service_arr as $servicekey=>$servicevalue){
                             ?>
