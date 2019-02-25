@@ -771,7 +771,21 @@ class dashboard_model extends CI_Model {
         if($limit){
            $this->db->limit($limit);
         }
+        
         $this->db->from('dashboard_notifications');
+        $this->db->join('dashboard_notification_type', 'dashboard_notification_type.id = dashboard_notifications.notification_type');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function get_dashboard_notification_type($select="*", $where=array()){
+        $this->db->select($select);
+        
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        $this->db->from('dashboard_notification_type');
         $query = $this->db->get();
         return $query->result_array();
     }
