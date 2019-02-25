@@ -1420,6 +1420,7 @@ class Spare_parts extends CI_Controller {
         $data_to_insert = array();
         $delivered_sp = array();
         $sms_template_tag = '';
+        $reason_text = '';
 
         if (!empty($spare_id)) {
 
