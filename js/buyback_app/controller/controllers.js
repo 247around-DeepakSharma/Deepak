@@ -970,3 +970,19 @@ admin_dashboard.controller('pendingBooking_ControllerAM', function ($scope, $htt
               $scope.loadPendingBookingViewAM(baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/AM"+"/Pending/"+partner_id);
     }
 });
+
+
+//Get Review Page Details 
+buyback_dashboard.controller('review_page_summary', function ($scope, $http) {
+    $scope.showLoaderReview = true;
+    $scope.showReviewDetails = false;
+    var get_url = baseUrl + "/buyback/buyback_process/get_orders_without_invoices_and_without_reimbursement";
+    $http.get(get_url)
+        .then(function (response) {
+            var data = angular.fromJson(response.data);
+            $scope.showLoaderReview = false;
+            $scope.showReviewDetails = true;
+            $scope.faulty_bookings = data;
+    });
+});
+
