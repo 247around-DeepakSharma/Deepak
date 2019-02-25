@@ -47,8 +47,8 @@
                     <div class="form-group <?php if( form_error('request_type') ) { echo 'has-error';} ?>">
                         <label for="excel" class="col-md-1">Select Service Category</label>
                         <div class="col-md-4">
-                            <select class="form-control" id="request_type" name="request_type" required="">
-                                <option selected disabled  >Select Service category</option>
+                            <select class="form-control" id="request_type" name="request_type[]" required="" multiple="">
+                                
                             </select>
                         </div>
                         <?php echo form_error('request_type'); ?>
@@ -75,7 +75,9 @@
     $('#service_id').select2();
     get_appliance();
     
-    $('#request_type').select2();
+    $('#request_type').select2({
+        placeholder: "Please select request type"
+    });
     function get_appliance(){
     
            $.ajax({

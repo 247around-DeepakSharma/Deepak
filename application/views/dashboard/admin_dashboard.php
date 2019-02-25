@@ -691,81 +691,76 @@
             </div>
         </div>
     </div>
-    <!-- RM Missing & coverage Pincode  -->
-    <div class="row">
+    <!-- get rm missing pincode ajax request-->
+     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
-                <div class="x_title" style="padding-left: 0px;">
+                <div class="x_title">
                     <h2>RM Pincode Report</h2>
-                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse" onclick="get_rm_missing_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_Pincode_Reporting" class="x_content collapse">
-                <div class="table-responsive" id="rm_pincode_data">
-                  <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>State</th> 
-                        <?php
-                           foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
-                            ?>
-                        <th><?php echo $servicevalue;?></th>
-                  <?php
-                  }
-                    ?>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        
-                        <?php
-                         foreach($missing_pincode_rm['rm_arr'] as $value){
-                        ?>   
-                        <tr>
-<!--                                <td><?php //echo $value['full_name'];?></td>-->
-                                <td><a type="button"  class="btn btn-info" target="_blank" 
-                                      href='<?php echo base_url(); ?>employee/dashboard/pincode_rm_wise/<?php echo $value['rm_id'] ?>'><?php echo $value['full_name'];?></a></td>
-                               <?php
-                                foreach($missing_pincode_rm['service_arr'] as $servicekey=>$servicevalue){
-                                     $missing_pincode=0;
-                                     $missing_pincode_per=0;$total_pincode=0;
-                                    foreach($value['state_code'] as $value1)
-                                      {
-                                        if(array_key_exists('state_'.$value1,$missing_pincode_rm['india_pincode']))
-                                        {
-                                            $total_pincode=$total_pincode+$missing_pincode_rm['india_pincode']['state_'.$value1];
-                                        }
-                                      if(isset($missing_pincode_rm['state_arr'][$value1]))
-                                       {
-                                   if(isset($missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey])){
-                                        $missing_pincode=$missing_pincode+$missing_pincode_rm['vendorStructuredArray']['state_'.$value1]['appliance_'.$servicekey]['missing_pincode'];
-                                       }
-                                     
-                                       }
-                                      }
-                                          
-                                      $missing_pincode_decimal=$missing_pincode/$total_pincode;
-                                      $missing_pincode_per=round(($missing_pincode_decimal*100),0);
-                                    ?>
-                                <?php //echo $total_pincode.'<br>'; ?>
-                                <?php// echo $missing_pincode.'(';  ?>
-                               <td> <?php echo wordwrap($missing_pincode_per.'%'); ?></td>
-                                <?php    
-                               
-                                }
-                                ?>
-                        </tr>
-           <?php }
-           ?>
-                        
-                    </tbody>
-                </table>
-               
-            </div>
-            </div> 
+                <div class="x_content collapse" id="RM_Pincode_Reporting">
+                    <div class="table-responsive" id="rm_pincode_data">
+                        <center><img id="missing_rm_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+    <!-- get rm missing pincode ajax request-->
+    <!-- get Am Total Booking Call data-->
+     <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>AM Booking Report</h2>
+                    <span class="collape_icon" href="#am_booking_report" data-toggle="collapse" onclick="get_am_booking_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
+                    <div class="clearfix"></div>
+                </div>
+                
+                <div class="x_content collapse" id="am_booking_report">
+                       <div class="table-responsive" id="am_booking_report_data">
+                        <?php
+                        if(!empty($am_data))
+                        {
+                            ?>
+                        
+                                
+                                    <div class="col-md-3" id="am">
+                                        <div class="item form-group">
+                                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                                <label for=""> AM For Comparision</label>
+                                                <select class="form-control filter_table" id="am_id" name="am_id[]" multiple>
+                                                    <?php foreach($am_data as $val){ ?>
+                                                    <option value="<?php echo $val['id']?>"><?php echo $val['full_name']?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                           <div id="amcompair">
+                            
+                           </div>
+                                                             
+                           <?php
+                           }
+                        ?>
+                           <div>
+                           <center><img id="compair_am_booking_loader" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                           </div>
+                           <div id="am_report">
+                                <center><img id="missing_am_booking_loader" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                           </div>
+                    </div>
+                </div>
+              
+            </div>
+        </div>
+    </div>
+    <!-- get Am Total Booking Call data-->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -1072,13 +1067,58 @@
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
+
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
     $('#upcountry_rm_pending').select2();
     $('#upcountry_am_pending').select2();
+
+     $('#am_id').select2();
+
     
-    
-        function getMultipleSelectedValues(fieldName){
+    $('#am_id').on('change', function() {
+        var am_id=[];
+        var result=1;
+           var am_id=$('#am_id').val();
+           var length=am_id.length;
+           
+           if((length<2)||(length>4))
+           {
+             alert("Please Select Min 2 and  Max 4 AM For comparision");
+             result=0;  
+             return false;
+           }
+           if(result==1)
+           {
+               var confirm_var=confirm("Do you want to compare more AM?");
+                 if(confirm_var==false)
+               {
+                        var data = {};
+                        url = '<?php echo base_url(); ?>employee/dashboard/get_am_drop_data';
+                        data['am_id'] = am_id;
+                        $('#compair_am_booking_loader').fadeIn();
+                        sendAjaxRequest(data,url,post_request).done(function(response){
+                         $('#compair_am_booking_loader').hide();  
+                        $("#amcompair").html(response);
+                        });
+                }
+           }
+        });
+     function getcompairamdata()
+    {
+        data = {};
+        //var amdata=$("#am_partner").val();
+        var amdata=$('#rm_compair_booking_form').serialize();
+        url = '<?php echo base_url();?>employee/dashboard/compair_am_booking_data';
+        data['amdata'] = amdata;
+        $('#compair_am_booking_loader').fadeIn();
+        sendAjaxRequest(data,url,post_request).done(function(response){
+           $('#compair_am_booking_loader').hide();
+           $("#am_report").html(response);
+        });
+    }
+
+     function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
     var length = fieldObj.length;
@@ -1338,6 +1378,29 @@
         
         sendAjaxRequest(data,url,post_request).done(function(response){
             $("#upcountry_table_data").html(response);
+        });
+    }
+    
+    function get_rm_missing_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_rm_missing_pincode_data';
+        data['partner_id'] = '';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+           $("#rm_pincode_data").html(response);
+        });
+    }
+    
+    function get_am_booking_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_am_booking_data';
+        data['partner_id'] = '';
+        $('#missing_am_booking_loader').fadeIn();
+        sendAjaxRequest(data,url,post_request).done(function(response){
+         $('#missing_am_booking_loader').hide();
+        $("#am_report").html(response);
         });
     }
     

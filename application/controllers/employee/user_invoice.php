@@ -536,7 +536,7 @@ class User_invoice extends CI_Controller {
         $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
-                            . "state,address as company_address, "
+                            . "state,address as company_address, owner_phone_1"
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
@@ -584,7 +584,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
-                        
+                        $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];;
                         //insert entry into booking state change
                         $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids;
                         $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
@@ -1339,7 +1339,7 @@ class User_invoice extends CI_Controller {
             if (!empty($spare_data)) {
                 $partner_id = $spare_data[0]['partner_id'];
                 $vendor_email_parts_name .= $value->spare_product_name.",";
-                $inventory_id = "";
+                $inventory_id = 0;
                 if($spare_data[0]['is_micro_wh'] == 0){
                     $email_parts_name_partner .= $value->spare_product_name.", ";
                 }

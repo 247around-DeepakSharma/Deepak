@@ -1169,15 +1169,20 @@ class Service_centers extends CI_Controller {
     function update_booking_status($code) {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode(urldecode($code));
+        $booking_id = base64_decode(urldecode($code));        
         if (!empty($booking_id) || $booking_id != 0) {
             $data['booking_id'] = $booking_id;
             $where_internal_status = array("page" => "update_sc", "active" => '1');
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-           
-
+            
+           $partners_details = $this->partner_model->get_partner_contract_detail('partners.public_name, partners.is_wh, partners.is_micro_wh', array( 'partners.id' => $data['bookinghistory'][0]['partner_id'] ), array(), array());
+           $data['partner_wh_status'] = false;
+           if(!empty($partners_details[0]->is_wh ) || !empty($partners_details[0]->is_micro_wh)){
+               $data['partner_wh_status'] = true;              
+           }
+          
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
                 $data['internal_status'] = array();
@@ -1289,7 +1294,6 @@ class Service_centers extends CI_Controller {
      * @$_POST form data 
      */
     function update_spare_parts_details() {
-
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $this->checkUserSession();
@@ -1345,7 +1349,8 @@ class Service_centers extends CI_Controller {
         $entity_type = $this->input->post('entity_type');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
         $current_inventory_id = $this->input->post('current_inventory_id');
-
+        $booking_id = $this->input->post('booking_id');     
+        
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
                 $data['requested_inventory_id'] = $current_inventory_id;
@@ -1398,6 +1403,7 @@ class Service_centers extends CI_Controller {
         $where = array('id' => $this->input->post('spare_id'));
         $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($affected_row == TRUE) {
+            $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "",  $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
             $userSession = array('success' => 'Spare Parts Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
@@ -1638,7 +1644,11 @@ class Service_centers extends CI_Controller {
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
-
+                    
+                    if (array_key_exists("spare_id",$data)){
+                        unset($data['spare_id']); 
+                    }
+                   
                     $data['parts_requested'] = $value['parts_name'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
@@ -1676,7 +1686,17 @@ class Service_centers extends CI_Controller {
                      * (need to discuss) what we will do if no warehouse have this inventory.
                      */
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-                    if (!empty($partner_details[0]['is_wh'])) {
+                    
+                    $is_warehouse = false;
+                    if(!empty($partner_details[0]['is_wh'])){
+                        
+                        $is_warehouse = TRUE;
+                        
+                    } else if(!empty($partner_details[0]['is_micro_wh'])){
+                        $is_warehouse = TRUE;
+                    }
+                 
+                    if (!empty($is_warehouse) ) {
                         
                         $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
                         if (!empty($warehouse_details)) {
@@ -1866,7 +1886,7 @@ class Service_centers extends CI_Controller {
             $in['inventory_id'] = $data['shipped_inventory_id'];
             $this->miscelleneous->process_inventory_stocks($in);
             
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, TRUE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,'', FALSE);
         }
     }
     /**
@@ -2039,7 +2059,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], TRUE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], '', FALSE);
         }
     }
     
@@ -2456,9 +2476,9 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__. json_encode($_POST, true));
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-        $zip = 'zip '.TMP_FOLDER.'challan_file.zip ';
-        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
-            unlink(TMP_FOLDER . 'challan_file.zip');
+        $zip = 'zip '.TMP_FOLDER.'challan_file'.date('dmYHis').'.zip ';
+        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
+            unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
         }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
@@ -2473,13 +2493,13 @@ class Service_centers extends CI_Controller {
         system($zip, $res);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"challan_file.zip\"");
+        header("Content-Disposition: attachment; filename=\"challan_file".date('dmYHis').".zip\"");
 
         $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . 'challan_file.zip ', $res2);
-        readfile(TMP_FOLDER .  'challan_file.zip');
-        if(file_exists(TMP_FOLDER .  'challan_file.zip')){
-             unlink(TMP_FOLDER . 'challan_file.zip');
+        system(" chmod 777 " . TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip ', $res2);
+        readfile(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip');
+        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
+             unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
         }
     }
 
@@ -2562,11 +2582,10 @@ class Service_centers extends CI_Controller {
             foreach ($booking_declaration_detail as $partner_id => $spare_id_array) {
                 
                 
-               
-              
                 foreach ($spare_id_array as $spare_id) {
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.challan_approx_value, spare_parts_details.parts_requested,"
-                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name";
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested,"
+                            . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name, "
+                            . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district";
 
                     $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
                     
@@ -2575,18 +2594,22 @@ class Service_centers extends CI_Controller {
                     $partner_details = $this->partner_model->get_partner_contract_detail($select, array('partners.id' => $sp_details[0]['booking_partner_id']), $join = NULL, $joinType = NULL);
                                        
                     $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
+                    
+                    if(!empty($sp_details[0]['requested_inventory_id'])){
+                        $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price,inventory_master_list.gst_rate', array('inventory_master_list.inventory_id' => $sp_details[0]['requested_inventory_id']));
+                        
+                        $challan_value = round($inventory_details[0]['price'] *( 1 + $inventory_details[0]['gst_rate']/100), 0);                        
+                     
+                    } else {
+                        $challan_value = '0.00';
+                    }
 
                     $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
-                   
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_type'] = $partner_details[0]->company_type;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['company_name'] = $partner_details[0]->company_name;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['challan_approx_value'] = $challan_value;
+                                                     
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['address'] = $partner_details[0]->address;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['district'] = $partner_details[0]->district;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['state'] = $partner_details[0]->state;
-                    $booking_declaration_detail_list['coueriers_declaration'][$i]['pincode'] = $partner_details[0]->pincode;
-
+                    
                     $i++;
                 }
             }
@@ -2594,45 +2617,37 @@ class Service_centers extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' No Download Address from POST');
         }
-
+        
         $service_center_id = $this->session->userdata('service_center_id');
 
-        $output_file = "declaration-" .$service_center_id . "-" . date('dmY');
+        $output_file = "declaration-" .$service_center_id . "-" . date('dmYHis');
         $output_file_pdf = $output_file . ".pdf";
         /* Create html for job card */
         $html = $this->load->view('service_centers/print_couriers_declaration_details', $booking_declaration_detail_list, true);
         /* convert html into pdf */
         $json_result = $this->miscelleneous->convert_html_to_pdf($html,'', $output_file_pdf,"vendor-partner-docs");
         
-       //$json_result = '{"response":"Success","response_msg":"PDF generated Successfully and uploaded on S3","output_pdf_file":"DraftDeclaration -SFId1-15-02-2019 15:58:18.pdf","bucket_dir":"bookings-collateral-test","id":""}';
        $pdf_response = json_decode($json_result,TRUE);
-       
-       $file = $pdf_response['output_pdf_file'];
-               
-        $zip = 'zip '.TMP_FOLDER.'declaration_file.zip ';
-        
-       if(file_exists(TMP_FOLDER . 'declaration_file.zip')){
-            unlink(TMP_FOLDER . 'declaration_file.zip');
-        }
-        
-                           
-        if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($file), TMP_FOLDER.$file)){
-            $zip .= TMP_FOLDER. $file. " ";
-        }   
+       if($pdf_response['response'] == "Success"){
+           
+           if(file_exists(TMP_FOLDER . $output_file_pdf)){
+                unlink(TMP_FOLDER . $output_file_pdf);
+            }
 
-        $res = 0;
-        system($zip, $res);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename='declaration_file.zip\'");
-
-        $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . 'declaration_file.zip ', $res2);
-        readfile(TMP_FOLDER .  'declaration_file.zip');
-        if(file_exists(TMP_FOLDER .  'declaration_file.zip')){
-             unlink(TMP_FOLDER . 'declaration_file.zip');
-        }
-        
+            if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($output_file_pdf), TMP_FOLDER.$output_file_pdf)){
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_pdf\"");
+                $res2 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $output_file_pdf, $res2);
+                readfile(TMP_FOLDER .  $output_file_pdf);
+                if(file_exists(TMP_FOLDER .  $output_file_pdf)){
+                     unlink(TMP_FOLDER . $output_file_pdf);
+                }
+            }
+       } else {
+           echo "File not generated";
+       }
     }
     
     /**
@@ -3706,6 +3721,8 @@ class Service_centers extends CI_Controller {
                             </ul>
                           </div>";
                     break;
+                   default:
+                    $row[] = "";
             }
             
         }

@@ -476,7 +476,7 @@ class Do_background_upload_excel extends CI_Controller {
                     //preg_replace('/[^(\x20-\x7F)]*/','', $string);
                     $appliance_details['description'] = $unit_details['appliance_description'] = preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type']);
 
-                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : $value['category'];
 
                     $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($value['service_appliance_data']['capacity']) ? $value['service_appliance_data']['capacity'] : '';
                     $appliance_details['model_number'] = $unit_details['model_number'] = $value['model'];
@@ -495,10 +495,10 @@ class Do_background_upload_excel extends CI_Controller {
 //                    } else 
                     if(!empty($data['brand'])){ 
                         
-                        $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', $unit_details['appliance_brand'], false);
+                        $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $value['request_type'], $unit_details['appliance_brand'], false);
                     } else {
                         //if partner type is not OEM then dose not sent appliance brand in argument
-                        $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], 'Installation & Demo', "", false);
+                        $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $booking['partner_id'], $value['request_type'], "", false);
                     }
                     $booking['amount_due'] = '0';
                     $is_price = array();
@@ -671,16 +671,16 @@ class Do_background_upload_excel extends CI_Controller {
 
                                 $sms_count = 0;
 
-                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : $value['category'];
                                 $capacity = isset($value['service_appliance_data']['capacity']) ? $value['service_appliance_data']['capacity'] : '';
                                 $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['brand'];
 
                                 $this->initialized_variable->fetch_partner_data($partner_booking['partner_id']);
 
                                 if ($this->initialized_variable->get_partner_data()[0]['partner_type'] == OEM) {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', $brand, false);
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], $value['request_type'], $brand, false);
                                 } else {
-                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], 'Installation & Demo', "", false);
+                                    $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_booking['partner_id'], $value['request_type'], "", false);
                                 }
 
                                 $is_price = array();
@@ -913,7 +913,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @desc: This method is used to validate Product number while upload excel file
      * We will count of invalid data, If count is greater or equal to five.
      * It will send Invalid data to mail and exit from function
-     * Otherwise return data with inavlidate data
+     * Otherwise return data with invalidate data
      * In Case valid row, we will append service id in the data row
      * @param: Array $data
      * @param: String $filetype
@@ -981,6 +981,35 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Geyser")) {
                     $data['valid_data'][$key]['appliance'] = 'Geyser';
                 }
+                if (stristr($prod, "Smart Speaker")) {
+                    $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
+                }
+                if (stristr($prod, "Cooler")) {
+                    $data['valid_data'][$key]['appliance'] = 'Air Cooler';
+                }
+                if (stristr($prod, "Air Purifier")) {
+                    $data['valid_data'][$key]['appliance'] = 'Air Purifier';
+                }
+                if (stristr($prod, "Stove")) {
+                    $data['valid_data'][$key]['appliance'] = 'Gas Stove';
+                }
+                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                        || stristr($prod, "Juicer Mixer Grinder") 
+                        || stristr($prod, "Air Fryer") 
+                        || stristr($prod, "Cookware") 
+                        || stristr($prod, "Gas Burner") 
+                        || stristr($prod, "Hand Blender") 
+                        || stristr($prod, "Kettle")
+                        || stristr($prod, "Massager")
+                        || stristr($prod, "Nutri Blender") 
+                        || stristr($prod, "OTG") 
+                        || stristr($prod, "Steamer") 
+                        || stristr($prod, "Toaster") 
+                        || stristr($prod, "Vaccum Cleaner")) {
+                    
+                    $data['valid_data'][$key]['appliance']= 'SHA';
+                }
+                
                 // Block Microvare cooking. If its exist in the Excel file
                 if (stristr($prod, "microwave cooking")) {
                     $flag = 1;
@@ -1476,8 +1505,8 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     
                     //save file and upload on s3
+
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
-                    
                     
                     //get email details 
                     $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
@@ -1651,6 +1680,18 @@ class Do_background_upload_excel extends CI_Controller {
             $tmpArr['brand'] = '';
         }
         
+         if(isset($data[$header_data['category']]) && !empty($data[$header_data['category']])){
+            $tmpArr['category'] = $data[$header_data['category']];
+        }else{
+            $tmpArr['category'] = '';
+        }
+        
+        if(isset($data[$header_data['request_type']]) && !empty($data[$header_data['request_type']])){
+            $tmpArr['request_type'] = $data[$header_data['request_type']];
+        } else {
+            $tmpArr['request_type'] = "Installation & Demo";
+        }
+        
         if(isset($data[$header_data['model']]) && !empty($data[$header_data['model']])){
             $tmpArr['model'] = $data[$header_data['model']];
         }else{
@@ -1701,7 +1742,7 @@ class Do_background_upload_excel extends CI_Controller {
                 }
             }
             else{
-                 if($data['delivered_date']){
+                 if(isset($data['delivered_date'])){
                     $tmpArr['delivery_date'] =  $data['delivered_date'];
                  }
             }

@@ -38,7 +38,6 @@ class Partner extends CI_Controller {
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
-        
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -637,7 +636,8 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = DEVELOPER_EMAIL;//ALL_EMP_EMAIL;
+                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
@@ -667,7 +667,6 @@ class Partner extends CI_Controller {
             $this->get_add_partner_form();
         }
     }
-
     function get_partner_form_data() {
         $return_data['company_name'] = trim($this->input->post('company_name'));
         $return_data['company_type'] = trim($this->input->post('company_type'));
@@ -4655,7 +4654,7 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
-        $newCSVFileName = "Booking_summary_" . date('Y-m-d') .rand(10,100). ".csv";
+        $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
         if($status != 'All'){
@@ -6858,8 +6857,12 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Margin of Spare Parts " . json_encode($_POST));
         $partner_id = $this->input->post('partner_id');
         $part = $this->input->post('part');
+        $around_margin = $part[0]['oow_around_margin'];
+        $vendor_margin = $part[0]['oow_vendor_margin'];
 
-        if (!empty($part)) {
+        if (!empty($part) && (!empty($around_margin) && $around_margin > 0 && $around_margin <= 30 ) &&
+                (!empty($vendor_margin) && $vendor_margin > 0 && $vendor_margin <= 15 ) &&
+                ($around_margin >= $vendor_margin)) {
             $flag = false;
             foreach ($part as $key => $parts_deails) {
                 $oow_around_margin = $parts_deails['oow_around_margin'];
@@ -6896,9 +6899,11 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
+        } else {
+            $this->session->set_userdata(array('error' => 'Please Check Around Margin and Vendor Margin.'));
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
-
 
     /* @desc: This method is used to load view for setting logo priority on web site
      * @param: void
@@ -7039,8 +7044,5 @@ class Partner extends CI_Controller {
         return $row;
     }
     
-    function test($booking_id){
-        $k = $this->paytm_cb->get_auth_token();
-        echo $k;
-    }
+   
 }

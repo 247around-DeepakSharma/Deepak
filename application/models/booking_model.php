@@ -2530,83 +2530,28 @@ class Booking_model extends CI_Model {
       $query = $this->db->query($sql);
       return $query->result_array();
     }
-    function get_india_pincode_group_by_state($array=array())
+    function get_am_booking_data($partner_id)
     {
-        $return_arr=array();
-        $this->db->select('distinct(`india_pincode`.`state`),count(DISTINCT pincode) as state_pincode_count,state_code.id as state_id');
-        $this->db->from('india_pincode');
-        $this->db->join('state_code','india_pincode.state=state_code.state','left');
-        if(!empty($array))
+        $sql="select  sum(case when (request_type like '%Repeat%' or request_type like '%Repair%') and(internal_status='InProcess_Completed'"
+                ."and service_center_closed_date IS NOT NULL) or (current_status='Completed') then 1 else 0 end) `repair_completed`,"
+                ."sum(case when (request_type  LIKE '%Repeat%' or request_type  LIKE '%Repair%') and(current_status='Pending') then 1 else 0 end) `repair_pending`,"
+                ."sum(case when (request_type like '%Repeat%' or  request_type LIKE'%Repair%') and(current_status='Cancelled') then 1 else 0 end) `repair_cancalled`,"
+                ."sum(case when (request_type not like '%Repeat%' AND request_type not like '%Repair%') and(internal_status='InProcess_Completed' and service_center_closed_date IS NOT NULL)"
+                ."or (current_status='Completed') then 1 else 0 end) `install_completed`, sum(case when (request_type not LIKE '%Repeat%' AND request_type not LIKE '%Repair%') and(current_status='Pending')"
+                ."then 1 else 0 end) `install_pending`,"
+                 ."sum(case when (request_type not like '%Repeat%' AND  request_type not LIKE'%Repair%') and(current_status='Cancelled') "
+                ."then 1 else 0 end) `install_cancalled`"
+                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
+                ."and partner_id IN ('".$partner_id."')";
+        $query = $this->db->query($sql);
+        $result =  $query->result_array();
+       if(!empty($result))
         {
-            $this->db->where_in('state_code.id',$array);
-        }
-        $this->db->group_by('india_pincode.state');
-        $result=$this->db->get()->result_array();
+            $result=$result['0'];
+            $result['repair_total']=$result['repair_completed']+$result['repair_pending']+$result['repair_cancalled'];
+            $result['install_total']=$result['install_completed']+$result['install_pending']+$result['install_cancalled'];
+        } 
         return $result;
-    }
-    function get_vendor_mapping_groupby_applliance_state($array=array())
-    {
-        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id ,Appliance_ID,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
-        $this->db->from('vendor_pincode_mapping');
-        $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
-        if(!empty($array))
-        {
-            $this->db->where_in('state_code.id',$array);
-        }
-        $this->db->group_by('vendor_pincode_mapping.Appliance_ID');
-        $this->db->group_by('vendor_pincode_mapping.State');
-        $result=$this->db->get()->result_array();
-        return $result;
-           
-    }
-        function get_active_services()
-    {
-        $return=array();
-        $this->db->select('id,services');
-        $this->db->from('services');
-        $this->db->where('isBookingActive',1);
-        $result=$this->db->get()->result_array();
-        if(count($result)>0)
-        {
-            foreach($result as $value)
-            {
-                $id=$value['id'];
-                $return[$id]=$value['services'];
-            }
-        }
-        return $return;
-    }
-    
-    function get_active_state()
-    {
-        $return=array();
-        $this->db->select('id,state');
-        $this->db->from('state_code');
-        $result=$this->db->get()->result_array();
-        if(count($result)>0)
-        {
-            foreach($result as $value)
-            {
-                $id=$value['id'];
-                $return[$id]=$value['state'];
-            }
-        }
-        return $return;
-    }
-    
-    function get_vendor_mapping_groupby_state($where_in=array())
-    {
-        $this->db->select('distinct vendor_pincode_mapping.State,state_code.id,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
-        $this->db->from('vendor_pincode_mapping');
-        $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
-         if(!empty($where_in))
-        {
-            $this->db->where_in('state_code.id',$where_in);
-        }
-        $this->db->group_by('state_code.id');
-        $result=$this->db->get()->result_array();
-        return $result;
-           
     }
    
    }

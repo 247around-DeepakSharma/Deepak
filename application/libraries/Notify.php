@@ -548,10 +548,14 @@ class Notify {
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{
-                        $jobcard_link=S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
+                        $booking_id=$query1[0]['booking_id'];
+                        $jobcard="BookingJobCard-".$booking_id.".pdf";
+                        $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
+                        log_message('info', __METHOD__. " ". print_r($jobcard,true));
+                        log_message('info', __METHOD__. " ". print_r($jobcard_link,true));
                         //make tiny url
-                        $jobcard_link=str_replace(" ", "%20", $jobcard_link);
-                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link);
+                        $jobcard_link_new=str_replace(" ", "%20", $jobcard_link);
+                        $tinyUrl = $this->My_CI->miscelleneous->getShortUrl($jobcard_link_new);
                         $call_type = explode(" ", $query1[0]['request_type']);
                         $sms['smsData']['service'] = $query1[0]['services'];
                         $sms['smsData']['call_type'] = $call_type[0];
@@ -562,8 +566,8 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
-
+                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
                         } 
@@ -614,7 +618,7 @@ class Notify {
                     if(!empty($data))
                     {
                             $finalString = 'Your Brand Collateral ->   '.nl2br ("\n");
-                            $index =0;
+                            $index =1;
                             foreach($data as $collatralData){
                                    if($collatralData['is_file']){
                                     $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
@@ -633,10 +637,10 @@ class Notify {
                                 $index++;
                             }
                             $smsbody=$finalString;
-                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['primary_contact_phone_1'],$smsbody,SMS_WITHOUT_TAG);
+                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['primary_contact_phone_1'],
+                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
                                     $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
                      }
                               
@@ -657,8 +661,6 @@ class Notify {
 		    //$to = "abhaya@247around.com";
 		    $state_not_found_message = " Pincode(" . $query1[0]['booking_pincode'] . ") is not found booking id is " . $query1[0]['booking_id'];
 		    //$this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
-
-
 		    break;
 		   
 	    }
