@@ -15,7 +15,7 @@
 </style>
 <div id="page-wrapper">
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading">Add Dashboard Notification</div>
+        <div class="panel-heading"><span><i class="fa fa-bell-o" aria-hidden="true" style="margin-right: 5px;"></i></span>Add Dashboard Notification</div>
             <div class="panel-body">
             <div class="row">
                  <?php
@@ -36,7 +36,7 @@
                     </div>';
                 }
                 ?>
-                <form name="myForm" class="form-horizontal" id ="dashboard_notification_form" novalidate="novalidate" action="<?php echo base_url()?>employee/dashboard/process_dashboard_notification"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id="dashboard_notification_form" name="dashboard_notification_form" novalidate="novalidate" action="<?php echo base_url()?>employee/dashboard/process_dashboard_notification"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -45,7 +45,7 @@
                                         echo 'has-error';
                                     }
                                     ?>">
-                                    <label  for="entity_type" class="col-md-4">Select Entity Type* </label>
+                                    <label  for="entity_type" class="col-md-4">Entity Type* </label>
                                     <div class="col-md-8">
                                         <select id="entity_type" name="entity_type" class="form-control" onchange="get_entity()">
                                             <option selected disabled>Select Entity Type</option>
@@ -63,7 +63,7 @@
                                         echo 'has-error';
                                     }
                                     ?>">
-                                    <label  for="entity" class="col-md-4">Select Entity* </label>
+                                    <label  for="entity" class="col-md-4">Entity* </label>
                                     <div class="col-md-8">
                                         <select id="entity" name="entity[]" class="form-control select2-multiple2" multiple>
                                             <option selected disabled>Select Entity </option>
@@ -80,7 +80,7 @@
                                         echo 'has-error';
                                     }
                                     ?>">
-                                    <label  for="date_range" class="col-md-4">Select Date Range* </label>
+                                    <label  for="date_range" class="col-md-4">Start and Expiry Date* </label>
                                     <div class="col-md-8">
                                         <input type="text" id="date_range" name="date_range" class="form-control" placeholder="Select Date Range">
                                         <?php echo form_error('date_range'); ?>
@@ -88,10 +88,24 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label  for="is_marquee" class="col-md-4">Show on Marquee </label>
+                                <div  class="form-group <?php
+                                    if (form_error('notification_type')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                    <label  for="notification_type" class="col-md-4">Notification Type* </label>
                                     <div class="col-md-8">
-                                        <input type="checkbox" id="is_marquee" name="is_marquee">
+                                        <select id="notification_type" name="notification_type" class="form-control">
+                                            <option selected disabled>Select Notification Type</option>
+                                            <?php if(!empty($notification_type)){ 
+                                                foreach ($notification_type as $key => $value) {
+                                            ?>
+                                            <option value="<?php echo $value['id']; ?>"><?php echo $value['type'] ?></option>
+                                            <?php
+                                                }
+                                            }  ?>
+                                        </select>
+                                        <?php echo form_error('notification_type'); ?>
                                     </div>
                                 </div>
                             </div>
@@ -111,6 +125,16 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label  for="is_marquee" class="col-md-4">Marquee</label>
+                                    <div class="col-md-8">
+                                        <input type="checkbox" id="is_marquee" name="is_marquee">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12 form-group">
                             <center><input type="submit" value="Submit" class="btn btn-primary"></center>  
                         </div>
@@ -126,6 +150,7 @@
                                 <th>S.No.</th>
                                 <th>Entity Type</th>
                                 <th>Entity Name</th>
+                                <th>Type</th>
                                 <th>Message</th>
                                 <th>Marquee</th>
                                 <th>Start Date</th>
@@ -180,6 +205,18 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_notification_type">Type*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select id="edit_notification_type" name="edit_notification_type" class="form-control">
+                                           
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="control-label col-md-4" for="entity_id">Marquee*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="checkbox" id="edit_marquee" name="edit_marquee" class="form-control">
@@ -204,7 +241,7 @@
     var notification_datatable = "";
     
     $('document').ready(function(){
-        $('#entity, #entity_type').select2();
+        $('#entity, #entity_type, #notification_type').select2();
         $("#edit_start_date, #edit_end_date").datepicker({dateFormat: 'yy-mm-dd'});
         $('#date_range').daterangepicker({
             locale: {
@@ -266,12 +303,14 @@
                     entity : "required",
                     date_range : "required",
                     message : "required",
+                    notification_type : "required",
                 },
                 messages: {
                     entity_type: "Please select entity type",
                     entity: "Please select entity",
                     date_range: "Please select date",
-                    message : "Please Enter Message"
+                    message : "Please Enter Message",
+                    notification_type : "Please select notification type",
                 },
                 submitHandler: function (form) {
                     form.submit();
@@ -309,6 +348,7 @@
     
     function edit_notification(btn){
         var data = $(btn).data('id');
+        var type_id = data.id;
         $("#notification_id").val(data.id);
         $("#edit_start_date").val(data.start_date);
         $("#edit_end_date").val(data.end_date);
@@ -316,6 +356,19 @@
         if(data.marquee == 1){
            $("#edit_marquee").attr("checked", true);
         }
+        
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/dashboard/get_dashboard_notification_type',
+            data: {},
+            success: function (data) {
+               if(data){
+                   $("#edit_notification_type").html($.trim(data)).select2();
+                   $("#edit_notification_type").val($("#type_id_"+type_id).text()).trigger('change');
+               }
+            }
+        });
+        
         $('#notification_model').modal('toggle');
     }
     
@@ -345,7 +398,8 @@
                     end_date : $("#edit_end_date").val(),
                     marquee : marquee,
                     message : $("#edit_message").val(),
-                    notification_id : $("#notification_id").val()
+                    notification_id : $("#notification_id").val(),
+                    notification_type : $("#edit_notification_type").val(),
                 },
                 success : function(response){
                     notification_datatable.ajax.reload();

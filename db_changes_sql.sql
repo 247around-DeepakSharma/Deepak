@@ -10005,3 +10005,47 @@ ALTER TABLE `api_authentication`
 
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'paytm_booking_updation_fail', 'Paytm booking updation fail %s', 'Dear Team, <br>Paytm booking updation fail.</br><p>Response -%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `dashboard_notifications` ADD `notification_type` INT NOT NULL AFTER `entity_id`;
+
+CREATE TABLE `dashboard_notification_type` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `icon` varchar(50) NOT NULL,
+  `color` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `dashboard_notification_type`
+--
+
+INSERT INTO `dashboard_notification_type` (`id`, `type`, `icon`, `color`) VALUES
+(1, 'Success', 'fa fa-thumbs-o-up', '#2f99227d'),
+(2, 'Warning', 'fa fa-exclamation-circle', '#faebcc'),
+(3, 'Danger', 'fa fa-thumbs-o-down', '#ebccd1'),
+(4, 'Announcement', 'fa fa-bullhorn', '#bce8f1'),
+(5, 'Payment Success', 'fa fa-inr', '#2f99227d'),
+(6, 'Payment Hold', 'fa fa-inr', '#faebcc'),
+(7, 'Spare Warning', 'fa fa-dropbox', '#faebcc'),
+(8, 'Information', 'fa fa-info-circle', '#bce8f1');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+COMMIT;

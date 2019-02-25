@@ -266,7 +266,7 @@
                     </nav>
                     <div id="marquee_div">
                         <div class="marquee"></div>
-                        <div style="text-align: right; margin-top: -20px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
+                        <div style="text-align: right; margin-top: -19px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
                     </div>
                 </div>
             </div>
@@ -365,12 +365,12 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form method="post" action="">
-                    <div class="modal-header">
+                    <div class="modal-header" style="background:#d9edf7">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="main_modal_title">247around Notifications</h4>
+                        <h4 class="modal-title" id="main_modal_title"><i class="fa fa-fw fa-desktop" style="margin: 10px;"></i>247around Notifications</h4>
                     </div>
                     <div class="modal-body" id="main_modal_body" style="height: 630px; overflow-y: auto;">
-                        <table style="width: 100%; line-height: 40px;" id="dashboard_notification_table">
+                        <table style="width: 100%; line-height: 25px;" id="dashboard_notification_table">
                             
                         </table>
                     </div>
@@ -476,13 +476,27 @@
     #marquee_div {
         margin-top: 50px !important;
         margin-left: 40px;
-        background: bisque;
+        background: #faebcc;
         height: 25px;
         padding-top: 5px;
+        box-shadow: 0 0px 3px 0 #faebcc;
         display: none;
     }
     .nav-sm .container.body .col-md-3.left_col {
         margin-top: 50px;
+    }
+    .notification_icon{ width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        box-shadow: 0 6px 10px 0 #666;
+        font-size: 18px;
+        line-height: 45px;
+        text-align: center; 
+    }
+    .notification_icon_td{
+        width: 65px;
+        vertical-align: top;
+        padding-top: 10px;
     }
 </style>
             <script>
@@ -539,13 +553,19 @@
                             if(response.length > 0){
                                 for(var i=0; i<response.length; i++){
                                     if(response[i]['seen'] == '0'){
-                                        seen_style = "color: #065ba3; font-weight:600;";
+                                        seen_style = "font-weight:600;";
                                     }
                                     var date = new Date(response[i]['create_date']);
                                     var month = date .getMonth() + 1;
                                     var day = date .getDate();
                                     var year = date .getFullYear();
-                                    html += "<tr style='"+seen_style+"'><td>"+response[i]['message']+"</td><td style='text-align: right'>"+day+"-"+month+"-"+year+"</td></tr>";
+                                    var hours = date.getHours();
+                                    var minutes = date.getMinutes();
+                                    var seconds = date.getSeconds();
+                                    html += "<tr style='"+seen_style+"'>\n\
+                                        <td class='notification_icon_td'><i class='notification_icon "+response[i]['icon']+"' aria-hidden='true' style='background-color:"+response[i]['color']+"'></i></td>\n\
+                                        <td style='padding-top: 10px;'><div>"+response[i]['message']+"<p style='margin-top: 10px; font-size: 12px;'>"+day+"-"+month+"-"+year+" "+hours+":"+minutes+":"+seconds+"</p></div></td>\n\
+                                    </tr>";
                                 }
                                 $("#dashboard_notification_count").text(0);
                             }
