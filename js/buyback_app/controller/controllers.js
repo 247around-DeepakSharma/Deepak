@@ -906,7 +906,7 @@ admin_dashboard.controller('pendingBooking_ControllerRM', function ($scope, $htt
                 partner_id = $("#partner_id_rm_pending").val();
                 request_type = getMultipleSelectedValues("request_type_rm_pending");
                 free_paid = $("#free_paid_rm_pending").val();
-                upcountry = $("#upcountry_rm_pending").val();
+                upcountry = getMultipleSelectedValues("upcountry_rm_pending");
                 status = getMultipleSelectedValues("pending_dependency");
                 if(!status){
                   status = "not_set";
@@ -949,7 +949,7 @@ admin_dashboard.controller('pendingBooking_ControllerAM', function ($scope, $htt
                 partner_id = $("#partner_id_am_pending").val();
                 request_type = getMultipleSelectedValues("request_type_am_pending");
                 free_paid = $("#free_paid_am_pending").val();
-                upcountry = $("#upcountry_am_pending").val();
+                upcountry = getMultipleSelectedValues("upcountry_am_pending");
                 status = getMultipleSelectedValues("pending_dependency");
                 if(!status){
                   status = "not_set";
