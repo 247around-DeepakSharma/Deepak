@@ -1350,78 +1350,6 @@ class Spare_parts extends CI_Controller {
             $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_parts_rejected_email', '');
         }
     }
-        
-     /*
-     * @des - This function is used to get reject spare parts
-     * @param - 
-     * @return - array
-     */
-
-    function send_rejected_spare_to_partner() {
-        log_message('info', json_encode($this->input->post(), true));
-
-        $spare_data = json_decode($this->input->post('spares_data'), true);
-        $sender_entity_id = $this->input->post('sender_entity_id');
-        
-        if (!empty($spare_data)) {
-            $template = array(
-                'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
-            );
-            $this->table->set_template($template);
-            $this->table->set_heading(array('Invoice Id', 'Part Name', 'Quantity'));
-            $flag = FALSE;
-            foreach ($spare_data as $key => $val) {
-                $this->table->add_row(array($val['invoice_id'], $val['part_name'], $val['quantity']));
-                /* Here 2 is used to return spare type to partner as is_wh_ack value will 2 */
-               $affected_id = $this->inventory_model->update_ledger_details(array('is_wh_ack' => 2), array('id' => $val['ledger_id']));
-               if(!empty($affected_id)){
-                   $flag = TRUE;
-               }
-            }
-            
-            $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-            
-            if (!empty($wh_incharge_id)) {
-                //get 247around warehouse incharge email
-                $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                    'contact_person.entity_id' => $sender_entity_id,
-                    'contact_person.entity_type' => _247AROUND_PARTNER_STRING
-                );
-
-                $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                if (!empty($email_details)) {
-                    $to = $email_details[0]['official_email'];
-                    $rejectspare_details_table = $this->table->generate();
-                    $this->send_alert_email_to_spare_part_rejected($rejectspare_details_table, $to);
-                }
-            }
-                       
-            if($flag){
-                echo json_encode(array('status'=>TRUE));
-            }else{
-                echo json_encode(array('status'=>FALSE));
-            }
-        }
-    }
-    
-     /*
-     * @des - This function is used to send email
-     * @param - 
-     * @return - true or flase
-     */
-
-    function send_alert_email_to_spare_part_rejected($email_body_data, $to) {
-        log_message('info', __METHOD__ . " email_body" . print_r($email_body_data, TRUE));
-        $template = $this->booking_model->get_booking_email_template("spare_parts_rejected_email");
-        if (!empty($template)) {
-            if (empty($to)) {
-                $to = $template[1];
-            }
-            $subject = $template[4];
-            $emailBody = vsprintf($template[0], $email_body_data);
-            $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_parts_rejected_email', '');
-        }
-    }
     
 
     /*
@@ -1491,6 +1419,7 @@ class Spare_parts extends CI_Controller {
         $reason = $this->input->post('remarks');    
         $data_to_insert = array();
         $delivered_sp = array();
+        $sms_template_tag = '';
 
         if (!empty($spare_id)) {
 
@@ -1530,8 +1459,8 @@ class Spare_parts extends CI_Controller {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 } else {
-                    $spare_data['status'] = SPARE_PARTS_REQUESTED;
-                    $sms_template_tag = SPARE_REQUESTED_CUSTOMER_SMS_TAG;
+                    $spare_data['status'] = SPARE_PARTS_REQUESTED;                    
+                    $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, 'SPARE_REQUESTED_CUSTOMER_SMS_TAG');
                 }
 
                 if ($spare_parts_details[0]['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS && $part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -1557,8 +1486,7 @@ class Spare_parts extends CI_Controller {
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&
-                            $purchase_price > 0 && $entity_type == _247AROUND_SF_STRING) {
-
+                            $inventory_master_details[0]['price'] > 0 && $entity_type == _247AROUND_SF_STRING) {
 
                         $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
                         $pcb['booking_id'] = $booking_id;
@@ -1566,9 +1494,9 @@ class Spare_parts extends CI_Controller {
                         $pcb['amount_due'] = $amount_due;
                         $pcb['partner_id'] = $partner_id;
                         $pcb['sp_id'] = $spare_id;
-                        $pcb['gst_rate'] = $invoice_gst_rate;
+                        $pcb['gst_rate'] = $inventory_master_details[0]['gst_rate'];
 
-                        $pcb['estimate_cost'] = $purchase_price;
+                        $pcb['estimate_cost'] = ($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100);
                         $pcb['agent_id'] = $this->session->userdata('id');
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     }
@@ -1591,13 +1519,10 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                       
-
                     }
                 }
 
                 $spare_data['part_requested_on_approval'] = 1;
-
                 if (!empty($spare_data['status'])) {
                     $data['status'] = $spare_data['status'];
                 }

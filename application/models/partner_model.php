@@ -1815,12 +1815,6 @@ function get_data_for_partner_callback($booking_id) {
        return $this->db->affected_rows();
     }
 
-    function insert_sample_no_pic($data)
-    {
-        $this->db->insert('partner_sample_no_picture',$data);
-        return $this->db->insert_id();
-    }
-
     /**
      * @Desc: This function is used to add partner appliance detail
      * @params: Array

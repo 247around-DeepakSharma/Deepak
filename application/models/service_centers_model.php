@@ -266,7 +266,7 @@ class Service_centers_model extends CI_Model {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
                     . ' amount_paid, price_tags,appliance_brand, appliance_category,'
-                    . ' appliance_capacity, service_center_booking_action.internal_status,is_sn_correct,'
+                    . ' appliance_capacity, service_center_booking_action.internal_status,'
                     . ' service_center_booking_action.serial_number, customer_net_payable, '
                     . ' service_center_booking_action.is_broken, '
                     . ' service_center_booking_action.serial_number_pic, '

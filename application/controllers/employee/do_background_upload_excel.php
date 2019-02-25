@@ -993,7 +993,6 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Stove")) {
                     $data['valid_data'][$key]['appliance'] = 'Gas Stove';
                 }
-
                 if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
                         || stristr($prod, "Juicer Mixer Grinder") 
                         || stristr($prod, "Air Fryer") 
@@ -1010,7 +1009,6 @@ class Do_background_upload_excel extends CI_Controller {
                     
                     $data['valid_data'][$key]['appliance']= 'SHA';
                 }
-
                 
                 // Block Microvare cooking. If its exist in the Excel file
                 if (stristr($prod, "microwave cooking")) {
@@ -1509,7 +1507,6 @@ class Do_background_upload_excel extends CI_Controller {
                     //save file and upload on s3
 
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER.$header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
-
                     
                     //get email details 
                     $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
