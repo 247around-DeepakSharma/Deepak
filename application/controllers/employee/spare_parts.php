@@ -1530,8 +1530,8 @@ class Spare_parts extends CI_Controller {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 } else {
-                    $spare_data['status'] = SPARE_PARTS_REQUESTED;
-                    $sms_template_tag = SPARE_REQUESTED_CUSTOMER_SMS_TAG;
+                    $spare_data['status'] = SPARE_PARTS_REQUESTED;                    
+                    $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, 'SPARE_REQUESTED_CUSTOMER_SMS_TAG');
                 }
 
                 if ($spare_parts_details[0]['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS && $part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
