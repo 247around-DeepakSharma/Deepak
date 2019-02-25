@@ -2858,5 +2858,3 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
               echo $am_view;
     }
 }
-
-}
