@@ -2871,10 +2871,5 @@ class invoices_model extends CI_Model {
         return  $query->result_array();
         
     }
-    function get_buyback_paid_reimbursement_amount(){
-       $sql= "SELECT round(SUM(amount_paid)) as reimburse_amount FROM (vendor_partner_invoices) WHERE vendor_partner_invoices.invoice_id IN (SELECT DISTINCT partner_reimbursement_invoice FROM bb_unit_details)";
-       $query = $this->db->query($sql);
-       return  $query->result_array();
-    }
     
 }

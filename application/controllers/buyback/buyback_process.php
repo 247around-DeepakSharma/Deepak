@@ -25,7 +25,6 @@ class Buyback_process extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('booking_model');
         $this->load->model('reusable_model');
-        $this->load->model('invoices_model');
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
         $this->load->library('push_notification_lib');
@@ -2263,12 +2262,11 @@ class Buyback_process extends CI_Controller {
             $this->load->view('dashboard/dashboard_footer');
         }
         function get_amazon_balance(){
+        $where['vendor_partner_invoices.sub_category'] = BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT;
         $select = " round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as expected_balance, "
-                . "round(SUM(CASE WHEN partner_reimbursement_invoice IS NOT NULL THEN partner_discount ELSE 0 END)) as invoiced_balance";
+                . "round(SUM(CASE WHEN partner_reimbursement_invoice IS NOT NULL THEN partner_discount ELSE 0 END)) as invoiced_balance,round(SUM(amount_paid)) as reimburse_amount,";
         $data = $this->bb_model->get_bb_amazon_balace_details($select);
-        $invoiceData = $this->invoices_model->get_buyback_paid_reimbursement_amount();
             if(!empty($data)){
-                $data[0]['reimburse_amount'] = $invoiceData[0]['reimburse_amount'];
                 $data[0]['total'] = $data[0]['expected_balance'] + $data[0]['invoiced_balance'] - $data[0]['reimburse_amount'];
                 $response = $data[0];
             }else{
@@ -2283,89 +2281,22 @@ class Buyback_process extends CI_Controller {
      * @return array
      */
     function get_bb_order_detail_data_by_month(){
-        //$total Order
-        $table = "bb_order_details";
-        $select = "DATE_FORMAT(order_date, '%b') AS month, DATE_FORMAT(order_date, '%Y') AS year, COUNT(bb_order_details.partner_order_id) as total, "
-                . "(CASE "
-                . "WHEN (bb_order_details.acknowledge_date IS NOT NULL AND bb_unit_details.order_status = 'Delivered' AND (bb_unit_details.partner_discount = 0 "
-                . "OR (bb_unit_details.partner_discount > 0 AND partner_reimbursement_invoice IS NOT NULL))) "
-                . "THEN 'completed' "
-                . "WHEN bb_cp_order_action.current_status = 'InProcess'"
-                . "THEN 'inprocess'"
-                . "WHEN (bb_order_details.current_status = 'Cancelled' AND bb_order_details.internal_status = 'Cancelled') OR (bb_order_details.current_status = 'Rejected' AND bb_order_details.internal_status = 'Rejected') "
-                . "THEN 'cancelled'"
-                . "WHEN ((bb_order_details.current_status = 'Delivered' OR bb_order_details.current_status = 'In-Transit' "
-                . "OR bb_order_details.current_status = 'New Item in In-Transit' OR bb_order_details.current_status = 'New Item In-transit') "
-                . "AND bb_order_details.acknowledge_date IS NULL) "
-                . "THEN 'pending'"
-                . "ELSE 'disputed' END) as status";
-        $where['order_date IS NOT NULL AND order_date >= (NOW() - INTERVAL 11 MONTH)'] = NULL;
-        $orderBYArray["YEAR(order_date)"] = 'ASC';
-        $orderBYArray["MONTH(order_date)"] = 'ASC';
-        $orderBYArray["status"] = 'ASC';
-        $groupBY = array('month','year','status');
-        $join['bb_cp_order_action'] = 'bb_cp_order_action.partner_order_id = bb_order_details.partner_order_id';
-        $join['bb_unit_details'] = 'bb_unit_details.partner_order_id = bb_order_details.partner_order_id';
-        $data = $this->reusable_model->get_search_result_data($table,$select,$where,$join,NULL,$orderBYArray,NULL,NULL,$groupBY);
-        foreach($data as $values){
-              $structuredData[$values['month']][$values['status']] =  $values['total'];
+        $structuredData = array();
+        $whereIN['bb_cp_order_action.current_status'] = array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_Damaged_STATUS);
+        $whereIN['bb_cp_order_action.internal_status'] = array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS);
+        $where['create_date IS NOT NULL AND create_date >= (NOW() - INTERVAL 13 MONTH)'] = NULL;
+        $orderBY["YEAR(create_date)"] = 'ASC';
+        $orderBY["MONTH(create_date)"] = 'ASC';
+        $select = "DATE_FORMAT(create_date, '%b') AS month,DATE_FORMAT(create_date, '%Y') AS year,COUNT(bb_cp_order_action.partner_order_id) as count,bb_cp_order_action.current_status";
+        $groupBY = array('current_status,month');
+        $data = $this->reusable_model->get_search_result_data("bb_cp_order_action",$select,$where,NULL,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        $count = count($data);
+        for($i=0;$i<$count-1;$i++){
+            $structuredData[$data[$i]['month']][$data[$i]['current_status']] = $data[$i]['count'];
+            $structuredData[$data[$i]['month']]['year'] = $data[$i]['year'];
         }
-         foreach($structuredData as $key => $values){
-                if(array_key_exists('pending', $values)){
-                    $finalArray['pending'][] = (int)$values['pending'];
-                }
-                else{
-                    $finalArray['pending'][] = $values['pending'] = 0;
-                }
-                if(array_key_exists('inprocess', $values)){
-                    $finalArray['inprocess'][] = (int)$values['inprocess'];
-                }
-                else{
-                    $finalArray['inprocess'][] = $values['inprocess'] = 0;
-                }
-                if(array_key_exists('completed', $values)){
-                    $finalArray['completed'][] = (int)$values['completed'];
-                }
-                else{
-                    $finalArray['completed'][] = $values['completed'] = 0;
-                }
-                if(array_key_exists('cancelled', $values)){
-                    $finalArray['cancelled'][] = (int)$values['cancelled'];
-                }
-                else{
-                    $finalArray['cancelled'][] = $values['cancelled'] = 0;
-                }
-                if(array_key_exists('disputed', $values)){
-                    $finalArray['disputed'][] = (int)$values['disputed'];
-                }
-                else{
-                    $finalArray['disputed'][] = $values['disputed'] = 0;
-                }
-                $finalArray['total'][] =$values['pending']+$values['inprocess']+$values['completed']+$values['cancelled']+$values['disputed'];
-        }
-        $finalArray['months'] = array_keys($structuredData);
-        echo json_encode($finalArray);
-    }
-    
-    function get_orders_without_invoices_and_without_reimbursement(){
-         $select = 'COUNT(bb.partner_order_id) as count,bb_cp_order_action.current_status as status,round(SUM(bb_unit_details.partner_basic_charge+bb_unit_details.partner_tax_charge)) as amount';
-         $data = $this->bb_model->get_orders_without_invoices($select,1,NULL,1);
-         $temp['status'] = "Total";
-         $temp['count'] = $temp['amount'] = 0;
-         foreach($data as $values){
-             $temp['count'] = $values['count'] + $temp['count'];
-             $temp['amount'] = $values['amount'] + $temp['amount'];
-         }
-         $data[] = $temp;
-         echo json_encode($data);
-    }
-    function show_without_invoices_orders($status){
-        $select = 'bb.partner_order_id,bb_cp_order_action.admin_remarks as admin_remarks,bb.order_date as order_date,bb.delivery_date,bb.current_status,bb.internal_status,'
-                . 'bb_cp_order_action.remarks as remarks,bb_cp_order_action.update_date';
-        $where['bb_cp_order_action.current_status'] = urldecode ($status);
-        $data['list'] = $this->bb_model->get_orders_without_invoices($select,NULL,$where,1);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/bb_without_invoice_orders', $data);
-        $this->load->view('dashboard/dashboard_footer');
+        $finalArray['keys'] = array_keys($structuredData);
+        $finalArray['data'] = $structuredData;
+        return json_encode($finalArray);
     }
 }

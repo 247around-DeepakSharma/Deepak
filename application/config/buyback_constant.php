@@ -9,8 +9,6 @@ define('_247AROUND_BB_DAMAGED_ORDER_IMAGE_TAG','damaged_order_image');
 define('_247AROUND_BB_DELIVERED','Delivered');
 define('_247AROUND_BB_IN_TRANSIT','In-Transit');
 define('_247AROUND_BB_IN_PROCESS','InProcess');
-define('_247AROUND_BB_Pending','Pending');
-define('_247AROUND_BB_CANCELLED','Cancelled');
 define('_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS','Completed');
 define('_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS','Claimed Raised By CP');
 define('_247AROUND_BB_ORDER_COMPLETED_INTERNAL_STATUS','Auto Approve Spec. Match');

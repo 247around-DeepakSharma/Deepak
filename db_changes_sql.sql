@@ -9900,9 +9900,6 @@ UPDATE `query_report` SET `query1` = 'SELECT round(AVG(CASE WHEN (bb_unit_detail
 --Chhavi 7th Feb
 ALTER TABLE `sms_template` ADD `is_exception_for_length` INT(1) NOT NULL DEFAULT '0' AFTER `active`;
 
---Chhavi 11th Feb
-INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'orders_on_review_page', 'count', 'amount', 'SELECT COUNT(cp_action.partner_order_id) as count FROM (`bb_cp_order_action` as cp_action) WHERE `cp_action`.`current_status` = \'InProcess\'', 'SELECT round(SUM(cp_basic_charge+cp_tax_charge)) as count FROM (`bb_cp_order_action` as cp_action) JOIN `bb_unit_details` as bb ON `cp_action`.`partner_order_id` = `bb`.`partner_order_id` WHERE `cp_action`.`current_status` = \'InProcess\'', 'admin', '1', 'buyback', '1', NULL, '2019-02-11 05:17:05');
-
 
 CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
@@ -9960,7 +9957,6 @@ ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-<<<<<<< Updated upstream
 --Kalyani 21-Feb-2019
 
 CREATE TABLE `api_authentication` (
@@ -10053,8 +10049,3 @@ ALTER TABLE `dashboard_notification_type`
 ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
-
---Chhavi
-INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
-
-

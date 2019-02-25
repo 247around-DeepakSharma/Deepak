@@ -495,37 +495,4 @@ class Bb_model extends CI_Model {
 //        $this->db->insert('bb_charges', $data);
 //        return $this->db->insert_id();
 //    }
-    
-    
-     function get_bb_amazon_balace_details($select,$where = array()) {
-        $this->db->select($select);
-        $this->db->from('bb_unit_details as bb_unit ');
-        if(!empty($where)){
-            $this->db->where($where);
-        }
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    function get_orders_without_invoices($select,$is_groupBy = NULL,$where = NULL,$join = NULL){
-        $this->db->from('bb_unit_details');
-        $this->db->join('bb_order_details as bb', 'bb_unit_details.partner_order_id = bb.partner_order_id');
-        if($join){
-            $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb.partner_order_id');
-        }
-        $this->db->select($select);
-        $this->db->where('cp_invoice_id IS NULL');
-        $this->db->where('(bb_unit_details.order_status != "Delivered" AND bb.acknowledge_date IS NOT NULL)');
-        $this->db->where('partner_reimbursement_invoice IS NULL');
-        $this->db->where('date(delivery_date) < DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, "%Y/%m/01")');
-        $this->db->where('date(delivery_date) > DATE_FORMAT( CURRENT_DATE - INTERVAL 12 MONTH, "%Y/%m/31")');
-        $this->db->where('bb_cp_order_action.current_status != "InProcess"');
-        if($where){
-            $this->db->where($where);
-        }
-        if($is_groupBy){
-            $this->db->group_by('bb_cp_order_action.current_status');
-        }
-        $query = $this->db->get();
-        return $query->result_array();
-    }
 }

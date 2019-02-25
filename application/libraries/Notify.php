@@ -31,8 +31,7 @@ class Notify {
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "", $booking_id = "") {
 	switch (ENVIRONMENT) {
-	    //case 'testing_chhavi':
-            case 'production':
+	    case 'production':
 		//Clear previous email
                 if(!empty($to)){
                     $this->My_CI->email->clear(TRUE);
@@ -791,7 +790,7 @@ class Notify {
         $data = array();
         log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
-                case 'testing_chhavi':
+                case 'production':
                 switch (CURRENT_SMS_SOLUTION) {
                     case KNOWLARITY_STRING :
                         $data = $this->send_sms_using_knowlarity($phone_number, $body);

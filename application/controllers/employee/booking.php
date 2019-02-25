@@ -387,6 +387,7 @@ class Booking extends CI_Controller {
         $remarks = $this->input->post('query_remarks');
 
         $booking['quantity'] = $quantity;
+        $booking['service_center_closed_date'] = NULL;
         $booking['cancellation_reason'] = NULL;
         $booking['repeat_reason'] = NULL;
         $actor = $next_action = NULL;
@@ -396,7 +397,6 @@ class Booking extends CI_Controller {
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
-                $booking['service_center_closed_date'] = NULL;
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
                     $booking['current_status'] =  _247AROUND_PENDING;
