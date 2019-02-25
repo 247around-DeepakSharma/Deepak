@@ -1701,38 +1701,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-            }
-            else if($tatData['TAT']>=0 && $tatData['TAT']<5){
-                $finalArray[$tatData['entity']]['TAT_'.$tatData['TAT']][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-            }
-            else if($tatData['TAT']>4 && $tatData['TAT']<8){
-                $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-            }
-            else if($tatData['TAT']>7 && $tatData['TAT']<16){
-                $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-            }
-            else{
-                $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-            }
-        }
-         $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray));
-         return $structuredArray;   
-    }
-    function get_tat_data_in_structured_format_completed($data){
-       $finalArray = array();
-        foreach($data as $tatData){
-            if($tatData['TAT']<0){
-                $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData['TAT']>=0 && $tatData['TAT']<5){
