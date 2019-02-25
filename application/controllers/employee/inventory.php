@@ -4539,8 +4539,8 @@ class Inventory extends CI_Controller {
         $json_data = json_encode($model_list);
         
         $row[] = $no;
-        $row[] = $model_list->services;
         $row[] = $model_list->model_number;
+        $row[] = $model_list->services;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_inventory_by_model/".urlencode($model_list->id)."' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
         
@@ -5507,13 +5507,16 @@ class Inventory extends CI_Controller {
     function get_partner_mapped_model_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('model');
+        $post['order'] = array('appliance_model_details.model_number'=>"ASC", "services.services"=>"ASC");
+        $post['column_search'] = array('appliance_model_details.model_number');
         $post['where'] = array('partner_appliance_details.partner_id'=>$this->input->post('partner_id'));
-        $post['join'] = array("services" => "services.id = partner_appliance_details.service_id");
-        $post['joinType'] = array();
-        $select = "services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, partner_appliance_details.model, partner_appliance_details.active";
+        $post['join'] = array(
+                            "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model",
+                            "services" => "services.id = partner_appliance_details.service_id"
+                        );
+        $post['joinType'] = array("services"=> "INNER", "appliance_model_details"=>"LEFT");
+        $select = "services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number as model, partner_appliance_details.active";
         $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
-        
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
@@ -5532,11 +5535,11 @@ class Inventory extends CI_Controller {
     function get_partner_mapped_model_table($model_list, $no){
         $row = array();
         $row[] = $no;
+        $row[] = $model_list->model;
         $row[] = $model_list->services;
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
         $row[] = $model_list->capacity;
-        $row[] = $model_list->model;
         if($model_list->active == 1){
             $row[] = "Active";
         }
