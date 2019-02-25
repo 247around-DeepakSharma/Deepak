@@ -9884,8 +9884,8 @@ ALTER TABLE `set_oow_part_type_margin`
 --Rajshree 04 feb 2019
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s' WHERE `sms_template`.`tag` = 'add_new_booking';
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s.%s\r\n' WHERE `sms_template`.`tag` = 'upcountry_add_new_booking';
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'cancel_dealer_booking', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'complete_dealer_booking', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_cancelled', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_completion', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
 
 
 --Rajshree 05 feb 2019
@@ -9909,8 +9909,6 @@ CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 --Kalyani 06-02-2018
 UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
 UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
-
-CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL AFTER `service_category`;
 
@@ -9960,7 +9958,7 @@ ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-<<<<<<< Updated upstream
+
 --Kalyani 21-Feb-2019
 
 CREATE TABLE `api_authentication` (
