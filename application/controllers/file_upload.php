@@ -40,7 +40,7 @@ class File_upload extends CI_Controller {
     public function process_upload_file(){ 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
         //get file extension and file tmp name
-        
+
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
         if ($file_status['status']) { 
@@ -496,7 +496,7 @@ class File_upload extends CI_Controller {
                 $am_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
             }
         }
-        
+                
         $to = $this->session->userdata('official_email').",".$am_email;
         $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
 
@@ -513,7 +513,7 @@ class File_upload extends CI_Controller {
             $body = $response['message'];
             $body .= "<br> <b>File Name</b> " . $data['file_name'];
             
-            $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, "", 'inventory_not_found');
+            $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, $attachment, 'inventory_not_found');
             
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . 'Mail Send successfully');
@@ -752,17 +752,18 @@ class File_upload extends CI_Controller {
      */
     function process_partner_bom_file_upload($data) {
         log_message("info", __METHOD__);
-        
+       
         $response = array();
         $partner_id = trim($this->input->post('partner_id'));
+        $flag = false;
         if($partner_id){
             $model = $this->inventory_model->get_appliance_model_details('id,model_number',array('entity_id' => trim($this->input->post('partner_id')),'entity_type' => _247AROUND_PARTNER_STRING));
-            $part_number = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
+            $part_number = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));            
             if(!empty($model) && !empty($part_number)){
 
                 $model_arr = array_column($model,'id','model_number');
                 $part_number_arr = array_column($part_number,'inventory_id','part_number');
-                
+                                
                 //get file data to process
                 for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                     $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
@@ -773,55 +774,59 @@ class File_upload extends CI_Controller {
                         if(array_key_exists($sanitizes_row_data[0], $model_arr)){
                             //check part exist in our database
                             $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data);
-                        }else{
+                        }else{                          
                             array_push($this->not_exists_model, $sanitizes_row_data[0]);
+                            $flag = true;
+                            break;
                         }
                     }
                 }
-                
-                $not_exist_data_msg = '';
-                
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
-                
-                $this->table->set_template($template);
-                //generate not exists model table to send in email
-                if (!empty($this->not_exists_model)) {
-                    $this->table->set_heading(array('Model Number'));
-                    foreach (array_unique($this->not_exists_model) as $value) {
-                        $this->table->add_row($value);
-                    }
+                           
+                  $not_exist_data_msg = '';
 
-                    $not_exist_data_msg .= " Below models does not exists in our record: <br>";
-                    $not_exist_data_msg .= $this->table->generate();
-                }
-                //generate not exists parts table to send in email
-                if (!empty($this->not_exists_parts)) {
-                    $this->table->set_heading(array('Part Number'));
-                    foreach (array_unique($this->not_exists_parts) as $value) {
-                        $this->table->add_row($value);
-                    }
-                    $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
-                    $not_exist_data_msg .= $this->table->generate();
-                }
+                  $template = array(
+                  'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                  );
+
+                  $this->table->set_template($template);
+                  //generate not exists model table to send in email
+                  if (!empty($this->not_exists_model)) {
+                  $this->table->set_heading(array('Model Number'));
+                  foreach (array_unique($this->not_exists_model) as $value) {
+                  $this->table->add_row($value);
+                  }
+
+                  $not_exist_data_msg .= " Below models does not exists in our record: <br>";
+                  $not_exist_data_msg .= $this->table->generate();
+                  }
+                  //generate not exists parts table to send in email
+                  if (!empty($this->not_exists_parts)) {
+                  $this->table->set_heading(array('Part Number'));
+                  foreach (array_unique($this->not_exists_parts) as $value) {
+                  $this->table->add_row($value);
+                  }
+                  $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                  $not_exist_data_msg .= $this->table->generate();
+                  }
+                  /*
+                  if(!empty($this->dataToInsert)){
+                  $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
+                  if ($insert_data) {
+                  log_message("info", __METHOD__ . count($this->dataToInsert). " mapping created succcessfully");
+                  $response['status'] = TRUE;
+                  $message = "<b>".count($this->dataToInsert)."</b> mapping created successfully.";
+                  $response['message'] = $message.' '.$not_exist_data_msg;
+                  } else {
+                  log_message("info", __METHOD__ . " error in creating mapping.");
+                  $response['status'] = FALSE;
+                  $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                  }
+                  }else{
+                  $response['status'] = True;
+                  $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
+                  }
+                 */
                 
-                if(!empty($this->dataToInsert)){
-                    $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
-                    if ($insert_data) {
-                        log_message("info", __METHOD__ . count($this->dataToInsert). " mapping created succcessfully");
-                        $response['status'] = TRUE;
-                        $message = "<b>".count($this->dataToInsert)."</b> mapping created successfully.";
-                        $response['message'] = $message.' '.$not_exist_data_msg;
-                    } else {
-                        log_message("info", __METHOD__ . " error in creating mapping.");
-                        $response['status'] = FALSE;
-                        $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
-                    }
-                }else{
-                    $response['status'] = True;
-                    $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
-                }
             }else{
                 $response['status'] = FALSE;
                 $response['message'] = 'Model and Parts details not found for the selected partner.';
@@ -829,6 +834,14 @@ class File_upload extends CI_Controller {
         }else{
             $response['status'] = FALSE;
             $response['message'] = 'Please select correct partner';
+        }
+        
+        if (!empty($flag)) {
+            $response['status'] = FALSE;
+            $response['message'] = "Models number does not exists in our record. $not_exist_data_msg";            
+        }else{
+            $response['status'] = True;            
+            $response['message'] = "File has been uploaded successfully. No New Mapping Created.";             
         }
         
         return $response;
