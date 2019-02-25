@@ -10048,4 +10048,12 @@ ALTER TABLE `dashboard_notification_type`
 --
 ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-COMMIT;
+
+--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
+
+
+
+--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
+

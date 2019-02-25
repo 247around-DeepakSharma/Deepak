@@ -3724,7 +3724,6 @@ class Service_centers extends CI_Controller {
                    default:
                     $row[] = "";
             }
-            
         }
         
         return $row;
