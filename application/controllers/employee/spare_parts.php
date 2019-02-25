@@ -1419,6 +1419,7 @@ class Spare_parts extends CI_Controller {
         $reason = $this->input->post('remarks');    
         $data_to_insert = array();
         $delivered_sp = array();
+        $sms_template_tag = '';
 
         if (!empty($spare_id)) {
 
