@@ -953,7 +953,7 @@ class Invoice extends CI_Controller {
             foreach ($multipleResponse as $value) {
                  $this->email->attach($value['pdf'], 'attachment');
                  $this->email->attach($value['excel'], 'attachment');
-                 if(isset($value['detailed_excel']) && !empty($value['excel'])){
+                 if(isset($value['detailed_excel'])){
                      $this->email->attach($value['detailed_excel'], 'attachment');
                  }
             }
@@ -2145,14 +2145,12 @@ class Invoice extends CI_Controller {
                 }
                 $to = $owner_email. ", " . $primary_contact_email;
                 
-                $cc = ANUJ_EMAIL_ID . $rem_email_id.",".ACCOUNTANT_EMAILID;
-                
-
                 //get email template from database
                 $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 $subject = vsprintf($email_template[4], array($company_name,$sd,$ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
+                $cc = $rem_email_id.",".$email_template[3];
              
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG,$response);
                 
@@ -3692,9 +3690,7 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-
         $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id";
-
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
@@ -3703,7 +3699,6 @@ class Invoice extends CI_Controller {
             
             $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
             
-
             $inventory_id = "";
             if(!empty($sp_data[0]->shipped_inventory_id)){
                 

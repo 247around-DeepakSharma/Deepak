@@ -14,6 +14,7 @@
                     <tbody>
                         
                         <?php
+                        if(!empty($rm_arr)){
                          foreach($rm_arr as $value){
                         ?>   
                         <tr>
@@ -51,6 +52,7 @@
                                 ?>
                         </tr>
            <?php }
+           }
            ?>
                         
                     </tbody>

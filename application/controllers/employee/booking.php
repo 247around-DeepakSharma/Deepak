@@ -1589,7 +1589,9 @@ class Booking extends CI_Controller {
         <html>
         <head></head>
         <body>
-            <h3>New Brands added By  " . $this->session->userdata('employee_id') . "</h3>    
+           Dear Partner<br>
+           We are glad to announce that we have added below new products to our existing brand. Please extend your support to provide great service to customers.
+           
             <table style='border-collapse:collapse; border: 1px solid black;'> 
                 <thead>
                     <tr style='border-collapse:collapse; border: 1px solid black;'>
@@ -1609,7 +1611,7 @@ class Booking extends CI_Controller {
             <hr />     
         </body>
         </html>";
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NEW_BRAND_ADDED_TAG);
+          $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",NEW_BRAND_ADDED_TAG);
         }
 
         redirect(base_url() . 'employee/booking/get_add_new_brand_form', 'refresh');

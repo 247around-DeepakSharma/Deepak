@@ -2769,6 +2769,14 @@ class invoices_model extends CI_Model {
         return $query->result_array();
     }
 
+    function get_breakup_invoice_details($select, $where){
+        log_message('info', __METHOD__);
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("invoice_details");
+        return $query->result_array();
+    }
+
     
      /**
      * @desc This function is used to update fixed variable charges
@@ -2785,16 +2793,7 @@ class invoices_model extends CI_Model {
         }
     }
     
-    function get_breakup_invoice_details($select, $where){
-        log_message('info', __METHOD__);
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("invoice_details");
-        return $query->result_array();
-
-    }
-
-    /**
+     /**
      * @desc This function is used to get all invoice vertical
      * @param void
      * @return result array

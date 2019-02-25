@@ -366,7 +366,6 @@ class accounting_model extends CI_Model {
         LEFT JOIN `contact_person` ON `courier_details`.`contact_person_id`= `contact_person`.`id` ".$where." ORDER BY `courier_details`.`id` asc ;");
         return $query->result();
     }
-
      /**
      * @desc: This Function is used to insert gstr2a data
      * @param: array $data
@@ -510,8 +509,18 @@ class accounting_model extends CI_Model {
         $query = $this->db->get();
         return $query->num_rows();
     }
+    
+    function get_variable_charge($select='*', $where=array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('variable_charges_type');
 
-  
+        $query = $this->db->get();
+        return $query->result_array(); 
+    }
+    
     /**
      * @desc This function is used to insert variable charges type
      * @param String $data
@@ -522,6 +531,7 @@ class accounting_model extends CI_Model {
          log_message("info", $this->db->last_query());
         return $this->db->insert_id();
     }
+    
      /**
      * @desc This function is used to get variable charges type
      * @param String $select
@@ -541,17 +551,4 @@ class accounting_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array(); 
     }
-
-    function get_variable_charge($select='*', $where=array()){
-        $this->db->select($select);
-        if(!empty($where)){
-            $this->db->where($where);
-        }
-        $this->db->from('variable_charges_type');
-
-        $query = $this->db->get();
-        return $query->result_array(); 
-    }
-     
 }
-

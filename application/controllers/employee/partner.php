@@ -1819,7 +1819,7 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         } */
         
-        if ($part_warranty_status !=2) {
+        if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
         }
 
@@ -1873,7 +1873,7 @@ class Partner extends CI_Controller {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             } */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $data['status'] = SPARE_OOW_SHIPPED;
                             } else {
                                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -1906,7 +1906,7 @@ class Partner extends CI_Controller {
                             }                          
                              */
                             
-                            if($part_warranty_status == 2){
+                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                                 $internal_status = SPARE_OOW_SHIPPED;
                             } else {
                                 $internal_status = SPARE_PARTS_SHIPPED;
@@ -1937,7 +1937,7 @@ class Partner extends CI_Controller {
                             
                         }*/
                         
-                        if($part_warranty_status == 2){
+                        if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
                             $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
                         } else {
                             $sc_data['internal_status'] = $internal_status;
@@ -3357,7 +3357,6 @@ class Partner extends CI_Controller {
             'public_name' => urldecode($name),
             'partner_logo_detail' => $partner_logo_deatil,
         );
-
         if(empty($partner_logo_deatil)){
             $priority = $this->booking_model->get_partner_logo('max(logo_priority) as logo_priority', array())[0]['logo_priority'];
             $data['partner']['logo_priority'] = $priority + 1;
@@ -3365,7 +3364,6 @@ class Partner extends CI_Controller {
         else{
             $data['partner']['logo_priority'] = $partner_logo_deatil[0]['logo_priority'];
         }
-
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_partner_brand_logo', $data);
     }

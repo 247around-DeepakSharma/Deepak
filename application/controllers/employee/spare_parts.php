@@ -1557,8 +1557,7 @@ class Spare_parts extends CI_Controller {
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&
-                            $purchase_price > 0 && $entity_type == _247AROUND_SF_STRING) {
-
+                            $inventory_master_details[0]['price'] > 0 && $entity_type == _247AROUND_SF_STRING) {
 
                         $cb_url = base_url() . "apiDataRequest/update_estimate_oow";
                         $pcb['booking_id'] = $booking_id;
@@ -1566,9 +1565,9 @@ class Spare_parts extends CI_Controller {
                         $pcb['amount_due'] = $amount_due;
                         $pcb['partner_id'] = $partner_id;
                         $pcb['sp_id'] = $spare_id;
-                        $pcb['gst_rate'] = $invoice_gst_rate;
+                        $pcb['gst_rate'] = $inventory_master_details[0]['gst_rate'];
 
-                        $pcb['estimate_cost'] = $purchase_price;
+                        $pcb['estimate_cost'] = ($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100);
                         $pcb['agent_id'] = $this->session->userdata('id');
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     }
@@ -1591,13 +1590,10 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                       
-
                     }
                 }
 
                 $spare_data['part_requested_on_approval'] = 1;
-
                 if (!empty($spare_data['status'])) {
                     $data['status'] = $spare_data['status'];
                 }
