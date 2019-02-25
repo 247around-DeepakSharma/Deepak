@@ -441,13 +441,22 @@
 //        n = d.getMonth();
 //        y = d.getFullYear();
 //        date = d.getDate();
-        $('input[name="daterange_completed_bookings"]').daterangepicker({
+        $('input[id="completed_daterange_id_Completed"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
         locale: {
             format: 'YYYY-MM-DD'
         },
         startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+        //startDate: y+'-'+n+'-'+date
+    });
+    $('input[id="completed_daterange_id_Pending"]').daterangepicker({
+             timePicker: true,
+        timePickerIncrement: 30,
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
         //startDate: y+'-'+n+'-'+date
     });
 });

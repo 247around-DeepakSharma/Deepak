@@ -1440,6 +1440,8 @@ class Spare_parts extends CI_Controller {
                 $booking_id = $spare_parts_details[0]['booking_id'];
                 $amount_due = $spare_parts_details[0]['amount_due'];
 
+                $invoice_gst_rate = $spare_parts_details[0]['invoice_gst_rate'];
+                
                 $data['model_number'] = $spare_parts_details[0]['model_number'];
                 $data['parts_requested'] = $spare_parts_details[0]['parts_requested'];
                 $data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
@@ -1483,7 +1485,6 @@ class Spare_parts extends CI_Controller {
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
 
                     $inventory_master_details = $this->inventory_model->get_inventory_master_list_data('inventory_id, hsn_code, gst_rate, price', array('inventory_id' => $requested_inventory_id));
-
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&

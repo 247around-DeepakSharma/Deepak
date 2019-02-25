@@ -395,6 +395,7 @@ class Service_centers_model extends CI_Model {
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
                 . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
                 . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' ) "
+
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
          //log_message('info', __FUNCTION__  .$this->db->last_query());

@@ -945,7 +945,7 @@ class Accounting extends CI_Controller {
             $post['where']['invoice_date <= "'.$period[1].'"'] = NULL;
         }
 
-        if(!empty($settle_amount) && ($settle_amount != 2)){
+        if($settle_amount != 2){
             $post['where']['settle_amount'] = $settle_amount;
         }
         

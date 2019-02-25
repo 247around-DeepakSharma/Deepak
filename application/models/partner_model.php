@@ -308,18 +308,17 @@ function get_data_for_partner_callback($booking_id) {
             }
         }
 
-	if (!empty($capacity)) {
-	    $this->db->where('capacity', $capacity);
-	}
-        //if(!empty($brand)){
-         $this->db->where('brand', $brand);
-        //}
+
+        if (!empty($capacity)) {
+            $this->db->where('capacity', $capacity);
+        }
+        $this->db->where('brand', $brand);
         
         $this->db->order_by('service_category', 'asc');
 
-	$query = $this->db->get('service_centre_charges');
+      $query = $this->db->get('service_centre_charges');
 
-	return $query->result_array();
+      return $query->result_array();
     }
     
     function get_service_category($service_id, $category, $capacity, $partner_id, $service_category,$brand ="") {
