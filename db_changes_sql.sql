@@ -1,4 +1,4 @@
-<!-- Kalyani 23-07-2018  --->
+﻿<!-- Kalyani 23-07-2018  --->
 
 
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
@@ -9923,8 +9923,8 @@ ALTER TABLE `set_oow_part_type_margin`
 --Rajshree 04 feb 2019
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s' WHERE `sms_template`.`tag` = 'add_new_booking';
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s.%s\r\n' WHERE `sms_template`.`tag` = 'upcountry_add_new_booking';
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'cancel_dealer_booking', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'complete_dealer_booking', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_cancelled', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_completion', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
 
 
 --Rajshree 05 feb 2019
@@ -9944,8 +9944,6 @@ CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 --Kalyani 06-02-2018
 UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
 UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
-
-CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL AFTER `service_category`;
 
@@ -9993,6 +9991,107 @@ ALTER TABLE `dashboard_notifications`
 --
 ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
+
 --Gorakh 11-02-2019-----
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Partners Managed By Account Manager ', '', 'employee/accounting/partners_managed_by_account_manager', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
+
+--Kalyani 21-Feb-2019
+
+CREATE TABLE `api_authentication` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(45) DEFAULT NULL,
+  `url` varchar(500) DEFAULT NULL,
+  `url_tag` varchar(255) DEFAULT NULL,
+  `auth_token` varchar(500) DEFAULT NULL,
+  `client_id` varchar(500) DEFAULT NULL,
+  `client_secret` varchar(500) DEFAULT NULL,
+  `user_name` varchar(500) DEFAULT NULL,
+  `password` varchar(500) DEFAULT NULL,
+  `state` varchar(256) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `api_authentication`
+--
+
+INSERT INTO `api_authentication` (`id`, `entity_id`, `entity_type`, `url`, `url_tag`, `auth_token`, `client_id`, `client_secret`, `user_name`, `password`, `state`, `create_date`) VALUES
+(1, 3, 'partner', 'http://lgfac-servicesengine-stg.paytmmall.com/v1/vendor/update', 'booking_update', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-18 12:08:22'),
+(2, 3, 'partner', 'https://persona-staging.paytm.com/oauth2/authorize', 'code', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-18 12:19:00'),
+(3, 3, 'partner', 'https://persona-staging.paytm.com/oauth2/token', 'authtoken', '96657067-a249-4a21-b5a5-e46168e6c38a', 'internal-lgfac_staging', '54e126df-2367-4b71-b749-6c0ca0e3bf52', 'lgfac-services-247around@paytm.com', 'lgfac@2019', 'a1b2c3d4', '2019-02-20 11:22:21');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `api_authentication`
+--
+ALTER TABLE `api_authentication`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `api_authentication`
+--
+ALTER TABLE `api_authentication`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'paytm_booking_updation_fail', 'Paytm booking updation fail %s', 'Dear Team, <br>Paytm booking updation fail.</br><p>Response -%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `dashboard_notifications` ADD `notification_type` INT NOT NULL AFTER `entity_id`;
+
+CREATE TABLE `dashboard_notification_type` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `icon` varchar(50) NOT NULL,
+  `color` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `dashboard_notification_type`
+--
+
+INSERT INTO `dashboard_notification_type` (`id`, `type`, `icon`, `color`) VALUES
+(1, 'Success', 'fa fa-thumbs-o-up', '#2f99227d'),
+(2, 'Warning', 'fa fa-exclamation-circle', '#faebcc'),
+(3, 'Danger', 'fa fa-thumbs-o-down', '#ebccd1'),
+(4, 'Announcement', 'fa fa-bullhorn', '#bce8f1'),
+(5, 'Payment Success', 'fa fa-inr', '#2f99227d'),
+(6, 'Payment Hold', 'fa fa-inr', '#faebcc'),
+(7, 'Spare Warning', 'fa fa-dropbox', '#faebcc'),
+(8, 'Information', 'fa fa-info-circle', '#bce8f1');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+COMMIT;
+
+--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
+
+
+
