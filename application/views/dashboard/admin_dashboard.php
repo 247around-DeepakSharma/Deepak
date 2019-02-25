@@ -727,7 +727,6 @@
                         if(!empty($am_data))
                         {
                             ?>
-                        
                                 
                                     <div class="col-md-3" id="am">
                                         <div class="item form-group">
@@ -756,7 +755,6 @@
                            </div>
                     </div>
                 </div>
-              
             </div>
         </div>
     </div>

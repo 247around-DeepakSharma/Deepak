@@ -66,6 +66,8 @@
                       <div class="col-md-6">
                         <select name="reason" class= "form-control" required="" >
                             <option value="">Select</option>
+                            <option value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE;?>"> <?php echo CUSTOMER_ASK_TO_RESCHEDULE;?></option> 
+                             <option value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?>"> <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?></option> 
                             <?php
                                 if($data[0]['is_upcountry'] == 1)
                                 {
@@ -74,8 +76,8 @@
                             <?php
                                 }
                             ?>
-                             <option value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE;?>"> <?php echo CUSTOMER_ASK_TO_RESCHEDULE;?></option> 
-                             <option value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?>"> <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER;?></option> 
+                             
+                            
                              <?php if(!empty($data['spare_shipped_flag'])){ ?>
                              <option value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF;?>"><?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF;?></option>
                              <?php } ?>

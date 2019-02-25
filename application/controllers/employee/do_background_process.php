@@ -191,7 +191,6 @@ class Do_background_process extends CI_Controller {
             $shouldProcess = TRUE;
             for($c=0; $c<$len;$c++){
                 $expectredValuesArray = array(_247AROUND_CANCELLED,_247AROUND_COMPLETED);
-                echo $data[$c]['internal_status'];
                 if(!in_array($data[$c]['internal_status'], $expectredValuesArray)){
                     $shouldProcess = FALSE;
                 }

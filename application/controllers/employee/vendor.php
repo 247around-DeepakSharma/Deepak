@@ -4189,13 +4189,16 @@ class vendor extends CI_Controller {
           function is_file_contains_only_valid_service(){
               $uniqueServicesArray = array();
               foreach ($this->vendorPinArray as $index=>$data){
-                  $uniqueServicesArray[$data['appliance']][] = $index;  
+                  $appliance  = trim($data['appliance']);
+                  $uniqueServicesArray[$appliance][] = $index;  
               }
-             $serviceTableData = array();
+                            echo "<pre>";
+                            print_r($this->vendorPinArray);
+              print_r($uniqueServicesArray);
+              exit();
              $serviceTableData =  $this->reusable_model->get_search_result_data("services","id,services",NULL,NULL,NULL,NULL,array("services"=>array_keys($uniqueServicesArray)),NULL);
-             $existServices =array();
              foreach($serviceTableData as $serviceData){
-                    $this->existServices[$serviceData['services']] = $serviceData['id'] ; 
+                    $this->existServices[trim($serviceData['services'])] = $serviceData['id'] ; 
              }
               $wrongServiceArray = array_diff(array_keys($uniqueServicesArray),array_keys($this->existServices));
               if($wrongServiceArray){
@@ -4392,6 +4395,9 @@ class vendor extends CI_Controller {
                               $is_saved = $this->save_vendor_pin_code_file($tempName,$vendorID);
                               if($is_saved == 1){
                                         $msgVerfied = $this->is_vendor_pin_code_file_valid($_FILES,$vendorID);
+                                        echo "<pre>";
+                                        print_r($msgVerfied);
+                                        exit();
                                         if($msgVerfied == 1){
                                                        $fileStatus = 'Failure';
                                                        $this->manage_pincode_not_found_sf_table();
