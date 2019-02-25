@@ -224,7 +224,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
@@ -564,7 +564,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="    margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
@@ -727,6 +727,7 @@
                         if(!empty($am_data))
                         {
                             ?>
+                        
                                 
                                     <div class="col-md-3" id="am">
                                         <div class="item form-group">
@@ -755,6 +756,7 @@
                            </div>
                     </div>
                 </div>
+              
             </div>
         </div>
     </div>
@@ -1977,7 +1979,7 @@ function initiate_escalation_data(){
 }
 select option:empty { display:none }
 .select2-container--default{
-        width: 166px !important;
+        width: 154px !important;
 }
 .select2-selection--multiple{
         border: 1px solid #ccc !important;

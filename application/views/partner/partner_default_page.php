@@ -27,22 +27,22 @@
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>partner/pending_booking/0/1">
+                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/pending_booking/0/1">
                                     Pending Bookings
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>partner/get_spare_parts_booking/0/1">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/1">
                                     Pending Spares
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>partner/get_waiting_defective_parts/0/1">
+                                <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_defective_parts/0/1">
                                     Shipped Spares by SF
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
+                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
                                     Waiting Approval Upcountry Charges
                                 </a>
                             </li>

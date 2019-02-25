@@ -93,7 +93,7 @@
                 <div class="item form-group">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <select class="form-control" id="completed_booking">
-                            <option value="" selected="selected" disabled="">Completed Type</option>
+                            <option value="" selected="selected" disabled="">Select Completed Booking Type</option>
                              <option value="a">All</option>
                             <option value="b">Completed by Service Center (In Review)</option>
                             <option value="c">Completed</option>
