@@ -521,6 +521,7 @@ class Dashboard extends CI_Controller {
         
         $total_advance_paid = 0;
         $total_un_settle = 0;
+        $total_un_billed_ack= 0;
         $total_un_billed_delivered = 0;
         $total_un_billed_in_transit= 0;
         $total_un_billed_in_process= 0;
@@ -532,7 +533,7 @@ class Dashboard extends CI_Controller {
         );
 
         $this->table->set_template($template);
-        $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)','Disputed Amount (Rs)', 'Balance (Rs)', "Login"));
+        $this->table->set_heading(array('Name', 'Advance Paid', 'Un-Settle Invoice (Rs)','Un-billed Acknowledged (Rs)', 'Un-billed Delivered (Rs)', 'Un-billed In-transit (Rs)','Disputed Amount (Rs)', 'Balance (Rs)', "Login"));
 
         if(!empty($cp)){
             foreach ($cp as  $value) {
@@ -573,23 +574,30 @@ class Dashboard extends CI_Controller {
 
                  $total_advance_paid += abs($amount_cr_deb['advance']);
                  $total_un_settle += $amount_cr_deb['unbilled'];
+                 $total_un_billed_ack += $amount_cr_deb['cp_total_ack'];
                  $total_un_billed_delivered += $amount_cr_deb['cp_delivered'];
                  $total_un_billed_in_transit += $amount_cr_deb['cp_transit'];
                  $total_un_billed_in_process += $amount_cr_deb['cp_disputed'];
                  $total_balance += $amount_cr_deb['total_balance'];
                  $login_button = '<a href="javascript:void(0)" style="background: #4b5056;border:1px solid #4b5056" '
                          . 'class="btn btn-md btn-success" onclick="return login_to_vendor('.$value['id'].')" ">Login</a>';
-                 $this->table->add_row($name .$star,round(abs($amount_cr_deb['advance']),0),-round($amount_cr_deb['unbilled'],0), 
-                         -round($amount_cr_deb['cp_delivered'],0),-round($amount_cr_deb['cp_transit'],0), round($amount_cr_deb['cp_disputed'],0),
-                         "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
-                        round($amount_cr_deb['total_balance'],0).$class. "</a>", $login_button);
-
+                 $this->table->add_row($name .$star,
+                         round(abs($amount_cr_deb['advance']),0),
+                         -round($amount_cr_deb['unbilled'],0),
+                         -round($amount_cr_deb['cp_total_ack'],0),
+                         -round($amount_cr_deb['cp_delivered'],0),
+                         -round($amount_cr_deb['cp_transit'],0), 
+                         -round($amount_cr_deb['cp_disputed'],0),
+                        "<a target='_blank' href='".  base_url()."employee/invoice/invoice_summary/vendor/".$value['id']."'>".
+                        round($amount_cr_deb['total_balance'],0).$class. "</a>", 
+                         $login_button);
              }
         }
         
         $this->table->add_row("<b>Total</b>",
                 "<b>".round($total_advance_paid,0)."</b>",
                 "<b>".round($total_un_settle,0)."</b>",
+                 "<b>".round($total_un_billed_ack,0)."</b>",
                 "<b>".round($total_un_billed_delivered,0)."</b>",
                 "<b>".round($total_un_billed_in_transit,0),
                  "<b>".round($total_un_billed_in_process,0),
@@ -717,7 +725,7 @@ class Dashboard extends CI_Controller {
 //        $groupBY = array('sf.pincode','sf.service_id');
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID = NULL);
+        $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID);
        // $tempPincode = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = array();
         foreach($tempPincode as $pincodes){
@@ -1419,10 +1427,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-        $groupBY = array('city,sf.service_id,sf.pincode');
+        $groupBY = ' group by city,sf.service_id,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
         //$dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'city','services');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
@@ -1437,11 +1445,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        }
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
-        $orderBYArray['pincodeCount'] = 'DESC';
-//        $groupBY = array('partners.public_name','sf.city','sf.pincode');
+   //     $orderBYArray['pincodeCount'] = 'DESC';
+       $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
 //        $join['partners']  = 'sf.partner_id=partners.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','District');
@@ -1457,10 +1465,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-        $groupBY = array('services.services','sf.city','sf.pincode');
+        $groupBY = ' group by services.services,sf.city,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','Appliance','District');
@@ -1771,8 +1779,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
                     unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
                     unset($where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")']);
-                    unset($join['spare_parts_details']);
-                    unset($joinType['spare_parts_details']);
+//                    unset($join['spare_parts_details']);
+//                    unset($joinType['spare_parts_details']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
@@ -2341,10 +2349,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-          $groupBY = array('state,sf.service_id,sf.pincode');
+          $groupBY = ' group by state,sf.service_id,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID=NULL,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'state','services');
         return $finalPincodeArray;

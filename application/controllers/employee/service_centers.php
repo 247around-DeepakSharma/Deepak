@@ -2516,10 +2516,9 @@ class Service_centers extends CI_Controller {
         
         if(!empty($booking_address)){
             
-           foreach ($booking_address as $partner_id=> $spare_id_array) {
-                $wh_entity_details = explode('-', $partner_id);              
-                foreach ($spare_id_array as $spare_id) {          
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
+           foreach ($booking_address as $spare_id) {
+                      
+                    $v_select = "spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
                         . "service_centres.address,service_centres.pincode, service_centres.state, "
                         . "service_centres.district, service_centres.primary_contact_name,"
                         . "service_centres.primary_contact_phone_1,booking_details.partner_id as booking_partner_id, defective_return_to_entity_type,"
@@ -2535,14 +2534,13 @@ class Service_centers extends CI_Controller {
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
                         'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
-                          
-                    switch ($wh_entity_details[1]) {
+                    switch ($sp_details[0]['defective_return_to_entity_type']) {
                     case _247AROUND_PARTNER_STRING:
-                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];                         
+                        $booking_details = $this->partner_model->getpartner($sp_details[0]['defective_return_to_entity_id'])[0];                         
                         break;
                     case _247AROUND_SF_STRING:                        
                         $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $wh_entity_details[0]))[0];             
+                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $sp_details[0]['partner_id']))[0];             
                         break;
                     }
 
@@ -2556,7 +2554,7 @@ class Service_centers extends CI_Controller {
                     $booking_history['details'][$i]['booking_id'] = $sp_details[0]['booking_id'];
                     $i++;
                 }
-            }
+            
         }else{
            //Logging
             log_message('info',__FUNCTION__.' No Download Address from POST');
@@ -3708,7 +3706,6 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->current_status."<b> (".$order_list->internal_status." )</b>";
         if($inprocess){
-            $row[] = "";
             switch ($order_list->internal_status){
                 case _247AROUND_BB_NOT_DELIVERED:
                 case _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS:

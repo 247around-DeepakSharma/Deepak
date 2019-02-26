@@ -509,6 +509,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Spare Parts</b></div>
                             <div class="panel-body">
+                                <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="is required Def parts" class="col-md-4">Is Spare Parts Required</label>
@@ -519,6 +520,21 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php if (form_error('oot_spare_to_be_shipped')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="oot_spare_to_be_shipped" class="col-md-4">Part to be shipped(OOT Days)</label>
+                                        <div class="col-md-8">
+                                            <input type="number" class="form-control"  name="oot_spare_to_be_shipped" value = "<?php if (isset($query[0]['oot_spare_to_be_shipped'])) {
+                                                echo $query[0]['oot_spare_to_be_shipped'];
+                                                } else { echo "60";} ?>" >
+                                            <?php echo form_error('oot_spare_to_be_shipped'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group <?php if (form_error('spare_notification_email')) {
                                         echo 'has-error';
@@ -531,6 +547,7 @@
                                             <?php echo form_error('spare_notification_email'); ?>
                                         </div>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>

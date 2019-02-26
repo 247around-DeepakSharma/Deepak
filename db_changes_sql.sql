@@ -9884,8 +9884,8 @@ ALTER TABLE `set_oow_part_type_margin`
 --Rajshree 04 feb 2019
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s' WHERE `sms_template`.`tag` = 'add_new_booking';
 -- UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. Call 9555000247 for Support. 247Around, %s Service Partner.%s.%s\r\n' WHERE `sms_template`.`tag` = 'upcountry_add_new_booking';
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'cancel_dealer_booking', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'complete_dealer_booking', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_cancelled', 'Dear Customer, Your %s %s is cancelled in our system. Contact us on 180042525252.', 'when booking cancelled and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:09');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES ('0', 'sms_to_dealer_on_booking_completion', 'Your %s %s completed (%s).247Around.', 'when booking completed and booking related to dealer,inform dealer about booking.', '1', '2019-02-04 17:16:25');
 
 
 --Rajshree 05 feb 2019
@@ -9906,8 +9906,6 @@ CREATE TABLE `boloaaka_ren`.`sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMEN
 --Kalyani 06-02-2018
 UPDATE `internal_status` SET `page` = 'bill_defective_oow_spare_part' WHERE `status` = "Repair OOW Part";
 UPDATE `internal_status` SET `page` = 'bill_defective_spare_part_lost' WHERE status = ""bill_defective_spare_part;
-
-CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `request_type` ADD `request_type_sms` VARCHAR(64) NULL DEFAULT NULL AFTER `service_category`;
 
@@ -9955,7 +9953,6 @@ ALTER TABLE `dashboard_notifications`
 --
 ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
 
 --Kalyani 21-Feb-2019
 
@@ -10049,11 +10046,25 @@ ALTER TABLE `dashboard_notification_type`
 ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
---Chhavi
-INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
-
-
 
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
 
+
+
+--Chhavi
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
+
+
+COMMIT;
+
+ALTER TABLE `booking_unit_details` CHANGE `partner_refuse_to_pay` `partner_approved` TINYINT(1) NOT NULL DEFAULT '1';
+ALTER TABLE `zopper_estimate_details` ADD `partner_approved` INT(1) NOT NULL DEFAULT '0' AFTER `update_date`;
+--ABhay
+ALTER TABLE `partner_file_upload_header_mapping` ADD `request_type` VARCHAR(256) NULL DEFAULT NULL AFTER `delivery_end_date`;
+
+ALTER TABLE `partner_file_upload_header_mapping` ADD `category` VARCHAR(128) NULL DEFAULT NULL AFTER `request_type`;
+
+--Abhay
+ALTER TABLE `partners` ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;
+ALTER TABLE trigger_partners ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;

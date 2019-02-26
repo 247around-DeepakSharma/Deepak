@@ -2785,7 +2785,6 @@ class invoices_model extends CI_Model {
     function update_into_variable_charge($where, $data){
         $this->db->where($where);
         $this->db->update('vendor_partner_variable_charges', $data);
-        //echo $this->db->last_query(); die();
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -2860,16 +2859,22 @@ class invoices_model extends CI_Model {
         $this->db->select('ud.id');
         $this->db->from('spare_parts_details as s');
         $this->db->join('booking_unit_details as ud', 'ud.booking_id = s.booking_id');
+        $this->db->join('partners', 'partners.id = ud.partner_id');
         $this->db->where('ud.partner_invoice_id', NULL);
         $this->db->where('s.status', SPARE_PARTS_REQUESTED);
         $this->db->where('s.part_requested_on_approval', 1);
         $this->db->where('ud.booking_status NOT IN ("'._247AROUND_COMPLETED.'", "'._247AROUND_CANCELLED.'") ', NULL);
         $this->db->where('ud.partner_net_payable > 0', NULL);
-        $this->db->where("DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= '".BILL_TO_PARTNER_NOT_SHIP_PART_DAYS."' ", NULL);
+        $this->db->where("DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= partners.oot_spare_to_be_shipped ", NULL);
         $this->db->where('ud.partner_id', $partner_id);
         $query = $this->db->get();
         return  $query->result_array();
         
+    }
+    function get_buyback_paid_reimbursement_amount(){
+       $sql= "SELECT round(SUM(amount_paid)) as reimburse_amount FROM (vendor_partner_invoices) WHERE vendor_partner_invoices.invoice_id IN (SELECT DISTINCT partner_reimbursement_invoice FROM bb_unit_details)";
+       $query = $this->db->query($sql);
+       return  $query->result_array();
     }
     
 }

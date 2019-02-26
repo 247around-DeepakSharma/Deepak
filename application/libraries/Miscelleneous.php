@@ -1118,35 +1118,33 @@ class Miscelleneous {
             }
         }
         //Get auto acknowledge completed amount
-        $where['where'] = array('assigned_cp_id' => $cp_id, "bb_order_details.auto_acknowledge" => 1, 'cp_invoice_id IS NULL' => NULL);
-        $where['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_Damaged_STATUS),
-                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_Damaged_STATUS));
+        $where['where'] = array('assigned_cp_id' => $cp_id, "bb_order_details.auto_acknowledge" => 1, 'cp_invoice_id IS NULL' => NULL, 'bb_order_details.acknowledge_date IS NOT NULL' => NULL,'bb_cp_order_action.current_status != "InProcess"' => NULL);
+        //$where['where_in'] = array('bb_cp_order_action.current_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_Damaged_STATUS), 'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_Damaged_STATUS));
+        $where['where_in'] = array('bb_unit_details.order_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS));
         $where['select'] =  " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as auto_ack_charges";
         $auto_ack_charge = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->auto_ack_charges;
         
         //Get manual acknowledge completed amount
-        $where['where'] = array('assigned_cp_id' => $cp_id, "bb_order_details.auto_acknowledge" => 0, 'cp_invoice_id IS NULL' => NULL);
+        $where['where'] = array('assigned_cp_id' => $cp_id, "bb_order_details.auto_acknowledge" => 0, 'cp_invoice_id IS NULL' => NULL,'bb_order_details.acknowledge_date IS NOT NULL' => NULL);
         $where['select'] =  " SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) THEN (round(bb_unit_details.cp_claimed_price,0)) "
                 . "ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,0)) END ) as manual_ack_charges";
         $manual_ack_charge = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->manual_ack_charges;
         
         // Get Delivered Amount
-        $where['where'] = array('assigned_cp_id' => $cp_id, 'bb_order_details.internal_status' => 'Delivered','bb_order_details.current_status' => 'Delivered',
-            'cp_invoice_id IS NULL' => NULL);
-        $where['where_in'] = array('bb_cp_order_action.current_status' => 'Pending');
+        $where['where'] = array('assigned_cp_id' => $cp_id,'cp_invoice_id IS NULL' => NULL,'bb_order_details.acknowledge_date IS NULL AND bb_cp_order_action.current_status != "InProcess"' =>NULL);
+        $where['where_in'] = array('bb_unit_details.order_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_ORDER_COMPLETED_CURRENT_STATUS));
         $where['select'] = "SUM(bb_unit_details.cp_basic_charge + bb_unit_details.cp_tax_charge) as cp_delivered_charge";
         $cp_delivered_charge =$this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->cp_delivered_charge;
         
         // Get Intransit Amount
-        $where['where'] = array('assigned_cp_id' =>$cp_id,'bb_cp_order_action.current_status' => 'Pending', 'cp_invoice_id IS NULL' => NULL);
-        $where['where_in'] = array('bb_order_details.internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted'),'bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $where['where'] = array('assigned_cp_id' =>$cp_id,'bb_cp_order_action.current_status' => 'Pending', 'cp_invoice_id IS NULL' => NULL,'bb_order_details.acknowledge_date IS NULL' => NULL);
+        $where['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $where['select'] = "SUM(bb_unit_details.cp_basic_charge + bb_unit_details.cp_tax_charge) as cp_intransit";
         $cp_intransit = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->cp_intransit;
         
         // Get Disputed Amount
         $where['where'] = array('assigned_cp_id' => $cp_id,'cp_invoice_id IS NULL' => NULL);
-        $where['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'),
-                                  'bb_cp_order_action.internal_status' => array(_247AROUND_BB_DELIVERED, _247AROUND_BB_NOT_DELIVERED, _247AROUND_BB_247APPROVED_STATUS,_247AROUND_BB_Damaged_STATUS, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS));
+        $where['where_in'] = array('bb_cp_order_action.current_status' => array('InProcess'));
         $where['select'] = "SUM(bb_unit_details.cp_basic_charge + bb_unit_details.cp_tax_charge) as cp_disputed";
         $cp_disputed = $this->My_CI->cp_model->get_bb_cp_order_list($where)[0]->cp_disputed;
         
@@ -1154,6 +1152,7 @@ class Miscelleneous {
         $cp_amount['total_balance'] = $total_balance;
         $cp_amount['cp_auto_ack'] = $auto_ack_charge;
         $cp_amount['cp_manual_ack'] = $manual_ack_charge;
+        $cp_amount['cp_total_ack'] = $manual_ack_charge+$auto_ack_charge;
         $cp_amount['cp_delivered'] = $cp_delivered_charge;
         $cp_amount['cp_transit'] = $cp_intransit;
         $cp_amount['cp_disputed'] = $cp_disputed;
@@ -1524,7 +1523,7 @@ class Miscelleneous {
                         $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
-                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
