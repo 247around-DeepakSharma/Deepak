@@ -115,3 +115,7 @@ define('DEFECTIVE_PART_PENDING_OOT_DAYS', 15);
 define('SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH', 15);
 //Defective parts shipped 
 define('DEFECTIVE_PART_SHIPPED_OOT_DAYS', 15);
+
+//show message when partner escalate booiking but it is pending on partner to ship new part
+define('NOT_ESCALATE_BOOKING_DUE_SPARE_PENDING', 'You cannot escalate booking because it is pending to ship new part');
+define('NOT_ESCALATE_BOOKING_DUE_SPARE_NOT_DELIVERED', 'You cannot escalate booking because it is pending to ship new part');

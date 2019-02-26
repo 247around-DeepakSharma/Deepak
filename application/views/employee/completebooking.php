@@ -8,6 +8,21 @@
             </div>
         </div>
         <?php }?>
+        <?php $enable_button = TRUE; 
+                if($booking_history[0]['current_status'] == _247AROUND_COMPLETED){
+                    if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && ($this->session->userdata('user_group') == "admin") 
+                        || ($this->session->userdata('user_group') == "closure")
+                        || ($this->session->userdata('user_group') == "inventory_manager" ) 
+                        || ($this->session->userdata('user_group') == "developer" )  )  {
+                             $enable_button = TRUE; 
+
+                        } else {
+                            $enable_button = FALSE; 
+                        }
+                } else {
+                    $enable_button = TRUE;
+                } 
+                ?>
         <?php $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php $isModelMandatory =0 ; $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
@@ -44,6 +59,7 @@
             
             }?>
         <center><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></center>
+        <center><?php if(!$enable_button) { ?><span style="color:red; font-weight: bold;" ><?php echo CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT;?></span><?php } ?></center>
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
             <div class="panel-body">
@@ -516,7 +532,12 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
+                            <?php if($enable_button){
+                            ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
+                            <?php } else {
+                                echo "<p style='color:red; '>".CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT."</p>";
+                            }?>
                         </center>
                         <?php } ?>
                     </div>
