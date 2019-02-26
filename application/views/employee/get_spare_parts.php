@@ -162,7 +162,10 @@
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    spare_parts_requested_table.ajax.reload(null, false);                   
+                    spare_parts_requested_table.ajax.reload( function ( json ) { 
+                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    } );
+                    
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
