@@ -855,24 +855,25 @@
                 },
                 url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,          
                 success: function (data) {
-                    if(data !== "ERROR"){
-                        $('#booking_city').select2().html(data).change();
-    //                        $("#booking_city").select2({
-    //                           tags: true
-    //                        });
-                          
-                       
-                         $('#submitform').prop('disabled', false);
-                         $("#not_visible").val('1');
-                        getPrice();
-                    } else {
+                    if(data.includes("ERROR")){
                         alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
                         $('#submitform').prop('disabled', true);
                         $("#not_visible").val('0');
-                        
                     }
-                   
-                    
+                    else if(data.includes("2")){
+                        alert("This PINCODE is not in your Serviceable Area associated with us!");
+                         $('#submitform').prop('disabled', true);
+                         $("#not_visible").val('0');
+                    }
+                    else {
+                        $('#booking_city').select2().html(data).change();
+                        //                        $("#booking_city").select2({
+                        //                           tags: true
+                        //                        });
+                         $('#submitform').prop('disabled', false);
+                         $("#not_visible").val('1');
+                        getPrice();
+                    }
                 },
                 complete: function(){
                     $('#city_loading').css("display", "none");
