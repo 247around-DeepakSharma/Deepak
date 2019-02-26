@@ -6683,7 +6683,13 @@ class Partner extends CI_Controller {
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
-        if(isset($_FILES))
+        $errormsg="";
+        $allowed_filetype=array('image/jpeg',
+        'image/jpg',
+        'image/gif',
+        'image/png');
+        $allowed_size=8388608;
+         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -6695,36 +6701,50 @@ class Partner extends CI_Controller {
                     $_FILE['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
                     $_FILE['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
                     $_FILE['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
-                   //Processing Sample Pic File
+                    $size=$_FILE['SamplePicfile']['size'];
+                    $name=$_FILE['SamplePicfile']['name'];
+                    $type=$_FILE['SamplePicfile']['type'];
+                    //Processing Sample Pic File
                    
                     if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
-                        $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
-                        $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
-                        $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
-                        move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
+                        if(in_array($type,$allowed_filetype) && ($size<=$allowed_size))
+                          {
+                                    $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
+                                    $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
+                                    $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
+                                    move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
 
-                        //Upload files to AWS
-                        $bucket = BITBUCKET_DIRECTORY;
-                        $directory_xls = "vendor-partner-docs/" . $sample_file;
-                        $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                        $data=array(
-                        'partner_id'=>$partner_id,
-                        'sample_no_pic'=>$sample_file,
-                        'created_date'=>date('Y-m-d'),
-                        'active'=>'1'
-                        );
-                      
-                      //update sample_no_pic
-                        $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
-                        
-                        $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
-                        unlink(TMP_FOLDER . $sample_file);
+                                    //Upload files to AWS
+                                    $bucket = BITBUCKET_DIRECTORY;
+                                    $directory_xls = "vendor-partner-docs/" . $sample_file;
+                                    $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                                    $data=array(
+                                    'partner_id'=>$partner_id,
+                                    'sample_no_pic'=>$sample_file,
+                                    'created_date'=>date('Y-m-d'),
+                                    'active'=>'1'
+                                    );
 
-                        //Logging success for file uppload
-                        log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                                  //update sample_no_pic
+                                    $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
+
+                                    $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
+                                    unlink(TMP_FOLDER . $sample_file);
+
+                                    //Logging success for file uppload
+                                    log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                          }
+                          else
+                          {
+                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
+                          }
                       }
                    
+                }
+                if(!empty($errormsg))
+                {
+                    $this->session->set_userdata('error', $errormsg);
                 }
                       $msg = "Partner Sample Pic has been updated successfully";
                        $this->session->set_userdata('success', $msg);
