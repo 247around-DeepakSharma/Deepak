@@ -700,6 +700,7 @@ class Partner extends CI_Controller {
         $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
         $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
+        $return_data['oot_spare_to_be_shipped'] = $this->input->post('oot_spare_to_be_shipped');
         $return_data['is_wh'] = $this->input->post('is_wh');
         $is_prepaid = $this->input->post('is_prepaid');
         $return_data['is_prepaid'] = 2; // Default set
