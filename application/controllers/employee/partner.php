@@ -6751,6 +6751,7 @@ class Partner extends CI_Controller {
                           {
                               $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
                           }
+                          print_r($errormsg);exit();
                       }
                    
                 }
