@@ -608,5 +608,6 @@ define("NOT_DEFINE_SN",2);
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
 
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

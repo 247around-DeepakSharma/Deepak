@@ -636,7 +636,7 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
 
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
