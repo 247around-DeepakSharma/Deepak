@@ -2877,7 +2877,7 @@ class Invoice extends CI_Controller {
                 
                 $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id);
 
-                $sc_details['rm_name'] = (!empty($rm))? $rm[0]['full_name']:"";;
+                $sc_details['rm_name'] = (!empty($rm))? $rm[0]['full_name']:"";
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['name']);
                 $sc_details['gst_no'] = $sc['gst_no'];
                 $sc_details['is_signature'] = !empty($sc['signature_file']) ?"Yes":"NO";
