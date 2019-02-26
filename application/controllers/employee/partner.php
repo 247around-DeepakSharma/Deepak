@@ -6721,7 +6721,8 @@ class Partner extends CI_Controller {
                     if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
                         if(in_array($type,$allowed_filetype) && ($size<=$allowed_size))
-                          {
+                          {print_r('allowd size');
+exit();
                                     $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
                                     $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
                                     $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
@@ -6750,8 +6751,10 @@ class Partner extends CI_Controller {
                           else
                           {
                               $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
+                               print_r($errormsg);exit();
+                              
                           }
-                          print_r($errormsg);exit();
+                         
                       }
                    
                 }
