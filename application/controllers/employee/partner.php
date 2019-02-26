@@ -6701,8 +6701,7 @@ class Partner extends CI_Controller {
         'image/gif',
         'image/png');
         $allowed_size=2097152;
-        print_r($_FILES);exit();
-         if(isset($_FILES))
+        if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -6722,8 +6721,7 @@ class Partner extends CI_Controller {
                     if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
                         if(in_array($type,$allowed_filetype) && ($size<=$allowed_size))
-                          {print_r('allowd size');
-exit();
+                          {
                                     $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
                                     $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
                                     $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
@@ -6745,17 +6743,20 @@ exit();
 
                                     $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
                                     unlink(TMP_FOLDER . $sample_file);
-
+                                    $msg=$msg.$name.' File Uploaded successfully ';
                                     //Logging success for file uppload
                                     log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
                           }
                           else
                           {
-                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
-                               print_r($errormsg);exit();
-                              
+                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
+                                                             
                           }
                          
+                      }
+                      else
+                      {
+                          $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
                    
                 }
@@ -6763,9 +6764,11 @@ exit();
                 {
                     $this->session->set_userdata('error', $errormsg);
                 }
-                      $msg = "Partner Sample Pic has been updated successfully";
-                       $this->session->set_userdata('success', $msg);
-                  redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                if(!empty($msg))
+                {
+                    $this->session->set_userdata('success', $msg);
+                }
+                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
         
