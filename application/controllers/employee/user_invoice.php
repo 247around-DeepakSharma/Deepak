@@ -539,7 +539,7 @@ class User_invoice extends CI_Controller {
         $remarks = $this->input->post('remarks');
         $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
-                            . "state,address as company_address, owner_phone_1"
+                            . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
