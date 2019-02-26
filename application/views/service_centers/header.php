@@ -517,9 +517,9 @@
                 if(marquee.length>0){ 
                     $("#marquee_div").show();
                     for(var i=0; i<marquee.length; i++){
-                       marquee_html +=  marquee[i]['message']+" ";
+                       marquee_html +=  marquee[i]['message']+", ";
                     }
-                    $(".marquee").text(marquee_html);
+                    $(".marquee").text(marquee_html.slice(0,-2));
                     $('.marquee').marquee({
                                 duration: 30000,
                                      gap: 100,
