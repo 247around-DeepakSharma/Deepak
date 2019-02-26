@@ -2049,5 +2049,10 @@ function get_data_for_partner_callback($booking_id) {
         $result=$this->db->get()->result_array();
         return $result;
     }
+    function insert_sample_no_pic($data)
+    {
+        $this->db->insert('partner_sample_no_picture',$data);
+        return $this->db->insert_id();
+    }
 }
 
