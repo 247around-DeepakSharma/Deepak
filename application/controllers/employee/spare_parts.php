@@ -1439,7 +1439,7 @@ class Spare_parts extends CI_Controller {
         $delivered_sp = array();
         $sms_template_tag = '';
         $reason_text = '';
-
+        
         if (!empty($spare_id)) {
 
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
@@ -1493,7 +1493,7 @@ class Spare_parts extends CI_Controller {
                     $reason_text = 'Sent Spare ' . REPAIR_OOW_TAG . ' to ' . REPAIR_IN_WARRANTY_TAG;
                     $this->send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data, 'spare_parts_in_warranty_email_to_customer');
                 }
-
+                
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
@@ -1588,11 +1588,11 @@ class Spare_parts extends CI_Controller {
      * @param $booking_id
      */
     function send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data ,$email_template_tag) {
-       
+              
         if (!empty($part_warranty_status)) {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template($email_template_tag);
-                        
+                                       
             if (!empty($email_template)) {
                 
                $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name, service_centres.phone_1, service_centres.email', array('service_centres.id' => $service_center_id) ,'name',array());
@@ -1604,24 +1604,12 @@ class Spare_parts extends CI_Controller {
                     $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 }
                 
-                $this->load->library('table');
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
 
-                $this->table->set_template($template);
-
-                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                
-                $this->table->add_row($data['model_number'], $data['parts_requested_type'], $data['parts_requested']);
-             
-                $body_msg = $this->table->generate();
-                
-                $body_msg = '';
                 $to = $vendor_details[0]['email'] . "," . $get_partner_details[0]['owner_email'];
                 $cc = $email_template[3] . "," . $am_email;
-                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                $emailBody = vsprintf($email_template[0], $body_msg);
+                $subject = vsprintf($email_template[4], array($data['parts_requested_type'], $data['booking_id']));
+                
+                $emailBody = vsprintf($email_template[0], array($data['parts_requested'],$data['booking_id']));
                 $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, '', $email_template_tag, '', $data['booking_id']);
             }
         }
