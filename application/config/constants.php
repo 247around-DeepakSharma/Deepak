@@ -609,5 +609,6 @@ define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
 define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', 'Can not allow to re-complete booking');
 
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
