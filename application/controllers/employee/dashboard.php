@@ -725,7 +725,7 @@ class Dashboard extends CI_Controller {
 //        $groupBY = array('sf.pincode','sf.service_id');
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID = NULL);
+        $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID);
        // $tempPincode = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = array();
         foreach($tempPincode as $pincodes){
@@ -1427,10 +1427,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-        $groupBY = array('city,sf.service_id,sf.pincode');
+        $groupBY = ' group by city,sf.service_id,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
         //$dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'city','services');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
@@ -1445,11 +1445,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        }
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
-        $orderBYArray['pincodeCount'] = 'DESC';
-//        $groupBY = array('partners.public_name','sf.city','sf.pincode');
+   //     $orderBYArray['pincodeCount'] = 'DESC';
+       $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
 //        $join['partners']  = 'sf.partner_id=partners.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','District');
@@ -1465,10 +1465,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-        $groupBY = array('services.services','sf.city','sf.pincode');
+        $groupBY = ' group by services.services,sf.city,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','Appliance','District');
@@ -2352,10 +2352,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //        $where['sf.active_flag'] = 1;
 //        $where['sf.is_pincode_valid'] = 1;
 //        $orderBYArray['pincodeCount'] = 'DESC';
-          $groupBY = array('state,sf.service_id,sf.pincode');
+          $groupBY = ' group by state,sf.service_id,sf.pincode';
 //        $join['services']  = 'sf.service_id=services.id';
 //        $JoinTypeTableArray['services'] = 'left';
-        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID=NULL,$groupby);
+        $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
        // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'state','services');
         return $finalPincodeArray;
