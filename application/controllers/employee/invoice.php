@@ -3866,7 +3866,7 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__. " invoice data ". print_r($invoice_details, true). " Spare Data ". print_r($spare_data, TRUE));
         $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
-                    . "state, pincode, owner_email, primary_contact_email, sc_code", array('id' => $invoice_details[0]['vendor_partner_id']));
+                    . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1", array('id' => $invoice_details[0]['vendor_partner_id']));
         $data = array();
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
         $data[0]['taxable_value'] = $invoice_details[0]['parts_cost'];
@@ -3882,6 +3882,7 @@ class Invoice extends CI_Controller {
         $data[0]['district'] = $vendor_details[0]['district'];
         $data[0]['pincode'] = $vendor_details[0]['pincode'];
         $data[0]['state'] = $vendor_details[0]['state'];
+        $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
         $data[0]['rate'] = "0";
         $data[0]['qty'] = 1;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
@@ -3916,7 +3917,7 @@ class Invoice extends CI_Controller {
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh ", array('spare_parts_details.id' => $spare_id), false, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), false, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1) {
                         if (!empty($spare[0]['shipped_inventory_id'])) {
@@ -3938,6 +3939,7 @@ class Invoice extends CI_Controller {
                                 $data[0]['spare_id'] = $spare_id;
                                 $data[0]['inventory_id'] = $spare[0]['inventory_id'];
                                 $data[0]['company_name'] = $spare[0]['company_name'];
+                                $data[0]['owner_phone_1'] = $spare[0]['owner_phone_1'];
                                 $data[0]['company_address'] = $spare[0]['company_address'];
                                 $data[0]['district'] = $spare[0]['district'];
                                 $data[0]['pincode'] = $spare[0]['pincode'];
