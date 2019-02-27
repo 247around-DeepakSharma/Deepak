@@ -266,7 +266,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="date" value = "">
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -460,7 +460,7 @@
    
 });
 
-$("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
+$("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0});
 </script>
 <style type="text/css">
 #errmsg1
