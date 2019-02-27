@@ -2067,6 +2067,7 @@ class Partner extends CI_Controller {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -2637,7 +2638,7 @@ class Partner extends CI_Controller {
             $model = "";
             foreach ($data as $value) {
                 $model .= "<option ";
-                if (trim($model_number) === trim($value['model'])) {
+                if (trim($model_number) === trim($value['model_number'])) {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
@@ -3773,6 +3774,7 @@ class Partner extends CI_Controller {
             'templateDir' => $templateDir
         );
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(

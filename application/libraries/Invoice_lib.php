@@ -94,6 +94,7 @@ class Invoice_lib {
             );
 
             //load template
+        ob_end_clean();
         $R = new PHPReport($config);
         $R->load(array(
             array(
