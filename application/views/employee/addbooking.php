@@ -459,7 +459,7 @@
    
    
 });
-$("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0});
+$("#purchase_date_1").datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
 </script>
 <style type="text/css">
 #errmsg1
