@@ -1038,6 +1038,7 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -1616,6 +1617,7 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -1799,6 +1801,7 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(
