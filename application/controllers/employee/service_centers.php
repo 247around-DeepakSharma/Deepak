@@ -2130,9 +2130,10 @@ class Service_centers extends CI_Controller {
             'template' => $template,
             'templateDir' => $templateDir
         );
-        ob_end_clean();
         //load template
-        ob_end_clean();
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
         
         $R->load(array(
