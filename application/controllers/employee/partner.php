@@ -6749,8 +6749,12 @@ class Partner extends CI_Controller {
                           }
                           else
                           {
-                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
+                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
                           }
+                      }
+                       else
+                      {
+                          $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
                    
                 }
