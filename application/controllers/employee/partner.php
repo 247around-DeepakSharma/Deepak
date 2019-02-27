@@ -6700,7 +6700,7 @@ class Partner extends CI_Controller {
         'image/jpg',
         'image/gif',
         'image/png');
-        $allowed_size=8388608;
+        $allowed_size=2097152;
          if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
