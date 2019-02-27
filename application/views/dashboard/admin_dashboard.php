@@ -732,7 +732,7 @@
                                     <div class="col-md-3" id="am">
                                         <div class="item form-group">
                                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
-                                                <label for=""> AM For Comparision</label>
+                                                <label for=""> AM For Comparison</label>
                                                 <select class="form-control filter_table" id="am_id" name="am_id[]" multiple>
                                                     <?php foreach($am_data as $val){ ?>
                                                     <option value="<?php echo $val['id']?>"><?php echo $val['full_name']?></option>
