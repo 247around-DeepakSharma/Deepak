@@ -141,3 +141,5 @@ ALTER TABLE `booking_unit_details` DROP `total_price`;
 
 ALTER TABLE  `vendor_partner_invoices` ADD  `mail_sent` VARCHAR( 2 ) NOT NULL COMMENT 'flag to check whether mail was sent successfully or failed' AFTER  `amount_collected_paid` ;
 ALTER TABLE  `vendor_partner_invoices` ADD  `sms_sent` VARCHAR( 2 ) NOT NULL COMMENT 'flag to check whether SMS was sent successfully or failed' AFTER  `mail_sent` ;
+--rajshree 27 feb
+ALTER TABLE `sf_not_exist_booking_details` CHANGE `state` `state` VARCHAR(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
