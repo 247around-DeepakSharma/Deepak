@@ -47,6 +47,9 @@ class Booking_utilities {
         );
 
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
         //log_message('info', "PHP report");
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");

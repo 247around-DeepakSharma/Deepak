@@ -1224,6 +1224,9 @@ class Miscelleneous {
     }
 
     function downloadExcel($data, $config) {
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
         $R->load(array(array('id' => 'order', 'repeat' => true, 'data' => $data),));
         $output_file_excel = TMP_FOLDER . $config['template'];
@@ -1523,7 +1526,7 @@ class Miscelleneous {
                         $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
-                        $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
@@ -1974,6 +1977,9 @@ class Miscelleneous {
         );
 
         //load template
+       if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(

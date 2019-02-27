@@ -2396,6 +2396,9 @@ class Partner extends CI_Controller {
         $where['partner_id'] = $partnerID;
         $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);
         $config = array('template' => "Price_Sheet.xlsx", 'templateDir' => __DIR__ . "/excel-templates/");
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
         $R->load(array(array('id' => 'order', 'repeat' => true, 'data' => $priceArray),));
         $output_file_excel = TMP_FOLDER . $config['template'];

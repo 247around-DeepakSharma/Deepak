@@ -1038,6 +1038,9 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -1382,8 +1385,8 @@ class Buyback_process extends CI_Controller {
                         $order_details_where = array('partner_order_id' => $order_id, 'assigned_cp_id' => $cp_id);
                         $order_details_data['current_status'] = _247AROUND_BB_TO_BE_CLAIMED;
                         $order_details_data['internal_status'] = _247AROUND_BB_ORDER_MISMATCH;
-                        $order_details_data['acknowledge_date'] = _date('Y-m-d H:i:s');
-                        $order_details_data['is_delivered'] = _1;
+                        $order_details_data['acknowledge_date'] = date('Y-m-d H:i:s');
+                        $order_details_data['is_delivered'] = 1;
                          if($this->input->post('current_status') == _247AROUND_BB_IN_TRANSIT){
                              $order_details_data['delivery_date'] = date('Y-m-d');
                          }
@@ -1616,6 +1619,9 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -1799,6 +1805,9 @@ class Buyback_process extends CI_Controller {
         );
 
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(

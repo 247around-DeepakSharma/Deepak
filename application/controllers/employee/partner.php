@@ -636,7 +636,7 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
 
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
@@ -2067,6 +2067,9 @@ class Partner extends CI_Controller {
         );
 
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -2637,7 +2640,7 @@ class Partner extends CI_Controller {
             $model = "";
             foreach ($data as $value) {
                 $model .= "<option ";
-                if (trim($model_number) === trim($value['model'])) {
+                if (trim($model_number) === trim($value['model_number'])) {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
@@ -3079,7 +3082,7 @@ class Partner extends CI_Controller {
      * @param String $pincode
      */
     function get_district_by_pincode($pincode, $service_id) {
-        $select = 'vendor_pincode_mapping.City as district';
+        $select = 'vendor_pincode_mapping.City as district,vendor_pincode_mapping.State as state';
         $post_city = $this->input->post('city');
         $where = array(
             'service_centres.active' => 1,
@@ -3088,19 +3091,31 @@ class Partner extends CI_Controller {
             'vendor_pincode_mapping.Appliance_ID' => $service_id);
         $city = $this->vendor_model->get_vendor_mapping_data($where, $select);
         if (!empty($city)) {
-            $option = "";
-            foreach ($city as $district) {
-                $option .= "<option value='" . $district['district'] . "'";
-                if (count($district) == 1) {
-                    $option .= " selected ";
-                } else if (!empty($city)) {
-                    if ($post_city === $district['district']) {
-                        $option .= "selected";
-                    }
-                }
-                $option .= "  >" . $district['district'] . "</option>";
+            $stateWhere['service_id'] = $service_id;
+            $stateWhere['state'] = $city[0]['state'];
+            $stateWhere['partner_id'] = $this->session->userdata('partner_id');
+            $doWeServe = array("1");
+            if($this->session->userdata('partner_id') == VIDEOCON_ID){
+                $doWeServe = $this->partner_model->get_partner_operation_region($stateWhere);
             }
-            echo $option;
+            if(!empty($doWeServe)){
+                $option = "";
+                foreach ($city as $district) {
+                    $option .= "<option value='" . $district['district'] . "'";
+                    if (count($district) == 1) {
+                        $option .= " selected ";
+                    } else if (!empty($city)) {
+                        if ($post_city === $district['district']) {
+                            $option .= "selected";
+                        }
+                    }
+                    $option .= "  >" . $district['district'] . "</option>";
+                }
+                echo $option;
+            }
+            else{
+                echo "2";
+            }
         } else {
             $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
                 'order_id'=>'Not_Received');
@@ -3761,6 +3776,9 @@ class Partner extends CI_Controller {
             'templateDir' => $templateDir
         );
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -6683,7 +6701,13 @@ class Partner extends CI_Controller {
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
-        if(isset($_FILES))
+        $errormsg="";
+        $allowed_filetype=array('image/jpeg',
+        'image/jpg',
+        'image/gif',
+        'image/png');
+        $allowed_size=2097152;
+         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -6695,36 +6719,54 @@ class Partner extends CI_Controller {
                     $_FILE['SamplePicfile']['tmp_name']= $_FILES['SamplePicfile']['tmp_name'][$i];
                     $_FILE['SamplePicfile']['error']= $_FILES['SamplePicfile']['error'][$i];
                     $_FILE['SamplePicfile']['size']= $_FILES['SamplePicfile']['size'][$i];    
-                   //Processing Sample Pic File
+                    $size=$_FILE['SamplePicfile']['size'];
+                    $name=$_FILE['SamplePicfile']['name'];
+                    $type=$_FILE['SamplePicfile']['type'];
+                    //Processing Sample Pic File
                    
                     if (($_FILE['SamplePicfile']['error'] != 4) && !empty($_FILE['SamplePicfile']['tmp_name'])) 
                         {
-                        $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
-                        $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
-                        $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
-                        move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
+                        if(in_array($type,$allowed_filetype) && ($size<=$allowed_size))
+                          {
+                                    $tmpFile = $_FILE['SamplePicfile']['tmp_name'];
+                                    $extension=explode(".", $_FILE['SamplePicfile']['name'])[1];
+                                    $sample_file = "sample_number_pic_".$partner_id.'_'. rand(10, 100) . "." . $extension;
+                                    move_uploaded_file($tmpFile, TMP_FOLDER . $sample_file);
 
-                        //Upload files to AWS
-                        $bucket = BITBUCKET_DIRECTORY;
-                        $directory_xls = "vendor-partner-docs/" . $sample_file;
-                        $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                        $data=array(
-                        'partner_id'=>$partner_id,
-                        'sample_no_pic'=>$sample_file,
-                        'created_date'=>date('Y-m-d'),
-                        'active'=>'1'
-                        );
-                      
-                      //update sample_no_pic
-                        $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
-                        
-                        $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
-                        unlink(TMP_FOLDER . $sample_file);
+                                    //Upload files to AWS
+                                    $bucket = BITBUCKET_DIRECTORY;
+                                    $directory_xls = "vendor-partner-docs/" . $sample_file;
+                                    $this->s3->putObjectFile(TMP_FOLDER . $sample_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                                    $data=array(
+                                    'partner_id'=>$partner_id,
+                                    'sample_no_pic'=>$sample_file,
+                                    'created_date'=>date('Y-m-d'),
+                                    'active'=>'1'
+                                    );
 
-                        //Logging success for file uppload
-                        log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                                  //update sample_no_pic
+                                    $sample_pic_id = $this->partner_model->insert_sample_no_pic($data);
+
+                                    $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
+                                    unlink(TMP_FOLDER . $sample_file);
+
+                                    //Logging success for file uppload
+                                    log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
+                          }
+                          else
+                          {
+                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
+                          }
+                      }
+                       else
+                      {
+                          $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
                    
+                }
+                if(!empty($errormsg))
+                {
+                    $this->session->set_userdata('error', $errormsg);
                 }
                       $msg = "Partner Sample Pic has been updated successfully";
                        $this->session->set_userdata('success', $msg);

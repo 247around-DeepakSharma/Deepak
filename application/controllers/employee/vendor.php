@@ -2963,6 +2963,9 @@ class vendor extends CI_Controller {
             'templateDir' => $templateDir
         );
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
@@ -3232,6 +3235,9 @@ class vendor extends CI_Controller {
                 'templateDir' => $templateDir
             );
             //load template
+            if(ob_get_length() > 0) {
+            ob_end_clean();
+           }
             $R = new PHPReport($config);
 
             $R->load(array(
@@ -4105,6 +4111,9 @@ class vendor extends CI_Controller {
             'templateDir' => $templateDir
         );
         //load template
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
 
         $R->load(array(
