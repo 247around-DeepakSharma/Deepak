@@ -1132,28 +1132,18 @@ class Inventory extends CI_Controller {
                     
                     break;
                 case 'APPROVE_COURIER_INVOICE':
-                    $where_sp = "spare_parts_details.booking_id = '".$booking_id."' "
-                    . " AND spare_parts_details.status NOT IN ('"._247AROUND_COMPLETED."', '"._247AROUND_CANCELLED."') ";
-                    $sp = $this->partner_model->get_spare_parts_booking($where_sp);
+                    
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("courier_charge");
-                    
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '","' . DEFECTIVE_PARTS_SHIPPED . '") ' => NULL));
-                                       
-                   if (empty($defective_part_pending_details)) {
-                        foreach ($sp as $key => $value) {
-                            if ($key == 0) {
-                                $data['courier_charges_by_sf'] = $courier_charge;
-                            } else {
-                                $data['courier_charges_by_sf'] = 0;
-                            }
-
-                            $where = array("id" => $value['id']);
-                            $this->service_centers_model->update_spare_parts($where, $data);
-                        }
+                    $courier_charge = $this->input->post("courier_charge");                    
+                     if (!empty($courier_charge)) {
+                        $data['courier_charges_by_sf'] = $courier_charge;
+                    } else {
+                        $data['courier_charges_by_sf'] = 0;
                     }
-
+                    $where = array("id" => $id);
+                    $this->service_centers_model->update_spare_parts($where, $data);
+                        
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
                     
