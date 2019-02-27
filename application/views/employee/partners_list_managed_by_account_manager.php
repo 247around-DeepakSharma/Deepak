@@ -46,7 +46,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'Invoice',
+                    title: 'Partners_manage_by_account_manager',
                     exportOptions: {
                        columns: [1,2],
                         modifier : {
