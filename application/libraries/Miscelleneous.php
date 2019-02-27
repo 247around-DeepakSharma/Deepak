@@ -1224,6 +1224,7 @@ class Miscelleneous {
     }
 
     function downloadExcel($data, $config) {
+        ob_end_clean();
         $R = new PHPReport($config);
         $R->load(array(array('id' => 'order', 'repeat' => true, 'data' => $data),));
         $output_file_excel = TMP_FOLDER . $config['template'];
@@ -1974,6 +1975,7 @@ class Miscelleneous {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $R->load(array(

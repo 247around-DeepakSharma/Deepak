@@ -62,6 +62,7 @@ class BookingSummary extends CI_Controller {
         );
 
         //load template
+        ob_end_clean();
         $R = new PHPReport($config);
 
         $user_group = $this->session->userdata('user_group');
@@ -149,6 +150,7 @@ class BookingSummary extends CI_Controller {
                     log_message('info', print_r($sc_pending_bookings, TRUE));
 
                     //load template
+                    ob_end_clean();
                     $R = new PHPReport($config);
 
                     $R->load(array(
@@ -235,6 +237,7 @@ class BookingSummary extends CI_Controller {
                 $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
 
                 //load template
+                ob_end_clean();
                 $R = new PHPReport($config);
 
                 $R->load(array(
@@ -334,6 +337,7 @@ class BookingSummary extends CI_Controller {
 
             if ($count > 0) {
                 //load template
+                ob_end_clean();
                 $R = new PHPReport($config);
 
                 $R->load(array(
