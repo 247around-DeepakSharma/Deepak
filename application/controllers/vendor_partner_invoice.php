@@ -96,7 +96,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$tot_ch_rat = $this->get_total_charges_rating_for_cash_bookings($bookings_completed);
 
 		//load template
-                                       ob_end_clean();
+                                        if(ob_get_length() > 0) {
+                                        ob_end_clean();
+                                        }
 		$R = new PHPReport($config);
 		//A means it is for the 1st type of invoice as explained above
 		//Make sure it is unique
@@ -331,7 +333,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$tot_ch_rat = $this->get_total_charges_rating_for_foc_bookings($bookings_completed);
 
 		//load template
-                                      ob_end_clean();
+                                        if(ob_get_length() > 0) {
+                                        ob_end_clean();
+                                        }
 		$R = new PHPReport($config);
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
@@ -562,7 +566,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$tot_ch_rat = $this->get_total_charges_rating_for_cash_bookings($bookings_completed);
 
 		//load template
-                                       ob_end_clean();
+                                        if(ob_get_length() > 0) {
+                                         ob_end_clean();
+                                        }
 		$R = new PHPReport($config);
 		//A means it is for the 1st type of invoice as explained above
 		//Make sure it is unique
