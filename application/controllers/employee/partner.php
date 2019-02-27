@@ -636,7 +636,7 @@ class Partner extends CI_Controller {
                         $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
                         $html_table = $this->table->generate();
                         
-                        $to = "all-emp@247around.com";//ALL_EMP_EMAIL;
+                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
 
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
@@ -2637,7 +2637,7 @@ class Partner extends CI_Controller {
             $model = "";
             foreach ($data as $value) {
                 $model .= "<option ";
-                if (trim($model_number) === trim($value['model'])) {
+                if (trim($model_number) === trim($value['model_number'])) {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
@@ -6700,7 +6700,7 @@ class Partner extends CI_Controller {
         'image/jpg',
         'image/gif',
         'image/png');
-        $allowed_size=8388608;
+        $allowed_size=2097152;
          if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
