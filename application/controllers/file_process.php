@@ -38,7 +38,9 @@ class File_process extends CI_Controller {
             );
 
             //load template
+            if(ob_get_length() > 0) {
             ob_end_clean();
+        }
             $R = new PHPReport($config);
             $R->load(array(
                 array(
@@ -206,7 +208,9 @@ class File_process extends CI_Controller {
         );
 
         //load template
-        ob_end_clean();
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $R = new PHPReport($config);
         $R->load(array(
             array(
