@@ -1133,6 +1133,7 @@ class Inventory extends CI_Controller {
                     break;
                 case 'APPROVE_COURIER_INVOICE':
                     
+                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
                     $courier_charge = $this->input->post("courier_charge");                    
                      if (!empty($courier_charge)) {
