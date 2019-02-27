@@ -980,6 +980,8 @@
        $("#lost_part_reason").val("");
        $("#courier_lost").modal();
        $("#spare_id").val(spare_part_id);
+       $("#lost_courier_reason").val('');
+       $("#remarks_err").html('');
     }
     
     $("#lost_courier").on('click',function(){
