@@ -10117,7 +10117,7 @@ ALTER TABLE trigger_partners ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFA
 --- Gorakh 26-02-2019---
 INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES
 ('sms_oow_spare_parts_customer_tag', 'Request of your payable  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:05'),
-('sms_in_warranty_spare_parts_customer_tag', 'Request of your free  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247. ', '', '1', 0, '2019-02-26 09:17:16');
+('sms_in_warranty_spare_parts_customer_tag', 'Request of your free  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:16');
 
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('spare_parts_oow_email_to_customer', '%s Requested for booking id %s', 'Dear SF, <br/> <br/> Request of your %s to be paid by customer, booking id %s.', 'gorakhn@247around.com', 'gorakhn@247around.com', 'gorakhn@247around.com', '', '1', '2019-02-21 09:26:12'),
