@@ -6700,8 +6700,8 @@ class Partner extends CI_Controller {
         'image/jpg',
         'image/gif',
         'image/png');
-        $allowed_size=8388608;
-         if(isset($_FILES))
+        $allowed_size=2097152;
+        if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -6743,14 +6743,20 @@ class Partner extends CI_Controller {
 
                                     $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
                                     unlink(TMP_FOLDER . $sample_file);
-
+                                    $msg=$msg.$name.' File Uploaded successfully ';
                                     //Logging success for file uppload
                                     log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
                           }
                           else
                           {
-                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 8 MB.  ';
+                              $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
+                                                             
                           }
+                         
+                      }
+                      else
+                      {
+                          $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
                    
                 }
@@ -6758,9 +6764,11 @@ class Partner extends CI_Controller {
                 {
                     $this->session->set_userdata('error', $errormsg);
                 }
-                      $msg = "Partner Sample Pic has been updated successfully";
-                       $this->session->set_userdata('success', $msg);
-                  redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                if(!empty($msg))
+                {
+                    $this->session->set_userdata('success', $msg);
+                }
+                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
         
