@@ -1,4 +1,4 @@
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
                             <th>State</th> 
