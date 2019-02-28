@@ -730,15 +730,18 @@
                             ?>
                         
                                 
-                                    <div class="col-md-3" id="am">
+                                    <div class="col-md-12" id="am">
                                         <div class="item form-group">
-                                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
-                                                <label for=""> AM For Comparison</label>
+                                            <div class="col-md-4 col-sm-4 col-xs-4" style="padding-left: 0px;padding-bottom:5px">
+                                                <label for=""> Select AM For Comparison</label>
                                                 <select class="form-control filter_table" id="am_id" name="am_id[]" multiple>
                                                     <?php foreach($am_data as $val){ ?>
                                                     <option value="<?php echo $val['id']?>"><?php echo $val['full_name']?></option>
                                                     <?php } ?>
                                                 </select>
+                                            </div>
+                                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                                <button class="btn btn-primary"  style="margin-bottom:10px;background: #405467;border-color: #405467;" id="process">Process</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1077,23 +1080,23 @@
      $('#am_id').select2();
 
     
-    $('#am_id').on('change', function() {
+    $('#process').click(function(){
         var am_id=[];
         var result=1;
            var am_id=$('#am_id').val();
            var length=am_id.length;
-           
-           if((length<2)||(length>4))
-           {
-             alert("Please Select Min 2 and  Max 4 AM For comparision");
-             result=0;  
-             return false;
-           }
-           if(result==1)
-           {
-               var confirm_var=confirm("Do you want to compare more AM?");
-                 if(confirm_var==false)
-               {
+//           
+//           if((length<2)||(length>4))
+//           {
+//             alert("Please Select Min 2 and  Max 4 AM For comparision");
+//             result=0;  
+//             return false;
+//           }
+//           if(result==1)
+//           {
+//               var confirm_var=confirm("Do you want to compare more AM?");
+//                 if(confirm_var==false)
+//               {
                         var data = {};
                         url = '<?php echo base_url(); ?>employee/dashboard/get_am_drop_data';
                         data['am_id'] = am_id;
@@ -1102,8 +1105,8 @@
                          $('#compair_am_booking_loader').hide();  
                         $("#amcompair").html(response);
                         });
-                }
-           }
+//                }
+//           }
         });
      function getcompairamdata()
     {

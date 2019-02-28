@@ -250,7 +250,7 @@ class Notify {
 		$post_data = array(
 		    'From' => $agent_phone,
 		    'To' => $customer_phone,
-		    'CallerId' => '01139595200', //247around call centre exophone number
+		    'CallerId' => '01141170701', //247around call centre exophone number
 		    'CallType' => 'trans'
 		);
 
@@ -637,11 +637,11 @@ class Notify {
                                 $index++;
                             }
                             $smsbody=$finalString;
-                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
+                          //  $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
-                                    $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+                           // $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
+                                 //   $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
                      }
                               
 		    break;
