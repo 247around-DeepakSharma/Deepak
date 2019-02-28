@@ -387,6 +387,8 @@ class Do_background_process extends CI_Controller {
         $data= $this->input->post('data');
         $services= $this->input->post('services');
         $new_brand_data=$this->input->post('newappliancebrand');
+        if(!empty($new_brand_data))
+        {
         log_message('info', __FUNCTION__ . ' Function Start');
         $partnerArray = $this->reusable_model->get_search_result_data("bookings_sources","source,code",array("partner_id"=>$partnerID),NULL,NULL,NULL,NULL,NULL,array());
         foreach($services as $serviceDetails){
@@ -435,6 +437,7 @@ class Do_background_process extends CI_Controller {
        log_message('info', __FUNCTION__ . 'Body '.print_r($body,true));
        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'partner_information_to_sf');
        log_message('info', __FUNCTION__ . ' Function End');
+        }
 }
     function create_and_send_partner_requested_report(){
             $is_email = FALSE;
