@@ -10,7 +10,7 @@
             <th>Delivered Amount</th>
             <th>Disputed Amount</th>
             <th>Invoice Generated But<br> Not Settled </th>
-            <th>Total</th>
+            <th>Amount Overdue</th>
         </tr>
     </thead>
     <tbody>

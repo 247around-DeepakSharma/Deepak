@@ -35,7 +35,7 @@
                     </div>
                     <div class="col-md-3 text-center total_balance">
                         <b>Total Balance : </b>
-                        Rs. <a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/buyback_full_balance"><span>{{total_balance}}</span></a>
+                        Rs. <a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/buyback_full_balance"><span><u>{{total_balance}}</u></span></a>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     <thead>
                     <th><b>S.N</b></th>
                     <th><b>Status</b></th>
-                    <th><b>Amount</b></th>
+                    <th><b>Partner Amount</b></th>
                     <th><b>Count</b></th>
                     </thead>
                     <tbody>
@@ -73,7 +73,8 @@
                            <td>{{$index+1}}</td>
                            <td>{{x.status}}</td>
                            <td>{{x.amount}}</td>
-                           <td><a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/show_without_invoices_orders/{{x.status}}">{{x.count}}</a></td>
+<!--                           <td><a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/show_without_invoices_orders/{{x.status}}">{{x.count}}</a></td>-->
+                            <td><a target="_blank">{{x.count}}</a></td>
                         </tr>
                     </tbody>
                 </table>

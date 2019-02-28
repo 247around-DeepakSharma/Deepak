@@ -116,7 +116,7 @@
                                 <th>CP Claimed Price</th>
                                 <th>Order date</th>
                                 <th>Delivery date</th>
-                                <th>Auto<br> acknowledge<br> days</th>
+                                <th>Days left <br> to confirm</th>
                                 <th>Remarks</th>
                                 <th>Action</th>
                                 
