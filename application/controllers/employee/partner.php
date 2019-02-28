@@ -4182,26 +4182,45 @@ class Partner extends CI_Controller {
             // index brand of array hould not be empty
             if (!empty($formdata['brand'])) {
                 $data = array();
+                $newaddedbrand=array();
                 foreach ($services as $value) {
                     // checking, array has service id as a key 
                     if (array_key_exists($value->id, $formdata['brand'])) {
                         $where = array("partner_id" => $partner_id, "service_id" => $value->id);
                         $existingdata = $this->partner_model->get_partner_specific_details($where, "brand");
                         $existing = array_column($existingdata, 'brand');
+                        $activewhere=array("partner_id" => $partner_id, "service_id" => $value->id,"active"=>1);
+                        $active_existing_data=$this->partner_model->get_partner_specific_details($activewhere, "brand");
+                        $active_existing=array_column($active_existing_data, 'brand');
+                       
                         //checking all brand from form has in the db , if not the push in the new array else activate brand
                         foreach ($formdata['brand'][$value->id] as $brand) {
                             if (!empty($existingdata)) {
                                 if (in_array($brand, $existing)) {
                                     $this->partner_model->update_partner_appliance_details(array("partner_id" => $partner_id, "brand" => $brand,
                                         "service_id" => $value->id), array("active" => 1));
-                                } else {
+                                    } else {
                                     array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
                                         "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                                   
                                 }
                             } else {
                                 array_push($data, array("partner_id" => $partner_id, "active" => 1, "service_id" => $value->id,
                                     "brand" => $brand, "create_date" => date("Y-m-d H:i:s")));
+                                
                             }
+                            //find only newly added brand 
+                            if (!empty($active_existing_data)) {
+                                if (!in_array($brand, $active_existing)) {
+                                    array_push($newaddedbrand, array("partner_id" => $partner_id,"service_id" => $value->id,
+                                        "brand" => $brand,));
+                                    } 
+                            } else {
+                                array_push($newaddedbrand, array("partner_id" => $partner_id,"service_id" => $value->id,
+                                    "brand" => $brand,));
+                                
+                            }
+                            
                         }
                         //checking existing brand exist in the form brand array
                         foreach ($existing as $value2) {
@@ -4235,7 +4254,7 @@ class Partner extends CI_Controller {
             $eData['partner_id'] = $partner_id;
             $eData['data'] = $this->input->post();
             $eData['services'] = $services;
-            $eData['newappliancebrand']=$data;
+            $eData['newappliancebrand']=$newaddedbrand;
             $sendUrl = base_url().'employee/do_background_process/send_email_to_sf_on_partner_brand_updation';
             $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
