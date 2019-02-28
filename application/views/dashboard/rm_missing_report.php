@@ -45,7 +45,9 @@
                                     ?>
                                 <?php //echo $total_pincode.'<br>'; ?>
                                 <?php// echo $missing_pincode.'(';  ?>
-                               <td> <?php echo wordwrap($missing_pincode_per.'%'); ?></td>
+                               <td> <?php echo wordwrap($missing_pincode).'<br>'?>
+                                   <?php echo wordwrap($missing_pincode_per.'%'); ?>
+                               </td>
                                 <?php    
                                
                                 }
