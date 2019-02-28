@@ -1,5 +1,5 @@
 
-<table class="table table-striped table-bordered" style="margin-top:30px;">
+<table class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
                     <thead>
                         <tr>
                             <th>AM Name</th> 
