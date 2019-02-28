@@ -558,6 +558,8 @@ class File_upload extends CI_Controller {
                         );
                         $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
                         if(empty($model_detail)){
+                            $aplliance_model_where["partner_model_id"] =  $rowData['partner_model_id'];
+                            $aplliance_model_where["model_description"] =  $rowData['model_description'];
                             $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
                         }
                         else{
@@ -584,12 +586,14 @@ class File_upload extends CI_Controller {
                                 else if($partner_model_details[0]['model'] != $appliance_model_id){
                                     unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                     $partner_model_where['model'] = $appliance_model_id;
+                                    $partner_model_where['partner_brand_id'] = $rowData['partner_brand_id'];
                                     $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                 }
                             }
                             else{
                                 unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                 $partner_model_where['model'] = $appliance_model_id;
+                                $partner_model_where['partner_brand_id'] = $rowData['partner_brand_id'];
                                 $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                             }
                         }

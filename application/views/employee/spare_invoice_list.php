@@ -37,7 +37,9 @@
                             <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png"; /></a>
                     <?php } ?>
                     </td>
-                    <td><?php echo $value->sell_invoice_id; ?></td>
+                    <td><?php if(!empty($value->sell_invoice_id)){ echo $value->sell_invoice_id; } else { ?>
+                        <a href="<?php echo base_url();?>employee/invoice/generate_oow_parts_invoice/<?php echo $value->id; ?>" class="btn btn-md btn-success">Generate Sale Invoice</a>
+                    <?php } ?></td>
                     <td><input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="<?php echo $value->booking_partner_id; ?>" data-booking_id ="<?php echo $value->booking_id?>" value="<?php echo $value->id; ?>" /></td>
                 </tr>
                 <?php }?>
