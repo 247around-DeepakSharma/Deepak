@@ -101,7 +101,7 @@
                        <?php echo form_error('file'); ?>
                     </div>
                     <input type= "submit"  class="col-md-2 btn btn-success btn-sm" value ="Upload" > 
-                
+                    <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc/partner_model_sample_file.xlsx'>Download Sample File</a>
                 </div>
             </form>
 <!--            <a href="<?php //echo base_url(); ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>-->
