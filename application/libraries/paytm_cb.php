@@ -107,7 +107,7 @@ class paytm_cb {
             "code" => $data['partner_current_status'],
             "reason_code" => $data['partner_internal_status'], 
             "remarks" => $data['current_status'], 
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         $field_executive = array(
             "mobile_no" => "9555000247",
@@ -140,7 +140,7 @@ class paytm_cb {
             "code" => $data['partner_current_status'], 
             "reason_code" => $data['partner_internal_status'],
             "remarks" => $data['current_status'],
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         
         $service_attempt = array(
@@ -167,7 +167,7 @@ class paytm_cb {
             "code" => $data['partner_current_status'], 
             "reason_code" => $data['partner_internal_status'],
             "remarks" => $data['current_status'],
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         
         $postData['event'] = $event;
@@ -209,7 +209,7 @@ class paytm_cb {
             "client_secret" => $authData[0]['client_secret']
 	 );
 	$url = sprintf("%s?%s", $authData[0]['url'], http_build_query($postData));
-	$response = $this->paytm_curl_call($url, "",  array());
+	$response = $this->paytm_curl_call($url, "",  json_encode(array()));
         if($response['data']['response']){
 	   $code = json_decode($response['data']['response'])->code;
 	   $tokenHeader = array(
@@ -228,13 +228,11 @@ class paytm_cb {
              "client_secret" => $authTokenData[0]['client_secret']
            );
            $urlToken = sprintf("%s?%s", $authTokenData[0]['url'], http_build_query($tokenPostData));
-           $responseToken = $this->paytm_curl_call($urlToken, $tokenHeader,  array());
+           $responseToken = $this->paytm_curl_call($urlToken, $tokenHeader,  json_encode(array()));
 	   if($responseToken['data']['response']){
 	      $auth_token = json_decode($responseToken['data']['response'])->access_token; 
-
-	      $this->My_CI->partner_model->update_api_authentication_details(array("entity_id"=>PAYTM_ID,"entity_type"=>"partner"), array("auth_token"=> $auth_token));
-	     
-           }
+              $this->My_CI->partner_model->update_api_authentication_details(array("entity_id"=>PAYTM_ID,"entity_type"=>"partner"), array("auth_token"=> $auth_token));
+	    }
 	}
      } 
 }
