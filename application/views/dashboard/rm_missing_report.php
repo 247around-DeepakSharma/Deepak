@@ -1,4 +1,4 @@
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
                             <th>State</th> 
@@ -45,7 +45,9 @@
                                     ?>
                                 <?php //echo $total_pincode.'<br>'; ?>
                                 <?php// echo $missing_pincode.'(';  ?>
-                               <td> <?php echo wordwrap($missing_pincode_per.'%'); ?></td>
+                               <td> <?php echo wordwrap($missing_pincode).'<br>'?>
+                                   <?php echo wordwrap($missing_pincode_per.'%'); ?>
+                               </td>
                                 <?php    
                                
                                 }

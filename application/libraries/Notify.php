@@ -462,7 +462,7 @@ class Notify {
                          $dealerSms['booking_id'] = $query1[0]['booking_id'];
                          $dealerSms['smsData']['service'] = $query1[0]['services'];
                          $dealerSms['smsData']['call_type'] = $call_type[0];
-                         $this->send_sms_msg91($dealerSms);
+                         //$this->send_sms_msg91($dealerSms);
                       }
 			
 		    }
@@ -638,11 +638,13 @@ class Notify {
                                 $index++;
                             }
                             $smsbody=$finalString;
-                            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
+                          //  $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
             
                             //For saving SMS to the database on sucess
-                            $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
-                                $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+
+                           // $this->My_CI->notify->add_sms_sent_details($query1[0]['user_id'], 'user' , $query1[0]['booking_primary_contact_no'],
+                                 //   $smsbody, $query1[0]['booking_id'],"brand_collateral_file_to_user", $status['content']);
+
                      }
                               
 		    break;
