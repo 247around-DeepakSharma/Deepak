@@ -272,6 +272,7 @@
                                                 $paid_parts_cost = 0;
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) {
+                                                    //print_r($price);
                                                     ?>
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
@@ -286,6 +287,19 @@
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <br/>
                                                                     <input type="file"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
+                                                                    <?php
+                                                                        if(!empty($price['serial_number_pic']))
+                                                                        {
+                                                                            $price_unit=$price['unit_id'];
+                                                                            $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/engineer-uploads/'.$price['serial_number_pic'];
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            $url=base_url().'images/no_image.png';
+                                                                        }
+                                                                     ?>
+                                                                     <img src="<?php echo $url;?>" width="50" height="50" style="margin-top:2px;margin-bottom:2px"/>
+                                                                    
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
                                                                     
@@ -629,10 +643,14 @@
 //                var requiredPic = $('#sno_required'+ div_no[2]).val();
 //                    if(requiredPic === '1'){
                         if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
-                            alert('Please Attach Serial Number image');
-                            document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
-                            flag = 1;
-                        }
+                            var serialnumberpic_prev=$('#serial_number_pic'+div_no[2]).val();
+                            if(serialnumberpic_prev == null && serialnumberpic_prev == '')
+                            {
+                                alert('Please Attach Serial Number image');
+                                document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
+                                flag = 1;
+                            }
+                         }
                     //}
                    
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
