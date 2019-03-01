@@ -4732,7 +4732,7 @@ class Service_centers extends CI_Controller {
                         'sell_price > 0 ' => NULL,
                         'sell_invoice_id IS NOT NULL' => NULL,
                         'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'request_type' => REPAIR_OOW_TAG,
+                        'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
                         'status' => DEFECTIVE_PARTS_RECEIVED,
