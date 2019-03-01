@@ -860,7 +860,7 @@
                         $('#submitform').prop('disabled', true);
                         $("#not_visible").val('0');
                     }
-                    else if(data.includes("2")){
+                    else if(data.includes("Not_Serve")){
                         alert("This PINCODE is not in your Serviceable Area associated with us!");
                          $('#submitform').prop('disabled', true);
                          $("#not_visible").val('0');
