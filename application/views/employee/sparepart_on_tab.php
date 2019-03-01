@@ -120,6 +120,7 @@
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
