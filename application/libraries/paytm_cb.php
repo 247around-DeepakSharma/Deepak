@@ -1,5 +1,3 @@
-
-
 <?php
 
 /**
@@ -75,7 +73,6 @@ class paytm_cb {
         );
         
         $response = $this->paytm_curl_call($authData[0]['url'], $header, $postData);
-       // print_r($response);
         if($response['data']['error']){
         	$this->send_error_mail($response['data'], $booking_id);
 		return false;
@@ -131,8 +128,7 @@ class paytm_cb {
     }
     
     function booking_completed_request($data){
-	//print_r($data); die();
-        $user = $this->My_CI->user_model->get_users_by_any(array("user_id" => $data['user_id']));
+	$user = $this->My_CI->user_model->get_users_by_any(array("user_id" => $data['user_id']));
         $postData = array();
         $customer = array(
             "mobile_no" => $user[0]["phone_number"],
