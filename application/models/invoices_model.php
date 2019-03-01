@@ -2116,6 +2116,7 @@ class invoices_model extends CI_Model {
                 ud.booking_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
+                AND sp.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.booking_id = ud.booking_id
