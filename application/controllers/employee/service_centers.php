@@ -5390,7 +5390,7 @@ class Service_centers extends CI_Controller {
      function update_spare_courier_details($id){
         if(!empty($id)){
             $this->miscelleneous->load_nav_header();
-            $select = "id, partner_id, service_center_id, entity_type, booking_id, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, defective_courier_receipt, defective_part_shipped_date, remarks_defective_part_by_sf, sf_challan_number, sf_challan_file,partner_challan_number,challan_approx_value"; 
+            $select = "spare_parts_details.id, spare_parts_details.partner_id, spare_parts_details.service_center_id, spare_parts_details.entity_type, spare_parts_details.booking_id, spare_parts_details.defective_part_shipped, spare_parts_details.courier_name_by_sf, spare_parts_details.awb_by_sf, spare_parts_details.courier_charges_by_sf, spare_parts_details.defective_courier_receipt, spare_parts_details.defective_part_shipped_date, spare_parts_details.remarks_defective_part_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.sf_challan_file,spare_parts_details.partner_challan_number,spare_parts_details.challan_approx_value"; 
             $where = array('spare_parts_details.id' => $id);
             $data['data'] = $this->partner_model->get_spare_parts_by_any($select, $where);
             $data['courier_details'] = $this->inventory_model->get_courier_services('*');
