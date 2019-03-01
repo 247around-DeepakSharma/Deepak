@@ -236,7 +236,7 @@
                             </li>
                             <li class="">
                                 <a href="javascript:void(0);" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                <?php echo $partner_name; ?>                                     
+                                <?php echo $loginname; ?>                                     
                                     <span><i class="fa fa-angle-down"></i></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">
