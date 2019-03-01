@@ -791,7 +791,7 @@ class Validate_serial_no {
         }
     }
     
-    function videocon_serialNoValidation($serialNo){
+    function videocon_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
          if($stringLength == 18){
              $plantLocation = substr($serialNo,0,2);
