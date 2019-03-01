@@ -3114,7 +3114,7 @@ class Partner extends CI_Controller {
                 echo $option;
             }
             else{
-                echo "2";
+                echo "Not_Serve";
             }
         } else {
             $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
