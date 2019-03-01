@@ -377,10 +377,14 @@
     }
     
     function get_partner(div_to_update){
+        var data = {};
+        if(div_to_update != "entity_id"){
+            data.is_wh = true;
+        }
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
-            data:{is_wh:true},
+            data: data,
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2();
@@ -646,10 +650,6 @@
         }
         else if(!$("#mapping_category").val()){
             alert("Please Select Category");
-            return false;
-        }
-        else if(!$("#mapping_capacity").val()){
-            alert("Please Select Capacity");
             return false;
         }
         else if(!$("#mapping_model_number").val()){
