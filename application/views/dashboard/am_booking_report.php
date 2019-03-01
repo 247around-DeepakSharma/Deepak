@@ -20,7 +20,10 @@
                          foreach($am_booking_data['am_data'] as $value){
                         ?>   
                         <tr>
-                              <td><?php echo $value['full_name']?></td>
+                              <td>
+                                  <a type="button"  class="btn btn-info" target="_blank" 
+                                      ><?php echo $value['full_name']?></a>
+                              </td>
                                <?php
                                if(array_key_exists('am_'.$value['id'],$am_booking_data['am_booking_data']))
                                {
