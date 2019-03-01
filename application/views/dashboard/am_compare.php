@@ -10,6 +10,7 @@
    {
      $partner_id_explode=explode(',',$value['partnerId']);
     ?>
+<div class="row">
 <div class="col-md-3 col-md-offset-1">
                                         <div class="item form-group">
                                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
@@ -36,7 +37,8 @@
 }
     }
  ?>
-                                   <div class="form-group col-md-2" style="width: 120px;float:right;">
+</div>
+                                   <div class="form-group col-md-2" style="width: 120px;float:right;margin-right: 30px;">
                                         <input type="submit" class="btn btn-primary"  style="margin-top: 23px;background: #405467;border-color: #405467;" value="Compare AM" />
                                    </div>
 

@@ -3627,6 +3627,7 @@ class Service_centers extends CI_Controller {
 
         $interval = date_diff($datetime1, $datetime2);
         $ack_days = $interval->days;
+        $days = NULL;
         if ($interval->invert == 1) {
             $days = -$ack_days;
         }
