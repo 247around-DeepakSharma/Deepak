@@ -2005,8 +2005,9 @@ class Booking extends CI_Controller {
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
             if (isset($serial_number[$unit_id])) {
-                $data['serial_number'] = $serial_number[$unit_id];
-                $data['serial_number_pic'] = $serial_number_pic[$unit_id];
+                $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                $data['serial_number'] =  $trimSno;
+                $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
             } else {
                 $data['serial_number'] = "";
                 $data['serial_number_pic'] = "";
