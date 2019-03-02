@@ -1,9 +1,7 @@
 <?php
 
 /**
- * Description of paytm_cb
- *
- * @author abhay
+ * Description of paytm_cb - This library is used to update booking status on paytm server
  */
 class paytm_cb {
    
