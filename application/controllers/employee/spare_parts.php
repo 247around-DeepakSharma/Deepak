@@ -150,7 +150,7 @@ class Spare_parts extends CI_Controller {
      */
     function get_defective_part_shipped_by_sf($post){
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, "
+                . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.shipped_date, "
                 . "remarks_defective_part_by_sf, defective_courier_receipt,sf_challan_file, defective_part_required, spare_parts_details.id";
 
         $post['column_order'] = array();
@@ -459,6 +459,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->defective_part_shipped;
+        $row[] = date("jS M, Y", strtotime($spare_list->shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
  
