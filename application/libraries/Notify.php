@@ -400,16 +400,18 @@ class Notify {
                     //send msg to dealer on booking completion
                      if(!empty($query1[0]['dealer_id']))
                       {
+                        // Request of %s for %s with booking_id %s is completed.
                          $dealer_id=$query1[0]['dealer_id'];
                          $dealer_phone_no=$this->My_CI->reusable_model->get_search_query('dealer_details','dealer_phone_number_1',array('dealer_id'=>$dealer_id),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['dealer_phone_number_1'];
                          $dealerSms['phone_no'] = $dealer_phone_no;
-                         $dealerSms['tag'] = "sms_to_dealer_on_booking_completion";
+                         $dealerSms['tag'] = "sms_to_dealer_on_booking_completed_cancelled";
                          $dealerSms['type'] = "dealer";
                          $dealerSms['type_id'] = $query1[0]['dealer_id'];
                          $dealerSms['booking_id'] = $query1[0]['booking_id'];
                          $dealerSms['smsData']['service'] = $query1[0]['services'];
                          $dealerSms['smsData']['call_type'] = $call_type[0];
                          $dealerSms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                         $dealerSms['smsData']['booking_type']='completed';
                          $this->send_sms_msg91($dealerSms);
                       }
 
@@ -456,13 +458,15 @@ class Notify {
                          $dealer_id=$query1[0]['dealer_id'];
                          $dealer_phone_no=$this->My_CI->reusable_model->get_search_query('dealer_details','dealer_phone_number_1',array('dealer_id'=>$dealer_id),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['dealer_phone_number_1'];
                          $dealerSms['phone_no'] = $dealer_phone_no;
-                         $dealerSms['tag'] = "sms_to_dealer_on_booking_cancelled";
+                         $dealerSms['tag'] = "sms_to_dealer_on_booking_completed_cancelled";
                          $dealerSms['type'] = "dealer";
                          $dealerSms['type_id'] = $query1[0]['dealer_id'];
                          $dealerSms['booking_id'] = $query1[0]['booking_id'];
                          $dealerSms['smsData']['service'] = $query1[0]['services'];
                          $dealerSms['smsData']['call_type'] = $call_type[0];
-                         //$this->send_sms_msg91($dealerSms);
+                         $dealerSms['smsData']['booking_type']='cancelled';
+                         $this->send_sms_msg91($dealerSms);
+
                       }
 			
 		    }
