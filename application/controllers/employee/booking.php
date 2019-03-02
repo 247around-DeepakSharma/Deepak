@@ -4914,5 +4914,76 @@ class Booking extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
+    
+     /**
+     * @desc This is used to validate serial no image and insert serial no into DB
+     * @param Array $upload_serial_number_pic
+     * @param Int $unit
+     * @param Strng $partner_id
+     * @param String $serial_number
+     * @return boolean
+     */
+    function upload_insert_upload_serial_no($upload_serial_number_pic, $unit, $partner_id, $serial_number){
+        log_message('info', __METHOD__. " Enterring ...");
+        if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
+           
+            $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
+                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, "engineer-uploads", "serial_number_pic");
+            if($pic_name){
+                
+                return true;
+            } else {
+              
+                return false;
+            }
+            
+        } else {
+           
+            return FALSE;
+        }
+    }
+
+    /**
+     * @desc This is used to upload serial no image to S3
+     * @param Array $file
+     * @param String $type
+     * @param Int $unit
+     * @param String $s3_directory
+     * @param String $post_name
+     * @return boolean|string
+     */
+    public function upload_serial_no_image_to_s3($file, $type, $unit, $s3_directory, $post_name) {
+        log_message('info', __FUNCTION__ . " Enterring ");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $MB = 1048576;
+        $temp = explode(".", $file['name'][$unit]);
+        $extension = end($temp);
+        //$filename = prev($temp);
+
+        if ($file["name"][$unit] != null) {
+            if (($file["size"][$unit] < 2 * $MB) && in_array($extension, $allowedExts)) {
+                if ($file["error"][$unit] > 0) {
+
+                   return false;
+                } else {
+                   
+                    $picName = $type . rand(10, 100) . $unit . "." . $extension;
+                    $_POST[$post_name][$unit] = $picName;
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = $s3_directory . "/" . $picName;
+                    $this->s3->putObjectFile($file["tmp_name"][$unit], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+                    return $picName;
+                }
+            } else {
+                
+                return FALSE;
+            }
+        } else {
+
+            return FALSE;
+        }
+        log_message('info', __FUNCTION__ . " Exit ");
+    }
 
 }
