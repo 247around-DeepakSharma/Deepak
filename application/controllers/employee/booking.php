@@ -2332,7 +2332,7 @@ class Booking extends CI_Controller {
                                   $return_status = false;
                                   $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
                              }
-                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id,$service_id);
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
                         if (!empty($status)) {
                             if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
                                 $return_status = false;
