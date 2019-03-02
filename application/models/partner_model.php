@@ -108,7 +108,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select("booking_details.*, services.services");
         $this->db->from("booking_details");
         $this->db->where("booking_id", $booking_id);
-        $this->db->join("partner_callback", "partner_callback.partner_id = booking_details.partner_id AND callback_string = partner_source");
+        $this->db->join("partner_callback", "callback_string = partner_source AND ( partner_callback.partner_id = booking_details.partner_id OR partner_callback.partner_id = booking_details.origin_partner_id )");
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->where("partner_callback.active", 1);
         $query = $this->db->get();
