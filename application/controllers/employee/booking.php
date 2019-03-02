@@ -2305,7 +2305,7 @@ class Booking extends CI_Controller {
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         }
         $pod = $this->input->post('pod');
-        $price_tags = $this->input->post('price_tags');
+        $price_tags_array = $this->input->post('price_tags');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
