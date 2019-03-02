@@ -54,9 +54,21 @@ class partner_cb {
 		return false;
 	    }
 	} else {
-
-	    return true;
-	}
+            /*Check partner's origin partner id if it is paytm id then we need to update booking status on origin partner. currently we do this only for PAYTM*/
+            $data = $this->My_CI->booking_model->get_bookings_count_by_any("booking_details.*, services.services", array("booking_id"=>$booking_id));
+            if($data[0]['origin_partner_id'] == PAYTM){
+               $call_details = $this->callback_array($data[0]['origin_partner_id'], $data[0]['current_status']);
+                if ($call_details) {
+                    $this->My_CI->paytm_cb->$call_details($data[0]);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else{
+                return true;  
+            }
+        }
     }
 
     /**
