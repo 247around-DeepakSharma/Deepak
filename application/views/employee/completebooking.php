@@ -651,10 +651,6 @@
                                 document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                                 flag = 1;
                             }
-                            else
-                            {
-                                alert("not empty");
-                            }
                          }
                     //}
                    
