@@ -644,7 +644,6 @@
 //                    if(requiredPic === '1'){
                         if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             var serialnumberpic_prev=$('#serial_number_pic'+div_no[2]).val();
-                            alert(serialnumberpic_prev);
                             if(serialnumberpic_prev === "")
                             {
                                 alert('Please Attach Serial Number image');
