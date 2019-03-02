@@ -673,6 +673,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->request_type;
+        if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
+        $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
         if ($spare_list->defective_part_required == '0') {
             $required_parts = 'REQUIRED_PARTS';
@@ -690,7 +692,7 @@ class Spare_parts extends CI_Controller {
                 $cl = "btn-info";
                 $row[] = '<button type="button" data-keys="' . $spare_list->part_warranty_status . '" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_list->id . '/' . $spare_list->booking_id . '" class="btn  ' . $cl . ' open-adminremarks" data-toggle="modal" id="approval_' . $no . '" data-target="#myModal2">' . $appvl_text . '</button>';
             } else {
-                $row[] = '';
+                $row[] = '<button style="background-color: #1a8a2dd4;color:#fff;" disabled class="btn">Approved</button>';
             }
         }
 
