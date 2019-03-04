@@ -380,7 +380,6 @@
                 
         //Getting Files Collection
         var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
-        var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
         
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < files.length; i++) {
