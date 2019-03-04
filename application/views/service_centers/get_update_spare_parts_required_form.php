@@ -378,6 +378,18 @@ function get_inventory_id(id){
              }
          });
     }
+    
+    $(document).ready(function(){
+        var service_id = "<?php echo $spare_parts_details['service_id']; ?>";
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+            data: { service_id:service_id},
+            success:function(data){                       
+                $('.spare_parts_type').html(data);                  
+            }
+        });
+    });
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
