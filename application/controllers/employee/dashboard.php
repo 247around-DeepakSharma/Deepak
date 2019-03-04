@@ -1857,7 +1857,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
 
             }
-            $conditionArray['where']['booking_details.type != "Query"'] = NULL; 
+            $conditionArray['where']['booking_details.type != "Query"'] = NULL;
+            $conditionArray['where']['booking_details.internal_status != "Spare Parts Shipped by Partner"'] = NULL;
              //Group by on booking_tat
             $conditionArray['groupBy'] = array("TAT","entity");
             //only is sf closed date is null
