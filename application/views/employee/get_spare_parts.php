@@ -112,7 +112,7 @@
             $("#reject_btn").html("Reject");             
             $("#reject_btn").attr("onclick","reject_parts()");
         }else{
-            $("#reject_btn").html("Reject");  
+            $("#reject_btn").html("Move To Required");  
             $("#status_label").css({'display':'none'});
             $("#reject_btn").attr("onclick","reject_parts()");                     
             $("#part_warranty_option").css({'display':'none'});

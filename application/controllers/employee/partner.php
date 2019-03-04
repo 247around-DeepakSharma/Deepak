@@ -4515,6 +4515,26 @@ class Partner extends CI_Controller {
         $where = array('is_active' => 1);
        
         $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);
+        $service_brands=array();
+        //add appliance of partner
+        foreach ($partner_details['excel_data_line_item'] as $key => $value) {
+            //Getting Appliances and Brands details for partner
+            $service_brands = $this->partner_model->get_service_brands_for_partner($value['id']);
+             if(!empty($service_brands))
+            {
+               $str = "";
+               foreach($service_brands as $key1=>$value1)
+               {
+                    $str .= '  ' . $value1['services'] . '  - ' . $value1['brand'] . ' ,'; 
+               }
+                $partner_details['excel_data_line_item'][$key]['applliance']=rtrim($str, ",");
+            }
+            else
+            {
+                $partner_details['excel_data_line_item'][$key]['applliance']="";
+            }
+                                 
+        }
         $template = 'partner_summary_details.xlsx';
         $output_file = "partner_summary_details". date('d_M_Y_H_i_s');
         $partner_details['excel_data'] = array();

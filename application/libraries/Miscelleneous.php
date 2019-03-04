@@ -2279,7 +2279,9 @@ class Miscelleneous {
         $data['main_nav'] = $this->get_main_nav_data("main_nav",$entity_type);
         $data['right_nav'] = $this->get_main_nav_data("right_nav",$entity_type);
         if($entity_type == "Partner"){
-          $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
+            $agent_id=$this->My_CI->session->userdata('agent_id');
+            $data['loginname']=$this->My_CI->reusable_model->get_search_query('entity_login_table','agent_name',array('agent_id'=>$agent_id),array(),array(),array(),array(),array())->row_array()['agent_name'];
+            $msg = $this->My_CI->load->view('partner/header_navigation',$data,TRUE);
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{

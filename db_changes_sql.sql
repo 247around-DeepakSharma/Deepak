@@ -10068,3 +10068,62 @@ ALTER TABLE `partner_file_upload_header_mapping` ADD `category` VARCHAR(128) NUL
 --Abhay
 ALTER TABLE `partners` ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;
 ALTER TABLE trigger_partners ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;
+
+--- Gorakh 26-02-2019---
+INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES
+('sms_oow_spare_parts_customer_tag', 'Request of your payable  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:05'),
+('sms_in_warranty_spare_parts_customer_tag', 'Request of your free  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:16');
+
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('spare_parts_oow_email_to_customer', '%s Requested for booking id %s', 'Dear SF, <br/> <br/> Request of your %s to be paid by customer, is placed successfully, for booking id %s.\n<br/> <br/>Thanks,<br/>Team 247around', 'gorakhn@247around.com', 'gorakhn@247around.com', 'gorakhn@247around.com', '', '1', '2019-02-21 09:26:12'),
+('spare_parts_in_warranty_email_to_customer', '%s Requested for booking id %s', 'Dear SF, <br/> <br/> Request of your %s free for customer, is placed successfully,for booking id %s.<br/> <br/>Thanks,<br/>Team 247around', 'gorakhn@247around.com', 'gorakhn@247around.com', 'gorakhn@247around.com', '', '1', '2019-02-21 09:35:08');
+
+--Kalyani 01-March-2019
+
+CREATE TABLE `dashboard_notification_type` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `icon` varchar(50) NOT NULL,
+  `color` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `dashboard_notification_type`
+--
+
+INSERT INTO `dashboard_notification_type` (`id`, `type`, `icon`, `color`) VALUES
+(1, 'Success', 'fa fa-thumbs-o-up', '#2f99227d'),
+(2, 'Warning', 'fa fa-exclamation-circle', '#faebcc'),
+(3, 'Danger', 'fa fa-thumbs-o-down', '#ebccd1'),
+(4, 'Announcement', 'fa fa-bullhorn', '#bce8f1'),
+(5, 'Payment Success', 'fa fa-inr', '#2f99227d'),
+(6, 'Payment Hold', 'fa fa-inr', '#faebcc'),
+(7, 'Spare Warning', 'fa fa-dropbox', '#faebcc'),
+(8, 'Information', 'fa fa-info-circle', '#bce8f1');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `dashboard_notification_type`
+--
+ALTER TABLE `dashboard_notification_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+COMMIT;
+
+
+--Rajshree 02 March
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);

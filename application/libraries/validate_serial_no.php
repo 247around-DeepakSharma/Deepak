@@ -66,6 +66,7 @@ class Validate_serial_no {
         $logic[JEEVES_ID] = 'jeeves_serialNoValidation';
         $logic[WYBOR_ID] = 'wybor_serialNoValidation';
         $logic[BURLY_ID]='burly_serialNoValidation';
+        $logic[VIDEOCON_ID]='videocon_serialNoValidation';
 
         
 	if (isset($logic[$partnerID])) {
@@ -788,6 +789,45 @@ class Validate_serial_no {
         else{
             return false;
         }
+    }
+    
+    function videocon_serialNoValidation($partnerID,$serialNo){
+        $stringLength = strlen($serialNo);
+         if($stringLength == 18){
+             $plantLocation = substr($serialNo,0,2);
+             $month = substr($serialNo,2,2);
+             $year = substr($serialNo,4,2);
+             $productCat = substr($serialNo,6,2);
+             $Brand = substr($serialNo,8,2);
+             $model = substr($serialNo,10,3);
+             $serialNumber = substr($serialNo,13,5);
+             //First 2 digit represent $plantLocation, it must be alphanumeric 
+              if(!preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $plantLocation)){
+                 return false;
+             }
+             //Next 2 digit represent $month, 
+             $expectedMonthValuesArray = explode(",",MONTH_POSIBLE_VALUES);
+             if(!in_array($month, $expectedMonthValuesArray)){
+                 return false;
+            }
+            //Next 2 digit represents year it should be numeric
+             if(!is_numeric($year)){
+                  return false;
+             }
+             //Next 2 digit represent $month, 
+             $productCatArray = explode(",",VIDEOCON_PRODUCT_CAT_POSIBLE_VALUES);
+             if(!in_array($productCat, $productCatArray)){
+                 return false;
+            }
+             //Next 2 digit represents $productCat , it must be 2 alphabets 
+              if(!ctype_alpha($serialNumber)){
+                  return false;
+             }
+         }
+         else{
+             return false;
+         }
+         return true;
     }
 }
 
