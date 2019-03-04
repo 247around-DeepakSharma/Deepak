@@ -75,12 +75,38 @@ class Booking_request extends CI_Controller {
             $this->add_new_booking_request_symptom();
         }
     }
+    /**
+     * @desc This function is used to update booking request symptom
+     */
+    function update_symptom_booking_request(){
+        $data = $this->input->post("data");
+        $id = $this->input->post("id");
+        if(!empty($data)){
+            if(isset($data['active'])){
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_booking_request");
+                echo $this->db->last_query();
+            }
+            else{ 
+                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => $data['request_type'], 'booking_request_symptom' => $data['booking_request_symptom']));
+                if(empty($is_exist)){
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_booking_request");
+                    echo true;
+                } 
+                else{
+                   echo false;
+                } 
+            }
+        }
+        else{
+            echo false;
+        }
+    }
     
     /**
      * @desc This function is used to show list of booking request symptom
      */
     function get_booking_request_symptom(){
-        $data['data'] = $this->booking_request_model->get_booking_request_symptom('*');
+        $data['data'] = $this->booking_request_model->get_booking_request_symptom('*, symptom_booking_request.id as tid');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_booking_request_symptom', $data);
         
@@ -142,7 +168,7 @@ class Booking_request extends CI_Controller {
     
     function get_spare_request_symptom(){
         log_message('info', __METHOD__);
-        $data['data'] = $this->booking_request_model->get_spare_request_symptom('symptom_spare_request.*, services, request_type.service_category');
+        $data['data'] = $this->booking_request_model->get_spare_request_symptom('symptom_spare_request.*, services, services.id as service_id, request_type.service_category, request_type.id as request_type_id');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_spare_request_symptom', $data);
     }
@@ -191,7 +217,7 @@ class Booking_request extends CI_Controller {
      */
     function get_completion_symptom(){
         log_message('info', __METHOD__);
-        $data['data'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.*, services, request_type.service_category');
+        $data['data'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.*, services, services.id as service_id, request_type.id as request_type_id, request_type.service_category');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/complete_technical_problem', $data);
     }
@@ -203,6 +229,35 @@ class Booking_request extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_completion_technical_problem');
     }
+    
+     /**
+     * @desc This function is used to update symptom completion request
+     */
+    function update_symptom_completion_request(){
+        $data = $this->input->post("data");
+        $id = $this->input->post("id");
+        if(!empty($data)){
+            if(isset($data['active'])){
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_request");
+                echo true;
+            }
+            else{ 
+                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $data['request_type'], 'completion_request_symptom' => $data['completion_request_symptom']));
+                if(empty($is_exist)){
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_request");
+                    echo true;
+                } 
+                else{
+                   echo false;
+                } 
+            }
+        }
+        else{
+            echo false;
+        }
+    }
+    
+    
     /**
      * @desc This function is used to process to add new completion technical problem
      */
@@ -246,7 +301,7 @@ class Booking_request extends CI_Controller {
      */
     function get_technical_solution_symptom(){
         log_message('info', __METHOD__);
-        $data['data'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.*, services, request_type.service_category');
+        $data['data'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.*, services, request_type.service_category, services.id as service_id, request_type.id as request_type_id');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_technical_solution', $data);
     }
@@ -291,6 +346,59 @@ class Booking_request extends CI_Controller {
             }
         } else {
             $this->add_technical_solution();
+        }
+    }
+    /*
+     * Desc - This function is used to update symptom_completion solution
+     */
+    function update_symptom_completion_solution(){
+        $data = $this->input->post("data");
+        $id = $this->input->post("id");
+        if(!empty($data)){
+            if(isset($data['active'])){
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_solution");
+                echo true;
+            }
+            else{ 
+                $is_exist = $this->booking_request_model->symptom_completion_solution('*', array('request_type' => $data['request_type'], 'technical_solution' => $data['technical_solution']));
+                if(empty($is_exist)){
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_solution");
+                    echo true;
+                } 
+                else{
+                   echo false;
+                } 
+            }
+        }
+        else{
+            echo false;
+        }
+    }
+    
+    /*
+     * Desc - This function is used to update symptom spare request
+     */
+    function update_symptom_spare_request(){
+        $data = $this->input->post("data");
+        $id = $this->input->post("id");
+        if(!empty($data)){
+            if(isset($data['active'])){
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_spare_request");
+                echo true;
+            }
+            else{ 
+                $is_exist = $this->booking_request_model->get_spare_request_symptom('*', array('request_type' => $data['request_type'], 'spare_request_symptom' => $data['spare_request_symptom']));
+                if(empty($is_exist)){
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_spare_request");
+                    echo true;
+                } 
+                else{
+                   echo false;
+                } 
+            }
+        }
+        else{
+            echo false;
         }
     }
 }
