@@ -3215,6 +3215,8 @@ function generate_image($base64, $image_name,$directory){
                     } else {
                         $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $response['defective_return_to_entity_id'] = $partner_id;
+                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $response['defective_return_to_entity_id'] = $partner_id;
                     }
                 }
                 

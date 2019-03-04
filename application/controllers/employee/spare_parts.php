@@ -80,9 +80,8 @@ class Spare_parts extends CI_Controller {
     function get_spare_parts_tab_details(){
         //log_message('info', __METHOD__ . print_r($_POST, true));
         
-        $post = $this->get_spare_tab_datatable_data();  
+        $post = $this->get_spare_tab_datatable_data();
 
-        
         switch ($post['type']){
             case 0:
                 $this->get_spare_requested_tab($post);
@@ -113,7 +112,6 @@ class Spare_parts extends CI_Controller {
                 break;            
         }
     }
-    
     /**
      * @desc used to create defective parts shipped by sf tab and whose courier price approved by Admin
      * @param Array $post
@@ -669,14 +667,13 @@ class Spare_parts extends CI_Controller {
                 
         $row = array();
         $row[] = $no;
-        $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         $row[] = $spare_list->name;
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->request_type;
-
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
@@ -704,7 +701,7 @@ class Spare_parts extends CI_Controller {
         $row[] = '<button type="button" data-keys="spare_parts_cancel" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $c_tag . '" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Cancel</button>';
         return $row;
     }
-    
+
     /**
      * @desc This function is used to get post data from datatable
      * @return Array
@@ -1304,8 +1301,7 @@ class Spare_parts extends CI_Controller {
         
         echo json_encode($res);
     }
-    
-        
+      
      /*
      * @des - This function is used to get reject spare parts
      * @param - 
@@ -1445,7 +1441,9 @@ class Spare_parts extends CI_Controller {
         $reason = $this->input->post('remarks');    
         $data_to_insert = array();
         $delivered_sp = array();
-
+        $sms_template_tag = '';
+        $reason_text = '';
+        
         if (!empty($spare_id)) {
 
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
@@ -1454,7 +1452,6 @@ class Spare_parts extends CI_Controller {
                     . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);
-
             if (!empty($spare_parts_details)) {
 
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
@@ -1480,13 +1477,12 @@ class Spare_parts extends CI_Controller {
                 $data['shipped_inventory_id'] = $spare_parts_details[0]['shipped_inventory_id'];
 
                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
-
                 if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
                     $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                 } else {
                     $spare_data['status'] = SPARE_PARTS_REQUESTED;                    
-                    $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, 'SPARE_REQUESTED_CUSTOMER_SMS_TAG');
+                    $sms_template_tag = SPARE_ON_IN_WARRANTY_SMS_TAG;
                 }
 
                 if ($spare_parts_details[0]['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS && $part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -1497,10 +1493,10 @@ class Spare_parts extends CI_Controller {
                 } else if ($spare_parts_details[0]['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
 
                     $sms_template_tag = SPARE_ON_IN_WARRANTY_SMS_TAG;
-                    $reason_text = $reason_text = 'Sent Spare ' . REPAIR_OOW_TAG . ' to ' . REPAIR_IN_WARRANTY_TAG;
+                    $reason_text = 'Sent Spare ' . REPAIR_OOW_TAG . ' to ' . REPAIR_IN_WARRANTY_TAG;
                     $this->send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data, 'spare_parts_in_warranty_email_to_customer');
                 }
-
+                
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
@@ -1595,11 +1591,11 @@ class Spare_parts extends CI_Controller {
      * @param $booking_id
      */
     function send_email_on_change_part_warranty_status($part_warranty_status, $service_center_id, $data ,$email_template_tag) {
-       
+              
         if (!empty($part_warranty_status)) {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template($email_template_tag);
-                        
+                                       
             if (!empty($email_template)) {
                 
                $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name, service_centres.phone_1, service_centres.email', array('service_centres.id' => $service_center_id) ,'name',array());
@@ -1611,24 +1607,12 @@ class Spare_parts extends CI_Controller {
                     $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 }
                 
-                $this->load->library('table');
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
 
-                $this->table->set_template($template);
-
-                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                
-                $this->table->add_row($data['model_number'], $data['parts_requested_type'], $data['parts_requested']);
-             
-                $body_msg = $this->table->generate();
-                
-                $body_msg = '';
                 $to = $vendor_details[0]['email'] . "," . $get_partner_details[0]['owner_email'];
                 $cc = $email_template[3] . "," . $am_email;
-                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                $emailBody = vsprintf($email_template[0], $body_msg);
+                $subject = vsprintf($email_template[4], array($data['parts_requested_type'], $data['booking_id']));
+                
+                $emailBody = vsprintf($email_template[0], array($data['parts_requested'],$data['booking_id']));
                 $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, '', $email_template_tag, '', $data['booking_id']);
             }
         }
@@ -1901,6 +1885,20 @@ class Spare_parts extends CI_Controller {
         }
 
         return $res;
+    }
+    
+    /**
+     *  @desc : This function is used to spare parts cancellation reason
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function get_spare_parts_cancellation_reasons() {
+        $spare_cancellation_reasons = $this->booking_model->cancelreason(array('reason_of' => 'spare_parts'));
+        $option = '<option selected disabled>Select Cancellation Reason</option>';
+        foreach ($spare_cancellation_reasons as $value) {
+            $option .= "<option value='" . $value->reason . "'>" . $value->reason . "</option>";
+        }
+        echo $option;
     }
 
 }

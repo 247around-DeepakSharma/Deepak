@@ -209,6 +209,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Part Shipped Date</th>
                                         <th class="text-center" data-orderable="false">Courier Name</th>
                                         <th class="text-center" data-orderable="false">AWB</th>
                                         <th class="text-center" data-orderable="false">Courier Charges</th>
@@ -756,7 +757,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
                     },
                     title: 'defective_part_shipped_by_sf'
                 }
@@ -770,7 +771,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -963,11 +964,14 @@
             
         }
     }
+
     
     function courier_lost_required(spare_part_id, booking_id){
        $("#lost_part_reason").val("");
        $("#courier_lost").modal();
        $("#spare_id").val(spare_part_id);
+       $("#lost_courier_reason").val('');
+       $("#remarks_err").html('');
     }
     
     $("#lost_courier").on('click',function(){
