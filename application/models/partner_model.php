@@ -451,19 +451,19 @@ function get_data_for_partner_callback($booking_id) {
     //Get partner summary parameters for daily report
     function get_partner_summary_params($partner_id) {
         
-        $where1 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
-        $current_month_booking_temp = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);
+        $where1 = array('( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'MONTH(booking_details.create_date) = MONTH(CURDATE())' => NULL, 'YEAR(booking_details.create_date) = YEAR(CURDATE())' => NULL);
+        $current_month_booking_temp = $this->booking_model->get_bookings_count_by_any( 'DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date',$where1, "", "", true);      
         $current_month_booking = $this->bookings_by_status($current_month_booking_temp);
         
-        $where2 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
+        $where2 = array('( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = CURDATE()' => NULL);
         $today_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where2, "", "", true );
         $today_booking = $this->bookings_by_status($today_booking_temp);
         
-        $where3 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
+        $where3 = array('( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, 'DATE(booking_details.create_date) = DATE(DATE_SUB(NOW(), INTERVAL 1 DAY))' => NULL);
         $yesterday_booking_temp = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.internal_status,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where3, "", "", true );
         $yesterday_booking = $this->bookings_by_status($yesterday_booking_temp);
         
-        $where4 = array(' ( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
+        $where4 = array('( booking_details.partner_id = "'.$partner_id.'" OR booking_details.origin_partner_id = "'.$partner_id.'" )' => NULL, "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => NULL,"booking_details.service_center_closed_date IS NULL"=>NULL);
         
         $totalPending = $this->booking_model->get_bookings_count_by_any('DISTINCT current_status,booking_details.initial_booking_date,booking_details.create_date,booking_details.service_center_closed_date as closed_date,booking_details.request_type,booking_details.booking_date', $where4, "", "", true);
 
