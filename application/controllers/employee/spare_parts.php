@@ -150,7 +150,8 @@ class Spare_parts extends CI_Controller {
      */
     function get_defective_part_shipped_by_sf($post){
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.shipped_date, "
+                . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, "
+                . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.defective_part_shipped_date, "
                 . "remarks_defective_part_by_sf, defective_courier_receipt,sf_challan_file, defective_part_required, spare_parts_details.id";
 
         $post['column_order'] = array();
@@ -459,7 +460,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->defective_part_shipped;
-        $row[] = date("jS M, Y", strtotime($spare_list->shipped_date));
+        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
  
@@ -662,8 +663,8 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function spare_parts_requested_table_data($spare_list, $no, $request_type) {
-
+    function spare_parts_requested_table_data($spare_list, $no, $request_type){
+                
         $row = array();
         $row[] = $no;
         $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
@@ -719,11 +720,12 @@ class Spare_parts extends CI_Controller {
         if($this->input->post("status") == SPARE_PARTS_REQUESTED){
             $post['where_in']['status'] = array(SPARE_PARTS_REQUESTED, SPARE_PART_ON_APPROVAL);
             $post['request_type'] = SPARE_PARTS_REQUESTED;
-            
+
         }else{
-          $post['where']['status'] = $this->input->post("status");  
-          $post['request_type'] = SPARE_OOW_EST_REQUESTED;
+            $post['where']['status'] = $this->input->post("status");  
+            $post['request_type'] = SPARE_OOW_EST_REQUESTED;
         }
+        
         
         if(!empty($this->input->post('vendor_partner'))){
             $post['vendor_partner'] = $this->input->post('vendor_partner');
