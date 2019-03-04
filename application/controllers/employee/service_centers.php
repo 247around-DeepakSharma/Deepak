@@ -1177,12 +1177,7 @@ class Service_centers extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
             
-           $partners_details = $this->partner_model->get_partner_contract_detail('partners.public_name, partners.is_wh, partners.is_micro_wh', array( 'partners.id' => $data['bookinghistory'][0]['partner_id'] ), array(), array());
-           $data['partner_wh_status'] = false;
-           if(!empty($partners_details[0]->is_wh ) || !empty($partners_details[0]->is_micro_wh)){
-               $data['partner_wh_status'] = true;              
-           }
-          
+                   
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
                 $data['internal_status'] = array();
