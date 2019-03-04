@@ -1794,8 +1794,8 @@ function get_booking_by_service_center_query_data($where,$groupBY){
       
         $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date,p.result, p.id, p.revert_file_name FROM file_uploads AS p  left JOIN employee AS e ON p.agent_id = e.id";
         
-        if(!empty($post_data)){
-             $sql .=  " WHERE file_type LIKE '%".trim($post_data['file_type'])."%' ";
+        if(!empty($post_data['file_type'])){
+            $sql .=  " WHERE file_type = '".trim($post_data['file_type'])."'";
         }
         
         if(!empty($post_data['file_type_not_equal_to'])){

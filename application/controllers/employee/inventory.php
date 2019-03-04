@@ -1131,16 +1131,10 @@ class Inventory extends CI_Controller {
                     $b['internal_status'] = "Courier Invoice Rejected By Admin";
                     
                     break;
-                case 'APPROVE_COURIER_INVOICE':
-                    
+                case 'APPROVE_COURIER_INVOICE':              
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("courier_charge");                    
-                     if (!empty($courier_charge)) {
-                        $data['courier_charges_by_sf'] = $courier_charge;
-                    } else {
-                        $data['courier_charges_by_sf'] = 0;
-                    }
-                    
+                    $courier_charge = $this->input->post("courier_charge");           
+               
                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
@@ -3668,8 +3662,6 @@ class Inventory extends CI_Controller {
      */
     function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-//        $str = '{"data":"{\"0\":{\"inventory_id\":\"\",\"sent_entity_type\":\"partner\",\"service_center_id\":\"156\",\"booking_id\":\"SY-17948018112223\",\"partner_id\":\"247010\",\"spare_id\":\"12388\",\"part_name\":\"Capacitor\",\"model\":\"12345678\",\"booking_partner_id\":\"247010\"}}","sender_entity_id":"10","sender_entity_type":"vendor","wh_name":"247around West Delhi (DELHI)","receiver_partner_id":"247010","awb_by_wh":"DTDC","courier_name_by_wh":"123456","courier_price_by_wh":"120","defective_parts_shippped_date_by_wh":"2018-11-22"}';
-//        $_POST = json_decode($str, true);
         $this->check_WH_UserSession();
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
@@ -3677,8 +3669,6 @@ class Inventory extends CI_Controller {
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-        //$eway_bill_by_wh = $this->input->post('eway_bill_by_wh');
-        //$defective_parts_ewaybill_date_by_wh = $this->input->post('defective_parts_ewaybill_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
@@ -3689,15 +3679,6 @@ class Inventory extends CI_Controller {
             } else {
                 $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
             }            
-            $exist_ewaybill_image = $this->input->post("exist_ewaybill_image");
-            if (!empty($exist_ewaybill_image)) {
-                $ewaybill_file['status'] = true;
-                $ewaybill_file['message_ewaybill'] = $exist_ewaybill_image;
-            } else {
-                $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");                
-                $rand_no = rand();                
-                $ewaybill_file = $this->miscelleneous->upload_file_to_s3($_FILES["eway_file"], 'ewaybill', $allowedExts, $rand_no, "invoices-excel", "sp_parts");
-            }
            
             if ($courier_file['status']) {
                 $courier_details['sender_entity_id'] = $sender_entity_id;
@@ -3711,19 +3692,11 @@ class Inventory extends CI_Controller {
                 $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
                 $courier_details['courier_charge'] = $courier_price_by_wh;
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
-//                $ewaybill_details['ewaybill_no'] = $eway_bill_by_wh;
-//                $ewaybill_details['ewaybill_file'] = $ewaybill_file;
-//                $ewaybill_details['ewaybill_generated_date'] = $defective_parts_ewaybill_date_by_wh; 
                 $courier_details['status'] = COURIER_DETAILS_STATUS;
                 $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
                 
                 if (!empty($insert_courier_details)) {
-                    log_message('info', 'Courier Details added successfully.');
-//                    $ewaybill_details['courier_details_id'] = $insert_courier_details;
-//                    if(!empty($eway_bill_by_wh)){
-//                       $insert_courier_details = $this->inventory_model->insert_ewaybill_details($ewaybill_details); 
-//                    }                   
-
+                    log_message('info', 'Courier Details added successfully.');                 
                     $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
 
                     if (!empty($invoice['processData'])) {
@@ -3830,6 +3803,7 @@ class Inventory extends CI_Controller {
      */
     function inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $courier_id){
         $postData1 = json_decode($this->input->post('data'), true);
+        log_message('info', __METHOD__. " ". print_r($postData1, true));
         $partner_spare = array();
         $micro_spare = array();
         $warehouse_spare = array();
@@ -3844,7 +3818,7 @@ class Inventory extends CI_Controller {
                 
                 array_push($micro_spare, $value);
                 
-            } else if($this->session->userdata('service_center_id') == $value['partner_id'] && $value['sent_entity_type'] == _247AROUND_SF_STRING){
+            } else if($this->session->userdata('service_center_id') == $value['defective_return_to_entity_id'] && $value['defective_return_to_entity_type'] == _247AROUND_SF_STRING){
                 array_push($warehouse_spare, $value);
             }
         }
