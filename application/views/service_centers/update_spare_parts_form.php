@@ -141,7 +141,7 @@
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Symptom</label>
                                         <div class="col-md-6">
-                                            <input class="form-control" id="<?php echo "symptom_".$skey;?>" value="<?php echo $sp->spare_request_symptom; ?>" name="part[<?php echo $skey;?>][spare_request_symptom]" readonly="readonly" required>
+                                            <input class="form-control" id="<?php echo "symptom_".$skey;?>" value="<?php echo $sp->spare_request_symptom; ?>" name="part[<?php echo $skey;?>][spare_request_symptom]" readonly="readonly" >
                                         </div>
                                     </div>
                                     
@@ -173,21 +173,6 @@
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
                                             <?php echo form_error('shipped_parts_name'); ?>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="shipped_parts_name" class="col-md-4"> Part In Warranty*</label>
-                                        <div class="col-md-6">
-                                            <input type="hidden" id="<?php echo "part_warranty_statusid_".$skey; ?>" name="part[<?php echo $skey; ?>][part_warranty_status]" value="<?php echo $spare_parts[0]->part_warranty_status; ?>">
-                                            <input type="text" class="form-control" value="<?php if($spare_parts[0]->part_warranty_status == 1){ echo 'In-Warranty'; }elseif($spare_parts[0]->part_warranty_status == 2){ echo 'Out-Warranty'; }  ?>" readonly="">
-                                
-<!--                                            <select class="form-control part_warranty_status" id="<?php echo "part_warranty_statusid_".$skey; ?>" name="part[<?php echo $skey; ?>][part_warranty_status]">
-                                                <option selected="" disabled="">Select warranty status</option>
-                                                <option value="1" <?php if($spare_parts[0]->part_warranty_status == 1){ echo 'selected'; } ?>> In-Warranty </option>
-                                                <option value="2" <?php if($spare_parts[0]->part_warranty_status == 2){ echo 'selected'; } ?>> Out-Warranty </option>
-                                            </select>
-                                            <input type="hidden" id="<?php echo "part_warranty_status_".$skey; ?>" name="part[<?php echo $skey;?>][part_warranty_status]" value="">-->
                                         </div>
                                     </div>
 

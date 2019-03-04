@@ -107,7 +107,7 @@
                                             </select>
                                             <input type="hidden" id="model_number" name="model_number">
                                         </div>
-                                        <?php } else if($partner_wh_status == false) { ?> 
+                                        <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
                                             <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number" required="">
@@ -198,7 +198,7 @@
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
-                                            <?php } else if($partner_wh_status == false) { ?> 
+                                            <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
                                                     <option selected disabled>Select Part Type</option>
@@ -302,7 +302,7 @@
                                                     <span id="spinner" style="display:none"></span>
                                                     <span id="inventory_stock"></span>
                                                 </div>
-                                                <?php } else if($partner_wh_status == false){ ?> 
+                                                <?php } else { ?> 
                                                 <div class="col-md-6">
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
                                                 </div>
