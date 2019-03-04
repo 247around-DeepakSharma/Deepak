@@ -393,18 +393,6 @@
         if(files.length >= 1){
             is_exist_file = true;
         }
-        
-        for (var i = 0; i < eway_files.length; i++) {
-            formData.append('eway_file', files[i]);
-        }
-        var is_exist_eway_files = false;
-        if(exist_ewaybill_image){
-            is_exist_eway_files = true;
-        }
-        
-        if(eway_files.length >= 1){
-            is_exist_eway_files = true;
-        }
         //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
         $.each(postData, function(index, element) {
             formData.append(index, element);
