@@ -424,35 +424,7 @@
         </div>
     </form>
 </div>
-<script type="text/javascript">
- $(document).ready(function(){
-        var service_id = "<?php echo $spare_parts[0]->service_id; ?>"; 
-        get_inventory_pary_type(service_id,'shippedparttype_0');
-        $(".addButton").on('click',function(){  
-        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";    
-        var numItems = $('.spare_clone').length;
-        spare_part_type_id = "shippedparttype_"+numItems;
-        get_inventory_pary_type(service_id,spare_part_type_id)
-          
-        });
-        
-        function get_inventory_pary_type(service_id,spare_part_type_id){
-            $.ajax({
-            method:'POST',
-            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-            data: { service_id:service_id},
-            success:function(data){                       
-                $('#'+spare_part_type_id).html(data);  
-                var section_length = $(".div_class").length
-                 for(i=1; i < section_length; i++){
-                     $("#shippedparttype_"+i).html(data);
-                 }
-                $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
-            }
-        });
-        }        
-    });
-</script>
+
 <script type="text/javascript">
     var someDate = new Date();
     var numberOfDaysToAdd = 7;
@@ -568,9 +540,9 @@
                     $('#shippedparttype_' +key ).val('val', "");
                     $('#shippedparttype_' + key).val('Select Part Type').change();
                     $('#shippedparttype_' + key).select2().html(data);
-                    $('#spinner_' + key).removeClass('fa fa-spinner').hide();
-                    
-                    var request_part_type = $("#requestedpartstype_"+key).val();
+                    $('#spinner_' + key).removeClass('fa fa-spinner').hide();                    
+                    var part_type = $("#requestedpartstype_"+key).val();
+                    request_part_type = ucword(part_type);
                     if(request_part_type){
                         $('#shippedparttype_' +key).val(request_part_type).change(); 
                     }
@@ -579,6 +551,13 @@
         }else{
             alert("Please Select Model Number");
         }
+    }
+    
+    function ucword(str){
+        str = str.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g, function(replace_latter) { 
+            return replace_latter.toUpperCase();
+        });  
+        return str;  
     }
     
     function change_shipped_part_type(key){
@@ -693,4 +672,35 @@
         <?php foreach($spare_parts as $ssKey => $sp) { ?>
          <script> change_shipped_model('<?php echo $ssKey; ?>'); </script> 
              <?php  } ?>
-    <?php } ?>
+     <?php }else{ ?>         
+<script type="text/javascript">
+    $(document).ready(function(){
+    var service_id = "<?php echo $spare_parts[0]->service_id; ?>"; 
+    get_inventory_pary_type(service_id,'shippedparttype_0');
+    $(".addButton").on('click',function(){  
+        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";    
+        var numItems = $('.spare_clone').length;
+        spare_part_type_id = "shippedparttype_"+numItems;
+        get_inventory_pary_type(service_id,spare_part_type_id);
+
+    });
+
+    function get_inventory_pary_type(service_id,spare_part_type_id){
+       $.ajax({
+       method:'POST',
+       url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+       data: { service_id:service_id},
+       success:function(data){                       
+           $('#'+spare_part_type_id).html(data);  
+           var section_length = $(".div_class").length
+            for(i=1; i < section_length; i++){
+                $("#shippedparttype_"+i).html(data);
+            }
+           $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
+       }
+    });
+    }        
+    });
+</script>
+        
+<?php } ?>
