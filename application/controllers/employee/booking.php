@@ -3242,7 +3242,7 @@ class Booking extends CI_Controller {
                                             $post['where']['service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed"'] = NULL;
                                             break;
                                         case 'c':
-                                           $post['where']  = array('current_status' => $booking_status);
+                                           $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
                                             break;
                                     }
                             }
@@ -3250,6 +3250,9 @@ class Booking extends CI_Controller {
                             {
                                $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
                             }
+                }
+                else{
+                    $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
                 }
                
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
