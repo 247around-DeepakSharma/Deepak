@@ -37,119 +37,126 @@ class File_upload extends CI_Controller {
      * @param: void
      * @return JSON
      */
-    public function process_upload_file(){ 
-        log_message('info', __FUNCTION__ . "=> File Upload Process Begin ". print_r($_POST,true));
+    public function process_upload_file() {
+        log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
 
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
-        if ($file_status['status']) { 
-            
-            //get file header
-            $data = $this->read_upload_file_header($file_status);
-          
-            $data['post_data'] = $this->input->post();
-            
-            if(!empty( $data['post_data']['partner_id'])){
-               $data['post_data']['entity_type'] = "partner";
-               $data['post_data']['entity_id'] = $data['post_data']['partner_id'];
-            }
-            else if(!empty( $data['post_data']['vendor_id'])){
-                $data['post_data']['entity_type'] = "vendor";
-                $data['post_data']['entity_id'] =$data['post_data']['vendor_id'];
-            }
-            else{
-                $data['post_data']['entity_type'] = "";
-                $data['post_data']['entity_id'] = "";
-            }
+       
+        if ($file_status['file_name_lenth']) {
 
-            //check all required header and file type 
-            if ($data['status']) { 
-                $response = array();
-                //process upload file
-                switch ($data['post_data']['file_type']){ 
-                    case PARTNER_INVENTORY_DETAILS_FILE:
-                        //process inventory file upload
-                        $response = $this->process_inventory_upload_file($data);
-                        break;
-                    case _247AROUND_PARTNER_APPLIANCE_DETAILS:
-                        //process partner appliance file upload
-                        $response = $this->process_partner_appliance_upload_file($data);
-                        break;
-                    case PARTNER_APPLIANCE_MODEL_FILe:
-                        //process partner appliance model file upload
-                        $response = $this->process_partner_appliance_model_details_file($data);
-                        break;
-                    case PARTNER_BOM_FILE:
-                        //process partner bom file upload
-                        $response = $this->process_partner_bom_file_upload($data);
-                        break;
-                    default :
-                        log_message("info"," upload file type not found");
-                        $response['status'] = FALSE;
-                        $response['message'] = 'Something Went wrong!!!';
-                }
-                
-                //save file into database send send response based on file upload status               
-                if($response['status']){
-                    
-                    //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_SUCCESS_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-                    
-                }else{
-                    //save file and upload on s3
-                    $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'],FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-                    $this->session->set_flashdata('file_error', $response['message']);
-                                      
-                }
-                
-                //send email
-                $this->send_email($data,$response);
-                
-                redirect(base_url() . $redirect_to);
-                
+            if ($file_status['status']) {
 
-            }else{
+                //get file header
+                $data = $this->read_upload_file_header($file_status);
+
+                $data['post_data'] = $this->input->post();
+
+                if (!empty($data['post_data']['partner_id'])) {
+                    $data['post_data']['entity_type'] = "partner";
+                    $data['post_data']['entity_id'] = $data['post_data']['partner_id'];
+                } else if (!empty($data['post_data']['vendor_id'])) {
+                    $data['post_data']['entity_type'] = "vendor";
+                    $data['post_data']['entity_id'] = $data['post_data']['vendor_id'];
+                } else {
+                    $data['post_data']['entity_type'] = "";
+                    $data['post_data']['entity_id'] = "";
+                }
+
+                //check all required header and file type 
+                if ($data['status']) {
+                    $response = array();
+                    //process upload file
+                    switch ($data['post_data']['file_type']) {
+                        case PARTNER_INVENTORY_DETAILS_FILE:
+                            //process inventory file upload
+                            $response = $this->process_inventory_upload_file($data);
+                            break;
+                        case _247AROUND_PARTNER_APPLIANCE_DETAILS:
+                            //process partner appliance file upload
+                            $response = $this->process_partner_appliance_upload_file($data);
+                            break;
+                        case PARTNER_APPLIANCE_MODEL_FILe:
+                            //process partner appliance model file upload
+                            $response = $this->process_partner_appliance_model_details_file($data);
+                            break;
+                        case PARTNER_BOM_FILE:
+                            //process partner bom file upload
+                            $response = $this->process_partner_bom_file_upload($data);
+                            break;
+                        default :
+                            log_message("info", " upload file type not found");
+                            $response['status'] = FALSE;
+                            $response['message'] = 'Something Went wrong!!!';
+                    }
+
+                    //save file into database send send response based on file upload status               
+                    if ($response['status']) {
+
+                        //save file and upload on s3
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                    } else {
+                        //save file and upload on s3
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                        $this->session->set_flashdata('file_error', $response['message']);
+                    }
+
+                    //send email
+                    $this->send_email($data, $response);
+
+                    redirect(base_url() . $redirect_to);
+                } else {
+                    //redirect to upload page
+                    $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                    redirect(base_url() . $redirect_to);
+                }
+            } else {
                 //redirect to upload page
                 $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
                 redirect(base_url() . $redirect_to);
             }
-            
-        }else{
-            //redirect to upload page
-            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+        } else {
+            $this->session->set_flashdata('file_error', 'File name length is long.');
             redirect(base_url() . $redirect_to);
         }
     }
-    
-    
+
     /**
      * @desc: This function is used to get the file type
      * @param void
      * @param $response array   //consist file temporary name, file extension and status(file type is correct or not)
      */
     private function get_upload_file_type(){ 
-        log_message('info', __FUNCTION__ . "=> getting upload file type");
-        if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
-            $pathinfo = pathinfo($_FILES["file"]["name"]);
+        log_message('info', __FUNCTION__ . "=> getting upload file type"); 
+        if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) <= 44) {
+            if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
+                $pathinfo = pathinfo($_FILES["file"]["name"]);
 
-            switch ($pathinfo['extension']) {
-                case 'xlsx':
-                    $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
-                    $response['file_ext'] = 'Excel2007';
-                    break;
-                case 'xls':
-                    $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
-                    $response['file_ext'] = 'Excel5';
-                    break;
+                switch ($pathinfo['extension']) {
+                    case 'xlsx':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel2007';
+                        break;
+                    case 'xls':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel5';
+                        break;
+                }
+
+                $response['status'] = True;
+                $response['file_name_lenth'] = True;
+            } else {
+                log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+                $response['status'] = False;
+                $response['file_name_lenth'] = True;
             }
-            
-            $response['status'] =  True;
         } else {
-            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
-            $response['status'] =  False;
+            log_message('info', __FUNCTION__ . 'File Name Length Is Long');
+            $response['status'] = False;
+            $response['file_name_lenth'] = false;
         }
-        
+
         return $response;
     }
     

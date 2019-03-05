@@ -662,8 +662,9 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function spare_parts_requested_table_data($spare_list, $no, $request_type) {
 
+    function spare_parts_requested_table_data($spare_list, $no, $request_type){
+                
         $row = array();
         $row[] = $no;
         $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
@@ -673,6 +674,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->request_type;
+
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
@@ -719,11 +721,12 @@ class Spare_parts extends CI_Controller {
         if($this->input->post("status") == SPARE_PARTS_REQUESTED){
             $post['where_in']['status'] = array(SPARE_PARTS_REQUESTED, SPARE_PART_ON_APPROVAL);
             $post['request_type'] = SPARE_PARTS_REQUESTED;
-            
+
         }else{
-          $post['where']['status'] = $this->input->post("status");  
-          $post['request_type'] = SPARE_OOW_EST_REQUESTED;
+            $post['where']['status'] = $this->input->post("status");  
+            $post['request_type'] = SPARE_OOW_EST_REQUESTED;
         }
+        
         
         if(!empty($this->input->post('vendor_partner'))){
             $post['vendor_partner'] = $this->input->post('vendor_partner');
