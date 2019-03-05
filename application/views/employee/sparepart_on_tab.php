@@ -19,7 +19,9 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="true">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
@@ -50,6 +52,7 @@
                                 <th class="text-center" data-orderable="false">Service Center</th>
                                 <th class="text-center" data-orderable="false">Partner</th>
                                 <th class="text-center" data-orderable="false">Requested Part</th>
+                                <th class="text-center" data-orderable="false">Part Tye</th>
                                 <th class="text-center" data-orderable="false">Shipped Part</th>
                                 <th class="text-center" data-orderable="false">Booking Type</th>
                                 <th class="text-center" data-orderable="false">Estimate Cost</th>
@@ -88,7 +91,9 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
@@ -119,6 +124,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Part Tye</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -247,6 +253,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
@@ -318,6 +325,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of Shipped</th>
@@ -353,6 +361,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
