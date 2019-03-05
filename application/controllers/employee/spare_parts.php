@@ -1564,10 +1564,10 @@ class Spare_parts extends CI_Controller {
                     }
 
                     if ($sms_template_tag == SPARE_ON_OUT_OF_WARRANTY_SMS_TAG || $sms_template_tag = SPARE_ON_IN_WARRANTY_SMS_TAG) {
-                        $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, "", $reason_text, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
+                        $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, "", $reason_text, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND, NULL);
                     }
 
-                    $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
+                    $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
                         if ($affctd_id) {
