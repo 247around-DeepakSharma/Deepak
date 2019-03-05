@@ -541,7 +541,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
@@ -549,8 +549,8 @@
                                             <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
-                        <div class="form-group col-md-3" style="width:200px;">
-                                         <label for="">Booking Completed Date</label>
+                        <div class="form-group col-md-3" style="width:186px;">
+                                         <label for="">Initial Booking Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_am" ng-change="ShowAMPendingBookingBYDateRange()" ng-model="dates">
                             </div>
                     </form>
