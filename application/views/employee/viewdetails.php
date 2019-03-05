@@ -488,6 +488,7 @@
                                         <th>Technical Issue</th>
                                         <th >Model Number </th>
                                         <th >Requested Parts </th>
+                                        <th> Parts Type </th>                                        
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
@@ -510,6 +511,7 @@
                                         <td><?php echo $sp['spare_request_symptom'];?></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
+                                        <td><?php echo $sp['parts_requested_type']; ?></td>                                        
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
