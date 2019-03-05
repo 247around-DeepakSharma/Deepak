@@ -166,7 +166,7 @@
                     <div class="col-md-4">
                         <div class="form-group col-md-5 ">
                             <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
-                            <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
+                            <select disabled="" style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                 <?php for($i =1; $i <11; $i++) { ?>
                                 <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                 <?php }?>
@@ -360,8 +360,11 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
+                        <?php if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+                        <input type="hidden" name="product_type" value="Shipped"/>
+                        <?php } else { ?>
                         <input type="hidden" name="product_type" value="Delivered"/>
-                        <?php //if(!empty($this->session->userdata('status'))) {?>
+                        <?php  }//if(!empty($this->session->userdata('status'))) {?>
                         <div class="row">
                             <div class="form-group  col-md-12" >
                                 <center>
@@ -1169,7 +1172,12 @@
         $(".price_checkbox:checked").each(function (i) {
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
             var price_tags1 = replaceAll(price_tags, '(Free)', '');
-            var price_tags2 = replaceAll(price_tags1, '(Paid)', '')
+            var price_tags2 = replaceAll(price_tags1, '(Paid)', '');
+            if(price_tags2 === "Pre-Dispatch Inspection PDI - With Packing" || price_tags === "Pre-Dispatch Inspection PDI - Without Packing"){
+                $('#appliance_unit').prop("disabled", false); 
+            } else{
+                $('#appliance_unit').prop("disabled", true); 
+            }
             array.push(price_tags2);
 
         });

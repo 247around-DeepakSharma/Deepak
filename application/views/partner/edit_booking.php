@@ -165,7 +165,7 @@
                         <div class="col-md-4">
                             <div class="form-group col-md-5 ">
                                 <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
-                                <select style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
+                                <select disabled style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
                                     <?php if(!$is_repeat){
                                         for($i =1; $i <26; $i++) { ?>
                                     <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
@@ -1181,7 +1181,12 @@
         $(".price_checkbox:checked").each(function (i) {
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
             var price_tags1 = replaceAll(price_tags, '(Free)', '');
-            var price_tags2 = replaceAll(price_tags1, '(Paid)', '')
+            var price_tags2 = replaceAll(price_tags1, '(Paid)', '');
+            if(price_tags2 === "Pre-Dispatch Inspection PDI - With Packing" || price_tags === "Pre-Dispatch Inspection PDI - Without Packing"){
+                $('#appliance_unit').prop("disabled", false); 
+            } else{
+                $('#appliance_unit').prop("disabled", true); 
+            }
             array.push(price_tags2);
     
         });
