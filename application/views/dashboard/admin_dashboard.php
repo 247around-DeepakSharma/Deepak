@@ -553,7 +553,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
@@ -565,7 +565,7 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                        <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
