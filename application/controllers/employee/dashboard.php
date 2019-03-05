@@ -1780,8 +1780,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
                     unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
                     unset($where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")']);
-                    unset($join['spare_parts_details']);
-                    unset($joinType['spare_parts_details']);
+                    //unset($join['spare_parts_details']);
+                    //unset($joinType['spare_parts_details']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
