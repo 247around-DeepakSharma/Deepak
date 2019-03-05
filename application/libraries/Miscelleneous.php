@@ -3973,7 +3973,7 @@ function generate_image($base64, $image_name,$directory){
         if(!empty($booking_id)){
             $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
             if(!empty($booking_details)){
-                $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("spare_parts_details.id" =>$spare_id));
+                $getsparedata = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("spare_parts_details.id" =>$spare_id));
                 $part_type = $getsparedata[0]['parts_requested_type'];
                 $sms['tag'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
