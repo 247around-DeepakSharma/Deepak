@@ -549,7 +549,7 @@
                                             <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
-                        <div class="form-group col-md-3" style="width:186px;">
+                        <div class="form-group col-md-3" style="width: 170px;">
                                          <label for="">Initial Booking Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_am" ng-change="ShowAMPendingBookingBYDateRange()" ng-model="dates">
                             </div>
