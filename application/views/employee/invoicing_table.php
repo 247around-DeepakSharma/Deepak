@@ -26,14 +26,14 @@
          <th>Due Date</th>
          <th>Total Invoice</th>
          <th>Service Charges</th>
-        <?php if($invoice_array[0]['vendor_partner'] == "vendor"){ ?>
+        <?php if(!empty($invoice_array) && $invoice_array[0]['vendor_partner'] == "vendor"){ ?>
          <th>Additional Service Charges</th>
         <?php } ?>
          <th>Parts / Stands</th>
-        <?php if($invoice_array[0]['vendor_partner'] == "vendor"){ ?>
+        <?php if(!empty($invoice_array) && $invoice_array[0]['vendor_partner'] == "vendor"){ ?>
          <th>TDS Amount</th>
         <?php } ?>
-        <?php if($invoice_array[0]['vendor_partner'] == "partner"){ ?>
+        <?php if(!empty($invoice_array) && $invoice_array[0]['vendor_partner'] == "partner"){ ?>
          <th>Upcountry Charges</th>
          <th>Courier Charges</th>
         <?php } ?>

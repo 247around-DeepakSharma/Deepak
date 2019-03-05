@@ -157,7 +157,7 @@
 <!--                AM reporting-->
                 <div class="x_panel">
                     <div class="x_title" style="pending-left:0px;">
-                    <h2>AM Pending Bookings Report</h2>
+                    <h2>AM Open Call Report</h2>
                     <span class="collape_icon" href="#AM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_AM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -195,8 +195,8 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am_pending" name="request_type[]" multiple="">
-                                <option value="">All</option>
-                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="" selected="selected">All</option>
+                                <option value="Installation">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -215,19 +215,19 @@
                         </div>
                     </div>
                 </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry">
-                                <option value="">All</option>
-                                <option value="Yes">Yes</option>
-                                 <option value="No" selected="selected">No</option>
+                            <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry" multiple="">
+                                <option value="" selected="selected">All</option>
+                                <option value="Yes" >Yes</option>
+                                 <option value="No" >No</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
@@ -235,8 +235,8 @@
                                             <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
-                        <div class="form-group col-md-3" style="width:200px;">
-                                         <label for="">Booking Completed Date</label>
+                        <div class="form-group col-md-3" style="width:186px;">
+                                         <label for="">Initial Booking Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_am" ng-change="ShowAMPendingBookingBYDateRange()" ng-model="dates">
                             </div>
                     </form>
@@ -466,7 +466,7 @@
             <div id="admin_dashboard_app_pending_rm">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
-                    <h2>RM Pending Booking Reports</h2>
+                    <h2>RM Open Call Reports</h2>
                     <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -504,7 +504,8 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
-                                <option value="Installation" selected="selected">Installations</option>
+                                <option value="" selected="selected">All</option>
+                                <option value="Installation">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -527,10 +528,10 @@
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry">
-                                <option value="">All</option>
+                            <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry[]" multiple="">
+                                <option value="" selected="selected">All</option>
                                 <option value="Yes">Yes</option>
-                                 <option value="No" selected="selected">No</option>
+                                 <option value="No">No</option>
                             </select>
                         </div>
                     </div>
@@ -791,6 +792,9 @@
     $('#request_type_am').select2();
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
+    $('#upcountry_rm_pending').select2();
+    $('#upcountry_am_pending').select2();
+    
         function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
