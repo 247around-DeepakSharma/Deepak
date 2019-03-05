@@ -100,17 +100,20 @@
              $("#status_label").css({'display':'block'}).html("Spare Part Status By SF");
              $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'});
              $("#part_warranty_status option[value='"+keys+"']").attr('selected','selected');
-        }else if(keys == 'spare_parts_cancel'){
+        }else if(keys == 'spare_parts_cancel'){            
             var HTML = ''; 
-            HTML = '<select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value="">';
-            HTML+= '<option selected="" disabled="">Select Spare Cancel Reason</option>';
-            HTML+= '<option value="1"> Text-One </option>';
-            HTML+= '<option value="2">  Text-Two </option>';
-            HTML+= '</select>';
-            $("#status_label").css({'display':'block'}).html("Spare Cancel Reason");
+            HTML = '<select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value=""></select>';
             $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'}); 
             $("#reject_btn").html("Reject");             
-            $("#reject_btn").attr("onclick","reject_parts()");
+            $("#reject_btn").attr("onclick","reject_parts()");            
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+                    success: function (data) {
+                        $("#status_label").css({'display':'block'}).html("Spare Cancel Reason");
+                        $("#spare_cancel_reason").html(data); 
+                    }
+                });
         }else{
             $("#reject_btn").html("Move To Required");  
             $("#status_label").css({'display':'none'});
@@ -162,7 +165,10 @@
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    spare_parts_requested_table.ajax.reload(null, false);                   
+                    spare_parts_requested_table.ajax.reload( function ( json ) { 
+                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    } );
+                    
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
@@ -176,8 +182,7 @@
       var remarks =  $('#textarea').val();
       //var booking_id = $('#modal-title').text();
       var courier_charge = $('#charges').val();
-      var reason = $('#spare_cancel_reason').val();
-      
+      var reason = $('#spare_cancel_reason').val();      
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();

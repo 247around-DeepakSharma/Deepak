@@ -1874,7 +1874,7 @@ function get_data_for_partner_callback($booking_id) {
     }
     function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
     {
-        $return=null;
+
         $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
         $this->db->from("collateral");
@@ -1928,7 +1928,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result();
     }
     
-        function _querySearchPartnersLisdata($select, $post){
+    function _querySearchPartnersLisdata($select, $post){
             
         $this->db->from('partners');
         $this->db->select($select, FALSE);

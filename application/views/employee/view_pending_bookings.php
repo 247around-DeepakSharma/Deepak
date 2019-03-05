@@ -275,6 +275,9 @@
             },
             "serverSide": true, 
             "order": [], 
+            <?php if(isset($bookingIDString)){ ?> 
+            paging: false,
+            <?php } ?>
             "pageLength": 25,
              dom: 'lBfrtip',
              buttons: [

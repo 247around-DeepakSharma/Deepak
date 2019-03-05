@@ -1131,10 +1131,17 @@ class Inventory extends CI_Controller {
                     $b['internal_status'] = "Courier Invoice Rejected By Admin";
                     
                     break;
-                case 'APPROVE_COURIER_INVOICE':              
+                case 'APPROVE_COURIER_INVOICE':
+                    
+                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("courier_charge");           
-               
+                    $courier_charge = $this->input->post("courier_charge");                    
+                     if (!empty($courier_charge)) {
+                        $data['courier_charges_by_sf'] = $courier_charge;
+                    } else {
+                        $data['courier_charges_by_sf'] = 0;
+                    }
+                    
                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
@@ -3079,12 +3086,14 @@ class Inventory extends CI_Controller {
             $newdata['serial_number'] = $spare[0]['serial_number'];
             $newdata['date_of_request'] =  date('Y-m-d');
             $newdata['parts_requested'] =  $fomData['part_name'];
-            if(!empty($fomData['type'])){
-                $newdata['parts_requested_type'] = $fomData['type'];
+            
+            $inventory_master_deatails = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.type',array('inventory_master_list.inventory_id' => $ledger['inventory_id']));
+            if(!empty($inventory_master_deatails[0]['type'])){
+                $newdata['parts_requested_type'] = $inventory_master_deatails[0]['type'];
             } else {
                 $newdata['parts_requested_type'] = $fomData['part_name'];
             }
-            
+                       
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
