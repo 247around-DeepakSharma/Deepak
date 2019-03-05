@@ -138,6 +138,8 @@
                           <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else{ echo 'href="'.base_url().'employee/invoice/regenerate_invoice/'.$invoice['invoice_id'].'/draft"'; } ?>>Draft</a></li>
                         </ul>
                       </li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
                     </ul>
                 </div>
             
@@ -159,6 +161,8 @@
                         <li><a <?php if($invoice['amount_paid'] > 0 ) { echo 'style="color:#33333385;"'; } else { echo 'href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice['vendor_partner'].'/'.$invoice['invoice_id'].'"'; } ?> >Update</a></li>
                       <li class="divider"></li>
                       <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
+                      <li class="divider"></li>
+                      <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
                     </ul>
                 </div>
             <?php } ?>
