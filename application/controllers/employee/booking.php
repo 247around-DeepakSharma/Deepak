@@ -3862,9 +3862,11 @@ class Booking extends CI_Controller {
 
 
         $ageString = $order_list->booking_age." days";
-        if((($order_list->is_upcountry == '1' && $order_list->booking_age >2) || ($order_list->is_upcountry == '0' && $order_list->booking_age >1)) && ($order_list->spare_age >1 || $order_list->spare_age=='no_spare')){
-            $ageString = $order_list->booking_age." days <i class='fa fa-exclamation-triangle' style = 'color:red';></i>";
-        }
+         if($this->input->post('bulk_booking_id')){
+            if((($order_list->is_upcountry == '1' && $order_list->booking_age >2) || ($order_list->is_upcountry == '0' && $order_list->booking_age >1)) && ($order_list->spare_age >1 || $order_list->spare_age=='no_spare')){
+                $ageString = $order_list->booking_age." days <i class='fa fa-exclamation-triangle' style = 'color:red';></i>";
+            }
+         }
         $row[] = $no.$sn;
         $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
