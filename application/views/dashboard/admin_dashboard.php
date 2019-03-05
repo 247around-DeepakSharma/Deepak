@@ -1983,7 +1983,7 @@ function initiate_escalation_data(){
 }
 select option:empty { display:none }
 .select2-container--default{
-        width: 166px !important;
+        width: 154px !important;
 }
 .select2-selection--multiple{
         border: 1px solid #ccc !important;
