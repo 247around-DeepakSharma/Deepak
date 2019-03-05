@@ -221,7 +221,7 @@ class Spare_parts extends CI_Controller {
         log_message('info', __METHOD__);
         
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, "
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
@@ -252,7 +252,7 @@ class Spare_parts extends CI_Controller {
     
     function oow_parts_shipped_pending_approval($post){
          $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id,"
+                . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
                 . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -286,7 +286,7 @@ class Spare_parts extends CI_Controller {
         log_message('info', __METHOD__);       
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.part_warranty_status, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
-                . "defective_part_required, status";
+                . "defective_part_required, spare_parts_details.parts_requested_type, status";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
@@ -329,7 +329,7 @@ class Spare_parts extends CI_Controller {
         log_message('info', __METHOD__);
         
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.spare_lost, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id,"
+                . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
                 . "defective_part_required, partner_challan_file, parts_requested";
         $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -542,6 +542,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
+        $row[] = $spare_list->parts_requested_type;        
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
         $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
@@ -580,6 +581,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
+        $row[] = $spare_list->parts_requested_type;
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
@@ -620,6 +622,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
+        $row[] = $spare_list->parts_requested_type;
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
         $row[] = $spare_list->purchase_price;
@@ -673,6 +676,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
+        $row[] = $spare_list->parts_requested_type;
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
