@@ -1855,7 +1855,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
@@ -1864,7 +1864,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL;
-            $conditionArray['where']['booking_details.internal_status != "Spare Parts Shipped by Partner"'] = NULL;
              //Group by on booking_tat
             $conditionArray['groupBy'] = array("TAT","entity");
             //only is sf closed date is null
