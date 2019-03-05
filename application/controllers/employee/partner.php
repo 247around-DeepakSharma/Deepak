@@ -404,7 +404,11 @@ class Partner extends CI_Controller {
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
-        $post['appliance_unit'] = $this->input->post('appliance_unit');
+        $appliance_unit = $this->input->post('appliance_unit');
+        if(empty($appliance_unit)){
+            $appliance_unit =  1;
+        }
+        $post['appliance_unit'] = $appliance_unit;
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
