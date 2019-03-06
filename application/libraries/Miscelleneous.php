@@ -744,6 +744,7 @@ class Miscelleneous {
         if (isset($data['vendor_not_found'])) {
             if ($data['vendor_not_found'] == 1) {
                 $this->sf_not_exist_for_pincode($booking);
+                return false;
             }
         }
         if (!empty($is_price)) {
