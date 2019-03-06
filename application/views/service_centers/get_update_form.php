@@ -307,7 +307,7 @@
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
                                                 </div>
                                                 <?php } ?>
-                                                <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                                <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -675,6 +675,10 @@
     
     var partIndex = 0;
     $('#requested_parts').on('click', '.addButton', function () {
+        
+          if(partIndex >0){
+              $("#remove_section_"+partIndex).hide();
+          }
             partIndex++;
             var $template = $('#template'),
                 $clone = $template
@@ -694,6 +698,8 @@
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                         .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Part Wrranty Status'}).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
+                        .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
+                
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
@@ -703,6 +709,7 @@
                    .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
+                   .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
             <?php } ?>
     
         }) 
@@ -712,6 +719,7 @@
             var $row = $(this).parents('.spare_clone'),
                 index = $row.attr('data-part-index');
                 partIndex = partIndex -1;
+                $("#remove_section_"+partIndex).show();
             $row.remove();
         });
         

@@ -1706,7 +1706,7 @@ class Miscelleneous {
                     $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
                 } else {
                     $pic = str_replace(' ', '-', $pic_type_name);
-                    $picName = $type . rand(10, 1000) . $pic . "." . $extension;
+                    $picName = $type . rand(10, 10000) . $pic . "." . $extension;
                     $_POST[$post_name] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
 
