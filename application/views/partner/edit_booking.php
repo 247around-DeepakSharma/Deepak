@@ -1182,10 +1182,13 @@
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
             var price_tags1 = replaceAll(price_tags, '(Free)', '');
             var price_tags2 = replaceAll(price_tags1, '(Paid)', '');
-            if(price_tags2 === "Pre-Dispatch Inspection PDI - With Packing" || price_tags === "Pre-Dispatch Inspection PDI - Without Packing"){
-                $('#appliance_unit').prop("disabled", false); 
+            if(price_tags2 === '<?php echo REPAIR_IN_WARRANTY_TAG; ?>' || 
+                    
+                    price_tags === "<?php echo REPAIR_OOW_TAG; ?>" ){
+                $('#appliance_unit').prop("disabled", true);
+                
             } else{
-                $('#appliance_unit').prop("disabled", true); 
+                 $('#appliance_unit').prop("disabled", false); 
             }
             array.push(price_tags2);
     
