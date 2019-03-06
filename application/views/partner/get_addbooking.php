@@ -1173,6 +1173,7 @@
             if(price_tags2 === '<?php echo REPAIR_IN_WARRANTY_TAG; ?>' || 
                     
                     price_tags === "<?php echo REPAIR_OOW_TAG; ?>" ){
+                $("#appliance_unit").val('1');
                 $('#appliance_unit').prop("disabled", true);
                 
             } else{
