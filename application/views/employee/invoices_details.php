@@ -1,9 +1,4 @@
 <script src="<?php echo base_url(); ?>js/invoice_tag.js"></script>
-<style>
-    #wrapper{
-        overflow-x: hidden;
-    }
-</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
