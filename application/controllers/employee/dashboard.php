@@ -2667,7 +2667,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data = array(
             "seen" => 0,
             "is_active" => 1,
-            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "start_date <= '".date("Y-m-d H:i:s")."' AND end_date >= '".date("Y-m-d H:i:s")."'"=>NULL,
         );
         if($entity_type == _247AROUND_PARTNER_STRING){
             $data['entity_id'] = $this->session->userdata('partner_id');
@@ -2699,9 +2699,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             "entity_type" => $this->input->post("entity_type"),
             "entity_id" => $this->input->post("entity_id"),
             "is_active" => 1,
-            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "start_date <= '".date("Y-m-d H:i:s")."' AND end_date >= '".date("Y-m-d H:i:s")."'"=>NULL,
         );
-        $notifications = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message, seen, icon, dashboard_notifications.create_date, color", $where, array("seen"=>"desc"), "15");
+        $notifications = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message, seen, icon, dashboard_notifications.create_date, color", $where, array("seen"=>"asc"), "15");
         $where['seen'] = 0;
         $data['seen'] = 1;
         $this->dashboard_model->update_dashboard_notification($data, $where);

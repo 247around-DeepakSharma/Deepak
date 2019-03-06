@@ -525,6 +525,21 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
                 
+                /* show notification on partner's panal if grace period increases */
+                if($edit_partner_data['partner']['grace_period_date'] > $this->input->post("old_grace_period_date")){
+                    $dashboard_data = array(
+                        "entity_type" => "partner",
+                        "entity_id" => $partner_id,
+                        "notification_type" => 8,
+                        "message" => "Grace Period extended till ".date("d-m-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
+                        "marquee" => 1,
+                        "start_date" => date("Y-m-d H:i:s"),
+                        "end_date" => date('Y-m-d H:i:s', strtotime("+1 day", strtotime(date("Y-m-d H:i:s")))),
+                    );
+                    $this->dashboard_model->insert_dashboard_notification_any($dashboard_data);
+                }
+                /* End */
+                
                 /**** Get POC and AM email and send updated fields only ****/
                
                 $old_partner_array = $obj2 = array_map('strval', $this->partner_model->viewpartner($this->input->post('id'))[0]);
