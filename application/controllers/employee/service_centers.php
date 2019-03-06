@@ -1292,7 +1292,10 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $this->checkUserSession();
+        echo '<pre>';
+        print_r($_POST);
         
+        die();
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -5431,7 +5434,7 @@ class Service_centers extends CI_Controller {
             $new_spare_details = array();
             if(!empty($sf_challan_number)){
                 //get all spare data with form challan number
-                $select = "id,defective_part_shipped,challan_approx_value,partner_challan_number"; 
+                $select = "spare_parts_details.id,spare_parts_details.defective_part_shipped,spare_parts_details.challan_approx_value,spare_parts_details.partner_challan_number"; 
                 $where = array('spare_parts_details.sf_challan_number' => $this->input->post('sf_challan_number'),"spare_parts_details.id NOT IN ($id)" => NULL,'spare_parts_details.booking_id' =>$booking_id);
                 $spare_details = $this->partner_model->get_spare_parts_by_any($select, $where);
             }
