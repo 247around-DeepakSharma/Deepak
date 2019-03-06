@@ -1902,5 +1902,18 @@ class Spare_parts extends CI_Controller {
         }
         echo $option;
     }
+    
+    /**
+    *  @desc : It's Used to checked login
+    */
+    
+    function checkUserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+            redirect(base_url() . "employee/login");
+        }
+    }
 
 }
