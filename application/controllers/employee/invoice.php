@@ -3346,7 +3346,7 @@ class Invoice extends CI_Controller {
                 switch ($advance_type){
                     case BUYBACKTYPE:
                         $data['type'] = BUYBACK_VOUCHER;
-                        $data['vertical'] = BUYBACK;
+                        $data['vertical'] = BUYBACK_VERTICAL;
                         $data['category'] = EXCHANGE;
                         $data['sub_category'] = ADVANCE;
                         $data['accounting'] = 0;
