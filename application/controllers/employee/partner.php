@@ -3259,16 +3259,6 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
         $data = $this->booking_model->getbooking_history($booking_id);
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
-            $partner_current_status = "";
-            $partner_internal_status = "";
-            $actor = $next_action = "not_define";
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $data[0]['partner_id'], $booking_id);
-            if (!empty($partner_status)) {
-                $partner_current_status = $partner_status[0];
-                $partner_internal_status = $partner_status[1];
-                $actor = $partner_status[2];
-                $next_action = $partner_status[3];
-            }
             if ($status == 0) {// means request from mail
                 
                 $partner_id = $data[0]['partner_id'];
@@ -3290,16 +3280,9 @@ class Partner extends CI_Controller {
                 $partner_id = $this->session->userdata('partner_id');
                 $type = "Panel";
             }
-            $this->booking_model->update_booking($booking_id, array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
-                'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
+            
+            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
 
-            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => _247AROUND_CANCELLED));
-            
-            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
-            
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
-                    $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
