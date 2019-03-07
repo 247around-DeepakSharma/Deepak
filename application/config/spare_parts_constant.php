@@ -117,3 +117,5 @@ define('DEFECTIVE_PART_SHIPPED_OOT_DAYS', 15);
 //show message when partner escalate booiking but it is pending on partner to ship new part
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_PENDING', 'You cannot escalate booking because it is pending to ship new part');
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_NOT_DELIVERED', 'You cannot escalate booking because it is pending to ship new part');
+//Auto spare delivered to sf after 14 days 
+define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
