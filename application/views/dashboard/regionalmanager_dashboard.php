@@ -140,19 +140,58 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in completedBookingByRM | orderBy:'TAT_16'">
+                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
+                            <td style="padding: 4px 12px;">{{$index+1}}</td>
+<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
+                                   {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
+                                   
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_0}} ({{completedBookingByRM.leg_1[$index].TAT_0_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_0}} ({{completedBookingByRM.leg_2[$index].TAT_0_per}}%)<br>
+                               {{completedBookingByRM.TAT[$index].TAT_0}} ({{completedBookingByRM.TAT[$index].TAT_0_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_1}} ({{completedBookingByRM.leg_1[$index].TAT_1_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_1}} ({{completedBookingByRM.leg_2[$index].TAT_1_per}}%)<br>
+                              {{completedBookingByRM.TAT[$index].TAT_1}} ({{completedBookingByRM.TAT[$index].TAT_1_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_2}} ({{completedBookingByRM.leg_1[$index].TAT_2_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_2}} ({{completedBookingByRM.leg_2[$index].TAT_2_per}}%)<br>
+                                {{completedBookingByRM.TAT[$index].TAT_2}} ({{completedBookingByRM.TAT[$index].TAT_2_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_3}} ({{completedBookingByRM.leg_1[$index].TAT_3_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_3}} ({{completedBookingByRM.leg_2[$index].TAT_3_per}}%)<br>
+                                {{completedBookingByRM.TAT[$index].TAT_3}} ({{completedBookingByRM.TAT[$index].TAT_3_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_4}} ({{completedBookingByRM.leg_1[$index].TAT_4_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_4}} ({{completedBookingByRM.leg_2[$index].TAT_4_per}}%)<br>
+                               {{completedBookingByRM.TAT[$index].TAT_4}} ({{completedBookingByRM.TAT[$index].TAT_4_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_5}} ({{completedBookingByRM.leg_1[$index].TAT_5_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_5}} ({{completedBookingByRM.leg_2[$index].TAT_5_per}}%)<br>
+                                {{completedBookingByRM.TAT[$index].TAT_5}} ({{completedBookingByRM.TAT[$index].TAT_5_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_8}} ({{completedBookingByRM.leg_1[$index].TAT_8_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_8}} ({{completedBookingByRM.leg_2[$index].TAT_8_per}}%)<br>
+                               {{completedBookingByRM.TAT[$index].TAT_8}} ({{completedBookingByRM.TAT[$index].TAT_8_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_16}} ({{completedBookingByRM.leg_1[$index].TAT_16_per}}%)<br>
+                               {{completedBookingByRM.leg_2[$index].TAT_16}} ({{completedBookingByRM.leg_2[$index].TAT_16_per}}%)<br>
+                               {{completedBookingByRM.TAT[$index].TAT_16}} ({{completedBookingByRM.TAT[$index].TAT_16_per}}%) </td>
+                        </tr>
+                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}">{{x.entity}}</a></td>-->
+<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
-                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
-                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
-                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
-                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
-                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
-                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
-                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
-                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
+                           <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}}  ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}}  ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}}  ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -444,20 +483,59 @@
                              <th>> D15</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr ng-repeat="x in completedBookingByAM | orderBy:'TAT_16'">
+ <tbody>
+                        <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
+                            <td style="padding: 4px 12px;">{{$index+1}}</td>
+<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
+                                   {{completedBookingByAM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
+                                   
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_0}} ({{completedBookingByAM.leg_1[$index].TAT_0_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_0}} ({{completedBookingByAM.leg_2[$index].TAT_0_per}}%)<br>
+                               {{completedBookingByAM.TAT[$index].TAT_0}} ({{completedBookingByAM.TAT[$index].TAT_0_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_1}} ({{completedBookingByAM.leg_1[$index].TAT_1_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_1}} ({{completedBookingByAM.leg_2[$index].TAT_1_per}}%)<br>
+                              {{completedBookingByAM.TAT[$index].TAT_1}} ({{completedBookingByAM.TAT[$index].TAT_1_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_2}} ({{completedBookingByAM.leg_1[$index].TAT_2_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_2}} ({{completedBookingByAM.leg_2[$index].TAT_2_per}}%)<br>
+                                {{completedBookingByAM.TAT[$index].TAT_2}} ({{completedBookingByAM.TAT[$index].TAT_2_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_3}} ({{completedBookingByAM.leg_1[$index].TAT_3_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_3}} ({{completedBookingByAM.leg_2[$index].TAT_3_per}}%)<br>
+                                {{completedBookingByAM.TAT[$index].TAT_3}} ({{completedBookingByAM.TAT[$index].TAT_3_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_4}} ({{completedBookingByAM.leg_1[$index].TAT_4_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_4}} ({{completedBookingByAM.leg_2[$index].TAT_4_per}}%)<br>
+                               {{completedBookingByAM.TAT[$index].TAT_4}} ({{completedBookingByAM.TAT[$index].TAT_4_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_5}} ({{completedBookingByAM.leg_1[$index].TAT_5_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_5}} ({{completedBookingByAM.leg_2[$index].TAT_5_per}}%)<br>
+                                {{completedBookingByAM.TAT[$index].TAT_5}} ({{completedBookingByAM.TAT[$index].TAT_5_per}}%) </td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_8}} ({{completedBookingByAM.leg_1[$index].TAT_8_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_8}} ({{completedBookingByAM.leg_2[$index].TAT_8_per}}%)<br>
+                               {{completedBookingByAM.TAT[$index].TAT_8}} ({{completedBookingByAM.TAT[$index].TAT_8_per}}%)</td>
+                           
+                           <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_16}} ({{completedBookingByAM.leg_1[$index].TAT_16_per}}%)<br>
+                               {{completedBookingByAM.leg_2[$index].TAT_16}} ({{completedBookingByAM.leg_2[$index].TAT_16_per}}%)<br>
+                               {{completedBookingByAM.TAT[$index].TAT_16}} ({{completedBookingByAM.TAT[$index].TAT_16_per}}%) </td>
+                        </tr>
+                        <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
-                           <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
-                           <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
-                           <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
-                           <td>{{x.TAT_3}} <br> ({{x.TAT_3_per}}%)</td>
-                           <td>{{x.TAT_4}} <br> ({{x.TAT_4_per}}%)</td>
-                           <td>{{x.TAT_5}} <br> ({{x.TAT_5_per}}%) </td>
-                           <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
-                           <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
+                           <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
+                           <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
+                           <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
+                           <td>{{x.TAT_3}}  ({{x.TAT_3_per}}%)</td>
+                           <td>{{x.TAT_4}}  ({{x.TAT_4_per}}%)</td>
+                           <td>{{x.TAT_5}}  ({{x.TAT_5_per}}%) </td>
+                           <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
+                           <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
                         </tr>
                     </tbody>
                 </table>
