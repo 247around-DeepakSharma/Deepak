@@ -1177,6 +1177,7 @@
                     
                     price_tags === "<?php echo REPAIR_OOW_TAG; ?>" ){
                 $("#appliance_unit").val('1');
+                final_price();
                 $('#appliance_unit').prop("disabled", true);
                 
             } else{
