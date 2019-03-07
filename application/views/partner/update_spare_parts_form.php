@@ -97,12 +97,12 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" required=""  value="1">Shipping
+                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" class="courier_shipping" required=""  value="1">Shipping
                                         </label>
                                     </div>
                                     <div class="form-group">
                                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" required=""  value="0">Not Shipping
+                                            <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" required="" class="courier_not_shipping" value="0">Not Shipping
                                         </label>
                                     </div>
                                     <div class="form-group">
@@ -336,7 +336,7 @@
             </div>
         </div>
         <?php //if($spare_parts[0]->request_type != REPAIR_OOW_TAG){ ?>
-        <div class="row">
+        <div class="row" id="courier_detail_section">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
@@ -402,6 +402,7 @@
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" id="courier_status" name="courier_status" value="1">
                     </div>
                 </div>
             </div>
@@ -633,8 +634,8 @@
             // Update the name attributes 
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                 $clone
-                .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr("required", true).end()
-                .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).select2({placeholder:'Select Model Number'}).attr("required", true).end()
+                .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('class','courier_shipping').attr("required", true).end()
+                .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).select2({placeholder:'Select Model Number'}).attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
@@ -647,7 +648,7 @@
         })
             <?php } else { ?>
                  $clone
-                .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr("required", true).end()
+                .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr('class','courier_shipping').attr("required", true).end()
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
@@ -665,7 +666,41 @@
                 index = $row.attr('data-part-index');
                 partIndex = partIndex -1;
             $row.remove();
-        });           
+        });  
+        
+        $(".courier_not_shipping").click(function(){
+               courier_deatil_visibility();       
+        });
+        
+        $(".addButton").click(function(){
+            $("#courier_detail_section").show();
+            $("#courier_status").val('1');
+        });
+        
+         $(".courier_shipping").click(function(){
+            $("#courier_detail_section").show();
+            $("#courier_status").val('1');
+        });
+        
+        function courier_deatil_visibility(){
+            var flag = false;
+            $(".courier_shipping:checked").each(function() {
+            var check_val  = $(this).val();
+            if(check_val !='' && check_val == 1){
+             flag = true;
+             break;
+            }
+            });
+
+            if(flag){
+              $("#courier_detail_section").show();
+              $("#courier_status").val('1');
+            }else{
+              $("#courier_detail_section").hide();  
+              $("#courier_status").val('0');
+            }
+        }
+        
 </script>
 
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
