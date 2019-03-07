@@ -115,7 +115,7 @@ class paytm_cb {
         $postData['estimated_service_delivery'] = $estimated_service_delivery;
         $postData['event'] = $event;
         $postData['field_executive'] = $field_executive;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $postData;
     }
@@ -152,7 +152,7 @@ class paytm_cb {
         $postData['customer'] = $customer;
         $postData['event'] = $event;
         $postData['service_attempt'] = $service_attempt;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $this->update_booking_on_paytm($postData, $data['booking_id']);
         
@@ -169,7 +169,7 @@ class paytm_cb {
         );
         
         $postData['event'] = $event;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $this->update_booking_on_paytm($postData, $data['booking_id']);
        
