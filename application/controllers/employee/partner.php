@@ -1809,156 +1809,156 @@ class Partner extends CI_Controller {
     function process_update_spare_parts($booking_id) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking id: " . $booking_id);
         $this->checkUserSession();
-        $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
-        $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
-        $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
-        //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');
-        
         $part_warranty_status = $this->input->post('part_warranty_status');
-        /*
-        if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
-        } */
-        
-        if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-            $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
-        }
 
+        if (!empty($this->input->post('courier_status'))) {
+            $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
+            $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+            $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
+            if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+            }
 
-        if ($this->form_validation->run() == FALSE) {
-            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
-                    " Booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-            $this->update_spare_parts_form($booking_id);
-        } else {
-            //check upload challan file
-            $MB = 1048576;
-            if ($_FILES['challan_file']['size'] >= 2 * $MB) {
-                log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
-                        " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
+            /*
+              if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+              $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+              } */
+
+            if ($this->form_validation->run() == FALSE) {
+                log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner ' . $this->session->userdata('partner_id') .
+                        " Booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
                 $this->update_spare_parts_form($booking_id);
             } else {
-                $request_type = $this->input->post('request_type');
-                $challan_file = $this->upload_challan_file(rand(10, 100));
-                if ($challan_file) {
-                    $data['partner_challan_file'] = $challan_file;
+                //check upload challan file
+                $MB = 1048576;
+                if ($_FILES['challan_file']['size'] >= 2 * $MB) {
+                    log_message('info', __FUNCTION__ . '=> Uploaded File is greater than 2 Mb ' . $this->session->userdata('partner_id') .
+                            " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                    $this->form_validation->set_message('challan_file', "Uploaded File Must be Less Than 2Mb in size");
+                    $this->update_spare_parts_form($booking_id);
                 }
-                $partner_id = $this->session->userdata('partner_id');
-                $data['courier_name_by_partner'] = $this->input->post('courier_name');
-                $data['awb_by_partner'] = $this->input->post('awb');
-                $data['shipped_date'] = $this->input->post('shipment_date');
-                //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
-                $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-                $data['challan_approx_value'] = $this->input->post('approx_value');
-                //}
+            }
+        }
 
-                $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
-                if (!empty($incoming_invoice_pdf)) {
-                    $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
-                }
+        $partner_id = $this->session->userdata('partner_id');
+        if (!empty($this->input->post('courier_status'))) {
 
+            $request_type = $this->input->post('request_type');
+            $challan_file = $this->upload_challan_file(rand(10, 100));
+            if ($challan_file) {
+                $data['partner_challan_file'] = $challan_file;
+            }
+            $data['courier_name_by_partner'] = $this->input->post('courier_name');
+            $data['awb_by_partner'] = $this->input->post('awb');
+            $data['shipped_date'] = $this->input->post('shipment_date');
+            //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
+            $data['partner_challan_number'] = $this->input->post('partner_challan_number');
+            $data['challan_approx_value'] = $this->input->post('approx_value');
+            //} 
+            
+            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+            if (!empty($incoming_invoice_pdf)) {
+            $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
+            }   
+        }
+           
+        $shipped_part_details = $this->input->post("part");
 
-                $shipped_part_details = $this->input->post("part");
+        if (!empty($shipped_part_details)) {
+            $spare_id_array = array();
+            $current_status = "";
+            $internal_status = "";
+            foreach ($shipped_part_details as $key => $value) {
+                if ($value['shippingStatus'] == 1) {
+                    //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                    /*
+                      if($request_type == REPAIR_OOW_TAG){
+                      $data['status'] = SPARE_OOW_SHIPPED;
+                      } else {
+                      $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                      } */
 
-                if (!empty($shipped_part_details)) {
-                    $spare_id_array = array();
-                    $current_status = "";
-                    $internal_status = "";
-                    foreach ($shipped_part_details as $key => $value) {
-                        if ($value['shippingStatus'] == 1) {
-                            //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                            /*
-                            if($request_type == REPAIR_OOW_TAG){
-                                $data['status'] = SPARE_OOW_SHIPPED;
-                            } else {
-                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                            } */
-                            
-                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
-                                $data['status'] = SPARE_OOW_SHIPPED;
-                            } else {
-                                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                            }
-                            
-                            $data['parts_shipped'] = $value['shipped_parts_name'];
-                            $data['model_number_shipped'] = $value['shipped_model_number'];
-                            $data['shipped_parts_type'] = $value['shipped_part_type'];
-                            $data['remarks_by_partner'] = $value['remarks_by_partner'];
-                            if (!empty($value['inventory_id'])) {
-                                $data['shipped_inventory_id'] = $value['inventory_id'];
-                            }
-                            if (!empty($value['spare_id'])) {
-                                $spare_id = $value['spare_id'];
-                                $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
-                                $response = $this->service_centers_model->update_spare_parts($where, $data);
-                                
-                            } else {
-                                $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
-                            }
-                            
-                            array_push($spare_id_array, $spare_id);
-                            $current_status = "InProcess";
-                            /*
-                            if($request_type == REPAIR_OOW_TAG){
-                                $internal_status = SPARE_OOW_SHIPPED;
-                            } else {
-                                $internal_status = SPARE_PARTS_SHIPPED;
-
-                            }                          
-                             */
-                            
-                            if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
-                                $internal_status = SPARE_OOW_SHIPPED;
-                            } else {
-                                $internal_status = SPARE_PARTS_SHIPPED;
-
-                            }
-                            
-                            
-                        } else if ($value['shippingStatus'] == -1) {
-                            $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
-                        } else if ($value['shippingStatus'] == 0) {
-
-                            $current_status = _247AROUND_PENDING;
-                            $internal_status = _247AROUND_PENDING;
-
-                            $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "");
-                            $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
-                        }
+                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $data['status'] = SPARE_OOW_SHIPPED;
+                    } else {
+                        $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                     }
 
-                    if (!empty($current_status)) {
+                    $data['parts_shipped'] = $value['shipped_parts_name'];
+                    $data['model_number_shipped'] = $value['shipped_model_number'];
+                    $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['remarks_by_partner'] = $value['remarks_by_partner'];
+                    if (!empty($value['inventory_id'])) {
+                        $data['shipped_inventory_id'] = $value['inventory_id'];
+                    }
+                    if (!empty($value['spare_id'])) {
+                        $spare_id = $value['spare_id'];
+                        $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
+                        $response = $this->service_centers_model->update_spare_parts($where, $data);
+                    } else {
+                        $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
+                    }
 
-                        $sc_data['current_status'] = $current_status;
-                       /* 
-                        if($request_type == REPAIR_OOW_TAG){
-                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
-                        } else {
-                            $sc_data['internal_status'] = $internal_status;
-                            
-                        }*/
-                        
-                        if($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
-                            $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
-                        } else {
-                            $sc_data['internal_status'] = $internal_status;
-                            
-                        }
-                        
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                    array_push($spare_id_array, $spare_id);
+                    $current_status = "InProcess";
+                    /*
+                      if($request_type == REPAIR_OOW_TAG){
+                      $internal_status = SPARE_OOW_SHIPPED;
+                      } else {
+                      $internal_status = SPARE_PARTS_SHIPPED;
 
-                        $booking['internal_status'] = $internal_status;
-                        $actor = $next_action = 'not_define';
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                        if (!empty($partner_status)) {
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['partner_internal_status'] = $partner_status[1];
-                            $actor = $booking['actor'] = $partner_status[2];
-                            $next_action = $booking['next_action'] = $partner_status[3];
-                        }
-                        $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
+                      }
+                     */
 
-                        $this->booking_model->update_booking($booking_id, $booking);
+                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $internal_status = SPARE_OOW_SHIPPED;
+                    } else {
+                        $internal_status = SPARE_PARTS_SHIPPED;
+                    }
+                } else if ($value['shippingStatus'] == -1) {
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
+                } else if ($value['shippingStatus'] == 0) {
+
+                    $current_status = _247AROUND_PENDING;
+                    $internal_status = _247AROUND_PENDING;
+
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "");
+                    $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+                }
+            }
+
+            if (!empty($current_status)) {
+
+                $sc_data['current_status'] = $current_status;
+                /*
+                  if($request_type == REPAIR_OOW_TAG){
+                  $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+                  } else {
+                  $sc_data['internal_status'] = $internal_status;
+
+                  } */
+
+                if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    $sc_data['internal_status'] = SPARE_OOW_SHIPPED;
+                } else {
+                    $sc_data['internal_status'] = $internal_status;
+                }
+
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+                $booking['internal_status'] = $internal_status;
+                $actor = $next_action = 'not_define';
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
+
+                $this->booking_model->update_booking($booking_id, $booking);
 //                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
 //                            foreach($spare_id_array as $s_value){
 //                                // Send OOW invoice to Inventory Manager
@@ -1969,24 +1969,22 @@ class Partner extends CI_Controller {
 //                            
 //                        }
 
-                        $userSession = array('success' => 'Parts Updated');
-                        $this->session->set_userdata($userSession);
-                        redirect(base_url() . "partner/get_spare_parts_booking/0/1");
-                    } else { //if($response){
-                        log_message('info', __FUNCTION__ . '=> Spare parts booking NOT SHIP updated by Partner ' . $this->session->userdata('partner_id') .
-                                " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                        $userSession = array('success' => 'Parts Updated');
-                        $this->session->set_userdata($userSession);
-                        redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
-                    }
-                } else {
-                    log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner ' . $this->session->userdata('partner_id') .
-                            " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                    $userSession = array('success' => 'Parts Not Updated');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
-                }
+                $userSession = array('success' => 'Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_spare_parts_booking/0/1");
+            } else { //if($response){
+                log_message('info', __FUNCTION__ . '=> Spare parts booking NOT SHIP updated by Partner ' . $this->session->userdata('partner_id') .
+                        " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                $userSession = array('success' => 'Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
             }
+        } else {
+            log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner ' . $this->session->userdata('partner_id') .
+                    " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+            $userSession = array('success' => 'Parts Not Updated');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/update_spare_parts_form/" . $booking_id);
         }
     }
 
