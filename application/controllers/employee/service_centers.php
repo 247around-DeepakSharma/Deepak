@@ -1599,7 +1599,7 @@ class Service_centers extends CI_Controller {
             $is_file = $this->validate_part_data();
 
             if ($this->form_validation->run() && !empty($is_file['code'])) {
-                $parts_requested = $this->input->post('part');
+                $parts_requested = $this->input->post('part');               
                 $booking_id = $this->input->post('booking_id');
                 $data_to_insert = array();
 
@@ -1747,7 +1747,7 @@ class Service_centers extends CI_Controller {
                         $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
                     }
                     array_push($data_to_insert, $data);
-
+                                 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
@@ -5186,8 +5186,8 @@ class Service_centers extends CI_Controller {
                 $a['tmp_name'] = $_FILES['defective_parts_pic']['tmp_name'][$key1];
                 $a['error'] = $_FILES['defective_parts_pic']['error'][$key1];
                 $a['size'] = $_FILES['defective_parts_pic']['size'][$key1];
-
-                array_push($defective_parts, $a);
+                $defective_parts[$key1] = $a;
+                //array_push($defective_parts, $a);
             }
             
         }
@@ -5200,7 +5200,8 @@ class Service_centers extends CI_Controller {
                 $a['tmp_name'] = $_FILES['defective_back_parts_pic']['tmp_name'][$key];
                 $a['error'] = $_FILES['defective_back_parts_pic']['error'][$key];
                 $a['size'] = $_FILES['defective_back_parts_pic']['size'][$key];
-                array_push($defective_back_parts_pic, $a);
+                $defective_back_parts_pic[$key] = $a;
+                //array_push($defective_back_parts_pic, $a);
             }
             
         }
