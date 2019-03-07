@@ -217,16 +217,16 @@ class Spare_parts extends CI_Controller {
      * @param Array $post
      */
     function get_part_delivered_to_sf($post){
-        log_message('info', __METHOD__);
+        log_message('info', __METHOD__. json_encode($post, true));
         
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, "
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
             $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, 'age_of_delivered_to_sf',NULL);
         } else {
-            $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, 'age_part_pending_to_sf',NULL);
+            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id',NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL,NULL, NULL, NULL,'age_part_pending_to_sf',NULL);
         }
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -541,7 +541,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
-        $row[] = $spare_list->parts_requested_type;        
+        $row[] = $spare_list->shipped_parts_type;        
         $row[] = $spare_list->parts_shipped;
         $row[] = $spare_list->request_type;
         $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
