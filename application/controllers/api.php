@@ -2251,46 +2251,20 @@ class Api extends CI_Controller {
 
         $booking_id = $requestData['booking_id'];
         $cancellation_reason = $requestData['reason'];
-        $cancel_date = date('Y-m-d H:i:s');
+        
+        $data = $this->booking_model->getbooking_history($booking_id);
+        $result = $data[0];
 
         log_message('info', "Booking ID: " . $booking_id . ", Reason: " . $cancellation_reason);
 
-        $cancel_details = array(
-            'current_status' => 'Cancelled',
-            'update_date' => $cancel_date,
-            'cancellation_reason' => $cancellation_reason
-        );
-
-        $result = $this->apis->updateBooking($booking_id, $cancel_details);
-//        log_message('info', print_r($result, TRUE));
-        $this->notify->insert_state_change($booking_id, "AndroidApp", _247AROUND_CANCELLED, $cancellation_reason, 
-                                   _247AROUND_DEFAULT_AGENT, 
-                                    _247AROUND_DEFAULT_AGENT_NAME,ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
-        
+        $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, $cancellation_reason, "Cancelled By Customer through Mobile APP", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT, _247AROUND, _247AROUND);
 
         //Send message to User
         $user_profile = $this->apis->getuserProfileid($result['user_id']);
-        $user_phone = $user_profile[0]['phone_number'];
-
-        $booking_date_formatted = date("d M, Y", strtotime($result['booking_date']));
 //        log_message('info', "Formatted date: " . $booking_date_formatted);
-
-        $booking_date_strings = explode(",", $booking_date_formatted);
-        $booking_time_strings = explode("-", $result['booking_timeslot']);
-        $booking_time_by = trim($booking_time_strings[1]);
-
-        $services = $this->apis->getServiceById($result['service_id']);
-        $searched_service = $services[0]['services'];
 
         //Send cancellation mails to Admin, Vendor and User
         $this->sendCancellationMails($user_profile[0], $result);
-
-        $message = "Request for $searched_service Repair for $booking_date_strings[0], $booking_time_by cancelled. Hope to serve next time. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 9555000247";
-
-//        log_message('info', "SMS text: " . $message);
-
-        $this->notify->sendTransactionalSmsMsg91($user_phone, $message,SMS_WITHOUT_TAG);
-        //$notify = "Sms Sent";
 
         $this->jsonResponseString['response'] = "done";
         $this->sendJsonResponse(array('0000', 'success'));
@@ -4278,7 +4252,7 @@ class Api extends CI_Controller {
         $booking_id = $booking['booking_id'];
         $booking_date = $booking['booking_date'];
         $booking_time = $booking['booking_timeslot'];
-        $units_saved = $booking['quantity'];
+        $units_saved = 1;
         $booking_address = $booking['booking_address'];
         $booking_pincode = $booking['booking_pincode'];
         $amount_due = $booking['amount_due'];
