@@ -419,9 +419,9 @@ class Courier_tracking extends CI_Controller {
                             $booking['booking_date'] = date('d-m-Y');
                         }
                         $booking['update_date'] = date("Y-m-d H:i:s");
-                        $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $parts_details[1], $parts_details[2]);
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $parts_details[1], $parts_details[2]);
                         
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
@@ -434,10 +434,10 @@ class Courier_tracking extends CI_Controller {
                             
                             $this->miscelleneous->send_spare_delivered_sms_to_customer($parts_details[0], $parts_details[2]);
                             
-                            $this->notify->insert_state_change($parts_details[2], SPARE_PARTS_DELIVERED, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
+                            $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
 
                             $sc_data['current_status'] = _247AROUND_PENDING;
-                            $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                            $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                             $sc_data['update_date'] = date("Y-m-d H:i:s");
                             $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
                             $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
@@ -456,7 +456,7 @@ class Courier_tracking extends CI_Controller {
                             $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
                         }
                     } else {
-                        $this->notify->insert_state_change($parts_details[2], SPARE_PARTS_DELIVERED, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
+                        $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
                         $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
                         $pcb = array();
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
