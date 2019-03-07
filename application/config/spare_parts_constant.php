@@ -16,7 +16,7 @@ define('REPAIR_OOW_AROUND_PERCENTAGE','0.15');
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');
 // Defective Parts pending
-define('DEFECTIVE_PARTS_PENDING','Defective Part Pending');
+define('DEFECTIVE_PARTS_PENDING','Defective Part To Be Shipped By SF');
 // Defective Parts Shipped by SF
 define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
 // Defective Parts Received by SF
@@ -27,8 +27,6 @@ define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
 //Zopper booking- Part Arrange By Different Vendor
 define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
-//Spare Parts Received By SF
-define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
 //Spare Parts Shipped By SF
 define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
 //SPARE paarts shipoped By Warehouse
@@ -41,9 +39,9 @@ define('SPARE_PART_BOOKING_TAG','Spare Parts');
 define('REQUESTED_QUOTE_REJECTED','Requested Quote Rejected');
 
 define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
-
-define("SPARE_DELIVERED_TO_SF", "Delivered");
-define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
+//Spare Parts Received By SF
+define("SPARE_DELIVERED_TO_SF", "Spare Parts Delivered to SF");
+define("SPARE_SHIPPED_BY_PARTNER", "Spare Parts Shipped By Partner");
 define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
 
 define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehouse to partner');
