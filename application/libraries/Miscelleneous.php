@@ -744,6 +744,7 @@ class Miscelleneous {
         if (isset($data['vendor_not_found'])) {
             if ($data['vendor_not_found'] == 1) {
                 $this->sf_not_exist_for_pincode($booking);
+                return false;
             }
         }
         if (!empty($is_price)) {
@@ -1706,7 +1707,7 @@ class Miscelleneous {
                     $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
                 } else {
                     $pic = str_replace(' ', '-', $pic_type_name);
-                    $picName = $type . rand(10, 1000) . $pic . "." . $extension;
+                    $picName = $type . rand(10, 10000) . $pic . "." . $extension;
                     $_POST[$post_name] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
 

@@ -460,8 +460,6 @@ define('_247AROUND_SF_STRING','vendor');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
 
-define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
-
 define('ENGINEER_COMPLETE_STATUS',"InProcess_Engg_Completed" );
 define('ENGINEER_CANCELLED_STATUS',"InProcess_Engg_Cancelled" );
 
@@ -608,6 +606,8 @@ define("NOT_DEFINE_SN",2);
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
 define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', 'Can not allow to re-complete booking');
+define('PAYMENT_SUCCESS_NOTICATION_TYPE', '5');
+define('PAYMENT_HOLD_NOTICATION_TYPE', '6');
 
 
 /* End of file constants.php */

@@ -1292,7 +1292,6 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
         $this->checkUserSession();
-        
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -1600,7 +1599,7 @@ class Service_centers extends CI_Controller {
             $is_file = $this->validate_part_data();
 
             if ($this->form_validation->run() && !empty($is_file['code'])) {
-                $parts_requested = $this->input->post('part');
+                $parts_requested = $this->input->post('part');               
                 $booking_id = $this->input->post('booking_id');
                 $data_to_insert = array();
 
@@ -1748,7 +1747,7 @@ class Service_centers extends CI_Controller {
                         $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
                     }
                     array_push($data_to_insert, $data);
-
+                                 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
@@ -1981,9 +1980,9 @@ class Service_centers extends CI_Controller {
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
-                    $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+                    $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $partner_id, $booking_id);
                     $actor = $next_action = 'not_define';
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -1994,11 +1993,11 @@ class Service_centers extends CI_Controller {
                     $b_status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($b_status) {
 
-                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
 
 
                         $sc_data['current_status'] = _247AROUND_PENDING;
-                        $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         if ($this->session->userdata('service_center_id')) {
@@ -2020,7 +2019,7 @@ class Service_centers extends CI_Controller {
                 } else {
 
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
@@ -5187,8 +5186,8 @@ class Service_centers extends CI_Controller {
                 $a['tmp_name'] = $_FILES['defective_parts_pic']['tmp_name'][$key1];
                 $a['error'] = $_FILES['defective_parts_pic']['error'][$key1];
                 $a['size'] = $_FILES['defective_parts_pic']['size'][$key1];
-
-                array_push($defective_parts, $a);
+                $defective_parts[$key1] = $a;
+                //array_push($defective_parts, $a);
             }
             
         }
@@ -5201,7 +5200,8 @@ class Service_centers extends CI_Controller {
                 $a['tmp_name'] = $_FILES['defective_back_parts_pic']['tmp_name'][$key];
                 $a['error'] = $_FILES['defective_back_parts_pic']['error'][$key];
                 $a['size'] = $_FILES['defective_back_parts_pic']['size'][$key];
-                array_push($defective_back_parts_pic, $a);
+                $defective_back_parts_pic[$key] = $a;
+                //array_push($defective_back_parts_pic, $a);
             }
             
         }
@@ -5425,7 +5425,7 @@ class Service_centers extends CI_Controller {
             $new_spare_details = array();
             if(!empty($sf_challan_number)){
                 //get all spare data with form challan number
-                $select = "id,defective_part_shipped,challan_approx_value,partner_challan_number"; 
+                $select = "spare_parts_details.id,spare_parts_details.defective_part_shipped,spare_parts_details.challan_approx_value,spare_parts_details.partner_challan_number"; 
                 $where = array('spare_parts_details.sf_challan_number' => $this->input->post('sf_challan_number'),"spare_parts_details.id NOT IN ($id)" => NULL,'spare_parts_details.booking_id' =>$booking_id);
                 $spare_details = $this->partner_model->get_spare_parts_by_any($select, $where);
             }
