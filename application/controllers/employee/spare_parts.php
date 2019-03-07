@@ -224,7 +224,7 @@ class Spare_parts extends CI_Controller {
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, "
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
-            $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, 'age_of_delivered_to_sf',NULL);
+            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf',NULL);
         } else {
             $post['column_order'] = array( NULL, 'spare_parts_details.booking_id',NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL,NULL, NULL, NULL,'age_part_pending_to_sf',NULL);
         }
@@ -253,7 +253,7 @@ class Spare_parts extends CI_Controller {
          $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
                 . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price";
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -286,7 +286,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.part_warranty_status, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type, status";
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -330,7 +330,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.spare_lost, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.id, spare_parts_details.parts_requested_type,"
                 . "defective_part_required, partner_challan_file, parts_requested";
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_shipped_date',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
