@@ -95,7 +95,7 @@
                                     <?php echo $row['state']; ?>
                                     </td>
                                     <td>
-                                        <?php echo date('d-m-y', strtotime($row['booking_date'])); ?> 
+                                        <?php if(!empty($row['booking_date'])){ echo date('d-m-y', strtotime($row['booking_date'])); } ?> 
                                     </td>
                                     <?php if ($status != "Cancelled") { ?>
                                 <td><?php echo $row['tat']; ?></td>
