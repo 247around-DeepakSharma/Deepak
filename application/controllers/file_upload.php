@@ -1147,10 +1147,10 @@ class File_upload extends CI_Controller {
                     $p_amount_paid = $this->input->post("total_amount_paid");
                     if(abs(round($total_amount,0)) == round($p_amount_paid,0) ){
                         $main_data = $this->get_service_center_filtered_data($sheetRowData);
-                        log_message('info', __METHOD__. print_r($main_data, true));
                         if($main_data['status']){
                             if(!empty($main_data['data'])){
-                                foreach ($main_data['data'] as$value) {
+                                foreach ($main_data['data'] as $value) {
+                                    
                                     $this->invoice_lib->process_add_new_transaction($value);
                                 }
                                 
@@ -1215,11 +1215,13 @@ class File_upload extends CI_Controller {
         $main_data = array();
         $v = array();
         $v['status'] = true;
+        $notifications = array();
         foreach ($data as $value) {
             if (round(abs($value['amount_due']), 0) >= round($value['amount_paid'], 0)) {
                 if($value['amount_paid'] == 0){
                     if(!empty($value['invoice_remarks'])){
                         $this->invoices_model->update_partner_invoices(array('invoice_id' => $value['invoice_id']), array('remarks' => $value['invoice_remarks']));
+                        $notifications['failure'][$value['vendor_id']] = $value['invoice_remarks'];
                     }
                 } else {
                     $main_data[$value['vendor_id']]['invoice_id'][$value['invoice_id']]['invoice_id'] = $value['invoice_id'];
@@ -1242,6 +1244,10 @@ class File_upload extends CI_Controller {
                     if (!empty($value['description'])) {
                         $main_data[$value['vendor_id']]['description'] = $value['description'];
                     }
+                    if (!empty($value['invoice_remarks'])) {
+                        $notifications['success'][$value['vendor_id']] = $value['invoice_remarks'];
+                    }
+                   
                 }
                 
             } else {
@@ -1251,10 +1257,42 @@ class File_upload extends CI_Controller {
                 break;
             }
         }
-
+        
+        if(!empty($notifications)){
+            $this->send_dashboard_notification_to_vendor($notifications);
+        }
+        
         log_message('info', __METHOD__ . " DATA " . print_r($main_data, true));
         $v['data'] = $main_data;
         return $v;
+    }
+    
+    /**Desc - This function is used to show payment status of vendor **/
+    function send_dashboard_notification_to_vendor($notifications){
+        $data = array();
+        $notification_type = "";
+        foreach ($notifications as $key => $value) {
+            if($key == "success"){
+               $notification_type = PAYMENT_SUCCESS_NOTICATION_TYPE;
+            }
+            else{
+               $notification_type = PAYMENT_HOLD_NOTICATION_TYPE; 
+            }
+            
+            foreach ($value as $vid => $remarks) {
+                $rowData = array();
+                $rowData['entity_type'] = _247AROUND_SF_STRING;
+                $rowData['entity_id'] = $vid;
+                $rowData['notification_type'] = $notification_type;
+                $rowData['message'] = $remarks;
+                $rowData['marquee'] = 1;
+                $rowData['start_date'] =  date("Y-m-d H:i:s");
+                $rowData['end_date'] = date('Y-m-d H:i:s', strtotime("+2 day", strtotime(date("Y-m-d H:i:s"))));
+                $rowData['create_date'] = date("Y-m-d H:i:s");
+                array_push($data, $rowData);
+            }
+        }
+        $this->dashboard_model->insert_dashboard_notification($data);
     }
     
     /**
