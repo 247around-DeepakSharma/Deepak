@@ -1698,9 +1698,9 @@ class Spare_parts extends CI_Controller {
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
-                    $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+                    $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $partner_id, $booking_id);
                     $actor = $next_action = 'not_define';
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -1711,11 +1711,11 @@ class Spare_parts extends CI_Controller {
                     $b_status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($b_status) {
 
-                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
 
 
                         $sc_data['current_status'] = _247AROUND_PENDING;
-                        $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         
@@ -1740,7 +1740,7 @@ class Spare_parts extends CI_Controller {
                 } else {
 
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
