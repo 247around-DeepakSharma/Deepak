@@ -549,9 +549,10 @@
                         success: function(response) {
                             response = JSON.parse(response);
                             var html = "";
-                            var seen_style = "border-bottom: 1px solid #77777761;";
+                            var seen_style = "";
                             if(response.length > 0){
                                 for(var i=0; i<response.length; i++){
+                                    seen_style = "border-bottom: 1px solid #77777761;";
                                     if(response[i]['seen'] == '0'){
                                         seen_style = "font-weight:600;";
                                     }

@@ -791,4 +791,9 @@ class dashboard_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function insert_dashboard_notification_any($details) {
+        $this->db->insert('dashboard_notifications', $details);
+        return $this->db->insert_id();
+    }
 }
