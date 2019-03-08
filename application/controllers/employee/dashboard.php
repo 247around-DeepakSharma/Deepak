@@ -1516,14 +1516,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $totalTempArray['TAT_5'] = $totalTempArray['TAT_4'] + count($values['TAT_5']);
             $totalTempArray['TAT_8'] = $totalTempArray['TAT_5'] + count($values['TAT_8']);
             $totalTempArray['TAT_16'] = $totalTempArray['TAT_8'] + count($values['TAT_16']);
-            $totalTempArray['TAT_0_per'] = sprintf("%01.2f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_1_per'] = sprintf("%01.2f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_2_per'] = sprintf("%01.2f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_3_per'] = sprintf("%01.2f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_4_per'] = sprintf("%01.2f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_5_per'] = sprintf("%01.2f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_8_per'] = sprintf("%01.2f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_16_per'] = sprintf("%01.2f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
             $totalTempArray["entity"] =  $values['entity_name'];
             $totalTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $totalTempArray;
@@ -1702,28 +1702,28 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
          $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray));
          return $structuredArray;   
     }
-    function get_tat_data_in_structured_format_completed($data){
+    function get_tat_data_in_structured_format_completed($data,$key){
        $finalArray = array();
         foreach($data as $tatData){
-            if($tatData['TAT']<0){
+            if($tatData[$key]<0){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
-            else if($tatData['TAT']>=0 && $tatData['TAT']<5){
-                $finalArray[$tatData['entity']]['TAT_'.$tatData['TAT']][] = $tatData['booking_id'];
+            else if($tatData[$key]>=0 && $tatData[$key]<5){
+                $finalArray[$tatData['entity']]['TAT_'.$tatData[$key]][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
-            else if($tatData['TAT']>4 && $tatData['TAT']<8){
+            else if($tatData[$key]>4 && $tatData[$key]<8){
                 $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
-            else if($tatData['TAT']>7 && $tatData['TAT']<16){
+            else if($tatData[$key]>7 && $tatData[$key]<16){
                 $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
@@ -1739,13 +1739,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $structuredArray = $this->get_TAT_days_total_completed_bookings(array_values($finalArray));
         return $structuredArray;
     }
-    function get_tat_data_in_structured_format($data,$is_pending){
+    function get_tat_data_in_structured_format($data,$is_pending,$request_type){
         $structuredArray = array();
         if($is_pending){
           $structuredArray =  $this->get_tat_data_in_structured_format_pending($data);
         }
         else{
-           $structuredArray =  $this->get_tat_data_in_structured_format_completed($data);
+          $structuredArray['TAT'] =  $this->get_tat_data_in_structured_format_completed($data,'TAT');
+          if($request_type == 'Repair_with_part'){
+            $structuredArray['leg_1'] =  $this->get_tat_data_in_structured_format_completed($data,'leg_1');
+            $structuredArray['leg_2'] =  $this->get_tat_data_in_structured_format_completed($data,'leg_2');
+          }
         }
         return $structuredArray;
     }
@@ -1829,14 +1833,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on status
             if($status !="not_set"){
                 if($status == 'Completed'){
-                     $conditionArray['where']['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
+                     $conditionArray['where']['current_status'] = 'Completed'; 
                 }
                 else{
-                    $conditionArray['where']['(current_status = "Cancelled" OR internal_status = "InProcess_Cancelled")'] = NULL; 
+                    $conditionArray['where']['current_status'] = 'Cancelled'; 
                 }
             }
             //only is sf closed date is not null
-            $conditionArray['where']['service_center_closed_date IS NOT NULL'] = NULL;
+            //$conditionArray['where']['service_center_closed_date IS NOT NULL'] = NULL;
             //Group by on booking_tat
             $conditionArray['groupBy'] = array("booking_tat.booking_id");
             //Default join on booking_tat
@@ -1864,6 +1868,60 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['where']['service_center_closed_date IS NULL'] = NULL;
             return $conditionArray;
         }
+        function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
+            if($is_pending){
+                    $select = "employee.full_name as entity,partners.account_manager_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                }
+                else{
+                    if($request_type == 'Repair_with_part'){
+                        $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
+                    else{
+                        $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,"
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                    }
+                }
+            $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
+            $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
+            $conditionsArray['where']['partners.is_active'] = 1;
+            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        }
+        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type){
+             if($this->session->userdata('partner_id') ){
+                if($is_pending){
+                    $select = "employee_relation.region as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                }
+                else{
+                     if($request_type == 'Repair_with_part'){
+                        $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
+                    else{
+                        $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,booking_tat.booking_id,"
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                    }
+                }
+            }
+            else{
+                if($is_pending){
+                    $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                }
+                else{
+                     if($request_type == 'Repair_with_part'){
+                        $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
+                    else{
+                        $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                    }
+                }
+            }
+            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        }
         function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
         if($is_pending){
             $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
@@ -1875,41 +1933,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         $finalData = $data = array();
         if($for == "AM"){
-           // $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
-             $select = "employee.full_name as entity,partners.account_manager_id as id,  booking_details.booking_id as booking_id,"
-                     . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-             if($is_pending){
-                    $select = "employee.full_name as entity,partners.account_manager_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                }
-            $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
-            $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
-            $conditionsArray['where']['partners.is_active'] = 1;
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type);
         }
         else if($for == "RM"){
-            if($this->session->userdata('partner_id') ){
-               //$select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
-                $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                if($is_pending){
-                    $select = "employee_relation.region as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                }
-            }
-            else{
-                //$select = "employee.full_name as entity,employee_relation.agent_id as id,booking_tat.booking_id,MAX(IFNULL(leg_1,'0')+IFNULL(leg_2,'0')) as TAT";
-                $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                if($is_pending){
-                    $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                }
-            }
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
-            $data = $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type);
         }
         if(!empty($data)){
-            $finalData = $this->get_tat_data_in_structured_format($data,$is_pending);  
+            $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);  
         }
         echo json_encode($finalData);
     }
