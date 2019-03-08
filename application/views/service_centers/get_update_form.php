@@ -356,7 +356,7 @@
                     <div class="form-group" id="hide_remarks">
                         <label for="remarks" class="col-md-2">Remarks *</label>
                         <div class="col-md-4" style="width:24%">
-                            <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
+                            <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-2">
