@@ -354,7 +354,7 @@
                         </div>
                     </div>
                     <div class="form-group" id="hide_remarks">
-                        <label for="remarks" class="col-md-2">Remarks </label>
+                        <label for="remarks" class="col-md-2">Remarks *</label>
                         <div class="col-md-4" style="width:24%">
                             <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
@@ -482,6 +482,12 @@
           var booking_date = $('#booking_date').val();
           if(booking_date === ""){
               alert("Please select new date");
+              checkbox_value = 0;
+          }
+          
+          var sc_remarks = $("#sc_remarks").val();
+          if(sc_remarks === ""){
+              alert("Please Enter remarks");
               checkbox_value = 0;
           }
          
