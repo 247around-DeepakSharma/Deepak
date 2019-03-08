@@ -2136,10 +2136,10 @@ class Partner extends CI_Controller {
      * params: String Booking_ID
      * return: Array of Data for View
      */
-    function get_comment_section($booking_id){ 
+    function get_comment_section($booking_id, $comment_type){ 
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
-        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1));
+        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type' => $comment_type));
         $data['booking_id'] = $booking_id;
         $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);
@@ -5229,11 +5229,11 @@ class Partner extends CI_Controller {
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Select All Field');
@@ -5885,7 +5885,7 @@ class Partner extends CI_Controller {
         $postData = $this->input->post();
         $state = 0;
          $columnMappingArray = array("column_1"=>"bd.booking_id","column_2"=>"request_type","column_4"=>"services","column_5"=>"appliance_brand","column_6"=>"appliance_category","column_7"=>"appliance_capacity"
-             ,"column_10"=>"bd.upcountry_distance","column_11"=>"bd.partner_upcountry_rate");    
+             ,"column_9"=>"sbs.district","column_10"=>"sbs.pincode","column_11"=>"bd.upcountry_update_date","column_12"=>"bd.upcountry_distance","column_13"=>"bd.partner_upcountry_rate");    
          $order_by = "bd.booking_id";
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
@@ -5916,6 +5916,8 @@ class Partner extends CI_Controller {
                       $tempArray[] = $row['appliance_category'];
                       $tempArray[] = $row['appliance_capacity'];
                       $tempArray[] = $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state'];
+                      $tempArray[] = $row['upcountry_district'];
+                      $tempArray[] = $row['upcountry_pincode'];
                       $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today'));
                       $tempArray[] = $age_requested->days ." Days";
                       $tempArray[] = $row['upcountry_distance'] . " KM";

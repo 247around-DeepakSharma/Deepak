@@ -57,6 +57,9 @@
                         <th class="text-center">Category</th>
                         <th class="text-center">Capacity</th>
                         <th class="text-center">Address</th>
+                        <th class="text-center">Upcountry District</th>
+                        <th class="text-center">Upcountry Pincode</th>
+                        
                         <th class="text-center">Age</th>
                         <th class="text-center">Upcountry Distance</th>
                         <th class="text-center">Upcountry Charges</th>
@@ -95,7 +98,7 @@
             },
             "columnDefs": [
             {
-                    "targets": [0,2,3,8,9,12], //first column / numbering column
+                    "targets": [0,2,3,8,9,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

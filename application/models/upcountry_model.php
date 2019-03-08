@@ -720,7 +720,10 @@ class Upcountry_model extends CI_Model {
         if(!$count){
         $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
                 . ' appliance_brand,appliance_category, appliance_capacity, '
-                . ' booking_address,bd.city, bd.booking_pincode, bd.state, bd.upcountry_distance, bd.partner_upcountry_rate, bd.upcountry_update_date');
+                . ' booking_address,bd.city, bd.booking_pincode, bd.state, '
+                . 'bd.upcountry_distance, bd.partner_upcountry_rate, '
+                . 'bd.upcountry_update_date,'
+                . 'sbs.district as upcountry_district, sbs.pincode as upcountry_pincode');
         }
         else{
             $this->db->select('count(bd.booking_id) as count');
@@ -754,6 +757,7 @@ class Upcountry_model extends CI_Model {
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
         $this->db->join('users','bd.user_id = users.user_id');
         $this->db->join('services','bd.service_id = services.id');
+        $this->db->join('sub_service_center_details as sbs', 'sbs.id = bd.sub_vendor_id');
         $query = $this->db->get();
         
         return $query->result_array();

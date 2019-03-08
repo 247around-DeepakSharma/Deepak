@@ -281,6 +281,7 @@
                                                             <th >Request to Partner/Warehouse </th>
                                                             <th >Model Number </th>
                                                             <th >Requested Parts </th>
+                                                            <th >Requested Parts type </th>
                                                             <th >Requested Date</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
@@ -298,6 +299,7 @@
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
                                                                 <td><?php echo $sp['parts_requested']; ?></td>
+                                                                <td><?php echo $sp['parts_requested_type']; ?></td>                                                                
                                                                 <td><?php echo $sp['create_date']; ?></td>
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
@@ -648,10 +650,10 @@
             }
         });
         
-        $.ajax({
+    $.ajax({
         method: 'POST',
         data: {},
-        url: '<?php echo base_url(); ?>partner/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+        url: '<?php echo base_url(); ?>partner/get_comment_section/<?php echo $booking_history[0]['booking_id']?>/1',
         success: function (response) {
             document.getElementById("commentboxPartner").innerHTML = response;
             $("#commnet_btn").css("display", "none");

@@ -335,6 +335,7 @@
                             <tr>
                                 <th >Model Number </th>
                                 <th >Requested Parts </th>
+                                 <th >Requested Parts Type</th>
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -351,6 +352,7 @@
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
                                 <td><?php echo $sp['parts_requested']; ?></td>
+                                <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
