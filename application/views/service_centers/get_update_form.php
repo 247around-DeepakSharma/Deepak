@@ -354,9 +354,9 @@
                         </div>
                     </div>
                     <div class="form-group" id="hide_remarks">
-                        <label for="remarks" class="col-md-2">Remarks </label>
+                        <label for="remarks" class="col-md-2">Remarks *</label>
                         <div class="col-md-4" style="width:24%">
-                            <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" required placeholder="Enter Remarks" rows="5" ></textarea>
+                            <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-2">
@@ -484,6 +484,12 @@
               alert("Please select new date");
               checkbox_value = 0;
           }
+          
+          var sc_remarks = $("#sc_remarks").val();
+          if(sc_remarks === ""){
+              alert("Please Enter remarks");
+              checkbox_value = 0;
+          }
          
       } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
@@ -604,6 +610,13 @@
               }
               
           }
+      } else {
+          var sc_remarks = $("#sc_remarks").val();
+          if(sc_remarks === ""){
+              alert("Please Enter remarks");
+              checkbox_value = 0;
+          }
+
       }
     
       if(checkbox_value === 0){
@@ -650,7 +663,8 @@
     }
     
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
-    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
+                maxDate:0});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
                 minDate: 0, 
@@ -658,7 +672,7 @@
     });
      function booking_calendar(){
       
-        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
+        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: false,changeYear: false}).datepicker('show');
     }
     
     function dop_calendar(){
