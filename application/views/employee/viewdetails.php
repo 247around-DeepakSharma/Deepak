@@ -1342,10 +1342,6 @@ function sf_tab_active(){
     $('#commnet_btn').hide();
     }
     
-    function cancel(){
-        getcommentbox();
-    }   
-    
     function addComment() {
         var prethis = $(this);
         var comment_type = $("#comment_type").val();
@@ -1837,28 +1833,39 @@ background-color: #f5f5f5;
        
     });
     
-     $(".view_spare_details").on('click',function(){
+     $(".view_spare_details").on('click',function(){ 
          var type_val = $(this).data('type');
          $("#comment_type").val(type_val);   
-            $.ajax({
-                method: 'POST',
-                data: {},
-                url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id'] ?>/'+type_val,
-                success: function (response) {
-                    if(type_val == 2){
-                        document.getElementById("commentbox").remove();
-                        document.getElementById("booking_hostory_template").innerHTML = '<div id="commentbox"></div>';                         
-                        document.getElementById("spare_parts_commentbox").innerHTML = response;
-                    }else{
-                        document.getElementById("commentbox").innerHTML = response;                        
-                        document.getElementById("spare_parts_commentbox").remove();
-                        document.getElementById("spare_parts_template").innerHTML = '<div id="spare_parts_commentbox"> </div>';
-                    }
-                            
-                }
-            });
-            
+           getcommentbox(type_val);    
+                      
      });
+     
+    function cancel(){
+     var type_val = $("#comment_type").val();   
+      getcommentbox(type_val);        
+    }   
+    
+    
+    function getcommentbox(type_val){
+        $.ajax({
+                    method: 'POST',
+                    data: {},
+                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id'] ?>/'+type_val,
+                    success: function (response) {
+                        if(type_val == 2){
+                            document.getElementById("commentbox").remove();
+                            document.getElementById("booking_hostory_template").innerHTML = '<div id="commentbox"></div>';                         
+                            document.getElementById("spare_parts_commentbox").innerHTML = response;
+                        }else{
+                            document.getElementById("commentbox").innerHTML = response;                        
+                            document.getElementById("spare_parts_commentbox").remove();
+                            document.getElementById("spare_parts_template").innerHTML = '<div id="spare_parts_commentbox"> </div>';
+                        }
+
+                    }
+                  });
+    }
+    
    
     </script>
     
