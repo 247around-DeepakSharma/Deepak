@@ -54,12 +54,12 @@
     </button>
 </div>
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab3" data-toggle="tab">
+    <button type="button" class="btn btn-default view_spare_details" data-type="2" href="#tab3" data-toggle="tab">
         <div class="hidden-xs">Spare Parts</div>
     </button>
 </div>
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" href="#tab4" data-toggle="tab">
+    <button type="button" class="btn btn-default view_spare_details" data-type="1" href="#tab4" data-toggle="tab">
         <div class="hidden-xs">History</div>
     </button>
 </div>
@@ -732,13 +732,24 @@
                 <?php } else { ?> 
                 <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
+                <div class="row">  
+                        <span id="spare_parts_template">
+                            <div id="spare_parts_commentbox"> </div>  
+                        </span>
+                    </div>
             </div>
+           <!-- Common uses of hidden field  --->
+           <input type="hidden" id="comment_type" name="comment_type" value="">
+           
             <div class="tab-pane fade in" id="tab4">
                 <div style="padding: 0 15px;">
-    <div class="row">
-                <div id="historyDetails"></div>
-                <div id="commentbox"> </div>
-    </div>
+                    <div class="row">
+                        <div id="historyDetails"></div>
+                        <span id="booking_hostory_template">
+                            <div id="commentbox"> </div>
+                        </span>
+                        
+                    </div>
                 </div>
             </div>
             <div class="tab-pane fade in" id="tab8">
@@ -1337,6 +1348,7 @@ function sf_tab_active(){
     
     function addComment() {
         var prethis = $(this);
+        var comment_type = $("#comment_type").val();
         var comment = $("#comment").val();
         var booking_id = '<?php echo $booking_history[0]['booking_id']?>';
   
@@ -1347,12 +1359,13 @@ function sf_tab_active(){
                 
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: {comment: comment, booking_id: booking_id},
+            data: {comment_type : comment_type, comment: comment, booking_id: booking_id},
             success: function (response) { 
                 if(response === "error"){
                     alert('There is some issue. Please refresh and try again');
                 } else {
-                    document.getElementById("commentbox").innerHTML = response;
+                    //document.getElementById("commentbox").innerHTML = response;
+                    document.getElementById("spare_parts_commentbox").innerHTML = response;
                 }   
             }
             
@@ -1370,6 +1383,7 @@ function sf_tab_active(){
     
     function updateComment() {
         var prethis = $(this);
+        var comment_type = $("#comment_type").val();
         var comment = $("#comment2").val();
         var comment_id= $("#comment_id").val();
         var booking_id= '<?php echo $booking_history[0]['booking_id']?>';
@@ -1380,12 +1394,13 @@ function sf_tab_active(){
                 
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: {comment: comment, comment_id: comment_id, booking_id: booking_id},
+            data: {comment: comment, comment_id: comment_id, booking_id: booking_id, comment_type: comment_type},
             success: function (response) {
                 if(response === "error"){
                     alert('There is some issue. Please refresh and try again');
                 } else {
                     document.getElementById("commentbox").innerHTML = response;
+                    document.getElementById("spare_parts_commentbox").innerHTML = response;
                 } 
             }
             
@@ -1395,7 +1410,7 @@ function sf_tab_active(){
     
      function deleteComment(comment_id) {
                 
-                
+            var comment_type = $("#comment_type").val(); 
             var check = confirm("Do you want to delete this comment?");
             if(check == true){
                 var comment_id = comment_id;
@@ -1403,12 +1418,13 @@ function sf_tab_active(){
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url(); ?>employee/booking/deleteComment',
-                    data: {comment_id: comment_id, booking_id:booking_id},
+                    data: {comment_id: comment_id, booking_id:booking_id ,comment_type : comment_type},
                     success: function (response) {
                         if(response === "error"){
                             alert('There is some issue. Please refresh and try again');
                         } else {
                             document.getElementById("commentbox").innerHTML = response;
+                            document.getElementById("spare_parts_commentbox").innerHTML = response;  
                         } 
                     }
                     
@@ -1418,27 +1434,15 @@ function sf_tab_active(){
     
     
     
-    
-    function getcommentbox(){
-    $.ajax({
-        method: 'POST',
-        data: {},
-        url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
-        success: function (response) {
-            document.getElementById("commentbox").innerHTML = response;
-        }
-    });
-    }
-    getcommentbox();
     function get_transaction_status(booking_id){
         $.ajax({
-                    method: 'POST',
-                    data: {},
-                    url: '<?php echo base_url(); ?>payment/get_booking_transaction_status_by_check_status_api/'+booking_id,
-                    success: function (response) {
-                        document.getElementById("transaction_response_container").innerHTML = response;
-                    }
-                });
+                method: 'POST',
+                data: {},
+                url: '<?php echo base_url(); ?>payment/get_booking_transaction_status_by_check_status_api/'+booking_id,
+                success: function (response) {
+                    document.getElementById("transaction_response_container").innerHTML = response;
+                }
+            });
     }
     
     
@@ -1833,7 +1837,29 @@ background-color: #f5f5f5;
        
     });
     
-    
+     $(".view_spare_details").on('click',function(){
+         var type_val = $(this).data('type');
+         $("#comment_type").val(type_val);   
+            $.ajax({
+                method: 'POST',
+                data: {},
+                url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id'] ?>/'+type_val,
+                success: function (response) {
+                    if(type_val == 2){
+                        document.getElementById("commentbox").remove();
+                        document.getElementById("booking_hostory_template").innerHTML = '<div id="commentbox"></div>';                         
+                        document.getElementById("spare_parts_commentbox").innerHTML = response;
+                    }else{
+                        document.getElementById("commentbox").innerHTML = response;                        
+                        document.getElementById("spare_parts_commentbox").remove();
+                        document.getElementById("spare_parts_template").innerHTML = '<div id="spare_parts_commentbox"> </div>';
+                    }
+                            
+                }
+            });
+            
+     });
+   
     </script>
     
    

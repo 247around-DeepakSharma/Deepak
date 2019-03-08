@@ -10174,3 +10174,6 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
+------Gorakh  09-03-2019----
+ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
+
