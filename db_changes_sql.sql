@@ -10165,3 +10165,9 @@ ALTER TABLE `dashboard_notification_type`
 ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
+
+--Rajshree 02 March
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
+------Gorakh  09-03-2019----
+ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
