@@ -5883,7 +5883,7 @@ class Partner extends CI_Controller {
         $postData = $this->input->post();
         $state = 0;
          $columnMappingArray = array("column_1"=>"bd.booking_id","column_2"=>"request_type","column_4"=>"services","column_5"=>"appliance_brand","column_6"=>"appliance_category","column_7"=>"appliance_capacity"
-             ,"column_10"=>"bd.upcountry_distance","column_11"=>"bd.partner_upcountry_rate");    
+             ,"column_9"=>"sbs.district","column_10"=>"sbs.pincode","column_11"=>"bd.upcountry_update_date","column_12"=>"bd.upcountry_distance","column_13"=>"bd.partner_upcountry_rate");    
          $order_by = "bd.booking_id";
          if($this->session->userdata('is_filter_applicable') == 1){
               $state = 1;
@@ -5914,6 +5914,8 @@ class Partner extends CI_Controller {
                       $tempArray[] = $row['appliance_category'];
                       $tempArray[] = $row['appliance_capacity'];
                       $tempArray[] = $row['booking_address'] . ", " . $row['city'] . ", Pincode - " . $row['booking_pincode'] . ", " . $row['state'];
+                      $tempArray[] = $row['upcountry_district'];
+                      $tempArray[] = $row['upcountry_pincode'];
                       $age_requested = date_diff(date_create($row['upcountry_update_date']), date_create('today'));
                       $tempArray[] = $age_requested->days ." Days";
                       $tempArray[] = $row['upcountry_distance'] . " KM";
