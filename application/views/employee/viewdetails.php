@@ -1364,7 +1364,7 @@ function sf_tab_active(){
                 if(response === "error"){
                     alert('There is some issue. Please refresh and try again');
                 } else {
-                    //document.getElementById("commentbox").innerHTML = response;
+                    document.getElementById("commentbox").innerHTML = response;
                     document.getElementById("spare_parts_commentbox").innerHTML = response;
                 }   
             }
