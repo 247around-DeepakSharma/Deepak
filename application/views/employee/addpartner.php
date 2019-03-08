@@ -117,10 +117,10 @@
                         <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Central Warehouse</span></a></li>
-                        <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
-                        <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
-                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="10" href="#tabs-10"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
+                        <li><a id="11" href="#tabs-11"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
+                        <li><a id="12" href="#tabs-12"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Micro Warehouse</span></a></li>
+                        <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
                         <?php
                             }
                             else{
