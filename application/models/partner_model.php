@@ -610,7 +610,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_repair_booking_pending'] ++;
                             }
                             break;
@@ -629,7 +629,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_installation_booking_pending'] ++;
                             }
                             break;
