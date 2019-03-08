@@ -2517,9 +2517,8 @@ class Booking extends CI_Controller {
      * @desc this is used to load comment for requested booking id
      * @param String $booking_id
      */
-    function get_comment_section($booking_id){
-       
-        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1));
+    function get_comment_section($booking_id , $comment_type){
+        $data['comments'] = $this->booking_model->get_remarks(array('booking_id' => $booking_id, "isActive" => 1,'comment_type'=> $comment_type));
         $data['booking_id'] = $booking_id;
         $data['user_id'] = $this->session->userdata('id');
         $this->load->view('employee/comment_section', $data);
@@ -2532,6 +2531,7 @@ class Booking extends CI_Controller {
         $this->form_validation->set_rules('comment', 'comment', 'required');
         if ($this->form_validation->run() == TRUE) {
             $data['agent_id'] = $this->session->userdata('id');
+            $data['comment_type'] = $this->input->post('comment_type');
             $data['remarks'] = trim($this->input->post('comment'));
             $data['booking_id'] = $this->input->post('booking_id');
             $data['entity_id'] = _247AROUND;
@@ -2540,7 +2540,7 @@ class Booking extends CI_Controller {
             $data['create_date'] = date("Y-m-d H:i:s");
             $status = $this->booking_model->add_comment($data);
             if($status){  
-                $this->get_comment_section($data['booking_id']);
+                $this->get_comment_section($data['booking_id'], $data['comment_type']);
             } else {
                 echo "error";
             }
@@ -2559,13 +2559,14 @@ class Booking extends CI_Controller {
         if ($this->form_validation->run() == TRUE) {
 
             $data['remarks'] = trim($this->input->post('comment'));
+            $comment_type = $this->input->post('comment_type');
             $data['update_date'] = date("Y-m-d H:i:s");
             $id = $this->input->post('comment_id');
             $booking_id = $this->input->post('booking_id');
 
             $status = $this->booking_model->update_comment(array('id' => $id), $data);
             if($status){
-                $this->get_comment_section($booking_id);
+                $this->get_comment_section($booking_id, $comment_type);
             } else {
                 echo "error";
             }
@@ -2582,12 +2583,13 @@ class Booking extends CI_Controller {
         $this->form_validation->set_rules('booking_id', 'booking_id', 'required');
         if ($this->form_validation->run() == TRUE) {
             $comment_id = $this->input->post('comment_id');
+            $comment_type = $this->input->post('comment_type');
             $data['isActive']=0;
             $where = array('id' => $comment_id);
             $booking_id = $this->input->post('booking_id');
             $status = $this->booking_model->update_comment($where, $data);
             if($status){
-                $this->get_comment_section($booking_id);
+                $this->get_comment_section($booking_id ,$comment_type);
             } else {
                 echo "error";
             }

@@ -648,10 +648,10 @@
             }
         });
         
-        $.ajax({
+    $.ajax({
         method: 'POST',
         data: {},
-        url: '<?php echo base_url(); ?>partner/get_comment_section/<?php echo $booking_history[0]['booking_id']?>',
+        url: '<?php echo base_url(); ?>partner/get_comment_section/<?php echo $booking_history[0]['booking_id']?>/1',
         success: function (response) {
             document.getElementById("commentboxPartner").innerHTML = response;
             $("#commnet_btn").css("display", "none");
