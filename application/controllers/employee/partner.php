@@ -5229,11 +5229,11 @@ class Partner extends CI_Controller {
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Select All Field');
