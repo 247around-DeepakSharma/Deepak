@@ -610,6 +610,13 @@
               }
               
           }
+      } else {
+          var sc_remarks = $("#sc_remarks").val();
+          if(sc_remarks === ""){
+              alert("Please Enter remarks");
+              checkbox_value = 0;
+          }
+
       }
     
       if(checkbox_value === 0){
@@ -656,7 +663,8 @@
     }
     
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
-    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
+                maxDate:0});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
                 minDate: 0, 
@@ -664,7 +672,7 @@
     });
      function booking_calendar(){
       
-        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
+        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: false,changeYear: false}).datepicker('show');
     }
     
     function dop_calendar(){
