@@ -117,10 +117,11 @@
                         <li><a id="7" href="#tabs-7" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Upload Serial No</span></a></li>
                         <li><a id="8" href="#tabs-8" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Contacts</span></a></li>
                         <li><a id="9" href="#tabs-9" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Central Warehouse</span></a></li>
-                        <li><a id="10" href="#tabs-10" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
-                        <li><a id="11" href="#tabs-11" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
-                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="10" href="#tabs-10"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Bank Details</span></a></li>
+                        <li><a id="11" href="#tabs-11"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
+                        <li><a id="12" href="#tabs-12"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Micro Warehouse</span></a></li>
+                        <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
+                        <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <?php
                             }
                             else{
@@ -137,10 +138,11 @@
                         <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
-                        <li><a id="13" href="#tabs-13"onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <?php
                             }
-                            ?>
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -1888,7 +1890,7 @@
                 }
                 ?>
         </div>
-        </div>
+        
              
         <div class="clear"></div>
         <div id="container_9"  style="display:none;margin: 30px 10px;" class="form_container">
@@ -2466,7 +2468,7 @@
                 </div>
          </div>
             
-            
+             <div class="clear"></div>
             <div id="container_13" style="display:none" class="form_container">
             <form name="document_form" class="form-horizontal" id ="add_spare_part_margin" action="<?php echo base_url() ?>employee/partner/process_to_tag_marging_on_spare_parts" method="POST" enctype="multipart/form-data">
                 
@@ -2536,12 +2538,68 @@
             </form>
             
         </div>
-            
-            
-       </div>
+        <div class="clear"></div>  
+        <div id="container_14" style="display:none" class="form_container">
+            <form name="model_number" class="form-horizontal" id ="model_number" action="<?php echo base_url() ?>employee/partner/" method="POST" enctype="multipart/form-data">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Model Number</b></p>
+                        </div>
+                        <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="add_model_number" class="col-md-4">Model Number*</label>
+                                                <div class="col-md-6">
+                                                    <input type="text" name="add_model_number" id="add_model_number" class="form-control input-contact-name" value="" placeholder="Enter Model Number" required>
+                                                </div>
+                                            </div>
+                                        </div>    
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="add_model_service" class="col-md-4">Appliance*</label>
+                                                <div class="col-md-6">
+                                                    <select class="form-control input-contact-name"  name="add_model_service" id="add_model_service" required>
+                                                        
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <input type="button" class="btn btn-primary" value="Add Model" onclick="add_partner_model_number()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <table class="table table-bordered table-hover table-striped" id="model_number_table">
+                                            <thead>
+                                                <tr>
+                                                    <th>S.No.</th>
+                                                    <th>Model Number</th>
+                                                    <th>Appliance</th>
+                                                    <th>Edit</th>
+<!--                                                    <th>Activate</th>-->
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        </div> 
+        <div class="clear"></div>
+      </div>   
     </div>
 </div>
-</div>
+
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -2862,6 +2920,60 @@
     </div>
 </div>
 <!-- Variable Charges Modal End -->
+
+<!--Modal start-->
+    <div id="appliance_model_details_data" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_title_action"> </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="applince_model_list_details">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_model_number">Model Number *</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="edit_model_number" name="edit_model_number">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="model_service_id">Appliance*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="model_service_id" name="model_service_id"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="status">Active</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="checkbox" class="" id="active_inactive" name="active_inactive" checked>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <input type="hidden" id="model_entity_id" name='model_entity_id' value="">
+                            <input type="hidden" id="model_entity_type" name='model_entity_type' value="partner">
+                            <input type="hidden" id="edit_model_id" name='edit_model_id' value="">
+                            <button type="button" class="btn btn-success" id="model_submit_btn" name='submit_type' value="">Submit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <p class="pull-left text-danger">* These Fields are required</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal end -->
+
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
@@ -3332,6 +3444,9 @@
       }
       else if(tab_id=== '9'){
           get_warehouse_details();
+      }
+      else if(tab_id=== '14'){
+          get_model_number_list();
       }
     }
     function add_more_fields(id){
@@ -4443,7 +4558,7 @@
             
     get_services('<?php echo $query[0]['id']; ?>');
     
-    function get_services(partner_id){        
+    function get_services(partner_id){
         $.ajax({
             type:'GET',
             async: false,
@@ -4452,6 +4567,8 @@
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
+                $("#model_service_id").html(response);
+                $("#add_model_service").html(response);
                 $("#spare_part_all").attr("disabled", false);
             }
         });
@@ -4533,6 +4650,146 @@
         
         
     });
+    var model_number_datatable; 
+    function get_model_number_list(){
+        if(model_number_datatable){
+            model_number_datatable.ajax.reload();
+        }
+        else{
+        model_number_datatable = $('#model_number_table').DataTable({
+            "processing": true, 
+            "serverSide": true,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2 ]
+                    },
+                    title: 'notifications',
+                },
+            ],
+            "language":{ 
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>"
+            },
+            select: {
+                style: 'multi'
+            },
+            "order": [], 
+            "pageLength": 10,
+            "ordering": false,
+            "ajax": {
+                "url": "<?php echo base_url(); ?>employee/inventory/get_appliance_model_details",
+                "type": "POST",
+                data: function(d){ 
+                    d.entity_id = $("#partner_id").val();
+                    d.entity_type = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+                }
+            },
+//            "columnDefs": [ {
+//            "targets": 4,
+//            "data": null,
+//            "defaultContent": "<button>Click!</button>"
+//        } ],
+            "deferRender": true       
+        });
+        $("#model_number_table_filter").css("text-align", "right");
+        }
+    }
+    
+    $(document).on("click", "#edit_appliance_model_details", function () {
+        var form_data = $(this).data('id');
+        console.log(form_data);
+        $("#model_service_id").val(form_data.service_id);        
+        if(form_data.active === '1'){
+            $("#active_inactive").prop('checked', true);
+        }
+        else{
+            $("#active_inactive").prop('checked', false);
+        }
+        $("#model_entity_id").val(form_data.entity_id);
+        $('#edit_model_number').val(form_data.model_number);
+        $('#edit_model_id').val(form_data.id);
+        $('#appliance_model_details_data').modal('toggle');
+    });
+    
+    $("#model_submit_btn").click(function(){ 
+        var status = "";
+        if($("#active_inactive").is(':checked')){ 
+            status = 1;
+        }
+        else{ 
+           status = 0;
+        }
         
-</script>
 
+        if(!$('#model_service_id').val()){
+            alert("Please Select Appliance");
+        }else if($('#edit_model_number').val().trim() === "" || $('#edit_model_number').val().trim() === " "){
+            alert("Please Enter Model Number");
+        }else{
+            var data = {
+                    submit_type:'edit', 
+                    service_id:$("#model_service_id").val(), 
+                    model_number:$('#edit_model_number').val(), 
+                    entity_id:$("#model_entity_id").val(), 
+                    model_id:$('#edit_model_id').val(),
+                    entity_type:$("#model_entity_type").val(),
+                    status:status 
+                }
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/process_appliance_model_list_data',
+                data : data,
+                success:function(response){
+                    $('#appliance_model_details_data').modal('toggle');
+                    var data = JSON.parse(response);
+                    if(data.response === 'success'){
+                        alert("Model Number Updated Successfully");
+                        model_number_datatable.ajax.reload();
+                    }else if(data.response === 'error'){
+                        alert("Eroor in Updating Model Number");
+                    }
+                }
+            });
+        }
+
+    });
+    
+    function add_partner_model_number(){
+        if($('#add_model_number').val().trim() === "" || $('#add_model_number').val().trim() === " "){
+            alert("Please Enter Model Number");
+        }else if(!$('#add_model_service').val()){
+            alert("Please Select Service");
+        }else{
+            var data = {
+                    submit_type:'add', 
+                    service_id:$("#add_model_service").val(), 
+                    model_number:$('#add_model_number').val(), 
+                    entity_id:$("#partner_id").val(), 
+                    entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>',
+                }
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/process_appliance_model_list_data',
+                data : data,
+                success:function(response){
+                    var data = JSON.parse(response);
+                    if(data.response === 'success'){
+                        alert("Model Number Inserted Successfully");
+                        model_number_datatable.ajax.reload();
+                    }else if(data.response === 'error'){
+                        alert("Eroor in Inserting Model Number");
+                    }
+                    $("#add_model_service, #add_model_number").val("");
+                }
+            });
+        }
+    }
+</script>
