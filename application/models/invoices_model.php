@@ -1959,9 +1959,9 @@ class invoices_model extends CI_Model {
                 $is_foc_null = " AND cp_invoice_id IS NULL ";
         }
         if($profitLoss == 1){
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` ) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge`) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` - partner_discount ) <=  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` - partner_discount) <=  (`cp_basic_charge` + cp_tax_charge)) END ';
         } else {
-            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` ) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge`) >  (`cp_basic_charge` + cp_tax_charge)) END ';
+            $profit_loss_where = ' AND CASE WHEN (cp_claimed_price > 0) THEN ((`partner_basic_charge` + `partner_tax_charge` - partner_discount ) >  (cp_claimed_price)) ELSE ((`partner_basic_charge` + `partner_tax_charge` - partner_discount) >  (`cp_basic_charge` + cp_tax_charge)) END ';
         }
         
         
