@@ -62,6 +62,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
+                                 <option value="" >All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -131,7 +132,7 @@
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                             <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
                                    {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
                            <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_0}} ({{completedBookingByRM.leg_1[$index].TAT_0_per}}%)<br>
@@ -168,9 +169,8 @@
                         </tr>
                         <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
