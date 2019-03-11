@@ -4111,10 +4111,9 @@ class Booking extends CI_Controller {
         $this->load->view('employee/bulk_booking_search',array("partnerArray"=>$partnerArray));
     }
     function get_input_for_bulk_search($receieved_Data){
-        $inputBulkData = array();
-        $copy_inputBulkData=array();
+        $inputBulkData = $copy_inputBulkData = array();
         $inputBulkDataTemp = explode("\n",$receieved_Data['bulk_input']);
-        $result = array_map('trim', $inputBulkDataTemp);
+        array_map('trim', $inputBulkDataTemp);
         foreach($inputBulkDataTemp as $value){
             $value = str_replace('.', '', $value); // remove dots
             $value = str_replace(' ', '', $value); // remove spaces
@@ -4125,7 +4124,7 @@ class Booking extends CI_Controller {
                     $inputBulkData[]=$value;
             }
         }
-       
+        $copy_inputBulkData = $inputBulkData;
          if($receieved_Data['select_type'] == 'mobile'){
             $fieldName = 'booking_details.booking_primary_contact_no';
             $onlyName = "booking_primary_contact_no";
@@ -4137,21 +4136,18 @@ class Booking extends CI_Controller {
         else{
             $fieldName = 'booking_details.booking_id';
             $onlyName = "booking_id";
-            $copy_inputBulkData=$inputBulkData;
-            foreach($copy_inputBulkData as $value)
-            {
-                $query_check='Q-';
-                $start_string=substr($value,0,2);
-                if($start_string!==$query_check)
-                {
-                    $copy_inputBulkData[]=$query_check.$value;
-                    if (($key = array_search($value,$inputBulkData)) !== false) {
-                        unset($inputBulkData[$key]);
-                    }
-                }
-            }
+            foreach($copy_inputBulkData as $value) {
+             $query_check='Q-';
+             $start_string=substr($value,0,2);
+             if($start_string!==$query_check){
+                 $copy_inputBulkData[]=$query_check.$value;
+                 if (($key = array_search($value,$inputBulkData)) !== false) {
+                     unset($inputBulkData[$key]);
+                 }
+             }
+         }
         }
-        
+
         $where = array();
         if(array_key_exists('partner_id', $receieved_Data)){
             if($receieved_Data['partner_id'] != 'option_holder'){
