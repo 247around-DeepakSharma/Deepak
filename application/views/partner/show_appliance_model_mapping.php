@@ -78,7 +78,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_partner_mapped_model_details",
                 "type": "POST",
-                data: {partner_id: '<?php echo $this->session->userdata('partner_id'); ?>'}
+                data: {partner_id: '<?php echo $this->session->userdata('partner_id'); ?>', source:'partner_crm'}
             },
         });
     });

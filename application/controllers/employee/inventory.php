@@ -4508,7 +4508,7 @@ class Inventory extends CI_Controller {
     function get_appliance_model_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('model_number');
+        $post['column_search'] = array('model_number', 'services.services');
         $post['where'] = array('appliance_model_details.entity_id'=>trim($this->input->post('entity_id')),'appliance_model_details.entity_type' => trim($this->input->post('entity_type')));
         
         if($this->input->post('service_id') && $this->input->post('service_id') !== 'all'){
@@ -5511,20 +5511,20 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post['column_order'] = array();
         $post['order'] = array('appliance_model_details.model_number'=>"ASC", "services.services"=>"ASC");
-        $post['column_search'] = array('appliance_model_details.model_number');
+        $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
         $post['where'] = array('partner_appliance_details.partner_id'=>$this->input->post('partner_id'));
         $post['join'] = array(
                             "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model",
                             "services" => "services.id = partner_appliance_details.service_id"
                         );
         $post['joinType'] = array("services"=> "INNER", "appliance_model_details"=>"LEFT");
-        $select = "services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number as model, partner_appliance_details.active";
+        $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number as model, partner_appliance_details.active";
         $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
             $no++;
-            $row = $this->get_partner_mapped_model_table($model_list, $no);
+            $row = $this->get_partner_mapped_model_table($model_list, $no, $this->input->post('source'));
             $data[] = $row;
         }
         
@@ -5535,8 +5535,9 @@ class Inventory extends CI_Controller {
         );
     }
     
-    function get_partner_mapped_model_table($model_list, $no){
+    function get_partner_mapped_model_table($model_list, $no, $source){
         $row = array();
+        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity));
         $row[] = $no;
         $row[] = $model_list->model;
         $row[] = $model_list->services;
@@ -5549,6 +5550,32 @@ class Inventory extends CI_Controller {
         else{
             $row[] = "Inactive";
         }
+        if($source == "admin_crm"){
+           $row[] = "<button class='btn btn-primary' data='".$json."' onclick='edit_mapped_model(this)'>Edit</button>"; 
+        }
         return $row;
+    }
+    
+     /**
+     *  @desc : This function is used to update mapping model number
+     *  @param : $service_id, $brand, $category, $capacity, $model
+     *  @return : array
+     */
+    function update_model_number_mapping(){ //update_partner_appliance_details
+        $return = array();
+        $details = array(
+            "partner_id" => $this->input->post("partner_id"),
+            "service_id" => $this->input->post("service_id"),
+            "brand" => $this->input->post("brand"),
+            "category" => $this->input->post("category"),
+            "capacity" => $this->input->post("capacity"),
+            "model" => $this->input->post("model"),
+        );
+        
+        $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("partner_appliance_details_id")), $details);
+        
+        $return['status'] = true; 
+        $return['message'] = "Mapped Model Number Updated Successfully";
+        echo json_encode($return);
     }
 }
