@@ -672,8 +672,8 @@ class partner_sd_cb {
     function addNewAkaiBooking($data){
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $this->requestUrl = __METHOD__;
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && ($data['internal_status'] == "Pending" 
-                || $data['internal_status'] == "Scheduled")) {
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING) {
+            log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);
             $user = $this->My_CI->user_model->get_users_by_any(array('user_id' => $data['user_id']));
