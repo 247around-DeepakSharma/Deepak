@@ -5170,4 +5170,17 @@
             });
         }
     }
+    
+    function update_mapping_status(status, id){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/update_mapped_model_number_status',
+            data:{id:id, status:status},
+            success:function(response){
+                response = JSON.parse(response);
+                alert(response.message);
+                model_mapping_datatable.ajax.reload();
+            }
+        });
+    }
 </script>
