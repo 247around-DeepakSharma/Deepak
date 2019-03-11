@@ -535,8 +535,10 @@ class partner_sd_cb {
         $res = json_decode($response, true);
         if (isset($res['ResponseCode'])) {
             if ($res['ResponseCode'] != 201) {
+                if($res['ResponseCode'] != '-1014'){
+                    $this->callbackAPIFailed();
+                }
                 
-                $this->callbackAPIFailed();
                 
             } else {
                 if(!empty($statusReason)){
@@ -545,7 +547,9 @@ class partner_sd_cb {
                 
             }
         } else {
-            $this->callbackAPIFailed();
+            if($res['ResponseCode'] != '-1014'){
+                    $this->callbackAPIFailed();
+            }
         }
 
         if ($err) {
