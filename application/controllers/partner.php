@@ -1650,7 +1650,7 @@ class Partner extends CI_Controller {
                                             $url = base_url() . "employee/do_background_process/assign_booking";
                                             $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR, _247AROUND_PENDING, "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, 
                                                     _247AROUND_DEFAULT_AGENT_NAME, $actor,$next_action,_247AROUND);
-
+                                            
                                             //check upcountry and send sms
                                             $async_data['booking_id'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
                                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
@@ -1697,7 +1697,7 @@ class Partner extends CI_Controller {
 //                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 //                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
 //                        }
-
+                        $this->partner_cb->partner_callback($booking_id);
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
