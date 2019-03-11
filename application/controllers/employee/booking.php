@@ -90,6 +90,8 @@ class Booking extends CI_Controller {
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
+                    $this->partner_cb->partner_callback($status['booking_id']);
+                    
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -1746,9 +1748,7 @@ class Booking extends CI_Controller {
                     if ($status) {
                         log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
                         
-                        if ($status['current_status'] == _247AROUND_FOLLOWUP) {
-                            $this->partner_cb->partner_callback($booking_id);
-                        }
+                        $this->partner_cb->partner_callback($booking_id);
 
                         //Redirect to Default Search Page
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
