@@ -73,6 +73,7 @@ class Do_background_process extends CI_Controller {
                         //End Push Notification
                         log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
                         $this->miscelleneous->send_sms_create_job_card($upcountry_status);
+                        $this->partner_cb->partner_callback($booking_id);
                     }
 
                     log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
