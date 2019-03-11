@@ -429,32 +429,20 @@ class Courier_tracking extends CI_Controller {
                             $actor = $booking['actor'] = $partner_status[2];
                             $next_action = $booking['next_action'] = $partner_status[3];
                         }
-                        $b_status = $this->booking_model->update_booking($parts_details[2], $booking);
-                        if ($b_status) {
-                            
-                            $this->miscelleneous->send_spare_delivered_sms_to_customer($parts_details[0], $parts_details[2]);
-                            
-                            $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
+                        $this->booking_model->update_booking($parts_details[2], $booking);
+                        $this->miscelleneous->send_spare_delivered_sms_to_customer($parts_details[0], $parts_details[2]);
 
-                            $sc_data['current_status'] = _247AROUND_PENDING;
-                            $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
-                            $sc_data['update_date'] = date("Y-m-d H:i:s");
-                            $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
-                            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
-                            $pcb = array();
-                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                         $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
 
-                            $res = TRUE;
-                        } else {
+                         $sc_data['current_status'] = _247AROUND_PENDING;
+                         $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
+                         $sc_data['update_date'] = date("Y-m-d H:i:s");
+                         $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
+                         $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
+                         $pcb = array();
+                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
 
-                            //reverse the change in the spare part table
-                            $tmp_arr = array();
-                            $tmp_arr['status'] = SPARE_SHIPPED_BY_PARTNER;
-                            $tmp_arr['acknowledge_date'] = NULL;
-                            $tmp_arr['auto_acknowledeged'] = NULL;
-
-                            $this->service_centers_model->update_spare_parts(array('id' => $parts_details[0]), $tmp_arr);
-                        }
+                         $res = TRUE;
                     } else {
                         $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
                         $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
