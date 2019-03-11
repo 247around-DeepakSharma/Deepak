@@ -5544,14 +5544,24 @@ class Inventory extends CI_Controller {
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
         $row[] = $model_list->capacity;
-        if($model_list->active == 1){
-            $row[] = "Active";
+      
+        if($source == "admin_crm"){
+           if($model_list->active == 1){
+               $row[] = "<button class='btn btn-warning btn-sm' onclick='update_mapping_status(".$model_list->active.", ".$model_list->tid.")'>Active</button>";
+            }
+            else{
+                $row[] = "<button class='btn btn-warning btn-sm' onclick='update_mapping_status(".$model_list->active.", ".$model_list->tid.")'>Inactive</button>";
+            }
+           
+            $row[] = "<button class='btn btn-primary btn-sm' data='".$json."' onclick='edit_mapped_model(this)'>Edit</button>"; 
         }
         else{
-            $row[] = "Inactive";
-        }
-        if($source == "admin_crm"){
-           $row[] = "<button class='btn btn-primary' data='".$json."' onclick='edit_mapped_model(this)'>Edit</button>"; 
+            if($model_list->active == 1){
+                $row[] = "Active";
+            }
+            else{
+                $row[] = "Inactive";
+            }
         }
         return $row;
     }
@@ -5561,7 +5571,7 @@ class Inventory extends CI_Controller {
      *  @param : $service_id, $brand, $category, $capacity, $model
      *  @return : array
      */
-    function update_model_number_mapping(){ //update_partner_appliance_details
+    function update_model_number_mapping(){ 
         $return = array();
         $details = array(
             "partner_id" => $this->input->post("partner_id"),
@@ -5576,6 +5586,28 @@ class Inventory extends CI_Controller {
         
         $return['status'] = true; 
         $return['message'] = "Mapped Model Number Updated Successfully";
+        echo json_encode($return);
+    }
+    
+     /**
+     *  @desc : This function is used to update status of mapped model number
+     *  @param : $status, $partner_aplliance_details_id
+     *  @return : array
+     */
+    function update_mapped_model_number_status(){ 
+        $return = array();
+        $status = 0;
+        if($this->input->post("status") == "0"){
+            $status = 1;
+        }
+        $details = array(
+            "active" => $status,
+        );
+        
+        $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("id")), $details);
+        
+        $return['status'] = true; 
+        $return['message'] = "Status Updated Successfully";
         echo json_encode($return);
     }
 }
