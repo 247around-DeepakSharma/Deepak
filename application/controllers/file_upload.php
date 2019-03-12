@@ -43,7 +43,7 @@ class File_upload extends CI_Controller {
 
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
-       
+      
         if ($file_status['file_name_lenth']) {
 
             if ($file_status['status']) {
@@ -819,7 +819,7 @@ class File_upload extends CI_Controller {
                   $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                   $not_exist_data_msg .= $this->table->generate();
                   }
-                  /*
+                 
                   if(!empty($this->dataToInsert)){
                   $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
                   if ($insert_data) {
@@ -836,7 +836,7 @@ class File_upload extends CI_Controller {
                   $response['status'] = True;
                   $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
                   }
-                 */
+                 
                 
             }else{
                 $response['status'] = FALSE;
