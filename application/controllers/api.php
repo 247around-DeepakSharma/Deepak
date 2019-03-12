@@ -1267,7 +1267,7 @@ class Api extends CI_Controller {
     //verify the user no in the database.
     //Also, If user has given a missed call on 011-30017601 to confirm installation,
     //tag the booking accordingly.
-    if ($callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER || $callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER_KNOWLARITY) {
+    if ($callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER || $callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER_KNOWLARITY || $callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER_2) {
             //Send Notification to concerned employee for missed call notification
             $receiverArray['employee'] = explode(",",INSTALLATION_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS);
             $this->push_notification_lib->create_and_send_push_notiifcation(INSTALLATION_MISSED_CALL_NOTIFICATION,$receiverArray,array());
