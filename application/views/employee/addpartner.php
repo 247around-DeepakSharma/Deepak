@@ -122,6 +122,7 @@
                         <li><a id="12" href="#tabs-12"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
+                        <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <?php
                             }
                             else{
@@ -140,6 +141,7 @@
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
+                        <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
                         <?php
                             }
                         ?>
@@ -2548,7 +2550,7 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <p><b>Model Number</b></p>
+                            <p><b>Add Model Number</b></p>
                         </div>
                         <div class="panel-body">
                                 <div class="row">
@@ -2577,6 +2579,15 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Model Number List</b></p>
+                        </div>
+                            <div class="panel-body">
+                                <div class="row">
                                     <div class="col-md-12">
                                         <table class="table table-bordered table-hover table-striped" id="model_number_table">
                                             <thead>
@@ -2595,9 +2606,106 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                        </div>
+                   
+            </form>
+        </div> 
+        <div class="clear"></div>
+        <div id="container_15" style="display:none" class="form_container">
+                <div class="col-md-12">
+                    <form name="model_mapping" class="form-horizontal" id ="model_mapping"  action="#" method="POST" enctype="multipart/form-data">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Model Mapping</b></p>
+                        </div>
+                    <div class="panel-body">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mapping_service" class="col-md-4">Appliance*</label>
+                            <div class="col-md-6">
+                                <select class="form-control input-contact-name"  name="mapping_service" id="mapping_service" onchange="get_mapping_brand()" required>
+                                    <option value="" disabled selected>Select Appliances</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-            </form>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mapping_model_number" class="col-md-4">Model Number*</label>
+                            <div class="col-md-6">
+                                <select class="form-control input-contact-name"  name="mapping_model_number" id="mapping_model_number" required>
+                                    <option value="" disabled selected>Select Model Number</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mapping_brand" class="col-md-4">Brand*</label>
+                            <div class="col-md-6">
+                                <select class="form-control input-contact-name"  name="mapping_brand" id="mapping_brand" required>
+                                    <option value="" disabled selected>Select Brand</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mapping_category" class="col-md-4">Category*</label>
+                            <div class="col-md-6">
+                                <select class="form-control input-contact-name"  name="mapping_category" id="mapping_category" onchange="get_mapping_capacity()" required>
+                                    <option value="" disabled selected>Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mapping_capacity" class="col-md-4">Capacity</label>
+                            <div class="col-md-6">
+                                <select class="form-control input-contact-name"  name="mapping_capacity" id="mapping_capacity" required>
+                                    <option value="" disabled selected>Select Capacity</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-12"><center><button type="button" onclick="model_number_mapping()" class="btn btn-primary">Submit</button></center></div>
+                   </div>
+                 </div>
+                </form>
+                </div>
+                <div class="col-md-12">
+                <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Model Mapping List</b></p>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered table-hover table-striped" id="model_mapping_table">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No.</th>
+                                                <th>Model Number</th>
+                                                <th>Service</th>
+                                                <th>Brand</th>
+                                                <th>Category</th>
+                                                <th>Capacity</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div> 
         <div class="clear"></div>
       </div>   
@@ -2977,6 +3085,81 @@
         </div>
     </div>
     <!-- Modal end -->
+    
+    
+    <!--Modal start [ update map model number ]-->
+      <div id="map_appliance_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_title_action">Update Model Mapping </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                       <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_mapping_service">Service*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="edit_mapping_service" name="edit_mapping_service" onchange="get_mapping_brand('edit_')">
+                                              <option selected disabled>Select Service</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                           <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_mapping_model_number">Model Number*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="edit_mapping_model_number" name="edit_mapping_model_number">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_mapping_brand">Brand*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="edit_mapping_brand" name="edit_mapping_brand">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_mapping_category">Category*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="edit_mapping_category" name="edit_mapping_category" onchange="get_mapping_capacity('edit_')">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <select class="form-control" id="edit_mapping_capacity" name="edit_mapping_capacity">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" id="mapped_model_table_id">
+                            <button type="button" class="btn btn-success" onclick="update_model_number_mapping()">Submit</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Modal end-->
 
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
@@ -3426,44 +3609,50 @@
     
        });
     });
-    function load_form(tab_id){
-      total_div  = document.getElementsByClassName('form_container').length;
-      for(var i =1;i<=total_div;i++){
-          if(i != tab_id){
-            document.getElementById("container_"+i).style.display='none';
-            document.getElementById(i).style.background='#d9edf7';
-           }
-           else{
-               document.getElementById("container_"+i).style.display='block';
-               document.getElementById(i).style.background='#fff';
-           }
-      }
-     
-      if(tab_id === '6'){
-          get_partner_services();
-      }
-      else if(tab_id === '7'){
     
-          getserial_number_history();
-      }
-      else if(tab_id=== '9'){
-          get_warehouse_details();
-      }
-      else if(tab_id=== '14'){
-          get_model_number_list();
-      }
+    function load_form(tab_id){
+        total_div  = document.getElementsByClassName('form_container').length;
+        for(var i =1;i<=total_div;i++){
+            if(i != tab_id){
+              document.getElementById("container_"+i).style.display='none';
+              document.getElementById(i).style.background='#d9edf7';
+             }
+             else{
+                 document.getElementById("container_"+i).style.display='block';
+                 document.getElementById(i).style.background='#fff';
+             }
+        }
+
+        if(tab_id === '6'){
+            get_partner_services();
+        }
+        else if(tab_id === '7'){
+
+            getserial_number_history();
+        }
+        else if(tab_id=== '9'){
+            get_warehouse_details();
+        }
+        else if(tab_id=== '14'){
+            get_model_number_list();
+        }
+        else if(tab_id=== '15'){
+            get_model_mapped_list();
+        }
     }
+    
     function add_more_fields(id){
-     var buttonIdArray =  id.split("_");
-     id_number = parseInt(buttonIdArray[2]);
-    var div = document.getElementById('contract_holder_'+id_number),
-    clone = div.cloneNode(true); 
-    clone.id = "contract_holder_"+(id_number+1);
-    document.getElementById(id).id = buttonIdArray[0]+"_"+buttonIdArray[1]+"_"+(id_number+1);
-    document.getElementById("cloned").appendChild(clone); 
-    //var targetDiv = document.getElementById("contract_holder_"+(id_number+1)).getElementsByClassName("contract_type")[0];
-    //targetDiv.id = "contract_type_"+(id_number+1);
+        var buttonIdArray =  id.split("_");
+        id_number = parseInt(buttonIdArray[2]);
+        var div = document.getElementById('contract_holder_'+id_number),
+        clone = div.cloneNode(true); 
+        clone.id = "contract_holder_"+(id_number+1);
+        document.getElementById(id).id = buttonIdArray[0]+"_"+buttonIdArray[1]+"_"+(id_number+1);
+        document.getElementById("cloned").appendChild(clone); 
+        //var targetDiv = document.getElementById("contract_holder_"+(id_number+1)).getElementsByClassName("contract_type")[0];
+        //targetDiv.id = "contract_type_"+(id_number+1);
     }
+    
     function create_drop_down(brandMappingJson){
        var brandDropdownString  = '';
        var categoryDropdownString  = '';
@@ -4573,6 +4762,10 @@
                 $("#appliainces_0").select2();
                 $("#model_service_id").html(response);
                 $("#add_model_service").html(response);
+                $("#mapping_service").html(response);
+                $("#mapping_service").select2();
+                $("#edit_mapping_service").html(response);
+                $("#edit_mapping_service").select2();
                 $("#spare_part_all").attr("disabled", false);
             }
         });
@@ -4671,7 +4864,7 @@
                     exportOptions: {
                         columns: [ 0, 1, 2 ]
                     },
-                    title: 'notifications',
+                    title: 'model_number',
                 },
             ],
             "language":{ 
@@ -4757,7 +4950,7 @@
                         alert("Model Number Updated Successfully");
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("Eroor in Updating Model Number");
+                        alert("No Updation has been Done");
                     }
                 }
             });
@@ -4769,7 +4962,7 @@
         if($('#add_model_number').val().trim() === "" || $('#add_model_number').val().trim() === " "){
             alert("Please Enter Model Number");
         }else if(!$('#add_model_service').val()){
-            alert("Please Select Service");
+            alert("Please Select Appliance");
         }else{
             var data = {
                     submit_type:'add', 
@@ -4794,5 +4987,201 @@
                 }
             });
         }
+    }
+    
+    var model_mapping_datatable;
+    function get_model_mapped_list(){
+        if(model_mapping_datatable){
+            model_mapping_datatable.ajax.reload();
+        }
+        else{
+            model_mapping_datatable = $('#model_mapping_table').DataTable({
+                "processing": true, 
+                "serverSide": true,
+                "dom": 'lBfrtip',
+                "buttons": [
+                    {
+                        extend: 'excel',
+                        text: 'Export',
+                        exportOptions: {
+                            columns: [ 0, 1, 2 ]
+                        },
+                        title: 'model_mapping_list',
+                    },
+                ],
+                "language":{ 
+                    "processing": "<div class='spinner'>\n\
+                                        <div class='rect1' style='background-color:#db3236'></div>\n\
+                                        <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                        <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                        <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                    </div>"
+                },
+                select: {
+                    style: 'multi'
+                },
+                "order": [], 
+                "pageLength": 10,
+                "ordering": false,
+                "ajax": {
+                    "url": "<?php echo base_url(); ?>employee/inventory/get_partner_mapped_model_details",
+                    "type": "POST",
+                    data: function(d){ 
+                        d.partner_id = $("#partner_id").val();
+                        d.source = 'admin_crm';
+                    }
+                },
+                "deferRender": true       
+            });
+            $("#model_mapping_table_filter").css("text-align", "right");
+        }
+    }
+    
+    function get_mapping_brand(action=""){
+        
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_brands_from_service',
+            data:{partner_id:$("#partner_id").val(), service_id:$('#'+action+'mapping_service').val()},
+            success:function(response){
+                response = "<option disabled selected>Select Brand</option>"+response;
+                $('#'+action+'mapping_brand').html(response);
+                $('#'+action+'mapping_brand').select2();
+            }
+        });
+        
+        $.ajax({ 
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_category_from_service',
+            data:{partner_id:$('#partner_id').val(), service_id:$('#'+action+'mapping_service').val()},
+            success:function(response){
+                response = "<option  value='' disabled selected>Select Category</option>"+response;
+                $('#'+action+'mapping_category').html(response);
+                $('#'+action+'mapping_category').select2();
+            }
+        });
+        
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
+            data:{partner_id:$('#partner_id').val(), service_id:$('#'+action+'mapping_service').val()},
+            success:function(response){
+                if(response){
+                    $('#'+action+'mapping_model_number').html(response);
+                    $('#'+action+'mapping_model_number').select2();
+                }
+            }
+        });
+    }
+    
+    function get_mapping_capacity(action=""){
+         $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_capacity_for_partner',
+            data:{partner_id:$('#partner_id').val(), service_id:$('#'+action+'mapping_service').val(), category:$('#'+action+'mapping_category').val()},
+            success:function(response){
+                response = "<option value='' disabled selected>Select Capacity</option>"+response;
+                $('#'+action+'mapping_capacity').html(response);
+                $('#'+action+'mapping_capacity').select2();
+            }
+        });
+    }
+    
+    function model_number_mapping(){
+        if(!$("#mapping_model_number").val()){
+            alert("Please Select Model Number");
+            return false;
+        }
+        else if(!$("#mapping_service").val()){
+            alert("Please Select Service");
+            return false;
+        }
+        else if(!$("#mapping_brand").val()){
+            alert("Please Select Brand");
+            return false;
+        }
+        else if(!$("#mapping_category").val()){
+            alert("Please Select Category");
+            return false;
+        }
+        else{
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url();?>employee/inventory/process_model_number_mapping',
+                data:{partner_id:$('#partner_id').val(), service_id:$('#mapping_service').val(), category:$('#mapping_category').val(), brand:$('#mapping_brand').val(), capacity:$('#mapping_capacity').val(), model: $('#mapping_model_number').val()},
+                success:function(response){
+                    response = JSON.parse(response);
+                    console.log(response);
+                    if(response.status == true){
+                        alert("Model Mapped Successfully");
+                        model_mapping_datatable.ajax.reload();
+                    }
+                    else{
+                       alert("Error");
+                    }
+                    
+                }
+            });
+        }
+    }
+    
+    function edit_mapped_model(btn){
+        var data = JSON.parse($(btn).attr("data"));
+        $("#edit_mapping_service").val(data.service).trigger("change");
+        $('#map_appliance_model').modal('toggle');
+        setTimeout(function(){
+            $("#edit_mapping_model_number").val(data.model).trigger("change");
+            $("#edit_mapping_model_number").append("<option value='"+data.model+"'>"+data.model_number+"</option>");
+            $("#edit_mapping_brand").val(data.brand).trigger("change");
+            $("#edit_mapping_category").val(data.category).trigger("change");
+        }, 500);
+        setTimeout(function(){ 
+            $("#edit_mapping_capacity").val(data.capacity).trigger("change");
+        }, 1000);
+        $("#mapped_model_table_id").val(data.map_id);
+    }
+    
+    function update_model_number_mapping(){
+        if(!$("#edit_mapping_model_number").val()){
+            alert("Please Select Model Number");
+            return false;
+        }
+        else if(!$("#edit_mapping_service").val()){
+            alert("Please Select Service");
+            return false;
+        }
+        else if(!$("#edit_mapping_brand").val()){
+            alert("Please Select Brand");
+            return false;
+        }
+        else if(!$("#edit_mapping_category").val()){
+            alert("Please Select Category");
+            return false;
+        }
+        else{
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url();?>employee/inventory/update_model_number_mapping',
+                data:{partner_appliance_details_id:$("#mapped_model_table_id").val(), partner_id:$('#partner_id').val(), service_id:$('#edit_mapping_service').val(), category:$('#edit_mapping_category').val(), brand:$('#edit_mapping_brand').val(), capacity:$('#edit_mapping_capacity').val(), model: $('#edit_mapping_model_number').val()},
+                success:function(response){
+                    response = JSON.parse(response);
+                    alert(response.message);
+                    model_mapping_datatable.ajax.reload();
+                }
+            });
+        }
+    }
+    
+    function update_mapping_status(status, id){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/update_mapped_model_number_status',
+            data:{id:id, status:status},
+            success:function(response){
+                response = JSON.parse(response);
+                alert(response.message);
+                model_mapping_datatable.ajax.reload();
+            }
+        });
     }
 </script>
