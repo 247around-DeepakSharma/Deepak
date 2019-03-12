@@ -2052,5 +2052,16 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+        /**
+     * @desc: This function is used to insert data in hsn_code_details table
+     * @params: Array of data
+     * return : boolean
+     */
+    function insert_hsn_code_details($data){        
+        $this->db->insert('hsn_code_details', $data);
+        return $this->db->insert_id();
+    }
        
 }
