@@ -67,26 +67,28 @@ class partner_cb {
      * This array stores -- 2nd index -- booking status
      * @param: Partner Id
      * @param: status
-     * @return: funtion name
+     * @return: function name
      */
     function callback_array($partner_id, $state) {
-	$snapdeal_partner_id = SNAPDEAL_ID;
-        $jeeves_partner_id = JEEVES_ID;
 
 	$callback_array = array();
 
-	$callback_array[$snapdeal_partner_id]['Completed'] = 'update_status_complete_booking';
-	$callback_array[$snapdeal_partner_id]['Cancelled'] = 'update_status_cancel_booking';
-	$callback_array[$snapdeal_partner_id]['Pending'] = 'update_status_schedule_booking';
-	$callback_array[$snapdeal_partner_id]['FollowUp'] = 'update_status_schedule_booking';
-	$callback_array[$snapdeal_partner_id]['Rescheduled'] = 'update_status_reschedule_booking';
+	$callback_array[SNAPDEAL_ID]['Completed'] = 'update_status_complete_booking';
+	$callback_array[SNAPDEAL_ID]['Cancelled'] = 'update_status_cancel_booking';
+	$callback_array[SNAPDEAL_ID]['Pending'] = 'update_status_schedule_booking';
+	$callback_array[SNAPDEAL_ID]['FollowUp'] = 'update_status_schedule_booking';
+	$callback_array[SNAPDEAL_ID]['Rescheduled'] = 'update_status_reschedule_booking';
         
         
-        $callback_array[$jeeves_partner_id]['Pending'] = 'update_jeeves_status_schedule_booking';
-	$callback_array[$jeeves_partner_id]['FollowUp'] = 'update_jeeves_status_schedule_booking';
-	$callback_array[$jeeves_partner_id]['Rescheduled'] = 'update_jeeves_status_schedule_booking';
-        $callback_array[$jeeves_partner_id]['Completed'] = 'update_jeeves_status_schedule_booking';
-	$callback_array[$jeeves_partner_id]['Cancelled'] = 'update_jeeves_status_schedule_booking';
+        $callback_array[JEEVES_ID]['Pending'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[JEEVES_ID]['FollowUp'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[JEEVES_ID]['Rescheduled'] = 'update_jeeves_status_schedule_booking';
+        $callback_array[JEEVES_ID]['Completed'] = 'update_jeeves_status_schedule_booking';
+	$callback_array[JEEVES_ID]['Cancelled'] = 'update_jeeves_status_schedule_booking';
+        
+        $callback_array[AKAI_ID]['Pending'] = 'addNewAkaiBooking';
+        $callback_array[AKAI_ID]['Completed'] = 'update_akai_closed_details';
+        $callback_array[AKAI_ID]['Cancelled'] = 'update_akai_closed_details';
         
         $callback_array[PAYTM]['Pending'] = 'booking_updated_request';
 	$callback_array[PAYTM]['FollowUp'] = 'booking_updated_request';
@@ -107,12 +109,11 @@ class partner_cb {
      * @return: library name
      */
     function get_callback_library($partner_id) {
-	$snapdeal_partner_id = SNAPDEAL_ID;
-        $jeeves_partner_id = JEEVES_ID;
 
-	$library[$snapdeal_partner_id] = 'partner_sd_cb';
-        $library[$jeeves_partner_id] = 'partner_sd_cb';
+	$library[SNAPDEAL_ID] = 'partner_sd_cb';
+        $library[JEEVES_ID] = 'partner_sd_cb';
         $library[PAYTM] = 'paytm_cb';
+        $library[AKAI_ID] = 'partner_sd_cb';
 
 	return $library[$partner_id];
     }

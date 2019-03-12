@@ -625,7 +625,6 @@
           
       } else if(checkbox_value === 1){
           
-          $('#submitform').val("Please wait.....");
           return true;
           
       }
