@@ -4282,9 +4282,10 @@ class Inventory extends CI_Controller {
      */
     function upload_appliance_model_details(){
         $this->checkUserSession();
-        $data['services'] = $this->booking_model->selectservice();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_appliance_model_details',$data);
+        redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
+        //$data['services'] = $this->booking_model->selectservice();
+        //$this->miscelleneous->load_nav_header();
+        //$this->load->view('employee/upload_appliance_model_details',$data);
     }
     
     /**
