@@ -859,7 +859,7 @@ class File_upload extends CI_Controller {
             $response['message'] = "Models number does not exists in our record. $not_exist_data_msg";            
         }else{
             $response['status'] = True;            
-            $response['message'] = "File has been uploaded successfully. No New Mapping Created.";             
+            $response['message'] = "File has been uploaded successfully. New Mapping Created.";             
         }
         
         return $response;
