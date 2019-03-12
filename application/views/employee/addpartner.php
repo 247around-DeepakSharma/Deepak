@@ -2505,7 +2505,8 @@
                                             <span id="parts_type_err"></span>
                                         </div>
                                     </div>
-                                    
+                                </div>
+                                <div class="row"> 
                                     <div class="col-md-6">
                                          <label for="defective_parts_pic">Around Margin</label>
                                         <div class="form-group" style="padding: 10px;">
@@ -4824,14 +4825,14 @@
         }
         
         if(oow_around_margin == '' || oow_around_margin == null || oow_around_margin == 0){
-            $("#oow_around_margin_err").html("Please select part type ").css('color','red');
+            $("#oow_around_margin_err").html("Please enter around margin. ").css('color','red');
             return false;
         }else{
             $("#oow_around_margin_err").html('');
         }
         
         if(oow_vendor_margin == '' || oow_vendor_margin == null || oow_vendor_margin == 0){
-            $("#oow_vendor_margin_err").html("Please select part type ").css('color','red');
+            $("#oow_vendor_margin_err").html("Please enter vendor margin.").css('color','red');
             return false;
         }else{
             $("#oow_vendor_margin_err").html('');
