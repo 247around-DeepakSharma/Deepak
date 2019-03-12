@@ -2658,7 +2658,7 @@
                     </div> 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mapping_capacity" class="col-md-4">Capacity*</label>
+                            <label for="mapping_capacity" class="col-md-4">Capacity</label>
                             <div class="col-md-6">
                                 <select class="form-control input-contact-name"  name="mapping_capacity" id="mapping_capacity" required>
                                     <option value="" disabled selected>Select Capacity</option>
@@ -4860,7 +4860,7 @@
                     exportOptions: {
                         columns: [ 0, 1, 2 ]
                     },
-                    title: 'notifications',
+                    title: 'model_number',
                 },
             ],
             "language":{ 
@@ -4947,7 +4947,7 @@
                         alert("Model Number Updated Successfully");
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("Eroor in Updating Model Number");
+                        alert("No Updation has been Done");
                     }
                 }
             });
@@ -4959,7 +4959,7 @@
         if($('#add_model_number').val().trim() === "" || $('#add_model_number').val().trim() === " "){
             alert("Please Enter Model Number");
         }else if(!$('#add_model_service').val()){
-            alert("Please Select Service");
+            alert("Please Select Appliance");
         }else{
             var data = {
                     submit_type:'add', 
@@ -5003,7 +5003,7 @@
                         exportOptions: {
                             columns: [ 0, 1, 2 ]
                         },
-                        title: 'notifications',
+                        title: 'model_mapping_list',
                     },
                 ],
                 "language":{ 
@@ -5035,17 +5035,6 @@
     }
     
     function get_mapping_brand(action=""){
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
-            data:{partner_id:$('#partner_id').val(), service_id:$('#'+action+'mapping_service').val()},
-            success:function(response){
-                if(response){
-                    $('#'+action+'mapping_model_number').html(response);
-                    $('#'+action+'mapping_model_number').select2();
-                }
-            }
-        });
         
         $.ajax({
             type:'POST',
@@ -5066,6 +5055,18 @@
                 response = "<option  value='' disabled selected>Select Category</option>"+response;
                 $('#'+action+'mapping_category').html(response);
                 $('#'+action+'mapping_category').select2();
+            }
+        });
+        
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
+            data:{partner_id:$('#partner_id').val(), service_id:$('#'+action+'mapping_service').val()},
+            success:function(response){
+                if(response){
+                    $('#'+action+'mapping_model_number').html(response);
+                    $('#'+action+'mapping_model_number').select2();
+                }
             }
         });
     }
@@ -5123,11 +5124,11 @@
     
     function edit_mapped_model(btn){
         var data = JSON.parse($(btn).attr("data"));
-        console.log(data);
         $("#edit_mapping_service").val(data.service).trigger("change");
         $('#map_appliance_model').modal('toggle');
         setTimeout(function(){
             $("#edit_mapping_model_number").val(data.model).trigger("change");
+            $("#edit_mapping_model_number").append("<option value='"+data.model+"'>"+data.model_number+"</option>");
             $("#edit_mapping_brand").val(data.brand).trigger("change");
             $("#edit_mapping_category").val(data.category).trigger("change");
         }, 500);

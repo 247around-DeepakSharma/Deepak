@@ -5537,7 +5537,7 @@ class Inventory extends CI_Controller {
     
     function get_partner_mapped_model_table($model_list, $no, $source){
         $row = array();
-        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity));
+        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity, "model_number"=>$model_list->model));
         $row[] = $no;
         $row[] = $model_list->model;
         $row[] = $model_list->services;
