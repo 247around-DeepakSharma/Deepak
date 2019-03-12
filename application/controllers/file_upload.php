@@ -839,7 +839,7 @@ class File_upload extends CI_Controller {
                   $response['status'] = FALSE;
                   $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
                   }
-                  }else{
+                  }else{                      
                   $response['status'] = True;
                   $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
                   }
@@ -857,9 +857,6 @@ class File_upload extends CI_Controller {
         if (!empty($flag)) {
             $response['status'] = FALSE;
             $response['message'] = "Models number does not exists in our record. $not_exist_data_msg";            
-        }else{
-            $response['status'] = True;            
-            $response['message'] = "File has been uploaded successfully. New Mapping Created.";             
         }
         
         return $response;
