@@ -620,9 +620,9 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->parts_requested;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested."</span>"; 
         $row[] = $spare_list->parts_requested_type;
-        $row[] = $spare_list->parts_shipped;
+        $row[] = "<span class='line_break'>".$spare_list->parts_shipped."</span>"; ;
         $row[] = $spare_list->request_type;
         $row[] = $spare_list->purchase_price;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
