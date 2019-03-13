@@ -789,7 +789,7 @@ class Notify {
         return  $data;
     }
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
-        $this->validate_sms_length($phone_number,$body,$tag);
+        //$this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
