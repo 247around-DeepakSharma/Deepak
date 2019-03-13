@@ -791,7 +791,7 @@ class Notify {
         return  $data;
     }
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
-        //$this->validate_sms_length($phone_number,$body,$tag);
+        $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         log_message("info",__METHOD__);
         switch (ENVIRONMENT) {
@@ -943,7 +943,7 @@ class Notify {
                 $message .= "SMS Tag :".$tag."<br>";
                 $message .= "Body :".$body."<br><br>";
                 $message .= "<b>Note</b> If SMS tag is 'tag_not_available' please create a template for this sms and mark is_exception_for_length TRUE (If length is needed more than 160 Character)";
-                $to = DEVELOPER_EMAIL;
+                $to = 'chhavid@247around.com';
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "","sms_length_overruns");
             }
         }
