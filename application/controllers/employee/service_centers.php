@@ -1634,7 +1634,6 @@ class Service_centers extends CI_Controller {
 
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
-                $delivered_sp = array();
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
@@ -1839,7 +1838,7 @@ class Service_centers extends CI_Controller {
             }
         } else {
             $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-            $userSession = array('error' => $is_same_part['parts_requested'] . " already requested.");
+            $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
             $this->session->set_userdata($userSession);
             $this->update_booking_status($booking_id);
         }
@@ -5598,10 +5597,10 @@ class Service_centers extends CI_Controller {
         foreach($parts_requested as $value){
             //$value['parts_name']
             $data =$this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id, 
-                "status IN ('".SPARE_PARTS_REQUESTED."', '".SPARE_OOW_EST_REQUESTED."', '".SPARE_OOW_EST_GIVEN."') " => NULL,
+                "status IN ('".SPARE_PART_ON_APPROVAL."','".SPARE_PARTS_REQUESTED."', '".SPARE_OOW_EST_REQUESTED."', '".SPARE_OOW_EST_GIVEN."') " => NULL,
                 "parts_requested_type" => $value['parts_type']));
             if(!empty($data)){
-                $array = array("status" => false, "parts_requested_type" => $value['parts_requested_type']);
+                $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
                 break;
             }
         }
