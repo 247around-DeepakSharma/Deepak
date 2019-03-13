@@ -3934,6 +3934,14 @@ class Inventory extends CI_Controller {
                     );
             $this->table->set_template($template1);
             $this->table->set_heading(array('Part Name', 'Reference Invoice ID', 'Booking Id'));
+            
+            $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,", array('partners.id' => $invoiceData['processData'][0]['booking_partner_id']));
+            $gst_number = $entity_details[0]['gst_number'];
+            if (empty($gst_number)) {
+
+                $gst_number = TRUE;
+            }
+                    
             foreach ($invoiceData['processData'] as $value) {
                 //Push booking ID
                 array_push($booking_id_array, $value['booking_id']);
@@ -3942,40 +3950,35 @@ class Inventory extends CI_Controller {
                 $this->table->add_row($value['part_name'],$value['incoming_invoice_id'],$value['booking_id']);
                 
 
-                if (!array_key_exists($value['inventory_id'], $invoice)) {
-                    $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,", array('partners.id' => $value['booking_partner_id']));
-                    $gst_number = $entity_details[0]['gst_number'];
-                    if (empty($gst_number)) {
+                if (!array_key_exists($value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0), $invoice)) {
+                    
 
-                        $gst_number = TRUE;
-                    }
-
-                    $invoice[$value['inventory_id']]['description'] = $value['part_name'] . "Reference Invoice ID " . $value['incoming_invoice_id'];
-                    $invoice[$value['inventory_id']]['taxable_value'] = $value['rate'];
-                    $invoice[$value['inventory_id']]['invoice_id'] = $invoice_id;
-                    $invoice[$value['inventory_id']]['product_or_services'] = "Product";
-                    $invoice[$value['inventory_id']]['gst_number'] = $gst_number;
-                    $invoice[$value['inventory_id']]['company_name'] = $entity_details[0]['company_name'];
-                    $invoice[$value['inventory_id']]['company_address'] = $entity_details[0]['address'];
-                    $invoice[$value['inventory_id']]['district'] = $entity_details[0]['district'];
-                    $invoice[$value['inventory_id']]['pincode'] = $entity_details[0]['pincode'];
-                    $invoice[$value['inventory_id']]['state'] = $entity_details[0]['state'];
-                    $invoice[$value['inventory_id']]['rate'] = $value['rate'];
-                    $invoice[$value['inventory_id']]['gst_rate'] = $value['gst_rate'];
-                    $invoice[$value['inventory_id']]['qty'] = 1;
-                    $invoice[$value['inventory_id']]['hsn_code'] = $value['hsn_code'];
-                    $invoice[$value['inventory_id']]['inventory_id'] = $value['inventory_id'];
-                    $invoice[$value['inventory_id']]['partner_id'] = $value['booking_partner_id'];
-                    $invoice[$value['inventory_id']]['part_number'] = $value['part_number'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['description'] = $value['part_name'] . "Reference Invoice ID " . $value['incoming_invoice_id'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['taxable_value'] = $value['rate'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['invoice_id'] = $invoice_id;
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['product_or_services'] = "Product";
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['gst_number'] = $gst_number;
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['company_name'] = $entity_details[0]['company_name'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['company_address'] = $entity_details[0]['address'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['district'] = $entity_details[0]['district'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['pincode'] = $entity_details[0]['pincode'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['state'] = $entity_details[0]['state'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['rate'] = $value['rate'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['gst_rate'] = $value['gst_rate'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['qty'] = 1;
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['hsn_code'] = $value['hsn_code'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['inventory_id'] = $value['inventory_id'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['partner_id'] = $value['booking_partner_id'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['part_number'] = $value['part_number'];
                 } else {
-                    $invoice[$value['inventory_id']]['qty'] = $invoice[$value['inventory_id']]['qty'] + 1;
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['qty'] = $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['qty'] + 1;
                     if (strpos($invoice[$value['inventory_id']]['description'], $value['incoming_invoice_id']) == false) {
-                        $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description'] . " - " . $value['incoming_invoice_id'];
+                        $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['description'] = $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['description'] . " - " . $value['incoming_invoice_id'];
                     } else {
-                        $invoice[$value['inventory_id']]['description'] = $invoice[$value['inventory_id']]['description'];
+                        $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['description'] = $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['description'];
                     }
                    
-                    $invoice[$value['inventory_id']]['taxable_value'] = $invoice[$value['inventory_id']]['qty'] * $invoice[$value['inventory_id']]['rate'];
+                    $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['taxable_value'] = $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['qty'] * $invoice[$value['inventory_id']."_".$value['gst_rate']."_".round($value['rate'],0)]['rate'];
                 }
 
 

@@ -1037,9 +1037,9 @@ class Invoice_lib {
      * @return Array
      */
     function get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value){
-
-        if (!array_key_exists($value['inventory_id']."-".round($b['rate'],0), $processData)) {
-             $processData[$value['inventory_id']."-".round($b['rate'],0)] = array(
+        $gst_rate = ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+        if (!array_key_exists($value['inventory_id']."_".$gst_rate."-".round($b['rate'],0), $processData)) {
+             $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)] = array(
                 "qty" => $restQty,
                 "part_name" => $value['part_name'],
                 "part_number" => $value['part_number'],
@@ -1055,13 +1055,13 @@ class Invoice_lib {
                 "description" => $value['part_name'] . "Reference Invoice ID " . $b['invoice_id']
             );
         } else {
-            $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] + $restQty;
+            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] + $restQty;
             
-            $processData[$value['inventory_id']."-".round($b['rate'],0)]['taxable_value'] = processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] * $b['rate'];
+            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['taxable_value'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] * $b['rate'];
             
-            if (strpos($processData[$value['inventory_id']."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
-                $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
-                $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
+            if (strpos($processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
+                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
+                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
             } 
         }
         
