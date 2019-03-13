@@ -1629,9 +1629,10 @@ class Accounting extends CI_Controller {
     function update_cn_by_taxpro_gstr2a(){
         $invoices = $this->input->post('parent_inv');
         $checksum = $this->input->post('checksum');
+        $cn_remark = $this->input->post('cn_remark');
         $id = $this->input->post('id');
         foreach ($invoices as $invoice_id) {
-            $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+            $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum, 'gst_credit_note_remark'=>$cn_remark));
         }
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
     }
