@@ -742,6 +742,8 @@ class Invoice_lib {
                 'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type']);
             $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
 
+            $partner_details = array();
+
             if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                 $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0]['defective_return_to_entity_id']));
             } else if ($spare_parts_details[0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
