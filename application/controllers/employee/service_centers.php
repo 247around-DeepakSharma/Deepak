@@ -1634,7 +1634,6 @@ class Service_centers extends CI_Controller {
 
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
-                $delivered_sp = array();
                 $requested_part_name = array();
 
                 foreach ($parts_requested as $value) {
@@ -1839,7 +1838,7 @@ class Service_centers extends CI_Controller {
             }
         } else {
             $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-            $userSession = array('error' => $is_same_part['parts_requested'] . " already requested.");
+            $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
             $this->session->set_userdata($userSession);
             $this->update_booking_status($booking_id);
         }
@@ -5598,10 +5597,10 @@ class Service_centers extends CI_Controller {
         foreach($parts_requested as $value){
             //$value['parts_name']
             $data =$this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id, 
-                "status IN ('".SPARE_PARTS_REQUESTED."', '".SPARE_OOW_EST_REQUESTED."', '".SPARE_OOW_EST_GIVEN."') " => NULL,
+                "status IN ('".SPARE_PART_ON_APPROVAL."','".SPARE_PARTS_REQUESTED."', '".SPARE_OOW_EST_REQUESTED."', '".SPARE_OOW_EST_GIVEN."') " => NULL,
                 "parts_requested_type" => $value['parts_type']));
             if(!empty($data)){
-                $array = array("status" => false, "parts_requested_type" => $value['parts_requested_type']);
+                $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
                 break;
             }
         }
@@ -5736,9 +5735,19 @@ class Service_centers extends CI_Controller {
     function get_service_price_service_category(){
         $service_categories = $this->service_centre_charges_model->get_service_charge_details(array('service_id'=> $this->input->post("service_id"), 'category'=>$this->input->post("category"), 'capacity'=>$this->input->post("capacity")), 'service_category', 'service_category');
         $html = "<option disabled Selected>Select Capacity</option>";
-        foreach ($service_categories as $key => $value) {
+        foreach ($service_categories as $value) {
             $html .= "<option value='".$value['service_category']."'>".$value['service_category']."</option>";
         }
         echo $html;
+    }
+    /**
+     * @desc This function is used to load defective part summary number on the SF Dashboard
+     */
+    function get_defective_part_header_summary(){
+        $this->checkUserSession();
+        $data['defective_part'] = $this->invoices_model->get_pending_defective_parts($this->session->userdata('service_center_id'));
+        $data['oot_shipped'] = $this->invoices_model->get_oot_shipped_defective_parts($this->session->userdata('service_center_id'));
+        $data['shipped_parts'] = $this->invoices_model->get_intransit_defective_parts($this->session->userdata('service_center_id'));
+        $this->load->view('service_centers/defective_part_header_summary', $data);
     }
 }

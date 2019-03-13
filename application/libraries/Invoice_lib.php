@@ -741,6 +741,8 @@ class Invoice_lib {
                 'contact_person.entity_type' => $spare_parts_details[0]['defective_return_to_entity_type']);
             $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
 
+            $partner_details = array();
+
             if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                 $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0]['defective_return_to_entity_id']));
             } else if ($spare_parts_details[0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
@@ -1036,9 +1038,9 @@ class Invoice_lib {
      * @return Array
      */
     function get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value){
-
-        if (!array_key_exists($value['inventory_id']."-".round($b['rate'],0), $processData)) {
-             $processData[$value['inventory_id']."-".round($b['rate'],0)] = array(
+        $gst_rate = ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+        if (!array_key_exists($value['inventory_id']."_".$gst_rate."-".round($b['rate'],0), $processData)) {
+             $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)] = array(
                 "qty" => $restQty,
                 "part_name" => $value['part_name'],
                 "part_number" => $value['part_number'],
@@ -1054,13 +1056,13 @@ class Invoice_lib {
                 "description" => $value['part_name'] . "Reference Invoice ID " . $b['invoice_id']
             );
         } else {
-            $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] + $restQty;
+            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] + $restQty;
             
-            $processData[$value['inventory_id']."-".round($b['rate'],0)]['taxable_value'] = processData[$value['inventory_id']."-".round($b['rate'],0)]['qty'] * $b['rate'];
+            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['taxable_value'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] * $b['rate'];
             
-            if (strpos($processData[$value['inventory_id']."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
-                $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
-                $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
+            if (strpos($processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
+                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
+                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
             } 
         }
         
