@@ -1599,8 +1599,7 @@ class Accounting extends CI_Controller {
         $row[] = $total_tax;
         $row[] = $data_list['taxable_value'];
         $row[] = $data_list['invoice_amount'];
-        $html = "<select class='invoice_select' id='selected_invoice_".$no."' onchange='check_tax_amount(".$total_tax.", this)'>";
-        $html .= "<option selected disabled>Select Invoice</option>";
+        $html = "<select class='invoice_select select2-multiple2' id='selected_invoice_".$no."' onchange='check_tax_amount(".$total_tax.", this)' multiple>";
         foreach($data_list['vendor_invoices'] as $key => $value){
            $html .= "<option data-parent-inv='".$value['reference_invoice_id']."' data-tax='".$value['total_amount_collected']."' value='".$value['invoice_id']."'>".$value['invoice_id']." (".$value['total_amount_collected'].")</option>"; 
         }
@@ -1628,10 +1627,12 @@ class Accounting extends CI_Controller {
      * @return boolean message
      */
     function update_cn_by_taxpro_gstr2a(){
-        $invoice_id = $this->input->post('parent_inv');
+        $invoices = $this->input->post('parent_inv');
         $checksum = $this->input->post('checksum');
         $id = $this->input->post('id');
-        $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+        foreach ($invoices as $invoice_id) {
+            $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+        }
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
     }
     

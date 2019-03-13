@@ -2,7 +2,17 @@
     #GSTR2a_table_filter{
         text-align: right;
     }
+    .select2-results__option .wrap:before{
+    font-family:fontAwesome;
+    color:#999;
+    content:"\f096";
+    padding-right: 10px;
+    }
+    .select2-results__option[aria-selected=true] .wrap:before{
+    content:"\f14a";
+    }
 </style>
+<script src="https://rawgit.com/wasikuss/select2-multi-checkboxes/master/select2.multi-checkboxes.js"></script>
 <style type="text/css">
     #booking_form .form-group label.error {
     margin:4px 0 5px !important;
@@ -188,7 +198,13 @@
               $('#GSTR2a_table tr a.duplicate_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
             },
             "drawCallback": function (oSettings, response) {
-               $(".invoice_select").select2();
+                $(".invoice_select").select2();
+        
+                $('.invoice_select').select2MultiCheckboxes({
+                    templateSelection: function(selected, total) {
+                      return "Selected " + selected.length + " of " + total;
+                    }
+                });
             } 
         });
     });
@@ -253,8 +269,11 @@
     }
     
     function generate_credit_note(id, btn){
+        var parent_inv = [];
         var invoice_id = $("#selected_invoice_"+id).val();
-        var parent_inv = $("#selected_invoice_"+id).find(':selected').attr('data-parent-inv');
+        $("#selected_invoice_"+id).find(':selected').each(function(){
+            parent_inv.push($(this).attr('data-parent-inv'));
+        });
         var checksum = $(btn).attr("data-checksum");
         var id = $(btn).attr("data-id");
         if(invoice_id){
@@ -263,9 +282,10 @@
                 url: '<?php echo base_url(); ?>employee/accounting/update_cn_by_taxpro_gstr2a',
                 data: {invoice_id:invoice_id, checksum:checksum, id:id, parent_inv:parent_inv},
                 success: function (data) {
-                    console.log(data);
                     if(data==true){
-                        window.open("<?php echo base_url(); ?>employee/invoice/generate_gst_creditnote/"+invoice_id, '_blank');
+                        for (var index in invoice_id){ 
+                            window.open("<?php echo base_url(); ?>employee/invoice/generate_gst_creditnote/"+invoice_id[index], '_blank');
+                        } 
                         GSTR2a_datatable.ajax.reload();
                     }
                     else{
@@ -280,11 +300,18 @@
     }
     
     function check_tax_amount(tax_amount, select){
-        var inv_tax = $(select).find(':selected').attr('data-tax');
-        console.log('inv_tax '+inv_tax);
-        console.log('tax_amount '+tax_amount);
+        var inv_tax = 0;
         var considarable_tax1 = tax_amount-10;
         var considarable_tax2 = tax_amount+10;
+        
+        $(select).find(':selected').each(function(){
+            inv_tax = Number(inv_tax) + Number($(this).attr('data-tax'));
+        });
+        
+        //console.log('inv_tax '+inv_tax);
+        //console.log('considarable_tax1 '+considarable_tax1);
+        //console.log('considarable_tax2 '+considarable_tax2);
+        
         if(inv_tax >= considarable_tax1 && inv_tax <= considarable_tax2){ 
             $(select).closest("tr").find("button").attr("disabled", false);
         }
@@ -292,5 +319,5 @@
             $(select).closest("tr").find("button").attr("disabled", true);
         }
     }
-    
+ 
 </script>
