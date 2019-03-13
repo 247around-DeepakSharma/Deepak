@@ -1,97 +1,107 @@
-    <style>
-        .loader_img{
-             width: 22px;
-        }
-        </style>
-        <div class="row" style="margin: 0px;">
+<style>
+    .loader_img{
+    width: 22px;
+    }
+</style>
+<div class="row" style="margin: 0px;">
     <div class="col-md-10 col-md-offset-2" style="margin: 10px 89px;width: 88%;padding: 0px;">
         <div class="x_title" style="background: #2c9d9c; color: #fff;">
-                <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Performance Summary</h2>
-                    <div class="clearfix"></div>
-                </div>
-            <div style="margin-top: 0px;display: flex;font-size: 25px;border: 2px solid #2c9d9c;padding: 10px 210px;border-bottom: none;">
-                    <b>Rating:</b> &nbsp;
-                    <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b> &nbsp;
-                    <div class="sf-escalation">
-                        <b> <span style="color:#333;"> | </span> Overall Escalation:</b>
-                        <b><span id="sf-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
-                    </div>
-                    <div class="sf-escalation">
-                        <b> <span style="color:#333;"> | </span> Current Month Escalation:</b>
-                        <b><span id="sf-cm-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
-                    </div>
-            </div>
-                 <div id="header_summary" style="border: 2px solid #2c9d9c;padding: 19px 12px 0px;">
-            <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
-            </div>  
-    </div>
-   
-        <div class="col-md-10 col-sm-10 col-xs-10" style="padding: 0px;margin: 10px 90px;border: 2px solid #2c9d9c; width: 88%;background: #fff;">
-            <div class="x_title" style="background: #2c9d9c; color: #fff;">
-                <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">TAT Reporting<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="(Booking Completed on x Day / Total Completed Bookings (Within Selected Range))*100">?</button></h2>
-                    <div class="clearfix"></div>
-                </div>
-            <div class="filter_container" style="margin-top: 10px;">
-                                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Appliance</label>
-                            <select class="form-control filter_table" id="service_id_Completed" name="services">
-                                <option value="" selected="selected">All</option>
-                                <?php foreach($services as $val){ ?>
-                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Free For Customer">?</button></label>
-                            <select class="form-control filter_table" id="free_paid_Completed" name="free_paid">
-                                <option value="" selected="selected">All</option>
-                                <option value="Yes">Yes (In Warranty)</option>
-                                <option value="No">No (Out Of Warranty)</option>  
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_Completed" name="upcountry">
-                                <option value="">All</option>
-                                <option value="Yes">Yes</option>
-                                 <option value="No" selected="selected">No</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group col-md-3" style="    width: 18%;">
-                                         <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
-                                         <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id_Completed">
-                            </div>
-                    <div class="form-group col-md-3">
-                                         <label for="">Booking Status</label>
-                                        <select class="form-control"  ng-model="status" id="completed_status_Completed">
-                                            <option value="">All</option>
-                                            <option value="Completed" ng-selected="true">Completed</option>
-                                            <option value="Cancelled">Cancelled</option>
-                                        </select>
-                    </div>
-                <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_tat_report()">Apply Filters</button>
-             </div>
+            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Performance Summary</h2>
             <div class="clearfix"></div>
-            <hr style="border: 1px solid #2c9d9c;">  
-            <div class="col-md-12" id="tat_holder">
-                <table class="table table-bordered" id="tat_table">
-                    <thead>
-                        <tr>
+        </div>
+        <div style="margin-top: 0px;display: flex;font-size: 25px;border: 2px solid #2c9d9c;padding: 10px 210px;border-bottom: none;">
+            <b>Rating:</b> &nbsp;
+            <b><span <?php if($rating > '3.5') { echo "class='text-success'";}else{echo "class='text-danger'";}?>><?php echo $rating; ?> /5</span></b> &nbsp;
+            <div class="sf-escalation">
+                <b> <span style="color:#333;"> | </span> Overall Escalation:</b>
+                <b><span id="sf-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
+            </div>
+            <div class="sf-escalation">
+                <b> <span style="color:#333;"> | </span> Current Month Escalation:</b>
+                <b><span id="sf-cm-escalation-value" class="text-danger"></span><span class="text-danger">%</span></b>&nbsp;
+            </div>
+        </div>
+        <div id="header_summary" style="border: 2px solid #2c9d9c;padding: 19px 12px 0px;">
+            <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+        </div>
+    </div>
+    
+    <div class="col-md-10 col-md-offset-2" style="margin: 10px 89px;width: 88%;padding: 0px;">
+        <div class="x_title" style="background: #2c9d9c; color: #fff;">
+            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Defective Part Summary</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div id="defective_header_summary" style="border: 2px solid #2c9d9c;padding: 19px 12px 0px;">
+            <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+        </div>
+    </div>
+    
+    <div class="col-md-10 col-sm-10 col-xs-10" style="padding: 0px;margin: 10px 90px;border: 2px solid #2c9d9c; width: 88%;background: #fff;">
+        <div class="x_title" style="background: #2c9d9c; color: #fff;">
+            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">TAT Reporting<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="(Booking Completed on x Day / Total Completed Bookings (Within Selected Range))*100">?</button></h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="filter_container" style="margin-top: 10px;">
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Appliance</label>
+                        <select class="form-control filter_table" id="service_id_Completed" name="services">
+                            <option value="" selected="selected">All</option>
+                            <?php foreach($services as $val){ ?>
+                            <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Is Free <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                            color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Free For Customer">?</button></label>
+                        <select class="form-control filter_table" id="free_paid_Completed" name="free_paid">
+                            <option value="" selected="selected">All</option>
+                            <option value="Yes">Yes (In Warranty)</option>
+                            <option value="No">No (Out Of Warranty)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Is Upcountry</label>
+                        <select class="form-control filter_table" id="upcountry_Completed" name="upcountry">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected="selected">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3" style="    width: 18%;">
+                <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
+                <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id_Completed">
+            </div>
+            <div class="form-group col-md-3">
+                <label for="">Booking Status</label>
+                <select class="form-control"  ng-model="status" id="completed_status_Completed">
+                    <option value="">All</option>
+                    <option value="Completed" ng-selected="true">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_tat_report()">Apply Filters</button>
+        </div>
+        <div class="clearfix"></div>
+        <hr style="border: 1px solid #2c9d9c;">
+        <div class="col-md-12" id="tat_holder">
+            <table class="table table-bordered" id="tat_table">
+                <thead>
+                    <tr>
                         <th>Service</th>
                         <th>Day 0</th>
                         <th>Day 1</th>
@@ -101,128 +111,206 @@
                         <th>Day 5-Day 7</th>
                         <th>Day 8-Day 15</th>
                         <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>Installation</b></td>
-                            <td id="Installation_Completed_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Completed_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Repair Without Spare</b></td>
-                            <td id="Repair_without_part_Completed_0" style="background: #c1591c;color: #fff;" class="blinking"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Completed_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Repair With Spare</b></td>
-                            <td id="Repair_with_part_Completed_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Completed_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>All Repair</b></td>
-                            <td id="Repair_Completed_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Completed_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td id="total_Completed_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Completed_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>Installation</b></td>
+                        <td id="Installation_Completed_0" style="background: #c1591c;color: #fff;" class="blinking">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Completed_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Repair Without Spare</b></td>
+                        <td id="Repair_without_part_Completed_0" style="background: #c1591c;color: #fff;" class="blinking">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Completed_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Repair With Spare</b></td>
+                        <td id="Repair_with_part_Completed_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Completed_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>All Repair</b></td>
+                        <td id="Repair_Completed_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Completed_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td id="total_Completed_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Completed_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-            
-            
-            <div class="col-md-10 col-sm-10 col-xs-10" style="padding: 0px;margin: 10px 90px;border: 2px solid #2c9d9c; width: 88%;background: #fff;">
-            <div class="x_title" style="background: #2c9d9c; color: #fff;">
-                <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Pending Bookings<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;"></button></h2>
-                    <div class="clearfix"></div>
-                </div>
-            <div class="filter_container" style="margin-top: 10px;">
-                                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Appliance</label>
-                            <select class="form-control filter_table" id="service_id_Pending" name="services">
-                                <option value="" selected="selected">All</option>
-                                <?php foreach($services as $val){ ?>
-                                <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Free For Customer">?</button></label>
-                            <select class="form-control filter_table" id="free_paid_Pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
-                                <option value="Yes">Yes (In Warranty)</option>
-                                <option value="No">No (Out Of Warranty)</option>  
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Is Upcountry</label>
-                            <select class="form-control filter_table" id="upcountry_Pending" name="upcountry">
-                                <option value="">All</option>
-                                <option value="Yes">Yes</option>
-                                 <option value="No" selected="selected">No</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group col-md-3" style="    width: 18%;">
-                                         <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
-                                         <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id_Pending">
-                            </div>
-                <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_pending_report()">Apply Filters</button>
-             </div>
+    </div>
+    <div class="col-md-10 col-sm-10 col-xs-10" style="padding: 0px;margin: 10px 90px;border: 2px solid #2c9d9c; width: 88%;background: #fff;">
+        <div class="x_title" style="background: #2c9d9c; color: #fff;">
+            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Pending Bookings<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                color: #fff;border: none;"></button></h2>
             <div class="clearfix"></div>
-            <hr style="border: 1px solid #2c9d9c;">  
-            <div class="col-md-12" id="tat_holder">
-                <table class="table table-bordered" id="tat_table">
-                    <thead>
-                        <tr>
+        </div>
+        <div class="filter_container" style="margin-top: 10px;">
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 160px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Appliance</label>
+                        <select class="form-control filter_table" id="service_id_Pending" name="services">
+                            <option value="" selected="selected">All</option>
+                            <?php foreach($services as $val){ ?>
+                            <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Is Free <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                            color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Free For Customer">?</button></label>
+                        <select class="form-control filter_table" id="free_paid_Pending" name="free_paid">
+                            <option value="" selected="selected">All</option>
+                            <option value="Yes">Yes (In Warranty)</option>
+                            <option value="No">No (Out Of Warranty)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label for="">Is Upcountry</label>
+                        <select class="form-control filter_table" id="upcountry_Pending" name="upcountry">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected="selected">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3" style="    width: 18%;">
+                <label for="">Booking Completed Date <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+                    color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="By Default last 30 days">?</button></label>
+                <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id_Pending">
+            </div>
+            <button class="btn btn-primary" style="margin-top: 23px;background: #c1591c;border-color: #c1591c;" onclick="fetch_filtered_pending_report()">Apply Filters</button>
+        </div>
+        <div class="clearfix"></div>
+        <hr style="border: 1px solid #2c9d9c;">
+        <div class="col-md-12" id="tat_holder">
+            <table class="table table-bordered" id="tat_table">
+                <thead>
+                    <tr>
                         <th>Service</th>
                         <th>Day 0</th>
                         <th>Day 1</th>
@@ -232,77 +320,155 @@
                         <th>Day 5-Day 7</th>
                         <th>Day 8-Day 15</th>
                         <th>>15</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>Installation</b></td>
-                            <td id="Installation_Pending_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Installation_Pending_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Repair Without Spare</b></td>
-                            <td id="Repair_without_part_Pending_0" ><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_without_part_Pending_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Repair With Spare</b></td>
-                            <td id="Repair_with_part_Pending_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_with_part_Pending_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>All Repair</b></td>
-                            <td id="Repair_Pending_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="Repair_Pending_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td id="total_Pending_0"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_1"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_2"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_3"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_4"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_5"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_8"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                            <td id="total_Pending_16"><center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>Installation</b></td>
+                        <td id="Installation_Pending_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Installation_Pending_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Repair Without Spare</b></td>
+                        <td id="Repair_without_part_Pending_0" >
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_without_part_Pending_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Repair With Spare</b></td>
+                        <td id="Repair_with_part_Pending_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_with_part_Pending_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>All Repair</b></td>
+                        <td id="Repair_Pending_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="Repair_Pending_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td id="total_Pending_0">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_1">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_2">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_3">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_4">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_5">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_8">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                        <td id="total_Pending_16">
+                            <center>  <img class="loader_img" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-            
-            
+    </div>
 </div>
 <script>
     $(document).ready(function () {
-//        var d = new Date();
-//        n = d.getMonth();
-//        y = d.getFullYear();
-//        date = d.getDate();
+    //        var d = new Date();
+    //        n = d.getMonth();
+    //        y = d.getFullYear();
+    //        date = d.getDate();
         $('input[id="completed_daterange_id"]').daterangepicker({
            timePicker: true,
            timePickerIncrement: 30,
@@ -313,6 +479,7 @@
            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
        });
         get_header_summary();
+        get_defective_header_summary();
         get_sf_tat_report("Installation","Completed");
         get_sf_tat_report("Repair_with_part","Completed");
         get_sf_tat_report("Repair_without_part","Completed");
@@ -338,8 +505,8 @@
                         $('#sf-escalation-value').html(data['total_escalation_per']);
                         $('#sf-cm-escalation-value').html(data['current_month_escalation_per']);
                     }
-
-
+    
+    
                 }
             });
         }
@@ -437,10 +604,10 @@
         }); 
     }
      $(function() {
-//     var d = new Date();
-//        n = d.getMonth();
-//        y = d.getFullYear();
-//        date = d.getDate();
+    //     var d = new Date();
+    //        n = d.getMonth();
+    //        y = d.getFullYear();
+    //        date = d.getDate();
         $('input[name="daterange_completed_bookings"]').daterangepicker({
              timePicker: true,
         timePickerIncrement: 30,
@@ -450,22 +617,22 @@
         startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
         //startDate: y+'-'+n+'-'+date
     });
-});
-function fetch_filtered_tat_report(){
+    });
+    function fetch_filtered_tat_report(){
     get_sf_tat_report("Installation","Completed");
     get_sf_tat_report("Repair_with_part","Completed");
     get_sf_tat_report("Repair_without_part","Completed");
     get_sf_tat_report("Repair_with_part:Repair_without_part","Completed");
     get_sf_tat_report("not_set" ,"Completed");
-}
-function fetch_filtered_pending_report(){
+    }
+    function fetch_filtered_pending_report(){
     get_sf_tat_report("Installation","Pending");
     get_sf_tat_report("Repair_with_part","Pending");
     get_sf_tat_report("Repair_without_part","Pending");
     get_sf_tat_report("Repair_with_part:Repair_without_part","Pending");
     get_sf_tat_report("not_set" ,"Pending");
-}
-function get_header_summary(){
+    }
+    function get_header_summary(){
        $.ajax({
          type: 'POST',
          url: '<?php echo base_url(); ?>employee/service_centers/get_header_summary/',
@@ -476,17 +643,28 @@ function get_header_summary(){
        });
     
     }
-    </script>
-    <style>
-        .blinking{
+    
+    function get_defective_header_summary(){
+       $.ajax({
+         type: 'POST',
+         url: '<?php echo base_url(); ?>employee/service_centers/get_defective_part_header_summary/',
+         success: function (data) {
+          $("#defective_header_summary").html(data);   
+    
+         }
+       });
+    
+    }
+</script>
+<style>
+    .blinking{
     animation:blinkingText 0.5s infinite;
-}
-@keyframes blinkingText{
+    }
+    @keyframes blinkingText{
     0%{     background-color: #008000;    }
     49%{    background-color: #008000; }
     50%{    background-color: #c1591c; }
     99%{    background-color:#c1591c;  }
     100%{   background-color: #008000;    }
-}
-        </style>
-
+    }
+</style>
