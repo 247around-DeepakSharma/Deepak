@@ -2475,54 +2475,90 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
 
              }
-                function pincode_rm_wise($rm_id)
-                {
-                    $vendorStructuredArray=array();
-                     $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",array("employee_relation.agent_id"=>$rm_id),array("employee"=>"employee_relation.agent_id = employee.id")
-                           ,NULL,NULL,NULL,NULL,array());
-                     
-                     $state_code=$rmData['0']['state_code'];
-                     $explode_state_arr=explode(',',$state_code);
-                     $result=$this->vendor_model->get_india_pincode_group_by_state($explode_state_arr);
-                    
-                    if(count($result)>0)
-                    {
-                        $pincode_state_wise=$result;
-                        foreach($pincode_state_wise as $value)
-                        {
-                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+             function structured_missing_servicability_data_by($indiaPincodeArray,$vendorPincodeArray,$entity){
+                $tempEntity = 'state_id';
+                if($entity == 'district'){
+                    $tempEntity  = 'City';
+                }
+                 $tempIndiaPincodeArray = $tempVendorPincodeArray = array();
+                  foreach($indiaPincodeArray as $values){
+                        $key = strtolower(preg_replace('/\s*/', '', $values[$entity]));
+                        if(array_key_exists('state_'.$key, $tempIndiaPincodeArray)){
+                            $tempIndiaPincodeArray['state_'.$key]['total_pincode'] = $tempIndiaPincodeArray['state_'.$key]['total_pincode']+$values['total_pincode'];
                         }
-                    }
-                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state($explode_state_arr);
-                    $state_arr=$this->vendor_model->get_active_state();
-                    $active_services=$this->vendor_model->get_active_services();
-                    $count = count($vendor_mapping_data);
-                    for($i = 0; $i<=$count-1;$i++){ 
-                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
-                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['Total_pincode']=$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
-                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
+                        else{
+                            $tempIndiaPincodeArray['state_'.$key]['total_pincode'] = $values['total_pincode'];
+                        }
+                        $tempIndiaPincodeArray['state_'.$key]['district'] = $values['district'];
+                        $tempIndiaPincodeArray['state_'.$key]['state'] = $values['state'];
+                        $tempIndiaPincodeArray['state_'.$key]['state_id'] = $values['state_id'];
+                  }
+                  foreach($vendorPincodeArray as $values){
+                      $key = strtolower(preg_replace('/\s*/', '', $values[$tempEntity]));
+                      if(array_key_exists('state_'.$key, $tempIndiaPincodeArray)){
+                        if(array_key_exists('state_'.$key, $tempVendorPincodeArray)){
+                            if(array_key_exists('appliance_'.$values['Appliance_ID'], $tempVendorPincodeArray['state_'.$key])){
+                                $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['total_pincode'] = $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['total_pincode']+$values['total_pincode'];
+                            }
+                            else{
+                                $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['total_pincode'] = $values['total_pincode'];
+                            }
+                         }
+                         else{
+                              $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['total_pincode'] = $values['total_pincode'];
+                         }
+                      $tempVendorPincodeArray['state_'.$key]['City'] = $values['City'];
+                      $tempVendorPincodeArray['state_'.$key]['state'] = $values['state'];
+                      $tempVendorPincodeArray['state_'.$key]['state_id'] = $values['state_id'];
+                      $tempVendorPincodeArray['state_'.$key]['agent_id'] = $values['agent_id'];
+                      $tempVendorPincodeArray['state_'.$key]['full_name'] = $values['full_name'];
+                      $tempVendorPincodeArray['state_'.$key]['agent_id'] = $values['agent_id'];
+                      $tempVendorPincodeArray['state_'.$key]['total_india_pincode'] = $tempIndiaPincodeArray['state_'.$key]['total_pincode'];
+                      $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['missing_pincode'] = $tempVendorPincodeArray['state_'.$key]['total_india_pincode'] - $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['total_pincode'];
+                      $tempVendorPincodeArray['state_'.$key]['appliance_'.$values['Appliance_ID']]['Appliance_ID'] = $values['Appliance_ID'];
                       }
-                    }
-                        log_message('info', __METHOD__ . "=>rm_details =".print_r($rmData['0'],TRUE));
-
-                        $data=array(
-                           'service_arr'=>$active_services,
-                           'state_arr'=>$state_arr,
-                           'vendorStructuredArray'=>$vendorStructuredArray,
-                            'rm_arr'=>$explode_state_arr
-                         );
-                 if($this->session->userdata('userType') == 'employee'){
+                  } 
+                  return $tempVendorPincodeArray;
+             }
+            function get_servicability_missing_data_district($entity,$rmID = NULL,$appliance_id =NULL){
+                $select = "district,india_pincode.state,state_code.id as state_id,COUNT(DISTINCT pincode) as total_pincode"; 
+                $join['state_code'] = 'india_pincode.state=state_code.state';
+                $groupBY = array('district');
+                $indiaPincodeArray = $this->reusable_model->get_search_result_data("india_pincode",$select,NULL,$join,NULL,NULL,NULL,NULL,$groupBY);
+                $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,employee_relation.agent_id,employee.full_name,COUNT(DISTINCT pincode) as total_pincode"; 
+                $vendorJoin['state_code'] = 'vendor_pincode_mapping.State=state_code.state';
+                $vendorJoin['employee_relation'] = 'FIND_IN_SET(vendor_pincode_mapping.Vendor_ID,employee_relation.service_centres_id)';
+                $vendorJoin['employee'] = 'employee.id=employee_relation.agent_id';
+                $vendorGroupBY = array('City','vendor_pincode_mapping.Appliance_ID');
+                $where = NULL;
+                if($rmID){
+                    $where['employee_relation.agent_id'] = $rmID;
+                }
+                 if($appliance_id){
+                    $where['vendor_pincode_mapping.Appliance_ID'] = $appliance_id;
+                }
+                $vendorPincodeArray = $this->reusable_model->get_search_result_data("vendor_pincode_mapping",$vendorSelect,$where,$vendorJoin,NULL,NULL,NULL,NULL,$vendorGroupBY);
+                return $this->structured_missing_servicability_data_by($indiaPincodeArray,$vendorPincodeArray,$entity);
+            }
+            function get_district_missing_servicablity_data(){
+                $rm_id = $this->input->post('rm_id');
+                if($this->input->post('rm_id') == '000'){
+                    $rm_id = NULL;
+                }
+                $data['district_data'] = $this->get_servicability_missing_data_district('district',$this->input->post('rm_id'),NULL);
+                $data['services'] = $this->vendor_model->get_active_services();
+                $this->load->view('employee/missing_servicablity_report',$data);
+            }
+            function pincode_rm_wise($rm_id = NULL){ 
+                if($rm_id == '000'){
+                    $rm_id = NULL;
+                }
+                $data['state_data'] = $this->get_servicability_missing_data_district("state_id",$rm_id);
+                $data['services'] = $this->vendor_model->get_active_services();
+                $data['rm_id'] = $rm_id;
                 $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-                }
-                else if($this->session->userdata('userType') == 'partner'){
-                    $this->miscelleneous->load_partner_nav_header();
-                }
                 $this->load->view('dashboard/rm_state_wise_pincode_view',$data);
                 $this->load->view('dashboard/dashboard_footer');
-               
            }
 
     /*
@@ -2761,59 +2797,57 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
-    
-    function get_rm_missing_pincode_data()
-    {
-        $rm_arr=array();$vendorStructuredArray=array();
-        $result=$this->vendor_model->get_india_pincode_group_by_state(array());
-                    if(count($result)>0)
-                    {
-                        $pincode_state_wise=$result;
-                        foreach($pincode_state_wise as $value)
-                        {
-                            $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
-                        }
-                    }
-                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
-                           ,NULL,NULL,NULL,NULL,array());
-                    $active_services=$this->vendor_model->get_active_services();
-                    $state_arr=$this->vendor_model->get_active_state();
-                    $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
-                    $count = count($vendor_mapping_data);
-                    for($i = 0; $i<=$count-1;$i++){ 
-                        if(array_key_exists('state_'.$vendor_mapping_data[$i]['id'], $india_pincode)){
-                        $coveragePincde=$vendor_mapping_data[$i]['total_pincode'];
-                        $missingPincode = $india_pincode['state_'.$vendor_mapping_data[$i]['id']]-$vendor_mapping_data[$i]['total_pincode'];
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode'] = $missingPincode;
-                        $vendorStructuredArray['state_'.$vendor_mapping_data[$i]['id']]['appliance_'.$vendor_mapping_data[$i]['Appliance_ID']]['missing_pincode_per'] = $missingPincode/$india_pincode['state_'.$vendor_mapping_data[$i]['id']];
-                                          
-                        }
-                    }
-                    if(!empty($rmData))
-                    {
-                        foreach($rmData as $value)
-                       {
-                            log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
-                            $state_code=$value['state_code'];
-                            $rm_name=$value['full_name'];
-                            $rm_id=$value['agent_id'];
-                            $explode=explode(',',$state_code);
-
-                            $rm_arr['rm_'.$value['agent_id']]['state_code']=$explode;
-                            $rm_arr['rm_'.$value['agent_id']]['full_name']=$rm_name;
-                            $rm_arr['rm_'.$value['agent_id']]['rm_id']=$rm_id;
-                       }
-                    }
-                    $missing_pincode_rm=array(
-                           'service_arr'=>$active_services,
-                           'state_arr'=>$state_arr,
-                           'vendorStructuredArray'=>$vendorStructuredArray,
-                            'rm_arr'=>$rm_arr,
-                            'india_pincode'=>$india_pincode
-                           );
-                  //make view
-                    $rmmissingview=$this->load->view('dashboard/rm_missing_report',$missing_pincode_rm,true);
-                    echo $rmmissingview;
+    function get_servicability_missing_data($rmID = NULL){
+        $rm_arr = $vendorStructuredArray = $stateCodeArray =array();
+        $pincode_state_wise =$this->vendor_model->get_india_pincode_group_by_state(array());
+        if(count($pincode_state_wise)>0){
+            foreach($pincode_state_wise as $value) {
+                $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
+            }
+        }
+        $totalPincode = array_sum(array_values($india_pincode));
+        $where = NULL;
+        if($rmID){
+            $where['agent_id'] = $rmID;
+        }
+        $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",$where,array("employee"=>"employee_relation.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
+        $active_services=$this->vendor_model->get_active_services();
+        $state_arr=$this->vendor_model->get_active_state();
+         if(!empty($rmData)){
+            foreach($rmData as $value){
+                log_message('info', __METHOD__ . "=>rm_details =".print_r($value,TRUE));
+                $rm_arr['rm_'.$value['agent_id']]['state_code'] = explode(',',$value['state_code']);
+                $rm_arr['rm_'.$value['agent_id']]['full_name'] = $value['full_name'];
+                $rm_arr['rm_'.$value['agent_id']]['rm_id'] = $value['agent_id'];
+           }
+        }
+        if($rmID){
+            $stateCodeArray = $rm_arr['rm_'.$rmID]['state_code'];
+        }
+        $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state($stateCodeArray);
+        foreach($vendor_mapping_data as $pincodeVendorArray){ 
+            if(array_key_exists('state_'.$pincodeVendorArray['id'], $india_pincode)){
+                $missingPincode = $india_pincode['state_'.$pincodeVendorArray['id']] - $pincodeVendorArray['total_pincode'];
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode'] = $missingPincode;
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['servicable_pincode'] = $pincodeVendorArray['total_pincode'];
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['total_pincode'] = $india_pincode['state_'.$pincodeVendorArray['id']];
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode_per'] = round($missingPincode/$india_pincode['state_'.$pincodeVendorArray['id']],0);
+            }
+        }
+        $missing_pincode_rm=array(
+               'service_arr'=>$active_services,
+               'state_arr'=>$state_arr,
+               'vendorStructuredArray'=>$vendorStructuredArray,
+                'rm_arr'=>$rm_arr,
+                'india_pincode'=>$india_pincode,
+                'all_pincode' => $totalPincode
+               );
+        return $missing_pincode_rm;
+    }
+    function get_rm_missing_pincode_data(){
+        $data = $this->get_servicability_missing_data();
+        $rmmissingview=$this->load->view('dashboard/rm_missing_report',$data,true);
+        echo $rmmissingview;
     }
     
     function get_am_booking_data()

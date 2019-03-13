@@ -1968,25 +1968,20 @@ class vendor_model extends CI_Model {
      /*
      * @desc This is used to get distinct count of pincode of particular state from india pincode table
      */
-    function get_india_pincode_group_by_state($array=array())
-    {
-        $return_arr=array();
+    function get_india_pincode_group_by_state($array=array()){
         $this->db->select('distinct(`india_pincode`.`state`),count(DISTINCT pincode) as state_pincode_count,state_code.id as state_id');
         $this->db->from('india_pincode');
         $this->db->join('state_code','india_pincode.state=state_code.state','left');
-        if(!empty($array))
-        {
+        if(!empty($array)){
             $this->db->where_in('state_code.id',$array);
         }
         $this->db->group_by('india_pincode.state');
-        $result=$this->db->get()->result_array();
-        return $result;
+        return $this->db->get()->result_array();
     }
     /*
      * @desc This is used to get distinct count of pincode group by state and appliance from vendor pincode mapping
      */
-    function get_vendor_mapping_groupby_applliance_state($array=array())
-    {
+    function get_vendor_mapping_groupby_applliance_state($array=array()){
         $this->db->select('distinct vendor_pincode_mapping.State,state_code.id ,Appliance_ID,count(distinct vendor_pincode_mapping.Pincode) as total_pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('state_code','vendor_pincode_mapping.State=state_code.state','left');
