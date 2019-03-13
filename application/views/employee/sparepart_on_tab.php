@@ -1,6 +1,9 @@
 <style>
     .disabled_button{
         pointer-events:none;
+    }    
+    .line_break{
+        word-break: break-all;
     }
 </style>
 <div role="tabpanel" class="tab-pane" id="estimate_cost_given">
