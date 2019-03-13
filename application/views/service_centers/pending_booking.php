@@ -47,6 +47,17 @@
             <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
         </div>
         <?php } ?>
+        
+        <div class="col-md-12 text-center" >
+            <div style="margin-top:10px; font-size: 25px; text-align: center">
+                    <b>Defective Part Summary</b> &nbsp;
+                    
+
+            </div>
+    </div>
+        <div class="col-md-12" id="defective_header_summary" style="margin-top:10px;">
+            <center>  <img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+        </div>
         <div class="col-md-12">
             <h2 style="display:inline-flex;">Pending Bookings</h2>
             <div class="pull-right" style=' margin-top: 30px;margin-right: 15px;'>
@@ -290,6 +301,7 @@ span.stars span {
     $(function() { $( "#datepicker" ).datepicker({  minDate: new Date });});
     $(document).ready(function() {
     get_header_summary();
+    get_defective_header_summary();
     pending_booking_on_tab();
     });
     
@@ -386,6 +398,18 @@ span.stars span {
          url: '<?php echo base_url(); ?>employee/service_centers/get_header_summary/',
          success: function (data) {
           $("#header_summary").html(data);   
+    
+         }
+       });
+    
+    }
+    
+    function get_defective_header_summary(){
+       $.ajax({
+         type: 'POST',
+         url: '<?php echo base_url(); ?>employee/service_centers/get_defective_part_header_summary/',
+         success: function (data) {
+          $("#defective_header_summary").html(data);   
     
          }
        });
