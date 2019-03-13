@@ -148,6 +148,36 @@
             </div>
         </div>
     </div>
+
+    <div id="cn_remarks_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Credit Note Remark <button type="button" class="close" data-dismiss="modal">&times;</button></h4>
+                </div>
+                <div class="modal-body">
+                       <div class="row">
+                            <input type="hidden" id="cn_gstr2a_table_id">
+                            <input type="hidden" id="cn_invoice_btn">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="reject_remarks">Remark *</label>
+                                    <textarea class="form-control" id="cn_remarks" name="cn_remarks" placeholder="Enter Credit Note Remark...."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" id="invoice_checksum" name="invoice_checksum">
+                    <input type="hidden" id="taxpro_table_id" name="taxpro_table_id">
+                    <input type="hidden" id="select_box_id" name="select_box_id">
+                    <button type="button" class="btn btn-success" onclick="update_cn_remark()">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
     $("#GSTR2a_table").bind("DOMSubtreeModified", function() { 
         $('#GSTR2a_table tr a.duplicate_row').each(function(){ $(this).closest('tr').css("background-color", "#90EE90");  });
@@ -269,40 +299,58 @@
     }
     
     function generate_credit_note(id, btn){
-        var parent_inv = [];
-        var invoice_id = $("#selected_invoice_"+id).val();
-        $("#selected_invoice_"+id).find(':selected').each(function(){
-            parent_inv.push($(this).attr('data-parent-inv'));
-        });
-        var checksum = $(btn).attr("data-checksum");
-        var id = $(btn).attr("data-id");
-        if(invoice_id){
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/accounting/update_cn_by_taxpro_gstr2a',
-                data: {invoice_id:invoice_id, checksum:checksum, id:id, parent_inv:parent_inv},
-                success: function (data) {
-                    if(data==true){
-                        for (var index in invoice_id){ 
-                            window.open("<?php echo base_url(); ?>employee/invoice/generate_gst_creditnote/"+invoice_id[index], '_blank');
-                        } 
-                        GSTR2a_datatable.ajax.reload();
-                    }
-                    else{
-                        alert("Error in generating credit note.");
-                    }
-                }
+        $("#taxpro_table_id").val($(btn).attr("data-id"));
+        $("#select_box_id").val(id);
+        $("#invoice_checksum").val($(btn).attr("data-checksum"));
+        $("#cn_remarks").val("");
+        $('#cn_remarks_modal').modal('toggle');
+    }
+    
+    function update_cn_remark(){
+        var cn_remark = $("#cn_remarks").val();
+        var checksum = $("#invoice_checksum").val();
+        var select_id = $("#select_box_id").val();
+        var id = $("#taxpro_table_id").val();
+        if(cn_remark){
+            var parent_inv = [];
+            var invoice_id = $("#selected_invoice_"+select_id).val();
+            
+            $("#selected_invoice_"+select_id).find(':selected').each(function(){
+                parent_inv.push($(this).attr('data-parent-inv'));
             });
+            
+            if(invoice_id){
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/accounting/update_cn_by_taxpro_gstr2a',
+                    data: {invoice_id:invoice_id, checksum:checksum, id:id, parent_inv:parent_inv, cn_remark:cn_remark},
+                    success: function (data) {
+                        if(data==true){
+                            for (var index in invoice_id){ 
+                                window.open("<?php echo base_url(); ?>employee/invoice/generate_gst_creditnote/"+invoice_id[index], '_blank');
+                            } 
+                            GSTR2a_datatable.ajax.reload();
+                        }
+                        else{
+                            alert("Error in generating credit note.");
+                        }
+                        $('#cn_remarks_modal').modal('toggle');
+                    }
+                });
+            }
+            else{
+                alert("Please Select Invoice");
+            }
         }
         else{
-            alert("Please Select Invoice");
+            alert("Please Enter Remark");
         }
     }
     
     function check_tax_amount(tax_amount, select){
         var inv_tax = 0;
-        var considarable_tax1 = tax_amount-10;
-        var considarable_tax2 = tax_amount+10;
+        //var considarable_tax1 = tax_amount-10;
+        //var considarable_tax2 = tax_amount+10;
         
         $(select).find(':selected').each(function(){
             inv_tax = Number(inv_tax) + Number($(this).attr('data-tax'));
@@ -311,11 +359,18 @@
         //console.log('inv_tax '+inv_tax);
         //console.log('considarable_tax1 '+considarable_tax1);
         //console.log('considarable_tax2 '+considarable_tax2);
-        
+        /*
         if(inv_tax >= considarable_tax1 && inv_tax <= considarable_tax2){ 
             $(select).closest("tr").find("button").attr("disabled", false);
         }
         else{ 
+            $(select).closest("tr").find("button").attr("disabled", true);
+        }
+        */
+        if(inv_tax > 0){
+            $(select).closest("tr").find("button").attr("disabled", false);
+        }
+        else{
             $(select).closest("tr").find("button").attr("disabled", true);
         }
     }
