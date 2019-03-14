@@ -1804,10 +1804,14 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Spare Parts ID: " . $booking_id);
         $this->checkUserSession();
         $where['length'] = -1;
-        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_PARTNER_STRING);
-        $where['select'] = "symptom_spare_request.spare_request_symptom, booking_details.booking_id, users.name, booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
-                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
-
+        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
+        $where['select'] = "symptom_spare_request.spare_request_symptom, inventory_master_list.part_number, booking_details.booking_id, users.name, "
+                . "booking_primary_contact_no,parts_requested, "
+                . "model_number, spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
+                . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
+                . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
+        $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
@@ -5693,7 +5697,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
@@ -5719,6 +5723,7 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
                     $tempArray[] =  $row['parts_requested'];
+                    $tempArray[] =  $row['part_number'];
                     $tempArray[] =  $row['model_number'];
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];
