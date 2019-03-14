@@ -1,13 +1,17 @@
+<script src="https://cdn.datatables.net/plug-ins/1.10.12/api/sum().js"></script>
 <style>
 .dropdown-submenu {
     position: relative;
 }
-
 .dropdown-submenu .dropdown-menu {
     top: 0;
     left: 100%;
     margin-top: -1px;
 }
+#bank_transaction_datatable1_filter{
+    text-align: right;
+}
+
 </style>
 <?php if(isset($invoice_array)){ ?>
 <p><h2>Invoices Generated</h2></p>
@@ -377,7 +381,7 @@
     <?php if(isset($bank_statement)) { ?>
     <br>
      <p><h2>Bank Transactions</h2></p>
-      <table class="table table-bordered  table-hover table-striped data"  >
+     <table class="table table-bordered  table-hover table-striped data"  id="bank_transaction_datatable1">
         <thead>
           <tr>
              <th>No #</th>
@@ -389,47 +393,21 @@
              <th>Invoices</th>
              <th>Bank Name / Mode</th>
              <th>Transaction Id</th>
-<!--             <th colspan="2">Edit/Delete</th>-->
           </tr>
        </thead>
-       
-       <tbody>
-           
-           <?php $count=1; $debit_amount=0; $credit_amount=0; $tds_amount=0; ?>
-           <?php foreach($bank_statement as $value){?>
-           
-               <tr id="<?php echo "row".$count;?>">
-                   <td><?php  echo $count;$count++; if($value['is_advance'] ==1){?> <p id="advance_text">Advance</p><?php }?></td>
-               <td><?php echo $value['transaction_date']; ?></td>
-               <td><?php echo $value['description']; ?></td>
-               <td><?php echo sprintf("%.2f",$value['credit_amount']); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
-               <td><?php echo sprintf("%.2f",$value['debit_amount']);  $debit_amount += intval($value['debit_amount']); ?></td>
-               <td><?php echo sprintf("%.2f",$value['tds_amount']); $tds_amount += intval($value['tds_amount']); ?></td>
-               <td><?php echo $value['invoice_id']; ?></td>
-               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>
-               <td><?php echo $value['transaction_id']; ?></td>
-<!--               <td>
-               <a href="<?php //echo base_url();?>employee/invoice/update_banktransaction/<?php //echo $value['id'];?>" class="btn btn-sm btn-success">Edit</a>
-
-               </td>   
-               <td>
-               <a href="<?php //echo base_url();?>employee/invoice/delete_banktransaction/<?php //echo $value['id'];?>/<?php //echo $value['partner_vendor'];?>/<?php //echo $value['partner_vendor_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
-
-               </td>                  -->
-              </tr>          
-          <?php } ?>
-          
+       <tfoot>
            <tr>
-             <td><b>Total</b></td>
-             <td></td>
-             <td></td>
-             <td><?php echo sprintf("%.2f",$credit_amount);?></td>
-             <td><?php echo sprintf("%.2f",$debit_amount);?></td>
-             <td><?php echo sprintf("%.2f",$tds_amount);?></td>
-             <td></td>
-             <td></td>
-             <td></td>
-       </tbody>
+               <th>Total</th>
+               <th></th>
+               <th></th>
+               <th></th>
+               <th></th>
+               <th></th>
+               <th></th>
+               <th></th>
+               <th></th>
+           </tr>
+       </tfoot>
       </table>
     <br><br>  
     <h2><u>Final Summary</u></h2>
@@ -497,7 +475,9 @@ function get_defective_spare_count_details(){
 }
 </script>
 <script>
+var bank_transaction_datatable;
 $(document).ready(function(){
+    
     $('.dropdown-submenu a.custom_dropdown-submenu').on("click", function(e){
       $(this).next('ul').toggle();
       e.stopPropagation();
@@ -519,5 +499,100 @@ $(document).ready(function(){
         }
     });
     
+    bank_transaction_datatable = $('#bank_transaction_datatable1').DataTable({
+                "processing": true, 
+                "serverSide": true,
+                "dom": 'lBfrtip',
+                "buttons": [
+                    {
+                        extend: 'excel',
+                        text: 'Export',
+                        exportOptions: {
+                            columns: [ 1,2,3,4,5,6,7,8 ]
+                        },
+                        title: 'bank_transactions',
+                    },
+                ],
+                "language":{ 
+                    "processing": "<div class='spinner'>\n\
+                                        <div class='rect1' style='background-color:#db3236'></div>\n\
+                                        <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                        <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                        <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                    </div>"
+                },
+                "order": [], 
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, -1], [10, 25, "All"]],
+                "ordering": false,
+                "ajax": {
+                    "url": "<?php echo base_url(); ?>employee/accounting/get_payment_summary_searched_data",
+                    "type": "POST",
+                    data: function(d){ 
+                        d.request_type = "invoice_summary_bank_transaction";
+                        d.vendor_partner = '<?php echo $vendor_partner; ?>';
+                        d.vendor_partner_id = '<?php echo $vendor_partner_id; ?>';
+                    }
+                },
+                "footerCallback": function ( row, data, start, end, display ) { 
+                        var api = this.api();
+                        nb_cols = api.columns().nodes().length;
+                        var j = 3;
+                        while(j < nb_cols){
+                                var pageTotal = api
+                        .column( j, { page: 'current'} )
+                        .data()
+                        .reduce( function (a, b) {
+                        var rsum = parseFloat(Number(a) + Number(b)).toFixed(2);
+                        if(rsum == "NaN"){
+                            return "";
+                        }
+                        else{
+                            return rsum;
+                        }
+                       
+                        }, 0 );
+                        $( api.column( j ).footer() ).html(pageTotal);
+                                j++;
+                        } 
+                }
+                
+    });
+   
 });
+
+function bd_update(btn, id){ 
+    if ($(btn).siblings(".text").is(":hidden")) {
+        var prethis = $(btn);
+        var bd_description = $(btn).siblings("input").val();
+        $(btn).siblings(".text").text($(btn).siblings("input").val());
+        
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/invoice/update_bank_transaction_description",
+            type: "POST",
+            beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { description: bd_description, id: id},
+            success: function (data) {
+                if(data){
+                    prethis.siblings("input").remove();
+                    prethis.siblings(".text").show();
+                    prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                } else {
+                    alert("There is a problem to update");
+                    alert(data);
+                }
+                
+            }
+        });
+    }
+    else {
+        var text = $(btn).siblings(".text").text();
+        $(btn).before("<input type=\"text\" class=\"form-control\" value=\"" + text + "\">");
+        $(btn).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $(btn).siblings(".text").hide();
+    }
+}
 </script>
