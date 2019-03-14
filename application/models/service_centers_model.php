@@ -843,10 +843,11 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
     
     function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
         $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
-       $this->db->_protect_identifiers = FALSE;
+        $this->db->_protect_identifiers = FALSE;
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
         $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         if($sf_id){
             $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
         }

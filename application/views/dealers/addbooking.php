@@ -447,7 +447,9 @@
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd'});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', 
+        minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>'
+        maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
