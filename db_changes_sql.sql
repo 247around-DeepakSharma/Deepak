@@ -10128,3 +10128,6 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
+
+--Kalyani 13-March-2019
+ALTER TABLE `vendor_partner_invoices` ADD `gst_credit_note_remark` VARCHAR(500) NULL DEFAULT NULL AFTER `remarks`;
