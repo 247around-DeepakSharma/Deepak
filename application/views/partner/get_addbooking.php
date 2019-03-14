@@ -605,12 +605,12 @@
     $("#partner_source").select2();
     var today = new Date();
     var startDate = today.getHours() >=12 ? today.add(1).day() : today;
-    
     $('#booking_date').daterangepicker({
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate:startDate,
+                minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
+                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
