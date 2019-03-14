@@ -575,6 +575,7 @@
                 singleDatePicker: true,
                 showDropdowns: true,
                 minDate:startDate,
+                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
