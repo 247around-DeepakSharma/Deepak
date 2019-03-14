@@ -10171,3 +10171,13 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
+
+--Kalyani 13-March-2019
+ALTER TABLE `vendor_partner_invoices` ADD `gst_credit_note_remark` VARCHAR(500) NULL DEFAULT NULL AFTER `remarks`;
+
+--Abhay 14 March 2019
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Requested Part Code', 'GROUP_CONCAT(i.part_number) As \'Requested Part Code\'', '1', '', '1', '38');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Shipped Part Code', 'GROUP_CONCAT(im.part_number) As \'Shipped Part Code\'', '1', '', '1', '40');
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '39' WHERE `partner_summary_report_mapping`.`id` = 30;
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `partner_summary_report_mapping`.`id` = 32;
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
