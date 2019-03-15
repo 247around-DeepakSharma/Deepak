@@ -386,7 +386,6 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     $data['current_status'] = "InProcess";
-                    $data['is_sn_correct']=$is_sn_correct[$unit_id];
                     $data['booking_id'] = $booking_id;
                     $data['amount_paid'] = $total_amount_paid;
                     $data['update_date'] = date("Y-m-d H:i:s");
@@ -397,6 +396,7 @@ class Service_centers extends CI_Controller {
                         $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                         $data['serial_number'] =  $trimSno;
                         $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                        $data['is_sn_correct']=$is_sn_correct[$unit_id];
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
 
