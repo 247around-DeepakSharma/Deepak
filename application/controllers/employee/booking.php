@@ -1044,7 +1044,7 @@ class Booking extends CI_Controller {
 
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        //$data['service_center_closed_date'] = NULL;
+        $data['service_center_closed_date'] = NULL;
         //$data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
 //        $data['current_status'] = 'Rescheduled';
@@ -1070,7 +1070,7 @@ class Booking extends CI_Controller {
             log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
             $this->booking_model->update_booking($booking_id, $data);
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-            $reschedule_reason=$reason.' - '.$remark;
+            $reschedule_reason=$reason.' - '.$reason_remark;
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
