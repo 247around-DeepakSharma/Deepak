@@ -2114,12 +2114,15 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
-        $row[] = $stock_list->price;
+        $row[] = "<i class ='fa fa-inr'></i> ". $stock_list->price;
         $row[] = $stock_list->gst_rate."%";
-        $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        $total = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> ". $total;
         if($this->session->userdata('userType') == 'employee'){
             $row[] = $stock_list->oow_vendor_margin." %";
             $row[] = $stock_list->oow_around_margin." %";
+            
+            $row[] = "<i class ='fa fa-inr'></i> ".round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin)/100 )),0);
         }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";

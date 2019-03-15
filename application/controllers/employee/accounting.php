@@ -993,7 +993,6 @@ class Accounting extends CI_Controller {
      * @param request_type
      */
     function get_payment_summary_searched_data(){
-        log_message("info", __METHOD__);
         $post = $this->getPaymentSummaryDataTablePost();
         $post['column_order'] = array( NULL, 'bank_transactions.id');
         $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id');
@@ -1009,6 +1008,10 @@ class Accounting extends CI_Controller {
             case 'admin_search':
                 $data = $this->getAdminBankTransactionData($post);
                 break;
+            case 'invoice_summary_bank_transaction':
+                $post['order_by'] = array("bank_transactions.id" => "desc");
+                $data = $this->getInvoiceSummaryBankTransactionData($post);
+                break;
             default :
                break; 
         }
@@ -1022,6 +1025,23 @@ class Accounting extends CI_Controller {
         log_message("info", __METHOD__." final outpoot ". json_encode($output, TRUE)); 
         echo json_encode($output);
     }
+     /**
+     * @desc This function is used to filter bank transaction data from payment summary page
+     * @return json for datatable
+     */
+    function getInvoiceSummaryBankTransactionData($post){
+        $select = "bank_transactions.*";
+        $list = $this->invoices_model->searchPaymentSummaryData($select, $post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $transaction_list) {
+            $no++;
+            $row =  $this->invoice_summary_bank_transaction_datatable($transaction_list, $no);
+            $data[] = $row;
+        }
+        return $data;
+    }
+    
     
      /**
      * @desc This function is used to filter bank transaction data from payment summary page
@@ -1092,6 +1112,26 @@ class Accounting extends CI_Controller {
         }
         
         return $post;
+    }
+    
+    /**
+     * @desc This is used to generate Data table row for payment summary
+     * @param Array $transaction_list
+     * @param int $no
+     * @return Array
+     */
+    function invoice_summary_bank_transaction_datatable($transaction_list, $no){
+        $row = array();
+        $row[] = $no;
+        $row[] = $transaction_list->transaction_date;
+        $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
+        $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
+        $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
+        $row[] = sprintf("%.2f",$transaction_list->tds_amount);
+        $row[] = $transaction_list->invoice_id;
+        $row[] = $transaction_list->bankname."/".$transaction_list->transaction_mode;
+        $row[] = $transaction_list->transaction_id;
+        return $row;
     }
     
     /**
@@ -1629,9 +1669,10 @@ class Accounting extends CI_Controller {
     function update_cn_by_taxpro_gstr2a(){
         $invoices = $this->input->post('parent_inv');
         $checksum = $this->input->post('checksum');
+        $cn_remark = $this->input->post('cn_remark');
         $id = $this->input->post('id');
         foreach ($invoices as $invoice_id) {
-            $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum));
+            $this->invoices_model->update_partner_invoices(array('invoice_id'=>$invoice_id), array('taxpro_checksum'=>$checksum, 'gst_credit_note_remark'=>$cn_remark));
         }
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
     }

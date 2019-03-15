@@ -857,7 +857,7 @@
     });
     $("#partner_source").select2();
 
-     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
        getPartnerChannel();
      
 
