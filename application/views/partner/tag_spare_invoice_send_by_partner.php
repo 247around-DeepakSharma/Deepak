@@ -187,13 +187,13 @@
                                             <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" readonly=""/>
+                                            <input type="text" class="form-control" onkeyup="calculate_total_price()" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control" name="part[0][hsn_code]" id="partHsnCode_0" value="" readonly=""/>
+                                            <input type="text" class="form-control" name="part[0][hsn_code]" id="partHsnCode_0" value="" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control" name="part[0][gst_rate]" id="partGstRate_0" value="" readonly=""/>
+                                            <input type="text" class="form-control" onkeyup="calculate_total_price()" name="part[0][gst_rate]" id="partGstRate_0" value=""/>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
@@ -219,13 +219,13 @@
                                             <input type="number" class="form-control" id="quantity"  placeholder="Quantity" min="1" required="" onblur="get_part_details(this.id)" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control part-total-price" id="part_total_price"  value="0" readonly=""/>
+                                            <input type="text" class="form-control part-total-price" id="part_total_price"  value="0" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control" id="partHsnCode" value="" readonly=""/>
+                                            <input type="text" class="form-control" id="partHsnCode" value="" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="text" class="form-control" id="partGstRate" value="" readonly=""/>
+                                            <input type="text" class="form-control" id="partGstRate" value="" />
                                         </div>
                                         
                                         <div class="col-xs-12 col-sm-6 col-md-1">
@@ -559,6 +559,30 @@
                     $('#total_spare_invoice_price').addClass('text-danger');
                     return false;
                 }
+                
+                $(".part-total-price").each(function(i) {
+    
+                    if(Number($('#partBasicPrice_'+i).val()) == 0){
+                        showConfirmDialougeBox('Please enter basic price', 'warning');
+                        $('#partBasicPrice_'+i).addClass('text-danger');
+                        return false;
+                    }
+
+                    if(Number($('#partHsnCode_'+i).val()) === ""){
+                        $('#partHsnCode_'+i).addClass('text-danger', 'warning');
+                        showConfirmDialougeBox('Please enter HSN Code');
+                        return false;
+                    }
+
+                    if(Number($('#partGstRate_'+i).val()) == 5 || Number($('#partGstRate_'+i).val()) == 12 || Number($('#partGstRate_'+i).val()) == 18 || Number($('#partGstRate_'+i).val())  == 28){
+
+                    } else {
+                        $('#partGstRate_'+i).addClass('text-danger');
+                        showConfirmDialougeBox('Please invalid Gst Number', 'warning');
+                       
+                        return false;
+                    }
+                });
             }
         });
         
@@ -582,9 +606,9 @@
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
-                .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).end()
+                .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).attr('onkeyup','calculate_total_price()').end()
                 .find('[id="partHsnCode"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_'+partIndex).end()
-                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).end();
+                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).attr('onkeyup','calculate_total_price()').end();
             get_appliance(partIndex);
         })
     
@@ -623,7 +647,7 @@
     
         //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
         var params = $('#spareForm').serializeArray();
-    
+        
         //Getting Invoice Files Collection
         var invoice_files = $("#invoice_file")[0].files;
     
@@ -804,6 +828,7 @@
                             $('#partBasicPrice_'+index).val(parts_total_price);
                             $('#partGstRate_'+index).val(obj.gst_rate);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
+                            
                             var total_spare_invoice_price = 0;
                             $(".part-total-price").each(function(i) {
                                 total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
@@ -1080,6 +1105,41 @@
 
                     return false;
                 }
+                
+                $(".onpartBasicPrice").each(function(i) {
+    
+                    if(Number($('#onpartBasicPrice_'+i).val()) === 0){
+                        onBookingshowConfirmDialougeBox('Please enter basic price', 'warning');
+                        $('#onpartBasicPrice_'+i).addClass('text-danger');
+                        return false;
+                    }
+
+                });
+                
+                
+                $(".onpartGstRate").each(function(i) {
+    
+                     if(Number($('#onpartGstRate_'+i).val()) === 5 || Number($('#onpartGstRate_'+i).val()) === 12 || Number($('#onpartGstRate_'+i).val()) === 18 
+                             || Number($('#onpartGstRate_'+i).val())  == 28){
+
+                    } else {
+                        $('#onpartGstRate_'+i).addClass('text-danger');
+                        onBookingshowConfirmDialougeBox('Please invalid Gst Number', 'warning');
+                       
+                        return false;
+                    }
+
+                });
+                
+                $(".onpartHsnCode").each(function(i) {
+    
+                    if(Number($('#onpartHsnCode_'+i).val()) === ""){
+                        $('#onpartHsnCode_'+i).addClass('text-danger', 'warning');
+                        onBookingshowConfirmDialougeBox('Please enter HSN Code');
+                        return false;
+                    }
+
+                });
             }
         });
     
@@ -1178,11 +1238,11 @@
                .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
-               .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).end()
+               .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
                .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).end()
-               .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).end()
+               .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
-               .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).end()
+               .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()
                .find('[id="onbookingID"]').attr('name', 'part[' + onBookingIndex + '][booking_id]').attr('id','onbookingID'+onBookingIndex).end()
                .find('[id="onserviceId"]').attr('name', 'part[' + onBookingIndex + '][service_id]').attr('id','onserviceId_'+onBookingIndex).end()
                .find('[id="onpartnerId"]').attr('name', 'part[' + onBookingIndex + '][partner_id]').attr('id','onpartnerId_'+onBookingIndex).end()
@@ -1203,5 +1263,19 @@
                onBookingIndex--;
            $row.remove();
        });
+       
+       function calculate_total_price(){
+           var total_spare_invoice_price = 0;
+            $(".part-total-price").each(function(i) {
+                total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
+            });
+            $('#total_spare_invoice_price').html(Number(Math.round(total_spare_invoice_price)));
+       }
+       
+       function booking_calculate_total_price(id){
+          
+           var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
+           $('#ontotal_amount_'+id).val(Number(Math.round(total_spare_invoice_price)));
+       }
        
 </script>

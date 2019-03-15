@@ -1,35 +1,18 @@
-<style>
-    .col-md-2 {
-        width: 16.666667%;
-    }
-    .tile_count .tile_stats_count, ul.quick-list li {
-        white-space: normal;
-    }
-    .select2-selection--multiple{
-            min-height: 38px !important;
-            border: 1px solid #aaa !important;
-    }
-</style>
+<div class="right_col" role="main" style="padding: 30px;">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#state">State Wise serviceability Missing Report </a></li>
+    <li><a data-toggle="tab" href="#district">District Wise serviceability Missing Report</a></li>
+  </ul>
 
-<div class="right_col" role="main">
-    <div class="row">
-       
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2>RM State Pincode Report</h2>
-                    <div class="clearfix"></div>
-                </div>
-
-                <div class="x_content">
-                    <div class="tab-content" style="margin-top: 10px;">
-                            <div class="tab-pane fade in active" id="tab1">
-                            <table class="table table-striped table-bordered" id="rm_state_missing_table">
+    <div class="tab-content" style="    margin-top: 15px;">
+    <div id="state" class="tab-pane fade in active">
+         <table class="table table-striped table-bordered" id="state_table" > 
         <thead>
-                <tr style="background: #405467;color: #fff;margin-top: 5px;">
-                    <th>State</th> 
+                <tr style="background: #2C9D9C;color: #fff;margin-top: 5px;">
+                    <th>District</th> 
+                    <th>Total Pincode</th> 
  <?php
-                        foreach($service_arr as $servicekey=>$servicevalue){
+                        foreach($services as $servicekey => $servicevalue){
                             ?>
                     <th><?php echo $servicevalue;?></th>
                   <?php
@@ -39,51 +22,67 @@
         </thead>
     <tbody>
         <?php
-        foreach($rm_arr as $value){
-             if(isset($state_arr[$value]))
-                        {
-                           ?>   
-                        <tr>
-                                <td><?php echo $state_arr[$value];?></td>
-                               <?php
-                                foreach($service_arr as $servicekey=>$servicevalue){
-
-                                   if(isset($vendorStructuredArray['state_'.$value]['appliance_'.$servicekey])){
-                                        $result=$vendorStructuredArray['state_'.$value]['appliance_'.$servicekey];
-                                        $percent=round(($result['missing_pincode_per']*100),0);
-                                ?>
-                               <td> <?php echo wordwrap($result['Total_pincode']).'<br>'; ?>
-                                <?php echo wordwrap($result['missing_pincode']).'<br>';  ?>
-                                <?php echo wordwrap($percent.' %'); ?></td>
-                                <?php    
-                                }
-                                    else{
-                                       ?>
-                                   <td>     <?php echo wordwrap($result['Total_pincode']).'<br>'; ?>
-                                <?php echo wordwrap('0').'<br>';?>
-                                <?php echo wordwrap('0 %'); ?></td>
-                                        <?php
-                                    }
-                                }
-                        }
-               
+        foreach($state_data as $state => $values){
+            ?>
+        <tr>
+            <td><?php echo $values['state']?></td>
+            <td><?php echo $values['total_india_pincode']?></td>
+            <?php
+            foreach($services as $serviceID => $serviceName){
+                if(array_key_exists('appliance_'.$serviceID, $values)){
                 ?>
-                        </tr>
-           <?php }
-           ?>
+            <td><?php
+            $missing = $values['total_india_pincode'] - $values['appliance_'.$serviceID]['total_pincode'];
+            if($missing < 0){
+                $missing = 0; 
+            }
+            echo $missing?></td>
+            <?php
+                }
+                else{
+          ?>
+            <td>-</td>
+            <?php
+                }
+            }
+            ?>
+        </tr>
+        <?php
+            
+        }
+?>
     </tbody>
                             </table>
-    
-                        </div>
-                            </div>
-                        </div>
-                   
-            </div>
-        </div>
-        
-    
-
     </div>
-
-    <!-- END -->
+    <div id="district" class="tab-pane fade">
+<div id="district_table_holder">  <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center></div>     
+    </div>
+  </div>
 </div>
+<script>
+$(document).ready(function() {
+   get_district_missing_servicablity_data();
+    $('#state_table').DataTable( {
+        dom: 'Blfrtip',
+        buttons: ['excel', 'print'],
+        order: [[ 16, "desc" ]],
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+    } );
+} );
+function get_district_missing_servicablity_data(appliance_id){
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_district_missing_servicablity_data';
+        data['rm_id'] = '<?php echo $rm_id ?>';
+        //data['appliance_id'] = appliance_id;
+        sendAjaxRequest(data,url,'POST').done(function(response){
+           $("#district_table_holder").html(response);
+        });
+    }
+    function sendAjaxRequest(postData, url,type) {
+        return $.ajax({
+            data: postData,
+            url: url,
+            type: type
+        });
+    }
+    </script>
