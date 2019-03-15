@@ -63,15 +63,15 @@
                     <div class="form-group">
                         <label for="Basic Price" class="col-md-4">Baisc Price</label>
                         <div class="col-md-6">
-                            <input type="text" value="<?php echo $basic_price;?>" class="form-control" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required readonly="">
+                            <input type="text" value="<?php echo $basic_price;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
                             <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder=""  required readonly="">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="GST rate" class="col-md-4">GST Rate</label>
                         <div class="col-md-6">
-                            <input type="text" value="<?php echo $gst_rate;?>" class="form-control" id="<?php echo "onpartGstRate_".($key + $count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate"  required readonly="">
+                            <input type="text" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate"  required >
                         </div>
                     </div>
                 </div>
@@ -94,8 +94,8 @@
                     <div class="form-group">
                         <label for="awb" class="col-md-4">HSN Code</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][hsn_code]" placeholder="Please Enter HSN Code" value="<?php echo $hsn_code;?>"  required readonly="">
+                            <input type="text" class="form-control onpartHsnCode" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][hsn_code]" placeholder="Please Enter HSN Code" value="<?php echo $hsn_code;?>"  required >
                         </div>
                     </div>
                     <input type="hidden" value="<?php echo $value['booking_id']; ?>" id="<?php echo "onbookingID_".($key +$count);?>" 
@@ -176,14 +176,14 @@
                             <div class="form-group">
                                 <label for="Basic Price" class="col-md-4">Baisc Price</label>
                                 <div class="col-md-6">
-                                    <input type="text"  class="form-control" id="onpartBasicPrice"  placeholder=""  required readonly="">
+                                    <input type="text"  class="form-control" id="onpartBasicPrice"  placeholder=""  required >
                                     <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate"  required readonly="">
+                                    <input type="text" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate"  required >
                                 </div>
                             </div>
                         </div>
@@ -203,7 +203,7 @@
                             <div class="form-group">
                                 <label for="awb" class="col-md-4">HSN Code</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required readonly="">
+                                    <input type="text" class="form-control" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required >
                                 </div>
                             </div>
                             <input type="hidden" value="<?php echo $data[0]['booking_id']; ?>" id="onbookingID" />
