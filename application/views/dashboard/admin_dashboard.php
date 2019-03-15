@@ -130,7 +130,7 @@
                     <tbody>
                         <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
+<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href  onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                             <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
                                    {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
@@ -194,7 +194,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
-                    <h2>RM Open Call Reports</h2>
+                    <h2>RM Open Call Report</h2>
                     <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -401,7 +401,7 @@
 <!--                AM reporting-->
                 <div class="x_panel">
                     <div class="x_title" style="padding-left: 0px;">
-                    <h2>AM TAT Reporting</h2>
+                    <h2>AM TAT Report</h2>
                     <span class="collape_icon" href="#AM_TAT_Reporting" data-toggle="collapse" onclick="initiate_AM_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
@@ -757,7 +757,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Missing Pincodes</h2>
+                    <h2>Pincode Call Missed Report</h2>
                     <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <a id="download_pin_code" class="btn btn-success btn-xs" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
                     <div class="clearfix"></div>
@@ -775,7 +775,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>RM  Missing Pincode Report<button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+                    <h2>Serviceability Missing Report <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Missing Pincode  And Missing Pincode Percent">?</button></h2>
                     <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse" onclick="get_rm_missing_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                    
@@ -795,7 +795,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>AM Booking Report</h2>
+                    <h2>AM Call Load Report</h2>
                     <span class="collape_icon" href="#am_booking_report" data-toggle="collapse" onclick="get_am_booking_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                    
                     <div class="clearfix"></div>

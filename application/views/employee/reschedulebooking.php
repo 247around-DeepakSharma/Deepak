@@ -162,7 +162,7 @@
 </div>
 <script type="text/javascript">
 
-   $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+   $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
    
    function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");

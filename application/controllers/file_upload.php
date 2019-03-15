@@ -441,7 +441,7 @@ class File_upload extends CI_Controller {
         $tmp_data['part_name'] = trim(str_replace(array('"',"'"), "", $data['part_name']));
         $tmp_data['part_number'] = trim(str_replace(array('"',"'"), "", $data['part_number']));
         $tmp_data['description'] = trim(str_replace(array('"',"'"), "", $data['part_description']));
-        $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
+//        $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
         $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']):null;
         $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
         $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;
@@ -563,7 +563,22 @@ class File_upload extends CI_Controller {
                
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    if (!empty($this->input->post('partner_id')) && !empty($this->input->post('service_id')) && !empty($rowData['model'])) { 
+                    if (!empty($this->input->post('partner_id')) && !empty($this->input->post('service_id')) && !empty($rowData['model'])) {
+                        $partner_model_id = "";
+                        $model_description = "";
+                        $partner_brand_id = "";
+                        if(isset($rowData['partner_model_id'])){
+                            $partner_model_id = $rowData['partner_model_id'];
+                        }
+                        
+                        if(isset($rowData['model_description'])){
+                            $model_description = $rowData['model_description'];
+                        }
+                        
+                        if(isset($rowData['partner_brand_id'])){
+                            $partner_brand_id = $rowData['partner_brand_id'];
+                        }
+                        
                         $aplliance_model_where = array(
                             'service_id' => $this->input->post('service_id'),
                             'model_number' => $rowData['model'],
@@ -572,8 +587,8 @@ class File_upload extends CI_Controller {
                         );
                         $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
                         if(empty($model_detail)){
-                            $aplliance_model_where["partner_model_id"] =  $rowData['partner_model_id'];
-                            $aplliance_model_where["model_description"] =  $rowData['model_description'];
+                            $aplliance_model_where["partner_model_id"] =  $partner_model_id;
+                            $aplliance_model_where["model_description"] =  $model_description;
                             $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
                         }
                         else{
@@ -600,14 +615,14 @@ class File_upload extends CI_Controller {
                                 else if($partner_model_details[0]['model'] != $appliance_model_id){
                                     unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                     $partner_model_where['model'] = $appliance_model_id;
-                                    $partner_model_where['partner_brand_id'] = $rowData['partner_brand_id'];
+                                    $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                     $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                 }
                             }
                             else{
                                 unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                 $partner_model_where['model'] = $appliance_model_id;
-                                $partner_model_where['partner_brand_id'] = $rowData['partner_brand_id'];
+                                $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                 $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                             }
                         }

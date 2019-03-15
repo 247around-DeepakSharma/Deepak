@@ -2114,12 +2114,15 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
-        $row[] = $stock_list->price;
+        $row[] = "<i class ='fa fa-inr'></i> ". $stock_list->price;
         $row[] = $stock_list->gst_rate."%";
-        $row[] = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        $total = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> ". $total;
         if($this->session->userdata('userType') == 'employee'){
             $row[] = $stock_list->oow_vendor_margin." %";
             $row[] = $stock_list->oow_around_margin." %";
+            
+            $row[] = "<i class ='fa fa-inr'></i> ".round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin)/100 )),0);
         }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='".base_url()."employee/inventory/get_appliance_by_inventory_id/".urlencode($stock_list->inventory_id)."' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
@@ -4577,17 +4580,30 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function add_appliance_model_data($data) {
-        $response = $this->inventory_model->insert_appliance_model_data($data);
-        if (!empty($response)) {
-            $res['response'] = 'success';
-            $res['msg'] = 'Inventory added successfully';
-            log_message("info",  __METHOD__.' Inventory added successfully');
-        } else {
-            $res['response'] = 'error';
-            $res['msg'] = 'Error in inserting inventory details';
-            log_message("info",  __METHOD__.' Error in inserting inventory details');
+        $aplliance_model_where = array(
+                            'service_id' => $data['service_id'],
+                            'model_number' => $data['model_number'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $data['entity_id']
+                        );
+        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+        if(empty($model_detail)){
+            $response = $this->inventory_model->insert_appliance_model_data($data);
+            if (!empty($response)) {
+                $res['response'] = 'success';
+                $res['msg'] = 'Model Number Inserted Successfully';
+                log_message("info",  __METHOD__.' Inventory added successfully');
+            } else {
+                $res['response'] = 'error';
+                $res['msg'] = 'Error in Inserting Model Details';
+                log_message("info",  __METHOD__.' Error in inserting inventory details');
+            }
         }
-        
+        else{
+            $res['response'] = 'success';
+            $res['msg'] = 'Model Number Already Exist';
+            log_message("info",  __METHOD__.' Inventory Already Exist');
+        }
         return $res;
     }
     

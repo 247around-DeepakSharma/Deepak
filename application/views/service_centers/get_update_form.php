@@ -170,7 +170,7 @@
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)"  required="">
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)">
                                                     <option selected disabled>Select Part Warranty Status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
                                                     <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
@@ -182,7 +182,7 @@
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]" required="">
+                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]">
                                                     <option selected disabled>Select Technical Problem</option>
                                                 </select>
                                             </div>
@@ -575,11 +575,22 @@
                 }
             });
     
-           $('.part_in_warranty_status').each(function() {
+            $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                         alert('Please Select Part Warranty Status');    
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
+            
+            $('.spare_request_symptom').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "spare_request_symptom"){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                        alert('Please Select Technical Problem');    
                         checkbox_value = 0;
                        return false;
                     }
@@ -640,7 +651,6 @@
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
-          
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
                 || id=== "spare_not_delivered"){
@@ -650,18 +660,18 @@
             $(".rescheduled_form").removeAttr("disabled");
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
-    
-       }  else {
+        
+        }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
          $('#hide_spare').hide();
          $('#hide_rescheduled').hide();
          $('#hide_remarks').show();
          $(".remarks").removeAttr("disabled");
-       }
+        }
     }
     
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>', changeMonth: true,changeYear: true});
     $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
                 maxDate:0});
     $("#reschduled_booking_date").datepicker({

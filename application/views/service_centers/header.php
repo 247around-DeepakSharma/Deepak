@@ -398,7 +398,7 @@
             <div style="text-align: right; margin-top: -19px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
         </div>
         <div class="main_search">
-                    <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #2C9D9C">
+                    <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:93%;border: none;background-color: #2C9D9C">
     <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
         </div>
         <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
