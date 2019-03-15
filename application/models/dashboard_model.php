@@ -326,7 +326,7 @@ class dashboard_model extends CI_Model {
 /*
  * This function get data from missing pincode table on the basis of rm id if rm id is null then it will return data group by on rm
  */    
-     function get_pincode_data_for_not_found_sf($rmID){
+     function get_pincode_data_for_not_found_sf($rm_id){
          $this->db->_reserved_identifiers = array('*','CASE');
 //         if($rmID){
 //         $this->db->select('sf.pincode,sf.city,sf.state,sf.service_id,sf.rm_id,partners.public_name,services.services');
@@ -343,20 +343,17 @@ class dashboard_model extends CI_Model {
 //            $this->db->join('partners', 'partners.id = sf.partner_id',"left");
 //         return $this->db->get('sf_not_exist_booking_details sf')->result_array();
          
-        if($rm_id)
-        {
+        if($rm_id){
          $where="where employee_relation.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1";
         }
-        else
-        {
+        else{
           $where="where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
         }
-        
-        $sql='SELECT sf.pincode,sf.city,state_code.state,sf.service_id,employee_relation.agent_id,partners.public_name,services.services'
-                .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.state_code'
-                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(sf.state,employee_relation.state_code)'
+        $sql='SELECT sf.pincode,sf.city,state_code.state,sf.service_id,employee_relation.agent_id,partners.public_name,services.services '
+                .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.state_code '
+                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(sf.state,employee_relation.state_code) '
                 .'LEFT JOIN '
-                 .'employee ON employee.id = employee_relation.agent_id $where';
+                 .'employee ON employee.id = employee_relation.agent_id '.$where;
        $query = $this->db->query($sql);
        return $query->result_array();
  }
