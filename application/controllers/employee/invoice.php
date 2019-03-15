@@ -178,7 +178,8 @@ class Invoice extends CI_Controller {
     
             $invoice['unbilled_amount'] = $this->invoices_model->get_unbilled_amount($data['vendor_partner_id']);
         }
-
+        $invoice['vendor_partner'] = $this->input->post('source');
+        $invoice['vendor_partner_id'] = $this->input->post('vendor_partner_id');
         echo $this->load->view('employee/invoicing_table', $invoice);
     }
 
@@ -5141,5 +5142,17 @@ class Invoice extends CI_Controller {
         $invoice_details['vendor_partner'] = $vendor_partner;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/view_invoice', $invoice_details);
-    }         
+    } 
+    
+    /**
+     * @desc: This function is used to update bank transaction table
+     * @param $data $where
+     * @return boolean
+     */
+    function update_bank_transaction_description() {
+        $data = array("description" => $this->input->post("description"));
+        $where = array("id" => $this->input->post("id"));
+        $this->invoices_model->update_bank_transactions($where, $data);
+        echo true;
+    }      
 }

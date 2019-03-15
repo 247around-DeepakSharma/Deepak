@@ -170,7 +170,7 @@
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)"  required="">
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)">
                                                     <option selected disabled>Select Part Warranty Status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
                                                     <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
@@ -182,7 +182,7 @@
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]" required="">
+                                                <select class="form-control spare_request_symptom" id="spare_request_symptom_0" name="part[0][spare_request_symptom]">
                                                     <option selected disabled>Select Technical Problem</option>
                                                 </select>
                                             </div>
@@ -640,7 +640,8 @@
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
-          
+            $("#part_warranty_status_0").attr("required", true);
+            $("#spare_request_symptom_0").attr("required", true);
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
                 || id=== "spare_not_delivered"){
@@ -650,6 +651,8 @@
             $(".rescheduled_form").removeAttr("disabled");
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
+            $("#part_warranty_status_0").attr("required", false);
+            $("#spare_request_symptom_0").attr("required", false);
     
        }  else {
          $(".spare_parts").attr("disabled", "true");
@@ -658,6 +661,8 @@
          $('#hide_rescheduled').hide();
          $('#hide_remarks').show();
          $(".remarks").removeAttr("disabled");
+         $("#part_warranty_status_0").attr("required", false);
+         $("#spare_request_symptom_0").attr("required", false);
        }
     }
     
