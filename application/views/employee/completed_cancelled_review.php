@@ -77,6 +77,7 @@
                                            <td><span class="<?php echo "model_number".$count; ?>"><?php echo $value1['model_number']; ?></span></td>
                                            <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
+                                              <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
                                               <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}elseif($value1['is_sn_correct']==NOT_DEFINE_SN){ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
                                               <?php } else {?>
@@ -131,7 +132,8 @@
                               <td style="text-align: left;white-space: inherit;font-size:90%">
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
-                              <td><input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                              <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
+                                         <?php if($status == _247AROUND_COMPLETED){?> onchange="is_sn_correct_validation('<?php echo $value['booking_id']?>')"<?php } ?>></input></td>
                               <td>
                                  <?php echo "<a class='btn btn-sm btn-primary' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -197,11 +199,27 @@
    </div>
 
 <script>
-        $(document).ready(function(){
+  $(document).ready(function(){
         $("#selecctall").change(function(){
-          $(".checkbox1").prop('checked', $(this).prop("checked"));
+            $(".checkbox1").prop('checked', $(this).prop("checked"));
+            $('.checkbox1').each(function() {
+                is_sn_correct_validation($(this).val());
+             })
          });
    });
+   function is_sn_correct_validation(booking_id){
+       booking_sn_div_id =  "sn_"+booking_id;
+       current_div_booking =  "app_"+booking_id;
+        $('.'+booking_sn_div_id).each(function() {
+            if($(this).val() == 0){
+                temp = false;
+            }
+        })
+        if(!temp){
+                 alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
+                $("."+current_div_booking).prop("checked", false);
+        }
+   }
    function checkValidationForBlank_review(){
     var is_checked = $('.checkbox1:checkbox:checked');
     if(is_checked.length != 0){
