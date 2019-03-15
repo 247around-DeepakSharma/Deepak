@@ -25,7 +25,7 @@ class File_process extends CI_Controller {
     function downloadSpareRequestedParts($partner_id,$entity_type) {
         log_message("info", __METHOD__ . " Partner ID " . $partner_id);
 
-        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' AND entity_type = '".$entity_type."' "
+        $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' AND spare_parts_details.entity_type = '".$entity_type."' "
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') AND wh_ack_received_part = 1";
 
         $spare_parts = $this->partner_model->get_spare_parts_booking_list($where, false, false, true,0,NULL,true);
