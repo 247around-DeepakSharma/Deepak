@@ -2474,9 +2474,12 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__. json_encode($_POST, true));
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-        $zip = 'zip '.TMP_FOLDER.'challan_file'.date('dmYHis').'.zip ';
-        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
-            unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
+        
+        $challan_file = 'challan_file'.date('dmYHis');
+        
+        $zip = 'zip '.TMP_FOLDER.$challan_file.'.zip ';
+        if(file_exists(TMP_FOLDER .  $challan_file.'.zip')){
+            unlink(TMP_FOLDER . $challan_file.'.zip');
         }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
@@ -2487,17 +2490,19 @@ class Service_centers extends CI_Controller {
             }
         }
 
+        
+        $challan_file_zip = $challan_file.".zip";
         $res = 0;
         system($zip, $res);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"challan_file".date('dmYHis').".zip\"");
-
+        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+        
         $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip ', $res2);
-        readfile(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip');
-        if(file_exists(TMP_FOLDER .  'challan_file'.date('dmYHis').'.zip')){
-             unlink(TMP_FOLDER . 'challan_file'.date('dmYHis').'.zip');
+        system(" chmod 777 " . TMP_FOLDER .$challan_file.'.zip ', $res2);
+        readfile(TMP_FOLDER .  $challan_file.'.zip');
+        if(file_exists(TMP_FOLDER .  $challan_file.'.zip')){
+             unlink(TMP_FOLDER . $challan_file.'.zip');
         }
     }
 
