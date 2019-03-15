@@ -120,3 +120,8 @@ define('NOT_ESCALATE_BOOKING_DUE_SPARE_NOT_DELIVERED', 'You cannot escalate book
 //Auto spare delivered to sf after 14 days 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
 define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
+// Courier in pickup request 
+define("COURIER_PICKUP_REQUEST", 2);
+//Courier in pickup schedule 
+define("COURIER_PICKUP_SCHEDULE", 3);
+

@@ -89,8 +89,7 @@
                             <?php } ?>
                         </div>
                     </div>
-                    <input type="hidden" name="days" value="<?php echo $days; ?>" /> 
-                    <input type="hidden" name="requested_inventory_id" value="<?php echo $days; ?>" /> 
+                    <input type="hidden" name="days" value="<?php echo $days; ?>" />                     
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
@@ -197,7 +196,7 @@
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
-                                            </div>
+                                            </div>                                            
                                             <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts_type" id="parts_type_0" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
@@ -218,6 +217,7 @@
                                                 <span id="spinner" style="display:none"></span>
                                                 <span id="inventory_stock_0"></span>
                                             </div>
+                                            <input type="hidden" id="requested_inventory_id_0" name="part[0][requested_inventory_id]" value="" /> 
                                             <?php } else { ?> 
                                             <div class="col-md-6">
                                                 <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" required="">
@@ -301,6 +301,7 @@
                                                     </select>
                                                     <span id="spinner" style="display:none"></span>
                                                     <span id="inventory_stock"></span>
+                                                    <input type="hidden" id="requested_inventory_id" value="" /> 
                                                 </div>
                                                 <?php } else { ?> 
                                                 <div class="col-md-6">
@@ -716,6 +717,7 @@
                     $clone
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                        .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
@@ -727,6 +729,7 @@
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
+                   .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
                    .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
@@ -749,7 +752,8 @@
     function get_inventory_id(id){       
         var inventory_id =$("#"+id).find('option:selected').attr("data-inventory"); 
         var str_arr =id.split("_");
-        indexId=str_arr[2]; 
+        indexId = str_arr[2]; 
+        $("#requested_inventory_id_"+indexId).val(inventory_id);
         if(inventory_id!=undefined){           
            $.ajax({
                     method:'POST',
