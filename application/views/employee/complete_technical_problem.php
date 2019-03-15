@@ -187,7 +187,7 @@
                         location.reload();
                     }
                     else{
-                        alert("Sympom Already Exist");
+                        alert("Symptom Already Exist");
                     }
                 }
             }); 
