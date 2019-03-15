@@ -10179,3 +10179,17 @@ ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 me
 
 --Kalyani 13-March-2019
 ALTER TABLE `vendor_partner_invoices` ADD `gst_credit_note_remark` VARCHAR(500) NULL DEFAULT NULL AFTER `remarks`;
+
+--Abhay 14 March 2019
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Requested Part Code', 'GROUP_CONCAT(i.part_number) As \'Requested Part Code\'', '1', '', '1', '38');
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Shipped Part Code', 'GROUP_CONCAT(im.part_number) As \'Shipped Part Code\'', '1', '', '1', '40');
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '39' WHERE `partner_summary_report_mapping`.`id` = 30;
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `partner_summary_report_mapping`.`id` = 32;
+UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
+
+--Gorakh 15-03-2019
+
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
+('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
+

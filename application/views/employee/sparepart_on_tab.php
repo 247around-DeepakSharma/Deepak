@@ -251,8 +251,7 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
-                                        <th class="text-center" data-orderable="false">User</th>
-                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">User</th>                                        
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
@@ -263,6 +262,8 @@
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
                                         <th class="text-center" data-orderable="false">Price</th>
                                         <th class="text-center" data-orderable="true">Age</th>
+                                        <th class="text-center" data-orderable="true">Pickup Request </th>
+                                        <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
@@ -697,7 +698,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[13, "desc"]], 
+            order: [[12, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -715,16 +716,16 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '2', status: '<?php echo DEFECTIVE_PARTS_PENDING; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '9', status: '<?php echo DEFECTIVE_PARTS_PENDING; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,7,13], //first column / numbering column
+                    "targets": [1,4,7,12], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0], //first column / numbering column
+                    "targets": [0,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1038,6 +1039,53 @@
             $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
         } );
     });
+    
+    function uncheckedPickupScheduleCheckbox(sequence_id){
+  
+         $('.pickup_schedule').prop('checked', false);
+         
+        var service_center_id_arr = [];         
+        $(".pickup_request:checked").each(function(i){            
+            service_center_id = $(this).data("sf_id");   
+            
+            if(i === 0){
+                 service_center_id_arr.push(service_center_id);
+            } else {
+                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
+                  service_center_id_arr.push(service_center_id);
+              } else {
+                   
+                  $("#"+sequence_id).prop('checked', false);
+                  alert("Do not allow to tick different vendor booking");
+                  
+                  return false;
+              }
+            }
+        });
+      
+    }
+    
+    function uncheckedPickupRequest(sequence_id){
+         $('.pickup_request').prop('checked', false);
+          
+        var service_center_id_arr = [];         
+        $(".pickup_schedule:checked").each(function(i){
+            service_center_id = $(this).data("sf_id");
+                      
+            if(i === 0){
+                 service_center_id_arr.push(service_center_id);
+            } else {
+                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
+                  service_center_id_arr.push(service_center_id);
+              } else {                  
+                  $("#"+sequence_id).prop('checked', false);
+                  alert("Do not allow to tick different vendor booking");
+                  return false;
+              }
+            }
+        });         
         
+    }
+    
 </script>
 

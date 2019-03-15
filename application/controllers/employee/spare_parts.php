@@ -109,6 +109,9 @@ class Spare_parts extends CI_Controller {
                 break;
             case 8:
                 $this->oow_parts_shipped_pending_approval($post);
+                break;
+            case 9:
+                $this->get_defective_parts_pending($post);
                 break;            
         }
     }
@@ -237,6 +240,44 @@ class Spare_parts extends CI_Controller {
         foreach ($list as $spare_list) {
             $no++;
             $row =  $this->parts_delivered_to_sf_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+    }
+    
+     /**
+     * @desc Used to create tab in which we are showing
+     * Part defective part pending 
+     * @param Array $post
+     */
+    function get_defective_parts_pending($post){
+        log_message('info', __METHOD__. json_encode($post, true));
+        
+        $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
+                . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
+                . "spare_parts_details.acknowledge_date, spare_parts_details.service_center_id, challan_approx_value, status";
+        if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
+            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL);
+        } else {
+            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id',NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL,NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL);
+        }
+        
+        $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
+            'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type', 'spare_parts_details.shipped_date');
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->defective_parts_pending_table_data($spare_list, $no);
             $data[] = $row;
         }
         $output = array(
@@ -564,6 +605,60 @@ class Spare_parts extends CI_Controller {
         
         return $row;
     }
+    
+    
+    /**
+     * @desc this function is used to create table row data for the defective parts pending tab
+     * @param Array $spare_list
+     * @param int $no
+     * @return Array
+     */
+    function defective_parts_pending_table_data($spare_list, $no){        
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
+        $row[] = $spare_list->name;       
+        $row[] = $spare_list->sc_name;
+        $row[] = $spare_list->source;
+        $row[] = $spare_list->parts_requested;
+        $row[] = $spare_list->shipped_parts_type;        
+        $row[] = $spare_list->parts_shipped;
+        $row[] = $spare_list->request_type;
+        $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
+        $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
+        $row[] = "<i class='fa fa-inr'></i> ".$spare_list->challan_approx_value;
+        if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
+            $row[] = (empty($spare_list->age_of_delivered_to_sf))?'0 Days':$spare_list->age_of_delivered_to_sf." Days";;
+        } else {
+            $row[] = (empty($spare_list->age_part_pending_to_sf))?'0 Days':$spare_list->age_part_pending_to_sf." Days";
+        }
+        
+        if($spare_list->around_pickup_from_service_center == COURIER_PICKUP_REQUEST || $spare_list->around_pickup_from_service_center == COURIER_PICKUP_SCHEDULE){
+            $row[] = 'Pickup Requested'; 
+        } else {
+            $row[] = '<input type="checkbox" class="form-control pickup_request" data-sf_id="'.$spare_list->service_center_id.'"  id="pickup_request_'.$no.'" onclick="uncheckedPickupScheduleCheckbox(this.id)" value="'.$spare_list->id.'" />';    
+        }
+        if($spare_list->around_pickup_from_service_center == COURIER_PICKUP_SCHEDULE){
+            $row[] = 'Pickup Schedule'; 
+        } else if( $spare_list->around_pickup_from_service_center == COURIER_PICKUP_REQUEST) {
+            $row[] = '<input type="checkbox" class="form-control pickup_schedule" data-sf_id="'.$spare_list->service_center_id.'" id="pickup_schedule_'.$no.'" onclick="uncheckedPickupRequest(this.id)" value="'.$spare_list->id.'" />';
+        } else {
+            $row[] = '';
+        }
+        
+        
+        if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin"){
+            
+            if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = "Required"; $cl ="btn-primary";} else{ $text = "Not Required"; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
+            $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
+        } else {
+            
+            $row[] = "";
+        }
+        
+        return $row;
+    }
+    
     /**
      * @desc this function is used to create table row data for the part shipped by partner tab
      * @param Array $spare_list
@@ -1918,6 +2013,104 @@ class Spare_parts extends CI_Controller {
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
             redirect(base_url() . "employee/login");
+        }
+    }
+        
+    /**
+     *  @desc : This function is used to spare parts cancellation reason
+     *  @param : $file_details array()
+     *  @return :$res array
+     */
+    function pick_up_spare_parts() {
+        log_message('info', json_encode($this->input->post(), true));
+
+        $spare_parts_ids = $this->input->post('spare_parts_ids');
+        $request_type = $this->input->post('request_type');
+        $post['courier_name'] = $this->input->post('courier_name');
+        $post['courier_to_email'] = $this->input->post('courier_to_email');
+        $post['courier_cc_email'] = $this->input->post('courier_cc_email');
+        $post['request_type'] = $request_type;
+
+        if (!empty($spare_parts_ids)) {
+            $spare_parts_id_list = explode(',', $spare_parts_ids);
+        }
+        
+        if (!empty($spare_parts_id_list)) {
+            $flag = false;
+            $service_center_id_list = array();
+            $pickup_email_details = array();
+            foreach ($spare_parts_id_list as $spare_part_id) {
+                $select = "spare_parts_details.id, spare_parts_details.status, spare_parts_details.service_center_id,"
+                        . "service_centres.name, service_centres.phone_1, service_centres.email, service_centres.address, service_centres.state, "
+                        . "service_centres.district, service_centres.pincode, service_centres.phone_2";
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_part_id), false, true);
+
+                if ($request_type == 2) {
+                    $spare_data['around_pickup_from_service_center'] = COURIER_PICKUP_REQUEST;
+                } else {
+                    $spare_data['around_pickup_from_service_center'] = COURIER_PICKUP_SCHEDULE;
+                }
+
+                if (!in_array($spare_parts_details[0]['service_center_id'], $service_center_id_list)) {
+                    array_push($service_center_id_list, $spare_parts_details[0]['service_center_id']);
+                    array_push($pickup_email_details, $spare_parts_details[0]);
+                }
+
+                $affected_id = $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_part_id), $spare_data);
+                if ($affected_id) {
+                    $flag = true;
+                }
+            }
+
+            $this->send_email_to_pickup_spare_parts($pickup_email_details, $post);
+
+            if ($flag) {
+                echo 'success';
+            } else {
+                echo 'failed';
+            }
+        }
+    }
+
+    /*
+     * @desc this function is used to trigger mail to Customers on spare parts approval
+     * @param  $part_warranty_status
+     * @param  $email_template
+     * @param Array $data
+     * @param $booking_id
+     */
+
+    function send_email_to_pickup_spare_parts($pickup_email_details, $post) {
+
+        foreach ($pickup_email_details as $value) {
+
+            if ($post['request_type'] == 2) {
+                $email_template_tag = 'courier_pickup_request';
+            } else {
+                $email_template_tag = 'courier_pickup_schedule';
+            }
+
+            $email_template = $this->booking_model->get_booking_email_template($email_template_tag);
+                        
+            if (!empty($email_template)) {
+                $to = $value['email'] . "," . $post['courier_to_email'];
+                $cc = $post['courier_cc_email'] . "," .$email_template[3];
+            }
+
+            $subject = vsprintf($email_template[4], array($value['name']));
+
+            $this->load->library('table');
+            $template = array(
+                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+            );
+
+            $this->table->set_template($template);
+            $this->table->set_heading(array('Name', 'Address', 'City', 'State', 'District', 'Pincode', 'Phone 1', 'POC Email', 'POC Phone 1'));
+            $this->table->add_row($value['name'], $value['address'], $value['district'], $value['state'], $value['district'], $value['pincode'], $value['phone_1'], $value['email'], $value['phone_2']);
+            $body_msg = $this->table->generate();
+            
+            $emailBody = vsprintf($email_template[0], array( strtoupper($post['courier_name']), $body_msg));
+            $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, '', $email_template_tag, '', '');
         }
     }
 
