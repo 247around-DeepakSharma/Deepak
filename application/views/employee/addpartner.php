@@ -4979,10 +4979,10 @@
                 success:function(response){
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
-                        alert("Model Number Inserted Successfully");
+                        alert(data.msg);
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("Eroor in Inserting Model Number");
+                        alert(data.msg);
                     }
                     $("#add_model_service, #add_model_number").val("");
                 }
