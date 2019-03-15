@@ -275,7 +275,7 @@
     });
     
     $(".pickup").click(function(){
-        $('#pickup_modal').show();
+        $("#spare_pick_up").attr('disabled',false);  
         $("#courier_to_email").val('');
         $("#courier_cc_email").val('');
         $("#remarks").val('');  
@@ -285,7 +285,7 @@
         $("."+class_name).each(function(i){
            spare_ids_arr[i] = $(this).val();
         });
-       
+
         if(spare_ids_arr.length>0){
           if(request_type == 'pickup_request'){
              $("#modal_title").html('Pickup Request'); 
@@ -352,7 +352,7 @@
                 data: $('#spare_parts_pick_up').serialize(),
                 success: function(data) {                    
                    if(data=='success'){
-                       $('#pickup_modal').hide();
+                       $('#pickup_modal').modal('hide');
                        defective_part_pending_table.ajax.reload(null, false);
                    } 
                 }
