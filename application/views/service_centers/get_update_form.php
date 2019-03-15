@@ -575,11 +575,22 @@
                 }
             });
     
-           $('.part_in_warranty_status').each(function() {
+            $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                         alert('Please Select Part Warranty Status');    
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
+            
+            $('.spare_request_symptom').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "spare_request_symptom"){
+                    if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                        alert('Please Select Technical Problem');    
                         checkbox_value = 0;
                        return false;
                     }
@@ -640,8 +651,6 @@
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
-            $("#part_warranty_status_0").attr("required", true);
-            $("#spare_request_symptom_0").attr("required", true);
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
                 || id=== "spare_not_delivered"){
@@ -651,19 +660,15 @@
             $(".rescheduled_form").removeAttr("disabled");
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
-            $("#part_warranty_status_0").attr("required", false);
-            $("#spare_request_symptom_0").attr("required", false);
-    
-       }  else {
+        
+        }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
          $('#hide_spare').hide();
          $('#hide_rescheduled').hide();
          $('#hide_remarks').show();
          $(".remarks").removeAttr("disabled");
-         $("#part_warranty_status_0").attr("required", false);
-         $("#spare_request_symptom_0").attr("required", false);
-       }
+        }
     }
     
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>', changeMonth: true,changeYear: true});
