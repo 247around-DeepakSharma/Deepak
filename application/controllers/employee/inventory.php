@@ -4580,17 +4580,30 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function add_appliance_model_data($data) {
-        $response = $this->inventory_model->insert_appliance_model_data($data);
-        if (!empty($response)) {
-            $res['response'] = 'success';
-            $res['msg'] = 'Inventory added successfully';
-            log_message("info",  __METHOD__.' Inventory added successfully');
-        } else {
-            $res['response'] = 'error';
-            $res['msg'] = 'Error in inserting inventory details';
-            log_message("info",  __METHOD__.' Error in inserting inventory details');
+        $aplliance_model_where = array(
+                            'service_id' => $data['service_id'],
+                            'model_number' => $data['model_number'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $data['entity_id']
+                        );
+        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+        if(empty($model_detail)){
+            $response = $this->inventory_model->insert_appliance_model_data($data);
+            if (!empty($response)) {
+                $res['response'] = 'success';
+                $res['msg'] = 'Model Number Inserted Successfully';
+                log_message("info",  __METHOD__.' Inventory added successfully');
+            } else {
+                $res['response'] = 'error';
+                $res['msg'] = 'Error in Inserting Model Details';
+                log_message("info",  __METHOD__.' Error in inserting inventory details');
+            }
         }
-        
+        else{
+            $res['response'] = 'success';
+            $res['msg'] = 'Model Number Already Exist';
+            log_message("info",  __METHOD__.' Inventory Already Exist');
+        }
         return $res;
     }
     
