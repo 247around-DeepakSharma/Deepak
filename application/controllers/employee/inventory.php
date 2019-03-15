@@ -835,9 +835,9 @@ class Inventory extends CI_Controller {
     function get_spare_parts(){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/get_spare_parts');
+        $this->load->view('employee/get_spare_parts',$data);
     }
     /**
      * @desc: load to Spare parts booking by Admin Panel

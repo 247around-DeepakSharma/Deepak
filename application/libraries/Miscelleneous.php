@@ -3218,9 +3218,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                         $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
                     } else {
                         $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $response['defective_return_to_entity_id'] = $partner_id;
-                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $response['defective_return_to_entity_id'] = $partner_id;
+                        $response['defective_return_to_entity_id'] = $partner_id;                        
                     }
                 }
                 
