@@ -666,7 +666,7 @@
        }
     }
     
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, changeMonth: true,changeYear: true});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>', changeMonth: true,changeYear: true});
     $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
                 maxDate:0});
     $("#reschduled_booking_date").datepicker({

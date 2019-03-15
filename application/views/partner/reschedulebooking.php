@@ -86,20 +86,22 @@
 </div>
 <script type="text/javascript">
     var today = new Date();
+    var startDate = today.getHours() >=12 ? today.add(1).day() : today;
     $('#booking_date').daterangepicker({
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate:today,
+                minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
+                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
                 locale:{
-                    format: 'DD-MM-YYYY'
+                    format: 'YYYY-MM-DD'
                 }
             });
             
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD-MM-YYYY'));
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
-
+    
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
