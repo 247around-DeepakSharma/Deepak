@@ -349,9 +349,10 @@ class dashboard_model extends CI_Model {
         else{
           $where="where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
         }
-        $sql='SELECT sf.pincode,sf.city,state_code.state,sf.service_id,employee_relation.agent_id,partners.public_name,services.services '
+       $sql='SELECT sf.pincode,sf.city,state_code.state,sf.service_id,employee_relation.agent_id,emp.full_name as full_name,partners.public_name,services.services '
                 .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.state_code '
-                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(sf.state,employee_relation.state_code) '
+                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(sf.state,employee_relation.state_code)'
+               . 'JOIN employee emp ON emp.id = employee_relation.agent_id '
                 .'LEFT JOIN '
                  .'employee ON employee.id = employee_relation.agent_id '.$where;
        $query = $this->db->query($sql);
