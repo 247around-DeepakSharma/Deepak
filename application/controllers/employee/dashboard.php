@@ -1203,79 +1203,57 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     if($this->session->userdata('partner_id')){
         $partnerID = $this->session->userdata('partner_id');
     }
-    $rmIDNameArray = array();
-    $rmBookingArray = array();
-    $rmEscalationArray = array();
-    $esclationPercentage = array();
+    $rmArray = $rmEscalationArray = $esclationPercentage = array();
     //create groupby array for booking(group by rm and then vendor)
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
     // get escalation data and booking data for all vendor related to rm
     $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy,$partnerID);
-    // get Service center name and id
-    $rmArray = $this->reusable_model->get_search_result_data("employee","id,full_name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-    // Create an associative array for service Center and ID
-    if($rmArray){
-        foreach($rmArray as $RMData){
-            $rmIDNameArray["RM_".$RMData['id']]= $RMData['full_name'];
-        }
-    }
     //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
     if($escalationBookingData['booking']){
         foreach($escalationBookingData['booking'] as $bookingData){
-            if(array_key_exists("RM_".$bookingData['rm_id'], $rmBookingArray)){
-                $rmBookingArray["RM_".$bookingData['rm_id']] = $rmBookingArray["RM_".$bookingData['rm_id']] +$bookingData['total_booking'];
+            if(array_key_exists("RM_".$bookingData['rm_id'], $rmArray)){
+                $rmArray["RM_".$bookingData['rm_id']]['bookings'] = $rmArray["RM_".$bookingData['rm_id']]['bookings'] +$bookingData['total_booking'];
             }
             else{
-                $rmBookingArray["RM_".$bookingData['rm_id']] = $bookingData['total_booking'];
+                $rmArray["RM_".$bookingData['rm_id']]['bookings']  = $bookingData['total_booking'];
             }
         }
     }
+
     if($escalationBookingData['escalation']){
         foreach($escalationBookingData['escalation'] as $escalationData){
-            if(array_key_exists("RM_".$escalationData['rm_id'], $rmEscalationArray)){
-                $rmEscalationArray["RM_".$escalationData['rm_id']] = $rmEscalationArray["RM_".$escalationData['rm_id']] +$escalationData['total_escalation'];
+            if(array_key_exists('escalation', $rmArray["RM_".$escalationData['rm_id']])){
+                $rmArray["RM_".$escalationData['rm_id']]['escalation'] = $rmArray["RM_".$escalationData['rm_id']]['escalation'] +$escalationData['total_escalation'];
             }
             else{
-                $rmEscalationArray["RM_".$escalationData['rm_id']] = $escalationData['total_escalation'];
+                $rmArray["RM_".$escalationData['rm_id']]['escalation'] = $escalationData['total_escalation'];
+                $rmArray["RM_".$escalationData['rm_id']]['rm_name'] = $escalationData['rm_name'];
+                $rmArray["RM_".$escalationData['rm_id']]['zone'] = $escalationData['region'];
             }
         }
     }
-    //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
-    if(!empty($rmEscalationArray)){
-    foreach($rmEscalationArray as $RM=>$escalation){
-        if($escalation !=0 ){
-           $RMBooking = 0;
-           $RMName = "";
-           $zone = "";
-           if(array_key_exists($RM, $rmBookingArray)){
-               $RMBooking = $rmBookingArray[$RM];
-           }
-           if(array_key_exists("RM_".$escalationData['rm_id'], $rmBookingArray)){
-               $RMName = $rmIDNameArray[$RM];
-                switch ($RMName) {
-                case EAST_RM:
-                    $zone =  "East";
-                break;
-                case SOUTH_RM:
-                    $zone = "South";
-                break;
-                case WEST_RM:
-                    $zone = "West";
-                break;
-                case NORTH_RM:
-                    $zone = "North";
-                break;
-                default:
-                    $zone = "Undefined";
-                }
-           }
-           $tempArray= array("esclation_per"=>round((($escalation*100)/$RMBooking),2),"rm_id"=>$RM,
-               "total_booking"=>$RMBooking,"total_escalation"=>$escalation,"rm_name"=>$RMName,"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$zone);
-           $esclationPercentage[]=$tempArray;
-       }
+    if($this->session->userdata('partner_id')){
+        if(!empty($rmArray)){
+            foreach($rmArray as $RM=>$escalation){
+                $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                    "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+            }
+        }
+         $esclationPercentage= array_values($tempArray);
     }
+    else{
+        //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
+        if(!empty($rmArray)){
+            foreach($rmArray as $RM=>$escalation){
+                if($escalation !=0 ){
+                    $tempArray= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                       "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                    $esclationPercentage[]=$tempArray;
+                }
+            }
+        }
     }
     //Echo final matrix array to use for Angular JS
     echo json_encode($esclationPercentage);
