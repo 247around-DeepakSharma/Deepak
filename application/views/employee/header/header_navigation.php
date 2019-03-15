@@ -567,7 +567,6 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
                             var result = JSON.parse(response);
                             var data="";
                             for(var element in result){
-                                if(result[element].contact){
                                     var temp = "";
                                     if(result[element].paid_service_centers){ 
                                          temp = "<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color'>\n\
@@ -577,7 +576,6 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
                                     data +=  "<td>"+result[element].name+"</td>";
                                     data +=  "<td>"+result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
                                 <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>";
-                                }
                             }
                             var tb="<table class='table  table-bordered table-condensed ' id='partner_toll_free_table'>";
                             tb+='<thead>';
