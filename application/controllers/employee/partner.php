@@ -7132,5 +7132,22 @@ class Partner extends CI_Controller {
         return $row;
     }
     
-   
+     /**
+     * @desc: This function is used to get partner whose booking file can be upload
+     * @params: void
+     * @return: string
+     */
+    function get_booking_file_upload_partner(){
+        $where = array('is_active'=>1);
+        $partner_list = $this->partner_model->get_booking_file_upload_partner($where);
+        $option = '<option selected="" disabled="">Select Partner</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['public_name'] . "</option>";
+        }
+        echo $option;
+    }
+            
 }

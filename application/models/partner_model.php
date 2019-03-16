@@ -2049,10 +2049,20 @@ function get_data_for_partner_callback($booking_id) {
         $result=$this->db->get()->result_array();
         return $result;
     }
-    function insert_sample_no_pic($data)
-    {
-        $this->db->insert('partner_sample_no_picture',$data);
-        return $this->db->insert_id();
+    
+    /*
+     * @desc: This function is used to get partner whose booking file can be upload
+     */
+    function get_booking_file_upload_partner($where = array()) {
+        $this->db->select('distinct( partners.id ), public_name');
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        $this->db->join('partners', 'partners.id = email_attachment_parser.partner_id');    
+        $this->db->order_by("public_name", "asc");         
+        $query = $this->db->get('email_attachment_parser');
+                  
+        return $query->result_array();
     }
 }
 

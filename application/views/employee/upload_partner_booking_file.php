@@ -11,6 +11,12 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
+                <div class="alert alert-info alert-dismissible" role="alert" style="margin-top:15px;">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <strong> If partner name is missing in dropdown, Please contact tech team it needs to be mapped first.</strong>
+                </div>
                 <?php
                     if ($this->session->flashdata('file_error')) {
                         echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
@@ -157,7 +163,7 @@
        // show_upload_file_history();
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            url:'<?php echo base_url();?>employee/partner/get_booking_file_upload_partner',
             success:function(response){
                 $('#partner_id').html(response);
                 $('#partner_id').select2();
