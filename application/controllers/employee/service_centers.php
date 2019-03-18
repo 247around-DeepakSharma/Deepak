@@ -3272,19 +3272,17 @@ class Service_centers extends CI_Controller {
      * @desc It check if sc update gst form first then show its profile otherwies GST form
      */
     function gst_update_form(){
-        //$this->checkUserSession();
+        $this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $data = $this->reusable_model->get_search_result_data("service_centres","id as service_center_id,company_name,address as company_address,pan_no as company_pan_number"
                 . ",is_gst_doc as is_gst,gst_no as company_gst_number,gst_file as gst_certificate_file,signature_file",
                array("id"=>$this->session->userdata('service_center_id')),NULL,NULL,NULL,NULL,NULL,array());
-        //echo "<pre>";        print_r($data);exit();
         if($data[0]['is_gst'] == 1 && !empty($data[0]['gst_certificate_file'])){
             $this->load->view('service_centers/header'); 
             $this->load->view('service_centers/gst_details_view', $data[0]);
         } else {
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/gst_update_form',$data[0]);
-            
         }
     }
     /**
