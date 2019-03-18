@@ -68,7 +68,7 @@
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
                                 </td>-->
-                                <td>
+                                <td style="word-break: break-all;">
                                     <?php echo $row['defective_part_shipped']; ?>
                                 </td>
                                 <td>

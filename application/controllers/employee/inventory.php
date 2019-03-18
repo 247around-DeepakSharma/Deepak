@@ -5558,6 +5558,7 @@ class Inventory extends CI_Controller {
             else{
                 $row[] = "Inactive";
             }
+            $row[] = "<button class='btn btn-primary btn-sm' data='".$json."' onclick='edit_mapped_model(this)'>Edit</button>"; 
         }
         return $row;
     }
