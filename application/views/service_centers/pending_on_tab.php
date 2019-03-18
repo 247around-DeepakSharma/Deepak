@@ -553,7 +553,7 @@
                                     <td>
                                         <?php echo $row['serial_number']; ?>
                                     </td>
-                                    <td>
+                                    <td style="word-break: break-all;">
                                         <?php echo $row['parts_requested']; ?>
                                     </td>
                                     <td>

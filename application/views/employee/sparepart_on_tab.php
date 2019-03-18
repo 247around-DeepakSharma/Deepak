@@ -455,7 +455,7 @@
     var defective_part_pending_table;
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
-    var estimate_cost_given_table
+    var estimate_cost_given_table;
     var oow_part_shipped_table;
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -585,7 +585,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'

@@ -468,8 +468,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
 
-        $row[] = $spare_list->parts_shipped;
-        $row[] = $spare_list->defective_part_shipped;
+        $row[] = "<span class='line_break'>". $spare_list->parts_shipped ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->defective_part_shipped ."</span>";
         $row[] = $spare_list->request_type;
         $row[] = $spare_list->remarks_defective_part_by_partner;
         $row[] = !empty($spare_list->defactive_part_received_date_by_courier_api)?"Delivered":"In-Transit";
@@ -500,12 +500,10 @@ class Spare_parts extends CI_Controller {
         $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->defective_part_shipped;
+        $row[] = "<span class='line_break'>". $spare_list->defective_part_shipped ."</span>";
         $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
- 
-
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_sf;
         if(!empty($spare_list->defective_courier_receipt)){
@@ -549,8 +547,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
 
-        $row[] = $spare_list->parts_shipped;
-        $row[] = $spare_list->defective_part_shipped;
+        $row[] = "<span class='line_break'>". $spare_list->parts_shipped ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->defective_part_shipped ."</spare>";
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_defective_part_shipped_date))?'0 Days':$spare_list->age_defective_part_shipped_date." Days";
         $row[] = $spare_list->remarks_defective_part_by_sf;
@@ -582,10 +580,10 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->parts_requested;
-        $row[] = $spare_list->shipped_parts_type;        
-        $row[] = $spare_list->parts_shipped;
-        $row[] = $spare_list->request_type;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->shipped_parts_type ."</span>";;        
+        $row[] = "<span class='line_break'>". $spare_list->parts_shipped ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->request_type ."</span>";
         $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
         $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
         $row[] = "<i class='fa fa-inr'></i> ".$spare_list->challan_approx_value;
@@ -621,10 +619,10 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->name;       
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->parts_requested;
-        $row[] = $spare_list->shipped_parts_type;        
-        $row[] = $spare_list->parts_shipped;
-        $row[] = $spare_list->request_type;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->shipped_parts_type ."</span>";        
+        $row[] = "<span class='line_break'>". $spare_list->parts_shipped ."</spare>";
+        $row[] = "<span class='line_break'>". $spare_list->request_type ."</spare>";
         $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
         $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
         $row[] = "<i class='fa fa-inr'></i> ".$spare_list->challan_approx_value;
@@ -675,9 +673,9 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->parts_requested;
-        $row[] = $spare_list->parts_requested_type;
-        $row[] = $spare_list->parts_shipped;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->parts_shipped ."</span>";
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
         if(!empty($spare_list->partner_challan_file)){
@@ -717,7 +715,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = "<span class='line_break'>". $spare_list->parts_requested."</span>"; 
-        $row[] = $spare_list->parts_requested_type;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</span>";
         $row[] = "<span class='line_break'>".$spare_list->parts_shipped."</span>"; ;
         $row[] = $spare_list->request_type;
         $row[] = $spare_list->purchase_price;
@@ -770,8 +768,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
-        $row[] = $spare_list->parts_requested;
-        $row[] = $spare_list->parts_requested_type;
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
+        $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</spare>";
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
