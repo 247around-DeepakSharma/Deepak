@@ -378,7 +378,7 @@
       
  <?php }?>
   
-    <?php if(isset($bank_statement)) { ?>
+    <?php //if(isset($bank_statement)) { ?>
     <br>
      <p><h2>Bank Transactions</h2></p>
      <table class="table table-bordered  table-hover table-striped data"  id="bank_transaction_datatable1">
@@ -424,7 +424,9 @@
      <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo sprintf("%.2f",$unbilled_amount[0]['unbilled_amount']);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(sprintf("%.2f",$unbilled_amount[0]['unbilled_amount']));} else { echo 0;} ?></h4></p>
     
-    <?php } } ?>
+    <?php } 
+    //} 
+    ?>
 
 
 <style>
