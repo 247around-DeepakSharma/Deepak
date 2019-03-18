@@ -239,7 +239,7 @@ define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
 //Define snapdeal new missed call number
 define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER_2','8800887247');
+define('PARTNERS_MISSED_CALLED_NUMBER_2','01143092150');
 //Define snapdeal new missed call number
 define('SNAPDEAL_MISSED_CALLED_NUMBER','01139595247');
 //Define Android App new missed call number
