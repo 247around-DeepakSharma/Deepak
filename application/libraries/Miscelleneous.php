@@ -3118,7 +3118,12 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], $cc, $bcc,$login_subject, $login_emailBody, "",'partner_login_details');
+                    $login_email['password'] = "***********";
+                    $login_emailBody247 = vsprintf($login_template[0], $login_email);
+                    //Send Login Details to partner
+                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    //Send Login Details to 247around 
+                    $this->My_CI->notify->sendEmail($login_template[2], $this->My_CI->session->all_userdata('official_email'), $cc, $bcc,$login_subject, $login_emailBody247, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
                     //Logging Error
