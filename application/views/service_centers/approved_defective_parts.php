@@ -37,7 +37,7 @@
                                      <td>
                                         <?php echo $row['name']; ?>
                                     </td>
-                                    <td>
+                                    <td style="word-break: break-all;">
                                         <?php echo $row['defective_part_shipped']; ?>
                                     </td>
 

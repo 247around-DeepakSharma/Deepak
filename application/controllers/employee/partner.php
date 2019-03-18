@@ -5716,7 +5716,8 @@ class Partner extends CI_Controller {
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
-                    $tempArray[] =  $row['parts_requested'];
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
+                    $tempArray[] =  $row['part_number'];
                     $tempArray[] =  $row['model_number'];
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];
@@ -5805,7 +5806,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = '<a target="_blank"  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] = $row['name'];
-                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
@@ -6045,7 +6046,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = ' <a style="color:blue;"  href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] = $row['name'];
-                    $tempArray[] = $row['parts_shipped'];
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['parts_shipped'] ."</span>";
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
                     if(!empty($row['partner_challan_file'])) {
@@ -6106,7 +6107,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
                     $tempArray[] = $row['name'];
-                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'].'</span>';
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
                     if(!empty($row['partner_challan_file'])) {
@@ -6158,7 +6159,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
                     $tempArray[] = $row['name'];
-                    $tempArray[] = $row['defective_part_shipped'];
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     if (!is_null($row['received_defective_part_date'])) {
                          $tempString2 =   date("d-m-Y", strtotime($row['received_defective_part_date']));
                     }

@@ -455,7 +455,7 @@
     var defective_part_pending_table;
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
-    var estimate_cost_given_table
+    var estimate_cost_given_table;
     var oow_part_shipped_table;
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
