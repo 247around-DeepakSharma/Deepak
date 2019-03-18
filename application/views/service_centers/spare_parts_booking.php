@@ -99,7 +99,7 @@ if ($this->uri->segment(3)) {
                                         <td>
                                             <?php echo $row['age_of_request']; ?>
                                         </td>
-                                        <td>
+                                        <td style="word-break: break-all;">
                                             <?php echo $row['parts_requested']; ?>
                                         </td>
                                         <td>

@@ -50,7 +50,7 @@
                                     <td>
                                         <?php if(!is_null($row['service_center_closed_date'])){  $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));   echo $age_shipped->days. " Days";} ?>
                                     </td>
-                                    <td>
+                                    <td style="word-break: break-all;">
                                         <?php echo $row['parts_shipped']; ?>
                                     </td>
                                     <td>
