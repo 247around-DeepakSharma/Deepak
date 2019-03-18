@@ -1524,11 +1524,12 @@ class Do_background_upload_excel extends CI_Controller {
                         $to = $this->email_send_to;
                     }
                     
-                    $poc_email = "";
-                    if (!empty($get_partner_am_id[0]['primary_contact_email'])) {
-                        $poc_email = $get_partner_am_id[0]['primary_contact_email'];
-                    }
-                    $cc = NITS_ANUJ_EMAIL_ID.",".$poc_email;
+                    //$poc_email = "";
+                    //if (!empty($get_partner_am_id[0]['primary_contact_email'])) {
+                    //    $poc_email = $get_partner_am_id[0]['primary_contact_email'];
+                    //}
+                    //$cc = NITS_ANUJ_EMAIL_ID.",".$poc_email;
+                    $cc = NITS_ANUJ_EMAIL_ID;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
                     $body = $response['msg'];
