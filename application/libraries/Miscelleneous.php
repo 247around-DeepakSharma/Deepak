@@ -3097,6 +3097,8 @@ function generate_image($base64, $image_name,$directory){
                 $email_sent = false;
                 unset($data['email_not_sent']);
             }
+            $data['user_id'] = str_replace(' ', '-', $data['user_id']);
+            $data['user_id'] = preg_replace('/[^A-Za-z0-9-]/', '', $data['user_id']);
             $s1 = $this->My_CI->dealer_model->insert_entity_login($data);
             if ($s1) {
                 //Log Message
@@ -3122,7 +3124,8 @@ function generate_image($base64, $image_name,$directory){
                     //Send Login Details to partner
                     $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
                     //Send Login Details to 247around 
-                    $this->My_CI->notify->sendEmail($login_template[2], $this->My_CI->session->all_userdata('official_email'), $cc, $bcc,$login_subject, $login_emailBody247, "",'partner_login_details');
+                    $to = $this->My_CI->session->userdata('official_email');
+                    $this->My_CI->notify->sendEmail($login_template[2], $to, $cc, $bcc,$login_subject, $login_emailBody247, "",'partner_login_details');
                     log_message('info', $login_subject . " Email Send successfully" . $login_emailBody);
                 } else {
                     //Logging Error
