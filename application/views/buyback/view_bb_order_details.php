@@ -166,6 +166,8 @@
                                                         <th>Around Charge</th>
                                                         <th>Partner Sweetner Charge</th>
                                                         <th>CP Claimed Price</th>
+                                                        <th>Partner Discount</th>
+                                                        <th>CP Discount</th>
                                                         <th>Partner Invoice Id</th>
                                                         <th>CP Invoice Id</th>
                                                     </tr>
@@ -183,6 +185,8 @@
                                                         <td>{{x.around_charges}}</td>
                                                         <td>{{x.partner_sweetner_charges}}</td>
                                                         <td>{{x.cp_claimed_price}}</td>
+                                                        <td>{{x.partner_discount}}</td>
+                                                        <td>{{x.cp_discount}}</td>
                                                         <td><a href="" ng-click="get_invoice_data(x.partner_invoice_id)">{{x.partner_invoice_id}}</a></td>
                                                         <td><a href="" ng-click="get_invoice_data(x.cp_invoice_id)">{{x.cp_invoice_id}}</a></td>
                                                     </tr>
