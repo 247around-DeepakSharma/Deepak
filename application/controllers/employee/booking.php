@@ -2599,10 +2599,15 @@ class Booking extends CI_Controller {
                 if(!$this->input->post('is_repeat')){
                     if (!empty($order_id)) {
                         //Check only If booking is not Repeat
-                            $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id);
+                            $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id,'Yes');
+                            $recordCount = count($partner_booking);
                             if (is_null($partner_booking)) {
                                 return true;
                             } 
+                            //If existing belongs to dealer
+                            else if($recordCount == 1 && !empty($partner_booking[0]['dealer_id'])){
+                                 return true;
+                            }
                             else {
                                 if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
                                     $output = "Duplicate Order ID";

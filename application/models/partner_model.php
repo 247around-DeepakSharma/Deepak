@@ -42,15 +42,17 @@ class Partner_model extends CI_Model {
     }
 
     //Find order id for a partner
-    function get_order_id_for_partner($partner_id, $order_id, $booking_id = "") {
+    function get_order_id_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL) {
       $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
       if($booking_id != ""){
            $this->db->not_like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
       }
       $query = $this->db->get("booking_details");
       $results = $query->result_array();
-
       if (count($results) > 0) {
+       if($all_row){
+          return $results;
+       }
         return $results[0];
       } else {
         return NULL;
