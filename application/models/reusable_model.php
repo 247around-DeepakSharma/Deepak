@@ -77,10 +77,12 @@ class reusable_model extends CI_Model {
      * @input - TableName, data arary (field name , value in key_value pair),where array(field name,condition as key value pair) 
      */
     function update_table($table,$data,$where){
-        if($where){
-            $this->db->where($where);
-            $this->db->update($table,$data);
-            return $this->db->affected_rows();
+        if(!empty($data)){
+            if($where){
+                $this->db->where($where);
+                $this->db->update($table,$data);
+                return $this->db->affected_rows();
+            }
         }
     }
     
