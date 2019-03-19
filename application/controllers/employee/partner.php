@@ -5267,7 +5267,8 @@ class Partner extends CI_Controller {
             // Create Login If Checkbox Checked
             if($this->input->post('checkbox_value_holder') == 'true' && !$agent_id){
                     $password = mt_rand(100000, 999999);
-                    $loginData['user_id'] = str_replace(" ","_",$data['name']."_".$partnerID."_".mt_rand(10, 99));
+                    $user_id = str_replace(" ","_",$data['name']."_".mt_rand(10, 99));
+                    $loginData['user_id'] = preg_replace('/[^A-Za-z0-9-]/', '', $user_id);
                     $loginData['password'] = md5($password);
                     $loginData['clear_password'] = $password;
                     $loginData['active'] = 1;
