@@ -64,6 +64,7 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">SF Name</th>
                                     <th class="text-center">Age of Request(Days)</th>
                                     <th class="text-center">Parts Required</th>
+                                    <th class="text-center">Parts Code</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
@@ -77,9 +78,7 @@ if ($this->uri->segment(3)) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                foreach ($spare_parts as $key => $row) {
-                                    ?>
+                                <?php foreach ($spare_parts as $key => $row) { ?>
                                     <tr style="text-align: center;" >
                                         <td style="<?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>">
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
@@ -102,6 +101,10 @@ if ($this->uri->segment(3)) {
                                         <td style="word-break: break-all;">
                                             <?php echo $row['parts_requested']; ?>
                                         </td>
+                                         <td style="word-break: break-all;">
+                                            <?php echo $row['part_number']; ?>
+                                        </td>
+                                        
                                         <td>
                                             <?php echo $row['model_number']; ?>
                                         </td>
