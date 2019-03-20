@@ -125,7 +125,7 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Go To Invoice Page</th>
                     <th class='jumbotron' style="text-align: center">Action</th>
                     <th class='jumbotron' style="text-align: center">Generate Price</th>
-                    <th class='jumbotron' style="text-align: center">Modify Price</th>
+                    <th class='jumbotron' style="text-align: center">View Price</th>
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
                     <th class='jumbotron' style="text-align: center">Notifications</th>
                 </tr>
@@ -174,7 +174,7 @@ if ($this->session->userdata('error')) {
                             <a  class="btn btn-sm btn-success" href="<?php echo base_url(); ?>employee/service_centre_charges/generate_service_charges_view/<?php echo $row['id']; ?>" title="Generate charge"><i class="fa fa-plus" aria-hidden="true"></i></a>  
                         </td>
                         <td>
-                            <a  class="btn btn-sm btn-warning" href="<?php echo base_url(); ?>employee/service_centre_charges/show_charge_list/<?php echo $row['id']; ?>" title="Modify charge"><i class="fa fa-pencil" aria-hidden="true"></i></a>  
+                            <a  class="btn btn-sm btn-warning" href="<?php echo base_url(); ?>employee/service_centre_charges/show_charge_list/<?php echo $row['id']; ?>" title="View charge"><i class="fa fa-eye" aria-hidden="true"></i></a>  
                         </td>
                         <td style="width: 96px;">
                             <a style="float:left" href="<?php echo base_url(); ?>BookingSummary/send_leads_summary_mail_to_partners/<?php echo $row['id']; ?>" class="btn btn-sm btn-color" title="Send Summary Email"><i class="fa fa-envelope" aria-hidden="true"></i></a>  
