@@ -42,6 +42,7 @@
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Spare Details</th>
+                            <th class="text-center">Part Code</th>                            
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Challan</th>
@@ -80,7 +81,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,6], //first column / numbering column
+                    "targets": [0,2,6,4,7], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

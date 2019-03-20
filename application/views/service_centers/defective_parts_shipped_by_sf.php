@@ -39,6 +39,7 @@
                             <th class="text-center">SF Name</th>
                             <th class="text-center">SF City</th>
                             <th class="text-center">Parts Shipped</th>
+                            <th class="text-center">Parts Code</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
@@ -70,6 +71,10 @@
                                 </td>-->
                                 <td style="word-break: break-all;">
                                     <?php echo $row['defective_part_shipped']; ?>
+                                </td>
+                                
+                                <td style="word-break: break-all;">
+                                    <?php echo $row['part_number']; ?>
                                 </td>
                                 <td>
                                     <?php echo $row['courier_name_by_sf']; ?>

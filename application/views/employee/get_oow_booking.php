@@ -65,8 +65,8 @@
              <?php $column = array(NULL,NUll,NULL,NULL, NULL, "age_of_request", NULL, NULL);?>
              var column_order = <?php echo json_encode($column);?>;
              var obj = '<?php echo json_encode($data); ?>';
-             var select = '<?php echo "parts_requested, model_number, serial_number, spare_parts_details.id,"
-        . "booking_details.booking_id, booking_details.partner_id, assigned_vendor_id, amount_due"; ?>';
+             var select = '<?php echo "spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, spare_parts_details.id,"
+        . "booking_details.booking_id, booking_details.partner_id, assigned_vendor_id, amount_due, inventory_master_list.part_number"; ?>';
              oow_spare = $('#datatable1').DataTable({
                 "processing": true, //Feature control the processing indicator.
                 "serverSide": true, //Feature control DataTables' server-side processing mode.

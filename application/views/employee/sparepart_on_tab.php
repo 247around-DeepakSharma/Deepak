@@ -22,6 +22,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Part Code</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="true">Part Status</th>
@@ -55,7 +56,8 @@
                                 <th class="text-center" data-orderable="false">Service Center</th>
                                 <th class="text-center" data-orderable="false">Partner</th>
                                 <th class="text-center" data-orderable="false">Requested Part</th>
-                                <th class="text-center" data-orderable="false">Part Tye</th>
+                                <th class="text-center" data-orderable="false">Part Code</th>
+                                <th class="text-center" data-orderable="false">Part Type</th>
                                 <th class="text-center" data-orderable="false">Shipped Part</th>
                                 <th class="text-center" data-orderable="false">Booking Type</th>
                                 <th class="text-center" data-orderable="false">Estimate Cost</th>
@@ -94,6 +96,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Part Code</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -127,7 +130,8 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Tye</th>
+                                    <th class="text-center" data-orderable="false">Part Code</th>   
+                                    <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -186,6 +190,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Part Code</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
@@ -218,6 +223,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                         <th class="text-center" data-orderable="false">Part Code</th>
                                         <th class="text-center" data-orderable="false">Part Shipped Date</th>
                                         <th class="text-center" data-orderable="false">Courier Name</th>
                                         <th class="text-center" data-orderable="false">AWB</th>
@@ -255,6 +261,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false"> Part Code</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -293,6 +300,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Part Code</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
@@ -329,6 +337,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false">Part Code</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -365,6 +374,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+                                        <th class="text-center" data-orderable="false">Part Code</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -463,7 +473,7 @@
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 11, "desc" ]],//Initial no order.
+            order: [[ 12, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -501,7 +511,7 @@
      estimate_cost_given_table = $('#estimate_cost_given_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 10, "desc" ]], //Initial no order.
+            order: [[ 11, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -510,7 +520,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
                     },
                     title: 'spare_cost_given'
                 }
@@ -524,7 +534,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,9], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -538,7 +548,7 @@
     estimate_cost_requested_table = $('#estimate_cost_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 10, "desc" ]], //Initial no order.
+            order: [[ 11, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -547,7 +557,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
                     },
                     title: 'cost_requested'
                 }
@@ -587,7 +597,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -605,7 +615,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,11], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -619,7 +629,7 @@
     partner_shipped_part = $('#partner_shipped_part').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 10, "desc" ]],//Initial no order.
+            order: [[ 11, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -628,7 +638,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
                     },
                     title: 'partner_shipped_part'
                 }
@@ -655,7 +665,7 @@
         sf_received_part = $('#sf_received_part').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[13, "desc"]], //Initial no order.
+            order: [[14, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -664,7 +674,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13 ]
                     },
                     title: 'sf_received_part'
                 }
@@ -678,7 +688,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,7], //first column / numbering column
+                    "targets": [1,4,8], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -698,7 +708,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[12, "desc"]], 
+            order: [[13, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -721,11 +731,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,7,12], //first column / numbering column
+                    "targets": [1,4,7,13], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,13,14], //first column / numbering column
+                    "targets": [0,12,14,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -740,7 +750,7 @@
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[9, "desc"]], //Initial no order.
+            order: [[10, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -749,7 +759,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
                     },
                     title: 'defective_part_rejected'
                 }
@@ -817,7 +827,7 @@
         defective_part_shipped_by_SF_approved_table = $('#defective_part_shipped_by_SF_approved_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[11, "desc"]], //Initial no order.
+            order: [[12, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -842,6 +852,10 @@
                 {
                     "targets": [0,1,2,3,4], //first column / numbering column
                     "orderable": false //set not orderable
+                },
+                {
+                    "targets": [12], //first column / numbering column
+                    "orderable": true //set not orderable
                 }
             ],
             "fnInitComplete": function (oSettings, response) {

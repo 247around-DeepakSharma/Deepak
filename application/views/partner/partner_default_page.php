@@ -81,6 +81,7 @@
                                                         <th class="text-center">S.N</th>
                                                         <th class="text-center">Booking ID</th>
                                                         <th class="text-center">Spare Part</th>
+                                                        <th class="text-center">Part Code</th>
                                                         <th class="text-center">Age Of Requested</th>
                                                         <th class="text-center">Model No</th>
                                                         <th class="text-center">Serial No</th>
@@ -401,8 +402,8 @@
          <?php $column = array(NULL,NUll,NUll,"age_of_request", NULL,NULL, NULL, NULL, NULL);?>
          var column_order = <?php echo json_encode($column);?>;
          var obj = '<?php echo json_encode($data); ?>';
-         var select = '<?php echo "parts_requested, model_number, serial_number, assigned_vendor_id, "
-         . "amount_due, spare_parts_details.id, spare_parts_details.booking_id, defective_parts_pic, serial_number_pic,booking_details.partner_id"; ?>';
+         var select = '<?php echo "spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, assigned_vendor_id, "
+         . "amount_due, spare_parts_details.id, spare_parts_details.booking_id, defective_parts_pic, serial_number_pic,booking_details.partner_id ,inventory_master_list.part_number"; ?>';
          oow_spare = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
@@ -422,7 +423,7 @@
             //Set column definition initialisation properties.
             "columnDefs": [
                 {
-                    "targets": [0,1,2,3,4,5,6,7,8,9], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
