@@ -376,7 +376,25 @@
             </div> 
             </div>
         </div>
-    
+    <!-- get rm missing pincode ajax request-->
+     <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Serviceability Missing Report <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Missing Pincode  And Missing Pincode Percent">?</button></h2>
+                    <span class="collape_icon" href="#RM_Pincode_Reporting" data-toggle="collapse" onclick="get_rm_missing_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                   
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content collapse" id="RM_Pincode_Reporting">
+                    <div class="table-responsive" id="rm_pincode_data">
+                        <center><img id="missing_rm_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div id="admin_dashboard_app">
         <div class="x_panel">
@@ -1381,6 +1399,17 @@ if($this->session->userdata("wrong_pincode_msg")){
         
         sendAjaxRequest(data,url,post_request).done(function(response){
             $("#upcountry_table_data").html(response);
+        });
+    }
+    
+     function get_rm_missing_data(){
+        
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_rm_missing_pincode_data';
+        data['partner_id'] = '';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+           $("#rm_pincode_data").html(response);
         });
     }
 </script>
