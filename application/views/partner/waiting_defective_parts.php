@@ -42,12 +42,13 @@
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Customer Name</th>
                             <th class="text-center">Parts Shipped</th>
+                             <th class="text-center">Part Code</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">SF Challan</th>
                             <th class="text-center">Partner Challan</th>
-                            <th class="text-center">Send Email</th>
                             <th class="text-center">Shipped Date</th>
+                            <th class="text-center">Send Email</th>                            
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Receive</th>
                             <th class="text-center">Reject</th>
@@ -143,7 +144,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,5,6,7,8,10,11,12], //first column / numbering column
+                    "targets": [0,2,5,6,7,8,10,11,12,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

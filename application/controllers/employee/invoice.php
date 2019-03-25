@@ -173,7 +173,7 @@ class Invoice extends CI_Controller {
         //TODO: Fix the reversed names here & everywhere else as well
         $data2['partner_vendor'] = $this->input->post('source');
         $data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
-        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
+       // $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details('*',$data2);
         if ($data['vendor_partner'] == "vendor") {
     
             $invoice['unbilled_amount'] = $this->invoices_model->get_unbilled_amount($data['vendor_partner_id']);

@@ -20,6 +20,9 @@
             .dataTables_filter{
                 float: right;
             }
+            .table.dataTable thead .sorting:after {
+              opacity: 1;            
+            }
         </style>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
@@ -39,6 +42,7 @@
                             <th class="text-center">SF Name</th>
                             <th class="text-center">SF City</th>
                             <th class="text-center">Parts Shipped</th>
+                            <th class="text-center">Parts Code</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
@@ -68,8 +72,12 @@
     <!--                                    <td>
                                     <?php //echo $row['age_of_booking'];  ?>
                                 </td>-->
-                                <td>
+                                <td style="word-break: break-all;">
                                     <?php echo $row['defective_part_shipped']; ?>
+                                </td>
+                                
+                                <td style="word-break: break-all;">
+                                    <?php echo $row['part_number']; ?>
                                 </td>
                                 <td>
                                     <?php echo $row['courier_name_by_sf']; ?>
@@ -130,7 +138,8 @@
                         },
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }
-                ]
+                ],
+                "bSortClasses": false
             });
         </script>
 <?php if(empty($is_ajax)) { ?> 

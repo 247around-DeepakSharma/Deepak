@@ -835,9 +835,9 @@ class Inventory extends CI_Controller {
     function get_spare_parts(){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/get_spare_parts');
+        $this->load->view('employee/get_spare_parts',$data);
     }
     /**
      * @desc: load to Spare parts booking by Admin Panel
@@ -4580,17 +4580,30 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function add_appliance_model_data($data) {
-        $response = $this->inventory_model->insert_appliance_model_data($data);
-        if (!empty($response)) {
-            $res['response'] = 'success';
-            $res['msg'] = 'Inventory added successfully';
-            log_message("info",  __METHOD__.' Inventory added successfully');
-        } else {
-            $res['response'] = 'error';
-            $res['msg'] = 'Error in inserting inventory details';
-            log_message("info",  __METHOD__.' Error in inserting inventory details');
+        $aplliance_model_where = array(
+                            'service_id' => $data['service_id'],
+                            'model_number' => $data['model_number'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $data['entity_id']
+                        );
+        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+        if(empty($model_detail)){
+            $response = $this->inventory_model->insert_appliance_model_data($data);
+            if (!empty($response)) {
+                $res['response'] = 'success';
+                $res['msg'] = 'Model Number Inserted Successfully';
+                log_message("info",  __METHOD__.' Inventory added successfully');
+            } else {
+                $res['response'] = 'error';
+                $res['msg'] = 'Error in Inserting Model Details';
+                log_message("info",  __METHOD__.' Error in inserting inventory details');
+            }
         }
-        
+        else{
+            $res['response'] = 'success';
+            $res['msg'] = 'Model Number Already Exist';
+            log_message("info",  __METHOD__.' Inventory Already Exist');
+        }
         return $res;
     }
     
@@ -4919,6 +4932,7 @@ class Inventory extends CI_Controller {
     function download_spare_consolidated_data($partner_id = NULL){
         log_message('info',__METHOD__.' Processing...');
         
+        $partner_id = $this->input->post('partner_id');   
         $select = "spare_parts_details.id as spare_id, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
@@ -5545,6 +5559,7 @@ class Inventory extends CI_Controller {
             else{
                 $row[] = "Inactive";
             }
+            $row[] = "<button class='btn btn-primary btn-sm' data='".$json."' onclick='edit_mapped_model(this)'>Edit</button>"; 
         }
         return $row;
     }

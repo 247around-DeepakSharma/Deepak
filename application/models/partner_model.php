@@ -42,15 +42,17 @@ class Partner_model extends CI_Model {
     }
 
     //Find order id for a partner
-    function get_order_id_for_partner($partner_id, $order_id, $booking_id = "") {
+    function get_order_id_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL) {
       $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
       if($booking_id != ""){
            $this->db->not_like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
       }
       $query = $this->db->get("booking_details");
       $results = $query->result_array();
-
       if (count($results) > 0) {
+       if($all_row){
+          return $results;
+       }
         return $results[0];
       } else {
         return NULL;
@@ -2063,6 +2065,21 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->group_by('partners.account_manager_id');
         $result=$this->db->get()->result_array();
         return $result;
+    }
+    
+    /*
+     * @desc: This function is used to get partner whose booking file can be upload
+     */
+    function get_booking_file_upload_partner($where = array()) {
+        $this->db->select('distinct( partners.id ), public_name');
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        $this->db->join('partners', 'partners.id = email_attachment_parser.partner_id');    
+        $this->db->order_by("public_name", "asc");         
+        $query = $this->db->get('email_attachment_parser');
+                  
+        return $query->result_array();
     }
 }
 

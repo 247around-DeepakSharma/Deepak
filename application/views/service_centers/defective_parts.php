@@ -27,6 +27,7 @@
                             <th class="text-center">User Name</th>
                             <th class="text-center">Age of Pending</th>
                             <th class="text-center">Parts Received</th>
+                            <th class="text-center">Parts Code </th>
                              <th class="text-center">Amount</th>
                             <th class="text-center">Remarks By Partner</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
@@ -50,8 +51,11 @@
                                     <td>
                                         <?php if(!is_null($row['service_center_closed_date'])){  $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));   echo $age_shipped->days. " Days";} ?>
                                     </td>
-                                    <td>
+                                    <td style="word-break: break-all;">
                                         <?php echo $row['parts_shipped']; ?>
+                                    </td>
+                                    <td style="word-break: break-all;">
+                                        <?php echo $row['part_number']; ?>
                                     </td>
                                     <td>
                                         <?php echo $row['challan_approx_value']; ?>

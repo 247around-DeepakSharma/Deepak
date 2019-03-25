@@ -989,7 +989,8 @@ class Buyback_process extends CI_Controller {
                 round(bb_unit.partner_basic_charge + bb_unit.partner_tax_charge) as partner_charge,
                 round(bb_unit.cp_basic_charge + bb_unit.cp_tax_charge) as cp_tax, 
                 round(bb_unit.around_commision_basic_charge + bb_unit.around_commision_tax) as around_charges,
-                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price,bb_unit.order_status,bb_unit.partner_invoice_id,bb_unit.cp_invoice_id';
+                bb_unit.partner_sweetner_charges,s.services as service_name,bb_unit.cp_claimed_price,bb_unit.order_status,bb_unit.partner_invoice_id,bb_unit.cp_invoice_id,
+                bb_unit.partner_discount,bb_unit.cp_discount';
             $data = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id' => $partner_order_id), $select);
             print_r(json_encode($data));
         }
@@ -1062,7 +1063,7 @@ class Buyback_process extends CI_Controller {
     }
     function search_for_buyback(){
         log_message("info",__METHOD__);
-        $search_data = $this->input->post('search');
+        $search_data =  preg_replace('/[^A-Za-z0-9-]/', '', trim($this->input->post('search')));
         if(strpos($search_data,',')){
             $search_value = explode(',', $search_data);
         }else{

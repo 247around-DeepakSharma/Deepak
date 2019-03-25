@@ -60,6 +60,7 @@
                             <th class="text-center">Booking Id</th>
                             <th class="text-center">User Name</th>
                             <th class="text-center">Defective Parts Shipped</th>
+                            <th class="text-center">Parts Code</th>
                             <th class="text-center">Model</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">AWB</th>
@@ -83,9 +84,14 @@
                                      <td>
                                         <?php echo $row['name']; ?>
                                     </td>
-                                    <td>
+                                    <td style="word-break: break-all;">
                                         <?php echo $row['defective_part_shipped']; ?>
                                     </td>
+                                    
+                                    <td style="word-break: break-all;">
+                                        <?php echo $row['part_number']; ?>
+                                    </td>
+                                    
                                      <td>
                                         <?php echo $row['model_number_shipped']; ?>
                                     </td>

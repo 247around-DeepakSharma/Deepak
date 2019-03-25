@@ -255,7 +255,7 @@
     </div>
     <div class="col-md-10 col-sm-10 col-xs-10" style="padding: 0px;margin: 10px 90px;border: 2px solid #2c9d9c; width: 88%;background: #fff;">
         <div class="x_title" style="background: #2c9d9c; color: #fff;">
-            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Pending Bookings<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
+            <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Open Bookings TAT report<button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #008000;
                 color: #fff;border: none;"></button></h2>
             <div class="clearfix"></div>
         </div>

@@ -267,8 +267,8 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Warehouse <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
-                                    <li role="separator" class="divider"></li>
-                                    <li class="dropdown dropdown-submenu">
+                               <!-- <li role="separator" class="divider"></li>
+                                      <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
                                         <ul class="dropdown-menu">                                           
                                             <li><a href="<?php echo base_url();?>service_center/spare_parts"><strong> Send To SF</strong></a></li>
@@ -280,10 +280,10 @@
                                             <li class="divider"></li>
                                             <li><a href="<?php echo base_url(); ?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Defective Spare Received </strong></a>
                                             </li>
-                                            <li class="divider"></li>-->
+                                            <li class="divider"></li>
                                         </ul>
-                                    </li>
-                                     <li class="divider"></li>
+                                    </li> 
+                                   <li class="divider"></li>
                                     <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
                                         <ul class="dropdown-menu">                                           
@@ -292,7 +292,7 @@
                                             <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Acknowledge Shipped Spares By SF </strong></a>
                                             </li>                                                                            
                                         </ul>
-                                    </li>
+                                    </li>-->
                                     <li class="divider"></li>                                    
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
                                     

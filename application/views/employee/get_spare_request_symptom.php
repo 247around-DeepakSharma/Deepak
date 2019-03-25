@@ -186,10 +186,10 @@
                 data:{data:data, id : $("#spare_symptom_id").val()},
                 success: function (response) {
                     if(response){
-                        alert("Spare Sympltom Update Successfully");
+                        alert("Spare Symptom Update Successfully");
                     }
                     else{
-                        alert("Sympom Already Exist");
+                        alert("Symptom Already Exist");
                     }
                 }
             }); 
