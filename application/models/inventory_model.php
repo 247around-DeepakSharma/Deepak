@@ -1337,6 +1337,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
         $this->db->join('employee','partners.account_manager_id = employee.id');
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->where($where,false);
         $query = $this->db->get();
         
