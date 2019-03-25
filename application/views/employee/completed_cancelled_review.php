@@ -208,6 +208,7 @@
          });
    });
    function is_sn_correct_validation(booking_id){
+       temp = true;
        booking_sn_div_id =  "sn_"+booking_id;
        current_div_booking =  "app_"+booking_id;
         $('.'+booking_sn_div_id).each(function() {

@@ -280,10 +280,10 @@
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
-                                                            <input type="text" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
+                                                            <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
+                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if($price['is_sn_correct'] == IS_SN_CORRECT){ echo 'value="1"';} else { echo 'value="1"'; }?>   />
                                                             <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -301,7 +301,7 @@
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
                                                                             $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/engineer-uploads/'.$price['serial_number_pic']; ?>
-                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">SF Serial Number Pic</a></p>
+                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if($price['is_sn_correct'] == IS_SN_CORRECT){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
                                                                              <?php
                                                                         }
                                                                      ?>
@@ -513,13 +513,14 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="remark" class="col-md-2">Rating Comment</label>
                                 <div class="col-md-4">
-                                    <textarea class="form-control" rows="5" name="rating_comments"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
+                                    <textarea class="form-control" rows="5" name="rating_comments" placeholder ="Rating Comment"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                                 </div>
-                                <label for="remark" class="col-md-2">Admin Remarks</label>
                                 <div class="col-md-4" >
-                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks"></textarea>
+                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks" placeholder ="Admin Remarks"></textarea>
+                                </div>
+                                <div class="col-md-4" >
+                                    <textarea class="form-control" id="sn_remarks" rows="5" name="sn_remarks" placeholder ="Serial Number Remarks"></textarea>
                                 </div>
                             </div>
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($booking_history[0]['partner_id'])) {echo $booking_history[0]['partner_id']; } ?>" >
@@ -625,6 +626,10 @@
                 if (serial_number === "0") {
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
                     flag = 1;
+                }
+                if($('#sno_required'+ div_no[2]).val() === '1' && !$('#sn_remarks').val()){
+                     alert('Please Correct Serial Number or Entered Remarks, Why We Should go With Wrong Serial Number');
+                     flag = 1;
                 }
     
                 //If Serial Number Invalid then serial number image should be mendatory
