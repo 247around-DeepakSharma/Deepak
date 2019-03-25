@@ -4932,6 +4932,7 @@ class Inventory extends CI_Controller {
     function download_spare_consolidated_data($partner_id = NULL){
         log_message('info',__METHOD__.' Processing...');
         
+        $partner_id = $this->input->post('partner_id');   
         $select = "spare_parts_details.id as spare_id, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "

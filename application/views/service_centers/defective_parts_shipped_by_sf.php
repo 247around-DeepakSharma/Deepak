@@ -20,6 +20,9 @@
             .dataTables_filter{
                 float: right;
             }
+            .table.dataTable thead .sorting:after {
+              opacity: 1;            
+            }
         </style>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
@@ -135,7 +138,8 @@
                         },
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }
-                ]
+                ],
+                "bSortClasses": false
             });
         </script>
 <?php if(empty($is_ajax)) { ?> 
