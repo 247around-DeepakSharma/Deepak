@@ -1978,7 +1978,9 @@ class vendor extends CI_Controller {
            if(!empty($service_id)){
                 foreach ($service_id as  $values) {
                      $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                     array_push($appliances, $service_name[0]['services']);
+                     if(!empty($service_name)){
+                        array_push($appliances, $service_name[0]['services']); 
+                     }
                 }
            }
 
