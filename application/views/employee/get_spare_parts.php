@@ -23,30 +23,33 @@
     div.dt-button-background{
         position: inherit;
     }
+    .select2{
+    width: 300px;
+    }
 </style>
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
    <div class="row" style="margin-top: 40px;">
+       <div class="row">
+           <div class="col-md-12">
+               </br>
+               <div class="pull-right">
+                   <a class="btn btn-success" id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+               </div>                           
+               <div class="pull-right" style="margin-right: 100px;">
+                   <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
+                   <span id="partner_err"></span>
+               </div>                           
+           </div>
+       </div>
+       </br>
        <div class="col-md-12">
-           <div class="panel panel-default">
+           <div class="panel panel-default">               
                <div class="panel-heading">
                    <div class="row">
                        <div class="col-md-6">
                            <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Spare Parts Booking </h2>
-                       </div>
-                       <div class="col-md-12">
-                           </br>
-                           <div class="pull-right">
-                               <a class="btn btn-success" id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
-                           </div>                           
-                           <div class="pull-right" style="margin-right: 60px;">
-                               <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
-                               <span id="partner_err"></span>
-                           </div>                           
-                       </div>
-                   </div>
-                   <br/><br/>
-                   <div class="row">
+                       </div>                       
                        <div class="col-md-12">                                               
                            <div class="pull-right">
                                <a class="btn btn-info pickup" id="schedule_pickup" data-request="pickup_schedule" style="margin-right: 15px;">Pickup Schedule</a><span class="badge" title="Pickup Schedule"></span>
@@ -382,11 +385,15 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url() ?>employee/partner/get_partner_list',
-            data:{is_wh:true},
+            data:{is_wh:0},
             success: function (response) {
                 $("#partner_id").html(response);                
             }
         });
     }
     
+    
+    $('#partner_id').select2({
+           placeholder:'Select Partner'
+       });
 </script>
