@@ -179,7 +179,7 @@ class Partner extends CI_Controller {
                                 if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                                     $lead_details['Product'] = 'Washing Machine';
                                 }
-                                if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
+                                if (stristr($prod, "Television") || stristr($prod, "Monitor") || stristr($prod, "Televisions")) {
                                     $lead_details['Product'] = 'Television';
                                 }
                                 if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
