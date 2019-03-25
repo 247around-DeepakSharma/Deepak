@@ -1607,7 +1607,9 @@ class Spare_parts extends CI_Controller {
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
-
+                                
+                $spare_data['part_requested_on_approval'] = 1;
+                $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
 
@@ -1650,14 +1652,12 @@ class Spare_parts extends CI_Controller {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                     }
                 }
-
-                $spare_data['part_requested_on_approval'] = 1;
+               
                 if (!empty($spare_data['status'])) {
                     $data['status'] = $spare_data['status'];
                 }
 
-                $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
-
+                
                 array_push($data_to_insert, $data);
 
                 if ($affected_id) {
