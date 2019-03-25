@@ -1038,8 +1038,11 @@ class invoices_model extends CI_Model {
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
-            
             $meta['gst_number'] = $result[0]['gst_number'];
+            if(!isset($result[0]['owner_phone_1'])){
+                $result[0]['owner_phone_1'] = "";
+            }
+            $meta['owner_phone_1'] = $result[0]['owner_phone_1'];
             $meta['reverse_charge_type'] = "N";
             $meta['reference_number'] = "";
             $meta['reverse_charge'] = '';
