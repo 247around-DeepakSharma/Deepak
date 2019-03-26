@@ -630,6 +630,7 @@
                 if($('#sno_required'+ div_no[2]).val() === '1' && !$('#sn_remarks').val()){
                      alert('Please Correct Serial Number or Entered Remarks, Why We Should go With Wrong Serial Number');
                      flag = 1;
+                     return false;
                 }
     
                 //If Serial Number Invalid then serial number image should be mendatory
