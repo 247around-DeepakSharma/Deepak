@@ -1824,7 +1824,7 @@ class Partner extends CI_Controller {
             if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
             }
-
+                     
             /*
               if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
               $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
@@ -1845,11 +1845,11 @@ class Partner extends CI_Controller {
                 }
             }
         }
-
+    
         $partner_id = $this->session->userdata('partner_id');
         if (!empty($this->input->post('courier_status'))) {
 
-            $request_type = $this->input->post('request_type');
+            //$request_type = $this->input->post('request_type');
             $challan_file = $this->upload_challan_file(rand(10, 100));
             if ($challan_file) {
                 $data['partner_challan_file'] = $challan_file;
@@ -2027,11 +2027,9 @@ class Partner extends CI_Controller {
      */
     function spare_incoming_invoice() {
         log_message('info', __FUNCTION__);
-
-        $request_type = $this->input->post("request_type");
-        $booking_id = $this->input->post("booking_id");
-
-        if ($request_type == REPAIR_OOW_TAG) {
+        $part_warranty_status = $this->input->post("part_warranty_status");
+        $booking_id = $this->input->post("booking_id");        
+        if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $allowedExts = array("PDF", "pdf");
             $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], "sp_parts_invoice", $allowedExts, $booking_id, "invoices-excel", "incoming_invoice_pdf");
             if (!empty($invoice_name)) {
