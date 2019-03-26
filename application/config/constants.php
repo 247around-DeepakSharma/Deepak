@@ -611,6 +611,8 @@ define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', 'Can not allow to re-complete b
 define('PAYMENT_SUCCESS_NOTICATION_TYPE', '5');
 define('PAYMENT_HOLD_NOTICATION_TYPE', '6');
 
+//Define constant for Proforma Invoices
+define("CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION", "Annual Setup Charges");
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -1200,5 +1200,25 @@ class Invoice_lib {
 
         return $this->ci->inventory_model->insert_courier_details($courier_data);
     }
+    
+    function create_proforma_invoice_id($start_name){
+        $invoice_id_tmp = $this->_get_partial_invoice_id($start_name);
+        $where = "( invoice_id LIKE '%".$invoice_id_tmp."%' )";
+        $invoice_array = $this->ci->invoices_model->get_proforma_invoices_details($where, "invoice_id");
+        
+        $invoice_no = 1;
+        $int_invoice = array();
+        if (!empty($invoice_array)) {
+            foreach ($invoice_array as  $value) {
+                 $explode = explode($invoice_id_tmp, $value['invoice_id']);
+                 array_push($int_invoice, $explode[1] + 1);
+            }
+            rsort($int_invoice);
+            $invoice_no = $int_invoice[0];
+        }
+        log_message('info', __FUNCTION__ . " Exit....");
+   
+        return trim($invoice_id_tmp . sprintf("%'.04d\n", $invoice_no));
+    }
 
 }

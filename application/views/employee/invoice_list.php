@@ -265,7 +265,15 @@ ini_set('max_execution_time', 36000000);
                                 <?php } else { if($value['id'] !== CLOUDTAIL_LA) { $BUTTON_TEXT = PARTNER_INVOICE_BUTTON; $CRM_SETUP = CRM_SETUP_INVOICE_DESCRIPTION;} else { $BUTTON_TEXT = CT_INVOICE_BUTTON; $CRM_SETUP = QC_INVOICE_DESCRIPTION;}  ?>
                                 <td>
                                     <a href="#myModel" id="<?php echo "invoice_setup_" . $value['id']; ?>" onclick="invoice_setup_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo $CRM_SETUP; ?>' )" class="btn btn-sm btn-primary text-center"
-                                    data-toggle="modal" data-target="#myModal"  ><?php echo $BUTTON_TEXT;?></a></td>
+                                    data-toggle="modal" data-target="#myModal"  ><?php echo $BUTTON_TEXT;?></a>
+                                    <?php
+                                    if($CRM_SETUP == CRM_SETUP_INVOICE_DESCRIPTION){
+                                    ?>
+                                       <a href="#proFormaModal" id="" onclick="proforma_invoice_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION; ?>' )" class="btn btn-sm btn-warning text-center" data-toggle="modal" data-target="#proFormaModal">ProForma Invoices</a>     
+                                    <?php 
+                                    }
+                                    ?>
+                                </td>
                                 <?php } ?>
                             </tr>
                             <?php $count++;
@@ -363,6 +371,51 @@ ini_set('max_execution_time', 36000000);
         
     </div>
 <!-- end Invoice Defective Part Pending Booking with Age Moda -->
+
+<!-- Modal for ProForma Invoices -->
+<div id="proFormaModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">CRM ProForma Setup Invoice</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" action="<?php echo base_url() . "employee/invoice/generate_partner_proforma_invoice"; ?>" method="POST">
+                    <input class="form-control" type="hidden" id="proforma_partner_id" name="partner_id" value="" />
+                    <input class="form-control" type="hidden" id="proforma_partner_name" name="partner_name" value=""/>
+                    <input class="form-control" type="hidden" id="proforma_invoice_type" name="invoice_type" value=""/>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Amount">Invoice Value<small> (with GST) </small>:</label>
+                                    <input type="number" step=".02" class="form-control" style="width:92%" id="proforma_service_charge" name="service_charge" placeholder="Total Invoice Amount" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email" id="proforma_agreement_date">Agreement Date:</label>
+                                    <div class="input-group input-append date">
+                                        <input id="proforma_from_date" class="form-control" style="z-index: 1059; background-color:#fff;" name="daterange" type="text" required readonly='true'>
+                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" value="Create ProForma Invoice" class="btn btn-md btn-warning col-md-offset-4"/>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal End -->
 
 <?php
 if(isset($_SESSION['file_error'])){
@@ -512,5 +565,15 @@ function get_defective_spare_count(vendor_id){
     });
     
 }
+
+    function proforma_invoice_model(partner_id, partner_name, CRM_SETUP) {
+        $(".modal-title").html(partner_name + " "+CRM_SETUP);
+        $("#proforma_partner_id").val(partner_id);
+        $("#proforma_partner_name").val(partner_name);
+        $("#proforma_invoice_type").val(CRM_SETUP);
+        $("#proforma_agreement_date").text("Invoice Date");
+    }
+       
+     
 </script>
 
