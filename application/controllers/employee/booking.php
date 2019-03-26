@@ -878,6 +878,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1982,6 +1983,9 @@ class Booking extends CI_Controller {
         $booking_status = $this->input->post('booking_status');
         $total_amount_paid = $this->input->post('grand_total_price');
         $admin_remarks = $this->input->post('admin_remarks');
+        if($this->input->post('sn_remarks')){
+            $admin_remarks = $this->input->post('admin_remarks')."Serial Number Comments : - ".$this->input->post('sn_remarks');
+        }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $upcountry_charges = $this->input->post("upcountry_charges");
