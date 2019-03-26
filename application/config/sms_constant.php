@@ -15,5 +15,10 @@ define('SPARE_DELIVERED_DEALER_SMS_TAG', 'sms_delivered_dealer_sms_tag');
 define('SPARE_ON_OUT_OF_WARRANTY_SMS_TAG', 'sms_oow_spare_parts_customer_tag');
 //SMS send to customer when requested spare parts is in warranty on approval
 define('SPARE_ON_IN_WARRANTY_SMS_TAG', 'sms_in_warranty_spare_parts_customer_tag');
+//SMS send to customer for sending appliance's invoice
+define('SEND_WHATSAPP_NUMBER_TAG', 'send_whatsapp_number_tag');
+//247around whatsapp number
+define('_247AROUND_WHATSAPP_NUMBER', '9555000247');
+
 
 
