@@ -4,7 +4,7 @@
             <div class="x_panel">
                 <div class="x_title">
                    <h2>Received Spares By <?php echo $this->session->userdata('partner_name') ?></h2>
-                     <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_received_spare_by_partner"  class="btn btn-sm btn-primary">Download</a></div>
+                   <div class="pull-right"><a style="background: #2a3f54;border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_received_spare_by_partner"  class="btn btn-sm btn-primary" id="download_excel" onmouseover="rowcount()">Download</a></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
                             <select class="form-control " id="state_search" style="border-radius:3px;" onchange="booking_search()">
                     <option value="">States</option>
@@ -69,11 +69,21 @@
                 }
             ],  
             "deferRender": true 
-        });
+        });        
     });
     function booking_search(){
              approved_defective_parts_table.ajax.reload();
         }
+        
+    function rowcount(){
+        var total_rows = $('#approved_defective_parts_table >tbody >tr').length;
+        if(total_rows < 2){
+             $("#download_excel").attr("disabled", true);
+        }
+       
+    }
+    
+    
     </script>
         <style>
      #approved_defective_parts_table_filter{
