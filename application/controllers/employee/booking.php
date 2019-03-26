@@ -3947,7 +3947,7 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
         
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -3967,7 +3967,7 @@ class Booking extends CI_Controller {
     
     private function get_queries_table($order_list, $no, $query_status,$pincode_status){
         $row = array();
-
+        $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand));
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
@@ -3997,6 +3997,8 @@ class Booking extends CI_Controller {
             $row[] = $pincode;
         }
         $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
+        
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         if($query_status != _247AROUND_CANCELLED){
             $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Update' target ='_blank'><i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
@@ -5054,5 +5056,19 @@ class Booking extends CI_Controller {
         }
         log_message('info', __FUNCTION__ . " Exit ");
     }
-
+    /**
+    * @Desc - This is used to ask customer for sending appliance's invoice
+    */
+    function send_whatsapp_number(){
+        $sms = array();
+        $sms['status'] = "";
+        $sms['phone_no'] = trim($this->input->post("phone_no"));
+        $sms['booking_id'] = $this->input->post("booking_id");
+        $sms['type'] = "user";
+        $sms['type_id'] = $this->input->post("user_id");
+        $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+        $sms['smsData']['brand'] = $this->input->post("appliance_brand");
+        $sms['smsData']['whatsapp_no'] = _247AROUND_WHATSAPP_NUMBER;
+        $this->notify->send_sms_msg91($sms);
+    }
 }
