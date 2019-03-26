@@ -2324,7 +2324,7 @@ class Booking extends CI_Controller {
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                        if(isset($upload_serial_number_pic['name'][$unit_id])){
+                       if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
                                 $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                    if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
@@ -2333,8 +2333,10 @@ class Booking extends CI_Controller {
                                         }
                              }
                              else{
-                                  $return_status = false;
-                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                 if(!(isset($this->input->post('serial_number_pic')[$unit_id]) && ($this->input->post('serial_number_pic')[$unit_id]))){
+                                       $return_status = false;
+                                       $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                 }
                              }
                         $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
                         if (!empty($status)) {
