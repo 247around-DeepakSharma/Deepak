@@ -1639,7 +1639,8 @@ class Do_background_upload_excel extends CI_Controller {
             if ($row == 1) {
                 $heading = str_replace(array("/", "(", ")", "."), "", $data_value);
                 $heading1 = str_replace(array(" "), "_", $data_value);
-                if ($data_value == $actual_header_data[0]['sub_order_id']) {
+                if (isset($actual_header_data) && 
+                        $data_value == $actual_header_data[0]['sub_order_id']) {
                     $this->file_read_column = $column;
                 }
             }
