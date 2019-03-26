@@ -1842,7 +1842,7 @@ class Partner extends CI_Controller {
             if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
             }
-
+                     
             /*
               if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
               $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
@@ -1863,11 +1863,11 @@ class Partner extends CI_Controller {
                 }
             }
         }
-
+    
         $partner_id = $this->session->userdata('partner_id');
         if (!empty($this->input->post('courier_status'))) {
 
-            $request_type = $this->input->post('request_type');
+            //$request_type = $this->input->post('request_type');
             $challan_file = $this->upload_challan_file(rand(10, 100));
             if ($challan_file) {
                 $data['partner_challan_file'] = $challan_file;
@@ -2045,11 +2045,9 @@ class Partner extends CI_Controller {
      */
     function spare_incoming_invoice() {
         log_message('info', __FUNCTION__);
-
-        $request_type = $this->input->post("request_type");
-        $booking_id = $this->input->post("booking_id");
-
-        if ($request_type == REPAIR_OOW_TAG) {
+        $part_warranty_status = $this->input->post("part_warranty_status");
+        $booking_id = $this->input->post("booking_id");        
+        if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $allowedExts = array("PDF", "pdf");
             $invoice_name = $this->miscelleneous->upload_file_to_s3($_FILES["incoming_invoice"], "sp_parts_invoice", $allowedExts, $booking_id, "invoices-excel", "incoming_invoice_pdf");
             if (!empty($invoice_name)) {
@@ -4957,6 +4955,7 @@ class Partner extends CI_Controller {
                 . " AND approved_defective_parts_by_partner = '1' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
         $headings = array("Name","Booking ID","Received Parts","Part Code","Received Date","AWB","Courier Name","Challan","SF Remarks");
+        $CSVData = array();
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
@@ -4970,7 +4969,11 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Partner_".date("Y-m-d"));
+                
+        if(!empty($CSVData)){
+            $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Partner_".date("Y-m-d"));
+        }
+        
     }
     
     function ack_spare_send_by_wh(){
