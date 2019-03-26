@@ -199,26 +199,42 @@
    </div>
 
 <script>
-  $(document).ready(function(){
+   $(document).ready(function(){
         $("#selecctall").change(function(){
+            var isChecked = document.getElementById('selecctall').checked;
             $(".checkbox1").prop('checked', $(this).prop("checked"));
-            $('.checkbox1').each(function() {
-                is_sn_correct_validation($(this).val());
-             })
+            if(isChecked){
+                var outputArray = []; 
+                $('.checkbox1').each(function() {
+                      outputArray.push(is_sn_correct_validation($(this).val(),'Yes'));
+                 })
+                  if(outputArray.includes('no')){
+                        alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
+                  }
+          }
          });
    });
-   function is_sn_correct_validation(booking_id){
+     function is_sn_correct_validation(booking_id,bulkalert){
+       if(bulkalert !== 'Yes'){
+           bulkalert = false;
+       }
        temp = true;
        booking_sn_div_id =  "sn_"+booking_id;
        current_div_booking =  "app_"+booking_id;
         $('.'+booking_sn_div_id).each(function() {
             if($(this).val() == 0){
                 temp = false;
+                $("."+current_div_booking).prop("checked", false);
             }
         })
+        if(!temp && !bulkalert){
+                alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
+        }
         if(!temp){
-                 alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
-                $("."+current_div_booking).prop("checked", false);
+            return 'no';
+        }
+        else{
+             return 'yes';
         }
    }
    function checkValidationForBlank_review(){
