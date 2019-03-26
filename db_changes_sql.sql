@@ -10251,3 +10251,6 @@ ALTER TABLE `vendor_partner_proforma_invoices`
 ALTER TABLE `vendor_partner_proforma_invoices`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+--Kalyani 26-March-2019
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear Customer\r\nPlease send appliance(%s) purchase invoice to our whatsapp number - %s,247around Team', NULL, '', '0', CURRENT_TIMESTAMP);
