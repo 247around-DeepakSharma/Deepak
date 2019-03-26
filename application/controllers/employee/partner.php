@@ -4955,6 +4955,7 @@ class Partner extends CI_Controller {
                 . " AND approved_defective_parts_by_partner = '1' ";
         $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
         $headings = array("Name","Booking ID","Received Parts","Part Code","Received Date","AWB","Courier Name","Challan","SF Remarks");
+        $CSVData = array();
         foreach($data as $sparePartBookings){
             $tempArray = array();
             $tempArray[] = $sparePartBookings['name'];
@@ -4968,7 +4969,11 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $CSVData[]  = $tempArray;
         }
-        $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Partner_".date("Y-m-d"));
+                
+        if(!empty($CSVData)){
+            $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Partner_".date("Y-m-d"));
+        }
+        
     }
     
     function ack_spare_send_by_wh(){
