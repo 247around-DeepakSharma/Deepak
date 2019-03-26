@@ -90,7 +90,14 @@
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
                     <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>"  required>
-                    <?php $purchase_price = 0; foreach ($spare_parts as $key => $value) {  ?>
+                    <?php
+                    $purchase_price = 0;
+                    $warranty_status = SPARE_PART_IN_WARRANTY_STATUS;
+                    foreach ($spare_parts as $key => $value) {                        
+                        if ($value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                            $warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                        }
+                        ?>
                     <div class="div_class panel panel-default" >
                         <div class="panel-body" >
                             <div class="x_content">
@@ -252,7 +259,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-5">
-                                    <?php if($spare_parts[0]->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
+                                    <?php if($warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
                                     <div class="form-group <?php
                                         if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
@@ -368,7 +375,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
-                                <label for="approx_value" class="col-md-4">Approx Value <?php if($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
+                                <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
                                     <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?> required  <?php } ?>>
                                     <?php echo form_error('approx_value'); ?>
@@ -420,7 +427,7 @@
                         <div class="text-center">
                             
                             <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
-                            <input type="hidden" name="part_warranty_status" value="<?php echo $spare_parts[0]->part_warranty_status ;?>">
+                            <input type="hidden" name="part_warranty_status" value="<?php echo $warranty_status ;?>">
                             <input type="submit"  <?php if ($purchase_price > 0) { ?> 
                                 onclick="return check_invoice_amount()" <?php } ?> value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
                         </div>
