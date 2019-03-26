@@ -10144,3 +10144,62 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `part
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
 ('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
+
+--Kalyani 25-March-2019
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`) VALUES (NULL, 'Service', 'Recurring Charges', 'CRM Performa', '0', 'CRM Performa Charges');
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'crm_setup_proforma_invoice', 'Partner CRM SETUP Proforma Invoice - %s Proforma Invoice for period: %s to %s', 'Dear Partner, <br/> <br/> Please find crm setup proforma invoice attached for your reference.  <br/> <br/> With Regards, <br>247around Team<br/> <br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015<br/> Follow us on Facebook: www.facebook.com/247around<br/> Website: www.247around.com<br/> Playstore - 247around -<br/> https://play.google.com/store/apps/details?id=com.handymanapp<br/>', 'billing@247around.com', 'kalyanitekpure07@gmail.com', '', '', '1', CURRENT_TIMESTAMP);
+
+CREATE TABLE `vendor_partner_proforma_invoices` (
+  `id` int(11) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `vendor_partner` varchar(255) NOT NULL,
+  `vendor_partner_id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `type_code` varchar(10) NOT NULL,
+  `invoice_file_excel` varchar(255) NOT NULL,
+  `invoice_file_main` varchar(255) NOT NULL,
+  `invoice_detailed_excel` varchar(255) NOT NULL,
+  `invoice_file_pdf` varchar(255) NOT NULL,
+  `invoice_date` date NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `due_date` date NOT NULL,
+  `total_service_charge` decimal(10,0) NOT NULL DEFAULT '0',
+  `total_amount_collected` decimal(10,0) NOT NULL DEFAULT '0',
+  `around_royalty` decimal(10,0) NOT NULL DEFAULT '0',
+  `amount_collected_paid` decimal(10,0) NOT NULL DEFAULT '0',
+  `cgst_tax_rate` decimal(10,0) NOT NULL DEFAULT '0',
+  `cgst_tax_amount` decimal(10,0) NOT NULL DEFAULT '0',
+  `sgst_tax_rate` decimal(10,0) NOT NULL DEFAULT '0',
+  `sgst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `igst_tax_rate` decimal(10,0) NOT NULL DEFAULT '0',
+  `igst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `hsn_code` varchar(64) DEFAULT NULL,
+  `vertical` varchar(64) DEFAULT NULL,
+  `category` varchar(64) DEFAULT NULL,
+  `sub_category` varchar(64) DEFAULT NULL,
+  `accounting` int(11) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `vendor_partner_proforma_invoices`
+--
+ALTER TABLE `vendor_partner_proforma_invoices`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `vendor_partner_proforma_invoices`
+--
+ALTER TABLE `vendor_partner_proforma_invoices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;

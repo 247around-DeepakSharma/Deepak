@@ -170,12 +170,6 @@ class Partner extends CI_Controller {
                                 $lead_details['service_appliance_data'] = $service_appliance_data[0];
                                 $lead_details['Product'] = $service_appliance_data[0]['services'];
                             } else {
-                                if($this->partner['id'] == PAYTM_ID){
-                                    $paytm_product = explode(" ", $prod);
-                                    if(in_array("TV", $paytm_product)){
-                                        $lead_details['Product'] = 'Television';
-                                    }
-                                }
                                 if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                                     $lead_details['Product'] = 'Washing Machine';
                                 }

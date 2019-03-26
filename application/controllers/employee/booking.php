@@ -878,6 +878,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1982,6 +1983,9 @@ class Booking extends CI_Controller {
         $booking_status = $this->input->post('booking_status');
         $total_amount_paid = $this->input->post('grand_total_price');
         $admin_remarks = $this->input->post('admin_remarks');
+        if($this->input->post('sn_remarks')){
+            $admin_remarks = $this->input->post('admin_remarks')."Serial Number Comments : - ".$this->input->post('sn_remarks');
+        }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $upcountry_charges = $this->input->post("upcountry_charges");
@@ -2321,7 +2325,7 @@ class Booking extends CI_Controller {
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                        if(isset($upload_serial_number_pic['name'][$unit_id])){
+                       if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
                                 $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
                                    if(empty($s)){
                                              $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
@@ -2330,8 +2334,10 @@ class Booking extends CI_Controller {
                                         }
                              }
                              else{
-                                  $return_status = false;
-                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                 if(!(isset($this->input->post('serial_number_pic')[$unit_id]) && ($this->input->post('serial_number_pic')[$unit_id]))){
+                                       $return_status = false;
+                                       $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                 }
                              }
                         $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
                         if (!empty($status)) {
