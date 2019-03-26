@@ -18,6 +18,7 @@ define('BRACKETS_INVOICE_EMAIL_TAG','send_brackets_invoice_mail');
 define('DRAFT_BRACKETS_INVOICE_EMAIL_TAG','send_draft_brackets_invoice_mail');
 
 define('CRM_SETUP_INVOICE_EMAIL_TAG','crm_setup_invoice');
+define('CRM_SETUP_PROFORMA_INVOICE_EMAIL_TAG','crm_setup_proforma_invoice');
 
 define('BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG','brackets_credit_note_invoice');
 

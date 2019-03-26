@@ -10,6 +10,7 @@ define('EXCHANGE', 'Exchange');
 define('PREPAID', 'Pre-paid');
 define('RECURRING_CHARGES', 'Recurring Charges');
 define('CRM', 'CRM');
+define('CRM_PERFORMA', 'CRM Performa');
 define('COMMISSION', 'Commission');
 define('CREDIT_NOTE', 'Credit Note');
 define('DEBIT_NOTE', 'Debit Note');

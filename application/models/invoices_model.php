@@ -2879,4 +2879,36 @@ class invoices_model extends CI_Model {
        return  $query->result_array();
     }
     
+    /**
+     * @desc: This method is used to get vendor partner proforma invoices details
+     * @param String WHERE
+     * @return Array
+     */
+    function get_proforma_invoices_details($where, $select = "*", $group_by = false) {
+        $this->db->select($select, false);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        if($group_by){
+            $this->db->group_by($group_by);
+        }
+        $query = $this->db->get("vendor_partner_proforma_invoices");
+        if ($query->num_rows > 0) {
+            return $query->result_array();
+        } else {
+            return FALSE;
+        }
+    }
+    
+    /*
+     * @Desc - This function is used to save performa invoices
+     * @param - $details
+     * @return - $insert_id
+     */
+
+    function insert_performa_invoice($details) {
+        $this->db->insert('vendor_partner_proforma_invoices', $details);
+        return $this->db->insert_id();
+    }
 }

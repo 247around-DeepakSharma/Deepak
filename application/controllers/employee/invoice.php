@@ -3519,7 +3519,7 @@ class Invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($partner_data['company_name'], $sd, $ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                if($email_tag == CRM_SETUP_INVOICE_EMAIL_TAG){
+                if($email_tag == CRM_SETUP_INVOICE_EMAIL_TAG || $email_tag == CRM_SETUP_PROFORMA_INVOICE_EMAIL_TAG){
                     $to = $partner_data['invoice_email_to'].",".$email_template[1];
                     $cc = $partner_data['invoice_email_cc'].",".$email_template[3];
                 }
@@ -5154,4 +5154,88 @@ class Invoice extends CI_Controller {
         $this->invoices_model->update_bank_transactions($where, $data);
         echo true;
     }      
+    
+    /**
+     * @desc: This function is used to create ProForma invoices
+     */
+    function generate_partner_proforma_invoice() { 
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Entering....");
+        $this->form_validation->set_rules('partner_name', 'Partner Name', 'trim');
+        $this->form_validation->set_rules('partner_id', 'Partner ID', 'required|trim');
+        $this->form_validation->set_rules('daterange', 'Start Date', 'required|trim');
+        $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim');
+        $this->form_validation->set_rules('service_charge', 'Service Charge', 'required|trim');
+        if ($this->form_validation->run() == TRUE) {
+          
+            $date_range = $this->input->post('daterange');
+            $custom_date = explode("-", $date_range);
+            $from_date = $custom_date[0];
+            $to_date = $custom_date[1];
+            $partner_id = $this->input->post('partner_id');
+            $amount = $this->input->post('service_charge');
+            $description = $this->input->post('invoice_type');
+            $partner_data = $this->partner_model->getpartner_details("partners.id, gst_number, "
+                    . "state,address as company_address, "
+                    . "company_name, pincode, "
+                    . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+          
+            $hsn_code = HSN_CODE;
+            $type = "Cash"; 
+            $sd = date("Y-m-d", strtotime($from_date));
+            $ed = date("Y-m-d", strtotime($to_date));
+            $email_tag = CRM_SETUP_PROFORMA_INVOICE_EMAIL_TAG;
+            
+            $invoice_date = date("Y-m-d");
+            $invoice_id = $this->invoice_lib->create_proforma_invoice_id("Around-PI");
+            
+            $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
+            $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Proforma Invoice", $email_tag, 1, DEFAULT_TAX_RATE);
+            
+            $basic_sc_charge = $response['meta']['total_taxable_value'];
+            $invoice_details = array(
+                'invoice_id' => $invoice_id,
+                'type_code' => 'A',
+                'type' => $type,
+                'vendor_partner' => 'partner',
+                'vendor_partner_id' => $partner_id,
+                'invoice_file_main' => $response['meta']['invoice_file_main'],
+                'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
+                "invoice_file_pdf" => $response['meta']['copy_file'],
+                'from_date' => date("Y-m-d", strtotime($from_date)), //??? Check this next time, format should be YYYY-MM-DD
+                'to_date' => date("Y-m-d", strtotime($to_date)),
+                'total_service_charge' => $basic_sc_charge,
+                'total_amount_collected' => $response['meta']['sub_total_amount'],
+                'invoice_date' => date("Y-m-d", strtotime($invoice_date)),
+                'around_royalty' => $response['meta']['sub_total_amount'],
+                'due_date' => date("Y-m-d", strtotime($to_date)),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' => $response['meta']['sub_total_amount'],
+                //add agent_id
+                'agent_id' => $this->session->userdata('id'),
+                "cgst_tax_rate" => $response['meta']['cgst_tax_rate'],
+                "sgst_tax_rate" => $response['meta']['sgst_tax_rate'],
+                "igst_tax_rate" => $response['meta']['igst_tax_rate'],
+                "igst_tax_amount" => $response['meta']["igst_total_tax_amount"],
+                "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
+                "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
+                "hsn_code" => $hsn_code,
+                "vertical" => SERVICE,
+                "category" => RECURRING_CHARGES,
+                "sub_category" => CRM_PERFORMA,
+                "accounting" => 0
+            );
+            
+            $this->invoices_model->insert_performa_invoice($invoice_details);
+            log_message('info', __METHOD__ . ":Performa Invoice ID inserted");
+            $this->session->set_flashdata('file_error', 'CRM Setup ProForma Invoice Generated');
+            redirect(base_url() . "employee/invoice/invoice_partner_view");
+
+        } else {
+            $this->session->set_flashdata('file_error','CRM Setup Profprma invoices Not Generated');
+            log_message('info', __METHOD__ . ": Validation Failed");
+            $this->invoice_partner_view();
+        }
+    }
+    
 }
