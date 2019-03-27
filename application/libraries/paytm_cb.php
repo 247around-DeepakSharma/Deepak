@@ -72,7 +72,7 @@ class paytm_cb {
         
         $response = $this->paytm_curl_call($authData[0]['url'], $header, $postData);
         if($response['data']['error']){
-        	$this->send_error_mail($response['data'], $booking_id);
+        	//$this->send_error_mail($response['data'], $booking_id);
 		return false;
         }
         else{
@@ -84,7 +84,7 @@ class paytm_cb {
               $this->update_booking_on_paytm($failurePostData, $booking_id);
             }
             else{ 
-                $this->send_error_mail($response, $booking_id);
+                //$this->send_error_mail($response, $booking_id);
 		return false; 
             }
         }

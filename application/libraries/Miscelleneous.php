@@ -2475,9 +2475,15 @@ class Miscelleneous {
                     }
                 }
                 $vendorContact = $this->My_CI->vendor_model->getVendorContact($escalation['vendor_id']);
-                //From will be currently logged in user
-                $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
-                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'].','.$from;
+                //From will be AM email id if not exist then currently logged in user
+                if($am_email){
+                    $from = $am_email;
+                }
+                else{
+                    $from = $this->My_CI->employee_model->getemployeefromid($id)[0]['official_email'];
+                }
+               
+                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
                 //Getting template from Database
                 $template = $this->My_CI->booking_model->get_booking_email_template("escalation_on_booking");
                 if (!empty($template)) {  
@@ -2488,7 +2494,7 @@ class Miscelleneous {
                     $emailBody = vsprintf($template[0], $email);
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$am_email, '', $subjectBody, $emailBody, "",'escalation_on_booking', "", $booking_id);
+                    $this->My_CI->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc.",".$from, '', $subjectBody, $emailBody, "",'escalation_on_booking', "", $booking_id);
                     //Logging
                     log_message('info', " Escalation Mail Send successfully" . $emailBody);
                 } else {
