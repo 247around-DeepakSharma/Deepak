@@ -284,6 +284,7 @@ class Do_background_upload_excel extends CI_Controller {
         $row_data4 = $this->validate_order_id($row_data3);
         $row_data5 = $this->validate_product_type($row_data4);
         $row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type, $file_name, $default_partner);
+        array_push($this->send_file_back_data, array('order_id' => '', 'booking_id' => '', 'is_service_on' => ''));
 
         //Send Email to Notify that file is under Process
         $subject = $file_type . " data validated. File is under process";
@@ -1636,12 +1637,13 @@ class Do_background_upload_excel extends CI_Controller {
             $column = $sheet->getCell($cell)->getColumn();
             $row = $sheet->getCell($cell)->getRow();
             $data_value = $sheet->getCell($cell)->getValue();
+            
             if ($row == 1) {
                 $heading = str_replace(array("/", "(", ")", "."), "", $data_value);
                 $heading1 = str_replace(array(" "), "_", $data_value);
                 if (!empty($actual_header_data) && 
-                        $data_value == $actual_header_data[0]['sub_order_id']) {
-                    $this->file_read_column = $column;
+                        strtolower($heading1) == strtolower($actual_header_data[0]['sub_order_id'])) {
+                        $this->file_read_column = $column;
                 }
             }
         }
@@ -1856,10 +1858,16 @@ class Do_background_upload_excel extends CI_Controller {
             $highestRow = $sheet->getHighestDataRow();
             $sheet->setCellValue($this->file_write_column . 1, $this->ticketIDText);
             $sheet->setCellValue($this->serviceableAreaWriteColumn . 1, $this->serviceableText);
+            $this->serviceableAreaWriteColumn;
+            log_message("info", __METHOD__ . " Order ID ". $this->file_write_column);
+            log_message("info", __METHOD__ . " Serviceable Area ". $this->serviceableAreaWriteColumn);
+
             for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
                 $order_id = $sheet->getCell(preg_replace('/[0-9]+/', '', $this->file_read_column) . $row)->getValue();
-                $key = array_search($order_id, array_column($this->send_file_back_data, 'order_id'));
+               
+               $key = array_search($order_id, array_column($this->send_file_back_data, 'order_id'));
                 if ($key !== FALSE) {
+                    log_message("info", __METHOD__ . " data Found ");
                     $sheet->setCellValue($this->file_write_column . $row, $this->send_file_back_data[$key]['booking_id']);
                     $sheet->setCellValue($this->serviceableAreaWriteColumn . $row, $this->send_file_back_data[$key]['is_service_on']);
                 }
@@ -1869,7 +1877,8 @@ class Do_background_upload_excel extends CI_Controller {
             $file_name = TMP_FOLDER . "Updated_file_with_booking_id_" . pathinfo($data['file_name'], PATHINFO_FILENAME) . ".xls";
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
             $objWriter->save($file_name);
-
+            
+            log_message("info", __METHOD__ . " File created ");
             if (file_exists($file_name)) {
                 //get email template
                 $template = $this->booking_model->get_booking_email_template("revert_upload_file_to_partner");
