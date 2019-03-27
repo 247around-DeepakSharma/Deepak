@@ -5415,5 +5415,13 @@ class vendor extends CI_Controller {
       
        echo $city_option;
     }
+    
+    function validate_ifsc_code(){
+        $ifsc_code = $this->input->post("ifsc_code");
+        $entity_id = $this->input->post("entity_id");
+        $entity_type = $this->input->post("entity_type");
+        $api_response = $this->invoice_lib->validate_bank_ifsc_code($ifsc_code, $entity_type, $entity_id);
+        echo $api_response;
+    }
 }
 

@@ -616,5 +616,9 @@ define('PAYMENT_HOLD_NOTICATION_TYPE', '6');
 //Define constant for Proforma Invoices
 define("CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION", "Annual Setup Charges");
 
+//Define constant for razorpay api for bank ifsc code varification
+define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
