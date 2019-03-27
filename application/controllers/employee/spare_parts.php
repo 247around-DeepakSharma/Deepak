@@ -949,7 +949,7 @@ class Spare_parts extends CI_Controller {
         if (!empty($spare_parts_id)) {
 
             $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
-            
+                        
             if (!empty($spare_parts_list)) {               
                     $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
                     $spare_parts_list[0]['booking_id'] = $this->input->post('new_booking_id');
@@ -982,7 +982,7 @@ class Spare_parts extends CI_Controller {
 
                 if (!empty($partner_details[0]['is_wh'])) {
 
-                    $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $inventory_details[0]['id'], 'part_name' => $spare_parts_list[0]['parts_requested'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'state' => $sf_state[0]['state']), $partner_id);
+                    $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $inventory_details[0]['id'], 'part_name' => $spare_parts_list[0]['parts_requested'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'state' => $sf_state[0]['state'], 'service_center_id' => $spare_parts_list[0]['service_center_id']), $partner_id);
 
                     if (!empty($warehouse_details)) {
                         $data['partner_id'] = $warehouse_details['entity_id'];
@@ -1064,7 +1064,7 @@ class Spare_parts extends CI_Controller {
                 . 'inventory_master_list.inventory_id, price, gst_rate',array('model_number_id' => $data['model_number_id'],'part_name' => $data['part_name']));
 
         if(!empty($inventory_part_number)){
-            return $this->miscelleneous->check_inventory_stock($inventory_part_number[0]['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'));
+            return $this->miscelleneous->check_inventory_stock($inventory_part_number[0]['inventory_id'], $partner_id, $data['state'], $data['service_center_id']);
         }else{
             $response = array();
         }
@@ -1556,9 +1556,9 @@ class Spare_parts extends CI_Controller {
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
                     . 'spare_parts_details.requested_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
                     . 'spare_parts_details.is_micro_wh,spare_parts_details.model_number,spare_parts_details.serial_number,spare_parts_details.shipped_inventory_id,spare_parts_details.date_of_request,'
-                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status';
+                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id';
 
-            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);                        
             if (!empty($spare_parts_details)) {
 
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
@@ -1607,7 +1607,61 @@ class Spare_parts extends CI_Controller {
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
-                                
+                
+                if ($entity_type == _247AROUND_PARTNER_STRING && !empty($spare_id)) {
+                    $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+
+                    /** search if there is any warehouse for requested spare parts
+                     * if any warehouse exist then assign this spare request to that service center otherwise assign
+                     * assign to respective partner. 
+                     * (need to discuss) what we will do if no warehouse have this inventory.
+                     */
+                    $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
+
+                    $is_warehouse = false;
+                    if (!empty($partner_details[0]['is_wh'])) {
+
+                        $is_warehouse = TRUE;
+                    } else if (!empty($partner_details[0]['is_micro_wh'])) {
+                        $is_warehouse = TRUE;
+                    }
+
+                    if (!empty($is_warehouse)) {
+
+                        $where = array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'model_number' => $data['model_number'], 'active' => 1);
+                        $inventory_details = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
+                        
+                        $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $inventory_details[0]['id'], 'part_name' => $data['parts_requested'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state'], 'inventory_id' => $data['requested_inventory_id'], 'service_center_id' => $service_center_id), $partner_id);
+                        
+                        if (!empty($warehouse_details)) {
+                            $spare_data['partner_id'] = $warehouse_details['entity_id'];
+                            $spare_data['entity_type'] = $warehouse_details['entity_type'];
+                            $spare_data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
+                            $spare_data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
+                            $spare_data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+
+                            if (!empty($warehouse_details['inventory_id'])) {
+                                $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                            }
+                           
+                        } else {
+                            $spare_data['partner_id'] = $partner_id;
+                            $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
+                            $spare_data['is_micro_wh'] = 0;
+                            $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                            $spare_data['defective_return_to_entity_id'] = $partner_id;
+                           
+                        }
+                    } else {
+                        $spare_data['partner_id'] = $partner_id;
+                        $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
+                        $spare_data['is_micro_wh'] = 0;
+                        $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $spare_data['defective_return_to_entity_id'] = $partner_id;
+                    }
+                }
+
+                                               
                 $spare_data['part_requested_on_approval'] = 1;
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
@@ -1689,7 +1743,7 @@ class Spare_parts extends CI_Controller {
             }
         }
     }
-
+    
     /**
      * @desc this function is used to trigger mail to Customers on spare parts approval
      * @param  $part_warranty_status
