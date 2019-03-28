@@ -72,7 +72,7 @@ class vendor_model extends CI_Model {
         if($active === "" && $is_cp !== ""){
             $where_final = "where service_centres.is_cp = '1'";
         }
-        $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account,"
+        $sql = "Select service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified  from service_centres LEFT JOIN account_holders_bank_details ON account_holders_bank_details.entity_id=service_centres.id AND "
                 . "account_holders_bank_details.entity_type='SF ' AND account_holders_bank_details.is_active=1 $where_final $where_state_city";
