@@ -3924,9 +3924,9 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
 
         if (!empty($spare_id)) {
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, service_centres.gst_no as gst_number,service_centres.sc_code,"
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), false, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1) {
                         if (!empty($spare[0]['shipped_inventory_id'])) {
@@ -3936,7 +3936,7 @@ class Invoice extends CI_Controller {
                             $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                             $spare[0]['spare_id'] = $spare_id;
                             $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
-                            $spare[0]['booking_partner_id'] = $spare[0]['partner_id'];
+                            $spare[0]['booking_partner_id'] = $spare[0]['booking_partner_id'];
                             $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare, $invoice_id);
                             if (!empty($unsettle['processData'])) {
                                 $data = array();
