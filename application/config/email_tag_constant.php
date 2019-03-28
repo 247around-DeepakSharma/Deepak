@@ -120,3 +120,4 @@ define('MSL_SEND_BY_WH_TO_PARTNER','msl_send_by_wh_to_partner');
 define('MSL_SEND_BY_MICROWH_TO_PARTNER','msl_send_by_microwh_to_partner');
 define('NEW_PARTNER_ONBOARD_NOTIFICATION', 'new_partner_onboard_notification');
 define('PENALTY_SUMMARY', 'penalty_summary');
+define("IFSC_CODE_VALIDATION_API_FAIL", "razorpay_ifsc_code_api_fail");

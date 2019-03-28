@@ -1185,6 +1185,24 @@
                         <div class="panel-body" id="bank_details">
                             <div class="col-md-12">
                                 <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('ifsc_code')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="ifsc_code" class="col-md-4" >IFSC Code*</label>
+                                        <div class="col-md-6">
+                                            <input type="hidden" id="ifsc_validation" name="ifsc_validation">
+                                            <input type="text" class="form-control"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" maxlength="11" value = "<?php
+                                                if (isset($query[0]['ifsc_code'])) {
+                                                    echo $query[0]['ifsc_code'];
+                                                }
+                                                ?>" oninput="validate_ifsc_code()">
+                                            <?php echo form_error('ifsc_code'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div  class="form-group <?php
                                         if (form_error('bank_name')) {
                                             echo 'has-error';
@@ -1192,7 +1210,7 @@
                                         ?>">
                                         <label  for="bank_name" class="col-md-4 vertical-align">Bank Name*</label>
                                         <div class="col-md-6">
-                                            <select  style="width:170px;" class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)">
+                                            <select  style="width:195px;" class="form-control" id="bank_name" name="bank_name" onchange="manageAccountNameField(this.value)">
                                                 <option selected disabled  >Select Bank</option>
                                                 <?php foreach($results['bank_name'] as $key => $value) { ?> 
                                                 <option value="<?php echo $value['bank_name']; ?>" 
@@ -1218,6 +1236,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                            </div>
+                            <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
                                         if (form_error('bank_account')) {
@@ -1232,25 +1253,6 @@
                                                 }
                                                 ?>">
                                             <?php echo form_error('bank_account'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group <?php
-                                        if (form_error('ifsc_code')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="ifsc_code" class="col-md-4" >IFSC Code*</label>
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" maxlength="11" value = "<?php
-                                                if (isset($query[0]['ifsc_code'])) {
-                                                    echo $query[0]['ifsc_code'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('ifsc_code'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -1714,7 +1716,12 @@ function manageAccountNameField(value){
                 alert("Please enter 11 alphanumeric number");
                 return false;
             }
-               
+            
+            if($("#ifsc_validation").val() != null && $("#ifsc_validation").val() == ""){
+               alert("Incorrect IFSC Code");
+               return false; 
+            }
+            
             if((cheque_final) && !(bank_name == null || bank_name == '') && !(account_type == null || account_type == '') && !(bank_account == null || bank_account == '') && 
                     !(ifsc_code == null || ifsc_code == '') && !(beneficiary == null || beneficiary == '')){
                return true;
@@ -1771,6 +1778,58 @@ function manageAccountNameField(value){
         else{
             $("#gst_type, #gst_status").val("");
         }
+    }
+    
+    function validate_ifsc_code(){
+        var ifsc_code = $("#ifsc_code").val();
+        if(ifsc_code.length == '11'){
+            var first4char =  ifsc_code.substring(0, 4);
+            var first5char =  ifsc_code.substring(4, 5);
+            if(!first4char.match(/^[A-Za-z]+$/)){
+                alert("In IFSC code first four digit should be Charecter");
+                return false;
+            }
+            else if(first5char != "0"){
+                alert("In IFSC code fifth digit should be 0");
+                return false;
+            }
+            else{
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
+                    data: {ifsc_code:ifsc_code, entity_type:"vendor", entity_id:$("#vendor_id").val()},
+                    success: function (response) {
+                        if(response=='"Not Found"'){
+                            $("#ifsc_validation").val("");
+                            alert("Incorrect IFSC Code");
+                        }
+                        else{
+                            if(IsJsonString(response)){
+                                $("#ifsc_validation").val("pass");
+                                var bank_data = JSON.parse(response);
+                                alert("Valid IFSC Code Entered - \n Bank Name = "+bank_data.BANK+" \n Branch = "+bank_data.BRANCH+" \n City = "+bank_data.CITY+" \n State = "+bank_data.STATE+" \n Address = "+bank_data.ADDRESS);
+                            }
+                            else{
+                                $("#ifsc_validation").val("");
+                                alert("IFSC code verification API fail. Please contact tech team");
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        else{
+           $("#ifsc_validation").val("");
+        }
+    }
+    
+    function IsJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
     }
 </script>
 
