@@ -3961,7 +3961,7 @@ class Booking extends CI_Controller {
     
     private function get_queries_table($order_list, $no, $query_status,$pincode_status){
         $row = array();
-        $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand, 'service' => $order_list->services, 'request_type'=>$order_list->request_type));
+        $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand, 'service' => $order_list->services));
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
@@ -5053,7 +5053,13 @@ class Booking extends CI_Controller {
     /**
     * @Desc - This is used to ask customer for sending appliance's invoice
     */
-    function send_whatsapp_number(){
+    function send_whatsapp_number($unit_query = false){
+        if($unit_query == true){
+            $brand = $this->booking_model->get_unit_details(array("booking_id"=>$this->input->post("booking_id")), FALSE, "appliance_brand")[0]['appliance_brand'];
+        }
+        else{
+           $brand =  $this->input->post("appliance_brand");
+        }
         $sms = array();
         $sms['status'] = "";
         $sms['phone_no'] = trim($this->input->post("phone_no"));
@@ -5061,10 +5067,10 @@ class Booking extends CI_Controller {
         $sms['type'] = "user";
         $sms['type_id'] = $this->input->post("user_id");
         $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+        $sms['smsData']['brand'] = $brand;
         $sms['smsData']['service'] = $this->input->post("service");
-        $sms['smsData']['request_type'] = $this->input->post("request_type");
         $sms['smsData']['whatsapp_no'] = _247AROUND_WHATSAPP_NUMBER;
-        $sms['smsData']['brand'] = $this->input->post("appliance_brand");
+        $sms['smsData']['partner_brand'] = $brand;
         $this->notify->send_sms_msg91($sms);
     }
 }
