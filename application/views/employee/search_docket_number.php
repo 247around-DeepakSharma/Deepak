@@ -220,4 +220,27 @@
             ]
         });
     }
+    
+    $('#docket_number').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+            break;
+            default:
+            var regex = new RegExp("^[a-zA-Z0-9,]+$");
+            var key = event.key;
+            if (!regex.test(key)) {
+                event.preventDefault();
+                return false;
+            }
+            break;
+        }
+    });
+    
+    
 </script>
