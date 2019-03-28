@@ -1220,5 +1220,69 @@ class Invoice_lib {
    
         return trim($invoice_id_tmp . sprintf("%'.04d\n", $invoice_no));
     }
-
+    
+    /**
+     * @desc this function is used to call curl on rezorpay ifsc api server and send mail in case of failure
+     * @param $url
+     * @return $api_response
+     */
+    function razorpay_ifsc_code_curl_call($url){
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $url,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+        ));
+        $api_response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if($err){
+            $api_response = $err;
+        }
+        else{
+            if($api_response != '"Not Found"' && !$this->IsJsonString($api_response)){
+                $email_template = $this->ci->booking_model->get_booking_email_template(IFSC_CODE_VALIDATION_API_FAIL);
+                if(!empty($email_template)){
+                    $message = vsprintf($email_template[0], array("Called by - ".$this->ci->session->userdata('emp_name'), $api_response));  
+                    $to = $email_template[1];
+                    $this->ci->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $email_template[3] , $email_template[5], $email_template[4], $message, '', IFSC_CODE_VALIDATION_API_FAIL);
+                } 
+            }
+        }
+        return $api_response;
+    }
+    
+     /**
+     * @desc this function is used to save rezorpay ifsc code verification api response
+     * @param $ifsc_code, $vendor_partner, $vendor_partner_id
+     * @return $api_response
+     */
+    function validate_bank_ifsc_code($ifsc_code, $vendor_partner, $vendor_partner_id){
+        $url = IFSC_CODE_VALIDATION_API_URL.$ifsc_code;
+        $activity = array(
+            'entity_type' => $vendor_partner,
+            'partner_id' => $vendor_partner_id,
+            'activity' => __METHOD__,
+            'header' => "",
+            'json_request_data' => $url,
+        );
+        $api_response = $this->razorpay_ifsc_code_curl_call($url);
+        $activity['json_response_string'] = $api_response;
+        $this->ci->partner_model->log_partner_activity($activity);
+        return $api_response;
+    }
+    
+    /**
+     * @desc this function is used to check given string is json or not
+     * @param $str
+     * @return boolean
+     */
+    function IsJsonString($str) {
+        json_decode($str);
+        return (json_last_error()===JSON_ERROR_NONE);
+    }
 }

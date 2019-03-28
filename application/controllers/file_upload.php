@@ -1305,8 +1305,8 @@ class File_upload extends CI_Controller {
                 $rowData['notification_type'] = $notification_type;
                 $rowData['message'] = $remarks;
                 $rowData['marquee'] = 1;
-                $rowData['start_date'] =  date("Y-m-d H:i:s");
-                $rowData['end_date'] = date('Y-m-d H:i:s', strtotime("+2 day", strtotime(date("Y-m-d H:i:s"))));
+                $rowData['start_date'] =  date("Y-m-d 00:00:00");
+                $rowData['end_date'] = date('Y-m-d 00:00:00', strtotime("+2 day", strtotime(date("Y-m-d 00:00:00"))));
                 $rowData['create_date'] = date("Y-m-d H:i:s");
                 array_push($data, $rowData);
             }
