@@ -390,14 +390,13 @@
     }
     
     function send_whtasapp_number(btn){
-       var json = JSON.parse($(btn).attr("json-data"));
-       console.log(json);
+        var json = JSON.parse($(btn).attr("json-data"));
         var confirm_sms = confirm("Send Whatsapp Number ?");
         if (confirm_sms == true) {
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/',
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service},
                 success: function(response) {
                     //console.log(response);
                 }

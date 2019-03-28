@@ -10205,4 +10205,9 @@ ALTER TABLE `vendor_partner_proforma_invoices`
 COMMIT;
 
 --Kalyani 26-March-2019
-INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear Customer\r\nPlease send appliance(%s) purchase invoice to our whatsapp number - %s,247around Team', NULL, '', '0', CURRENT_TIMESTAMP);
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear customer,
+Please send us your %s %s invoice/bill copy on our Whatsapp number %s. 
+247around, %s Partner.', NULL, '', '0', CURRENT_TIMESTAMP);
+
+--Kalyani 27-March-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'razorpay_ifsc_code_api_fail', 'Razorpay bank IFSC code API fail', 'Dear Team<br>Razorpay bank IFSC code API fail<br/><p>%s</p><p>%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);

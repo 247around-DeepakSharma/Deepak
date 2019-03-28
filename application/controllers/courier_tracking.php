@@ -135,8 +135,8 @@ class Courier_tracking extends CI_Controller {
         $carrier_code = $this->input->post('courier_code');
         $awb_number = $this->input->post('awb_number');
         $spare_status = $this->input->post('status');
-        if(!empty($carrier_code) && !empty($awb_number) && !empty($spare_status)){
-            if($spare_status === SPARE_SHIPPED_BY_PARTNER || $spare_status === DEFECTIVE_PARTS_SHIPPED){
+        if(!empty($carrier_code) && !empty($awb_number)){
+            if($spare_status){
                 $api_data = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
@@ -156,8 +156,12 @@ class Courier_tracking extends CI_Controller {
                     
                 }
             }else{
-                $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
-                $data['awb_number'] = $awb_number;
+                if(empty($data['awb_details_by_db'])){
+                    $tracking_details = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
+                    $this->insert_api_data($tracking_details);
+                    $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);                    
+                }
+                $data['awb_number'] = $awb_number;                               
             }
             
         }else{
@@ -176,15 +180,15 @@ class Courier_tracking extends CI_Controller {
      * @param string $spare_status spare status
      * @return array 
      */
-    function get_msl_awb_real_time_tracking_details(){        
+    function get_msl_awb_real_time_tracking_details(){     
        
         log_message('info', __METHOD__. " POST DATA ". json_encode($this->input->post(), TRUE));
         //$this->checkUserSession();
         $carrier_code = $this->input->post('courier_code');
         $awb_number = $this->input->post('awb_number');
-        $status = $this->input->post('status');
-        if(!empty($carrier_code) && !empty($awb_number) && !empty($status)){
-            if($status === COURIER_DETAILS_STATUS){
+        $status = $this->input->post('status');          
+        if(!empty($carrier_code) && !empty($awb_number)){
+            if($status){
                 $api_data = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
@@ -204,6 +208,8 @@ class Courier_tracking extends CI_Controller {
                     
                 }
             }else{
+                $tracking_details = $this->trackingmore_api->getRealtimeTrackingResults($carrier_code,$awb_number);
+                $this->insert_api_data($tracking_details);
                 $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                 $data['awb_number'] = $awb_number;
             }
