@@ -5228,11 +5228,11 @@ class Invoice extends CI_Controller {
             
             $this->invoices_model->insert_performa_invoice($invoice_details);
             log_message('info', __METHOD__ . ":Performa Invoice ID inserted");
-            $this->session->set_flashdata('file_error', 'CRM Setup ProForma Invoice Generated');
+            $this->session->set_flashdata('file_error', 'CRM Setup Proforma Invoice Generated');
             redirect(base_url() . "employee/invoice/invoice_partner_view");
 
         } else {
-            $this->session->set_flashdata('file_error','CRM Setup Profprma invoices Not Generated');
+            $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
         }
