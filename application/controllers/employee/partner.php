@@ -6336,6 +6336,7 @@ class Partner extends CI_Controller {
                 'ifsc_code' => $this->input->post('ifsc_code'),
                 'cancelled_cheque_file' => $check_file,
                 'beneficiary_name' => $this->input->post('beneficiary_name'),
+                'ifsc_code_api_response' => $this->input->post('ifsc_validation'),
                 'agent_id' => $this->session->userdata('id'),
                 'is_active' => '0'
             );

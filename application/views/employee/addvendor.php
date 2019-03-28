@@ -1184,6 +1184,14 @@
                         <div class="panel-heading" style="background-color:#ECF0F1"><b>Bank Details</b></div>
                         <div class="panel-body" id="bank_details">
                             <div class="col-md-12">
+                                <div class="alert alert-info alert-dismissible" id="info_div" role="alert" style="display:none">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong id="info_msg"></strong>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div class="form-group <?php
                                         if (form_error('ifsc_code')) {
@@ -1192,7 +1200,11 @@
                                         ?>">
                                         <label for="ifsc_code" class="col-md-4" >IFSC Code*</label>
                                         <div class="col-md-6">
-                                            <input type="hidden" id="ifsc_validation" name="ifsc_validation">
+                                            <input type="hidden" id="ifsc_validation" name="ifsc_validation" value = "<?php
+                                                if (isset($query[0]['ifsc_code_api_response'])) {
+                                                    echo $query[0]['ifsc_code_api_response'];
+                                                }
+                                                ?>">
                                             <input type="text" class="form-control"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" maxlength="11" value = "<?php
                                                 if (isset($query[0]['ifsc_code'])) {
                                                     echo $query[0]['ifsc_code'];
@@ -1805,9 +1817,10 @@ function manageAccountNameField(value){
                         }
                         else{
                             if(IsJsonString(response)){
-                                $("#ifsc_validation").val("pass");
                                 var bank_data = JSON.parse(response);
-                                alert("Valid IFSC Code Entered - \n Bank Name = "+bank_data.BANK+" \n Branch = "+bank_data.BRANCH+" \n City = "+bank_data.CITY+" \n State = "+bank_data.STATE+" \n Address = "+bank_data.ADDRESS);
+                                $("#ifsc_validation").val(JSON.stringify(bank_data));
+                                $("#info_div").css("display", "block");
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
                             }
                             else{
                                 $("#ifsc_validation").val("");

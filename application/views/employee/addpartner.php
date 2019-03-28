@@ -2042,6 +2042,24 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
+                                <div class="alert alert-info alert-dismissible" id="info_div" role="alert" style="display:none">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong id="info_msg"></strong>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php if( form_error('ifsc_code') ) { echo 'has-error';} ?>">
+                                        <label for="ifsc_code" class="col-md-4">IFSC Code *</label>
+                                        <div class="col-md-6">
+                                            <input type="hidden" id="ifsc_validation" name="ifsc_validation">
+                                            <input type="text" class="form-control" oninput="validate_ifsc_code()"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" placeholder="Enter IFSC Code" maxlength="11" value = "" required="">
+                                            <?php echo form_error('ifsc_code'); ?>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group <?php if( form_error('bank_name') ) { echo 'has-error';} ?>">
                                         <label for="bank_name" class="col-md-4">Bank Name *</label>
@@ -2070,15 +2088,6 @@
                                         <div class="col-md-6">
                                             <input  type="text" class="form-control input-contact-name"  name="account_number" id="account_number" value = "" placeholder="Enter Account Number" required="">
                                             <?php echo form_error('account_number'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php if( form_error('ifsc_code') ) { echo 'has-error';} ?>">
-                                        <label for="ifsc_code" class="col-md-4">IFSC Code *</label>
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control blockspacialchar"  name="ifsc_code" id="ifsc_code" style="text-transform: uppercase;" placeholder="Enter IFSC Code" maxlength="11" value = "" required="">
-                                            <?php echo form_error('ifsc_code'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -2113,7 +2122,7 @@
                     </div>
                     <div class="form-group " style="text-align:center">
                         <input type="hidden" id="BD_action" name="BD_action" value="">
-                        <input type="submit" id="BD_submit" class="btn btn-primary" value="Save Bank Detail">
+                        <input type="submit" id="BD_submit" class="btn btn-primary" value="Save Bank Detail" onclick="return validate_bank_detail()">
                     </div>
                 </div>
             </form>
@@ -4257,6 +4266,7 @@
        $("#account_number").val($(button).closest('tr').find('td').eq(2).text());
        $("#ifsc_code").val($(button).closest('tr').find('td').eq(3).text());
        $("#beneficiary_name").val($(button).closest('tr').find('td').eq(4).text());
+       $("#ifsc_validation").val("pass");
        $("#bank_cancelled_check_img_update").attr('href', 'https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/'+$(button).closest('tr').find('td').eq(5).text().trim());
        $("#bank_cancelled_check_img_update").css("display", "inline");
        $("#bank_cancelled_check_img").hide();
@@ -5181,5 +5191,68 @@
                 model_mapping_datatable.ajax.reload();
             }
         });
+    }
+    
+    function validate_ifsc_code(){
+        var ifsc_code = $("#ifsc_code").val();
+        if(ifsc_code.length == '11'){
+            var first4char =  ifsc_code.substring(0, 4);
+            var first5char =  ifsc_code.substring(4, 5);
+            if(!first4char.match(/^[A-Za-z]+$/)){
+                alert("In IFSC code first four digit should be Charecter");
+                return false;
+            }
+            else if(first5char != "0"){
+                alert("In IFSC code fifth digit should be 0");
+                return false;
+            }
+            else{
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
+                    data: {ifsc_code:ifsc_code, entity_type:"partner", entity_id:$("#partner_id").val()},
+                    success: function (response) {
+                        if(response=='"Not Found"'){
+                            $("#ifsc_validation").val("");
+                            alert("Incorrect IFSC Code");
+                        }
+                        else{
+                            if(IsJsonString(response)){
+                                var bank_data = JSON.parse(response);
+                                $("#ifsc_validation").val(JSON.stringify(bank_data));
+                                $("#info_div").css("display", "block");
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
+                            }
+                            else{
+                                $("#ifsc_validation").val("");
+                                alert("IFSC code verification API fail. Please contact tech team");
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        else{
+           $("#ifsc_validation").val("");
+        }
+    }
+    
+    function IsJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+    
+    function validate_bank_detail(){
+        if($("#ifsc_validation").val()){
+            return true;
+        }
+        else{
+            alert("Incorrect IFSC Code");
+            return false;
+        }
     }
 </script>

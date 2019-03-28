@@ -5200,6 +5200,7 @@ class vendor extends CI_Controller {
                 $bank_data['bank_account'] = trim($this->input->post('bank_account'));
                 $bank_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
                 $bank_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
+                $bank_data['ifsc_code_api_response'] = trim($this->input->post('ifsc_validation'));
                 $bank_data['is_verified'] = $this->input->post('is_verified');
                 $bank_data['entity_id']= $this->input->post('id');
                 $bank_data['entity_type'] = 'SF';
