@@ -73,8 +73,12 @@
                            <td>{{$index+1}}</td>
                            <td>{{x.status}}</td>
                            <td>{{x.amount}}</td>
-<!--                           <td><a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/show_without_invoices_orders/{{x.status}}">{{x.count}}</a></td>-->
-                            <td><a target="_blank">{{x.count}}</a></td>
+                           <?php
+                            $value = "{{ x.status }}";
+                            $url = base_url().'buyback/buyback_process/show_without_invoices_orders/'.$value; 
+                            ?>
+                           <td><a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+<!--                           <td><a target="_blank">{{x.count}}</a></td>-->
                         </tr>
                     </tbody>
                 </table>
