@@ -134,7 +134,7 @@
                             </tr>
                             <tr>
                                 <td style="width: 185px;"><b>Agent Name</b></td>
-                                <td style="width: 290px;"><?php echo $agent_name; ?></td>
+                                <td style="width: 290px;"><?php if(isset($agent_name)){ echo $agent_name; } ?></td>
                             
                                 <td style="width: 185px;"><b>Main Invoice Excel</b></td>
                                 <td style="width: 290px;"><?php $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_excel']; ?><a href="<?php echo $src ?>" target="_blank">click Here</a></td>
@@ -182,12 +182,14 @@
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
+                                            <?php if($invoice_breakup[0]['igst_tax_amount'] != 0){ ?>
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Amount</th>
-                                            <?php if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
+                                            <?php } else if($invoice_breakup[0]['sgst_tax_amount'] != 0){ ?>
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Amount</th>
-                                             <?php }  ?>
+                                            <?php }  ?>
+                                          
                                             <th class="text-center"></th>
                                         </tr>
                                     </thead>

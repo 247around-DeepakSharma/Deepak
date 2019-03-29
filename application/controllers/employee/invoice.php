@@ -5136,7 +5136,10 @@ class Invoice extends CI_Controller {
             $where = array('invoice_id' => $invoice_id);
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->getInvoicingData($where, TRUE);
-            $invoice_details['agent_name'] = $this->employee_model->getemployeefromid($invoice_details['invoice_details'][0]['agent_id'])[0]['full_name'];
+            $agent_array = $this->employee_model->getemployeefromid($invoice_details['invoice_details'][0]['agent_id']);
+            if(!empty($agent_array)){
+                $invoice_details['agent_name'] = $agent_array[0]['full_name'];
+            }
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
