@@ -287,9 +287,9 @@ class Validate_serial_no {
      * @return boolean
      */
     function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id){
-        $data = $this->MY_CI->booking_model->get_unit_details(array('serial_number' => $serial_number, 'booking_status != "'._247AROUND_CANCELLED.'"' => NULL,
-            "price_tags != '".REPEAT_BOOKING_TAG."'" => NULL, "booking_id != '".$booking_id."'" => NULL));
-       
+        $data = $this->MY_CI->booking_model->get_data_for_duplicate_serial_number_check($serial_number,$booking_id);
+//        $data = $this->MY_CI->booking_model->get_unit_details(array('serial_number' => $serial_number, 'booking_status != "'._247AROUND_CANCELLED.'"' => NULL,
+//            "price_tags != '".REPEAT_BOOKING_TAG."'" => NULL, "booking_id != '".$booking_id."'" => NULL));
         if(!empty($data)){
             $msg = "";
             $isDuplicate = false;
