@@ -15,11 +15,12 @@
                                     <th>Booking Id</th>
                                     <th>User Name</th>
                                     <th>Mobile</th>
-                                    <th>Service Name</th> 
-                                    <th>Closing Date</th>
-                                    <th>Closing Remarks</th>
+                                    <th>Service&nbsp;Name</th>
+                                    <th>Request&nbsp;Type</th>
+                                    <th>Closing&nbsp;Date</th>
+                                    <th>Closing&nbsp;Remarks</th>
                                     <?php if ($status == "Completed") { ?> 
-                                    <th>SF Earned</th> 
+                                    <th>SF&nbsp;Earned</th> 
                                     <th>Rating</th>
                                     <?php } ?>
                                     <th>View</th>
@@ -49,7 +50,9 @@
                                             <td>
                                                 <?php echo  $row['services']; ?>
                                             </td>
-                                           
+                                            <td>
+                                                <?php echo  $row['request_type']; ?>
+                                            </td>
 
                                             <td><?php echo date('d-m-Y', strtotime($row['closed_date'])); ?></td>
                                              <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 110px;" data-html=true data-content=" <?php if ($status == "Completed")
