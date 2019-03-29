@@ -2372,15 +2372,16 @@ class Service_centers extends CI_Controller {
                     
                     $awb_data['awb_no'] = $data['awb_by_sf'] = $this->input->post('awb_by_sf');
                     $awb_data['defective_parts_shipped_boxes_count'] = $this->input->post('defective_parts_shipped_boxes_count');
-                    $awb_data['defective_parts_shipped_weight'] = $kilo_gram .".". $gram; 
-                    $awb_data['courier_invoice_file'] = $this->input->post('exist_courier_image');;
-                     $this->service_centers_model->insert_into_awb_details($awb_data);
-                    
+                   
+                                        
                     $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
-                    $gram = $this->input->post('defective_parts_shipped_kg') ? : '00';
+                    $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
                     $awb_data['defective_parts_shipped_weight'] = $kilo_gram .".". $gram; 
-                    $awb_data['courier_invoice_file'] = $this->input->post('exist_courier_image');;
-                     $this->service_centers_model->insert_into_awb_details($awb_data);
+                    if(!empty($this->input->post('exist_courier_image'))){                        
+                        $awb_data['courier_invoice_file'] = $this->input->post('exist_courier_image');
+                    }else{
+                        $awb_data['courier_invoice_file'] = $this->input->post('sp_parts');
+                    }
                      
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
