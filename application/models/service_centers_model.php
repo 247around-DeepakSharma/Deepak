@@ -898,4 +898,13 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }
         return $return;
     }
+    /**
+     * @desc: this is used to insert awb details of spare parts
+     * @param: array
+     * @return: id
+     */
+    function insert_into_awb_details($data){
+        $this->db->insert('awb_spare_parts_details',$data);
+        $return_id=$this->db->insert_id();
+    }
 }

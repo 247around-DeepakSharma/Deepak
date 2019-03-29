@@ -1517,13 +1517,26 @@ class Invoice extends CI_Controller {
                     print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
                     print_r($details['vendor_invoice_type'], true));
 
-            return $this->generate_vendor_invoices($details, 0);
+            $s = $this->generate_vendor_invoices($details, 0);
         } else if ($details['vendor_partner'] === "partner") {
             log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                     print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
 
-            return $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id']);
+            $s = $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id']);
         }
+        
+        if($s && $details['vendor_partner_id'] = "All"){
+            $email_template = $this->booking_model->get_booking_email_template(ALL_INVOICE_SUCCESS_MESSAGE);
+            $subject = vsprintf($email_template[4], array($details['vendor_invoice_type'],$details['date_range'] ));
+            $message = vsprintf($email_template[0], array($details['vendor_invoice_type']));
+            $email_from = $email_template[2];
+            $to = $email_template[1];
+
+            $this->notify->sendEmail($email_from, $to, '', '', $subject, $message, '',ALL_INVOICE_SUCCESS_MESSAGE);
+
+        }
+        
+        return $s;
 
         log_message('info', __FUNCTION__ . " Exit......");
     }
@@ -5136,7 +5149,10 @@ class Invoice extends CI_Controller {
             $where = array('invoice_id' => $invoice_id);
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->getInvoicingData($where, TRUE);
-            $invoice_details['agent_name'] = $this->employee_model->getemployeefromid($invoice_details['invoice_details'][0]['agent_id'])[0]['full_name'];
+            $agent_array = $this->employee_model->getemployeefromid($invoice_details['invoice_details'][0]['agent_id']);
+            if(!empty($agent_array)){
+                $invoice_details['agent_name'] = $agent_array[0]['full_name'];
+            }
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
         }
         $invoice_details['vendor_partner'] = $vendor_partner;

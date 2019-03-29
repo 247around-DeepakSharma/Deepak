@@ -567,7 +567,7 @@ class User_invoice extends CI_Controller {
                         $invoice_amount = $invoice_amount + $amount;
                         $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
-                        $data[$key]['taxable_value'] = ($amount  - $tax_charge);
+                        $data[$key]['taxable_value'] = sprintf("%.2f", ($amount  - $tax_charge));
                         $data[$key]['product_or_services'] = "Product";
                         if(!empty($vendor_data['gst_no'])){
                             $data[$key]['gst_number'] = $vendor_data['gst_no'];
@@ -580,7 +580,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['district'] = $vendor_data['district'];
                         $data[$key]['pincode'] = $vendor_data['pincode'];
                         $data[$key]['state'] = $vendor_data['state'];
-                        $data[$key]['rate'] = $data[$key]['taxable_value'];
+                        $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']));
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
@@ -645,9 +645,25 @@ class User_invoice extends CI_Controller {
                     $subject = vsprintf($email_template[4], array($booking_id));
                     $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
                     $email_from = $email_template[2];
-                    $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                    $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                    $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                    $booking_partner_where = array(
+                        "entity_type" => _247AROUND_PARTNER_STRING,
+                        "entity_id" => $partner_id,
+                        "role" => 3
+                    );
+                    $booking_partner = $this->reusable_model->get_search_query('contact_person','official_email', $booking_partner_where, "", "", "", "", "")->result_array();
+                    $booking_partner_email = "";
+                    if(!empty($booking_partner)){
+                        foreach ($booking_partner as $key => $value) {
+                            $booking_partner_email = $value['official_email'].",";
+                        }
+                        $to = $booking_partner_email.$email_template[1].",".$this->session->userdata("official_email");
+                        $cc = $email_template[3];
+                    }
+                    else{
+                        $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
+                        $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                        $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                    }
                     //$to = $email_template[1];
                     //$cc = $email_template[3];
                     $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
@@ -749,9 +765,9 @@ class User_invoice extends CI_Controller {
                 $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
                
                 $data[$key]['description'] =  $description;
-                $data[$key]['rate'] = $booking_unit_data[0]['partner_net_payable'];
+                $data[$key]['rate'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
                 $data[$key]['qty'] = 1;
-                $data[$key]['taxable_value'] = $booking_unit_data[0]['partner_net_payable'];
+                $data[$key]['taxable_value'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
                 $data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
                 if(!empty($partner_data[0]['gst_number'])){
                      $data[$key]['gst_number'] = $partner_data[0]['gst_number'];

@@ -2343,7 +2343,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
         $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
-
+        
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
@@ -2369,11 +2369,27 @@ class Service_centers extends CI_Controller {
                     } else {
                         $data['courier_charges_by_sf'] = 0;
                     }
-                    $data['awb_by_sf'] = $this->input->post('awb_by_sf');
+                    
+                    $awb_data['awb_no'] = $data['awb_by_sf'] = $this->input->post('awb_by_sf');
+                    $awb_data['defective_parts_shipped_boxes_count'] = $this->input->post('defective_parts_shipped_boxes_count');
+                   
+                                        
+                    $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
+                    $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
+                    $awb_data['defective_parts_shipped_weight'] = $kilo_gram .".". $gram; 
+                    if(!empty($this->input->post('exist_courier_image'))){                        
+                        $awb_data['courier_invoice_file'] = $this->input->post('exist_courier_image');
+                    }else{
+                        $awb_data['courier_invoice_file'] = $this->input->post('sp_parts');
+                    }
+                     
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
 
-                    $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
+                    $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);  
+                    
+                    $this->service_centers_model->insert_into_awb_details($awb_data);
+                    
                 }
 
                 $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
