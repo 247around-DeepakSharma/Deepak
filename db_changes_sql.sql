@@ -10213,3 +10213,5 @@ Please send us your %s %s invoice/bill copy on our Whatsapp number %s.
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'razorpay_ifsc_code_api_fail', 'Razorpay bank IFSC code API fail', 'Dear Team<br>Razorpay bank IFSC code API fail<br/><p>%s</p><p>%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `account_holders_bank_details` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
+----Gorakh 29-03-2019
+CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8
