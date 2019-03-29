@@ -269,7 +269,7 @@ ini_set('max_execution_time', 36000000);
                                     <?php
                                     if($CRM_SETUP == CRM_SETUP_INVOICE_DESCRIPTION){
                                     ?>
-                                       <a href="#proFormaModal" id="" onclick="proforma_invoice_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION; ?>' )" class="btn btn-sm btn-warning text-center" data-toggle="modal" data-target="#proFormaModal">ProForma Invoices</a>     
+                                       <a href="#proFormaModal" id="" onclick="proforma_invoice_model('<?php echo $value['id']; ?>','<?php echo $value["name"]; ?>','<?php echo CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION; ?>' )" class="btn btn-sm btn-warning text-center" data-toggle="modal" data-target="#proFormaModal">Proforma Invoice</a>     
                                     <?php 
                                     }
                                     ?>
@@ -379,7 +379,7 @@ ini_set('max_execution_time', 36000000);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">CRM ProForma Setup Invoice</h4>
+                <h4 class="modal-title">CRM Proforma Setup Invoice</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" action="<?php echo base_url() . "employee/invoice/generate_partner_proforma_invoice"; ?>" method="POST">
@@ -405,7 +405,7 @@ ini_set('max_execution_time', 36000000);
                                 </div>
                             </div>
                         </div>
-                        <input type="submit" value="Create ProForma Invoice" class="btn btn-md btn-warning col-md-offset-4"/>
+                        <input type="submit" value="Create Proforma Invoice" class="btn btn-md btn-warning col-md-offset-4"/>
                     </div>
                 </form>
             </div>
