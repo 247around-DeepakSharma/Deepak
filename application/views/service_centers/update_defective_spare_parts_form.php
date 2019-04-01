@@ -70,7 +70,7 @@
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6">                                                             
                                 <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
                                     <label for="awb" class="col-md-4">AWB</label>
                                     <div class="col-md-6">
@@ -86,6 +86,18 @@
                                     </div>
                                     <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>
+                                 <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
+                                    <label for="awb" class="col-md-4">No Of Boxes</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
+                                            <option selected="" disabled="" value="">Select Boxes</option> 
+                                            <?php for($i = 1 ; $i < 11; $i++){ ?>
+                                            <option value="<?php echo $i;?>"><?php echo $i; ?></option> 
+                                            <?php } ?>
+                                        </select>     
+                                    </div>
+                                    <?php echo form_error('awb_by_sf'); ?>
+                                </div>  
                                 <div class="form-group <?php if (form_error('defective_courier_receipt')) { echo 'has-error';} ?>">
                                     <label for="AWS Receipt" class="col-md-4">Courier Invoice</label>
                                     <div class="col-md-6">
@@ -96,7 +108,7 @@
                                      <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6">                                                                
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier" class="col-md-4">Courier Name</label>
                                     <div class="col-md-6">
@@ -109,7 +121,7 @@
                                         
                                     </div>
                                      <?php echo form_error('courier_name_by_sf'); ?>
-                                </div>
+                                </div>                              
                                 <div class="form-group <?php if (form_error('defective_part_shipped_date')) { echo 'has-error';} ?>">
                                     <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                     <div class="col-md-6">
@@ -119,6 +131,16 @@
                                         </div>
                                     </div>
                                      <?php echo form_error('defective_part_shipped_date'); ?>
+                                </div>
+                                <div class="form-group <?php if (form_error('courier_name_by_sf')) {
+                                    echo 'has-error';
+                                } ?>">
+                                    <label for="courier" class="col-md-4">Weight</label>
+                                    <div class="col-md-6">
+                                        <input type="number" class="form-control" style="width: 31%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight in KG" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 31%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" name="defective_parts_shipped_gram" value="" placeholder="in gram" required="">&nbsp;<strong>in Gram </strong>                                       
+                                    </div>
+                                <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
                                 <div class="form-group <?php if (form_error('remarks_defective_part')) { echo 'has-error';} ?>">
                                <label for="remarks_defective_part" class="col-md-4">Remarks</label>
@@ -165,6 +187,76 @@
         $(this).val('');
     });
     
+    
+    $("#defective_parts_shipped_weight_in_kg").on({
+        "click": function() {
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>2){
+                $(this).val('');
+                return false;                
+            }
+        },
+        "keypress": function() { 
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>1){
+                $(this).val('');
+                return false;                
+                    }
+        },
+        "mouseleave":function(){
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>2){
+                $(this).val('');
+                return false;                
+                    }
+        }
+    });
+    
+    
+    $("#defective_parts_shipped_weight_in_gram").on({
+        "click": function() {
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>3){
+                $(this).val('');
+                return false;                
+            }
+        },
+        "keypress": function() { 
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>2){
+                $(this).val('');
+                return false;                
+                    }
+        },
+        "mouseleave":function(){
+            var weight_kg = $(this).val();            
+            if(weight_kg.length>3){
+                $(this).val('');
+                return false;                
+                    }
+        }
+    });
+    
+     $('#defective_parts_shipped_weight_in_gram,#defective_parts_shipped_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+            break;
+            default:
+            var regex = new RegExp("^[a-zA-Z0-9,]+$");
+            var key = event.key;
+            if (!regex.test(key)) {
+                event.preventDefault();
+                return false;
+            }
+            break;
+        }
+    });
 </script>
 <style type="text/css">
     #update_form .form-group label.error {

@@ -10214,8 +10214,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 ALTER TABLE `account_holders_bank_details` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
-
-
+----Gorakh 29-03-2019
+CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+--Kalyani 29-March-2019
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear Customer\r\nPlease send appliance(%s) purchase invoice to our whatsapp number - %s,247around Team', NULL, '', '0', CURRENT_TIMESTAMP);
 
 

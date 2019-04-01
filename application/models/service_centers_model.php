@@ -155,7 +155,7 @@ class Service_centers_model extends CI_Model {
 
         $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, '
                 . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_details.closing_remarks, '
-                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars');
+                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type');
         $this->db->from('booking_details');
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
@@ -897,5 +897,14 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $return=$return_id;
         }
         return $return;
+    }
+    /**
+     * @desc: this is used to insert awb details of spare parts
+     * @param: array
+     * @return: id
+     */
+    function insert_into_awb_details($data){
+        $this->db->insert('awb_spare_parts_details',$data);
+        $return_id=$this->db->insert_id();
     }
 }
