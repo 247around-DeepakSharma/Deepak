@@ -52,4 +52,5 @@ define('DEFAULT_MOBILE_TAX_RATE', 12);
 define('ROYALTY', 'Royalty');
 define('SALE', 'Sale');
 define('BUYBACK_VERTICAL', 'Buyback');
+define('REIMBURSEMENT', 'Reimbursement');
 ?>
