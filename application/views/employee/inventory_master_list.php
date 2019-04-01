@@ -497,24 +497,17 @@
         var entity_id = $('#entity_id').val();
         
         if(service_id && entity_id){
-            $('#model_number_id').val(null).trigger('change');
-            $("#model_number_id").select2({
-                ajax: { 
-                    url: '<?php echo base_url()?>employee/inventory/get_appliance_models',
-                    type: 'post',
-                    dataType: 'json',
-                    data:{entity_id:entity_id,entity_type: '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id:service_id},
-                    delay: 250,
-                    processResults: function (data) {
-                        return {
-                            results: $.map(data, function(obj) {
-                                return { id: obj.id, text: obj.model_number };
-                            })
-                        };
-                    },
-                    cache: true
-                 }
+            
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_appliance_model_number',
+                data:{partner_id:entity_id,entity_type: '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id:service_id},
+                success:function(data){   
+                    console.log(data);
+                    $("#model_number_id").html(data);
+                }
             });
+            $("#model_number_id").select2();
         }
         
     });
