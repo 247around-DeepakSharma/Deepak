@@ -1596,7 +1596,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
 
         $is_same_parts_type = $this->is_part_already_requested();
-
+        
         if (empty($is_same_parts_type)) {
             $is_file = $this->validate_part_data();
 
@@ -5613,7 +5613,7 @@ class Service_centers extends CI_Controller {
      */
     function is_part_already_requested(){
         $parts_requested = $this->input->post('part');
-        $booking_id = $this->input->post('booking_id');
+        $booking_id = $this->input->post('booking_id');     
         $array = array();
         foreach($parts_requested as $value){
             //$value['parts_name']
