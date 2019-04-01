@@ -122,3 +122,4 @@ define('NEW_PARTNER_ONBOARD_NOTIFICATION', 'new_partner_onboard_notification');
 define('PENALTY_SUMMARY', 'penalty_summary');
 define("IFSC_CODE_VALIDATION_API_FAIL", "razorpay_ifsc_code_api_fail");
 define('ALL_INVOICE_SUCCESS_MESSAGE', 'invoice_success_message');
+define("BUYBACK_REIMBURESE_PO_UPLOADED", "buyback_reimburese_po_uploaded");

@@ -1,0 +1,162 @@
+<style>
+     .spinner {
+        margin: 0px auto;
+        width: 50px;
+        height: 40px;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .spinner > div {
+        height: 100%;
+        width: 6px;
+        display: inline-block;
+
+        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .spinner .rect2 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .spinner .rect3 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .spinner .rect4 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .spinner .rect5 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+
+    @-webkit-keyframes sk-stretchdelay {
+        0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+        20% { -webkit-transform: scaleY(1.0) }
+    }
+
+    @keyframes sk-stretchdelay {
+        0%, 40%, 100% { 
+            transform: scaleY(0.4);
+            -webkit-transform: scaleY(0.4);
+        }  20% { 
+            transform: scaleY(1.0);
+            -webkit-transform: scaleY(1.0);
+        }
+    }
+    
+    #datatable1_info{
+    display: none;
+    }
+    
+    #datatable1_filter{
+        text-align: right;
+    }
+</style>
+<script src="<?php echo base_url(); ?>js/base_url.js"></script>
+<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/app.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/controller/controllers.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/directives/directives.js"></script>
+<script src="<?php echo base_url(); ?>js/buyback_app/services/services.js"></script>
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="buyback_file_upload" ng-app="uploadFile">
+
+        <div class="price_charges_file">
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Reimbursement File</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <br />
+                            <div id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+
+                                <div ng-controller="uploadReimbursmentFile">
+                                    <div class="form-group" >
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="file" file-model="myFile" id="order_details_file" required="required" class="form-control col-md-7 col-xs-12">
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <button ng-click="uploadFile()" class="btn btn-success">Upload</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12 col-sm-12 col-xs-12" ng-cloak="">
+                                            <div class="spinner" ng-if="ShowSpinnerStatus">
+                                                <div class="rect1" style="background-color:#db3236"></div>
+                                                <div class="rect2" style="background-color:#4885ed"></div>
+                                                <div class="rect3" style="background-color:#f4c20d"></div>
+                                                <div class="rect4" style="background-color:#3cba54"></div>
+                                            </div>
+                                            <div ng-if="successMsg" class="alert alert-success alert-dismissable">{{msg}}</div>
+                                            <div ng-if="errorMsg" class="alert alert-danger alert-dismissable">{{msg}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="ln_solid"></div>
+                                </div>
+                                
+                                <div style="margin-top:20px;">
+                                    <h3>File Upload History</h3>
+                                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No.</th>
+                                                <th>Download</th>
+                                                <th>Uploaded By</th>
+                                                <th>Uploaded Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var table;
+
+        $(document).ready(function () {
+
+            //datatables
+            table = $('#datatable1').DataTable({
+                processing: true, //Feature control the processing indicator.
+                serverSide: true, //Feature control DataTables' server-side processing mode.
+                order: [], //Initial no order.
+                lengthMenu: [[5,10, 25, 50], [5,10, 25, 50]],
+                pageLength: 5,
+                // Load data for the table's content from an Ajax source
+                ajax: {
+                    url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
+                    type: "POST",
+                    data: {file_type: '<?php echo _247AROUND_BB_REIMBURSMENT_FILE; ?>'}
+                },
+                //Set column definition initialisation properties.
+                columnDefs: [
+                    {
+                        "targets": [0,1,2,3,4], //first column / numbering column
+                        "orderable": false //set not orderable
+                    }
+                ]
+            });
+        });
+</script>
