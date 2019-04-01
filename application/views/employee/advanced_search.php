@@ -144,14 +144,15 @@
                                         <th>Booking ID</th>
                                         <th>Partner</th>
                                         <th>City</th>
-                                        <th>Service Center</th>
+                                        <th>Service&nbsp;Center</th>
                                         <th>Service</th>
                                         <th>Brand</th>
                                         <th>Category</th>
                                         <th>Capacity</th>
-                                        <th>Request Type</th>
+                                        <th>Request&nbsp;Type</th>
                                         <th>Product/Service</th>
-                                        <th>Current Status</th>
+                                        <th>Current&nbsp;Status</th>
+                                        <th>Internal&nbsp;Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>

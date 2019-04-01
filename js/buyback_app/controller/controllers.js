@@ -986,3 +986,14 @@ buyback_dashboard.controller('review_page_summary', function ($scope, $http) {
             $scope.faulty_bookings = data;
     });
 });
+
+    //reimbursment file upload
+    uploadfile.controller('uploadReimbursmentFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
+        $scope.uploadFile = function () { 
+            var file = $scope.myFile;
+            var file_date = ''
+            $scope.ShowSpinnerStatus = true;
+            var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_reimbursement_file";
+            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+        };
+    }]);

@@ -10224,3 +10224,5 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'invoice_success_message', 'All %s Invoice Generated - %s.', '', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
 
+--Kalyani 29-March-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
