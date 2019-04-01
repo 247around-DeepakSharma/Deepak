@@ -3123,6 +3123,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['status'] = $status;
         if($status == _247AROUND_PENDING){
             $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
@@ -3139,7 +3140,7 @@ class Booking extends CI_Controller {
      *  @param : $status string
      *  @return : $output JSON
      */
-    public function get_bookings_by_status($status){   
+    public function get_bookings_by_status($status){
         $booking_status = trim($status);
         //RM Specific Bookings
          $sfIDArray =array();
@@ -3253,30 +3254,27 @@ class Booking extends CI_Controller {
         }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-                if($booking_status == _247AROUND_COMPLETED) 
-                {
-                        if(!empty($completed_booking))
-                            {
-                                $post['where']['type']= 'Booking';
+                $post['where']['type']= 'Booking';
+                if($booking_status == _247AROUND_COMPLETED) {
+                        if(!empty($completed_booking)) {
                                     switch ($completed_booking){
                                         case 'a':
-                                            $post['where']['(service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed") OR (current_status="'.$booking_status.'")'] = NULL;
+                                            $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
                                             break;
                                         case 'b':
-                                            $post['where']['service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed"'] = NULL;
+                                            $post['where']['(service_center_closed_date IS NOT NULL) AND (current_status !="'.$booking_status.'")'] = NULL;
                                             break;
                                         case 'c':
-                                           $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                                           $post['where']['current_status'] = $booking_status;
                                             break;
                                     }
                             }
-                        else
-                            {
-                               $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                        else{
+                               $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
                             }
                 }
                 else{
-                    $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                     $post['where']['current_status'] = $booking_status;
                 }
                
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
