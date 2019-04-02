@@ -355,8 +355,8 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 
 //miss call rating sms
 define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
-define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
-define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
+define('GOOD_MISSED_CALL_RATING_NUMBER','01140849145');
+define('POOR_MISSED_CALL_RATING_NUMBER','01140849146');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
 
