@@ -752,7 +752,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                    <?php 
+                                    
+                                    if(!empty($booking_history['spare_parts'])){
+                                    foreach ($booking_history['spare_parts'] as $sp) {
+                                     ?>
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
@@ -765,7 +769,7 @@
                                         <td><?php echo $sp['partner_courier_invoice_id']; ?></td> 
                                         <td><?php echo $sp['vendor_courier_invoice_id']; ?></td> 
                                     </tr>
-                                    <?php } ?>
+                                    <?php } }?>
                                 </tbody>
                             </table>
                         </div>
