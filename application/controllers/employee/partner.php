@@ -1689,7 +1689,7 @@ class Partner extends CI_Controller {
                 }
             }
             if ($post['product_type'] == "Delivered") {
-                $tempStatus = _247AROUND_PENDING;
+                $tempStatus = BOOKING_DETAILS_UPDATED; //booking update case
 //                    $sc_data['current_status'] = _247AROUND_PENDING;
 //                    $sc_data['internal_status'] = _247AROUND_PENDING;
 //                    $booking_details['cancellation_reason'] = NULL;
@@ -7163,6 +7163,42 @@ class Partner extends CI_Controller {
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
+    }
+    
+    /**
+     * @desc: This function is used to get partner activation/deactivation history 
+     * @params: partner_id
+     * @return: JSON
+     */
+    function get_activation_deactivation_history(){
+        $this->partner_id = trim($this->input->post('partner_id'));
+        if(!empty($this->partner_id)){
+            $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);
+            
+            $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-m-Y H:i:s', strtotime($data[0]['date'])));
+            $status = $data[0]['status'];
+            
+            foreach($data as $value) {
+                if($value['status'] !== $status)
+                {
+                    $arr[] = array('status'=>$value['status'], 'date'=>date('d-m-Y H:i:s', strtotime($value['date'])));
+                    $status = $value['status'];
+                }
+            }
+            
+            if(!empty($data)){
+                $res['msg'] = 'success';
+                $res['data'] = $arr;
+            }else{
+                $res['msg'] = 'failed';
+                $res['data'] = 'No Data Found';
+            }
+        }else{
+            $res['msg'] = 'failed';
+            $res['data'] = 'No Data Found!';
+        }
+        
+        echo json_encode($res);
     }
             
 }
