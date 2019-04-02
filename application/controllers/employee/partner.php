@@ -1689,7 +1689,7 @@ class Partner extends CI_Controller {
                 }
             }
             if ($post['product_type'] == "Delivered") {
-                $tempStatus = _247AROUND_PENDING;
+                $tempStatus = BOOKING_DETAILS_UPDATED; //booking update case
 //                    $sc_data['current_status'] = _247AROUND_PENDING;
 //                    $sc_data['internal_status'] = _247AROUND_PENDING;
 //                    $booking_details['cancellation_reason'] = NULL;
