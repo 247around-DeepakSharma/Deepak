@@ -1586,8 +1586,8 @@ class Partner extends CI_Controller {
             if ($post['product_type'] == "Delivered") {
 //                $booking_details['current_status'] = _247AROUND_PENDING;
 //                $booking_details['internal_status'] = _247AROUND_PENDING;
-                $unit_details['booking_id'] = $booking_id;
-                $unit_details['booking_status'] = _247AROUND_PENDING;
+                //$unit_details['booking_id'] = $booking_id;
+                //$unit_details['booking_status'] = _247AROUND_PENDING;
                 $booking_details['type'] = "Booking";
                 if (strpos($booking_id, "Q-", 0) !== FALSE) {
                     $booking_id_array = explode("Q-", $booking_id);
@@ -1643,7 +1643,7 @@ class Partner extends CI_Controller {
                 $unit_details['partner_paid_basic_charges'] = $explode[2];
                 $unit_details['partner_net_payable'] = $explode[2];
                 $unit_details['ud_update_date'] = date('Y-m-d H:i:s');
-                $unit_details['booking_status'] = _247AROUND_PENDING;
+                //$unit_details['booking_status'] = _247AROUND_PENDING;
                 $customer_net_payable += ($explode[1] - $explode[2]);
                 
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
