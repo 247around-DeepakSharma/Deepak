@@ -1100,6 +1100,7 @@ class Upload_buyback_process extends CI_Controller {
             $response['meta']['customer_address'] = $vendor_data['company_address'];
             $response['meta']['customer_phone_number'] = $vendor_data['owner_phone_1'];
             $response['meta']['owner_phone_1'] = $vendor_data['owner_phone_1'];
+            $response['meta']['invoice_template'] = "Buyback-v1.xlsx";
             
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
             if($status){
