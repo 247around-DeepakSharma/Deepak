@@ -2077,5 +2077,16 @@ function get_data_for_partner_callback($booking_id) {
                   
         return $query->result_array();
     }
+        
+    /*
+     * @desc: This function is used to get partner activation/deactivation history 
+     */
+    function get_activation_deactivation_history($partner_id) {
+        $sql = "SELECT is_active as status,update_date as date from trigger_partners where id=".$partner_id." and is_active<>'' and update_date<>'0000-00-00 00:00:00' "
+             . " UNION "
+             . "SELECT is_active as status,update_date as date from partners where id=".$partner_id." and is_active<>'' order by date";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
 
