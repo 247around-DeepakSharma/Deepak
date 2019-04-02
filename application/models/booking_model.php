@@ -2053,7 +2053,7 @@ class Booking_model extends CI_Model {
                 . "AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') "
                 . "- INTERVAL 2 MONTH AND rp.from_number = bd.booking_primary_contact_no "
                 . "AND u.user_id = bd.user_id "
-                . " AND rp.To = '01139588220' AND rp.from_number = '".$missed_call_number."'"
+                . " AND rp.To = '".GOOD_MISSED_CALL_RATING_NUMBER."' AND rp.from_number = '".$missed_call_number."'"
                 . " AND rp.create_date >= bd.closed_date having count(DISTINCT booking_id) = 1";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2557,5 +2557,14 @@ class Booking_model extends CI_Model {
         } 
         return $result;
     }
-   
+    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
+          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags != 'Repeat Booking' AND booking_id != '".$booking_id."'"
+                . " UNION "
+                . "SELECT booking_unit_details.* FROM service_center_booking_action JOIN booking_unit_details ON booking_unit_details.id = service_center_booking_action.unit_details_id WHERE "
+                . "service_center_booking_action.serial_number = '".$serialNumber."' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` != 'Repeat Booking' "
+                . "AND service_center_booking_action.booking_id != '".$booking_id."'";
+        
+         $query = $this->db->query($sql);
+         return $query->result_array();
+    }
    }

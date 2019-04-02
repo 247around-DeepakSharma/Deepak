@@ -3123,6 +3123,7 @@ class Booking extends CI_Controller {
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['status'] = $status;
         if($status == _247AROUND_PENDING){
             $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
@@ -3139,7 +3140,7 @@ class Booking extends CI_Controller {
      *  @param : $status string
      *  @return : $output JSON
      */
-    public function get_bookings_by_status($status){   
+    public function get_bookings_by_status($status){
         $booking_status = trim($status);
         //RM Specific Bookings
          $sfIDArray =array();
@@ -3253,30 +3254,27 @@ class Booking extends CI_Controller {
         }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-                if($booking_status == _247AROUND_COMPLETED) 
-                {
-                        if(!empty($completed_booking))
-                            {
-                                $post['where']['type']= 'Booking';
+                $post['where']['type']= 'Booking';
+                if($booking_status == _247AROUND_COMPLETED) {
+                        if(!empty($completed_booking)) {
                                     switch ($completed_booking){
                                         case 'a':
-                                            $post['where']['(service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed") OR (current_status="'.$booking_status.'")'] = NULL;
+                                            $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
                                             break;
                                         case 'b':
-                                            $post['where']['service_center_closed_date IS NOT NULL AND `booking_details`.`internal_status`="InProcess_Completed"'] = NULL;
+                                            $post['where']['(service_center_closed_date IS NOT NULL) AND (current_status !="'.$booking_status.'")'] = NULL;
                                             break;
                                         case 'c':
-                                           $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                                           $post['where']['current_status'] = $booking_status;
                                             break;
                                     }
                             }
-                        else
-                            {
-                               $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                        else{
+                               $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
                             }
                 }
                 else{
-                    $post['where']  = array('current_status' => $booking_status,'type' => 'Booking');
+                     $post['where']['current_status'] = $booking_status;
                 }
                
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
@@ -3659,7 +3657,7 @@ class Booking extends CI_Controller {
                 // select field to display
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
-                . "current_status";
+                . "current_status,booking_details.internal_status";
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
@@ -3707,7 +3705,7 @@ class Booking extends CI_Controller {
       
         $select = "users.name as customer_name, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.model_number,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
-                . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
+                . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
                 ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
@@ -3726,7 +3724,7 @@ class Booking extends CI_Controller {
                 $receieved_Data['draw'] = 1;
                 $data = $this->get_advance_search_result_data($receieved_Data,$select);
                
-                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Current_status","Order_ID","Type",
+                $headings = array("S.no","Customer Name ","Booking ID","Sub Order ID","Partner","City","Service Center","Service","Brand","Category","Capacity","Model Number","Request Type","Product/Service","Current_status","Internal Status","Order_ID","Type",
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
                     "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",

@@ -40,3 +40,4 @@ define('SHOP_ADDRESS_ACTIVATED','Shop Address Activated');
 define('BB_CP_ADDRESS','CP_ADDRESS');
 define('BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT','Reimbursement');
 define('BUYBACK_CP_CREDIT_NOTE_SUBCAT','Credit Note');
+define('_247AROUND_BB_REIMBURSMENT_FILE','BB-Reimbursement-File');
