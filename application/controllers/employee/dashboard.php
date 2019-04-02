@@ -2011,9 +2011,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $startDate =  date('Y-m-d', strtotime('-30 days'));
         $partner_id = $status = $service_id  = $free_paid = "not_set";
         $request_type = 'Installation';
-        $upcountry = 'No';
+        $upcountry = 'not_set';
         if(!$is_pending){
-            $status = 'Completed';
+           if($this->input->post('status')){
+             $status = 'Completed';
+            }
         }
         else{
             $status = '247around:Vendor';
