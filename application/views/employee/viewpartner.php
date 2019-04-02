@@ -127,7 +127,7 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Generate Price</th>
                     <th class='jumbotron' style="text-align: center">View Price</th>
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
-                    <th class='jumbotron' style="text-align: center">Notifications</th>
+                    <th class='jumbotron' style="text-align: center">Partner Activation/Deactivation History</th>
                 </tr>
 
 
@@ -181,8 +181,9 @@ if ($this->session->userdata('error')) {
                             <a target="_blank" style="float:right;" href="<?php echo base_url(); ?>BookingSummary/old_summary_report_view/<?php echo $row['id']; ?>" class="btn btn-sm btn-color" title="Download Summary Report"><i class="glyphicon glyphicon-list-alt" aria-hidden="true"></i></a>  
                         </td>
                         <td align="center">
+                            <button type="button" class="btn btn-sm btn-info" id='btn_history' title="Partner Activation/Deactivation History" onclick='get_activation_history(<?= $row['id'] ?>,"<?= $row['company_name']?>")'><i class="fa fa-history" aria-hidden="true"></i></button>
                             <?php
-                            if (array_key_exists($row['id'], $push_notification)) {
+                            /*if (array_key_exists($row['id'], $push_notification)) {
                                 $tooltipText = '';
                                 if (array_key_exists("subscription_count", $push_notification[$row['id']])) {
                                     $tooltipText = $tooltipText . "Subscriptions: " . $push_notification[$row['id']]['subscription_count'];
@@ -199,7 +200,7 @@ if ($this->session->userdata('error')) {
                                 }
                             } else {
                                 echo '<button type="button" class="btn btn-sm btn-info title="Notification"><i class="fa fa-spinner" aria-hidden="true"></i></button>';
-                            }
+                            }*/
                             ?>
                         </td>
                     </tr>
@@ -231,6 +232,26 @@ if ($this->session->userdata('error')) {
 
     </div>
 </div>
+
+<!-- This modal class is used to view Partner Activation/Deactivation History -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><b>Partner Activation/Deactivation History</b></h4>
+      </div>
+      <div class="modal-body" id='div_historymodal'>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>
@@ -251,6 +272,39 @@ if ($this->session->userdata('error')) {
             success: function (response) {
                 console.log(response);
                 $("#table_container").html(response);
+            }
+        });
+    }
+    function get_activation_history(partnerID,companyName) {
+        $("#div_historymodal").html('<center><img style="width: 46px;" src="<?php echo base_url(); ?>images/loader.gif" /></center>');
+        $("#myModal").modal('show');
+        
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_activation_deactivation_history',
+            data: {'partner_id': partnerID},
+            success: function (response) {
+                response = JSON.parse(response);
+                
+                if(response['msg'] === 'failed')
+                {
+                    alert(response['data']);
+                }
+                var str='';
+                
+                str += '<h4><center>'+companyName+'</center></h4></br>';
+                str += "<table class='table table-bordered table-hover table-responsive'><thead><th>S.No.</th><th>Old State</th><th>New State</th><th>Date Modified</th></thead>";
+                
+                var old_state='';
+                var new_state='';
+                for(var i=0;i<response['data'].length;i++)
+                {
+                    new_state= ((response['data'][i]['status'] == 1)?'Active':'Deactive');
+                    str += "<tbody><td>"+(i+1)+"</td><td>"+old_state+"</td><td>"+new_state+"</td><td>"+response['data'][i]['date']+"</td></tbody></table";
+                    old_state= new_state;
+                }
+                $("#div_historymodal").empty();
+                $("#div_historymodal").append(str);
             }
         });
     }
