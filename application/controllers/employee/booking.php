@@ -390,6 +390,7 @@ class Booking extends CI_Controller {
         $booking['cancellation_reason'] = NULL;
         $booking['repeat_reason'] = NULL;
         $actor = $next_action = NULL;
+        $booking_update_flag = 0;
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
@@ -423,11 +424,13 @@ class Booking extends CI_Controller {
                         $booking['current_status'] =  _247AROUND_PENDING;
                         $booking['internal_status'] = 'Scheduled';
                     }
+                    $booking_update_flag = $booking_id_with_flag['booking_update_flag'];
                 } else {
                     //Internal status has query remarks only
                     $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('internal_status'));
+                    $booking_update_flag = $booking_id_with_flag['booking_update_flag'];
                 }
-
+                unset($booking_id_with_flag['booking_update_flag']);
                 $booking['booking_id'] = $booking_id_with_flag['booking_id'];
                 $is_send_sms = $booking_id_with_flag['query_to_booking'];
                 log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . print_r($is_send_sms, true));
@@ -539,6 +542,9 @@ class Booking extends CI_Controller {
             if($booking['parent_booking']){
             $this->notify->insert_state_change($booking['booking_id'], "Repeat Booking", $new_state, "Parent ID - ".$booking['parent_booking'].", Repeat Reason - ".$booking['repeat_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);
+            }
+            if($booking_update_flag == 1){
+                $this->notify->insert_state_change($booking['booking_id'], BOOKING_DETAILS_UPDATED, "", $this->input->post("query_remarks"), $this->session->userdata('id'), $this->session->userdata('id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
             }
             return $booking;
         } else {
@@ -666,19 +672,19 @@ class Booking extends CI_Controller {
                     $booking_id_array = explode("Q-", $booking_id);
                     $data['booking_id'] = $booking_id_array[1];
                     $data['query_to_booking'] = '1';
-
+                    
                     $data['old_state'] = _247AROUND_FOLLOWUP;
                     $data['new_state'] = _247AROUND_PENDING;
-
+                    $data['booking_update_flag'] = 0;
                     log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
                 } else {
                     //Booking to be updated to booking
                     $data['booking_id'] = $booking_id;
-
+                    
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_PENDING;
                     $data['query_to_booking'] = '2';
-
+                    $data['booking_update_flag'] = 1;
                     log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id'], true));
                 }
 
@@ -692,16 +698,16 @@ class Booking extends CI_Controller {
 
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_FOLLOWUP;
-
+                    $data['booking_update_flag'] = 0;
                     //Reset the assigned vendor ID for this booking
                     $this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
                 } else {
                     //Query to be updated to query
                     $data['booking_id'] = $booking_id;
                     log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id'], true));
-
                     $data['old_state'] = _247AROUND_FOLLOWUP;
                     $data['new_state'] = _247AROUND_FOLLOWUP;
+                    $data['booking_update_flag'] = 1;
                 }
 
                 break;
