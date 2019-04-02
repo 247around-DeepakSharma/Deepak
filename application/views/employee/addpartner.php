@@ -1298,12 +1298,12 @@
                                     <?php } ?>
                                 </div>
                             </div>
-                            <div class="col-md-6" style="padding:0px;">
-                                <label for="contract file" class="col-md-4">Contract Description</label>
-                                <div class="form-group" style=" margin: 0px 17px;    width: 569px;">
+                            <div class="col-md-6">
+                                <label for="contract file" class="col-md-4" style="padding-left: 0px;">Contract Description</label>
+                                <div class="col-md-6" style="padding-left: 0px; width: 330px;">
                                     <textarea class="form-control" rows="1" id="contract_description" name="contract_description[]"></textarea>
                                 </div>
-                                <hr style="border: 1px solid #a1e8a1;">
+<!--                                <hr style="border: 1px solid #a1e8a1;">-->
                             </div>
                         </div>
                         <div id="cloned"></div>
