@@ -115,7 +115,8 @@
 <div id="page-wrapper" >
     <div class="row">
         <h1 style="float:left;"> <?php echo ucfirst($booking_status);?> Bookings</h1>
-        <a href="<?php echo  base_url()?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 21px;">Download</a>
+        <a href="<?php echo  base_url()?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 25px;">Download</a>
+        <a href="<?php echo  base_url()?>employee/dashboard" id="btn_dashboard"  name="btn_dashboard" class="col-s-1 btn btn-success"  style="float:right;margin-right:10px;margin-top: 25px;"><i class="fa fa-arrow-left"></i>&nbsp;Go To Dashboard</a>
         <div class="clear"></div>
         <hr>
         <?php

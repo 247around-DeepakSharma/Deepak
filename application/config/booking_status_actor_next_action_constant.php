@@ -33,5 +33,6 @@ define('NEXT_ACTION_REJECT_RESCHEDULE_REQUEST','Visit the Customer');
 define('ACTOR_NOT_DEFINE','NULL');
 define('NEXT_ACTION_NOT_DEFINE','NULL');
 define('CANCELLED_BY_PARTNER_API','Cancelled By Partner API');
+define("BOOKING_DETAILS_UPDATED", "Booking Details Updated");
 
 
