@@ -2179,5 +2179,17 @@ class Spare_parts extends CI_Controller {
             $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, '', $email_template_tag, '', '');
         }
     }
+    
+/* 
+  *  @desc : This function is used to upload alternate spare parts 
+    *  @param : void
+    *  @return :void
+    */
+
+    function upload_alternate_spare_parts_file() {     
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_alternate_spare_parts_mapping');
+    }
 
 }

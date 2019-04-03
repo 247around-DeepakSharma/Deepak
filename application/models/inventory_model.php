@@ -472,11 +472,16 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_inventory_master_list_data($select,$where = array()){
+    function get_inventory_master_list_data($select, $where = array(), $where_in = array()){
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
         }
+        
+        if(!empty($where_in)){
+           $this->db->where_in('inventory_master_list.part_number', $where_in);
+        }
+        
         $query = $this->db->get('inventory_master_list');
         //log_message("info",$this->db->last_query());
         return $query->result_array();
@@ -2065,5 +2070,16 @@ class Inventory_model extends CI_Model {
         $this->db->insert('hsn_code_details', $data);
         return $this->db->insert_id();
     }
-       
+      
+    
+    /**
+    * @desc: This function is used to insert data in inventory_alternate_spare_parts_mapping table
+    * @params: Array of data
+    * return : boolean
+    */
+
+     function insert_alternate_spare_parts($data) {
+        $this->db->insert_ignore_duplicate_batch('inventory_alternate_spare_parts_mapping', $data);
+        return $this->db->insert_id();
+    }
 }
