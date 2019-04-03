@@ -43,7 +43,7 @@ class File_upload extends CI_Controller {
 
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
-      
+              
         if ($file_status['file_name_lenth']) {
 
             if ($file_status['status']) {
@@ -84,6 +84,10 @@ class File_upload extends CI_Controller {
                         case PARTNER_BOM_FILE:
                             //process partner bom file upload
                             $response = $this->process_partner_bom_file_upload($data);
+                            break;
+                        case ALTERNATE_SPARE_PARTS_MAPPING:
+                            //process Alternate Spare Parts 
+                            $response = $this->process_upload_alternate_spare_parts($data);
                             break;
                         default :
                             log_message("info", " upload file type not found");
@@ -879,6 +883,79 @@ class File_upload extends CI_Controller {
     }
     
     
+    
+    /**
+     * @desc: This function is used to do the inventory and model mapping from file upload
+     * @param $data array() 
+     * @return $response array()
+     */
+    function process_upload_alternate_spare_parts($data) {
+        log_message("info", __METHOD__);
+        $response = array();
+        $partner_id = trim($this->input->post('partner_id'));
+
+        if ($partner_id) {
+            //get file data to process
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                }
+
+                if ($rowData['part_code'] != $rowData['alt_part_code']) {
+
+                    $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING);
+                    $where_in = array($rowData['part_code'], $rowData['alt_part_code']);
+                    $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
+                    $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
+
+                    if (!empty($inventory_id_details)) {
+                        $tmp_arr = array();
+                        $tmp_arr['inventory_id'] = $inventory_id_details[0]['inventory_id'];
+                        $tmp_arr['alt_inventory_id'] = $inventory_id_details[1]['inventory_id'];
+                        array_push($this->dataToInsert, $tmp_arr);
+                    } else {
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                        );
+                        $this->table->set_template($template);
+                        $this->table->set_heading(array('Part Name', 'Part Code', 'Alt Part Code'));
+                        $this->table->add_row($rowData['part_name'], $rowData['part_code'], $rowData['alt_part_code']);
+                        $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                        $not_exist_data_msg .= $this->table->generate();
+                    }
+                } else {
+                    log_message("info", __METHOD__ . " error in creating mapping.");
+                    $response['status'] = FALSE;
+                    $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
+                }
+            }
+
+            if (!empty($this->dataToInsert)) {
+                $insert_data = $this->inventory_model->insert_alternate_spare_parts(array_unique($this->dataToInsert));
+                if ($insert_data) {
+                    log_message("info", __METHOD__ . count(array_unique($this->dataToInsert)) . " mapping created succcessfully");
+                    $response['status'] = TRUE;
+                    $message = "<b>" . count(array_unique($this->dataToInsert)) . "</b> mapping created successfully.";
+                    $response['message'] = $message . ' ' . $not_exist_data_msg;
+                } else {
+                    log_message("info", __METHOD__ . " error in creating mapping.");
+                    $response['status'] = FALSE;
+                    $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                }
+            } else {
+                $response['status'] = FALSE;
+                $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
+            }
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = 'Please select correct partner';
+        }
+        return $response;
+    }
+
     /**
      * @desc: This function is used to make the data to do the correct mapping between inventory and model_number 
      * @param $model_number_id integer

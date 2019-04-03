@@ -539,6 +539,9 @@ define("PARTNER_CALL_CENTER_USER_GROUP", "Call Center");
 //Define Constant for Partner BOM file upload
 define('PARTNER_BOM_FILE','Partner-BOM');
 
+//Define Constant for Alternate Spare Parts Mapping file upload
+define('ALTERNATE_SPARE_PARTS_MAPPING','Alternate Spare Part Mapping');
+
 //Partner Serial no file type
 define('PARTNER_SERIAL_NUMBER_FILE_TYPE','partner_serial_number');
 

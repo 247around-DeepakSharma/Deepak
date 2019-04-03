@@ -33,10 +33,10 @@
                         <td><?php echo $value['initial_booking_date'];  ?></td>
                         <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
                         <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request'])) ; ?>
-                        <div class="blink">
-                           <div class="esclate"><?php echo '<b>' . $value['count_reschedule'] . " times</b><br>";?></div>
+                        <div class="<?php echo (($value['count_reschedule'] != 0)?'blink':''); ?>">
+                           <div class="<?php echo (($value['count_reschedule'] != 0)?'esclate':''); ?>"><?php echo '<b>' . $value['count_reschedule'] . " times</b><br>";?></div>
                                 
-                            </div>
+                        </div>
                            
                             
                         
