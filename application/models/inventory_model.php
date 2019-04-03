@@ -2080,6 +2080,12 @@ class Inventory_model extends CI_Model {
 
      function insert_alternate_spare_parts($data) {
         $this->db->insert_ignore_duplicate_batch('inventory_alternate_spare_parts_mapping', $data);
-        return $this->db->insert_id();
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
     }
 }
