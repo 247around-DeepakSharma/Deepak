@@ -1044,6 +1044,37 @@
             </div>
         </div>
         <!-- RM wise booking status -->
+
+        <!-- Logged In Users -->
+        <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding-right:0px !important">
+            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Logged In Users</h2>
+                        <span class="collape_icon" href="#loggedin_table_data_div" id='spn_loggedin_table' data-toggle="collapse" onclick="get_loggedin_users(this.id)"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content collapse" id="loggedin_table_data_div">
+                        <center><img id="loggedin_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                        <div class="table-responsive" id="loggedin_table_data">
+                            <i class="fa fa-refresh" aria-hidden="true" id='refresh_icon' onclick='get_loggedin_users(this.id)' style="float:right;cursor:pointer;"></i><br>
+                            <table class="table table-striped table-bordered jambo_table bulk_action" border="1">
+                                <thead>
+                                    <tr>
+                                        <th>Vendor</th>
+                                        <th>Partner</th>
+                                        <th>Admin</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='tbody_loggedin_user'>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Logged In Users -->
     </div>
     <!-- Agent Graph -->
     <div class="row">
@@ -1530,6 +1561,28 @@
         sendAjaxRequest(data,url,post_request).done(function(response){
             create_chart_based_on_bookings_state(response);
         });
+    }
+    
+    function get_loggedin_users(id) {
+        if($('#'+id).children('i').attr('class') != 'fa fa-minus-square') {
+            var data = {};
+            url =  '<?php echo base_url(); ?>employee/dashboard/get_loggedin_users';
+            $("#loggedin_table_data").hide();
+            $('#loggedin_loader').fadeIn();
+            sendAjaxRequest(data,url,post_request).done(function(response){
+                response = JSON.parse(response);
+
+                if(response['msg'] === 'failed')
+                {
+                    alert(response['data']);
+                }
+                var str = "<td align='right'>"+response['data']['service_center']+"&nbsp;</td><td align='right'>"+response['data']['partner']+"&nbsp;</td><td align='right'>"+response['data']['employee']+"&nbsp;</td>";
+
+                $('#loggedin_loader').hide();
+                $("#tbody_loggedin_user").html(str);
+                $("#loggedin_table_data").show();
+            });
+        }
     }
     
     function create_partner_booking_chart(response){

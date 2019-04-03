@@ -793,4 +793,14 @@ class dashboard_model extends CI_Model {
         $this->db->insert('dashboard_notifications', $details);
         return $this->db->insert_id();
     }
+    /*
+     * @desc - This function is used to get logged in users
+     * @param - void
+     * @return - array
+     */
+    function get_loggedin_users(){
+        $query = "SELECT * FROM `login_logout_details` where date(created_on)=curdate() group by ip, agent_id order by created_on desc";
+        $result = $this->db->query($query);
+        return $result->result_array();
+    }
 }
