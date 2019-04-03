@@ -6210,11 +6210,12 @@ class Partner extends CI_Controller {
      * @return void
      */
     function show_contract_list(){
-        $select = 'partners.public_name, collateral.file, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date';
-        $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND collateral.collateral_id = "7" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
-        $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id';
+        $select = 'partners.public_name, collateral.file, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date, collateral_type.collateral_type';
+        $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
+        $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id AND collateral_type.collateral_tag = "Contract"';
         
         $data['data'] = $this->partner_model->get_partner_contract_detail($select, array('is_active'=>1), $join, 'left');
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_contract_list', $data);
     }
