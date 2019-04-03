@@ -10273,3 +10273,6 @@ ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2
 CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
+<br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
+
