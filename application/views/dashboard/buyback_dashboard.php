@@ -35,7 +35,7 @@
                     </div>
                     <div class="col-md-3 text-center total_balance">
                         <b>Total Balance : </b>
-                        Rs. <a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/buyback_full_balance"><span><u>{{total_balance}}</u></span></a>
+                        Rs. <u><a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/buyback_full_balance"><span><u>{{total_balance}}</u></span></a></u>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                             $url = urldecode($temp);
                             ?>
                            <td>
-                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+                               <a style="color: red;" target="_blank" href="<?php echo $url ?>"><u>{{x.count}}</u></a></td>
 <!--                           <td><a target="_blank">{{x.count}}</a></td>-->
                         </tr>
                     </tbody>
@@ -120,7 +120,7 @@
                             $url = urldecode($temp);
                             ?>
                            <td>
-                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+                               <a style="color: red;" target="_blank" href="<?php echo $url ?>"><u>{{x.count}}</u></a></td>
 <!--                           <td><a target="_blank">{{x.count}}</a></td>-->
                         </tr>
                     </tbody>
@@ -133,9 +133,7 @@
          <div class="col-md-12 col-sm-12 col-xs-12" style=" margin: 0px;padding: 0px;border: 1px solid #edecec;margin-bottom: 10px;">
         <div class="col-md-12 col-sm-12 col-xs-12" style="background-color:#fff;padding-top: 15px;" ng-controller="review_details">
             <div class="x_title">
-                    <h2><button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
-                                color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="1) Without CP invoice Without Reimbursement Invoice 
-                                2) These orders Will not be invoices in upcoming Invoice cycle  3) Include orders whoes delivery date is older than last month  4) Not include Review Page Orders">?</button>Disputed Orders Summary  
+                    <h2>Disputed Orders Summary  
                                 <small>Orders On Review Page </small></h2>
                     <div class="clearfix"></div>
                 </div>
@@ -161,7 +159,7 @@
                             $url = urldecode($temp);
                             ?>
                            <td>
-                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+                               <a style="color: red;" target="_blank" href="<?php echo $url ?>"><u>{{x.count}}</u></a></td>
 <!--                           <td><a target="_blank">{{x.count}}</a></td>-->
                         </tr>
                     </tbody>
