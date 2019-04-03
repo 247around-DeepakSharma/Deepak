@@ -73,8 +73,12 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2], //first column / numbering column
+                    targets: [0], //first column / numbering column
                     orderable: false //set not orderable
+                },
+                {
+                    targets: [1,2], //first column / numbering column
+                    orderable: true //set not orderable
                 }
             ],
             fnInitComplete: function (oSettings, response) {
