@@ -7094,8 +7094,8 @@ class Partner extends CI_Controller {
     function get_partners_searched_data(){
         log_message("info", __METHOD__);
         $post = $this->getPartnerDataTablePost();
-        $post['column_order'] = array(NULL, 'employee.full_name');
-        $post['column_search'] = array('employee.full_name');
+        $post['column_order'] = array(NULL, 'employee.full_name','partners.public_name');
+        $post['column_search'] = array('employee.full_name','partners.public_name');
         $data = array();
         
         switch ($this->input->post('request_type')){

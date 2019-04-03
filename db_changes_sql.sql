@@ -10188,7 +10188,6 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `part
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
 
 --Gorakh 15-03-2019
-
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
 ('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
@@ -10273,6 +10272,20 @@ ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2
 CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
 UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
+
+----Gorakh 01-04-2019
+CREATE TABLE `inventory_alternate_spare_parts_mapping` (
+  `id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `alt_inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `inventory_alternate_spare_parts_mapping`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `inventory_id` (`inventory_id`,`alt_inventory_id`);
 
