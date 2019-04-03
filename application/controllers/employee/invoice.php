@@ -206,8 +206,8 @@ class Invoice extends CI_Controller {
             if(($data[0]['category'] == INSTALLATION_AND_REPAIR || $data[0]['category'] == RECURRING_CHARGES) && ($data[0]['sub_category'] == CREDIT_NOTE || $data[0]['sub_category'] == GST_CREDIT_NOTE || $data[0]['sub_category'] == DEBIT_NOTE || $data[0]['sub_category'] == GST_DEBIT_NOTE)){
                 $email_template = $this->booking_model->get_booking_email_template("resend_dn_cn_invoice"); 
                 $email_template_name = "resend_dn_cn_invoice";
-                $subject = $email_template[4];
-                $message = $email_template[0];
+                $subject = vsprintf($email_template[4], array($data[0]['sub_category']));
+                $message = vsprintf($email_template[0], array($data[0]['sub_category'], $data[0]['total_amount_collected'], $data[0]['reference_invoice_id']));
             }
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
