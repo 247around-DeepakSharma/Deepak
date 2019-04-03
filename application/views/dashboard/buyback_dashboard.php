@@ -54,7 +54,10 @@
      <div class="col-md-12 col-sm-12 col-xs-12" style=" margin: 0px;padding: 0px;border: 1px solid #edecec;margin-bottom: 10px;">
         <div class="col-md-12 col-sm-12 col-xs-12" style="background-color:#fff;padding-top: 15px;" ng-controller="review_page_summary">
             <div class="x_title">
-                    <h2>Summary  <small>Without Invoice And WIthout Reimbursement Orders</small></h2>
+                    <h2><button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+                                color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="1) Without CP invoice Without Reimbursement Invoice 
+                                2) These orders Will not be invoices in upcoming Invoice cycle  3) Include orders whoes delivery date is older than last month  4) Not include Review Page Orders">?</button>Disputed Orders Summary
+                                <small>Without Invoice And WIthout Reimbursement Orders</small></h2>
                     <div class="clearfix"></div>
                 </div>
             <div ng-if="showLoaderReview">
@@ -65,7 +68,7 @@
                     <thead>
                     <th><b>S.N</b></th>
                     <th><b>Status</b></th>
-                    <th><b>Partner Amount</b></th>
+                    <th><b>247Around Deduction</b></th>
                     <th><b>Count</b></th>
                     </thead>
                     <tbody>
@@ -73,8 +76,93 @@
                            <td>{{$index+1}}</td>
                            <td>{{x.status}}</td>
                            <td>{{x.amount}}</td>
-<!--                           <td><a target="_blank" href="<?php echo base_url()?>buyback/buyback_process/show_without_invoices_orders/{{x.status}}">{{x.count}}</a></td>-->
-                            <td><a target="_blank">{{x.count}}</a></td>
+                           <?php
+                            $value = "{{x.status}}";
+                            $temp = base_url().'buyback/buyback_process/show_without_invoices_orders/'.$value; 
+                            $url = urldecode($temp);
+                            ?>
+                           <td>
+                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+<!--                           <td><a target="_blank">{{x.count}}</a></td>-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<!--      Orders Setteled On  clamied price but did not get reimburshment-->
+         <div class="col-md-12 col-sm-12 col-xs-12" style=" margin: 0px;padding: 0px;border: 1px solid #edecec;margin-bottom: 10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="background-color:#fff;padding-top: 15px;" ng-controller="claimed_price_order_summary">
+            <div class="x_title">
+                    <h2>Disputed Orders Summary  
+                                <small>Settlement With CP on Claimed Price but not get refund from amazon (Only TV) </small></h2>
+                    <div class="clearfix"></div>
+                </div>
+            <div ng-if="showLoaderClaimed">
+                <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+            <div ng-if="showClaimedDetails">
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                    <th><b>S.N</b></th>
+                    <th><b>Status</b></th>
+                    <th><b>247Around Hold Amount </b></th>
+                    <th><b>Count</b></th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in faulty_bookings | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+                           <td>{{x.status}}</td>
+                           <td>{{x.amount}}</td>
+                           <?php
+                            $value = "{{x.status}}";
+                            $temp = base_url().'buyback/buyback_process/show_without_invoices_orders/'.$value.'/cp'; 
+                            $url = urldecode($temp);
+                            ?>
+                           <td>
+                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+<!--                           <td><a target="_blank">{{x.count}}</a></td>-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!--      Orders Setteled On  clamied price but did not get reimburshment-->
+         <div class="col-md-12 col-sm-12 col-xs-12" style=" margin: 0px;padding: 0px;border: 1px solid #edecec;margin-bottom: 10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="background-color:#fff;padding-top: 15px;" ng-controller="review_details">
+            <div class="x_title">
+                    <h2><button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+                                color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="1) Without CP invoice Without Reimbursement Invoice 
+                                2) These orders Will not be invoices in upcoming Invoice cycle  3) Include orders whoes delivery date is older than last month  4) Not include Review Page Orders">?</button>Disputed Orders Summary  
+                                <small>Orders On Review Page </small></h2>
+                    <div class="clearfix"></div>
+                </div>
+            <div ng-if="showLoaderReviewOrders">
+                <center><img id="loader_gif_unit" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+            <div ng-if="showReviewOrderDetails">
+                <table class="table table-striped table-bordered jambo_table bulk_action">
+                    <thead>
+                    <th><b>S.N</b></th>
+                    <th><b>Age (Age Count From Order Date)</b></th>
+                    <th><b>247around Deduction</b></th>
+                    <th><b>Count</b></th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in faulty_bookings | orderBy:'TAT_16'">
+                           <td>{{$index+1}}</td>
+                           <td>{{x.status}}</td>
+                           <td>{{x.amount}}</td>
+                           <?php
+                            $value = "{{x.status}}";
+                            $temp = base_url().'buyback/buyback_process/bb_order_review/'.$value; 
+                            $url = urldecode($temp);
+                            ?>
+                           <td>
+                               <a target="_blank" href="<?php echo $url ?>">{{x.count}}</a></td>
+<!--                           <td><a target="_blank">{{x.count}}</a></td>-->
                         </tr>
                     </tbody>
                 </table>
@@ -318,3 +406,28 @@ display: block;
     }
 </script>
 
+<style>
+    .tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+    </style>

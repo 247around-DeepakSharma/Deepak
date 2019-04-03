@@ -666,10 +666,10 @@ class Buyback_process extends CI_Controller {
      * @param void
      * @return void
      */
-    function bb_order_review(){
+    function bb_order_review($days = NULL){
         log_message("info",__METHOD__);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
-        $this->load->view('buyback/bb_order_review');
+        $this->load->view('buyback/bb_order_review',array('days'=>$days));
         $this->load->view('dashboard/dashboard_footer');
     }
     
@@ -680,6 +680,16 @@ class Buyback_process extends CI_Controller {
      * @return $output json
      */
     function get_bb_review_order_details(){
+        $where = NULL;
+        if($this->input->post('days')){
+            $days = urldecode($this->input->post('days'));
+            if($days == 'Older than 30 Days'){
+                $where['DATEDIFF(CURRENT_DATE,order_date) > 30'] = NULL;
+            }
+            else{
+                 $where['DATEDIFF(CURRENT_DATE,order_date) <= 30'] = NULL;
+            }
+        }
         log_message("info",__METHOD__);
         $length = $this->input->post('length');
         $start = $this->input->post('start');
@@ -687,8 +697,8 @@ class Buyback_process extends CI_Controller {
         $search_value = $search['value'];
         $order = $this->input->post('order');
         $draw = $this->input->post('draw');
-        $list = $this->bb_model->get_bb_review_order_list($length, $start, $search_value, $order);
-
+        $list = $this->bb_model->get_bb_review_order_list($length, $start, $search_value, $order,NULL,$where);
+        
         $data = array();
         $no = $start;
         foreach ($list as $order_list) {
@@ -742,7 +752,7 @@ class Buyback_process extends CI_Controller {
         $output = array(
             "draw" => $draw,
             "recordsTotal" => $this->bb_model->count_all_review_order(),
-            "recordsFiltered" => $this->bb_model->count_filtered_review_order($search_value, $order),
+            "recordsFiltered" => $this->bb_model->count_filtered_review_order($search_value, $order,$where),
             "data" => $data,
         );
 
@@ -2369,13 +2379,48 @@ class Buyback_process extends CI_Controller {
          $data[] = $temp;
          echo json_encode($data);
     }
-    function show_without_invoices_orders($status){
+    function show_without_invoices_orders($status,$cp_invoice = false){
         $select = 'bb.partner_order_id,bb_cp_order_action.admin_remarks as admin_remarks,bb.order_date as order_date,bb.delivery_date,bb.current_status,bb.internal_status,'
                 . 'bb_cp_order_action.remarks as remarks,bb_cp_order_action.update_date';
         $where['bb_cp_order_action.current_status'] = urldecode ($status);
-        $data['list'] = $this->bb_model->get_orders_without_invoices($select,NULL,$where,1);
+        if($cp_invoice){
+            $data['list'] = $this->bb_model->get_orders_without_invoices($select,NULL,$where,1,false);
+        }
+        else{
+            $data['list'] = $this->bb_model->get_orders_without_invoices($select,NULL,$where,1);
+        }
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
         $this->load->view('buyback/bb_without_invoice_orders', $data);
         $this->load->view('dashboard/dashboard_footer');
+    }
+    function get_orders_with_cp_invoice_and_without_reimbursement(){
+         $select = 'COUNT(bb.partner_order_id) as count,bb_cp_order_action.current_status as status,round(SUM(bb_unit_details.partner_discount)) as amount';
+         $data = $this->bb_model->get_orders_without_invoices($select,1,NULL,1,false);
+         $temp['status'] = "Total";
+         $temp['count'] = $temp['amount'] = 0;
+         foreach($data as $values){
+             $temp['count'] = $values['count'] + $temp['count'];
+             $temp['amount'] = $values['amount'] + $temp['amount'];
+         }
+         $data[] = $temp;
+         echo json_encode($data);
+    }
+    function get_review_page_orders(){
+        $select = 'COUNT(bb_cp_order_action.partner_order_id) as count,round(SUM(bb_unit_details.partner_basic_charge+bb_unit_details.partner_tax_charge)) as amount,'
+                . ' CASE WHEN DATEDIFF(CURRENT_DATE,order_date) > 30 THEN "Older than 30 Days" ELSE "Within 30 Days" END as status';
+        $table = 'bb_cp_order_action';
+        $where['bb_cp_order_action.current_status = "InProcess"'] = NULL;
+        $join['bb_unit_details'] = 'bb_unit_details.partner_order_id = bb_cp_order_action.partner_order_id';
+        $join['bb_order_details'] = 'bb_order_details.partner_order_id = bb_cp_order_action.partner_order_id';
+        $groupBY = array('status');
+        $data = $this->reusable_model->get_search_result_data($table,$select,$where,$join,NULL,NULL,NULL,NULL,$groupBY);
+        $temp['status'] = "Total";
+        $temp['count'] = $temp['amount'] = 0;
+         foreach($data as $values){
+             $temp['count'] = $values['count'] + $temp['count'];
+             $temp['amount'] = $values['amount'] + $temp['amount'];
+         }
+         $data[] = $temp;
+         echo json_encode($data);
     }
 }

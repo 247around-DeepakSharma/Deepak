@@ -986,13 +986,40 @@ buyback_dashboard.controller('review_page_summary', function ($scope, $http) {
     });
 });
 
-//reimbursment file upload
-uploadfile.controller('uploadReimbursmentFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
-    $scope.uploadFile = function () { 
-        var file = $scope.myFile;
-        var file_date = ''
-        $scope.ShowSpinnerStatus = true;
-        var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_reimbursement_file";
-        fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
-    };
-}]);
+
+buyback_dashboard.controller('claimed_price_order_summary', function ($scope, $http) {
+    $scope.showLoaderClaimed = true;
+    $scope.showClaimedDetails = false;
+    var get_url = baseUrl + "/buyback/buyback_process/get_orders_with_cp_invoice_and_without_reimbursement";
+    $http.get(get_url)
+        .then(function (response) {
+            var data = angular.fromJson(response.data);
+            $scope.showLoaderClaimed = false;
+            $scope.showClaimedDetails = true;
+            $scope.faulty_bookings = data;
+    });
+});
+
+buyback_dashboard.controller('review_details', function ($scope, $http) {
+    $scope.showLoaderReviewOrders = true;
+    $scope.showReviewOrderDetails = false;
+    var get_url = baseUrl + "/buyback/buyback_process/get_review_page_orders";
+    $http.get(get_url)
+        .then(function (response) {
+            var data = angular.fromJson(response.data);
+            $scope.showLoaderReviewOrders = false;
+            $scope.showReviewOrderDetails = true;
+            $scope.faulty_bookings = data;
+    });
+});
+
+    //reimbursment file upload
+    uploadfile.controller('uploadReimbursmentFile', ['$scope', 'fileUpload', function ($scope, fileUpload) {
+        $scope.uploadFile = function () { 
+            var file = $scope.myFile;
+            var file_date = ''
+            $scope.ShowSpinnerStatus = true;
+            var uploadUrl = baseUrl + "/buyback/upload_buyback_process/process_reimbursement_file";
+            fileUpload.uploadFileToUrl($scope, file, uploadUrl,file_date);
+        };
+    }]);

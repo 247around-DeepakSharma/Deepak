@@ -123,7 +123,7 @@
             "ajax": {
                 "url": "<?php echo base_url(); ?>buyback/buyback_process/get_bb_review_order_details",
                 "type": "POST",
-                "data": {"status": 2}
+                "data": {"status": 2,"days":'<?php echo $days ?>'}
             },
             //Set column definition initialisation properties.
             "columnDefs": [
