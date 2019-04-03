@@ -10140,7 +10140,6 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `part
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
 
 --Gorakh 15-03-2019
-
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
 ('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
@@ -10226,3 +10225,15 @@ ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2
 
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+----Gorakh 01-04-2019
+CREATE TABLE `inventory_alternate_spare_parts_mapping` (
+  `id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `alt_inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `inventory_alternate_spare_parts_mapping`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `inventory_id` (`inventory_id`,`alt_inventory_id`);
