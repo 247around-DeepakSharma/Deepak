@@ -1575,54 +1575,64 @@
             <div class="form-group  <?php if (form_error('excel')) {
                 echo 'has-error';
                 } ?> col-lg-12">
-                <label for="excel" class="col-md-3">Upload Serial No</label>
-                <div class="col-md-4">
-                    <!--                            <input type="text" name="partner_id"  value="247034" />-->
-                    <input type="file" class="form-control" id="SerialNofile"  name="file" >
+                <div class="panel panel-default">
+                    <div class="panel-heading" style=" background-color: #f5f5f5;">
+                        <h4  style="margin-left:5px;margin-bottom: 10px;font-weight:bold;">Upload Serial No File</h4>
+                    </div>
+                    <div class="panel-body">
+                        <label for="excel" class="col-md-3">Upload Serial No</label>
+                        <div class="col-md-4">
+                            <!--                            <input type="text" name="partner_id"  value="247034" />-->
+                            <input type="file" class="form-control" id="SerialNofile"  name="file" >
+                        </div>
+                        <!--                        <input type= "submit" class="btn btn-danger btn-md"  value="upload">-->
+                        <button id="serialNobtn" class="btn btn-primary btn-md col-md-1"  >Upload</button>
+                    </div>
                 </div>
-                <!--                        <input type= "submit" class="btn btn-danger btn-md"  value="upload">-->
-                <button id="serialNobtn" class="btn btn-primary btn-md col-md-1"  >Upload</button>
             </div>
             
             <div class="col-lg-12">
-                <button class="btn" onclick="show_add_samplepic_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Sample Number Picture</button>
-                <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" onSubmit="document.getElementById('upload_sample_picture').disabled=true;"  action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data">
-                        <?php
-                        if(isset($query[0]['id'])){
-                            if($query[0]['id']){
-                            ?>
-                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                <!--<button class="btn" onclick="show_add_samplepic_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Sample Number Picture</button>-->
+                <div class="panel panel-default">
+                    <h4  style="margin-left:5px;margin-bottom: 15px;font-weight:bold;">Add Sample Number Picture</h4>
+                    <form name="sample_no_pic_form" class="form-horizontal" id ="sample_no_pic_form" onSubmit="document.getElementById('upload_sample_picture').disabled=true;"  action="<?php echo base_url() ?>employee/partner/process_partner_sample_no_pic" method="POST" enctype="multipart/form-data">
                             <?php
+                            if(isset($query[0]['id'])){
+                                if($query[0]['id']){
+                                ?>
+                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                                <?php
+                            }
                         }
-                    }
-                    ?> 
-                    <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
-                        <div class="panel-heading" style=" background-color: #f5f5f5;">
-                             <p style="color: #000;"><b>Sample Number Picture</b></p>
-                             <div class="clone_button_holder" style="float:right;margin-top: -31px;">
-                                <button class="clone1 btn btn-info">Add</button>
-                                <button class="remove1 btn btn-info">Remove</button>
+                        ?> 
+                        <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
+                            <div class="panel-heading" style=" background-color: #f5f5f5;">
+                                 <p style="color: #000;"><b>Sample Number Picture</b></p>
+                                 <div class="clone_button_holder" style="float:right;margin-top: -31px;">
+                                    <button class="clone1 btn btn-info">Add</button>
+                                    <button class="remove1 btn btn-info">Remove</button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class='form-group'>
-                                        <label for="SamplePicfile" class="col-md-4">Upload Sample Number Picture *</label>
-                                        <div class="col-md-6">
-                                            <input type="file" class="form-control" id="SamplePicfile_1"  name="SamplePicfile[]" >
-                                        </div>
-                                     </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class='form-group'>
+                                            <label for="SamplePicfile" class="col-md-4">Upload Sample Number Picture *</label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control" id="SamplePicfile_1"  name="SamplePicfile[]" >
+                                            </div>
+                                         </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="cloned1"></div>
-                
-                <div class="form-group " style="text-align:center">
-                    <input type="submit" class="btn btn-primary" id="upload_sample_picture" value="Upload" onclick=" return onsubmit_form()" >
+                        <div class="cloned1"></div>
+
+                        <div class="form-group " style="text-align:center">
+                            <input type="submit" class="btn btn-primary" id="upload_sample_picture" value="Upload" onclick=" return onsubmit_form()" >
+                        </div>
+                    </form>
                 </div>
-            </form>
             </div>
             
             <!--                  </form>-->
@@ -3231,9 +3241,11 @@
        return false;
     }  
     function remove1(){
-       $(this).parents(".clonedInputSample").remove();
+        if($('div.clonedInputSample').length > 1) {
+            $(this).parents(".clonedInputSample").remove();
+        }
        
-       return false;
+        return false;
     }
     $("button.clone1").on("click", clone1);
     
@@ -3241,7 +3253,7 @@
      $(document).ready(function () {
     $('#contact_form').hide();
     $('#warehouse_form').hide();
-    $('#sample_no_pic_form').hide();
+    //$('#sample_no_pic_form').hide();
     $('#bank_detail_form').hide();
     //called when key is pressed in textbox
     $("#grand_total_price").keypress(function (e) {
