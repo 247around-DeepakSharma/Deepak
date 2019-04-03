@@ -126,8 +126,9 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Action</th>
                     <th class='jumbotron' style="text-align: center">Generate Price</th>
                     <th class='jumbotron' style="text-align: center">View Price</th>
-                    <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
+                    <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>D
                     <th class='jumbotron' style="text-align: center">Notifications</th>
+                    <th class='jumbotron' style="text-align: center">Activation / Deactivation<br>History</th>
                 </tr>
 
 
@@ -159,7 +160,7 @@ if ($this->session->userdata('error')) {
                         <td>
     <?= $row['primary_contact_phone_1']; ?>
                         </td>
-                        <td><?= $row['primary_contact_email']; ?></td>
+                        <td><?= wordwrap($row['primary_contact_email'],30,'<br>',true); ?></td>
                         <td><?= $row['customer_care_contact']; ?></td>
                         <td><?php if ($row['is_prepaid'] == 1) { ?> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><?php } ?></td>
                         <td><a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" title="Go To Invoice"><i class="fa fa-inr" aria-hidden="true"></i></a></td>
