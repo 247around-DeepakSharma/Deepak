@@ -995,7 +995,7 @@ class Accounting extends CI_Controller {
     function get_payment_summary_searched_data(){
         $post = $this->getPaymentSummaryDataTablePost();
         $post['column_order'] = array( NULL, 'bank_transactions.id');
-        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'transaction_date');
+        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'transaction_date', 'transaction_id');
         $data = array();
         
         switch ($this->input->post('request_type')){
@@ -1088,6 +1088,7 @@ class Accounting extends CI_Controller {
         $vendor_partner_id = $this->input->post("vendor_partner_id");
         $transaction_date = $this->input->post("transaction_date");
         $transaction_period = $this->input->post("transaction_period_date");
+        $transaction_id = $this->input->post("transaction_id");
        
         if(!empty($vendor_partner)){
             $post['where']['partner_vendor'] = $vendor_partner;
@@ -1096,6 +1097,10 @@ class Accounting extends CI_Controller {
             if($vendor_partner_id != "All"){
                 $post['where']['partner_vendor_id'] = $vendor_partner_id;
             } 
+        }
+        
+        if(!empty($transaction_id)){
+            $post['where']['transaction_id'] = $transaction_id;
         }
         
         if(!empty($transaction_date)){
