@@ -10237,3 +10237,8 @@ CREATE TABLE `inventory_alternate_spare_parts_mapping` (
 ALTER TABLE `inventory_alternate_spare_parts_mapping`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `inventory_id` (`inventory_id`,`alt_inventory_id`);
+--Kalyani 29-March-2019
+UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
+<br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
+
+
