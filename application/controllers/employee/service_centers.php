@@ -2605,7 +2605,7 @@ class Service_centers extends CI_Controller {
                 foreach ($spare_id_array as $spare_id) {
                     $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested, spare_parts_details.invoice_gst_rate,"
                             . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name, "
-                            . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district";
+                            . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district, service_centres.gst_no";
 
                     $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
                     
@@ -2616,17 +2616,20 @@ class Service_centers extends CI_Controller {
                     $service_details = $this->booking_model->selectservicebyid($sp_details[0]['service_id']);
                     
                     if(!empty($sp_details[0]['requested_inventory_id'])){
-                        $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price,inventory_master_list.gst_rate', array('inventory_master_list.inventory_id' => $sp_details[0]['requested_inventory_id']));
+                        $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price,inventory_master_list.gst_rate,inventory_master_list.hsn_code', array('inventory_master_list.inventory_id' => $sp_details[0]['requested_inventory_id']));
                         
-                        $challan_value = round($inventory_details[0]['price'] *( 1 + $inventory_details[0]['gst_rate']/100), 0);                        
+                        $challan_value = round($inventory_details[0]['price'] *( 1 + $inventory_details[0]['gst_rate']/100), 0); 
+                        $hsn_code = $inventory_details[0]['hsn_code'];
                      
                     } else {
                         $challan_value = '0.00';
+                         $hsn_code = '';
                     }
 
                     $booking_declaration_detail_list['coueriers_declaration'][$i] = $sp_details[0];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['appliance_name'] = $service_details[0]['services'];
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['challan_approx_value'] = $challan_value;
+                    $booking_declaration_detail_list['coueriers_declaration'][$i]['hsn_code'] = $hsn_code;
                                                      
                     $booking_declaration_detail_list['coueriers_declaration'][$i]['public_name'] = $partner_details[0]->public_name;
                     
