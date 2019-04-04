@@ -878,6 +878,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] = $service_center_data[0]['serial_number'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1981,6 +1982,9 @@ class Booking extends CI_Controller {
         $booking_status = $this->input->post('booking_status');
         $total_amount_paid = $this->input->post('grand_total_price');
         $admin_remarks = $this->input->post('admin_remarks');
+        if($this->input->post('sn_remarks')){
+            $admin_remarks = $this->input->post('admin_remarks')."Serial Number Comments : - ".$this->input->post('sn_remarks');
+        }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $upcountry_charges = $this->input->post("upcountry_charges");
@@ -2297,68 +2301,14 @@ class Booking extends CI_Controller {
         }
     }
     
-//    function validate_serial_no() {
-//        $serial_number = $this->input->post('serial_number');
-//        $upload_serial_number_pic = array();
-//        if(isset($_FILES['upload_serial_number_pic'])){
-//            $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
-//        }
-//        $pod = $this->input->post('pod');
-//        $price_tags_array = $this->input->post('price_tags');
-//        $booking_status = $this->input->post('booking_status');
-//        $partner_id = $this->input->post('partner_id');
-//        $user_id = $this->input->post('user_id');
-//        $booking_id = $this->input->post('booking_id');
-//        $service_id = $this->input->post('appliance_id');
-//        $return_status = true;
-//        $message = "";
-//        if (isset($_POST['pod'])) {
-//            foreach ($pod as $unit_id => $value) {
-//                  if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-//                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-//                    $price_tag = $price_tags_array[$unit_id];
-//                if ($value == '1') {
-//                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-//                        if(isset($upload_serial_number_pic['name'][$unit_id])){
-//                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-//                                   if(empty($s)){
-//                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
-//                        . 'Maximum file size is 5 MB.');
-//                                            $return_status = false;
-//                                        }
-//                             }
-//                             else{
-//                                  $return_status = false;
-//                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-//                             }
-//                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
-//                        if (!empty($status)) {
-//                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
-//                                $return_status = false;
-//                                $message = $status['message'];
-//                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//            if ($return_status == true) {
-//                return true;
-//            } else {
-//                $this->form_validation->set_message('validate_serial_no', $message);
-//                return FALSE;
-//            }
-//        } else {
-//            return TRUE;
-//        }
-//    }
-
-     function validate_serial_no() {
+    function validate_serial_no() {
         $serial_number = $this->input->post('serial_number');
+        $upload_serial_number_pic = array();
+        if(isset($_FILES['upload_serial_number_pic'])){
+            $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
+        }
         $pod = $this->input->post('pod');
-        $price_tags = $this->input->post('price_tags');
+        $price_tags_array = $this->input->post('price_tags');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
@@ -2368,9 +2318,26 @@ class Booking extends CI_Controller {
         $message = "";
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
+                  if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id,$service_id);
+                       if(isset($upload_serial_number_pic['name'][$unit_id]) && ($upload_serial_number_pic['name'][$unit_id])){
+                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                   if(empty($s)){
+                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                        . 'Maximum file size is 5 MB.');
+                                            $return_status = false;
+                                        }
+                             }
+                             else{
+                                 if(!(isset($this->input->post('serial_number_pic')[$unit_id]) && ($this->input->post('serial_number_pic')[$unit_id]))){
+                                       $return_status = false;
+                                       $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
+                                 }
+                             }
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tag, $user_id, $booking_id,$service_id);
                         if (!empty($status)) {
                             if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
                                 $return_status = false;
@@ -2382,6 +2349,7 @@ class Booking extends CI_Controller {
                     }
                 }
             }
+        }
             if ($return_status == true) {
                 return true;
             } else {
@@ -2392,6 +2360,44 @@ class Booking extends CI_Controller {
             return TRUE;
         }
     }
+
+//     function validate_serial_no() {
+//        $serial_number = $this->input->post('serial_number');
+//        $pod = $this->input->post('pod');
+//        $price_tags = $this->input->post('price_tags');
+//        $booking_status = $this->input->post('booking_status');
+//        $partner_id = $this->input->post('partner_id');
+//        $user_id = $this->input->post('user_id');
+//        $booking_id = $this->input->post('booking_id');
+//        $service_id = $this->input->post('appliance_id');
+//        $return_status = true;
+//        $message = "";
+//        if (isset($_POST['pod'])) {
+//            foreach ($pod as $unit_id => $value) {
+//                if ($value == '1') {
+//                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+//                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number[$unit_id]), $price_tags[$unit_id], $user_id, $booking_id,$service_id);
+//                        if (!empty($status)) {
+//                            if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+//                                $return_status = false;
+//                                $message = $status['message'];
+//                                log_message('info', " Duplicate Serial No " . trim($serial_number[$unit_id]));
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            if ($return_status == true) {
+//                return true;
+//            } else {
+//                $this->form_validation->set_message('validate_serial_no', $message);
+//                return FALSE;
+//            }
+//        } else {
+//            return TRUE;
+//        }
+//    }
     
     /**
      *  @desc : This function is to present form to open completed bookings
@@ -3935,7 +3941,7 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
         
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -3955,7 +3961,7 @@ class Booking extends CI_Controller {
     
     private function get_queries_table($order_list, $no, $query_status,$pincode_status){
         $row = array();
-
+        $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand, 'service' => $order_list->services));
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
@@ -3985,6 +3991,8 @@ class Booking extends CI_Controller {
             $row[] = $pincode;
         }
         $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
+        
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         if($query_status != _247AROUND_CANCELLED){
             $row[]  = "<a class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Update' target ='_blank'><i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
@@ -5041,5 +5049,28 @@ class Booking extends CI_Controller {
             return FALSE;
         }
         log_message('info', __FUNCTION__ . " Exit ");
+    }
+    /**
+    * @Desc - This is used to ask customer for sending appliance's invoice
+    */
+    function send_whatsapp_number($unit_query = false){
+        if($unit_query == true){
+            $brand = $this->booking_model->get_unit_details(array("booking_id"=>$this->input->post("booking_id")), FALSE, "appliance_brand")[0]['appliance_brand'];
+        }
+        else{
+           $brand =  $this->input->post("appliance_brand");
+        }
+        $sms = array();
+        $sms['status'] = "";
+        $sms['phone_no'] = trim($this->input->post("phone_no"));
+        $sms['booking_id'] = $this->input->post("booking_id");
+        $sms['type'] = "user";
+        $sms['type_id'] = $this->input->post("user_id");
+        $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+        $sms['smsData']['brand'] = $brand;
+        $sms['smsData']['service'] = $this->input->post("service");
+        $sms['smsData']['whatsapp_no'] = _247AROUND_WHATSAPP_NUMBER;
+        $sms['smsData']['partner_brand'] = $brand;
+        $this->notify->send_sms_msg91($sms);
     }
 }

@@ -1037,8 +1037,11 @@ class invoices_model extends CI_Model {
             if($result[0]['gst_number'] == 1){
                 $result[0]['gst_number'] = "";
             }
-            
             $meta['gst_number'] = $result[0]['gst_number'];
+            if(!isset($result[0]['owner_phone_1'])){
+                $result[0]['owner_phone_1'] = "";
+            }
+            $meta['owner_phone_1'] = $result[0]['owner_phone_1'];
             $meta['reverse_charge_type'] = "N";
             $meta['reference_number'] = "";
             $meta['reverse_charge'] = '';
@@ -2037,7 +2040,7 @@ class invoices_model extends CI_Model {
     function get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate) {
         $invoice_check = "";
         if($is_regenerate == 0){
-            $invoice_check .= "AND vendor_foc_invoice_id IS NULL ";
+            $invoice_check .= "AND vendor_courier_invoice_id IS NULL ";
         }
         $sql = " SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
                  SUM(sp.courier_charges_by_sf) as courier_charges_by_sf 

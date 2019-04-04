@@ -1724,20 +1724,9 @@
                                             <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
                                                 <option value="" disabled="" selected="" required="">Select Department</option>
                                                 <?php
-                                                foreach ($department as $value) {
-                                                    if($value['department'] == 'Warehouse'){
-                                                        if($is_wh[0]['is_wh'] == '1'){
-                                                            ?> 
-                                                            <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                            <?php
-                                                        }
-                                                    }
-                                                    else{
-                                                           ?> 
+                                                foreach ($department as $value) { ?>
                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                    <?php
-                                                    }
-                                                }
+                                                <?php }
                                                 ?>
                                             </select>
                                         </div>

@@ -2054,7 +2054,7 @@ class Booking_model extends CI_Model {
                 . "AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') "
                 . "- INTERVAL 2 MONTH AND rp.from_number = bd.booking_primary_contact_no "
                 . "AND u.user_id = bd.user_id "
-                . " AND rp.To = '01139588220' AND rp.from_number = '".$missed_call_number."'"
+                . " AND rp.To = '".GOOD_MISSED_CALL_RATING_NUMBER."' AND rp.from_number = '".$missed_call_number."'"
                 . " AND rp.create_date >= bd.closed_date having count(DISTINCT booking_id) = 1";
         $query = $this->db->query($sql);
         return $query->result_array();

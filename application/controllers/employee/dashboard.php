@@ -1652,7 +1652,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalArray = array();
         foreach($data as $tatData){
             if($tatData['TAT']<0){
-                $finalArray[$tatData['entity']]['TAT_0'] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
             }
@@ -1974,9 +1974,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $startDate =  date('Y-m-d', strtotime('-30 days'));
         $partner_id = $status =  "not_set";
         $request_type = 'Installation';
-        $upcountry = 'No';
+        $upcountry = 'not_set';
         if(!$is_pending){
-            $status = 'Completed';
+           if($this->input->post('status')){
+             $status = 'Completed';
+            }
         }
 
         else{

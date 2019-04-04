@@ -168,13 +168,22 @@
                         <th width="100px;">Vendor Status</th>
                         <th width="250px;">Query Remarks</th>
                         <th width="60px;">Call</th>
+                        <th width="60px;">SMS</th>
                         <th width="60px;">View</th>
                         <th width="60px;">Update</th>
                         <th width="60px;">Cancel</th>
                     </tr>
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
-                <?php  foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") { ?>
+                <?php  foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {
+                       $sms_json =  json_encode(array(
+                                        'phone_number'=>$row->phone_number, 
+                                        'booking_id'=>$row->booking_id, 
+                                        'user_id' => $row->user_id,
+                                        'service' => $row->services,
+                                        'request_type' => $row->request_type
+                                    ));
+                ?>
                  <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
                     <td><?php echo $count; ?></td>
                     <input type="hidden" id="<?php echo "service_id_".$count; ?>"  value="<?php echo $row->service_id;?>"/>
@@ -204,6 +213,7 @@
                     <td><?= $row->query_remarks; ?></td>
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
+                    <td><button type="button" json-data='<?php echo $sms_json; ?>' onclick="send_whtasapp_number(this)" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
                     <td>
                         <?php echo "<a class='btn btn-sm btn-color' "
                             . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -823,5 +833,23 @@
         $('#relevant_content_table  th').css("background-color","#ECEFF1");
         $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
         $("#relevant_content_modal").modal("show");
+    }
+    
+    function send_whtasapp_number(btn){
+       var json = JSON.parse($(btn).attr("json-data"));
+       //console.log(json);
+        var confirm_sms = confirm("Send Whatsapp Number ?");
+        if (confirm_sms == true) {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/'+true,
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service},
+                success: function(response) {
+                    //console.log(response);
+                }
+            });
+        } else { 
+            return false;
+        }
     }
 </script>
