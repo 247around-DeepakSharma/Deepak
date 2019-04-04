@@ -2603,7 +2603,7 @@ class Service_centers extends CI_Controller {
                 
                 
                 foreach ($spare_id_array as $spare_id) {
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested,"
+                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.requested_inventory_id, spare_parts_details.parts_requested, spare_parts_details.invoice_gst_rate,"
                             . "booking_details.partner_id as booking_partner_id, booking_details.service_id, defective_return_to_entity_type, defective_return_to_entity_id, service_centres.name, "
                             . "service_centres.company_name, service_centres.address, service_centres.pincode, service_centres.state, service_centres.district";
 
