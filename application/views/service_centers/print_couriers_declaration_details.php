@@ -21,11 +21,10 @@
 <html>
     <body> 
         <?php foreach ($coueriers_declaration as $value) { ?>
-            <br><br> 
-            <p>
+        <p>
             <h2>TO WHOMSOEVER IT MAY CONCERN</h2>
         </p>
-        <br><br><br> 
+        <br>
         <p>
             I/ We hereby confirm that the <?php echo $value['public_name']; ?> <?php echo $value['appliance_name']; ?> Spare Parts is being
 
@@ -35,24 +34,27 @@
 
             carry any commercial value.
         </p>
+        <p>GST Number - <?php echo $value['gst_no']; ?> </p>
         <br>
         <table>
             <tr>
                 <th>S.No</th>
                 <th>Shipped Part</th>
+                <th>HSN Code</th>
                 <th style="width:20%">Spare Amount</th> 
             </tr>
             <tr>
                 <td>1.</td>
                 <td><?php echo $value['parts_requested']; ?></td>
+                <td><?php echo $value['hsn_code']; ?></td>
                 <td><?php echo $value['challan_approx_value']; ?></td>
             </tr>
 
         </table>
-        <br><br><br>
+        <br>
         <p>Thanking you.</p>      
         <p>Authorized Signatory.</p>
-        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <?php } ?>
 </body>
 </html>
