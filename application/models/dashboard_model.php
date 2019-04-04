@@ -704,7 +704,7 @@ class dashboard_model extends CI_Model {
        
         $sql='SELECT ' .$select
                 .'  FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id'
-                .' LEFT JOIN state_code ON sf.state=state_code.state'
+                .' LEFT JOIN state_code ON sf.state=state_code.state_code'
                 .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                  .' employee ON employee_relation.agent_id=employee.id '.  $where .' '.$groupby.' order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
@@ -723,7 +723,7 @@ class dashboard_model extends CI_Model {
         
         $sql='SELECT '.$select
                 .' FROM sf_not_exist_booking_details sf LEFT JOIN partners on sf.partner_id=partners.id'
-                .' LEFT JOIN state_code ON sf.state=state_code.state'
+                .' LEFT JOIN state_code ON sf.state=state_code.state_code'
                 .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                  .' employee ON employee_relation.agent_id=employee.id '.$where.' ' .$groupby.'  order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
