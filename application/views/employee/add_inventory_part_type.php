@@ -334,7 +334,26 @@
 $(document).ready(function() {
     $('#inventory_part_type_table').DataTable( {
         orderCellsTop: true,
-        fixedHeader: true
+        fixedHeader: true,
+       
+        pageLength: 50,
+        dom: 'lBfrtip',
+        lengthMenu: [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+        buttons: [{
+            extend: 'excel',
+            text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+            pageSize: 'LEGAL',
+            title: 'inventory_part_type',
+            exportOptions: {
+               columns: [1,2,3],
+                modifier : {
+                     // DataTables core
+                     order : 'index',  // 'current', 'applied', 'index',  'original'
+                     page : 'All',      // 'all',     'current'
+                     search : 'none'     // 'none',    'applied', 'removed'
+                 }
+            }
+        }]
     });
     
     $(".close_message").on('click',function(){
