@@ -1518,6 +1518,7 @@ class User_invoice extends CI_Controller {
         $data = array();
         $sd = $ed = $invoice_date = date("Y-m-d");
         $key = 0;
+        $invoice_id = "inv-1234";
         $data[$key]['description'] = "test";
                        
         $data[$key]['taxable_value'] = "123";
@@ -1537,6 +1538,7 @@ class User_invoice extends CI_Controller {
         
         $invoice_type = "Tax Invoice";
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
+        $response['meta']['invoice_template'] = "247around_Tax_Invoice_Inter_State_Copy.xlsx";
         $response['meta']['invoice_id'] = "inv-1234";
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if($status){
@@ -1551,18 +1553,18 @@ class User_invoice extends CI_Controller {
 
             $email_tag = DEFECTIVE_SPARE_SALE_INVOICE;    
             $email_template = $this->booking_model->get_booking_email_template($email_tag);
-            $subject = vsprintf($email_template[4], array($booking_id));
-            $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
+            $subject = "test invoice";
+            $message = "test message";
             $email_from = $email_template[2];
-            $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-            $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
+            //$to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+            //$cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
             $to = "kalyanit@247around.com";
             $cc = "prateekc@247around.com";
 
             $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
             exec($cmd); 
 
-            $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+            $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", "");
 
             unlink(TMP_FOLDER.$output_pdf_file_name);
 
