@@ -4785,9 +4785,15 @@ class Partner extends CI_Controller {
                 }
             }
     }
-    function download_upcountry_report(){
-        log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
-        $this->checkUserSession();
+    function download_upcountry_report($isAdmin=0){
+        if($isAdmin == 0) {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->checkUserSession();
+        }
+        else
+        {
+            $this->checkEmployeeUserSession();
+        }
         $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $upcountryCsv;
         $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
