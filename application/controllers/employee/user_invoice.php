@@ -584,7 +584,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
-                        $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];;
+                        $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
                         //insert entry into booking state change
                         $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids;
                         $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
@@ -1513,5 +1513,63 @@ class User_invoice extends CI_Controller {
             echo false;
         }
     }
+    
+    function test_invoice(){
+        $data = array();
+        $sd = $ed = $invoice_date = date("Y-m-d");
+        $key = 0;
+        $data[$key]['description'] = "test";
+                       
+        $data[$key]['taxable_value'] = "123";
+        $data[$key]['product_or_services'] = "Product";
+        $data[$key]['gst_number'] = "12345";
 
+        $data[$key]['company_name'] = "test company";
+        $data[$key]['company_address'] = "test address";
+        $data[$key]['district'] = "test district";
+        $data[$key]['pincode'] = "test pincode";
+        $data[$key]['state'] = "test state";
+        $data[$key]['rate'] = "test rate";
+        $data[$key]['qty'] = 1;
+        $data[$key]['hsn_code'] = "hsn code";
+        $data[$key]['gst_rate'] = 3;
+        $data[$key]['owner_phone_1'] = "12345";
+        
+        $invoice_type = "Tax Invoice";
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type,$invoice_date);
+        $response['meta']['invoice_id'] = "inv-1234";
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        if($status){
+
+            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+            $output_pdf_file_name = $convert['main_pdf_file_name'];
+            $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+            $response['meta']['copy_file'] = $convert['copy_file'];
+            $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+
+            $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+
+            $email_tag = DEFECTIVE_SPARE_SALE_INVOICE;    
+            $email_template = $this->booking_model->get_booking_email_template($email_tag);
+            $subject = vsprintf($email_template[4], array($booking_id));
+            $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
+            $email_from = $email_template[2];
+            $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+            $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
+            $to = "kalyanit@247around.com";
+            $cc = "prateekc@247around.com";
+
+            $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+            exec($cmd); 
+
+            $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+
+            unlink(TMP_FOLDER.$output_pdf_file_name);
+
+
+            unlink(TMP_FOLDER.$invoice_id.".xlsx");
+            unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+     
+        }
+    }
 }
