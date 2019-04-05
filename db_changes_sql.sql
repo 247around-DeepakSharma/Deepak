@@ -10241,4 +10241,7 @@ ALTER TABLE `inventory_alternate_spare_parts_mapping`
 UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
 
+--Kajal 05-April-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
 
