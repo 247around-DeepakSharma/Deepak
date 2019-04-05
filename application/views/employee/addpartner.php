@@ -2297,7 +2297,7 @@
                             </div>                                
                             <div class="col-md-12">
                                 <div id="micro_warehouse_details" style="display:<?php
-                                if ($query[0]['is_micro_wh'] == '1') {
+                                if (isset($query[0]) && $query[0]['is_micro_wh'] == '1') {
                                     echo "block";
                                 } else {
                                     echo "none";
@@ -2310,12 +2310,12 @@
                                                 <label for="name" class="col-md-2">Defective Part Return to </label>
                                                 <div class="col-md-6">
                                                     <input  type="radio" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "1" style="width: 17%; height: 18px;" <?php
-                                                    if ($query[0]['is_defective_part_return_wh'] == '1') {
+                                                    if ( isset($query[0]) && $query[0]['is_defective_part_return_wh'] == '1') {
                                                         echo "checked";
                                                     }
                                                     ?>>Warehouse &nbsp;&nbsp;&nbsp;
                                                      <input  type="radio" id="is_defective_part_return_wh"  name="is_defective_part_return_wh"  value = "0" style="width: 17%; height: 18px;"<?php
-                                                    if ($query[0]['is_defective_part_return_wh'] == '0') {
+                                                    if (isset($query[0]) && $query[0]['is_defective_part_return_wh'] == '0') {
                                                         echo "checked";
                                                     }
                                                     ?>>Partner &nbsp;&nbsp;&nbsp;
