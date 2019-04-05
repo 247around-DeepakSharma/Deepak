@@ -227,7 +227,7 @@ class Bb_model extends CI_Model {
      * @param type $order
      * @param type $status_flag
      */
-    private function _get_bb__review_order_list_query($search_value, $order) {
+    private function _get_bb__review_order_list_query($search_value, $order,$where = NULL) {
         $this->db->from('bb_cp_order_action as cp_action');
         $this->db->join('bb_unit_details as unit', 'unit.partner_order_id = cp_action.partner_order_id');
         $this->db->join('service_centres as cp', 'cp_action.cp_id = cp.id');
@@ -236,6 +236,9 @@ class Bb_model extends CI_Model {
             cp_action.working_condition,cp_action.remarks,cp_action.internal_status,cp_action.cp_claimed_price, cp.name,bb.partner_tracking_id,(cp_basic_charge+cp_tax_charge) as cp_price
             ,(partner_basic_charge+partner_tax_charge) as partner_price');
         $this->db->where('cp_action.current_status', _247AROUND_BB_IN_PROCESS);
+        if($where){
+            $this->db->where($where);
+        }
         if (!empty($search_value)) { // if datatable send POST for search
             $like = "";
             foreach ($this->cp_action_column_search as $key => $item) { // loop column 
@@ -269,8 +272,8 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_review_order_list($length, $start, $search_value, $order,$only_object = NULL) {
-        $this->_get_bb__review_order_list_query($search_value, $order);
+    function get_bb_review_order_list($length, $start, $search_value, $order,$only_object = NULL,$where = NULL) {
+        $this->_get_bb__review_order_list_query($search_value, $order,$where);
         if ($length != -1) {
             $this->db->limit($length, $start);
         }
@@ -290,8 +293,11 @@ class Bb_model extends CI_Model {
      * @param Int $status_flag
      * @return Number of rows
      */
-    function count_filtered_review_order($search_value, $order) {
+    function count_filtered_review_order($search_value, $order,$where = NULL) {
         $this->_get_bb__review_order_list_query($search_value, $order);
+        if($where){
+           $this->db->where($where);
+        }
         $query = $this->db->get();
 
         return $query->num_rows();
@@ -506,19 +512,27 @@ class Bb_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    function get_orders_without_invoices($select,$is_groupBy = NULL,$where = NULL,$join = NULL){
+    function get_orders_without_invoices($select,$is_groupBy = NULL,$where = NULL,$join = NULL,$cp_invoiced = true){
         $this->db->from('bb_unit_details');
         $this->db->join('bb_order_details as bb', 'bb_unit_details.partner_order_id = bb.partner_order_id');
         if($join){
             $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb.partner_order_id');
         }
         $this->db->select($select);
-        $this->db->where('cp_invoice_id IS NULL');
-        $this->db->where('(bb_unit_details.order_status != "Delivered" AND bb.acknowledge_date IS NOT NULL)');
+        if($cp_invoiced){
+            $this->db->where('cp_invoice_id IS NULL');
+            $this->db->where('!(bb_unit_details.order_status = "Delivered" AND bb.acknowledge_date IS NOT NULL)');
+        }
+        else{
+            $this->db->where('cp_invoice_id IS NOT NULL');
+            $this->db->where('partner_discount > 0');
+            $this->db->where('service_id = '._247AROUND_TV_SERVICE_ID);
+        }
         $this->db->where('partner_reimbursement_invoice IS NULL');
         $this->db->where('date(delivery_date) < DATE_FORMAT( CURRENT_DATE - INTERVAL 1 MONTH, "%Y/%m/01")');
         $this->db->where('date(delivery_date) > DATE_FORMAT( CURRENT_DATE - INTERVAL 12 MONTH, "%Y/%m/31")');
         $this->db->where('bb_cp_order_action.current_status != "InProcess"');
+        $this->db->where("!((bb.current_status = 'Cancelled' AND bb.internal_status = 'Cancelled') OR (bb.current_status = 'Rejected' AND bb.internal_status = 'Rejected'))");
         if($where){
             $this->db->where($where);
         }
