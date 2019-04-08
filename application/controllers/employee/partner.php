@@ -2658,9 +2658,15 @@ class Partner extends CI_Controller {
                 'partner_appliance_details.service_id' => $service_id,
                 'partner_appliance_details.brand' => $brand,
                 'partner_appliance_details.category' => $category,
-                'appliance_model_details.active'=> 1, 
-                'partner_appliance_details.capacity' => $capacity
+                'appliance_model_details.active'=> 1
             );
+            
+            if(empty($capacity)){
+                $where['(partner_appliance_details.capacity = "" OR partner_appliance_details.capacity IS NULL)'] = NULL;
+            }
+            else{
+                $where['partner_appliance_details.capacity'] = $capacity;
+            }
 
             $data = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number, model", $where);
         } else {
