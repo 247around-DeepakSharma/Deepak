@@ -4776,9 +4776,15 @@ class Partner extends CI_Controller {
                 }
             }
     }
-    function download_upcountry_report(){
-        log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
-        $this->checkUserSession();
+    function download_upcountry_report($isAdmin=0){
+        if($isAdmin == 0) {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->checkUserSession();
+        }
+        else
+        {
+            $this->checkEmployeeUserSession();
+        }
         $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $upcountryCsv;
         $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
@@ -6219,11 +6225,12 @@ class Partner extends CI_Controller {
      * @return void
      */
     function show_contract_list(){
-        $select = 'partners.public_name, collateral.file, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date';
-        $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND collateral.collateral_id = "7" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
-        $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id';
+        $select = 'partners.public_name, collateral.file, collateral_type.collateral_tag, collateral.document_description, collateral.start_date, collateral.end_date, collateral_type.collateral_type';
+        $join['collateral'] = 'collateral.entity_id = partners.id AND collateral.entity_type = "partner" AND start_date <= "'.date("Y-m-d").'" AND end_date >= "'.date("Y-m-d").'"';
+        $join['collateral_type'] = 'collateral_type.id = collateral.collateral_id AND collateral_type.collateral_tag = "Contract"';
         
         $data['data'] = $this->partner_model->get_partner_contract_detail($select, array('is_active'=>1), $join, 'left');
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_contract_list', $data);
     }
@@ -7098,8 +7105,8 @@ class Partner extends CI_Controller {
     function get_partners_searched_data(){
         log_message("info", __METHOD__);
         $post = $this->getPartnerDataTablePost();
-        $post['column_order'] = array(NULL, 'employee.full_name');
-        $post['column_search'] = array('employee.full_name');
+        $post['column_order'] = array(NULL, 'employee.full_name','partners.public_name');
+        $post['column_search'] = array('employee.full_name','partners.public_name');
         $data = array();
         
         switch ($this->input->post('request_type')){

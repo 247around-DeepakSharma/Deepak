@@ -24,6 +24,12 @@
                             </select>
                         </div>
                         <div class="form-group col-md-3">
+                            <label>Transaction Id</label>
+                            <input name="transaction_id" placeholder="Enter Transaction Id" class="form-control col-md-12" id="transaction_id" style="width:100%;">
+                               
+                            </input>
+                        </div>
+                        <div class="form-group col-md-3">
                             <label>Select Transaction Date</label>
                             <input name="transaction_date" placeholder="Select invoice date range" class="form-control col-md-12" id="transaction_date" style="width:100%; background: #fff;" readonly>
                                
@@ -121,6 +127,7 @@
                        d.vendor_partner_id = $('#vendor_partner_id').val();
                        d.transaction_date = $("#transaction_date").val();
                        d.transaction_period_date = $("#transaction_period_date").val();
+                       d.transaction_id = $("#transaction_id").val();
                     }
 
             },
