@@ -139,6 +139,26 @@
             },
             "order": [], 
             "pageLength": 50,
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'vendor_inventory_stock',
+                    exportOptions: {
+                       columns: [1, 2],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_inventory_stock_list/",

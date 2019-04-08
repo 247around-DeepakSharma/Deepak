@@ -2914,5 +2914,36 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
               $am_view=$this->load->view('dashboard/am_booking_report',$data,true);
               echo $am_view;
     }
+    
+    /**
+     * @desc: This function is used to get logged in users
+     * @params: void
+     * @return: JSON
+     */
+    function get_loggedin_users(){
+        $data = $this->dashboard_model->get_loggedin_users();
+        
+        $user_arr = array('employee'=>0,'partner'=>0,'service_center'=>0);
+        foreach($data as $value) {
+            if(!isset(${"count_".$value['entity_type']}))
+            {
+                ${"count_".$value['entity_type']}=0;
+            }
+            
+            if($value['action'] == 1) {
+                $user_arr[$value['entity_type']] = ++${"count_".$value['entity_type']};
+            }
+        }
+        
+        if(!empty($data)){
+            $res['msg'] = 'success';
+            $res['data'] = $user_arr;
+        }else{
+            $res['msg'] = 'failed';
+            $res['data'] = 'No Data Found';
+        }
+
+        echo json_encode($res);
+    }
 }
 

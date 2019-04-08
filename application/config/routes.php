@@ -150,7 +150,7 @@ $route['partner/download_spare_parts'] = 'employee/partner/download_spare_parts'
 $route['partner/download_sc_address/(:any)'] = 'employee/partner/download_sc_address/$1';
 $route['partner/download_courier_manifest/(:any)'] = 'employee/partner/download_courier_manifest/$1';
 $route['partner/get_booking_life_cycle/(:any)'] = 'employee/partner/get_booking_life_cycle/$1';
-$route['partner/get_comment_section/(:any)'] = 'employee/partner/get_comment_section/$1';
+$route['partner/get_comment_section/(:any)'] = 'employee/partner/get_comment_section/$1/$2';
 $route['partner/print_all'] = 'employee/partner/print_all';
 $route['partner/get_shipped_parts_list'] = 'employee/partner/get_shipped_parts_list';
 $route['partner/get_shipped_parts_list/(:any)'] = 'employee/partner/get_shipped_parts_list/$1';
@@ -221,6 +221,7 @@ $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_
 $route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
 $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
+$route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

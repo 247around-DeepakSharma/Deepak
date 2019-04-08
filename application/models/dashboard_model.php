@@ -432,7 +432,7 @@ class dashboard_model extends CI_Model {
          
          
             $sql='SELECT COUNT(sf.pincode) as pincodeCount,employee.id,(CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END)'
-                  .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.state INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
+                  .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.state_code INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                   .'employee ON employee_relation.agent_id=employee.id where sf.active_flag=1 and sf.is_pincode_valid=1 group by full_name order by count(sf.pincode) DESC';
             $query = $this->db->query($sql);
             return $query->result_array();          
@@ -683,8 +683,8 @@ class dashboard_model extends CI_Model {
           $where='where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
         }
         
-        $sql='SELECT sf.pincode,COUNT(sf.pincode) as pincodeCount,state_code.state,sf.city,sf.service_id,services.services'
-                .' FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id LEFT JOIN state_code on sf.state=state_code.state'
+       $sql='SELECT sf.pincode,COUNT(sf.pincode) as pincodeCount,state_code.state,sf.city,sf.service_id,services.services'
+                .' FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id LEFT JOIN state_code on sf.state=state_code.state_code'
                 .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                  .'employee ON employee_relation.agent_id=employee.id '. $where .' group by sf.pincode,sf.service_id order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
@@ -704,7 +704,7 @@ class dashboard_model extends CI_Model {
        
         $sql='SELECT ' .$select
                 .'  FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id'
-                .' LEFT JOIN state_code ON sf.state=state_code.state'
+                .' LEFT JOIN state_code ON sf.state=state_code.state_code'
                 .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                  .' employee ON employee_relation.agent_id=employee.id '.  $where .' '.$groupby.' order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
@@ -723,7 +723,7 @@ class dashboard_model extends CI_Model {
         
         $sql='SELECT '.$select
                 .' FROM sf_not_exist_booking_details sf LEFT JOIN partners on sf.partner_id=partners.id'
-                .' LEFT JOIN state_code ON sf.state=state_code.state'
+                .' LEFT JOIN state_code ON sf.state=state_code.state_code'
                 .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
                  .' employee ON employee_relation.agent_id=employee.id '.$where.' ' .$groupby.'  order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
@@ -792,5 +792,15 @@ class dashboard_model extends CI_Model {
     function insert_dashboard_notification_any($details) {
         $this->db->insert('dashboard_notifications', $details);
         return $this->db->insert_id();
+    }
+    /*
+     * @desc - This function is used to get logged in users
+     * @param - void
+     * @return - array
+     */
+    function get_loggedin_users(){
+        $query = "SELECT * FROM `login_logout_details` where date(created_on)=curdate() group by ip, agent_id order by created_on desc";
+        $result = $this->db->query($query);
+        return $result->result_array();
     }
 }
