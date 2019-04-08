@@ -173,6 +173,15 @@ class Partner extends CI_Controller {
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+            if(!empty($data['dhq'])){
+                $dis = $this->vendor_model->getDistrict_from_india_pincode("",$data['dhq'][0]['pincode'] );
+                if(!empty($dis)){
+                    $data['dhq'][0]['original_district'] = $dis[0]['district'];
+                } else {
+                    $data['dhq'][0]['original_district'] = $data['dhq'][0]['district'];
+                }
+            }
+            
         }
         
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
