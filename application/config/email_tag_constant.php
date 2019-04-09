@@ -124,3 +124,4 @@ define("IFSC_CODE_VALIDATION_API_FAIL", "razorpay_ifsc_code_api_fail");
 define('ALL_INVOICE_SUCCESS_MESSAGE', 'invoice_success_message');
 define("BUYBACK_REIMBURESE_PO_UPLOADED", "buyback_reimburese_po_uploaded");
 define("SF_ADDITION_MAIL_TO_BRAND", "sf_addition_mail_to_brand");
+define('BUYBACK_DISPUTED_ORDERS_SUMMARY','buyback_disputed_orders_summary');

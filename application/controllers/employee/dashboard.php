@@ -2655,7 +2655,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             );
         $select = "( CASE WHEN partners.public_name IS NOT NULL THEN partners.public_name WHEN service_centres.name IS NOT NULL THEN service_centres.name ELSE employee.full_name END ) as entity_name, dashboard_notification_type.type, dashboard_notification_type.id as type_id, dashboard_notifications.*";
         $list = $this->reusable_model->get_datatable_data("dashboard_notifications", $select, $post);
-        log_message('info', __METHOD__ . "=>query kalyani".$this->db->last_query());
+        //log_message('info', __METHOD__ . "=>query kalyani".$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $notification_list) {

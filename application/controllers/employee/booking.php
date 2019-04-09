@@ -1324,7 +1324,7 @@ class Booking extends CI_Controller {
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
-                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
+                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
@@ -2977,11 +2977,15 @@ class Booking extends CI_Controller {
         $this->load->view('employee/booking', $data);
     }
 
-    function booking_upcountry_details($service_center_id, $booking_id, $is_customer_paid) {
+    function booking_upcountry_details($service_center_id, $booking_id, $is_customer_paid, $flat_upcountry) {
         if ($is_customer_paid > 0) {
             $is_customer_paid = 1;
         }
-        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+        
+        if($flat_upcountry == 1){
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid, $flat_upcountry);
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
@@ -3417,6 +3421,7 @@ class Booking extends CI_Controller {
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
             $sn .= ', "'.$order_list->booking_id.'"';
             $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ', "'.$order_list->flat_upcountry.'"';
             $sn .= ")' style='color:red; font-size:20px;'></i>";
         }else{
             $sn = "";
@@ -3761,6 +3766,7 @@ class Booking extends CI_Controller {
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
             $sn .= ', "'.$order_list->booking_id.'"';
             $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ', "'.$order_list->flat_upcountry.'"';
             $sn .= ")' style='color:red; font-size:20px;'></i>";
         }else{
             $sn = "";
