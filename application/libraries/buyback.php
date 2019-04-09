@@ -683,5 +683,59 @@ class Buyback {
         
         return$bb_qc_svc;
     }
-    
+    /*
+     * This Function is used to get order's Summary which are non billed.
+     *  Not Billed to CP
+     *  Not any reimbursement invoice
+     */
+    function get_orders_without_invoices_and_without_reimbursement(){
+         $select = 'COUNT(bb.partner_order_id) as count,bb_cp_order_action.current_status as status,round(SUM(bb_unit_details.partner_basic_charge+bb_unit_details.partner_tax_charge)) as amount';
+         $data = $this->My_CI->bb_model->get_orders_without_invoices($select,1,NULL,1);
+         $temp['status'] = "Total";
+         $temp['count'] = $temp['amount'] = 0;
+         foreach($data as $values){
+             $temp['count'] = $values['count'] + $temp['count'];
+             $temp['amount'] = $values['amount'] + $temp['amount'];
+         }
+         $data[] = $temp;
+         return  json_encode($data);
+    }
+     /*
+     * This Function is used to get order's Summary which are billed to cp on claimed price but don't get reimbursement
+     *   Billed to CP on Claimed Price
+     *  Not any reimbursement 
+     */
+   function get_orders_with_cp_invoice_and_without_reimbursement(){
+         $select = 'COUNT(bb.partner_order_id) as count,bb_cp_order_action.current_status as status,round(SUM(bb_unit_details.partner_discount)) as amount';
+         $data = $this->My_CI->bb_model->get_orders_without_invoices($select,1,NULL,1,false);
+         $temp['status'] = "Total";
+         $temp['count'] = $temp['amount'] = 0;
+         foreach($data as $values){
+             $temp['count'] = $values['count'] + $temp['count'];
+             $temp['amount'] = $values['amount'] + $temp['amount'];
+         }
+         $data[] = $temp;
+         return  json_encode($data);
+    }
+     /*
+     * This Function is used to get order's Summary which are on review Page
+     */
+    function get_review_page_orders(){
+        $select = 'COUNT(bb_cp_order_action.partner_order_id) as count,round(SUM(bb_unit_details.partner_basic_charge+bb_unit_details.partner_tax_charge)) as amount,'
+                . ' CASE WHEN DATEDIFF(CURRENT_DATE,order_date) > 30 THEN "Older than 30 Days" ELSE "Within 30 Days" END as status';
+        $table = 'bb_cp_order_action';
+        $where['bb_cp_order_action.current_status = "InProcess"'] = NULL;
+        $join['bb_unit_details'] = 'bb_unit_details.partner_order_id = bb_cp_order_action.partner_order_id';
+        $join['bb_order_details'] = 'bb_order_details.partner_order_id = bb_cp_order_action.partner_order_id';
+        $groupBY = array('status');
+        $data = $this->My_CI->reusable_model->get_search_result_data($table,$select,$where,$join,NULL,NULL,NULL,NULL,$groupBY);
+        $temp['status'] = "Total";
+        $temp['count'] = $temp['amount'] = 0;
+         foreach($data as $values){
+             $temp['count'] = $values['count'] + $temp['count'];
+             $temp['amount'] = $values['amount'] + $temp['amount'];
+         }
+         $data[] = $temp;
+         return  json_encode($data);
+   }
 }
