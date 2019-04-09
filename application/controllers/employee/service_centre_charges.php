@@ -1190,25 +1190,9 @@ class service_centre_charges extends CI_Controller {
         $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE);
         $data['vendor_basic_charges'] = $data['vendor_total'] - $data["vendor_tax_basic_charges"];
         if ($data['customer_total'] != 0) {
-            
             $data['vendor_basic_percentage'] = ($data['vendor_total'] / $data['customer_total']) * 100;
-            
         } else {
             $data['vendor_basic_percentage'] = 0;
-        }
-        
-        $data['flat_upcountry'] = $form_data['flat_upcountry'];
-        if($form_data['paid_upcountry'] == 0 && $form_data['flat_upcountry'] == 1){
-            
-            $data['upcountry_customer_price'] = $form_data['paid_upcountry_customer_price'];
-            $data['upcountry_vendor_price'] = $form_data['paid_upcountry_vendor_price'];
-            $data['upcountry_partner_price'] = 0;
-            
-        } else {
-            
-            $data['upcountry_customer_price'] = 0;
-            $data['upcountry_vendor_price'] = 0;
-            $data['upcountry_partner_price'] = 0;
         }
         
         return $data;
@@ -1234,24 +1218,6 @@ class service_centre_charges extends CI_Controller {
              $data['vendor_basic_percentage'] = ($vendor_total / $data['customer_total']) * 100;
         } else {
             $data['vendor_basic_percentage'] = 0;
-        }
-        
-        $data['flat_upcountry'] = $form_data['flat_upcountry'];
-        
-        if($form_data['free_upcountry'] == 1 && $form_data['flat_upcountry'] == 1){
-            
-            $data['upcountry_customer_price'] = 0;
-            $data['upcountry_vendor_price'] = $form_data['free_upcountry_vendor_price'];
-            $data['upcountry_partner_price'] = $form_data['free_upcountry_partner_price'];
-            
-        } else if($form_data['free_upcountry'] == 0 && $form_data['flat_upcountry'] == 1){
-            $data['upcountry_customer_price'] = $form_data['free_upcountry_customer_price'];
-            $data['upcountry_vendor_price'] = $form_data['free_upcountry_vendor_price'];
-            $data['upcountry_partner_price'] = 0;
-        } else {
-            $data['upcountry_customer_price'] = 0;
-            $data['upcountry_vendor_price'] = 0;
-            $data['upcountry_partner_price'] = 0;
         }
         
         return $data;
@@ -1347,7 +1313,6 @@ class service_centre_charges extends CI_Controller {
     }
     
     function delete_service_charges(){
-        log_message('info', __METHOD__. " ". json_encode($this->input->post('delete_charge'), true));
         //Do not try to un-comment
 //        $str = '{"delete_charge":["1499","1500","1501","1663","1664","1665","1827","1828","1829","9804","9805","9806","9829","9830","9831","9854","9855","9856"],"label":"WEBUPLOAD"}';
 //        $_POST = json_decode($str, true);

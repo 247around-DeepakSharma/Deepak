@@ -379,11 +379,11 @@ span.stars span {
        timer = setInterval(showRemaining, 1000);
     }
     
-    function open_upcountry_model(booking_id, is_customer_paid, flat_upcountry){
+    function open_upcountry_model(booking_id, is_customer_paid){
       
        $.ajax({
       type: 'POST',
-      url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid +"/"+flat_upcountry,
+      url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid,
       success: function (data) {
        $("#open_model").html(data);   
        $('#myModal1').modal('toggle');

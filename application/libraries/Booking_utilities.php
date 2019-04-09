@@ -182,12 +182,7 @@ class Booking_utilities {
             $meta = array();
             $meta['upcountry_charges'] = 0;
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
-                if($booking_details[0]['flat_upcountry']  == 1){
-                     $meta['upcountry_charges'] = $booking_details[0]['upcountry_to_be_paid_by_customer'];
-                } else {
-                    $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
-                }
-                
+                $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
             }
             $meta['appliance_description'] = "";
             if(!empty($unit_details)){

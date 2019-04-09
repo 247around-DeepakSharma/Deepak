@@ -1093,36 +1093,22 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id );
                     $data = array('status' => _247AROUND_CANCELLED);
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
-                    
-                    $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
-               
-                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                    . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false); 
-                    
-                    $line_items = count($spare_parts_details);
-                    
-                    if ($requestType == "CANCEL_PARTS") {
-                        if ($line_items < 2) {
-                            $b['internal_status'] = SPARE_PARTS_CANCELLED;
-                        }
+                    if($requestType == "CANCEL_PARTS"){
                         $new_state = SPARE_PARTS_CANCELLED;
+                        $b['internal_status'] = SPARE_PARTS_CANCELLED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     } else {
-                        if ($line_items < 2) {
-                            $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
-                        }
                         $new_state = REQUESTED_QUOTE_REJECTED;
+                        $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     }
-
+                    
                     $old_state = SPARE_PARTS_REQUESTED;
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-                    
-                    if($line_items < 2){  
-                        $this->vendor_model->update_service_center_action($booking_id,$sc_data);
-                    }
+         
+                    $this->vendor_model->update_service_center_action($booking_id,$sc_data);
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id );
@@ -1250,13 +1236,10 @@ class Inventory extends CI_Controller {
             if(!empty($partner_id) && !empty($b['internal_status'])){
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
                 if (!empty($partner_status)) {
-                    if($line_items < 2){
-                        $b['partner_current_status'] = $partner_status[0];
-                        $b['partner_internal_status'] = $partner_status[1];
-                        $b['actor'] = $partner_status[2];
-                        $b['next_action'] = $partner_status[3]; 
-                    }
-                    
+                    $b['partner_current_status'] = $partner_status[0];
+                    $b['partner_internal_status'] = $partner_status[1];
+                    $b['actor'] = $partner_status[2];
+                    $b['next_action'] = $partner_status[3];
                 }
 
                 $this->booking_model->update_booking($booking_id, $b);

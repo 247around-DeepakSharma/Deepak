@@ -173,15 +173,6 @@ class Partner extends CI_Controller {
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
-            if(!empty($data['dhq'])){
-                $dis = $this->vendor_model->getDistrict_from_india_pincode("",$data['dhq'][0]['pincode'] );
-                if(!empty($dis)){
-                    $data['dhq'][0]['original_district'] = $dis[0]['district'];
-                } else {
-                    $data['dhq'][0]['original_district'] = $data['dhq'][0]['district'];
-                }
-            }
-            
         }
         
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
@@ -2654,15 +2645,9 @@ class Partner extends CI_Controller {
                 'partner_appliance_details.service_id' => $service_id,
                 'partner_appliance_details.brand' => $brand,
                 'partner_appliance_details.category' => $category,
-                'appliance_model_details.active'=> 1
+                'appliance_model_details.active'=> 1, 
+                'partner_appliance_details.capacity' => $capacity
             );
-            
-            if(empty($capacity)){
-                $where['(partner_appliance_details.capacity = "" OR partner_appliance_details.capacity IS NULL)'] = NULL;
-            }
-            else{
-                $where['partner_appliance_details.capacity'] = $capacity;
-            }
 
             $data = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number, model", $where);
         } else {
@@ -3092,7 +3077,7 @@ class Partner extends CI_Controller {
                 }
                 $html .= "<tr class='text-center'><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $customer_net_payable . "</td>";
-                $html .= "<td><input type='hidden'name ='is_up_val' data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
+                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 $html .= " type='checkbox' id='checkbox_" . $i . "'";
                 $html .= "name='prices[]'";
                 $html .= $tempHelperString.$onclick."value=" . $prices['id'] . "_" . intval($customer_total) . "_" . intval($partner_net_payable) . "_" . $i . "  data-price_tag='".$prices['service_category']."' ></td><tr>";
@@ -3539,14 +3524,11 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      * @param int $is_customer_paid
      */
-    function booking_upcountry_details($booking_id, $is_customer_paid, $flat_upcountry) {
+    function booking_upcountry_details($booking_id, $is_customer_paid) {
         if ($is_customer_paid > 0) {
             $is_customer_paid = 1;
         }
-        if($flat_upcountry == 1){
-            $is_customer_paid = 1;
-        }
-        $data['data'] = $this->upcountry_model->upcountry_booking_list("", $booking_id, false, $is_customer_paid, $flat_upcountry);
+        $data['data'] = $this->upcountry_model->upcountry_booking_list("", $booking_id, false, $is_customer_paid);
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
@@ -4785,15 +4767,9 @@ class Partner extends CI_Controller {
                 }
             }
     }
-    function download_upcountry_report($isAdmin=0){
-        if($isAdmin == 0) {
-            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
-            $this->checkUserSession();
-        }
-        else
-        {
-            $this->checkEmployeeUserSession();
-        }
+    function download_upcountry_report(){
+        log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+        $this->checkUserSession();
         $upcountryCsv= "Upcountry_Report" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $upcountryCsv;
         $report = $this->upcountry_model->get_upcountry_non_upcountry_district();
@@ -5608,9 +5584,8 @@ class Partner extends CI_Controller {
              $upcountryString = $tempString = "";
              $tempString = "'".$row->booking_id."'";
              $tempString2 = "'".$row->amount_due."'";
-             $tempString3 = "'".$row->flat_upcountry."'";
               if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
-                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.','.$tempString3.')"
+                 $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.')"
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
              $tempArray[] = $sn_no . $upcountryString;
@@ -5731,7 +5706,7 @@ class Partner extends CI_Controller {
         $select = "spare_parts_details.booking_id, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
-                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
@@ -5747,7 +5722,7 @@ class Partner extends CI_Controller {
                     $sn++;
                     $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 ="";
                     if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
-                       $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
+                       $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].')" class="fa fa-road" aria-hidden="true"></i>';
                     }
                     $tempArray[] =  $sn. $tempString;
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
@@ -6020,8 +5995,7 @@ class Partner extends CI_Controller {
                 if ($row['is_upcountry'] == 1) {
                       $tempString2 = '"'. $row['booking_id'].'"';
                       $tempString3 = '"'. $row['amount_due'].'"';
-                      $tempString4 = '"'. $row['flat_upcountry'].'"';
-                      $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.'"," '.$tempString4.')"class="fa fa-road" aria-hidden="true"></i>';
+                      $tempString  ='<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString2.'"," '.$tempString3.')"class="fa fa-road" aria-hidden="true"></i>';
                  }
                 $tempArray[] = $sn.$tempString;
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].' target="_blank" title="View">'.$row['booking_id'].'</a>';

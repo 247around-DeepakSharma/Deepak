@@ -292,8 +292,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
-                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services');
         $this->db->where('service_id', $service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);

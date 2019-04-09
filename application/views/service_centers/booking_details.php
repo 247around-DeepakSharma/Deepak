@@ -263,10 +263,8 @@
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
                         <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
-                            } else if($booking_history[0]['flat_upcountry'] == 1){
-                                        echo $booking_history[0]['upcountry_to_be_paid_by_customer'];
-                        } else {
-                             echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
+                            } else {
+                            echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
                         } }
                             ?>
                         </td>
@@ -802,7 +800,7 @@
 
         $.ajax({
           type: 'POST',
-          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>/<?php echo $booking_history[0]['flat_upcountry'];?>',
+          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>',
           success: function (data) {
              console.log(data);
              $("#sf_payout").html(data);

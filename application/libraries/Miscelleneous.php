@@ -287,33 +287,12 @@ class Miscelleneous {
                 
                 if (empty($is_upcountry)) {
                     log_message('info', __METHOD__ . " => Customer will pay upcountry charges " . $booking_id);
-                    
                     $booking['upcountry_paid_by_customer'] = 1;
-                    $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
                     $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                    
-                    $c_upcountry = $this->My_CI->upcountry_model->is_customer_pay_upcountry($booking_id);
-                    if(!empty($c_upcountry) && in_array(1, array_column($c_upcountry, 'flat_upcountry')) !== FALSE ){
-                        
-                        $cust_price = $c_upcountry[0]['upcountry_customer_price'];
-                        $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                        $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                        $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                        $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-
-                        
-                    } else {
-                        
-                        $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                        $booking['flat_upcountry'] =0;
-                        $booking['upcountry_sf_payout'] = 0;
-                        $booking['partner_upcountry_charges'] = 0;
-                        $booking['upcountry_to_be_paid_by_customer'] =  0;
-                    }
-                    
+                    $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
 
                     log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                    $booking['amount_due'] = $cus_net_payable + $cust_price ;
+                    $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
 
 
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
@@ -327,27 +306,9 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 1;
                         $booking['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
                         $booking['upcountry_remarks'] = CUSTOMER_PAID_UPCOUNTRY;
-                        
-                         if(!empty($is_not_upcountry) && in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
-                        
-                                $cust_price = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                                $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-                            } else {
-
-                                $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                                $booking['flat_upcountry'] = 0;
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                                $booking['partner_upcountry_charges'] = 0;
-                                $booking['upcountry_to_be_paid_by_customer'] = $cust_price;
-                                $booking['upcountry_to_be_paid_by_customer'] =  0;
-                            }
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
-                        $booking['amount_due'] = $cus_net_payable + $cust_price;
+                        $booking['amount_due'] = $cus_net_payable + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
                     } else {
                         log_message('info', __METHOD__ . " => Customer or Partner does not pay upcountry charges " . $booking_id);
                         $booking['is_upcountry'] = 0;
@@ -359,10 +320,6 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = '0';
                         $booking['upcountry_partner_approved'] = '1';
                         $booking['upcountry_remarks'] = CUSTOMER_AND_PARTNER_BOTH_NOT_PROVIDE_UPCOUNTRY_FOR_THIS_PRICE_TAG;
-                        $booking['flat_upcountry'] = 0;
-                        $booking['upcountry_sf_payout'] = 0;
-                        $booking['partner_upcountry_charges'] = 0;
-                        $booking['upcountry_to_be_paid_by_customer'] =  0;
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                         $booking['amount_due'] = $cus_net_payable;
@@ -379,12 +336,6 @@ class Miscelleneous {
                         if(!empty($is_approved)){
                             $data['message'] = UPCOUNTRY_BOOKING;
                         }
-                    }
-                    if(in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
-                        $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                        $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                        $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                        $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
                     }
                    
                     if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
@@ -465,12 +416,12 @@ class Miscelleneous {
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
-//                        $to = ANUJ_EMAIL_ID;
-//                        $cc = $partner_am_email;
-//                        $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
-//                                . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
-//                                " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
-                       // $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "",BOOKING_CANCELLED_NO_UPCOUNTRY_APPROVAL);
+                        $to = ANUJ_EMAIL_ID;
+                        $cc = $partner_am_email;
+                        $message1 = $booking_id . " has auto cancelled because upcountry limit exceed "
+                                . "and partner does not provide upcountry charges approval. Upcountry Distance " . $data['upcountry_distance'] .
+                                " Upcountry Pincode " . $data['upcountry_pincode'] . " SF Name " . $query1[0]['vendor_name'];
+                        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "",BOOKING_CANCELLED_NO_UPCOUNTRY_APPROVAL);
 
                         $return_status = FALSE;
                     }
@@ -2695,7 +2646,7 @@ Your browser does not support the audio element.
         return $finalString;
     }
     
-    function get_SF_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry){
+    function get_SF_payout($booking_id, $service_center_id, $amount_due){
        
         $where = array('booking_unit_details.booking_id' =>$booking_id, "booking_status != 'Cancelled'" => NULL);
         
@@ -2723,11 +2674,7 @@ Your browser does not support the audio element.
         if(empty($amount_due)){
             $is_customer_paid = 0;
         }
-        
-        if($flat_upcountry == 1){
-            $is_customer_paid = 1;
-        }
-        $upcountry = $this->My_CI->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid, $flat_upcountry);
+        $upcountry = $this->My_CI->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
         $up_charges = 0;
         if(!empty($upcountry)){
             if($upcountry[0]['count_booking'] == 0){

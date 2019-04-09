@@ -137,12 +137,7 @@
 </div>
 <script type="text/javascript"> 
         $(document).ready(function() { 
-            $("#mytable").dataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                   'excel'
-                ]
-            }); 
+            $("#mytable").dataTable(); 
         }); 
 </script>
 <style>

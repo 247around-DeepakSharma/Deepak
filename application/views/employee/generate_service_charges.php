@@ -55,16 +55,6 @@
                     <input type="hidden" id="product_or_services" name="product_or_services" />
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group col-md-12 ">
-                    <label for="Flat Upcountry">Flat Upcountry *</label>
-                    <select onchange="enable_disable_flat_upcountry()" class="form-control" id="flat_upcountry" name="flat_upcountry"  >
-                        <option value="0" selected>No</option>
-                        <option value="1">Yes</option>
-                    </select>
-                    <input type="hidden" id="product_or_services" name="product_or_services" />
-                </div>
-            </div>
         </div>
         <div class="free_paid_container col-md-12">
             <table class="table priceList table-striped table-bordered">
@@ -108,27 +98,10 @@
                     </td>
                     <td>
                         <div class="col-md-12">
-                            <label for="upcountry" >Upcountry  </label><br>
-                            <input type="radio" onchange="addcheckforFlatUpcountry('Free', 0)" name="free_upcountry" value="0"> Customer Paid<br>
-                            <input type="radio" onchange="addcheckforFlatUpcountry('Free', 1)" name="free_upcountry" value="1"> Partner Paid<br>
-                            <input type="radio" onchange="addcheckforFlatUpcountry('Free', -1)" name="free_upcountry" value="-1"> Not Upcountry <i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" title="No One Provide Upcountry" data-content="No One Provide Upcountry"></i>
-                        </div>
-                    </td>
-                    <td id="free_upcounry_td" style="display:none;">
-                        
-                        <div class="form-group col-md-12" id="free_flat_upcountry_customer_price_div">
-                            <label for="customer total">Flat Upcountry Customer Price </label>
-                            <input type="number" class="form-control"  id="free_flat_upcountry_customer_price" name="free_upcountry_customer_price" value = "" placeholder="Enter Upcountry Amount" >
-                        </div>
-                        
-                        <div class="form-group col-md-12" id="free_flat_upcountry_partner_price_div">
-                            <label for="customer total">Flat Upcountry Partner Price </label>
-                            <input type="number" class="form-control"  id="free_flat_upcountry_partner_price" name="free_upcountry_partner_price" value = "" placeholder="Enter Upcountry Amount" >
-                        </div>
-                        
-                        <div class="form-group col-md-12">
-                            <label for="customer total">Flat Upcountry Vendor Price </label>
-                            <input type="number" class="form-control"  id="free_upcountry_vendor_price" name="free_upcountry_vendor_price" value = "" placeholder="Enter Upcountry Amount" >
+                            <label for="vendor_total" >Upcountry  </label><br>
+                            <input type="radio" name="free_upcountry" value="0"> Customer Paid<br>
+                            <input type="radio" name="free_upcountry" value="1"> Partner Paid<br>
+                            <input type="radio" name="free_upcountry" value="-1"> Not Upcountry <i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" title="No One Provide Upcountry" data-content="No One Provide Upcountry"></i>
                         </div>
                     </td>
                     <td>
@@ -192,21 +165,9 @@
                     <td>
                         <div class="col-md-12">
                             <label for="vendor_total" >Upcountry  </label><br>
-                            <input type="radio" onchange="addcheckforFlatUpcountry('Paid', 0)" name="paid_upcountry" value="0"> Customer Paid<br>
-<!--                            <input type="radio" name="paid_upcountry" value="1"> Partner Paid<br>-->
-                            <input type="radio" onchange="addcheckforFlatUpcountry('Paid', -1)" name="paid_upcountry" value="-1"> Not Upcountry <i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" title="No One Provide Upcountry" data-content="No One Provide Upcountry"></i>
-                        </div>
-                    </td>
-                    <td id="paid_upcounry_td" style="display:none;">
-                        
-                        <div class="form-group col-md-12">
-                            <label for="customer total">Flat Upcountry Customer Price </label>
-                            <input type="number" class="form-control"  id="paid_flat_upcountry_customer_price" name="paid_upcountry_customer_price" value = "" placeholder="Enter Upcountry Amount" >
-                        </div>
-
-                        <div class="form-group col-md-12">
-                            <label for="customer total">Flat Upcountry Vendor Price </label>
-                            <input type="number" class="form-control"  id="paid_upcountry_vendor_price" name="paid_upcountry_vendor_price" value = "" placeholder="Enter Upcountry Amount" >
+                            <input type="radio" name="paid_upcountry" value="0"> Customer Paid<br>
+                            <input type="radio" name="paid_upcountry" value="1"> Partner Paid<br>
+                            <input type="radio" name="paid_upcountry" value="-1"> Not Upcountry <i class="fa fa-info-circle" aria-hidden="true" data-toggle="popover" title="No One Provide Upcountry" data-content="No One Provide Upcountry"></i>
                         </div>
                     </td>
                     <td>
@@ -497,8 +458,6 @@
        var free_upcountry = Number($("input[name='free_upcountry']:checked"). val());
        var free = Number($("input[name='free']:checked"). val());
        var paid = Number($("input[name='paid']:checked"). val());
-       var flat_upcountry = $("#flat_upcountry").val();
-       
       
        if(service_id  === null){
            alert("Please Select Category");
@@ -520,148 +479,59 @@
        
        if(free === 1){
            
-            if(free_upcountry === 1 || free_upcountry === 0 || free_upcountry === -1){} else{
+           if(free_upcountry === 1 || free_upcountry === 0 || free_upcountry === -1){} else{
                alert("Please check Upcountry radio Button");
                return false;
-            }
-           
-            if(free_upcountry === 0 && flat_upcountry === 1){
-                var free_flat_upcountry_customer_price =  $("#free_flat_upcountry_customer_price").val();
-                var free_upcountry_vendor_price =  $("#free_upcountry_vendor_price").val();
-                
-                if(free_flat_upcountry_customer_price < 1){
-                    alert("Please add Upcountry Customer Paid Price");
-                    return false;
-                }
-                
-                if(free_upcountry_vendor_price < 1){
-                    alert("Please add Upcountry Venodor Payout");
-                    return false;
-                }
-            }
-            
-            if(free_upcountry === 1 && flat_upcountry === 1){
-                var free_flat_upcountry_partner_price =  $("#free_flat_upcountry_partner_price").val();
-                var free_upcountry_vendor_price =  $("#free_upcountry_vendor_price").val();
-                if(free_flat_upcountry_partner_price < 1){
-                    alert("Please add Upcountry Partner Offer Price");
-                    return false;
-                }
-                
-                if(free_upcountry_vendor_price < 1){
-                    alert("Please add Upcountry Venodor Payout");
-                    return false;
-                }
-            }
-           
+           }
        }
        
        if(paid === 1){
-            if(paid_upcountry === 1 || paid_upcountry === 0 || paid_upcountry === -1){} else{
+          if(paid_upcountry === 1 || paid_upcountry === 0 || paid_upcountry === -1){} else{
                alert("Please check Upcountry radio Button");
                return false;
-            }
-            
-            var paid_upcountry_vendor_price = $("#paid_upcountry_vendor_price").val();
-            var paid_flat_upcountry_customer_price = $("#paid_flat_upcountry_customer_price").val();
-            if(paid_upcountry === 0 && flat_upcountry === 1){
-                if(paid_upcountry_vendor_price < 1){
-                    alert("Please add Upcountry Venodor Payout");
-                    return false;
-                }
-                
-                if(paid_flat_upcountry_customer_price < 1){
-                    alert("Please add Upcountry Venodor Payout");
-                    return false;
-                }
-            }
-            
-            
+           }
        }
 
        url = "<?php echo base_url();?>employee/service_centre_charges/generate_service_charges";
        var fd = new FormData(document.getElementById("service_charge"));
        fd.append("label", "WEBUPLOAD");
        $.ajax({
-        url: url,
-        type: "POST",
-        beforeSend: function(){
+      url: url,
+      type: "POST",
+      beforeSend: function(){
+       
+           $('body').loadingModal({
+           position: 'auto',
+           text: 'Loading Please Wait...',
+           color: '#fff',
+           opacity: '0.7',
+           backgroundColor: 'rgb(0,0,0)',
+           animation: 'wave'
+         });
 
-             $('body').loadingModal({
-             position: 'auto',
-             text: 'Loading Please Wait...',
-             color: '#fff',
-             opacity: '0.7',
-             backgroundColor: 'rgb(0,0,0)',
-             animation: 'wave'
-           });
-
-      },
-        data: fd,
-        processData: false,  // tell jQuery not to process the data
-        contentType: false   // tell jQuery not to set contentType
-      }).done(function( data ) {
-            console.log(data);
-          if(data === "success"){
-               $('body').loadingModal('destroy');
-               $("#div_duplicate").css("display","none");
-               $("#duplicate_data").html("");
-                swal("Thanks!", "Charges Inserted successfully!", "success");
-          } else {
-              $("#div_duplicate").css("display","block");
-              $("#duplicate_data").html(data);
-              $('body').loadingModal('destroy');
-              $('body').animate({
-              scrollTop: $("#div_duplicate").offset().top
-              }, 2000);
-               window.location.hash = "#div_duplicate";
-              }
-
-
-          });
+    },
+      data: fd,
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+    }).done(function( data ) {
+      console.log(data);
+    if(data === "success"){
+         $('body').loadingModal('destroy');
+         $("#div_duplicate").css("display","none");
+         $("#duplicate_data").html("");
+          swal("Thanks!", "Charges Inserted successfully!", "success");
+    } else {
+        $("#div_duplicate").css("display","block");
+        $("#duplicate_data").html(data);
+        $('body').loadingModal('destroy');
+        $('body').animate({
+        scrollTop: $("#div_duplicate").offset().top
+        }, 2000);
+         window.location.hash = "#div_duplicate";
+        }
+    
+    
+    });
        return false;
-    }
-    
-    function enable_disable_flat_upcountry(){
-        var flat_upcountry = $("#flat_upcountry").val();
-        if(flat_upcountry == 1){
-            $("#free_upcounry_td").css("display","grid");
-            $("#paid_upcounry_td").css("display","grid");
-        } else {
-            $("#paid_upcounry_td").css("display","none");
-            $("#free_upcounry_td").css("display","none");
-        }
-    }
-    
-    function addcheckforFlatUpcountry(free_paid, upcountry_flag){
-        if(free_paid === "Free"){
-            $("#free_flat_upcountry_customer_price_div").css('display', 'grid');
-            $("#free_flat_upcountry_partner_price_div").css('display', 'grid');
-            enable_disable_flat_upcountry();
-            if(upcountry_flag === 0){
-                
-                $("#free_flat_upcountry_partner_price").val('0');
-                $("#free_flat_upcountry_partner_price_div").css('display', 'none');
-               
-            } else if(upcountry_flag === 1){
-               $("#free_flat_upcountry_customer_price").val('0');
-               $("#free_flat_upcountry_customer_price_div").css('display', 'none');
-               
-            } if(upcountry_flag === -1){
-                $("#free_flat_upcountry_customer_price").val('0');
-                $("#free_flat_upcountry_partner_price").val('0');
-                $("#free_upcountry_vendor_price").val('0');
-                $("#free_upcounry_td").css("display","none");
-            }
-        } else {
-            $("#paid_flat_upcountry_customer_price_div").css('display', 'grid');
-            $("#paid_flat_upcountry_partner_price_div").css('display', 'grid');
-            enable_disable_flat_upcountry();
-           if(upcountry_flag === -1){
-               $("#paid_upcounry_td").css("display","none");
-               $("#paid_upcountry_vendor_price").val('0');
-               $("#paid_flat_upcountry_customer_price").val('0');
-           }
-        }
     }
 </script>

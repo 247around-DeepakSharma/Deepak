@@ -174,7 +174,7 @@
                     <?php foreach($Bookings as $key =>$row){?>
 
                     <tr>
-                    <td><?=$row->id;  if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>','<?php echo $row->flat_upcountry;?>' )" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                    <td><?=$row->id;  if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td><?php
 				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
@@ -353,11 +353,11 @@
         
 </script>
 <script>
-function open_upcountry_model(sc_id, booking_id, amount_due, flat_upcountry){
+function open_upcountry_model(sc_id, booking_id, amount_due, sf_rate){
      
     $.ajax({
       type: 'POST',
-      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due +"/"+flat_upcountry,
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
       success: function (data) {
           console.log(data);
        $("#open_model1").html(data);   

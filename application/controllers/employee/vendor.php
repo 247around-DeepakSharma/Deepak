@@ -63,7 +63,7 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function index() {
+    function index() { 
         $this->checkUserSession();
         $vendor = [];
         //Getting rm id from post data
@@ -365,17 +365,6 @@ class vendor extends CI_Controller {
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
             $html = "<p>New Sf Added :</p><ul>";
-            
-            //send mail to brand on new sf addition
-            $template = $this->booking_model->get_booking_email_template(SF_ADDITION_MAIL_TO_BRAND);
-            if (!empty($template)) {
-                $to = $template[1];
-                $cc = $template[3];
-                $subject = $template[4];
-                $emailBody = $template[0];
-                $this->notify->sendEmail($template[2], $to, $cc, "", $subject, $emailBody, "", SF_ADDITION_MAIL_TO_BRAND);
-            }
-            
         }
         $html .= "<li><b>" . 'SF Name' . '</b> =>';
         $html .= " " . $updated_vendor_details['name'] . '</li>';

@@ -706,25 +706,15 @@ function set_upcountry() {
     non_upcountry = 0;
     n = 0;
     count = 0;
-    flat_upcountry = 0;
-    var customer_price = 0;
     $("input[type=checkbox]:checked").each(function (i) {
         count = count + 1;
 
         var id = this.id.split('checkbox_');
 
         var up_val = $("#is_up_val_" + id[1]).val();
-        
-        var f = Number($("#is_up_val_" + id[1]).attr("data-flat_upcountry"));
-        if(f === 1){
-            customer_price = Number($("#is_up_val_" + id[1]).attr("data-customer_price"));
-        
-            flat_upcountry = f;
-        }
        
         if (Number(up_val) === 1) {
             is_upcountry = 1;
-
         } else  if (Number(up_val) === -1) {
             non_upcountry = -1;
         } else {
@@ -737,13 +727,7 @@ function set_upcountry() {
             case 'UPCOUNTRY BOOKING':
             case 'UPCOUNTRY LIMIT EXCEED':
                 if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 0){
-                    
-                    if(flat_upcountry == 1){
-                        var upcountry_charges =  customer_price;
-                        alert(upcountry_charges);
-                    } else {
-                        var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
-                    }
+                    var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
                     total_price = $("#grand_total_price").val();
                     $("#upcountry_charges").val(upcountry_charges);
                     $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
@@ -776,13 +760,7 @@ function set_upcountry() {
                 } else {
                     if(Number(is_upcountry) == 0 && Number(non_upcountry) == 0){
                         
-                        if(flat_upcountry == 1){
-                            var upcountry_charges = customer_price;
-                        } else {
-                            var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
-                        }
-                        
-                        
+                        var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
                         total_price = $("#grand_total_price").val();
                         $("#upcountry_charges").val(upcountry_charges);
                         $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
@@ -794,13 +772,7 @@ function set_upcountry() {
                         final_price();
                     } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 1){
                         
-                        if(flat_upcountry == 1){
-                            var upcountry_charges = customer_price;
-                        } else {
-                            var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
-                        }
-                        
-                        
+                        var upcountry_charges = (Number(DEFAULT_UPCOUNTRY_RATE) * Number(data1.upcountry_distance)).toFixed(2);
                         total_price = $("#grand_total_price").val();
                         $("#upcountry_charges").val(upcountry_charges);
                         $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));

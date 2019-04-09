@@ -233,7 +233,6 @@ var received_brackets_list_table;
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            lengthMenu: [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             dom: 'Blfrtip',
             buttons: [
                 {
@@ -278,7 +277,6 @@ var received_brackets_list_table;
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            lengthMenu: [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             dom: 'Blfrtip',
             buttons: [
                 {
@@ -321,7 +319,6 @@ var received_brackets_list_table;
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 8, "desc" ]], //Initial no order.
             pageLength: 50,
-            lengthMenu: [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             dom: 'Blfrtip',
             buttons: [
                 {

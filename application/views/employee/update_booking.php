@@ -462,7 +462,7 @@
                                                                 <?php
                                                                  $onclick = "onclick='final_price(), enable_discount(this.id), set_upcountry()'";
                                                                 ?>
-                                                                <input type='hidden'name ='is_up_val'   data-customer_price = '<?php echo $price['upcountry_customer_price'];?>' data-flat_upcountry = '<?php echo $price['flat_upcountry'];?>' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
+                                                                <input type='hidden'name ='is_up_val' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
                                                                 class='price_checkbox <?php echo $price['product_or_services']; } ?>' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {

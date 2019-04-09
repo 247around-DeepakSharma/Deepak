@@ -10247,9 +10247,48 @@ UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br
 --Kajal 05-April-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+<<<<<<< HEAD
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Chhavi 9th April
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
+
 --Abhay 29 March 2019
 ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
 ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
 ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
 ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
 ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
+

@@ -112,28 +112,9 @@
         processing: true, //Feature control the processing indicator.
         serverSide: true, //Feature control DataTables' server-side processing mode.
         order: [], //Initial no order.
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
         pageLength: 10,
         // Load data for the table's content from an Ajax source
-        dom: 'lBfrtip',
-        buttons: [
-                {
-                    extend: 'excel',
-                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
-                    pageSize: 'LEGAL',
-                    title: 'banks',
-                    exportOptions: {
-                       columns: [1,2],
-                        modifier : {
-                             // DataTables core
-                             order : 'index',  // 'current', 'applied', 'index',  'original'
-                             page : 'All',      // 'all',     'current'
-                             search : 'none'     // 'none',    'applied', 'removed'
-                         }
-                    }
-                    
-                }
-            ],
         ajax: {
             url: "<?php echo base_url(); ?>employee/service_centre_charges/get_bank_details",
             type: "POST",

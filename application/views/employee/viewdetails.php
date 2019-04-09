@@ -377,24 +377,7 @@
                                 <?php $user_invoice_id  = ""; foreach ( $unit_details as $key =>  $unit_detail) { 
                                    if(!empty($unit_detail['user_invoice_id'])){
                                        $user_invoice_id = $unit_detail['user_invoice_id'];
-                                   }
-                                   $c_up = 0; $p_up = 0; $s_up = 0; 
-                                   if($booking_history[0]['is_upcountry'] == 1 && $key == 0){
-                                       $s_up = $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
-                                        if($booking_history[0]['flat_upcountry'] ==1 ){
-                                            $s_up = $booking_history[0]['upcountry_sf_payout'];
-                                            $c_up =  $booking_history[0]['upcountry_to_be_paid_by_customer'];
-                                            $p_up =  $booking_history[0]['partner_upcountry_charges'];
-                                        } else if($booking_history[0]['upcountry_paid_by_customer'] == 1) {
-                                            
-                                            $c_up = round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0);
-                                        }  else if($booking_history[0]['upcountry_paid_by_customer'] == 0) {
-                                            $p_up = round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0);
-                                        }
-                                    } 
-                                   
-                                   
-                                   ?>
+                                   }?>
                                 <tr>
                                     <td><?php echo $unit_detail['appliance_brand']?></td>
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
@@ -414,11 +397,12 @@
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
                                     <!--Upcountry Charges-->
-                                    <td><?php echo round($c_up + $p_up, 0); ?></td>
+                                    <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                     <!--Partner Offer Upcountry Charges-->
-                                    <td><?php  echo round($p_up, 0); ?></td>
+                                    <td><?php if($key == 0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } else { echo "0.00";} } ?></td>
                                     <!--Total Charges-->
-                                    <td><?php  print_r($unit_detail['customer_net_payable'] +$c_up); ?></td>
+                                    <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ print_r($unit_detail['customer_net_payable']);
+                                        } else if($key == 0) { print_r($unit_detail['customer_net_payable'] + ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE));  } else { print_r($unit_detail['customer_net_payable']); } ?></td>
                                     <?php } else {   ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                     <td><?php if($unit_detail['pay_to_sf'] ==1){ echo "YES"; } else { echo "NO";} ?></td>
@@ -428,7 +412,7 @@
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
                                     <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                     <!--Partner Offer Upcountry Charges-->
-                                    <td><?php echo round($p_up, 0); ?></td>
+                                    <td><?php if($key == 0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } else { echo "0.00";} } ?></td>
                                     <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                     <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                     <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
@@ -452,7 +436,7 @@
                                     <?php $sf_upcountry_charges = 0; if($booking_history[0]['is_upcountry'] == 1){ 
                                         if($key == 0){
                                             if($booking_history[0]['upcountry_paid_by_customer'] == 0){
-                                                $sf_upcountry_charges =  $s_up;
+                                                $sf_upcountry_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['sf_upcountry_rate'];
                                             } else {
                                                 $sf_upcountry_charges = -($booking_history[0]['customer_paid_upcountry_charges'] * basic_percentage);
                                         

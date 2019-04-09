@@ -526,7 +526,7 @@ class Upcountry_model extends CI_Model {
      * @param String $booking_id
      * @return boolean
      */
-    function upcountry_booking_list($service_center_id, $booking_id, $sf_upcountry_rate, $is_paid, $flat_upcountry){
+    function upcountry_booking_list($service_center_id, $booking_id, $sf_upcountry_rate, $is_paid){
         $where = "";
         $having ="";
         if(!empty($service_center_id)){
@@ -545,12 +545,12 @@ class Upcountry_model extends CI_Model {
             $group = "AND booking_id = '$booking_id'";
             
         } else {
-            $group = "AND upcountry_paid_by_customer = 0 GROUP BY CASE WHEN (bd.flat_upcountry = 1 ) THEN ('') ELSE (  bd.booking_date, bd.booking_pincode, $upcountry_rate ) END  $having";
+            $group = "AND upcountry_paid_by_customer = 0 GROUP BY bd.booking_date, bd.booking_pincode, $upcountry_rate $having";
         }
          $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, "
                  
-                . " upcountry_distance, bd.flat_upcountry,  upcountry_sf_payout, partner_upcountry_charges, "
-                . " CASE WHEN (flat_upcountry = 1) THEN ( upcountry_sf_payout) ELSE( (round(($upcountry_rate * upcountry_distance ),2))) END AS upcountry_price,"
+                . " upcountry_distance,"
+                . " (round(($upcountry_rate * upcountry_distance ),2)) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
                 . " $upcountry_rate"
                 . " FROM `booking_details` AS bd, service_centres AS s "
@@ -558,7 +558,6 @@ class Upcountry_model extends CI_Model {
                 . " AND current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."','"._247AROUND_COMPLETED."') "
                 . " AND s.id = assigned_vendor_id  $where"
                 . " AND sub_vendor_id IS NOT NULL "
-                . " AND bd.flat_upcountry  = $flat_upcountry "
                 . " $group ";
 
         $query = $this->db->query($sql);
@@ -656,13 +655,13 @@ class Upcountry_model extends CI_Model {
      */
     function is_upcountry_booking($booking_id){
         $this->db->_reserved_identifiers = array('*','CASE','WHEN');
-        $this->db->select('booking_id, sc.is_upcountry, upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+        $this->db->select('booking_id, sc.is_upcountry');
         $this->db->from('booking_unit_details AS ud');
         $this->db->join('service_centre_charges AS sc','ud.partner_id = sc.partner_id '
                 . ' AND ud.price_tags = sc.service_category '
                 . ' AND ud.`appliance_category` = sc.category '
                 . ' AND ud.`appliance_capacity` = sc.capacity');
-        $this->db->join('bookings_sources','CASE WHEN partner_type = "'.OEM.'" '
+        $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
                 . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
                 . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
         $this->db->join('partners', 'partners.id = ud.partner_id');
@@ -676,13 +675,13 @@ class Upcountry_model extends CI_Model {
     
     function is_customer_pay_upcountry($booking_id){
         $this->db->_reserved_identifiers = array('*','CASE','WHEN');
-        $this->db->select('booking_id, sc.is_upcountry, upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+        $this->db->select('booking_id, sc.is_upcountry');
         $this->db->from('booking_unit_details AS ud');
         $this->db->join('service_centre_charges AS sc','ud.partner_id = sc.partner_id '
                 . ' AND ud.price_tags = sc.service_category '
                 . ' AND ud.`appliance_category` = sc.category '
                 . ' AND ud.`appliance_capacity` = sc.capacity');
-        $this->db->join('bookings_sources','CASE WHEN partner_type = "'.OEM.'" '
+        $this->db->join('bookings_sources','CASE WHEN partner_type = "OEM" '
                 . 'THEN (bookings_sources.partner_id = ud.partner_id AND sc.brand = ud.appliance_brand) '
                 . 'ELSE (bookings_sources.partner_id = ud.partner_id) END ');
         $this->db->where('booking_id', $booking_id);
