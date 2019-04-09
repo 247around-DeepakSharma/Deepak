@@ -10267,6 +10267,8 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 --Abhay 28 March 2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'invoice_success_message', 'All %s Invoice Generated - %s.', '', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+ALTER TABLE trigger_service_charges ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+
 
 ----Gorakh 29-03-2019
 CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
@@ -10275,7 +10277,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
-
 ----Gorakh 01-04-2019
 CREATE TABLE `inventory_alternate_spare_parts_mapping` (
   `id` int(11) NOT NULL,
@@ -10289,3 +10290,16 @@ ALTER TABLE `inventory_alternate_spare_parts_mapping`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `inventory_id` (`inventory_id`,`alt_inventory_id`);
 
+--Kalyani 29-March-2019
+UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
+<br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
+
+--Kajal 05-April-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Abhay 29 March 2019
+ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
+ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
+ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
+ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
+ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;

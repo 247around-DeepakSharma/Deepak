@@ -956,7 +956,7 @@ class Service_centers extends CI_Controller {
         if (!empty($bookings)) {
             foreach ($bookings as $key => $value) {
 
-                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due']);
+                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due'], $value['flat_upcountry']);
                 $bookings[$key]['sf_earned'] = $res['sf_earned'];
                 $bookings[$key]['penalty'] = $res['penalty'];
             }
@@ -969,8 +969,8 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/completed_booking', $data);
     }
     
-    function get_sf_payout($booking_id, $service_center_id, $amount_due){
-        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due);
+    function get_sf_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry){
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry);
         echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>".$res['sf_earned']."</b>";
         
     }
@@ -2680,14 +2680,18 @@ class Service_centers extends CI_Controller {
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
      */
-    function pending_booking_upcountry_price($booking_id, $is_customer_paid){
+    function pending_booking_upcountry_price($booking_id, $is_customer_paid, $flat_upcountry){
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id  = $this->session->userdata('service_center_id');
         if(empty($is_customer_paid)){
             $is_customer_paid = 0;
         }
-        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+        
+        if($flat_upcountry == 1){
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid, $flat_upcountry);
        // $this->load->view('service_centers/header');
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }

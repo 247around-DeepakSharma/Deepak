@@ -46,7 +46,7 @@
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
-                                            <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->upcountry_paid_by_customer;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" 
@@ -222,7 +222,7 @@
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
-                                            <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>','<?php echo $row->upcountry_paid_by_customer; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>','<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" 
@@ -390,7 +390,7 @@
                                         if($row->current_status== "Rescheduled"){?>
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
-                                            <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->upcountry_paid_by_customer; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" 
