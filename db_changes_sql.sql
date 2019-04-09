@@ -10222,9 +10222,12 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 --Abhay 28 March 2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'invoice_success_message', 'All %s Invoice Generated - %s.', '', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+ALTER TABLE trigger_service_charges ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+
 
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
 ----Gorakh 01-04-2019
 CREATE TABLE `inventory_alternate_spare_parts_mapping` (
   `id` int(11) NOT NULL,
@@ -10241,7 +10244,10 @@ ALTER TABLE `inventory_alternate_spare_parts_mapping`
 UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
 
+--Kajal 05-April-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
+<<<<<<< HEAD
 CREATE TABLE `symptom_defect_solution_mapping` (
   `id` int(11) NOT NULL,
   `entity_id` int(11) NOT NULL,
@@ -10278,3 +10284,11 @@ COMMIT;
 
 --Chhavi 9th April
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
+
+--Abhay 29 March 2019
+ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
+ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
+ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
+ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
+ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
+
