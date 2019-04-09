@@ -85,12 +85,12 @@
             </tr>
             <tr style="text-align: center;">
                 <td rowspan="3" align="center">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
-                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/247aroundstamp.png"; ?>" style="width: 120px;"></td>
+                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/247aroundstamp.jpg"; ?>" style="width: 120px;"></td>
                 <td colspan="4" style="background-color: rgb(211,211,211); font-weight: bold;">For <?php echo $meta['company_name']; ?></td>
             </tr>
 
             <tr>
-                <td colspan="3" style="border-right: 2px solid;" align="center"><img src="<?php echo base_url()."images/anujsign.png"; ?>" style="width: 120px;"></td>
+                <td colspan="3" style="border-right: 2px solid;" align="center"><img src="<?php echo base_url()."images/anujsign.jpg"; ?>" style="width: 120px;"></td>
             </tr>
 
             <tr>

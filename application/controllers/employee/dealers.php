@@ -590,7 +590,7 @@ class Dealers extends CI_Controller {
 //        }
         
         $data['column_order'] = array(NULL,'dealer_details.dealer_name','dealer_details.dealer_phone_number_1',NULL,NULL,NULL,NULL);
-        $data['column_search'] = array('dealer_details.dealer_name','dealer_details.dealer_phone_number_1','dealer_details.city');
+        $data['column_search'] = array('dealer_details.dealer_name','dealer_details.dealer_phone_number_1','dealer_details.city', 'public_name', 'brand');
         
         return $data;
     }
