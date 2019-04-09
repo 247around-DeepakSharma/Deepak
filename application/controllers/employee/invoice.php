@@ -716,7 +716,7 @@ class Invoice extends CI_Controller {
     }
 
     function download_invoice_files($invoice_id, $output_file_excel, $output_pdf_file_name) {
-       
+       ob_start();
         if (file_exists($output_file_excel)) {
             if (explode('.', $output_pdf_file_name)[1] === 'pdf') {
                 $output_file_pdf = TMP_FOLDER . $invoice_id . '-draft.pdf';
@@ -733,7 +733,7 @@ class Invoice extends CI_Controller {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
-            
+            ob_end_flush();
             $res1 = 0;
             system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
             readfile(TMP_FOLDER . $invoice_id. '.zip');
