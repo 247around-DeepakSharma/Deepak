@@ -41,7 +41,7 @@
                     <h5><b>Ms. Vijaya</b></h5> 
                     <p>Back Office Closure Champion</p>
                     <p>Delhi Office</p>
-                    <p>0120-4540185 <span> <strong>|</strong> English and Hindi</span></p>
+                    <p>8506902678 <span> <strong>|</strong> English and Hindi</span></p>
                     <p>vijaya@247around.com,booking@247around.com</p>
                 </div>
                 </div>

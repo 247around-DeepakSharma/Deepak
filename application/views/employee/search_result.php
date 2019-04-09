@@ -279,7 +279,7 @@
                     <?php foreach($Bookings as $key =>$row){ if($row->current_status == "Pending" || $row->current_status == "Rescheduled"){ ?>
                     <tr id="row_color<?php echo $count;?>">
                       
-                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         
                         <td>
                             <?php
@@ -456,7 +456,7 @@
                     <?php foreach($Bookings as $key =>$row){
                         if($row->current_status == "Completed"){ ?>
                     <tr>
-                        <td><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                        <td><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
@@ -718,12 +718,12 @@
         }
         <?php } ?>
     });
-    function open_upcountry_model(sc_id, booking_id, amount_due){
+    function open_upcountry_model(sc_id, booking_id, amount_due, flat_upcountry){
       
        if(sc_id){
            $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+            url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due+"/"+flat_upcountry,
             success: function (data) {
              $("#open_model1").html(data); 
 

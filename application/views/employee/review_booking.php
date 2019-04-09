@@ -41,7 +41,7 @@
                   <tbody>
                      <?php $sno = 1; foreach ($data as $key => $value) { ?>
                      <tr>
-                        <td><?php echo $sno; if($value['is_upcountry'] == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $value['assigned_vendor_id'];?>','<?php echo $value['booking_id'];?>', '<?php echo $value['amount_due'];?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
+                        <td><?php echo $sno; if($value['is_upcountry'] == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $value['assigned_vendor_id'];?>','<?php echo $value['booking_id'];?>', '<?php echo $value['amount_due'];?>', '<?php echo $value['flat_upcountry'];?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td>
                             <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value['booking_id'];  ?>" target="_blank"><?php echo $value['booking_id'];  ?></a>
                         </td>
@@ -394,11 +394,11 @@
       }
    }
    
-   function open_upcountry_model(sc_id, booking_id, amount_due){
+   function open_upcountry_model(sc_id, booking_id, amount_due, flat_upcountry){
       
        $.ajax({
       type: 'POST',
-      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due +"/"+ flat_upcountry,
       success: function (data) {
        $("#open_model1").html(data); 
       

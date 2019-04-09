@@ -283,11 +283,11 @@
       }
    }
    
-   function open_upcountry_model(sc_id, booking_id, amount_due){
+   function open_upcountry_model(sc_id, booking_id, amount_due, flat_upcountry){
       
        $.ajax({
       type: 'POST',
-      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due,
+      url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due + "/"+ flat_upcountry,
       success: function (data) {
        $("#open_model1").html(data); 
       
