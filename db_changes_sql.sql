@@ -10339,5 +10339,40 @@ ALTER TABLE `symptom_defect_solution_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
 --Chhavi 9th April
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
