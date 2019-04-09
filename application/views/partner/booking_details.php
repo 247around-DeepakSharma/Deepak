@@ -201,12 +201,16 @@
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
-                                                            <?php if($key == 0){ if ($booking_history[0]['is_upcountry'] == 1) { ?>
+                                                            <?php $cp = 0; if($key == 0){ $cp = 0; if ($booking_history[0]['is_upcountry'] == 1) { ?>
                                                             <td><?php
                                                                 if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                                                                     echo "0";
-                                                                } else {
-                                                                    echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
+                                                                } else if($booking_history[0]['flat_upcountry'] == 1){
+                                                                    $cp =  $booking_history[0]['upcountry_to_be_paid_by_customer'];;
+                                                                    echo $cp;
+                                                                } else{
+                                                                    $cp = round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'], 0);
+                                                                    echo $cp;
                                                                 }
                                                                 ?>
                                                             </td>
@@ -215,7 +219,7 @@
                                                         if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                                                             echo $unit_detail['customer_net_payable'];
                                                         }else if($key == 0) {{
-                                                            echo ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) + $unit_detail['customer_net_payable'];
+                                                            echo $cp + $unit_detail['customer_net_payable'];
                                                         }}else{ echo $unit_detail['customer_net_payable'];}
                                                         ?></td>
                                                         <?php } else { ?>
