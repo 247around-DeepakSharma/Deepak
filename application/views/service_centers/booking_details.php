@@ -125,14 +125,14 @@
                                 <th>Remarks</th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                 <th>Booking Request Symptom</th>
-                                <td><?php if(!empty($symptom)) { echo $symptom[0]['booking_request_symptom']; } ?></td>
+                                <td><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
                             </tr>
                            
                             <tr>
                                 <th>Closing Remarks </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                                 <th>Closing Technical Problem</th>
-                                <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                                <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
                                 
                             </tr>
                             

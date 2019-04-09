@@ -1032,7 +1032,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $('#repeat_booking_model').modal('hide');
     }
     
-    get_symptom('<?php echo $booking_history[0]['booking_request_symptom'];?>');
+    get_symptom('<?php echo $booking_history[0]['symptom'];?>');
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
 

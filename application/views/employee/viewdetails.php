@@ -199,9 +199,9 @@
                         </tr>
                         <tr>
                             <th >Booking Request Symptom</th>
-                            <td style="max-width: 330px;"><?php if(!empty($symptom)) { echo $symptom[0]['booking_request_symptom']; } ?></td>
+                            <td style="max-width: 330px;"><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
                             <th>Closing Technical Problem</th>
-                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
                         </tr>
                         
                         <tr>
