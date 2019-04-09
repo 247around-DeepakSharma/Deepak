@@ -48,15 +48,15 @@ class Booking_request extends CI_Controller {
         if ($validation) {
             $data = $this->input->post();
             foreach ($data['request_type'] as $request_type) {
-                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => trim($request_type), 'booking_request_symptom' => $data['symptom']));
+                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => trim($request_type), 'symptom' => $data['symptom']));
                 
                 if(empty($is_exist)){
                 
-                $insert_id = $this->booking_request_model->insert_data(array('request_type' => trim($request_type), 'booking_request_symptom' => $data['symptom']), "symptom_booking_request");
+                $insert_id = $this->booking_request_model->insert_data(array('request_type' => trim($request_type), 'symptom' => $data['symptom']), "symptom");
                 
                 } else if(!empty($is_exist) && $is_exist[0]['active'] == 0){
 
-                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), "symptom_booking_request");
+                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), "symptom");
                     $insert_id = true;
                 } else{
                     $this->session->set_userdata(array('error' => "Symptom is already added"));
@@ -83,13 +83,13 @@ class Booking_request extends CI_Controller {
         $id = $this->input->post("id");
         if(!empty($data)){
             if(isset($data['active'])){
-                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_booking_request");
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom");
                 echo $this->db->last_query();
             }
             else{ 
-                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => $data['request_type'], 'booking_request_symptom' => $data['booking_request_symptom']));
+                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => $data['request_type'], 'symptom' => $data['symptom']));
                 if(empty($is_exist)){
-                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_booking_request");
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom");
                     echo true;
                 } 
                 else{
@@ -106,7 +106,7 @@ class Booking_request extends CI_Controller {
      * @desc This function is used to show list of booking request symptom
      */
     function get_booking_request_symptom(){
-        $data['data'] = $this->booking_request_model->get_booking_request_symptom('*, symptom_booking_request.id as tid');
+        $data['data'] = $this->booking_request_model->get_booking_request_symptom('*, symptom.id as tid');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/get_booking_request_symptom', $data);
         
@@ -120,7 +120,7 @@ class Booking_request extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $request_type = $this->input->post('request_type');
         $b_symptom = $this->input->post('booking_request_symptom');
-        $data = $this->booking_request_model->get_booking_request_symptom('symptom_booking_request.id, symptom_booking_request.request_type, booking_request_symptom', array('service_id' => $service_id), array('service_category' => $request_type));
+        $data = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom.request_type, symptom', array('service_id' => $service_id), array('service_category' => $request_type));
         if (!empty($data)) {
 
             $option = "";
@@ -131,7 +131,7 @@ class Booking_request extends CI_Controller {
                 } else if (count($data) == 1) {
                     $option .= " selected ";
                 }
-                $option .= " value='" . $value['id'] . "'>" . $value['booking_request_symptom'] . "</option>";
+                $option .= " value='" . $value['id'] . "'>" . $value['symptom'] . "</option>";
             }
             echo $option;
         } else {
@@ -217,7 +217,7 @@ class Booking_request extends CI_Controller {
      */
     function get_completion_symptom(){
         log_message('info', __METHOD__);
-        $data['data'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.*, services, services.id as service_id, request_type.id as request_type_id, request_type.service_category');
+        $data['data'] = $this->booking_request_model->get_completion_symptom('symptom.*, services, services.id as service_id, request_type.id as request_type_id, request_type.service_category');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/complete_technical_problem', $data);
     }
@@ -238,13 +238,13 @@ class Booking_request extends CI_Controller {
         $id = $this->input->post("id");
         if(!empty($data)){
             if(isset($data['active'])){
-                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_request");
+                $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom");
                 echo true;
             }
             else{ 
-                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $data['request_type'], 'completion_request_symptom' => $data['completion_request_symptom']));
+                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $data['request_type'], 'symptom' => $data['completion_request_symptom']));
                 if(empty($is_exist)){
-                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom_completion_request");
+                    $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom");
                     echo true;
                 } 
                 else{
@@ -270,14 +270,14 @@ class Booking_request extends CI_Controller {
         if ($validation) {
             $data = $this->input->post();
             foreach ($data['request_type'] as $request_type) {
-                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $request_type, 'completion_request_symptom' => $data['symptom']));
+                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $request_type, 'symptom' => $data['symptom']));
                 if(empty($is_exist)){
                 
-                    $insert_id = $this->booking_request_model->insert_data(array('request_type' => $request_type, 'completion_request_symptom' => $data['symptom']), 'symptom_completion_request');
+                    $insert_id = $this->booking_request_model->insert_data(array('request_type' => $request_type, 'symptom' => $data['symptom']), 'symptom');
                 
                 } else if(!empty($is_exist) && $is_exist[0]['active'] == 0){
 
-                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom_completion_request');
+                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom');
                     $insert_id = true;
                 } else{
                     $this->session->set_userdata(array('error' => "Symptom is already added"));

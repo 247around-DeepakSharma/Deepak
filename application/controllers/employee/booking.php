@@ -396,6 +396,9 @@ class Booking extends CI_Controller {
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
+                $booking_symptom['booking_id'] = $booking['booking_id'];
+                $booking_symptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
+
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
@@ -508,8 +511,9 @@ class Booking extends CI_Controller {
 
                 case INSERT_NEW_BOOKING:
                     $booking['create_date'] = date("Y-m-d H:i:s");
+                    $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
-                    $status = $this->booking_model->addbooking($booking);
+                    $status = $this->booking_model->addbooking($booking,$booking_symptom);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
                         if ($booking['is_send_sms'] == 1) {
@@ -644,7 +648,7 @@ class Booking extends CI_Controller {
         
         $booking['user_id'] = $user_id;
         
-        $booking['booking_request_symptom'] = $this->input->post('booking_request_symptom');
+        //$booking['booking_request_symptom'] = $this->input->post('booking_request_symptom');
 
         return $booking;
     }
@@ -1523,12 +1527,12 @@ class Booking extends CI_Controller {
         $data['completion_symptom'] =  array();
         $data['technical_solution'] =  array();
         if(!empty($data['booking_history'][0]['booking_request_symptom'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_history'][0]['booking_request_symptom']));
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
         
         }
         
         if(!empty($data['booking_history'][0]['completion_symptom'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('completion_request_symptom', array('symptom_completion_request.id' => $data['booking_history'][0]['completion_symptom']));
+            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['completion_symptom']));
         
         } 
         if(!empty($data['booking_history'][0]['technical_solution'])){
