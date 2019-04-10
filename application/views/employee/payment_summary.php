@@ -31,13 +31,13 @@
                         </div>
                         <div class="form-group col-md-3">
                             <label>Select Transaction Date</label>
-                            <input name="transaction_date" placeholder="Select invoice date range" class="form-control col-md-12" id="transaction_date" style="width:100%;">
+                            <input name="transaction_date" placeholder="Select invoice date range" class="form-control col-md-12" id="transaction_date" style="width:100%; background: #fff;" readonly>
                                
                             </input>
                         </div>
                         <div class="form-group col-md-3">
                             <label>Select Create Date</label>
-                            <input name="transaction_period" placeholder="Select invoice create date range" class="form-control col-md-12" id="transaction_period_date" style="width:100%;">
+                            <input name="transaction_period" placeholder="Select invoice create date range" class="form-control col-md-12" id="transaction_period_date" style="width:100%; background: #fff;" readonly>
                                
                             </input>
                         </div>

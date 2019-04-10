@@ -445,7 +445,7 @@ class File_upload extends CI_Controller {
         $tmp_data['part_name'] = trim(str_replace(array('"',"'"), "", $data['part_name']));
         $tmp_data['part_number'] = trim(str_replace(array('"',"'"), "", $data['part_number']));
         $tmp_data['description'] = trim(str_replace(array('"',"'"), "", $data['part_description']));
-        $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
+//        $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
         $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']):null;
         $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
         $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;

@@ -110,7 +110,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select("booking_details.*, services.services");
         $this->db->from("booking_details");
         $this->db->where("booking_id", $booking_id);
-        $this->db->join("partner_callback", "partner_callback.partner_id = booking_details.partner_id AND callback_string = partner_source");
+        $this->db->join("partner_callback", "callback_string = partner_source AND ( partner_callback.partner_id = booking_details.partner_id OR partner_callback.partner_id = booking_details.origin_partner_id )");
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->where("partner_callback.active", 1);
         $query = $this->db->get();
@@ -410,6 +410,8 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN booking_comments on booking_comments.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
+            LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
+            LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
     } 
@@ -613,7 +615,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_repair_booking_pending'] ++;
                             }
                             break;
@@ -632,7 +634,7 @@ function get_data_for_partner_callback($booking_id) {
                             break;
                         case _247AROUND_PENDING:
                         case _247AROUND_RESCHEDULED:
-                            if (date('Y-m-d', strtotime($value->initial_booking_date)) == date("Y-m-d", strtotime("-1 days"))){
+                            if (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-1 days"))){
                                 $result['yesterday_installation_booking_pending'] ++;
                             }
                             break;
@@ -845,7 +847,7 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, i.part_number, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, booking_details.current_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state, service_centres.gst_no, "
@@ -871,22 +873,32 @@ function get_data_for_partner_callback($booking_id) {
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                    . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
-                    . " WHERE $where $group_by ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
+                    . " WHERE $where $group_by "
+                    . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
                         if($is_unit_details){
                 $sql =   $select
-                ." FROM spare_parts_details,booking_details,users,booking_unit_details, "
-                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id AND booking_unit_details.booking_id = spare_parts_details.booking_id"
-                . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                ." FROM spare_parts_details "
+                . " JOIN booking_unit_details ON  booking_unit_details.booking_id = spare_parts_details.booking_id "
+                . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
+                . ' JOIN users ON users.user_id = booking_details.user_id '
+                . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
+                . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
             else{
                 
                 $sql =   $select
-                    ." FROM spare_parts_details,booking_details,users, "
-                    . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                    ." FROM spare_parts_details "
+                          . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
+                    . ' JOIN users ON users.user_id = booking_details.user_id '
+                    . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                    . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
+                    . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
@@ -1005,11 +1017,9 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     function get_tollfree_and_contact_persons(){
-        $sql = "SELECT official_contact_number as contact, name,partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM contact_person "
-                . "JOIN partners ON partners.id =  contact_person.entity_id LEFT JOIN vendor_partner_variable_charges"
-                . " ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND vendor_partner_variable_charges.charges_type = 3 UNION "
-                . "SELECT customer_care_contact as contact, 'Toll Free Number' as name , partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM partners LEFT JOIN vendor_partner_variable_charges "
-                . "ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND vendor_partner_variable_charges.charges_type = 3";
+        $sql = "SELECT 'Toll Free Number' as name,customer_care_contact as contact,partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM partners "
+                . "LEFT JOIN vendor_partner_variable_charges ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND "
+                . "vendor_partner_variable_charges.charges_type = 3 AND partners.is_active = 1;";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

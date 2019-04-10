@@ -1,9 +1,7 @@
 <?php
 
 /**
- * Description of paytm_cb
- *
- * @author abhay
+ * Description of paytm_cb - This library is used to update booking status on paytm server
  */
 class paytm_cb {
    
@@ -74,7 +72,7 @@ class paytm_cb {
         
         $response = $this->paytm_curl_call($authData[0]['url'], $header, $postData);
         if($response['data']['error']){
-        	$this->send_error_mail($response['data'], $booking_id);
+        	//$this->send_error_mail($response['data'], $booking_id);
 		return false;
         }
         else{
@@ -86,7 +84,7 @@ class paytm_cb {
               $this->update_booking_on_paytm($failurePostData, $booking_id);
             }
             else{ 
-                $this->send_error_mail($response, $booking_id);
+                //$this->send_error_mail($response, $booking_id);
 		return false; 
             }
         }
@@ -107,7 +105,7 @@ class paytm_cb {
             "code" => $data['partner_current_status'],
             "reason_code" => $data['partner_internal_status'], 
             "remarks" => $data['current_status'], 
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         $field_executive = array(
             "mobile_no" => "9555000247",
@@ -117,7 +115,7 @@ class paytm_cb {
         $postData['estimated_service_delivery'] = $estimated_service_delivery;
         $postData['event'] = $event;
         $postData['field_executive'] = $field_executive;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $postData;
     }
@@ -140,7 +138,7 @@ class paytm_cb {
             "code" => $data['partner_current_status'], 
             "reason_code" => $data['partner_internal_status'],
             "remarks" => $data['current_status'],
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         
         $service_attempt = array(
@@ -154,7 +152,7 @@ class paytm_cb {
         $postData['customer'] = $customer;
         $postData['event'] = $event;
         $postData['service_attempt'] = $service_attempt;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $this->update_booking_on_paytm($postData, $data['booking_id']);
         
@@ -167,11 +165,11 @@ class paytm_cb {
             "code" => $data['partner_current_status'], 
             "reason_code" => $data['partner_internal_status'],
             "remarks" => $data['current_status'],
-            "time" => date('Y-m-d\TH:i:s.v\Z', strtotime($data['booking_date']))
+            "time" => date('Y-m-d\TH:i:s.v\Z')
         );
         
         $postData['event'] = $event;
-        $postData['vendor_reference_id'] = $data['booking_id'];
+        $postData['vendor_reference_id'] = str_replace('Q-', '', $data['booking_id']);
         $postData['vendor_name'] = "247Around-INSTALL";
         return $this->update_booking_on_paytm($postData, $data['booking_id']);
        
@@ -209,7 +207,7 @@ class paytm_cb {
             "client_secret" => $authData[0]['client_secret']
 	 );
 	$url = sprintf("%s?%s", $authData[0]['url'], http_build_query($postData));
-	$response = $this->paytm_curl_call($url, "",  array());
+	$response = $this->paytm_curl_call($url, "",  json_encode(array()));
         if($response['data']['response']){
 	   $code = json_decode($response['data']['response'])->code;
 	   $tokenHeader = array(
@@ -228,13 +226,11 @@ class paytm_cb {
              "client_secret" => $authTokenData[0]['client_secret']
            );
            $urlToken = sprintf("%s?%s", $authTokenData[0]['url'], http_build_query($tokenPostData));
-           $responseToken = $this->paytm_curl_call($urlToken, $tokenHeader,  array());
+           $responseToken = $this->paytm_curl_call($urlToken, $tokenHeader,  json_encode(array()));
 	   if($responseToken['data']['response']){
 	      $auth_token = json_decode($responseToken['data']['response'])->access_token; 
-
-	      $this->My_CI->partner_model->update_api_authentication_details(array("entity_id"=>PAYTM_ID,"entity_type"=>"partner"), array("auth_token"=> $auth_token));
-	     
-           }
+              $this->My_CI->partner_model->update_api_authentication_details(array("entity_id"=>PAYTM_ID,"entity_type"=>"partner"), array("auth_token"=> $auth_token));
+	    }
 	}
      } 
 }

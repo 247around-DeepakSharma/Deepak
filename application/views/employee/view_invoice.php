@@ -128,14 +128,13 @@
                             <tr>
                                 <td style="width: 185px;"><b>Remarks</b></td>
                                 <td style="width: 290px;"><?php echo $invoice_details[0]['remarks']; ?></td>
-                                
+
                                 <td style="width: 185px;"><b>GST Credit Note Remark</b></td>
                                 <td style="width: 290px;"><?php echo $invoice_details[0]['gst_credit_note_remark']; ?></td>
                             </tr>
                             <tr>
                                 <td style="width: 185px;"><b>Agent Name</b></td>
                                 <td style="width: 290px;"><?php if(isset($agent_name)){ echo $agent_name; } ?></td>
-                            
                                 <td style="width: 185px;"><b>Main Invoice Excel</b></td>
                                 <td style="width: 290px;"><?php $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_excel']; ?><a href="<?php echo $src ?>" target="_blank">click Here</a></td>
                             </tr>
@@ -178,6 +177,7 @@
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
+                                    <a href="viewdetails.php"></a>
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
                                             <th class="text-center"></th>
@@ -189,7 +189,6 @@
                                             <th class="text-center">Rate</th>
                                             <th class="text-center">Amount</th>
                                             <?php }  ?>
-                                          
                                             <th class="text-center"></th>
                                         </tr>
                                     </thead>

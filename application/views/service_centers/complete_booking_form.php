@@ -568,6 +568,7 @@
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            return false;
                         }
                   //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();

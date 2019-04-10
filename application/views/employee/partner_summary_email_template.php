@@ -55,8 +55,8 @@
 <td><center><?php echo $dynamicParams['yesterday_installation_booking_completed']; ?></center></td>
 <td><center><?php echo $dynamicParams['yesterday_installation_booking_cancelled']; ?></center></td>
 <td><center><?php echo $dynamicParams['yesterday_installation_booking_pending']; ?></center></td>
-<td><center></center></td>
-<td><center></center></td>
+<td><center>-</center></td>
+<td><center>-</center></td>
 <td><center><?php echo $dynamicParams['yesterday_installation_booking_followup']; ?></center></td>
                     </tr>
                     <tr>
@@ -67,8 +67,8 @@
 <td><center><?php echo $dynamicParams['today_installation_booking_completed']; ?></center></td>
 <td><center><?php echo $dynamicParams['today_installation_booking_cancelled']; ?></center></td>
 <td><center><?php echo $dynamicParams['today_installation_booking_pending']; ?></center></td>
-<td><center></center></td>
-<td><center></center></td>
+<td><center>-</center></td>
+<td><center>-</center></td>
 <td><center><?php echo $dynamicParams['today_installation_booking_followup']; ?></center></td>
                     </tr>
                     <tr>
@@ -141,8 +141,8 @@
 <td><center><?php echo $dynamicParams['yesterday_repair_booking_completed']; ?></center></td>
 <td><center><?php echo $dynamicParams['yesterday_repair_booking_cancelled']; ?></center></td>
 <td><center><?php echo $dynamicParams['yesterday_repair_booking_pending']; ?></center></td>
-<td><center></center></td>
-<td><center></center></td>
+<td><center>-</center></td>
+<td><center>-</center></td>
 <td><center><?php echo $dynamicParams['yesterday_repair_booking_followup']; ?></center></td>
                     </tr>
                     <tr>
@@ -153,8 +153,8 @@
 <td><center><?php echo $dynamicParams['today_repair_booking_completed']; ?></center></td>
 <td><center><?php echo $dynamicParams['today_repair_booking_cancelled']; ?></center></td>
 <td><center><?php echo $dynamicParams['today_repair_booking_pending']; ?></center></td>
-<td><center></center></td>
-<td><center></center></td>
+<td><center>-</center></td>
+<td><center>-</center></td>
 <td><center><?php echo $dynamicParams['today_repair_booking_followup']; ?></center></td>
                     </tr>
                     <tr>

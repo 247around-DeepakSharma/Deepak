@@ -96,7 +96,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>247around Spare Related</h2>
+                    <h2>247around Spare Part Warehouse Related</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -107,7 +107,7 @@
                                      <p><strong>About: </strong> Inventory </p>
                                      <ul class="list-unstyled">
                                         <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
-                                        <li><i class="fa fa-envelope"></i> Email: sachins@247around.com </li>
+                                        <li><i class="fa fa-envelope"></i> Email: warehouse_noida@247around.com </li>
                                      </ul>
                                  </div>
                         </div>
@@ -119,7 +119,19 @@
                                      <p><strong>About: </strong> Inventory </p>
                                      <ul class="list-unstyled">
                                         <li><i class="fa fa-phone"></i> Phone: 8448965247 /  8949687620</li>
-                                        <li><i class="fa fa-envelope"></i> Email: chandans@247around.com </li>
+                                        <li><i class="fa fa-envelope"></i> Email: warehouse_noida@247around.com </li>
+                                     </ul>
+                                 </div>
+                         </div>
+                     </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                         <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
+                                 <div class="left col-xs-12">
+                                     <h2><b>Mr. Aditya Gupta</b></h2>
+                                     <p><strong>About: </strong> Spare Part Reconciliation </p>
+                                     <ul class="list-unstyled">
+                                        <li><i class="fa fa-phone"></i> Phone: 8745050887</li>
+                                        <li><i class="fa fa-envelope"></i> Email: adityag@247around.com </li>
                                      </ul>
                                  </div>
                          </div>

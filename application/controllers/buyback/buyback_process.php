@@ -840,15 +840,17 @@ class Buyback_process extends CI_Controller {
                             $bb_cp_order_details_data['internal_status'] = _247AROUND_BB_247APPROVED_STATUS;
                             $bb_cp_order_details_data['admin_remarks'] = $remarks;
                             $bb_cp_order_details_data['closed_date'] = date('Y-m-d H:i:s');
+                            $update_bb_unit_data['partner_discount'] = 0;
+                            if($this->input->post('amazon_discount')){
+                                $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price']-$this->input->post('amazon_discount');
+                            }
 
-                            $gst_amount = $this->buyback->gst_amount_on_profit($value, $cp_claimed_price[$key]);
+                            $gst_amount = $this->buyback->gst_amount_on_profit($value, $cp_claimed_price[$key], $update_bb_unit_data['partner_discount']);
                             //insert cp_claimed_price in bb_unit_details
                             $update_bb_unit_data['cp_claimed_price'] = $cp_claimed_price[$key];
                             $update_bb_unit_data['order_status'] = _247AROUND_BB_DELIVERED;
                             $update_bb_unit_data['gst_amount'] = $gst_amount;
-                            if($this->input->post('amazon_discount')){
-                                $update_bb_unit_data['partner_discount'] = $appliancePriceArray[0]['price']-$this->input->post('amazon_discount');
-                            }
+                            
                             break;
                     }
                     $flag = $this->process_approve_reject_bb_order($order_details_data, $bb_cp_order_details_data, $value, $update_bb_unit_data);
@@ -1406,7 +1408,7 @@ class Buyback_process extends CI_Controller {
                         $order_details_update_id = $this->bb_model->update_bb_order_details($order_details_where, $order_details_data);
                         if (!empty($order_details_update_id)) {
                             log_message("info", __METHOD__ . "Order Details table updated for order id: " . $order_id);
-                            $gst_amount = $this->buyback->gst_amount_on_profit($order_id, $cp_claimed_price);
+                            $gst_amount = $this->buyback->gst_amount_on_profit($order_id, $cp_claimed_price, 0);
                             $this->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id), 
                                     array('cp_claimed_price' => $cp_claimed_price,
                                         'gst_amount' =>$gst_amount,

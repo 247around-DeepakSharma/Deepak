@@ -583,7 +583,7 @@ class User_invoice extends CI_Controller {
                         $data[$key]['district'] = $vendor_data['district'];
                         $data[$key]['pincode'] = $vendor_data['pincode'];
                         $data[$key]['state'] = $vendor_data['state'];
-                        $data[$key]['rate'] = $data[$key]['taxable_value'];
+                        $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']));
                         $data[$key]['qty'] = 1;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
@@ -770,9 +770,9 @@ class User_invoice extends CI_Controller {
                 $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
                
                 $data[$key]['description'] =  $description;
-                $data[$key]['rate'] = $booking_unit_data[0]['partner_net_payable'];
+                $data[$key]['rate'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
                 $data[$key]['qty'] = 1;
-                $data[$key]['taxable_value'] = $booking_unit_data[0]['partner_net_payable'];
+                $data[$key]['taxable_value'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
                 $data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
                 if(!empty($partner_data[0]['gst_number'])){
                      $data[$key]['gst_number'] = $partner_data[0]['gst_number'];

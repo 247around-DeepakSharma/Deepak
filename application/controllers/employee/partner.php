@@ -173,6 +173,15 @@ class Partner extends CI_Controller {
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
+            if(!empty($data['dhq'])){
+                $dis = $this->vendor_model->getDistrict_from_india_pincode("",$data['dhq'][0]['pincode'] );
+                if(!empty($dis)){
+                    $data['dhq'][0]['original_district'] = $dis[0]['district'];
+                } else {
+                    $data['dhq'][0]['original_district'] = $data['dhq'][0]['district'];
+                }
+            }
+            
         }
         
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
@@ -404,7 +413,11 @@ class Partner extends CI_Controller {
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         $post['partner_type'] = $this->input->post('partner_type');
-        $post['appliance_unit'] = $this->input->post('appliance_unit');
+        $appliance_unit = $this->input->post('appliance_unit');
+        if(empty($appliance_unit)){
+            $appliance_unit =  1;
+        }
+        $post['appliance_unit'] = $appliance_unit;
         $post['partner_code'] = $this->input->post('partner_code');
         $post['amount_due'] = $this->input->post('grand_total');
         $post['product_type'] = $this->input->post('product_type');
@@ -477,7 +490,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -520,6 +533,21 @@ class Partner extends CI_Controller {
                 $edit_partner_data['partner']['upcountry_max_distance_threshold'] = $edit_partner_data['partner']['upcountry_max_distance_threshold'];
                 $edit_partner_data['partner']['update_date'] = date("Y-m-d h:i:s");
                 $edit_partner_data['partner']['agent_id'] = $this->session->userdata('id');
+                
+                /* show notification on partner's panal if grace period increases */
+                if($edit_partner_data['partner']['grace_period_date'] > $this->input->post("old_grace_period_date")){
+                    $dashboard_data = array(
+                        "entity_type" => "partner",
+                        "entity_id" => $partner_id,
+                        "notification_type" => 8,
+                        "message" => "Grace Period extended till ".date("d-m-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
+                        "marquee" => 1,
+                        "start_date" => date("Y-m-d H:i:s"),
+                        "end_date" => date('Y-m-d H:i:s', strtotime("+1 day", strtotime(date("Y-m-d H:i:s")))),
+                    );
+                    $this->dashboard_model->insert_dashboard_notification_any($dashboard_data);
+                }
+                /* End */
                 
                 /**** Get POC and AM email and send updated fields only ****/
                
@@ -926,7 +954,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -936,12 +964,12 @@ class Partner extends CI_Controller {
         $results['sample_no_pic']=$sample_no_pic_arr;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
-        $group_by_arr=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
+        $group_by_arr=array('collateral.file','collateral.collateral_id');
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
-                . 'collateral_type.document_type,collateral.request_type,collateral.appliance_id,collateral.collateral_id',
+                . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
@@ -1777,7 +1805,7 @@ class Partner extends CI_Controller {
         }
     }
 
-    /**
+ /**
      * @desc: This method is used to load update form(spare parts).
      * @param String $booking_id
      */
@@ -1793,7 +1821,6 @@ class Partner extends CI_Controller {
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
                 . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
         $where['is_inventory'] = true;
-
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
@@ -3249,16 +3276,6 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id . ' status: ' . $status);
         $data = $this->booking_model->getbooking_history($booking_id);
         if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
-            $partner_current_status = "";
-            $partner_internal_status = "";
-            $actor = $next_action = "not_define";
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $data[0]['partner_id'], $booking_id);
-            if (!empty($partner_status)) {
-                $partner_current_status = $partner_status[0];
-                $partner_internal_status = $partner_status[1];
-                $actor = $partner_status[2];
-                $next_action = $partner_status[3];
-            }
             if ($status == 0) {// means request from mail
                 
                 $partner_id = $data[0]['partner_id'];
@@ -3280,16 +3297,9 @@ class Partner extends CI_Controller {
                 $partner_id = $this->session->userdata('partner_id');
                 $type = "Panel";
             }
-            $this->booking_model->update_booking($booking_id, array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
-                'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
+            
+            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
 
-            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status' => _247AROUND_CANCELLED));
-            
-            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
-            
-            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, 
-                    $agent_name, $actor,$next_action,$partner_id);
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
@@ -4338,7 +4348,7 @@ class Partner extends CI_Controller {
         $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['model'] = $this->reusable_model->get_search_result_data("partner_appliance_details","DISTINCT model",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id,concat(collateral_type, '_', document_type) as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
         echo json_encode($data);
     }
@@ -5246,11 +5256,11 @@ class Partner extends CI_Controller {
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
-                redirect(base_url() . 'employee/partner/get_add_partner_form');
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Select All Field');
@@ -5712,7 +5722,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "

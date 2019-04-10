@@ -147,7 +147,7 @@
                     <div class="col-md-4">
                         <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                             <label for="booking_date">Booking Date *</label>
-                            <input type="text" class="form-control"  id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>"  >
+                            <input type="text" class="form-control" readonly="" id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF;" >
                             <?php echo form_error('booking_date'); ?>
                         </div>
                     </div>
@@ -166,7 +166,7 @@
                     <div class="col-md-4">
                         <div class="form-group col-md-5 ">
                             <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
-                            <select style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
+                            <select disabled="" style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
                                 <?php for($i =1; $i <11; $i++) { ?>
                                 <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                 <?php }?>
@@ -267,7 +267,7 @@
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                 <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                <input type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
+                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
                                 <?php echo form_error('purchase_date'); ?>
                             </div>
                         </div>
@@ -605,12 +605,12 @@
     $("#partner_source").select2();
     var today = new Date();
     var startDate = today.getHours() >=12 ? today.add(1).day() : today;
-    
     $('#booking_date').daterangepicker({
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate:startDate,
+                minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
+                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
@@ -1195,7 +1195,17 @@
         $(".price_checkbox:checked").each(function (i) {
             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
             var price_tags1 = replaceAll(price_tags, '(Free)', '');
-            var price_tags2 = replaceAll(price_tags1, '(Paid)', '')
+            var price_tags2 = replaceAll(price_tags1, '(Paid)', '');
+            if(price_tags2 === '<?php echo REPAIR_IN_WARRANTY_TAG; ?>' || 
+                    
+                    price_tags === "<?php echo REPAIR_OOW_TAG; ?>" ){
+                $("#appliance_unit").val('1');
+                final_price();
+                $('#appliance_unit').prop("disabled", true);
+                
+            } else{
+                 $('#appliance_unit').prop("disabled", false); 
+            }
             array.push(price_tags2);
 
         });

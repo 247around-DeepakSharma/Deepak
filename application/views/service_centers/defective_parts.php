@@ -65,7 +65,7 @@
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id'];?>" />
+                                        <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id'];?>" />
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file'];?>" />

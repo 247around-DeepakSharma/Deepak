@@ -239,7 +239,7 @@ define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
 //Define snapdeal new missed call number
 define('PARTNERS_MISSED_CALLED_NUMBER','01143092150');
 //Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER_2','8800887247');
+define('PARTNERS_MISSED_CALLED_NUMBER_2','01143092150');
 //Define snapdeal new missed call number
 define('SNAPDEAL_MISSED_CALLED_NUMBER','01143078384');
 //Define Android App new missed call number
@@ -355,8 +355,8 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 
 //miss call rating sms
 define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
-define('GOOD_MISSED_CALL_RATING_NUMBER','01139588220');
-define('POOR_MISSED_CALL_RATING_NUMBER','01139588224');
+define('GOOD_MISSED_CALL_RATING_NUMBER','01140849145');
+define('POOR_MISSED_CALL_RATING_NUMBER','01140849146');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
 
@@ -461,8 +461,6 @@ define('_247AROUND_PARTNER_STRING','partner');
 define('_247AROUND_SF_STRING','vendor');
 //247around cp string
 define('_247AROUND_CP_STRING','CP');
-
-define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',7);
 
 define('ENGINEER_COMPLETE_STATUS',"InProcess_Engg_Completed" );
 define('ENGINEER_CANCELLED_STATUS',"InProcess_Engg_Cancelled" );

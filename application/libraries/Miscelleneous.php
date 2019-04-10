@@ -206,6 +206,7 @@ class Miscelleneous {
                     }
                 }
             }
+            log_message('info', __FUNCTION__ . " Partner Callback booking_id " . $booking_id );
             $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
@@ -793,6 +794,7 @@ class Miscelleneous {
         if (isset($data['vendor_not_found'])) {
             if ($data['vendor_not_found'] == 1) {
                 $this->sf_not_exist_for_pincode($booking);
+                return false;
             }
         }
         if (!empty($is_price)) {
@@ -4043,7 +4045,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         if(!empty($booking_id)){
             $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
             if(!empty($booking_details)){
-                $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("spare_parts_details.id" =>$spare_id));
+                $getsparedata = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("spare_parts_details.id" =>$spare_id));
                 $part_type = $getsparedata[0]['parts_requested_type'];
                 $sms['tag'] = SPARE_DELIVERED_CUSTOMER_SMS_TAG;
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];

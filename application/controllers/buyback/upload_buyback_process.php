@@ -936,11 +936,12 @@ class Upload_buyback_process extends CI_Controller {
      * @return $flag boolean
      */
     function check_bb_price_margin($data){
-        $flag = false;
-        if($data['cp_total'] > $data['partner_total'] && $data['around_total'] > 0){
-            $flag = true;
-        }
-        
+        $flag = true;
+//        $flag = false;
+//        if($data['cp_total'] > $data['partner_total'] && $data['around_total'] > 0){
+//            $flag = true;
+//        }
+//        
         return $flag;
     }
     

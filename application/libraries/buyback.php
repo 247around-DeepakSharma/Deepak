@@ -410,7 +410,7 @@ class Buyback {
             $data = array('current_status' => _247AROUND_COMPLETED, 'internal_status' => _247AROUND_COMPLETED,'acknowledge_date' => date('Y-m-d H:i:s'),'is_delivered' => '1');
             $order_details_update_id = $this->My_CI->bb_model->update_bb_order_details($where, $data);
             if ($order_details_update_id) {
-                $gst_amount = $this->gst_amount_on_profit($order_id, 0);
+                $gst_amount = $this->gst_amount_on_profit($order_id, 0, 0);
                 
                 $this->My_CI->bb_model->update_bb_unit_details(array('partner_order_id' => $order_id),array('order_status' => _247AROUND_BB_DELIVERED, 
                     "gst_amount" => $gst_amount));
@@ -432,15 +432,20 @@ class Buyback {
         return $response;
     }
     
-    function gst_amount_on_profit($order_id, $claimed_price) {
+    function gst_amount_on_profit($order_id, $claimed_price, $partner_discount = 0) {
         log_message("info", __METHOD__. " Order ID ". $order_id. " Claimed Price ".$claimed_price);
         $gst_amount = 0;
         $con['where'] = array("bb_order_details.partner_order_id" => $order_id);
         $con['length'] = -1;
 
-        $bb_unit = $this->My_CI->bb_model->get_bb_order_list($con, "bb_unit_details.service_id, bb_unit_details.partner_basic_charge,partner_tax_charge, bb_unit_details.partner_sweetner_charges, cp_basic_charge, cp_tax_charge");
+        $bb_unit = $this->My_CI->bb_model->get_bb_order_list($con, "bb_unit_details.service_id, bb_unit_details.partner_discount, bb_unit_details.partner_basic_charge,partner_tax_charge, bb_unit_details.partner_sweetner_charges, cp_basic_charge, cp_tax_charge");
         if (!empty($bb_unit)) {
-            $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_tax_charge;
+            if($partner_discount > 0){
+                $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_tax_charge - $partner_discount;
+            } else {
+                $partner_amount = $bb_unit[0]->partner_basic_charge + $bb_unit[0]->partner_tax_charge - $bb_unit[0]->partner_discount;
+            }
+            
             if($claimed_price > 0){
                 $cp_amount = $claimed_price;
             } else {
@@ -586,7 +591,7 @@ class Buyback {
         if (!empty($bb_charges)) {
             if (count($bb_charges) == 1) {
                 $cp_amount = $bb_charges[0]['cp_basic'] + $bb_charges[0]['cp_tax'];
-                $gst_amount = $this->gst_amount_on_profit($order_id, $cp_amount);
+                $gst_amount = $this->gst_amount_on_profit($order_id, $cp_amount, 0);
                 $unit_data = array('category' => $bb_charges[0]['category'],
                     'brand' => $bb_charges[0]['brand'],
                     'physical_condition' => $bb_charges[0]['physical_condition'],

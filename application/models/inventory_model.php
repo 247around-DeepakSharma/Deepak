@@ -2005,11 +2005,13 @@ class Inventory_model extends CI_Model {
             $part_type = $this->get_inventory_parts_type_details("oow_vendor_margin, oow_around_margin, hsn_code_details.gst_rate", $part_type_array, TRUE);
 
             if (!empty($part_type)) {
-
-                $spare_oow_est_margin = ($part_type[0]['oow_vendor_margin'] + $part_type[0]['oow_around_margin']);
-                $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_margin'];
-                $repair_oow_around_percentage = $part_type[0]['oow_around_margin'];
-                $gst_rate = $part_type[0]['gst_rate'];
+                if(!empty($part_type[0]['oow_around_margin']) && ($part_type[0]['oow_vendor_margin'] + $part_type[0]['oow_around_margin']) > 0){
+                    $spare_oow_est_margin = ($part_type[0]['oow_vendor_margin'] + $part_type[0]['oow_around_margin']);
+                    $repair_oow_vendor_percentage = $part_type[0]['oow_vendor_margin'];
+                    $repair_oow_around_percentage = $part_type[0]['oow_around_margin'];
+                    $gst_rate = $part_type[0]['gst_rate'];
+                }
+                
             }
         }
         

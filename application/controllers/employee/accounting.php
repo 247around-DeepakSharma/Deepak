@@ -971,6 +971,9 @@ class Accounting extends CI_Controller {
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
         }
+        if(!empty($this->input->post("group_by"))){
+            $post['group_by'] = $this->input->post("group_by");
+        }
         return $post;
     }
     

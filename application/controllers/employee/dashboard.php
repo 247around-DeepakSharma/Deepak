@@ -1203,79 +1203,57 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     if($this->session->userdata('partner_id')){
         $partnerID = $this->session->userdata('partner_id');
     }
-    $rmIDNameArray = array();
-    $rmBookingArray = array();
-    $rmEscalationArray = array();
-    $esclationPercentage = array();
+    $rmArray = $rmEscalationArray = $esclationPercentage = array();
     //create groupby array for booking(group by rm and then vendor)
     $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
     $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
     // get escalation data and booking data for all vendor related to rm
     $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy,$partnerID);
-    // get Service center name and id
-    $rmArray = $this->reusable_model->get_search_result_data("employee","id,full_name",NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-    // Create an associative array for service Center and ID
-    if($rmArray){
-        foreach($rmArray as $RMData){
-            $rmIDNameArray["RM_".$RMData['id']]= $RMData['full_name'];
-        }
-    }
     //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
     if($escalationBookingData['booking']){
         foreach($escalationBookingData['booking'] as $bookingData){
-            if(array_key_exists("RM_".$bookingData['rm_id'], $rmBookingArray)){
-                $rmBookingArray["RM_".$bookingData['rm_id']] = $rmBookingArray["RM_".$bookingData['rm_id']] +$bookingData['total_booking'];
+            if(array_key_exists("RM_".$bookingData['rm_id'], $rmArray)){
+                $rmArray["RM_".$bookingData['rm_id']]['bookings'] = $rmArray["RM_".$bookingData['rm_id']]['bookings'] +$bookingData['total_booking'];
             }
             else{
-                $rmBookingArray["RM_".$bookingData['rm_id']] = $bookingData['total_booking'];
+                $rmArray["RM_".$bookingData['rm_id']]['bookings']  = $bookingData['total_booking'];
             }
         }
     }
+
     if($escalationBookingData['escalation']){
         foreach($escalationBookingData['escalation'] as $escalationData){
-            if(array_key_exists("RM_".$escalationData['rm_id'], $rmEscalationArray)){
-                $rmEscalationArray["RM_".$escalationData['rm_id']] = $rmEscalationArray["RM_".$escalationData['rm_id']] +$escalationData['total_escalation'];
+            if(array_key_exists('escalation', $rmArray["RM_".$escalationData['rm_id']])){
+                $rmArray["RM_".$escalationData['rm_id']]['escalation'] = $rmArray["RM_".$escalationData['rm_id']]['escalation'] +$escalationData['total_escalation'];
             }
             else{
-                $rmEscalationArray["RM_".$escalationData['rm_id']] = $escalationData['total_escalation'];
+                $rmArray["RM_".$escalationData['rm_id']]['escalation'] = $escalationData['total_escalation'];
+                $rmArray["RM_".$escalationData['rm_id']]['rm_name'] = $escalationData['rm_name'];
+                $rmArray["RM_".$escalationData['rm_id']]['zone'] = $escalationData['region'];
             }
         }
     }
-    //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
-    if(!empty($rmEscalationArray)){
-    foreach($rmEscalationArray as $RM=>$escalation){
-        if($escalation !=0 ){
-           $RMBooking = 0;
-           $RMName = "";
-           $zone = "";
-           if(array_key_exists($RM, $rmBookingArray)){
-               $RMBooking = $rmBookingArray[$RM];
-           }
-           if(array_key_exists("RM_".$escalationData['rm_id'], $rmBookingArray)){
-               $RMName = $rmIDNameArray[$RM];
-                switch ($RMName) {
-                case EAST_RM:
-                    $zone =  "East";
-                break;
-                case SOUTH_RM:
-                    $zone = "South";
-                break;
-                case WEST_RM:
-                    $zone = "West";
-                break;
-                case NORTH_RM:
-                    $zone = "North";
-                break;
-                default:
-                    $zone = "Undefined";
-                }
-           }
-           $tempArray= array("esclation_per"=>round((($escalation*100)/$RMBooking),2),"rm_id"=>$RM,
-               "total_booking"=>$RMBooking,"total_escalation"=>$escalation,"rm_name"=>$RMName,"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$zone);
-           $esclationPercentage[]=$tempArray;
-       }
+    if($this->session->userdata('partner_id')){
+        if(!empty($rmArray)){
+            foreach($rmArray as $RM=>$escalation){
+                $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                    "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+            }
+        }
+         $esclationPercentage= array_values($tempArray);
     }
+    else{
+        //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
+        if(!empty($rmArray)){
+            foreach($rmArray as $RM=>$escalation){
+                if($escalation !=0 ){
+                    $tempArray= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                       "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                    $esclationPercentage[]=$tempArray;
+                }
+            }
+        }
     }
     //Echo final matrix array to use for Angular JS
     echo json_encode($esclationPercentage);
@@ -1674,7 +1652,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalArray = array();
         foreach($data as $tatData){
             if($tatData['TAT']<0){
-                $finalArray[$tatData['entity']]['TAT_0'] = $tatData['booking_id'];
+                $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
                 $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
             }
@@ -1783,7 +1761,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $count = count($requestTypeArray);
                 if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
                     unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
-                    unset($where['booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%"']);
+                    unset($where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")']);
+                    //unset($join['spare_parts_details']);
+                    //unset($joinType['spare_parts_details']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
@@ -1805,11 +1785,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             //Filter on upcountry
             if($upcountry !="not_set"){
-                 $upcountryValue = 0;
-                 if($upcountry == 'Yes'){
-                     $upcountryValue = 1;
-                 }
-                $where['booking_details.is_upcountry'] = $upcountryValue;
+                $upcountryArray = explode(":",$upcountry);
+                $ucount = count($upcountryArray);
+                if($ucount < 2){
+                    $upcountryValue = 0;
+                    if($upcountryArray[0] == 'Yes'){
+                        $upcountryValue = 1;
+                    }
+                    $where['booking_details.is_upcountry'] = $upcountryValue;
+                }
             }
             //Filter on partner ID
             if($this->input->post('partner_id')){
@@ -1853,7 +1837,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
@@ -1861,7 +1845,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
 
             }
-            $conditionArray['where']['booking_details.type != "Query"'] = NULL; 
+            $conditionArray['where']['booking_details.type != "Query"'] = NULL;
              //Group by on booking_tat
             $conditionArray['groupBy'] = array("TAT","entity");
             //only is sf closed date is null
@@ -2031,16 +2015,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $startDate =  date('Y-m-d', strtotime('-30 days'));
         $partner_id = $status = $service_id  = $free_paid = "not_set";
         $request_type = 'Installation';
-        $upcountry = 'No';
+        $upcountry = 'not_set';
         if(!$is_pending){
-            $status = 'Completed';
+           if($this->input->post('status')){
+             $status = 'Completed';
+            }
         }
-
         else{
             $status = '247around:Vendor';
         }
-        $service_id  = $free_paid = 'not_set';
-
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
             $startDate = $dateArray[0];
@@ -2107,14 +2090,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfStateArray["sf_".$sfState['id']] = $sfState['state'];
             }
             if(!$this->input->post()){
-
                  if(is_array($status)){
                 $_POST['status'] = explode(":",$status);
             }
             else{
                 $_POST['status'] = $status;
             }
-
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
                 $_POST['request_type'][] = $request_type;
@@ -2381,7 +2362,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo $this->table->generate();
     }
-
     function get_missing_pincode_data_group_by_state_appliance($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.state) as state ,sf.pincode";
 //        if($agentID){
@@ -2475,7 +2455,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                        log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                     }
-     
                 }
 
              }
@@ -2679,7 +2658,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             );
         $select = "( CASE WHEN partners.public_name IS NOT NULL THEN partners.public_name WHEN service_centres.name IS NOT NULL THEN service_centres.name ELSE employee.full_name END ) as entity_name, dashboard_notification_type.type, dashboard_notification_type.id as type_id, dashboard_notifications.*";
         $list = $this->reusable_model->get_datatable_data("dashboard_notifications", $select, $post);
-        log_message('info', __METHOD__ . "=>query kalyani".$this->db->last_query());
+        //log_message('info', __METHOD__ . "=>query kalyani".$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $notification_list) {
@@ -2747,7 +2726,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data = array(
             "seen" => 0,
             "is_active" => 1,
-            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "start_date <= '".date("Y-m-d H:i:s")."' AND end_date >= '".date("Y-m-d H:i:s")."'"=>NULL,
         );
         if($entity_type == _247AROUND_PARTNER_STRING){
             $data['entity_id'] = $this->session->userdata('partner_id');
@@ -2779,9 +2758,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             "entity_type" => $this->input->post("entity_type"),
             "entity_id" => $this->input->post("entity_id"),
             "is_active" => 1,
-            "start_date <= '".date("Y-m-d")."' AND end_date >= '".date("Y-m-d")."'"=>NULL,
+            "start_date <= '".date("Y-m-d H:i:s")."' AND end_date >= '".date("Y-m-d H:i:s")."'"=>NULL,
         );
-        $notifications = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message, seen, icon, dashboard_notifications.create_date, color", $where, array("seen"=>"desc"), "15");
+        $notifications = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message, seen, icon, dashboard_notifications.create_date, color", $where, array("seen"=>"asc"), "15");
         $where['seen'] = 0;
         $data['seen'] = 1;
         $this->dashboard_model->update_dashboard_notification($data, $where);

@@ -110,7 +110,7 @@
                                     </td>
                                     <td>
                                         
-                                        <input type="checkbox" class="check_single_row" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
+                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -324,7 +324,7 @@
     
     var postData = {};
     $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
-    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+//    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
         {
@@ -343,8 +343,11 @@
         $(".check_single_row:checked").each(function (key) {
             tmp_arr[key] = {};
             tmp_arr[key]['inventory_id'] = $(this).attr('data-shipped_inventory_id');
+            tmp_arr[key]['is_micro_wh'] = $(this).attr('data-is_micro_wh');
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['partner_id'] = $(this).attr('data-partner_id');
+            tmp_arr[key]['defective_return_to_entity_id'] = $(this).attr('data-defective_return_to_entity_id');
+            tmp_arr[key]['defective_return_to_entity_type'] = $(this).attr('data-defective_return_to_entity_type');
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             tmp_arr[key]['service_center_id'] = $(this).attr('data-service_center_id');
@@ -377,8 +380,8 @@
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
-        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
-        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
+//        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
+//        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
         var exist_courier_image = $("#exist_courier_image").val();       
         
         //Declaring new Form Data Instance  
@@ -386,7 +389,6 @@
                 
         //Getting Files Collection
         var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
-        var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
         
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < files.length; i++) {
@@ -399,18 +401,6 @@
         
         if(files.length >= 1){
             is_exist_file = true;
-        }
-        
-        for (var i = 0; i < eway_files.length; i++) {
-            formData.append('eway_file', files[i]);
-        }
-        var is_exist_eway_files = false;
-        if(exist_ewaybill_image){
-            is_exist_eway_files = true;
-        }
-        
-        if(eway_files.length >= 1){
-            is_exist_eway_files = true;
         }
         //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
         $.each(postData, function(index, element) {

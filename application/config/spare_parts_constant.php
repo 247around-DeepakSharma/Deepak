@@ -9,14 +9,14 @@ define('SPARE_OOW_EST_REQUESTED','Request Quote for Spare Part');
 define('SPARE_OOW_EST_GIVEN','Spare Estimate Cost Given');
 define('SPARE_OOW_SHIPPED','Out Of Warranty Part Shipped By Partner');
 define('SPARE_OOW_EST_UPDATED','Spare Estimate Cost Updated');
-define('SPARE_OOW_EST_MARGIN','0.25');
+define('SPARE_OOW_EST_MARGIN','0.30');
 define('REPAIR_OOW_PARTS_PRICE_TAGS','Spare Parts');
-define('REPAIR_OOW_VENDOR_PERCENTAGE','10');
+define('REPAIR_OOW_VENDOR_PERCENTAGE','15');
 define('REPAIR_OOW_AROUND_PERCENTAGE','0.15');
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');
 // Defective Parts pending
-define('DEFECTIVE_PARTS_PENDING','Defective Part Pending');
+define('DEFECTIVE_PARTS_PENDING','Defective Part To Be Shipped By SF');
 // Defective Parts Shipped by SF
 define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
 // Defective Parts Received by SF
@@ -27,8 +27,6 @@ define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
 //Zopper booking- Part Arrange By Different Vendor
 define("PART_ARRANGE_BY_DIFF_VENDOR", 1);
-//Spare Parts Received By SF
-define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
 //Spare Parts Shipped By SF
 define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
 //SPARE paarts shipoped By Warehouse
@@ -41,9 +39,9 @@ define('SPARE_PART_BOOKING_TAG','Spare Parts');
 define('REQUESTED_QUOTE_REJECTED','Requested Quote Rejected');
 
 define("SPARE_PARTS_CANCELLED", "Spare Parts Cancelled");
-
-define("SPARE_DELIVERED_TO_SF", "Delivered");
-define("SPARE_SHIPPED_BY_PARTNER", "Shipped");
+//Spare Parts Received By SF
+define("SPARE_DELIVERED_TO_SF", "Spare Parts Delivered to SF");
+define("SPARE_SHIPPED_BY_PARTNER", "Spare Parts Shipped By Partner");
 define("SPARE_PARTS_NOT_DELIVERED_TO_SF", "Spare parts not received");
 
 define('DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH','Defective parts send by warehouse to partner');
@@ -119,9 +117,10 @@ define('DEFECTIVE_PART_SHIPPED_OOT_DAYS', 15);
 //show message when partner escalate booiking but it is pending on partner to ship new part
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_PENDING', 'You cannot escalate booking because it is pending to ship new part');
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_NOT_DELIVERED', 'You cannot escalate booking because it is pending to ship new part');
-define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
 // Courier in pickup request 
 define("COURIER_PICKUP_REQUEST", 2);
 //Courier in pickup schedule 
 define("COURIER_PICKUP_SCHEDULE", 3);
-
+//Auto spare delivered to sf after 14 days 
+define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
+define("EXTENDED_WARRANTY_TAG", "Extended Warranty");

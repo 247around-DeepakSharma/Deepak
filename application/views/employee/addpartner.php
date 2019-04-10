@@ -775,6 +775,10 @@
                                                 <input type="text" id="grace_period_date" placeholder="Select Date When Partner De-Activate" class="form-control" onchange="show_help_text(this)"  name="grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
                                                     echo $query[0]['grace_period_date'];
                                                     } ?>" >
+                                                
+                                                <input type="hidden" id="old_grace_period_date" name="old_grace_period_date" value = "<?php if (isset($query[0]['grace_period_date'])) {
+                                                    echo $query[0]['grace_period_date'];
+                                                    } ?>" >
                                                 <?php echo form_error('grace_period_date'); ?>
                                                 <p style="font-weight:bold;">Account will be active till date - <span><?php if(isset($query[0]['grace_period_date'])){ echo $query[0]['grace_period_date']; }?></span></p>
                                             </div>
@@ -1724,20 +1728,9 @@
                                             <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
                                                 <option value="" disabled="" selected="" required="">Select Department</option>
                                                 <?php
-                                                foreach ($department as $value) {
-                                                    if($value['department'] == 'Warehouse'){
-                                                        if($is_wh[0]['is_wh'] == '1'){
-                                                            ?> 
-                                                            <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                            <?php
-                                                        }
-                                                    }
-                                                    else{
-                                                           ?> 
+                                                foreach ($department as $value) { ?>
                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                    <?php
-                                                    }
-                                                }
+                                                <?php }
                                                 ?>
                                             </select>
                                         </div>

@@ -386,7 +386,6 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     $data['current_status'] = "InProcess";
-                    $data['is_sn_correct']=$is_sn_correct[$unit_id];
                     $data['booking_id'] = $booking_id;
                     $data['amount_paid'] = $total_amount_paid;
                     $data['update_date'] = date("Y-m-d H:i:s");
@@ -397,6 +396,7 @@ class Service_centers extends CI_Controller {
                         $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                         $data['serial_number'] =  $trimSno;
                         $data['serial_number_pic']  = trim($serial_number_pic[$unit_id]);
+                        $data['is_sn_correct']=$is_sn_correct[$unit_id];
                     }
                     if (!empty($getremarks[0]['service_center_remarks'])) {
 
@@ -1238,7 +1238,9 @@ class Service_centers extends CI_Controller {
                             $data['spare_flag'] = SPARE_OOW_EST_REQUESTED;
                             $data['price_tags'] = $value['price_tags'];
                         }
-                    } else if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat")) {
+                    } else if (stristr($value['price_tags'], "Repair") 
+                            || stristr($value['price_tags'], "Repeat")
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
@@ -1599,7 +1601,7 @@ class Service_centers extends CI_Controller {
             $is_file = $this->validate_part_data();
 
             if ($this->form_validation->run() && !empty($is_file['code'])) {
-                $parts_requested = $this->input->post('part');
+                $parts_requested = $this->input->post('part');               
                 $booking_id = $this->input->post('booking_id');
                 $data_to_insert = array();
 
@@ -1751,7 +1753,7 @@ class Service_centers extends CI_Controller {
                         $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
                     }
                     array_push($data_to_insert, $data);
-
+                                 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     array_push($new_spare_id, $spare_id);
@@ -1984,9 +1986,9 @@ class Service_centers extends CI_Controller {
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
-                    $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+                    $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $partner_id, $booking_id);
                     $actor = $next_action = 'not_define';
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -1997,11 +1999,11 @@ class Service_centers extends CI_Controller {
                     $b_status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($b_status) {
 
-                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
 
 
                         $sc_data['current_status'] = _247AROUND_PENDING;
-                        $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         if ($this->session->userdata('service_center_id')) {
@@ -2023,7 +2025,7 @@ class Service_centers extends CI_Controller {
                 } else {
 
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
@@ -2539,10 +2541,9 @@ class Service_centers extends CI_Controller {
         
         if(!empty($booking_address)){
             
-           foreach ($booking_address as $partner_id=> $spare_id_array) {
-                $wh_entity_details = explode('-', $partner_id);              
-                foreach ($spare_id_array as $spare_id) {          
-                    $v_select = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
+           foreach ($booking_address as $spare_id) {
+                      
+                    $v_select = "spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
                         . "service_centres.address,service_centres.pincode, service_centres.state, "
                         . "service_centres.district, service_centres.primary_contact_name,"
                         . "service_centres.primary_contact_phone_1,booking_details.partner_id as booking_partner_id, defective_return_to_entity_type,"
@@ -2558,14 +2559,13 @@ class Service_centers extends CI_Controller {
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
                         'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
-                          
-                    switch ($wh_entity_details[1]) {
+                    switch ($sp_details[0]['defective_return_to_entity_type']) {
                     case _247AROUND_PARTNER_STRING:
-                        $booking_details = $this->partner_model->getpartner($wh_entity_details[0])[0];                         
+                        $booking_details = $this->partner_model->getpartner($sp_details[0]['defective_return_to_entity_id'])[0];                         
                         break;
                     case _247AROUND_SF_STRING:                        
                         $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $wh_entity_details[0]))[0];             
+                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $sp_details[0]['partner_id']))[0];             
                         break;
                     }
 
@@ -2579,7 +2579,7 @@ class Service_centers extends CI_Controller {
                     $booking_history['details'][$i]['booking_id'] = $sp_details[0]['booking_id'];
                     $i++;
                 }
-            }
+            
         }else{
            //Logging
             log_message('info',__FUNCTION__.' No Download Address from POST');
@@ -3298,19 +3298,17 @@ class Service_centers extends CI_Controller {
      * @desc It check if sc update gst form first then show its profile otherwies GST form
      */
     function gst_update_form(){
-        //$this->checkUserSession();
+        $this->checkUserSession();
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $data = $this->reusable_model->get_search_result_data("service_centres","id as service_center_id,company_name,address as company_address,pan_no as company_pan_number"
                 . ",is_gst_doc as is_gst,gst_no as company_gst_number,gst_file as gst_certificate_file,signature_file",
                array("id"=>$this->session->userdata('service_center_id')),NULL,NULL,NULL,NULL,NULL,array());
-        //echo "<pre>";        print_r($data);exit();
         if($data[0]['is_gst'] == 1 && !empty($data[0]['gst_certificate_file'])){
             $this->load->view('service_centers/header'); 
             $this->load->view('service_centers/gst_details_view', $data[0]);
         } else {
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/gst_update_form',$data[0]);
-            
         }
     }
     /**
@@ -5085,7 +5083,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND status IN ('"._247AROUND_COMPLETED."') ";
+                . " AND defective_part_required = '1' AND sell_invoice_id IS NULL AND status IN ('"._247AROUND_COMPLETED."') ";
             
            
             $where .= " AND booking_details.partner_id = " . $partner_id;
@@ -5585,6 +5583,7 @@ class Service_centers extends CI_Controller {
     }
     
     function check_wh_shipped_defective_awb_exist(){
+        log_message('info', __METHOD__. " AWB NO ".$this->input->post('awb'));
         $awb = $this->input->post('awb');
         if(!empty($awb)){
             $data = $this->inventory_model->get_courier_details("AWB_no, courier_name, "

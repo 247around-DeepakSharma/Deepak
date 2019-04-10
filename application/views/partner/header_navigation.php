@@ -308,7 +308,7 @@
                                                         $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
                                                     }
                                                     ?>
-                                                    <?php if(($main_nav['navData']["id_".$childID]['title'] == 'Servicable BOM') && (($this->session->userdata('is_wh') != '1') || ($this->session->userdata('is_micro_wh')!= '1'))){ ?>
+                                                    <?php if(($main_nav['navData']["id_".$childID]['title'] == 'Model List') && (($this->session->userdata('is_wh') != '1') || ($this->session->userdata('is_micro_wh')!= '1'))){ ?>
                                                         <li><a href="<?php echo $childLink; ?>"><?php echo $main_nav['navData']["id_".$childID]['title']; ?></a></li>
                                                     <?php } else if(($this->session->userdata('is_wh')==1) || ($this->session->userdata('is_micro_wh')==1)){ ?>
                                                         <li><a href="<?php echo $childLink; ?>"><?php echo $main_nav['navData']["id_".$childID]['title']; ?></a></li>
@@ -549,9 +549,10 @@
                         success: function(response) {
                             response = JSON.parse(response);
                             var html = "";
-                            var seen_style = "border-bottom: 1px solid #77777761;";
+                            var seen_style = "";
                             if(response.length > 0){
                                 for(var i=0; i<response.length; i++){
+                                    seen_style = "border-bottom: 1px solid #77777761;";
                                     if(response[i]['seen'] == '0'){
                                         seen_style = "font-weight:600;";
                                     }

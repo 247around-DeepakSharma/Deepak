@@ -144,6 +144,7 @@
                         <th>Total Price</th>
                         <th>Vendor Margin</th>
                         <th>Around Margin</th>
+                        <th>Customer Price</th>
                         <th>Edit</th>
                         <th>Get Model</th>
                     </tr>

@@ -118,21 +118,21 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-9">
-                                    <div class="form-group ">
-                                        <label for="symptom" class="col-md-4">Technical Problem</label>
-                                        <div class="col-md-12" style="width:102%">
-                                            <input type="text" class="form-control" id="<?php echo "sparerequestsymptom_". $key; ?>" name="part[<?php echo $key;?>][spare_request_symptom]" readonly="readonly" value="<?php echo $value->spare_request_symptom; ?>" >
-                                        </div>
-                                    </div>
-                                </div>
+                               
                                 
                                 <div class="col-md-5">
-                                    <br/><br/>
+
                                     <div class="form-group ">
-                                        <label for="parts_type" class="col-md-4">Requested Parts Type</label>
+                                        <label for="symptom" class="col-md-4">Technical Problem</label>
                                         <div class="col-md-6">
-                                            <textarea class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" required><?php echo $value->parts_requested_type; ?></textarea>
+                                            <textarea class="form-control" id="<?php echo "sparerequestsymptom_". $key; ?>" name="part[<?php echo $key;?>][spare_request_symptom]" readonly="readonly" ><?php echo $value->spare_request_symptom; ?></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group ">
+                                        <label for="parts_type" class="col-md-4">Requested Parts Code</label>
+                                        <div class="col-md-6">
+                                            <textarea class="form-control" id="<?php echo "requestedpartscode_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_code]" readonly="readonly"><?php echo $value->part_number; ?></textarea>
                                         </div>
                                     </div>
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
@@ -191,7 +191,12 @@
                                     
                                 </div>
                                 <div class="col-md-5">
-                                    <br/><br/>
+                                    <div class="form-group ">
+                                        <label for="parts_type" class="col-md-4">Requested Parts Type</label>
+                                        <div class="col-md-6">
+                                            <textarea class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" required><?php echo $value->parts_requested_type; ?></textarea>
+                                        </div>
+                                    </div>
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
                                         <div class="col-md-6">
@@ -746,4 +751,3 @@
 </script>
         
 <?php } ?>
-

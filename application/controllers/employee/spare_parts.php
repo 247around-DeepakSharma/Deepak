@@ -676,7 +676,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->name;
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
-        $row[] = $spare_list->source;
+        $row[] = $spare_list->source;   
         $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</span>";
@@ -780,7 +780,6 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
         $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</spare>";
         $row[] = $spare_list->request_type;
-
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
@@ -1485,7 +1484,6 @@ class Spare_parts extends CI_Controller {
         }
     }
     
-
     /*
      * @des - This function is used to Request New spare part form partner lost part cases
      * @param - array
@@ -1560,7 +1558,6 @@ class Spare_parts extends CI_Controller {
 
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
                     . 'spare_parts_details.requested_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
-
                     . 'spare_parts_details.is_micro_wh,spare_parts_details.model_number,spare_parts_details.serial_number,spare_parts_details.shipped_inventory_id,spare_parts_details.date_of_request,'
                     . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id';
 
@@ -1613,7 +1610,6 @@ class Spare_parts extends CI_Controller {
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
-                
                 if ($entity_type == _247AROUND_PARTNER_STRING && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
 
@@ -1862,9 +1858,9 @@ class Spare_parts extends CI_Controller {
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
-                    $booking['internal_status'] = SPARE_PARTS_DELIVERED;
+                    $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_PARTS_DELIVERED, $partner_id, $booking_id);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $partner_id, $booking_id);
                     $actor = $next_action = 'not_define';
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -1875,11 +1871,11 @@ class Spare_parts extends CI_Controller {
                     $b_status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($b_status) {
 
-                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
 
 
                         $sc_data['current_status'] = _247AROUND_PENDING;
-                        $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                        $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         
@@ -1904,7 +1900,7 @@ class Spare_parts extends CI_Controller {
                 } else {
 
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_DELIVERED, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
@@ -2081,7 +2077,6 @@ class Spare_parts extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
-        
     /**
      *  @desc : This function is used to spare parts cancellation reason
      *  @param : $file_details array()

@@ -79,10 +79,16 @@
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
                                               <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
                                               <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
-                                                  <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}elseif($value1['is_sn_correct']==NOT_DEFINE_SN){ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
-                                              <?php } else {?>
-                                               <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}elseif($value1['is_sn_correct']==NOT_DEFINE_SN){ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>
-                                              <?php } ?>
+                                                  <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}else{ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
+                                              <?php } else {
+                                                  if($value1['serial_number']){ ?>
+                                                      <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
+                                                      <?php
+                                                   }
+                                              ?>
+                                               <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}else{ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>
+                                               <?php
+                                               } ?>
                                           </td>
                                           <td><span class="<?php echo "price_tags".$count; ?>"><?php echo $value1['price_tags']; ?></span></td>
                                           <td>
@@ -199,26 +205,42 @@
    </div>
 
 <script>
-  $(document).ready(function(){
+   $(document).ready(function(){
         $("#selecctall").change(function(){
+            var isChecked = document.getElementById('selecctall').checked;
             $(".checkbox1").prop('checked', $(this).prop("checked"));
-            $('.checkbox1').each(function() {
-                is_sn_correct_validation($(this).val());
-             })
+            if(isChecked){
+                var outputArray = []; 
+                $('.checkbox1').each(function() {
+                      outputArray.push(is_sn_correct_validation($(this).val(),'Yes'));
+                 })
+                  if(outputArray.includes('no')){
+                        alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
+                  }
+          }
          });
    });
-   function is_sn_correct_validation(booking_id){
+     function is_sn_correct_validation(booking_id,bulkalert){
+       if(bulkalert !== 'Yes'){
+           bulkalert = false;
+       }
        temp = true;
        booking_sn_div_id =  "sn_"+booking_id;
        current_div_booking =  "app_"+booking_id;
         $('.'+booking_sn_div_id).each(function() {
             if($(this).val() == 0){
                 temp = false;
+                $("."+current_div_booking).prop("checked", false);
             }
         })
+        if(!temp && !bulkalert){
+                alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
+        }
         if(!temp){
-                 alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
-                $("."+current_div_booking).prop("checked", false);
+            return 'no';
+        }
+        else{
+             return 'yes';
         }
    }
    function checkValidationForBlank_review(){
