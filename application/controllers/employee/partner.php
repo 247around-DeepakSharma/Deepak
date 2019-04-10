@@ -186,8 +186,7 @@ class Partner extends CI_Controller {
         
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
         
-        if(!empty($data['booking_history'][0][''
-            . ''])){
+        if(!empty($data['booking_history'][0]['booking_request_symptom'])){
             $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
         
         } 
