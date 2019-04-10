@@ -10389,6 +10389,24 @@ CREATE TABLE `booking_symptom_defect_details` (
 
 
 --
+-- Table structure for table `booking_symptom_defect_details`
+--
+
+CREATE TABLE `booking_symptom_defect_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` int(11) NOT NULL,
+  `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
+  `symptom_id_spare_request_time` int(11) DEFAULT NULL,
+  `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
+  `defect_id_spare_request` int(11) DEFAULT NULL,
+  `defect_id_completion` int(11) DEFAULT NULL,
+  `solution_id` int(11) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_actve` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
 -- Indexes for dumped tables
 --
 
@@ -10420,6 +10438,10 @@ ALTER TABLE `booking_symptom_defect_details`
 ALTER TABLE `symptom_defect_solution_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 36ae02d59... CRM-2594 : Symptoms Defact Mapping
 -- Change table name from `symptom_completion_request` to `symptom` 
   
 RENAME TABLE symptom_completion_request TO symptom;
