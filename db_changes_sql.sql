@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -10292,3 +10292,45 @@ ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTE
 ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
 ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
 
+--Kajal 09-April-2019  Starting ---
+
+CREATE TABLE `defect` (
+  `id` int(11) NOT NULL,
+  `request_type` int(28) NOT NULL,
+  `defect` varchar(256) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `defect`
+--
+ALTER TABLE `defect`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `service_id` (`request_type`,`defect`) USING BTREE,
+  ADD KEY `service_id_2` (`request_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `defect`
+--
+ALTER TABLE `defect`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+  
+  
+-- Change table name from `symptom_completion_request` to `symptom` 
+  
+RENAME TABLE symptom_completion_request TO symptom;
+  
+-- Change column name for `symptom` table 
+  
+ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--Kajal 09-April-2019  Ending ---

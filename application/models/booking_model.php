@@ -395,11 +395,15 @@ class Booking_model extends CI_Model {
      *  @return : array (booking)
      */
 
-    function addbooking($booking){
-	$this->db->insert('booking_details', $booking);
+    function addbooking($booking,$booking_symptom){
+	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
+        
+        log_message ('info', __METHOD__ . "=> booking Symptom Defect Details  SQL ". $this->db->last_query());
+        
+        $this->db->insert('booking_details', $booking);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
-
+        
         return $this->db->insert_id();
     }
 
