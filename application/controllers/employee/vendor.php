@@ -1799,7 +1799,6 @@ class vendor extends CI_Controller {
      */
     function process_add_engineer() {
         $engineer_form_validation = $this->engineer_form_validation();
-
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
@@ -1808,8 +1807,18 @@ class vendor extends CI_Controller {
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
-                if($this->input->post('identity_file')){
-                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                
+                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                    //Making process for file upload
+                    $tmpFile = $_FILES['file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+
+                    //Upload files to AWS   
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "engineer-id-proofs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $data['identity_proof_pic'] = $pan_file;
                 }
                 
                  //$data['address'] = $this->input->post('address');
@@ -1878,10 +1887,10 @@ class vendor extends CI_Controller {
                 $output = "Engineer Phone Number Already Exist.";
                 $userSession = array('error' => $output);
                 $this->session->set_userdata($userSession);
-                $this->add_engineer();
+                redirect(base_url() . "employee/vendor/add_engineer");
             }
         } else { //form validation failed
-            $this->add_engineer();
+            redirect(base_url() . "employee/vendor/add_engineer");
         }
     }
 
@@ -1890,7 +1899,7 @@ class vendor extends CI_Controller {
      * params: Post data array
      * 
      */
-    function process_edit_engineer() {
+    function process_edit_engineer() { 
         $engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
         if ($engineer_form_validation) {
@@ -1901,10 +1910,22 @@ class vendor extends CI_Controller {
                 $data['alternate_phone'] = $this->input->post('alternate_phone');             
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
-                if($this->input->post('identity_file')){
-                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                
+                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                    //Making process for file upload
+                    $tmpFile = $_FILES['file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+
+                    //Upload files to AWS   
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "engineer-id-proofs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $data['identity_proof_pic'] = $pan_file;
                 }
-                //$data['phone_type'] = $this->input->post('phone_type');
+               
+               
+//          $data['phone_type'] = $this->input->post('phone_type');
 //	    $data['bank_name'] = $this->input->post('bank_name');
 //	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 //	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
@@ -2058,8 +2079,8 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'trim');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric');
-	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
-        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
+//	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
+    //    $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 //        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim');
 //        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim');
 //        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim');
