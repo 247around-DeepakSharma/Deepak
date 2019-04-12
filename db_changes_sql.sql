@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -10332,5 +10332,73 @@ RENAME TABLE symptom_completion_request TO symptom;
 -- Change column name for `symptom` table 
   
 ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--
+-- Table structure for table `booking_symptom_defect_details`
+--
+
+CREATE TABLE `booking_symptom_defect_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` int(11) NOT NULL,
+  `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
+  `symptom_id_spare_request_time` int(11) DEFAULT NULL,
+  `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
+  `defect_id_spare_request` int(11) DEFAULT NULL,
+  `defect_id_completion` int(11) DEFAULT NULL,
+  `solution_id` int(11) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_actve` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `symptom_defect_solution_mapping`
+--
+
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --Kajal 09-April-2019  Ending ---
