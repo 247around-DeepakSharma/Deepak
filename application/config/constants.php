@@ -620,6 +620,8 @@ define("CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION", "Annual Setup Charges");
 //Define constant for razorpay api for bank ifsc code varification
 define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
 
+define('INVENTORY_USER_GROUP', 'inventory_manager');
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

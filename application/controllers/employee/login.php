@@ -90,12 +90,30 @@ class Login extends CI_Controller {
                 redirect(base_url() . "employee/login");
             }
         } else {
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL);
-            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('employee/login',$data);
+
+           $login_function = $this->db->login_function;
+           $this->$login_function();
+           
         }
     }
+    
+    function around_login(){
+        $data['crm_tile'] = $this->db->crm_title;
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $this->load->view('employee/login',$data);
+    }
+    
+    function wybor_login(){
+        $data['crm_tile'] = $this->db->crm_title;
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $this->load->view('employee/login',$data);
+    }
+
+
 
     /**
      *  @desc : This funtion load index page
@@ -142,6 +160,10 @@ class Login extends CI_Controller {
             'emp_name' => $emp_name,
             'is_am' => $is_am
         );
+        
+        if($this->db->login_partner_id){
+            $userSession['login_partner_id'] = $this->db->login_partner_id;
+        }
         }
         else{
             //Logging Message 
