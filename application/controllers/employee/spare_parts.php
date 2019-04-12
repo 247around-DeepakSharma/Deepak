@@ -2220,12 +2220,24 @@ class Spare_parts extends CI_Controller {
                 $recommended_30 = $data[$key]['consumption_30_days'] - $value['stock'];
                 if ($recommended_30 > 0) {
                     $data[$key]['recommended_30_days'] = $recommended_30;
+                    
+                } else if($recommended_30 == 0){
+                    
+                    $data[$key]['recommended_30_days']  = $data[$key]['consumption_30_days'];
+                    
+                } else if($data[$key]['consumption_30_days'] == 0){ 
+                    $recommended_45 = $data[$key]['consumption_45_days'] - $value['stock'];
+                    if($recommended_45 > 0){
+                        $data[$key]['recommended_30_days'] = $recommended_45;
+                    } else {
+                        $data[$key]['recommended_30_days'] = 0;
+                    }
                 } else {
                     $data[$key]['recommended_30_days'] = 0;
                 }
             }
         }
-        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP));
+        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
                             return $k['official_email'];
