@@ -10122,10 +10122,7 @@ INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_excepti
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('spare_parts_oow_email_to_customer', '%s Requested for booking id %s', 'Dear SF, <br/> <br/> Request of your %s to be paid by customer, is placed successfully, for booking id %s.\n<br/> <br/>Thanks,<br/>Team 247around', 'gorakhn@247around.com', 'gorakhn@247around.com', 'gorakhn@247around.com', '', '1', '2019-02-21 09:26:12'),
 ('spare_parts_in_warranty_email_to_customer', '%s Requested for booking id %s', 'Dear SF, <br/> <br/> Request of your %s free for customer, is placed successfully,for booking id %s.<br/> <br/>Thanks,<br/>Team 247around', 'gorakhn@247around.com', 'gorakhn@247around.com', 'gorakhn@247around.com', '', '1', '2019-02-21 09:35:08');
-<<<<<<< HEAD
 
-=======
->>>>>>> CRM_Release_1.62.0.0
 --Kalyani 01-March-2019
 
 CREATE TABLE `dashboard_notification_type` (
@@ -10170,7 +10167,7 @@ ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
-<<<<<<< HEAD
+
 
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
@@ -10178,7 +10175,7 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
-=======
+
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
@@ -10196,11 +10193,7 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '39' WHERE `part
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `partner_summary_report_mapping`.`id` = 32;
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
 
---Gorakh 15-03-2019
-<<<<<<< HEAD
-=======
 
->>>>>>> CRM_Release_1.62.0.0
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
 ('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
@@ -10265,7 +10258,7 @@ ALTER TABLE `vendor_partner_proforma_invoices`
 COMMIT;
 
 --Kalyani 26-March-2019
-<<<<<<< HEAD
+
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear customer,
 Please send us your %s %s invoice/bill copy on our Whatsapp number %s. 
 247around, %s Partner.', NULL, 1, '0', CURRENT_TIMESTAMP);
@@ -10445,4 +10438,21 @@ Please send us your %s %s invoice/bill copy on our Whatsapp number %s.
 --Kalyani 27-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'razorpay_ifsc_code_api_fail', 'Razorpay bank IFSC code API fail', 'Dear Team<br>Razorpay bank IFSC code API fail<br/><p>%s</p><p>%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
+
+
+----Gorakh 09-04-2019
+CREATE TABLE `alternate_inventory_set` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `alternate_inventory_set`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_id` (`group_id`,`inventory_id`);
+
+ALTER TABLE `alternate_inventory_set`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
 
