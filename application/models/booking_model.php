@@ -395,11 +395,15 @@ class Booking_model extends CI_Model {
      *  @return : array (booking)
      */
 
-    function addbooking($booking){
-	$this->db->insert('booking_details', $booking);
+    function addbooking($booking,$booking_symptom){
+	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
+        
+        log_message ('info', __METHOD__ . "=> booking Symptom Defect Details  SQL ". $this->db->last_query());
+        
+        $this->db->insert('booking_details', $booking);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
-
+        
         return $this->db->insert_id();
     }
 
@@ -846,7 +850,9 @@ class Booking_model extends CI_Model {
      */
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand, $add_booking = NULL) {
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage, around_net_payable,product_or_services');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, '
+                . 'vendor_basic_percentage, '
+                . 'around_net_payable,product_or_services,  upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry ');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);

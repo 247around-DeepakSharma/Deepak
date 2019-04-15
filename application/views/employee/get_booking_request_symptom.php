@@ -18,13 +18,13 @@
                     <?php
                         if (!empty($data)) {
                             foreach ($data as $key => $row) {
-                            $jsonData = json_encode(array("service" => $row['service_id'], "request_type"=> $row['request_type'], "symptom" => $row['booking_request_symptom']));
+                            $jsonData = json_encode(array("service" => $row['service_id'], "request_type"=> $row['request_type'], "symptom" => $row['symptom']));
                                 ?>
                     <tr>
                         <td><?php echo ($key +1) ?></td>
                         <td><?php echo $row['services'];?>
                         <td><?php echo $row['service_category']; ?></td>
-                        <td><?php echo $row['booking_request_symptom'];?></td>
+                        <td><?php echo $row['symptom'];?></td>
                         <td>
                             <a href="#" class="btn btn-md btn-success" data-id='<?php echo $jsonData; ?>' onclick="update_spare_sympton(this, <?php echo $row['tid']; ?>)">Update</a>
                             <a href="#" class="btn btn-md btn-warning" onclick="update_status(<?php echo $row['active']; ?>, <?php echo $row['tid']; ?>)"><?php if($row['active'] == "0"){ echo "Active"; }else{ echo "Deactive"; } ?></a>

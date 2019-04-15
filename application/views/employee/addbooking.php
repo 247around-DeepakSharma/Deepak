@@ -406,7 +406,7 @@
     $("#partner_source").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
-    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+    //$(".purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
 
 </script>
 <script type="text/javascript">
@@ -432,6 +432,13 @@
            $('#priceList_'+cloneIndex).html("");
            $('#order_item_id_'+cloneIndex).val("");
            $('#purchase_date_'+cloneIndex).val("");
+           
+           $('.purchase_date').each(function () {
+                if ($(this).hasClass('hasDatepicker')) {
+                    $(this).removeClass('hasDatepicker');
+                } 
+                 $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+            });
            
        cloneIndex++;
        return false;

@@ -288,7 +288,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                             <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($booking_history[0]['purchase_date'])){echo $booking_history[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?>>
+                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?>>
                                             <?php echo form_error('purchase_date'); ?>
                                         </div>
                                     </div>
@@ -834,6 +834,8 @@
         is_upcountry = 0;
         count = 0;
         non_upcountry = 0;
+        flat_upcountry = 0;
+        var customer_price = 0;
         n = 0;
         $("input[type=checkbox]:checked").each(function (i) {
             count = count + 1;
@@ -841,6 +843,13 @@
             var id = this.id.split('checkbox_');
     
             var up_val = $("#is_up_val_" + id[1]).val();
+            
+            var f = Number($("#is_up_val_" + id[1]).attr("data-flat_upcountry"));
+            if(f === 1){
+                customer_price = Number($("#is_up_val_" + id[1]).attr("data-customer_price"));
+
+                flat_upcountry = f;
+            }
     
             if (Number(up_val) === 1) {
                 is_upcountry = 1;
@@ -857,7 +866,12 @@
                 case 'UPCOUNTRY LIMIT EXCEED':
                     if(Number(is_upcountry) == 1 && Number(data1.partner_provide_upcountry) == 0 ){
     
-                        var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                        if(flat_upcountry == 1){
+                            var upcountry_charges =  customer_price;
+                            
+                        } else {
+                            var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                        }
     
                         $("#upcountry_charges").text(upcountry_charges);
                         $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
@@ -902,7 +916,12 @@
                     } else {
                         if(Number(is_upcountry) == 0 && Number(non_upcountry) == 0){
     
-                            var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                            if(flat_upcountry == 1){
+                                var upcountry_charges =  customer_price;
+                                
+                            } else {
+                                var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                            }
     
                             $("#upcountry_charges").text(upcountry_charges);
                             $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");
@@ -919,7 +938,12 @@
                             $('#submitform').attr('disabled', false);
                         } else if(Number(is_upcountry) == 0 && Number(non_upcountry) == -1 && n == 1){
     
-                            var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                             if(flat_upcountry == 1){
+                                var upcountry_charges =  customer_price;
+                                
+                            } else {
+                                var upcountry_charges = (Number(3) * Number(data1.upcountry_distance)).toFixed(2);
+                            }
     
                             $("#upcountry_charges").text(upcountry_charges);
                             $("#checkbox_upcountry").val("upcountry_" + upcountry_charges + "_0");

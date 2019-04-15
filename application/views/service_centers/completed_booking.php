@@ -35,7 +35,7 @@
                                                 <?php echo $count; ?>
                                                 <?php if($row['is_upcountry'] == 1) { ?>.
                                                 <i style="color:red; font-size:20px;" 
-                                                   onclick="open_upcountry_model('<?php echo $row['booking_id'];?>', '<?php echo $row['amount_due'];?>')" 
+                                                   onclick="open_upcountry_model('<?php echo $row['booking_id'];?>', '<?php echo $row['amount_due'];?>', '<?php echo $row['flat_upcountry'];?>')" 
                                                    class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                             <td>
@@ -164,11 +164,11 @@
             hide: 100
         }
     });
-    function open_upcountry_model(booking_id, is_customer_paid){
+    function open_upcountry_model(booking_id, is_customer_paid, flat_upcountry){
       
        $.ajax({
       type: 'POST',
-      url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid,
+      url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid+"/"+ flat_upcountry,
       success: function (data) {
        $("#open_model").html(data);   
        $('#myModal1').modal('toggle');

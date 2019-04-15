@@ -81,6 +81,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_timeslot, "
                 . " bd.current_status, "
                 . " bd.amount_due, "
+                . " bd.flat_upcountry, "
                 . " bd.request_type, "
                 . " bd.count_escalation, "
                 . " bd.is_upcountry, "
@@ -153,7 +154,7 @@ class Service_centers_model extends CI_Model {
             $this->db->limit($limit, $start);
         }
 
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, '
+        $this->db->select('booking_details.booking_id, booking_details.flat_upcountry, users.name as customername, booking_details.booking_primary_contact_no, '
                 . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_details.closing_remarks, '
                 . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type');
         $this->db->from('booking_details');

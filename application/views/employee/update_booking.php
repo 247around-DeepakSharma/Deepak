@@ -373,13 +373,13 @@
                                             </div>
                                         </div> -->
                                         <div class="form-group ">
-                                <label for="purchase_date" class="col-md-4">Purchase Date *</label>
-                                <div class="col-md-6">
-                                <div class="input-group input-append date">
-                                    <input <?php if($is_repeat && ($unit_details[0]['purchase_date'] != '0000-00-00')){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>">
-                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                </div>
-                                </div>
+                                            <label for="purchase_date" class="col-md-4">Purchase Date *</label>
+                                            <div class="col-md-6">
+                                            <div class="input-group date">
+                                                <input <?php if($is_repeat && ($unit_details[0]['purchase_date'] != '0000-00-00')){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" onkeydown="return false" >
+                                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                            </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -462,7 +462,7 @@
                                                                 <?php
                                                                  $onclick = "onclick='final_price(), enable_discount(this.id), set_upcountry()'";
                                                                 ?>
-                                                                <input type='hidden'name ='is_up_val' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
+                                                                <input type='hidden'name ='is_up_val'   data-customer_price = '<?php echo $price['upcountry_customer_price'];?>' data-flat_upcountry = '<?php echo $price['flat_upcountry'];?>' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
                                                                 class='price_checkbox <?php echo $price['product_or_services']; } ?>' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
@@ -1032,7 +1032,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $('#repeat_booking_model').modal('hide');
     }
     
-    get_symptom('<?php echo $booking_history[0]['booking_request_symptom'];?>');
+    get_symptom('<?php echo $booking_history[0]['symptom'];?>');
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
 

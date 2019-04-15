@@ -125,14 +125,14 @@
                                 <th>Remarks</th>
                                 <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                                 <th>Booking Request Symptom</th>
-                                <td><?php if(!empty($symptom)) { echo $symptom[0]['booking_request_symptom']; } ?></td>
+                                <td><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
                             </tr>
                            
                             <tr>
                                 <th>Closing Remarks </th>
                                 <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                                 <th>Closing Technical Problem</th>
-                                <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['completion_request_symptom']; }?></td>
+                                <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
                                 
                             </tr>
                             
@@ -263,8 +263,10 @@
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
                         <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
-                            } else {
-                            echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
+                            } else if($booking_history[0]['flat_upcountry'] == 1){
+                                        echo $booking_history[0]['upcountry_to_be_paid_by_customer'];
+                        } else {
+                             echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
                         } }
                             ?>
                         </td>
@@ -800,7 +802,7 @@
 
         $.ajax({
           type: 'POST',
-          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>',
+          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>/<?php echo $booking_history[0]['flat_upcountry'];?>',
           success: function (data) {
              console.log(data);
              $("#sf_payout").html(data);

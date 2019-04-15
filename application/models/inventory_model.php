@@ -2092,6 +2092,7 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
+
     /**
      * @Desc: This function is used to get data from the generic table
      * @params $table string 
@@ -2202,6 +2203,35 @@ class Inventory_model extends CI_Model {
             $this->db->where('inventory_master_list.inventory_id IN (' . $where_in . ') ', NULL);
         }
         $this->db->from('inventory_master_list');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc This function is used to return MSL data for the warehouse
+     * @param String $date
+     * @param int $inventory_id
+     * @return Array
+     */
+    function get_msl_data($date, $inventory_id = ""){
+       
+        $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
+                . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->from('inventory_master_list as im');
+        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
+         $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND i.entity_type = "vendor" AND sc.is_wh = 1 ', 'left');
+        $this->db->join('spare_parts_details as s', 's.requested_inventory_id = im.inventory_id ');
+       
+        if(!empty($inventory_id)){
+            $this->db->where('im.inventory_id', $inventory_id);
+        }
+        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->order_by('p.public_name');
+        
+        $this->db->group_by('im.inventory_id');
+        
         $query = $this->db->get();
         return $query->result_array();
     }

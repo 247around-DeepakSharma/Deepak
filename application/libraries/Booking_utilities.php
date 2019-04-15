@@ -182,7 +182,12 @@ class Booking_utilities {
             $meta = array();
             $meta['upcountry_charges'] = 0;
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
-                $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
+                if($booking_details[0]['flat_upcountry']  == 1){
+                     $meta['upcountry_charges'] = $booking_details[0]['upcountry_to_be_paid_by_customer'];
+                } else {
+                    $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
+                }
+                
             }
             $meta['appliance_description'] = "";
             if(!empty($unit_details)){
@@ -222,9 +227,9 @@ class Booking_utilities {
             }
             $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
             if(!empty($booking_details[0]['booking_request_symptom'])){
-                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $booking_details[0]['booking_request_symptom']));
+                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_details[0]['booking_request_symptom']));
                  if(!empty($symptom1)){
-                     $symptom =  $symptom1[0]['booking_request_symptom'];
+                     $symptom =  $symptom1[0]['symptom'];
                  } else {
                      $symptom =  "";
                  }

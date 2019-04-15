@@ -18,7 +18,7 @@
                     <?php
                         if (!empty($data)) {
                             foreach ($data as $key => $row) {
-                            $jsonData = json_encode(array("service" => $row['service_id'], "request_type"=> $row['request_type_id'], "symptom" => $row['completion_request_symptom']));    
+                            $jsonData = json_encode(array("service" => $row['service_id'], "request_type"=> $row['request_type_id'], "symptom" => $row['symptom']));    
                         ?>
                     <tr>
                         <td><?php echo ($key +1) ?></td>

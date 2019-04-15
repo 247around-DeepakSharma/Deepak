@@ -381,25 +381,38 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group col-md-6" style=" margin-left:-29px;">
-                                <label for="remark" class="col-md-12">Technical Problem</label>
+                            <div class="form-group col-md-6" style=" margin-left:-19px;">
+                                <label for="remark" class="col-md-12">Technical Problem *</label>
                                 <div class="col-md-12" >
-                                    <select  class="form-control" name="closing_symptom" id="technical_problem" <?php if(!empty($technical_problem)){ echo "required";} ?>>
-                                        <option value="" selected="" disabled="">Please Select Technical Problem</option>
-                                        <?php foreach ($technical_problem as $value) { ?>
-                                        <option value="<?php echo $value['id']?>"><?php echo $value['completion_request_symptom']; ?></option>
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Technical Symptom</option>
+                                        <?php foreach ($all_technical_symptom as $value) { 
+                                            $selected=(($value['id'] == $technical_problem[0]['id']) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6" style=" margin-left:-19px;">
+                                <label for="remark" class="col-md-12">Technical Defect *</label>
+                                <div class="col-md-12" >
+                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
+                                        <option value="" selected="" disabled="">Please Select Technical Defect</option>
+                                        <?php foreach ($technical_defect as $value) { ?>
+                                        <option value="<?php echo $value['defect_id']?>"><?php echo $value['defect']; ?></option>
                                          
                                     <?php }?>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-12">Technical Solution</label>
+                                <label for="remark" class="col-md-12">Technical Solution *</label>
                                 <div class="col-md-12" >
-                                    <select class="form-control" name="technical_solution" id = "technical_solution" <?php if(!empty($technical_solution)){ echo "required";} ?>>
+                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Technical Solution</option>
                                         <?php foreach ($technical_solution as $value) { ?>
-                                        <option value="<?php echo $value['id']?>"><?php echo $value['technical_solution']; ?></option>
+                                        <option value="<?php echo $value['solution_id']?>" ><?php echo $value['technical_solution']; ?></option>
                                          
                                     <?php }?>
                                     </select>
@@ -477,6 +490,41 @@
         $("#grand_total_price").val(price);
     });
     
+    function update_defect(){
+        var technical_problem = $("#technical_problem").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_defect_on_symptom',
+            data:{technical_problem:technical_problem},
+            success: function (response) {
+                $('#technical_solution').removeAttr('disabled');
+                response=JSON.parse(response);
+                if(response.length>0)
+                {
+                    $('#technical_defect option[value='+response[0]['defect_id']+']').prop('selected',true);
+                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                }
+            }
+        });
+    }
+    
+    function update_solution(){
+        var technical_symptom = $("#technical_problem").val();
+        var technical_defect = $("#technical_defect").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_solution_on_symptom_defect',
+            data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
+            success: function (response) {
+                $('#technical_solution').removeAttr('disabled');
+                response=JSON.parse(response);
+                if(response.length>0)
+                {
+                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                }
+            }
+        });
+    }
     
     function onsubmit_form(upcountry_flag, number_of_div, appliance_count) {
     
@@ -568,6 +616,7 @@
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            return false;
                         }
                   //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
@@ -661,12 +710,23 @@
             }
         }
         
-        <?php if(!empty($technical_problem)){ ?>
+        <?php if(!empty($all_technical_symptom)){ ?>
             var technical_problem = $("#technical_problem").val();
             
             if(technical_problem === null){
                 alert('Please Select Technical Problem');
                 document.getElementById('technical_problem').style.borderColor = "red";
+                flag = 1;
+                return false;
+            }
+        <?php } ?>
+            
+        <?php if(!empty($technical_defect)){ ?>
+            var technical_defect = $("#technical_defect").val();
+            
+            if(technical_defect === null){
+                alert('Please Select Technical Defect');
+                document.getElementById('technical_defect').style.borderColor = "red";
                 flag = 1;
                 return false;
             }

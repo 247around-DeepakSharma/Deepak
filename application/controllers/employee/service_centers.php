@@ -191,11 +191,11 @@ class Service_centers extends CI_Controller {
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         $data['symptom'] = $data['completion_symptom'] =  $data['technical_solution'] = array();
         if(!empty($data['booking_history'][0]['booking_request_symptom'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_history'][0]['booking_request_symptom']));
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
         
         } 
         if(!empty($data['booking_history'][0]['completion_symptom'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('completion_request_symptom', array('symptom_completion_request.id' => $data['booking_history'][0]['completion_symptom']));
+            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['completion_symptom']));
         
         } 
         if(!empty($data['booking_history'][0]['technical_solution'])){
@@ -280,11 +280,23 @@ class Service_centers extends CI_Controller {
 
         $data['bookng_unit_details'] = $bookng_unit_details;
         
-        $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.id, completion_request_symptom',
-                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_request.active' => 1), array('request_type.service_category' => $price_tags));
+        $data['all_technical_symptom'] = $this->booking_request_model->get_all_completion_symptom('id, symptom',
+                array('active' => 1));
         
-        $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
-                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $price_tags));
+        //$data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.id, completion_request_symptom',
+        //        array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_request.active' => 1), array('request_type.service_category' => $price_tags));
+        
+        $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom.id, symptom',
+                array('booking_id' => $booking_id, 'symptom.active' => 1));
+        
+        $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('distinct defect_id,defect', 
+                array('symptom_id' => $data['technical_problem'][0]['id']));
+        
+        $data['technical_solution'] = $this->booking_request_model->get_solution_of_symptom('distinct solution_id, technical_solution', 
+                array('symptom_id' => $data['technical_problem'][0]['id'], 'defect_id' => $data['technical_defect'][0]['defect_id']));
+        
+        //$data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
+        //        array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $price_tags));
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -956,7 +968,7 @@ class Service_centers extends CI_Controller {
         if (!empty($bookings)) {
             foreach ($bookings as $key => $value) {
 
-                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due']);
+                $res =$this->miscelleneous->get_SF_payout($value['booking_id'], $service_center_id, $value['amount_due'], $value['flat_upcountry']);
                 $bookings[$key]['sf_earned'] = $res['sf_earned'];
                 $bookings[$key]['penalty'] = $res['penalty'];
             }
@@ -969,8 +981,8 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/completed_booking', $data);
     }
     
-    function get_sf_payout($booking_id, $service_center_id, $amount_due){
-        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due);
+    function get_sf_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry){
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry);
         echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>".$res['sf_earned']."</b>";
         
     }
@@ -2677,14 +2689,18 @@ class Service_centers extends CI_Controller {
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
      */
-    function pending_booking_upcountry_price($booking_id, $is_customer_paid){
+    function pending_booking_upcountry_price($booking_id, $is_customer_paid, $flat_upcountry){
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id  = $this->session->userdata('service_center_id');
         if(empty($is_customer_paid)){
             $is_customer_paid = 0;
         }
-        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+        
+        if($flat_upcountry == 1){
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid, $flat_upcountry);
        // $this->load->view('service_centers/header');
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
@@ -5773,5 +5789,31 @@ class Service_centers extends CI_Controller {
         $data['oot_shipped'] = $this->invoices_model->get_oot_shipped_defective_parts($this->session->userdata('service_center_id'));
         $data['shipped_parts'] = $this->invoices_model->get_intransit_defective_parts($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/defective_part_header_summary', $data);
+    }
+    /**
+     * @desc This function is used to get defect based on symptoms
+     */
+    function get_defect_on_symptom () {
+        $symptom_id = $this->input->post('technical_problem');
+        
+        $data = array();
+        if(!empty($symptom_id)){
+          $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect,solution_id', array('symptom_id' => $symptom_id));
+        }
+        echo json_encode($data);
+    }
+    
+    /**
+     * @desc This function is used to get solution based on symptoms & defects
+     */
+    function get_solution_on_symptom_defect () {
+        $symptom_id = $this->input->post('technical_symptom');
+        $defect_id = $this->input->post('technical_defect');
+        
+        $data = array();
+        if(!empty($symptom_id) && !empty($defect_id)){
+          $data = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $symptom_id, 'defect_id' => $defect_id));
+        }
+        echo json_encode($data);
     }
 }

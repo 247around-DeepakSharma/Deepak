@@ -2802,7 +2802,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST”) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -10222,9 +10222,12 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 --Abhay 28 March 2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'invoice_success_message', 'All %s Invoice Generated - %s.', '', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+ALTER TABLE trigger_service_charges ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
+
 
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
 ----Gorakh 01-04-2019
 CREATE TABLE `inventory_alternate_spare_parts_mapping` (
   `id` int(11) NOT NULL,
@@ -10245,6 +10248,160 @@ UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Chhavi 9th April
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
+
+--Abhay 29 March 2019
+ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
+ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
+ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
+ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
+ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
+
+--Kajal 09-April-2019  Starting ---
+
+CREATE TABLE `defect` (
+  `id` int(11) NOT NULL,
+  `request_type` int(28) NOT NULL,
+  `defect` varchar(256) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `defect`
+--
+ALTER TABLE `defect`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `service_id` (`request_type`,`defect`) USING BTREE,
+  ADD KEY `service_id_2` (`request_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `defect`
+--
+ALTER TABLE `defect`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+  
+  
+-- Change table name from `symptom_completion_request` to `symptom` 
+  
+RENAME TABLE symptom_completion_request TO symptom;
+  
+-- Change column name for `symptom` table 
+  
+ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--
+-- Table structure for table `booking_symptom_defect_details`
+--
+
+CREATE TABLE `booking_symptom_defect_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` int(11) NOT NULL,
+  `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
+  `symptom_id_spare_request_time` int(11) DEFAULT NULL,
+  `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
+  `defect_id_spare_request` int(11) DEFAULT NULL,
+  `defect_id_completion` int(11) DEFAULT NULL,
+  `solution_id` int(11) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_actve` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `symptom_defect_solution_mapping`
+--
+
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
 ----Gorakh 09-04-2019
 CREATE TABLE `alternate_inventory_set` (
   `id` int(11) NOT NULL,
@@ -10260,3 +10417,4 @@ ALTER TABLE `alternate_inventory_set`
 
 ALTER TABLE `alternate_inventory_set`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
+

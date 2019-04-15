@@ -131,7 +131,7 @@
 
             <tr>
                 <td width="32%" align="center" style="background-color: rgb(211,211,211);"><b>Bank Details</td>
-                <td rowspan="6" colspan="3"><img style="width: 160px;" src="<?php echo base_url()."images/247aroundstamp.png"; ?>"></td>
+                <td rowspan="6" colspan="3"><img style="width: 160px;" src="<?php echo base_url()."images/247aroundstamp.jpg"; ?>"></td>
                 <td colspan="5"><b>GST on Reverse Charge</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;">0</td>
             </tr>
@@ -140,7 +140,7 @@
             </tr>
             <tr><td width="32%">Acc No: 102405500277</td></tr>
             <tr><td width="32%">IFSC: ICIC0001024</td>
-                <td rowspan="2" colspan="7" align="center"><img src="<?php echo base_url()."images/anujsign.png"; ?>" style="width: 170px;"></td>
+                <td rowspan="2" colspan="7" align="center"><img src="<?php echo base_url()."images/anujsign.jpg"; ?>" style="width: 170px;"></td>
             </tr>
             <tr>
                 <td style="border-bottom: hidden;">	</td>

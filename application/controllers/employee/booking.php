@@ -396,6 +396,9 @@ class Booking extends CI_Controller {
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
+                $booking_symptom['booking_id'] = $booking['booking_id'];
+                $booking_symptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
+
                 $is_send_sms = 1;
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
@@ -508,8 +511,9 @@ class Booking extends CI_Controller {
 
                 case INSERT_NEW_BOOKING:
                     $booking['create_date'] = date("Y-m-d H:i:s");
+                    $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
-                    $status = $this->booking_model->addbooking($booking);
+                    $status = $this->booking_model->addbooking($booking,$booking_symptom);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
                         if ($booking['is_send_sms'] == 1) {
@@ -644,7 +648,7 @@ class Booking extends CI_Controller {
         
         $booking['user_id'] = $user_id;
         
-        $booking['booking_request_symptom'] = $this->input->post('booking_request_symptom');
+        //$booking['booking_request_symptom'] = $this->input->post('booking_request_symptom');
 
         return $booking;
     }
@@ -1320,7 +1324,7 @@ class Booking extends CI_Controller {
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
-                $html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
+                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
 
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
@@ -1523,12 +1527,12 @@ class Booking extends CI_Controller {
         $data['completion_symptom'] =  array();
         $data['technical_solution'] =  array();
         if(!empty($data['booking_history'][0]['booking_request_symptom'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_history'][0]['booking_request_symptom']));
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
         
         }
         
         if(!empty($data['booking_history'][0]['completion_symptom'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('completion_request_symptom', array('symptom_completion_request.id' => $data['booking_history'][0]['completion_symptom']));
+            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['completion_symptom']));
         
         } 
         if(!empty($data['booking_history'][0]['technical_solution'])){
@@ -2973,11 +2977,15 @@ class Booking extends CI_Controller {
         $this->load->view('employee/booking', $data);
     }
 
-    function booking_upcountry_details($service_center_id, $booking_id, $is_customer_paid) {
+    function booking_upcountry_details($service_center_id, $booking_id, $is_customer_paid, $flat_upcountry) {
         if ($is_customer_paid > 0) {
             $is_customer_paid = 1;
         }
-        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
+        
+        if($flat_upcountry == 1){
+            $is_customer_paid = 1;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid, $flat_upcountry);
 
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
@@ -3413,6 +3421,7 @@ class Booking extends CI_Controller {
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
             $sn .= ', "'.$order_list->booking_id.'"';
             $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ', "'.$order_list->flat_upcountry.'"';
             $sn .= ")' style='color:red; font-size:20px;'></i>";
         }else{
             $sn = "";
@@ -3757,6 +3766,7 @@ class Booking extends CI_Controller {
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
             $sn .= ', "'.$order_list->booking_id.'"';
             $sn .= ', "'.$order_list->amount_due.'"';
+            $sn .= ', "'.$order_list->flat_upcountry.'"';
             $sn .= ")' style='color:red; font-size:20px;'></i>";
         }else{
             $sn = "";

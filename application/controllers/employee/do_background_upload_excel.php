@@ -357,11 +357,12 @@ class Do_background_upload_excel extends CI_Controller {
                     "partner_id" => $booking['partner_id']));
                 if (!empty($check_partner_booking)) {
                     $booking['order_id'] = $value['sub_order_id'];
-                    if ($booking['partner_id'] == JEEVES_ID) {
-                        $partner_booking = $this->check_cancelled_booking_exist($check_partner_booking);
-                    } else {
-                        $partner_booking = $check_partner_booking[0];
-                    }
+                    $partner_booking = $check_partner_booking[0];
+//                    if ($booking['partner_id'] == JEEVES_ID) {
+//                        $partner_booking = $this->check_cancelled_booking_exist($check_partner_booking);
+//                    } else {
+//                        
+//                    }
                 } else {
                     if (isset($value['order_item_id']) && !empty($value['order_item_id'])) {
                         $booking['order_id'] = $value['sub_order_id'] . "-" . $value['order_item_id'];
@@ -1950,7 +1951,7 @@ class Do_background_upload_excel extends CI_Controller {
         $letter = chr(65 + $numeric);
         $num2 = intval($num / 26);
         if ($num2 > 0) {
-            return getNameFromNumber($num2 - 1) . $letter;
+            return $this->getNameFromNumber($num2 - 1) . $letter;
         } else {
             return $letter;
         }

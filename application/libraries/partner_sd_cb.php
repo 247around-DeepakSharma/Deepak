@@ -714,9 +714,9 @@ class partner_sd_cb {
             }
             
             if(!empty($data['booking_request_symptom'])){
-                $symptom_text = $this->My_CI->booking_request_model->get_booking_request_symptom('booking_request_symptom', array('symptom_booking_request.id' => $data['booking_request_symptom']));
+                $symptom_text = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_request_symptom']));
                 if(!empty($symptom_text)){
-                    $symptom = $symptom_text[0]['booking_request_symptom'];
+                    $symptom = $symptom_text[0]['symptom'];
                 }
             }
             if($data['service_id'] == _247AROUND_TV_SERVICE_ID){
