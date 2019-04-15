@@ -2206,9 +2206,7 @@ class Spare_parts extends CI_Controller {
             $temp_function = 'get_microwarehouse_msl_data';
             $template = "mwh_msl_data.xlsx";
         }
-        echo $temp_function;
         $data = $this->inventory_model->$temp_function($date_45);
-        echo $this->db->last_query(); exit();
         //print_r($data); 
         if (!empty($data)) {
             foreach ($data as $key => $value) {
