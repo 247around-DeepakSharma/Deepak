@@ -2664,7 +2664,7 @@ class Booking extends CI_Controller {
                                  return true;
                             }
                             else {
-                                if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                                if($partner_booking[0]['current_status'] !== _247AROUND_CANCELLED){
                                     $output = "Duplicate Order ID";
                                     $userSession = array('error' => $output);
                                     $this->session->set_userdata($userSession);
