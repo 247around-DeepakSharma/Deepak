@@ -91,8 +91,10 @@ class Login extends CI_Controller {
             }
         } else {
 
-           $login_function = $this->db->login_function;
-           $this->$login_function();
+           $select = "partner_logo,alt_text";
+           $where = array('partner_logo IS NOT NULL' => NULL);
+           $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+           $this->load->view('employee/login',$data);
            
         }
     }

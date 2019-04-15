@@ -481,7 +481,7 @@ class Inventory_model extends CI_Model {
         if(!empty($where_in)){
            $this->db->where_in('inventory_master_list.part_number', $where_in);
         }
-        
+                
         $query = $this->db->get('inventory_master_list');
         //log_message("info",$this->db->last_query());
         return $query->result_array();
@@ -2092,6 +2092,120 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
+
+    /**
+     * @Desc: This function is used to get data from the generic table
+     * @params $table string 
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_generic_table_details($table, $select, $where, $where_in){
+       
+       $this->db->select($select);
+       
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        if(!empty($where_in)){
+           $this->db->where_in('alternate_inventory_set.inventory_id', $where_in);
+        }
+        
+        $this->db->from($table);        
+        $query = $this->db->get();         
+        return $query->result_array(); 
+    }
+        
+     /**
+     * @desc: This function is used to insert data in alternate_inventory_set table
+     * @params: Array of data
+     * return : boolean
+     */
+    function insert_group_wise_inventory_id($data){
+        
+        $this->db->insert('alternate_inventory_set', $data);
+         if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    
+     /**
+     * @Desc: This function is used to update alternate_inventory_set
+     * @params: Array, Int id
+     * @return: Int 
+     */
+    function update_group_wise_inventory_id($data,$where){
+        $this->db->where($where);
+	$this->db->update('alternate_inventory_set', $data);
+        if($this->db->affected_rows() > 0){
+             log_message ('info', __METHOD__ . "=> Inventory ID SQL ". $this->db->last_query());
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get alternate_inventory_set details
+     * @params: Array, Int id
+     * @return: Int 
+     */
+    function get_group_wise_inventory_id_detail($select, $inventory_id) {
+        $this->db->select($select);
+        $subquery = 'SELECT DISTINCT alternate_inventory_set.group_id FROM alternate_inventory_set WHERE alternate_inventory_set.inventory_id= ' . $inventory_id;
+        $this->db->where('alternate_inventory_set.group_id IN (' . $subquery . ') ', NULL);
+        $this->db->from('alternate_inventory_set');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get inventory stock details
+     *  @params: $select string
+     * @params: $where array
+     * @return: $query array     * 
+     */
+    function get_inventory_stock_details($select, $where, $where_in) {
+        $this->db->select($select);
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+
+        if (!empty($where_in)) {
+            $this->db->where('inventory_stocks.inventory_id IN (' . $where_in . ') ', NULL);
+        }
+        
+        $this->db->from('inventory_stocks');
+                
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_master_list
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_alternate_spare_parts($select, $where_in = array()) {
+        $this->db->distinct();
+        $this->db->select($select);
+
+        if (!empty($where_in)) {
+            $this->db->where('inventory_master_list.inventory_id IN (' . $where_in . ') ', NULL);
+        }
+        $this->db->from('inventory_master_list');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
     
     /**
      * @desc This function is used to return MSL data for the warehouse
@@ -2148,4 +2262,5 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
 }
