@@ -10247,7 +10247,7 @@ UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br
 --Kajal 05-April-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
-<<<<<<< HEAD
+
 CREATE TABLE `symptom_defect_solution_mapping` (
   `id` int(11) NOT NULL,
   `entity_id` int(11) NOT NULL,
@@ -10401,4 +10401,20 @@ ALTER TABLE `booking_symptom_defect_details`
 ALTER TABLE `symptom_defect_solution_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---Kajal 09-April-2019  Ending ---
+
+----Gorakh 09-04-2019
+CREATE TABLE `alternate_inventory_set` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `alternate_inventory_set`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_id` (`group_id`,`inventory_id`);
+
+ALTER TABLE `alternate_inventory_set`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
+
