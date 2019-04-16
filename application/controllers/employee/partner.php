@@ -4304,7 +4304,9 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function get_partner_list(){
-        $is_wh = $this->input->post('is_wh');
+       //  $is_wh = $this->input->post('is_wh');
+          $is_wh = 0;
+
         if(!empty($is_wh)){
             $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
@@ -4618,6 +4620,10 @@ class Partner extends CI_Controller {
      */
     function get_partner_file_details(){
         $this->partner_id = trim($this->input->post('partner_id'));
+
+
+
+         
         
         if(!empty($this->partner_id)){
             $data = $this->around_scheduler_model->get_data_for_parsing_email_attachments(array('partner_id' => $this->partner_id));

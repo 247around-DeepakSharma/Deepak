@@ -1541,10 +1541,18 @@ function get_data_for_partner_callback($booking_id) {
     function get_file_upload_header_mapping_data($post,$select){
         
         $this->db->distinct();
-        $this->db->select($select);
+        $this->db->select($select); 
+
+
         $this->db->from('partner_file_upload_header_mapping');
         $this->db->join('partners', 'partner_file_upload_header_mapping.partner_id  = partners.id');
         $this->db->join('employee', 'partner_file_upload_header_mapping.agent_id  = employee.id');
+        $this->db->join('email_attachment_parser','email_attachment_parser.partner_id  = partner_file_upload_header_mapping.partner_id','left');
+
+
+
+
+
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1567,7 +1575,7 @@ function get_data_for_partner_callback($booking_id) {
         if (!empty($post['order'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
-            $this->db->order_by('partner_id','DESC');
+            $this->db->order_by('partner_file_upload_header_mapping.partner_id','DESC');
         }
         
         if ($post['length'] != -1) {

@@ -69,9 +69,10 @@
                                     <th>Name</th>
                                     <th>Number</th>
                                     <th>Stock</th>
-                                    <th>Basic Price</th>
+                                    <th> SF Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>  Customer  Total</th>
                                     <?php if($this->session->userdata('userType') == "employee") { ?>
                                         <th>Return Qty</th>
                                         <th>Add</th>

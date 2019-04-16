@@ -502,8 +502,8 @@ class Inventory_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
-        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
-        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         
 //        if(isset($post['type_join']) && $post['type_join'] == true){
@@ -1007,6 +1007,24 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+
+
+
+
+
+
+        function get_appliance_from_partner($partner_id){
+        $this->db->distinct();
+        $this->db->select('services.id,services');
+        $this->db->from('services');
+        $this->db->join('service_centre_charges','services.id = service_centre_charges.service_id');
+        $this->db->where('service_centre_charges.partner_id ' , $partner_id);
+        $this->db->order_by('services');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     
     /**
      * @desc This is used to insert details into inventory_model_mapping table in batch
@@ -1055,7 +1073,12 @@ class Inventory_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('appliance_model_details');
-        $this->db->join('services', 'appliance_model_details.service_id = services.id','left');
+        $this->db->join('services', 'appliance_model_details.service_id = services.id');
+
+        $this->db->join('partner_appliance_details', 'partner_appliance_details.model = appliance_model_details.id ', 'left');
+
+
+
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1099,6 +1122,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
+        log_message('info', __METHOD__. " ".$this->db->last_query());
         if($is_array){
             return $query->result_array();
         }else{

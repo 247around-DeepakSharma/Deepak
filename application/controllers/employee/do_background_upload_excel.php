@@ -1443,6 +1443,8 @@ class Do_background_upload_excel extends CI_Controller {
      * @param void
      */
     function process_upload_file() {
+
+        
         log_message("info", __METHOD__ . " File Upload: Beginning processing...");
 
         //check file type
