@@ -396,12 +396,8 @@ class Booking_model extends CI_Model {
      *  @return : array (booking)
      */
 
-    function addbooking($booking,$booking_symptom){
-	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
-        
-        log_message ('info', __METHOD__ . "=> booking Symptom Defect Details  SQL ". $this->db->last_query());
-        
-        $this->db->insert('booking_details', $booking);
+    function addbooking($booking){
+	$this->db->insert('booking_details', $booking);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         
@@ -2571,5 +2567,38 @@ class Booking_model extends CI_Model {
         
          $query = $this->db->query($sql);
          return $query->result_array();
+    }
+    /** @description:* add symptom at the time of add booking
+     *  @param : booking symptom array
+     *  @return : void
+     */
+
+    function addBookingSymptom($booking_symptom){
+	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
+        log_message ('info', __METHOD__ . "=> Booking Symptom Defect Details  SQL ". $this->db->last_query());
+        
+        return $this->db->insert_id();
+    }
+    /** @description:* Update symptom at the time of completing booking
+     *  @param : booking_id,booking symptom array
+     *  @return : void
+     */
+
+    function update_symptom_defect_details($booking_id, $booking_symptom) {
+        $this->db->where('booking_id', $booking_id);
+        $this->db->update('booking_symptom_defect_details', $booking_symptom);
+    }
+    /**
+     * @Desc: This function is used to get booking symptoms 
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function getBookingSymptom($booking_id){
+        $this->db->select('*');
+        $this->db->from('booking_symptom_defect_details');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get();
+        return $query->result_array();
     }
    }

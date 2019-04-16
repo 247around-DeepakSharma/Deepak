@@ -217,7 +217,7 @@ class Booking_request extends CI_Controller {
      */
     function get_completion_symptom(){
         log_message('info', __METHOD__);
-        $data['data'] = $this->booking_request_model->get_completion_symptom('symptom.*, services, services.id as service_id, request_type.id as request_type_id, request_type.service_category');
+        $data['data'] = $this->booking_request_model->get_booking_request_symptom('symptom.*, services, services.id as service_id, request_type.id as request_type_id, request_type.service_category');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/complete_technical_problem', $data);
     }
@@ -242,7 +242,7 @@ class Booking_request extends CI_Controller {
                 echo true;
             }
             else{ 
-                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $data['request_type'], 'symptom' => $data['completion_request_symptom']));
+                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => $data['request_type'], 'symptom' => $data['completion_request_symptom']));
                 if(empty($is_exist)){
                     $this->booking_request_model->update_table(array("id"=>$id), $data, "symptom");
                     echo true;
@@ -270,7 +270,7 @@ class Booking_request extends CI_Controller {
         if ($validation) {
             $data = $this->input->post();
             foreach ($data['request_type'] as $request_type) {
-                $is_exist = $this->booking_request_model->get_completion_symptom('*', array('request_type' => $request_type, 'symptom' => $data['symptom']));
+                $is_exist = $this->booking_request_model->get_booking_request_symptom('*', array('request_type' => $request_type, 'symptom' => $data['symptom']));
                 if(empty($is_exist)){
                 
                     $insert_id = $this->booking_request_model->insert_data(array('request_type' => $request_type, 'symptom' => $data['symptom']), 'symptom');
