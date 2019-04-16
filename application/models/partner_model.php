@@ -1542,15 +1542,12 @@ function get_data_for_partner_callback($booking_id) {
         
         $this->db->distinct();
         $this->db->select($select); 
-
+   
 
         $this->db->from('partner_file_upload_header_mapping');
         $this->db->join('partners', 'partner_file_upload_header_mapping.partner_id  = partners.id');
         $this->db->join('employee', 'partner_file_upload_header_mapping.agent_id  = employee.id');
         $this->db->join('email_attachment_parser','email_attachment_parser.email_map_id  = partner_file_upload_header_mapping.id', 'left');
-
-
-
 
 
         if (!empty($post['where'])) {
