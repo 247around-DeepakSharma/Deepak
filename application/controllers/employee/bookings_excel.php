@@ -637,7 +637,7 @@ class bookings_excel extends CI_Controller {
      */
     public function get_file_upload_header_mapping_data() {
         $post = $this->get_post_data();
-        $select = "partner_file_upload_header_mapping.*,partners.public_name,employee.full_name";
+        $select = "partner_file_upload_header_mapping.*,partners.public_name,employee.full_name,email_attachment_parser.email_host,email_attachment_parser.file_type,email_attachment_parser.send_file_back,email_attachment_parser.revert_file_to_email,email_attachment_parser.partner_id,email_attachment_parser.email_map_id";
         $list = $this->partner_model->get_file_upload_header_mapping_data($post, $select);
         $data = array();
         $no = $post['start'];
@@ -710,33 +710,53 @@ class bookings_excel extends CI_Controller {
      *  @param : void()
      *  @return : $response JSON
      */
+
+
+ 
+
+
     function process_file_upload_header_mapping() {
         $submit_type = $this->input->post('submit_type');
         $data = array('partner_id' => $this->input->post('partner_id'),
-                      'referred_date_and_time' => $this->input->post('r_d_a_t'),
-                      'sub_order_id' => $this->input->post('sub_order_id'),
-                      'brand' => $this->input->post('brand'),
-                      'model' => $this->input->post('model'),
-                      'product' => $this->input->post('product'),
-                      'product_type' => $this->input->post('product_type'),
-                      'customer_name' => $this->input->post('customer_name'),
-                      'customer_address' => $this->input->post('customer_address'),
-                      'pincode' => $this->input->post('pincode'),
-                      'city' => $this->input->post('city'),
-                      'phone' => $this->input->post('phone'),
-                      'email_id' => $this->input->post('email_id'),
-                      'delivery_date' => $this->input->post('delivery_date'),
-                      'agent_id' => $this->session->userdata('id'),
-                      'order_item_id' => $this->input->post('order_item_id'),
-                      'spd' => $this->input->post('spd'),
+                      'referred_date_and_time' => str_replace(" ","_",strtolower(trim($this->input->post('r_d_a_t')))),
+                      'sub_order_id' => str_replace(" ","_",strtolower(trim($this->input->post('sub_order_id')))),
+                      'brand' => str_replace(" ","_",strtolower(trim($this->input->post('brand')))),
+                      'model' => str_replace(" ","_",strtolower(trim($this->input->post('model')))),
+                      'product' => str_replace(" ","_",strtolower(trim($this->input->post('product')))),
+                      'product_type' => str_replace(" ","_",strtolower(trim($this->input->post('product_type')))),
+                      'customer_name' => str_replace(" ","_",strtolower(trim($this->input->post('customer_name')))),
+                      'customer_address' => str_replace(" ","_",strtolower(trim($this->input->post('customer_address')))),
+                      'pincode' => str_replace(" ","_",strtolower(trim($this->input->post('pincode')))),
+                      'city' => str_replace(" ","_",strtolower(trim($this->input->post('city')))),
+                      'phone' => str_replace(" ","_",strtolower(trim($this->input->post('phone')))),
+                      'email_id' => str_replace(" ","_",strtolower(trim($this->input->post('email_id')))),
+                      'delivery_date' => str_replace(" ","_",strtolower(trim($this->input->post('delivery_date')))),
+                      'agent_id' =>$this->session->userdata('id'),
+                      'order_item_id' => str_replace(" ","_",strtolower(trim($this->input->post('order_item_id')))),
+                      'spd' => str_replace(" ","_",strtolower(trim($this->input->post('spd')))),
+                      'category'=>str_replace(" ","_",strtolower(trim($this->input->post('category')))),
+                      'request_type'=>str_replace(" ","_",strtolower(trim($this->input->post('request_type')))),
+
+                      // 'email_host'=>trim($this->input->post('host')),
+                      // 'file_type'=>trim($this->input->post('filetype')),
+                      // 'send_file_back'=>trim($this->input->post('sendback')),
+                      // 'revert_file_to_email'=>trim($this->input->post('revertemail'))
             );
+
+
+
+
+
+
+
+
         switch (strtolower(trim($submit_type))) {
             case 'add':
                 $data['create_date'] = date('Y-m-d H:i:s');
-                $response = $this->add_file_upload_header_mapping($data);
+                $response = $this->add_file_upload_header_mapping($data,$dataarr);
                 break;
             case 'edit':
-                $response = $this->edit_file_upload_header_mapping($data);
+                $response = $this->edit_file_upload_header_mapping($data,$dataarr);
                 break;
         }
         
@@ -748,9 +768,36 @@ class bookings_excel extends CI_Controller {
      *  @param : $data array()
      *  @return : $res array()
      */
-    function add_file_upload_header_mapping($data) {
+    function add_file_upload_header_mapping($data,$dataarr) {
+
+
+        
+
         $response = $this->partner_model->insert_partner_file_upload_header_mapping($data);
-        if (!empty($response)) {
+        // $this->partner_model->insert_partner_file_upload_header_mapping($data);
+
+          if (!empty($response)) {
+
+
+            $partner_id= $this->input->post('partner_id');
+            $sqlpartner="select * from partners where id='$partner_id'";
+            $partnerdata = $this->db->query($sqlpartner)->row();
+            $filetypename=$this->input->post('filetype');
+            $filename = $partnerdata->public_name.'-'.$filetypename;
+                      $dataarr = array(
+                      'partner_id'=>trim($this->input->post('partner_id')),
+                      'email_host'=>trim($this->input->post('host')),
+                      'file_type'=>trim($filename),
+                      'send_file_back'=>trim($this->input->post('sendback')),
+                      'revert_file_to_email'=>trim($this->input->post('revertemail')),
+                      'email_function_name'=>'employee/do_background_upload_excel/process_upload_file',
+                      'email_map_id'=>$response
+
+            );
+
+
+            $this->db->insert('email_attachment_parser',$dataarr);
+
             $res['response'] = 'success';
             $res['msg'] = 'partner file upload header mapping added successfully';
             log_message("info", 'partner file upload header mapping added successfully');
@@ -768,9 +815,36 @@ class bookings_excel extends CI_Controller {
      *  @param : $data array()
      *  @return : $res array()
      */
-    function edit_file_upload_header_mapping($data) {
+    function edit_file_upload_header_mapping($data,$dataarr) {
         $response = $this->partner_model->update_partner_file_upload_header_mapping(array('id' => $this->input->post('file_upload_header_mapping_id')), $data);
         if (!empty($response)) {
+
+
+
+            $partner_id= $this->input->post('partner_id');
+            $sqlpartner="select * from partners where id='$partner_id'";
+            $partnerdata = $this->db->query($sqlpartner)->row();
+            $filetypename=$this->input->post('filetype');
+            $filename = $partnerdata->public_name.'-'.$filetypename;
+                      $dataarr = array(
+                      'partner_id'=>trim($this->input->post('partner_id')),
+                      'email_host'=>trim($this->input->post('host')),
+                      'file_type'=>trim($filename),
+                      'send_file_back'=>trim($this->input->post('sendback')),
+                      'revert_file_to_email'=>trim($this->input->post('revertemail')),
+                      'email_function_name'=>'employee/do_background_upload_excel/process_upload_file',
+                      'email_map_id'=>$response
+
+            );
+
+
+                      $this->db->where('email_map_id',$this->input->post('email_map_id'));
+            $this->db->update('email_attachment_parser',$dataarr);
+
+
+
+
+
             $res['response'] = 'success';
             $res['msg'] = 'Dedailts has been updated successfully';
             log_message("info", 'partner file upload header mapping updated successfully');
