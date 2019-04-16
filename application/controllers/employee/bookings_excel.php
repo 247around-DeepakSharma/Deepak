@@ -635,6 +635,8 @@ class bookings_excel extends CI_Controller {
      * @param: void
      * @return: void
      */
+
+    
     public function get_file_upload_header_mapping_data() {
         $post = $this->get_post_data();
         $select = "partner_file_upload_header_mapping.*,partners.public_name,employee.full_name,email_attachment_parser.email_host,email_attachment_parser.file_type,email_attachment_parser.send_file_back,email_attachment_parser.revert_file_to_email,email_attachment_parser.partner_id,email_attachment_parser.email_map_id";
