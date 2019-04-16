@@ -144,7 +144,7 @@
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="product_type">Product Description*</label>
                                 <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Type" required="">
+                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Description" required="">
                                 </div>
                             </div>
                         </div>
@@ -233,6 +233,79 @@
                             </div>
                         </div>
                     </div>
+
+
+
+
+                                        <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="category">Category</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="category" name="category" placeholder="Category ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="request_type">Request Type</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="request_type" name="request_type" placeholder="Request Type">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+<hr><hr>
+                       <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="host">Email Host</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="host" name="host" placeholder="Email Host">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="spd">File Type</label>
+                                <div class="col-sm-8"> 
+                                     <select class="form-control" id="filetype" name="filetype" >
+                                         <option value="Delivered">Delivered</option>
+                                          <option value="Shipped">Shipped</option>
+                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="host">Send File back</label>
+                                <div class="col-sm-8"> 
+                                    <select class="form-control" id="sendback" name="sendback" >
+                                         <option value="1">Yes</option>
+                                          <option value="0">No</option>
+                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="revertemail">Revert File Back Email</label>
+                                <div class="col-sm-8"> 
+                                     <input type="text" class="form-control" id="revertemail" name="revertemail" placeholder="Revert File Back Email">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="email_map_id" name="email_map_id"   value="" >
+
                     <div class="modal-footer">
                         <input type="hidden" class="btn btn-success" id="file_upload_header_mapping_id" name='file_upload_header_mapping_id' value="">
                         <input type="submit" class="btn btn-success" id="mapping_details_submit_btn" name='submit_type' value="Submit">
@@ -283,7 +356,12 @@
     
     $(document).on("click", "#edit_mapping_details", function () {
         var form_data = $(this).data('id');
+
+
+        $("#email_map_id").val(form_data.email_map_id)
+
         var options = "<option value='"+form_data.partner_id+"' selected='' readonly=''>"+form_data.public_name+"</option>";
+
         $('#partner_id').html(options);
         $('#r_d_a_t').val(form_data.referred_date_and_time);
         $('#sub_order_id').val(form_data.sub_order_id);
@@ -300,6 +378,50 @@
         $('#delivery_date').val(form_data.delivery_date);
         $('#order_item_id').val(form_data.order_item_id);
         $('#spd').val(form_data.spd);
+
+
+        $('#host').val(form_data.email_host);
+
+
+var ty = form_data.file_type;
+
+
+if (form_data.file_type!=null) {
+  var filetype = ty.split("-")
+
+if (filetype[1]=='Delivered') {
+   $('#filetype').val("Delivered");
+}else{
+
+    $('#filetype').val("Shipped");   
+}
+  
+}
+
+
+
+ 
+        if (form_data.send_file_back==1) {
+
+ 
+            $('#sendback').html('<option value="1" selected>Yes</option><option value="0">No</option>');
+            // $('#sendback').text("Yes");
+
+        }else{
+           $('#sendback').html('<option value="1">Yes</option><option value="0" selected >No</option>');
+            /// $('#sendback').val("0");
+            // $('#sendback').text("No");
+
+
+        }
+
+        $('#revertemail').val(form_data.revert_file_to_email);
+       ///  $('#spd').val(form_data.spd);
+
+
+
+
+
         $('#file_upload_header_mapping_id').val(form_data.id);
         $('#mapping_details_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
@@ -326,15 +448,25 @@
             alert("Please Fill Pincode Field");
         }else if($('#phone').val() === ""){
             alert("Please Fill Phone Field");
-        }else{
+        }else if($('#host').val() === ""){
+            alert("Please Fill Email Host Field");
+        }else if($('#filetype').val() === ""){
+            alert("Please Fill FileType Field");
+        }else if($('#revertemail').val() === ""){
+            alert("Please Fill Revert Back Email Field");
+        }
+        else{
             arr.name = 'submit_type'
             arr.value = $('#mapping_details_submit_btn').val();
             form_data.push(arr);
+        //    alert(form_data);
             $.ajax({
                 type:'POST',
                 url:'<?php echo base_url();?>employee/bookings_excel/process_file_upload_header_mapping',
                 data : form_data,
                 success:function(response){
+
+
                     $('#file_upload_header_mapping').modal('toggle');
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
