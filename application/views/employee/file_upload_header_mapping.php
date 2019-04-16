@@ -130,13 +130,14 @@
                             </div>
                         </div>
                         <div class="col-md-6">   
-                            
+
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="product">Product</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="product" name="product" placeholder="Product">
                                 </div>
-                            </div>
+                            </div>   
+                            
                         </div>
                     </div>
                     <div class="clearfix"></div>
