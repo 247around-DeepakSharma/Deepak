@@ -516,6 +516,7 @@ define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in t
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
 
 define('SF_BOOKING_COMPLETE_STATUS', 'InProcess_Completed');
+define('SF_BOOKING_CANCELLED_STATUS', 'InProcess_Cancelled');
 
 define('JEEVES_CUSTOMER_RESCHEDULED', 'Customer rescheduled');
 define('JEEVES_CUSTOMER_NO_RESPONSE','Customer No Response above 2 Days');

@@ -26,7 +26,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Spare Part Details For Model Number <span id="model_name"><strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></span></h3>
-                    <hr>
+                    
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -45,6 +45,9 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>Vendor Margin</th>
+                                    <th>Around Margin</th>
+                                     <th>Customer Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,6 +62,18 @@
                                     <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['gst_rate']; ?></td>
                                     <td><?php echo number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', ''); ?></td>
+                                    <td><?php echo $value['oow_vendor_margin']; ?>%</td>
+                                    <td><?php echo $value['oow_around_margin']; ?>%</td>
+
+
+                    <?php    
+                    $customertot = number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', '');
+                    $customertot = $customertot+($customertot*($value['oow_vendor_margin']+$value['oow_around_margin'])/100);
+
+                                      ?>
+
+
+                                    <td><?php echo $customertot; ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>

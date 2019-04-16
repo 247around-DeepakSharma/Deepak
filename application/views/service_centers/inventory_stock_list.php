@@ -37,14 +37,15 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Appliance</th>
-                                    <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Part Number</th>
-                                    <th>Spare Stock</th>
-                                    <th>Spare Basic Price</th>
-                                    <th>Spare GST Rate</th>
-                                    <th>Spare Total Price</th>
+                                    <th>Appliance  <?php //echo $this->session->userdata('userType'); ?></th>
+                                    <th> Type</th>
+                                    <th>  Part Name</th>
+                                    <th>  Part Number</th>
+                                    <th>  Stock</th>
+                                    <th> SF Basic Price</th>
+                                    <th>  GST Rate</th>
+                                    <th>  Total Price</th>
+                                    <th>  Customer  Total</th>
                                     
                                 </tr>
                             </thead>
@@ -109,7 +110,7 @@
                 url: "<?php echo base_url(); ?>employee/inventory/get_inventory_stocks_details",
                 type: "POST",
                 data: function(d){
-                    
+                 //   console.log(d); 
                     var entity_details = get_entity_details();
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,

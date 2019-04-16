@@ -2319,7 +2319,7 @@ class Partner extends CI_Controller {
             $this->asynchronous_lib->do_background_process($psendUrl, array());
             
             $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", 
-                    array('spare_parts_details.booking_id' => $booking_id, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
+                    array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
             
             
@@ -3668,10 +3668,12 @@ class Partner extends CI_Controller {
 
             $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
+                'spare_parts_details.defective_part_required' => 1 ,
                 'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
                 'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
                 "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
+            
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
             if (!empty($defective_parts_acknowledge_data)) {
 
@@ -4303,7 +4305,9 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function get_partner_list(){
-        $is_wh = $this->input->post('is_wh');
+       //  $is_wh = $this->input->post('is_wh');
+          $is_wh = 0;
+
         if(!empty($is_wh)){
             $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
@@ -4617,6 +4621,10 @@ class Partner extends CI_Controller {
      */
     function get_partner_file_details(){
         $this->partner_id = trim($this->input->post('partner_id'));
+
+
+
+         
         
         if(!empty($this->partner_id)){
             $data = $this->around_scheduler_model->get_data_for_parsing_email_attachments(array('partner_id' => $this->partner_id));

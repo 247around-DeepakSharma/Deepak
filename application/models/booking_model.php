@@ -709,7 +709,7 @@ class Booking_model extends CI_Model {
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
                     . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
-	    $service_centre = ", service_centres ";
+	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
             $partner_name = ", partners.public_name  ";
             $partner = ", partners  ";
@@ -728,11 +728,8 @@ class Booking_model extends CI_Model {
         $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, symptom_spare_request.spare_request_symptom', array('booking_id' => $booking_id));
         if(!empty($query1)){
             $result1 = $query1;
-           
             $result['spare_parts'] = $result1;
-           
         }
-        
         return $result;
     }
 
