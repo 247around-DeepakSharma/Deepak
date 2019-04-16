@@ -5712,24 +5712,25 @@ class Service_centers extends CI_Controller {
      * DO Not allow to sf to request part if same part already requested
      * @return Array
      */
-    function is_part_already_requested(){
+    function is_part_already_requested() {
         $parts_requested = $this->input->post('part');
-        $booking_id = $this->input->post('booking_id');     
+        $booking_id = $this->input->post('booking_id');
         $array = array();
-        foreach($parts_requested as $value){
-            //$value['parts_name']
-            $data =$this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id, 
-                "status IN ('".SPARE_PART_ON_APPROVAL."','".SPARE_PARTS_REQUESTED."', '".SPARE_OOW_EST_REQUESTED."', '".SPARE_OOW_EST_GIVEN."') " => NULL,
-                "parts_requested_type" => $value['parts_type']));
-            if(!empty($data)){
-                $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
-                break;
+        foreach ($parts_requested as $value) {
+            if (isset($value['parts_type'])) {
+                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+                    "parts_requested_type" => $value['parts_type']));
+                if (!empty($data)) {
+                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+                    break;
+                }
             }
         }
         return $array;
     }
 
-      /**
+    /**
      * @desc: This function is used to show the payment details page to Service Centers
      * @params: void
      * @return: void
