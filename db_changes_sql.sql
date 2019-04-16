@@ -10371,7 +10371,7 @@ CREATE TABLE `symptom_defect_solution_mapping` (
 
 CREATE TABLE `booking_symptom_defect_details` (
   `id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
+  `booking_id` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
   `symptom_id_spare_request_time` int(11) DEFAULT NULL,
   `symptom_id_booking_completion_time` int(11) DEFAULT NULL,

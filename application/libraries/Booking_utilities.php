@@ -173,6 +173,7 @@ class Booking_utilities {
         public function lib_prepare_job_card_using_booking_id($booking_id) {
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
+        $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($booking_id);
         if (!empty($booking_details)) {
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
@@ -226,8 +227,8 @@ class Booking_utilities {
                 }
             }
             $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
-            if(!empty($booking_details[0]['booking_request_symptom'])){
-                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_details[0]['booking_request_symptom']));
+            if(!empty($booking_symptom[0]['symptom_id_booking_creation_time'])){
+                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_symptom[0]['symptom_id_booking_creation_time']));
                  if(!empty($symptom1)){
                      $symptom =  $symptom1[0]['symptom'];
                  } else {
@@ -242,6 +243,7 @@ class Booking_utilities {
             //convert html into pdf
            $json_result = $this->My_CI->miscelleneous->convert_html_to_pdf($html,$booking_details[0]['booking_id'],$output_file_pdf,"jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);
+            
             if($pdf_response['response'] === 'Success'){ 
                 //Update Job Card Booking
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
