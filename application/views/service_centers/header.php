@@ -266,7 +266,17 @@
                         <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Warehouse <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
+
+                                        <?php  
+
+                                            if ($this->session->userdata('is_wh') == 1) { ?>
+                                              <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li> 
+                                              <li class="divider"></li>  
+                                          <?php   }
+
+                                      
+
+                                     ?>
                                <!-- <li role="separator" class="divider"></li>
                                       <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
@@ -293,11 +303,11 @@
                                             </li>                                                                            
                                         </ul>
                                     </li>-->
-                                    <li class="divider"></li>                                    
+                                                                      
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
                                     <li class="divider"></li>
 
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>  
+                                    <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>  
                                     
                                 </ul>
                             </li>
