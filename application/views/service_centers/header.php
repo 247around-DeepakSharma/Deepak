@@ -262,7 +262,7 @@
                             </ul>
                         </li>
                         <?php } ?>
-                        <?php  if($this->session->userdata('is_wh') == 1){ ?>
+                        <?php  if(1){ ?>
                         <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Warehouse <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -295,6 +295,9 @@
                                     </li>-->
                                     <li class="divider"></li>                                    
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                    <li class="divider"></li>
+
+                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>  
                                     
                                 </ul>
                             </li>
@@ -363,7 +366,7 @@
 
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i ></i> <?php echo $this->session->userdata('service_center_name'); ?> <i class="fa fa-caret-down"></i>
+                            <i ></i> <?php echo substr($this->session->userdata('service_center_name'),0,10); ?> <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="dropdown">
@@ -713,4 +716,9 @@
         height: 25px;
         padding: 2px;
     }
+
+    #bs-example-navbar-collapse-1 {
+    margin-top: 14px;
+    margin-left: 125px !important;
+}
 </style>
