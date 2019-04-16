@@ -10446,3 +10446,4 @@ Please send us your %s %s invoice/bill copy on our Whatsapp number %s.
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'razorpay_ifsc_code_api_fail', 'Razorpay bank IFSC code API fail', 'Dear Team<br>Razorpay bank IFSC code API fail<br/><p>%s</p><p>%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
 
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
