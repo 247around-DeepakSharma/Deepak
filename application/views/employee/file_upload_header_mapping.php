@@ -51,7 +51,7 @@
                             <th>Brand</th>
                             <th>Model</th>
                             <th>Product</th>
-                            <th>Product Type</th>
+                            <th>Product Description</th>
                             <th>Customer Name</th>
                             <th>Customer Address</th>
                             <th>Pincode</th>
@@ -142,7 +142,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="product_type">Product Type*</label>
+                                <label class="control-label col-sm-4" for="product_type">Product Description*</label>
                                 <div class="col-sm-8"> 
                                     <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Type" required="">
                                 </div>
