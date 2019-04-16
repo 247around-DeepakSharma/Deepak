@@ -833,7 +833,7 @@ class bookings_excel extends CI_Controller {
                       'send_file_back'=>trim($this->input->post('sendback')),
                       'revert_file_to_email'=>trim($this->input->post('revertemail')),
                       'email_function_name'=>'employee/do_background_upload_excel/process_upload_file',
-                      'email_map_id'=>$response
+                     // 'email_map_id'=>$response
 
             );
 

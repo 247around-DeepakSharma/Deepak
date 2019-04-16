@@ -55,7 +55,7 @@
                             <th>Customer Name</th>
                             <th>Customer Address</th>
                             <th>Pincode</th>
-                            <th>CITY</th>
+                            <th>City</th>
                             <th>Phone</th>
                             <th>Email ID</th>
                             <th>Order Item Id</th>
@@ -110,6 +110,24 @@
                                 </div>
                             </div>
                         </div>
+
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="request_type">Request Type</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="request_type" name="request_type" placeholder="Request Type">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="brand">Brand</label>
@@ -118,9 +136,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
+
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="model">Model</label>
@@ -129,117 +147,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">   
 
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="product">Product</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="product" name="product" placeholder="Product">
-                                </div>
-                            </div>   
-                            
-                        </div>
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="product_type">Product Description*</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Description" required="">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="customer_name">Customer Name*</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Customer Name" required="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="customer_address">Customer Address*</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Customer Address" required="">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="pincode">Pincode*</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="city">CITY</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="city" name="city" placeholder="City">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="phone">Phone*</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="email_id">Email ID</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="email_id" name="email_id" placeholder="Email ID">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="delivery_date">Delivery Date</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="delivery_date" name="delivery_date" placeholder="Delivery Date">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="order_item_id">Order Item Id</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="order_item_id" name="order_item_id" placeholder="Order Item Id">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="control-label col-sm-4" for="spd">Service Before Date</label>
-                                <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="spd" name="spd" placeholder="Service Before Date">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
 
 
-                                        <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="category">Category</label>
@@ -248,14 +163,162 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+
+                     <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="request_type">Request Type</label>
+                                <label class="control-label col-sm-4" for="product">Product</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="product" name="product" placeholder="Product">
+                                </div>
+                            </div>   
+
+                        </div>
+
+
+
+
+ 
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+
+                                                <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="product_type">Product Description*</label>
                                 <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="request_type" name="request_type" placeholder="Request Type">
+                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Description" required="">
                                 </div>
                             </div>
                         </div>
+
+
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="customer_name">Customer Name*</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Customer Name" required="">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+
+                                                <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="customer_address">Customer Address*</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="customer_address" name="customer_address" placeholder="Customer Address" required="">
+                                </div>
+                            </div>
+                        </div>
+
+
+                      <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="pincode">Pincode*</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+                                                <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="city">City</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="City">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="phone">Phone*</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required="">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+                                                <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="email_id">Email ID</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="email_id" name="email_id" placeholder="Email ID">
+                                </div>
+                            </div>
+                        </div>
+
+
+                      <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="delivery_date">Delivery Date</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="delivery_date" name="delivery_date" placeholder="Delivery Date">
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+
+
+                        <div class="row">
+
+
+
+                                                    <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="order_item_id">Order Item Id</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="order_item_id" name="order_item_id" placeholder="Order Item Id">
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="spd">Service Before Date</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="spd" name="spd" placeholder="Service Before Date">
+                                </div>
+                            </div>
+                        </div>
+
+
+                  
                     </div>
 
 
@@ -263,9 +326,9 @@
                        <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="host">Email Host</label>
+                                <label class="control-label col-sm-4" for="host">Email Host *</label>
                                 <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="host" name="host" placeholder="Email Host">
+                                    <input type="email" class="form-control" id="host" name="host" placeholder="Email Host">
                                 </div>
                             </div>
                         </div>
@@ -290,17 +353,18 @@
                                 <label class="control-label col-sm-4" for="host">Send File back</label>
                                 <div class="col-sm-8"> 
                                     <select class="form-control" id="sendback" name="sendback" >
-                                         <option value="1">Yes</option>
+                                         
                                           <option value="0">No</option>
+                                          <option value="1">Yes</option>
                                      </select>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="revertemail">Revert File Back Email</label>
+                                <label class="control-label col-sm-4" for="revertemail">Revert File Back Email </label>
                                 <div class="col-sm-8"> 
-                                     <input type="text" class="form-control" id="revertemail" name="revertemail" placeholder="Revert File Back Email">
+                                     <input type="email" class="form-control" id="revertemail" name="revertemail" placeholder="Revert File Back Email">
                                 </div>
                             </div>
                         </div>
@@ -435,13 +499,20 @@ if (filetype[1]=='Delivered') {
         event.preventDefault();
         var arr = {};
 
+
+  function isValidEmailAddress(emailAddress) {
+        var pattern = new RegExp(/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/);
+        return pattern.test(emailAddress);
+ };
+
+
         var form_data = $("#mapping_details").serializeArray();
         if($('#partner_id').val() === "" || $('#partner_id').val() === undefined || $('#partner_id').val() === null){
             alert("Please select Partner");
         }else if($('#sub_order_id').val() === ""){
             alert("Please Fill Sub Order ID Field");
         }else if($('#product_type').val() === ""){
-            alert("Please Fill Product Type Field");
+            alert("Please Fill Product Description Field");
         }else if($('#customer_name').val() === ""){
             alert("Please Fill Customer Name Field");
         }else if($('#customer_address').val() === ""){
