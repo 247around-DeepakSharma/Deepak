@@ -398,8 +398,8 @@
                                 <div class="col-md-12" >
                                     <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
                                         <option value="" selected="" disabled="">Please Select Technical Symptom</option>
-                                        <?php foreach ($all_technical_symptom as $value) { 
-                                            $selected=(($value['id'] == $technical_problem[0]['id']) ? 'selected' :''); ?>
+                                        <?php foreach ($technical_problem as $value) { 
+                                            $selected=(($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']) ? 'selected' :''); ?>
                                         <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                     <?php }?>
@@ -423,10 +423,6 @@
                                 <div class="col-md-12" >
                                     <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Technical Solution</option>
-                                        <?php foreach ($technical_solution as $value) { ?>
-                                        <option value="<?php echo $value['solution_id']?>" ><?php echo $value['technical_solution']; ?></option>
-                                         
-                                    <?php }?>
                                     </select>
                                 </div>
                             </div>
@@ -509,13 +505,19 @@
             url: '<?php echo base_url() ?>employee/service_centers/get_defect_on_symptom',
             data:{technical_problem:technical_problem},
             success: function (response) {
-                $('#technical_solution').removeAttr('disabled');
+                $('#technical_solution').attr('disabled',true);
+                $('#technical_defect').empty();
+                $('#technical_solution').empty();
                 response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Technical Defact</option>";
                 if(response.length>0)
                 {
-                    $('#technical_defect option[value='+response[0]['defect_id']+']').prop('selected',true);
-                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['defect_id']+" >"+response[i]['defect']+"</option>";
+                    }
                 }
+                $('#technical_defect').append(str);
             }
         });
     }
@@ -529,11 +531,17 @@
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
+                $('#technical_solution').empty();
                 response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Technical Solution</option>";
                 if(response.length>0)
                 {
-                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['solution_id']+" >"+response[i]['technical_solution']+"</option>";
+                    }
                 }
+                $('#technical_solution').append(str);
             }
         });
     }
@@ -748,7 +756,7 @@
                 return false;
             }
         <?php } ?>
-        <?php if(!empty($technical_solution)){ ?>
+        if($("#technical_solution").val() != '') {
             var technical_solution = $("#technical_solution").val();
             
             if(technical_solution === null){
@@ -757,7 +765,7 @@
                 flag = 1;
                 return false;
             }
-        <?php } ?>
+        }
         var closing_remarks = $("#closing_remarks").val();
         if (closing_remarks === "") {
             alert("Please Enter Remarks");
