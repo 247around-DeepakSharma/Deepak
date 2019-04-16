@@ -3181,7 +3181,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $login_email['password'] = "***********";
+                   // $login_email['password'] = "***********";
                     $login_emailBody247 = vsprintf($login_template[0], $login_email);
                     //Send Login Details to partner
                     $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
