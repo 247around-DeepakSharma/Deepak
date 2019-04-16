@@ -3268,29 +3268,39 @@ class Booking extends CI_Controller {
         }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-                $post['where']['type']= 'Booking';
-                if($booking_status == _247AROUND_COMPLETED) {
-                        if(!empty($completed_booking)) {
-                                    switch ($completed_booking){
-                                        case 'a':
-                                            $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
-                                            break;
-                                        case 'b':
-                                            $post['where']['(service_center_closed_date IS NOT NULL) AND (current_status !="'.$booking_status.'")'] = NULL;
-                                            break;
-                                        case 'c':
-                                           $post['where']['current_status'] = $booking_status;
-                                            break;
+                   $post['where']['type']= 'Booking';
+                   if(!empty($completed_booking)) {
+                        switch ($completed_booking){
+                                case 'a':
+                                    if($booking_status == _247AROUND_COMPLETED){
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'")'] = NULL;
                                     }
+                                    else{
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'")'] = NULL;
+                                    }
+                                    break;
+                                case 'b':
+                                     if($booking_status == _247AROUND_COMPLETED){
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'")'] = NULL;
+                                    }
+                                    else{
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'")'] = NULL;
+                                    }
+                                    $post['where_in']['booking_details.current_status'] =  array(_247AROUND_RESCHEDULED,_247AROUND_PENDING);
+                                    break;
+                                case 'c':
+                                   $post['where']['current_status'] = $booking_status;
+                                    break;
                             }
-                        else{
-                               $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
-                            }
-                }
-                else{
-                     $post['where']['current_status'] = $booking_status;
-                }
-               
+                   }
+                   else{
+                       if($booking_status == _247AROUND_COMPLETED){
+                          $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'")'] = NULL;
+                       }
+                       else{
+                          $post['where']['(service_center_closed_date IS NOT NULL AND (booking_details.`internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'")'] = NULL;
+                        }
+                    }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
                     $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (current_status = '"._247AROUND_PENDING."' ))"=>NULL,
