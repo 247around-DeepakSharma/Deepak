@@ -97,8 +97,8 @@ class Booking_request_model extends CI_Model {
             }
         }
         $this->db->from('symptom');
-        $this->db->join('booking_symptom_defect_details', 'symptom.id = booking_symptom_defect_details.symptom_id_booking_creation_time');
-        //SELECT symptom.id, symptom FROM (symptom) JOIN booking_symptom_defect_details ON symptom.id = booking_symptom_defect_details.symptom_id_booking_creation_time JOIN booking_details ON booking_symptom_defect_details.booking_id = booking_details.booking_id WHERE booking_symptom_defect_details.booking_id = 'SP-2443591904053737' AND `symptom`.`active` = 1
+        $this->db->join('request_type', 'symptom.request_type = request_type.id');
+        $this->db->join('services', 'services.id = request_type.service_id');
         $query = $this->db->get();
         return $query->result_array();
         
@@ -128,22 +128,6 @@ class Booking_request_model extends CI_Model {
         return $query->result_array();
     }
     /**
-     * @desc This function is used to get all technical symptom list
-     * @param String $select
-     * @param Array $where
-     * @return Array
-     */
-    function get_all_completion_symptom($select, $where = array()){
-        $this->db->select($select);
-        if(!empty($where)){
-            $this->db->where($where);
-        }
-        
-        $this->db->from('symptom');
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    /**
      * @desc This function is used to get defect based on symptoms
      * @param String $select
      * @param Array $where
@@ -151,6 +135,7 @@ class Booking_request_model extends CI_Model {
      */
     function get_defect_of_symptom($select, $where = array()){
         $this->db->select($select);
+        $this->db->distinct();
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -168,6 +153,7 @@ class Booking_request_model extends CI_Model {
      */
     function get_solution_of_symptom($select, $where = array()){
         $this->db->select($select);
+        $this->db->distinct();
         if(!empty($where)){
             $this->db->where($where);
         }

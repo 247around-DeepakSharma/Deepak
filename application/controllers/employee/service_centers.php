@@ -144,6 +144,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
@@ -190,16 +191,16 @@ class Service_centers extends CI_Controller {
         
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         $data['symptom'] = $data['completion_symptom'] =  $data['technical_solution'] = array();
-        if(!empty($data['booking_history'][0]['booking_request_symptom'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
+        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         
         } 
-        if(!empty($data['booking_history'][0]['completion_symptom'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['completion_symptom']));
+        if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
+            $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
         
         } 
-        if(!empty($data['booking_history'][0]['technical_solution'])){
-            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_history'][0]['technical_solution']));
+        if(!empty($data['booking_symptom'][0]['solution_id'])){
+            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
         } 
         $data['unit_details'] = $booking_unit_details;
@@ -220,12 +221,15 @@ class Service_centers extends CI_Controller {
         $booking_id = base64_decode(urldecode($code));
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
         $price_tags = array();
         foreach ($bookng_unit_details as $key1 => $b) {
             $broken = 0;
             foreach ($b['quantity'] as $key2 => $u) {
-                array_push($price_tags, $u['price_tags']);
+                $price_tags1 = str_replace('(Free)', '', $u['price_tags']);
+                $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                array_push($price_tags, $price_tags2);
                 if ($this->session->userdata('is_engineer_app') == 1) {
 
                     $unitWhere = array("engineer_booking_action.booking_id" => $booking_id,
@@ -280,24 +284,12 @@ class Service_centers extends CI_Controller {
 
         $data['bookng_unit_details'] = $bookng_unit_details;
         
-        $data['all_technical_symptom'] = $this->booking_request_model->get_all_completion_symptom('id, symptom',
-                array('active' => 1));
+        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $price_tags));
         
-        //$data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.id, completion_request_symptom',
-        //        array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_request.active' => 1), array('request_type.service_category' => $price_tags));
+        $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
+                array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         
-        $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom.id, symptom',
-                array('booking_id' => $booking_id, 'symptom.active' => 1));
-        
-        $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('distinct defect_id,defect', 
-                array('symptom_id' => $data['technical_problem'][0]['id']));
-        
-        $data['technical_solution'] = $this->booking_request_model->get_solution_of_symptom('distinct solution_id, technical_solution', 
-                array('symptom_id' => $data['technical_problem'][0]['id'], 'defect_id' => $data['technical_defect'][0]['defect_id']));
-        
-        //$data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
-        //        array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $price_tags));
-
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -310,7 +302,7 @@ class Service_centers extends CI_Controller {
     function process_complete_booking($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id. " Json data ". json_encode($this->input->post(), true));
         $this->checkUserSession();
-
+        
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
         $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
         $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
@@ -349,7 +341,8 @@ class Service_centers extends CI_Controller {
                 
                 $model_number = $this->input->post('model_number');
                 
-                $technical_problem = $this->input->post('closing_symptom');
+                $technical_symptom = $this->input->post('closing_symptom');
+                $technical_defect = $this->input->post('closing_defect');
                 $technical_solution = $this->input->post('technical_solution');
 
                 //$internal_status = "Cancelled";
@@ -363,8 +356,9 @@ class Service_centers extends CI_Controller {
                     // variable $unit_id  is existing id in booking unit details table of given booking id 
                     $data = array();
                     $data['unit_details_id'] = $unit_id;
-                    $data['technical_solution'] = $technical_solution;
-                    $data['technical_problem'] = $technical_problem;
+                    $booking_symptom['solution_id'] = $technical_solution;
+                    $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+                    $booking_symptom['defect_id_completion'] = $technical_defect;
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['is_broken'] = $broken[$unit_id];
                     $data['mismatch_pincode'] = $mismatch_pincode;
@@ -420,6 +414,7 @@ class Service_centers extends CI_Controller {
                     }
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
+                    $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                 }
                 //Send Push Notification to account group
                 $clouserAccountArray = array();
@@ -5798,7 +5793,7 @@ class Service_centers extends CI_Controller {
         
         $data = array();
         if(!empty($symptom_id)){
-          $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect,solution_id', array('symptom_id' => $symptom_id));
+          $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $symptom_id));
         }
         echo json_encode($data);
     }
