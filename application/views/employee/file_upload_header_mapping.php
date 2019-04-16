@@ -545,6 +545,7 @@ if (filetype[1]=='Delivered') {
                     if(data.response === 'success'){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(500);});   
                         $('#success_msg').html(data.msg);
+                        location.reload();
                         table.ajax.reload();
                     }else if(data.response === 'error'){
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(500);});
