@@ -1337,11 +1337,11 @@ class Service_centers extends CI_Controller {
                     $data['parts_requested_type'] = $value['parts_name'];
                 }
 
-                if ($value['defective_parts']) {
+                if (isset($value['defective_parts'])) {
                     $data['defective_parts_pic'] = $value['defective_parts'];
                 }
 
-                if ($value['defective_back_parts_pic']) {
+                if (isset($value['defective_back_parts_pic'])) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
                 
@@ -2571,6 +2571,8 @@ class Service_centers extends CI_Controller {
                     $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
                         'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
                     $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
+                    
+                    $booking_details = '';
                     switch ($sp_details[0]['defective_return_to_entity_type']) {
                     case _247AROUND_PARTNER_STRING:
                         $booking_details = $this->partner_model->getpartner($sp_details[0]['defective_return_to_entity_id'])[0];                         
