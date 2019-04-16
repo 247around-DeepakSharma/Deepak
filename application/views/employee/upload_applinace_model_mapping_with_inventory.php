@@ -66,12 +66,12 @@
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
-                    <h3>File Upload History</h3>
+                    <h3>File Upload History  </h3>
                     <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th>S.No.</th>
-                                <th>Download</th>
+                                <th>Download </th>
                                 <th>Uploaded By</th>
                                 <th>Uploaded Date</th>
                                 <th>Status</th>
@@ -127,6 +127,22 @@
             }
         });
     });
+
+
+
+
+$("#partner_id").change(function(){
+
+    table.ajax.reload();
+    //show_upload_file_history();
+
+// window.location='<?php //echo base_url(); ?>employee/upload_booking_file/get_upload_file_history/'
+
+
+});
+
+
+
     
     function show_upload_file_history(){
         table = $('#datatable1').DataTable({
@@ -140,6 +156,7 @@
                 type: "POST",
                 data: function(d){
                     d.file_type = '<?PHP echo PARTNER_BOM_FILE ;?>';
+                    d.partner_id = $("#partner_id").val();
                 }
             },
             columnDefs: [

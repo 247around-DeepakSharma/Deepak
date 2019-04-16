@@ -90,6 +90,86 @@ class Service_centers extends CI_Controller {
             $this->load->view('employee/header/push_notification');
         }
     }
+
+
+
+
+        function appliance_model_list(){
+         $this->checkUserSession();
+       // $this->miscelleneous->load_nav_header();
+        $this->load->view('service_centers/header');
+        $this->load->view("service_centers/appliance_model_details");
+    }
+
+
+
+
+
+        function get_inventory_by_model($model_number_id){
+
+
+
+
+
+        if($model_number_id){
+            $model_number_id = urldecode($model_number_id);
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services',array('inventory_model_mapping.model_number_id' => $model_number_id));
+        }else{  
+            $data['inventory_details'] = array();
+        }
+        
+        if($this->session->userdata('employee_id')){
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/show_inventory_details_by_model',$data);
+        }else if($this->session->userdata('partner_id')){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('employee/show_inventory_details_by_model',$data);
+            $this->load->view('partner/partner_footer');
+        }else if($this->session->userdata('userType') == 'service_center'){
+
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/show_inventory_details_by_model',$data);
+            $this->load->view('partner/partner_footer');
+        }
+        
+    }
+
+
+
+
+        function get_service_id_by_partner(){
+        
+        $partner_id = $this->input->get('partner_id');
+
+
+ 
+        if($partner_id){
+            $appliance_list = $this->service_centers_model->get_service_brands_for_partner($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance  </option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .= " > ";
+                $option .= $value['services'] . "</option>";
+            }
+            
+            if($this->input->get('is_all_option')){
+                $option .= '<option value="all" >All</option>';
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+        
+    }
+
+
+
+
     
     function get_header_summary(){
         //firstly,if we have data in cache then take data from cache otherwise caculate data
@@ -4343,7 +4423,7 @@ class Service_centers extends CI_Controller {
      *  @return : void
      */
     function inventory_stock_list(){
-        $this->check_WH_UserSession();
+       //  $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/inventory_stock_list');
     }

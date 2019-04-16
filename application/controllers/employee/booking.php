@@ -1679,20 +1679,14 @@ class Booking extends CI_Controller {
             $booking['appliance_id'] = $appliance_id;
             $where_internal_status = array("page" => "FollowUp", "active" => '1');
             $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-
-            foreach ($booking['unit_details'] as $key => $value) {
-                
-                 $isWbrand = "";
-                
+            foreach ($booking['unit_details'] as $key => $value) {     
+                 $isWbrand = "";           
                 if ($booking['partner_type'] == OEM) {
                     $isWbrand = $value['brand'];
-                    
                     $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
                         'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $select = 'brand As brand_name';
-
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    
                     $where['brand'] = $value['brand'];
                     $model_where = array(
                        "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
@@ -1725,7 +1719,6 @@ class Booking extends CI_Controller {
                 } else {
                     $booking['unit_details'][$key]['brand_id'] = "";
                 }
-
                 array_push($booking['category'], $category);
                 array_push($booking['brand'], $brand);
                 array_push($booking['capacity'], $capacity);
@@ -4838,6 +4831,11 @@ class Booking extends CI_Controller {
         }
         
     }
+
+
+
+
+    
      function download_pending_bookings($status) {
         $booking_status = trim($status);
         //RM Specific Bookings
