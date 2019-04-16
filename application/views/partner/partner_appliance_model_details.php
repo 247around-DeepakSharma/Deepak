@@ -131,8 +131,14 @@
                             <thead>
                                 <tr>
                                     <th>S.No</th>
+                                   
+                                   
                                     <th>Appliance</th>
                                     <th>Model Number</th>
+                                       <th>Brand</th>
+                        <th>Category</th>
+                        
+                        <th>Capacity</th>
                                     <th>Edit</th>
                                     <th>Get Part Details</th>
                                 </tr>
@@ -223,7 +229,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2 ]
+                        columns: [ 0, 1, 2,3,4,5 ]
                     },
                     title: 'appliance_model_details'+time,
                     action: newExportAction

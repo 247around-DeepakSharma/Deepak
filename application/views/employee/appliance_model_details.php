@@ -136,8 +136,13 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>Model Number</th>
                         <th>Appliance</th>
+                        <th>Model Number</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        
+                        <th>Capacity</th>
+                        
                         <th>Edit</th>
                         <th>Get Part Details</th>
                     </tr>
@@ -195,6 +200,10 @@
                                 </div>
                             </div>
                         </div>
+
+
+
+                        
                         
                         <div class="modal-footer">
                             <input type="hidden" id="entity_type" name='entity_type' value="partner">
@@ -331,7 +340,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2 ]
+                        columns: [ 0, 1, 2,3,4,5 ]
                     },
                     title: 'appliance_model_details'+time,
                     action: newExportAction
@@ -360,7 +369,8 @@
                     var entity_details = get_entity_details();
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.partner_id = $('#model_partner_id').val()
                 }
             },
             "deferRender": true       
