@@ -261,8 +261,7 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script>
-    $(document).ready(function(){
-        
+    $(document).ready(function(){   
         datatable1 = $('#datatable1').DataTable({
             "processing": true,
             "language":{ 
@@ -305,7 +304,11 @@
                 "data": function(d){
                     d.booking_status =  booking_status;
                     d.booking_id =  '<?php echo $booking_id;?>';
-                    if ($('#partner_id').length){    d.partner_id   =  $('#partner_id').val();}else{ d.partner_id = ""; }
+                    if ($('#partner_id').length){  
+                    d.partner_id   =  $('#partner_id').val();
+                    }else{
+                    d.partner_id = "";
+                    }
                     if ($('#sf_id').length){         d.sf_id        =  $('#sf_id').val();}else{ d.sf_id = ""; }
                     if ($('#booking_date').length){  d.booking_date =  $('#booking_date').val();}else{ d.booking_date = ""; }
                     if ($('#city').length){          d.city         =  $('#city').val();}else{ d.city = ""; }
@@ -315,7 +318,6 @@
                     if ($('#is_upcountry').length){  d.is_upcountry   =  $('#is_upcountry').val();}else{ d.rm_id = ""; }
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }
                     d.bulk_booking_id =  $('#bookingIDString').val();
-                    
                     d.internal_status = getMultipleSelectedValues('internal_status');
                     d.request_type = getMultipleSelectedValues('request_type');
                  }
@@ -335,9 +337,9 @@
         
     });
     
-    function filter_changes(){
-       datatable1.ajax.reload();
-    }
+function filter_changes(){
+datatable1.ajax.reload();
+}
     
 </script>
 <script>
@@ -369,9 +371,7 @@
     
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
-       
-        if (confirm_call == true) {
-            
+        if (confirm_call == true) {  
              $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
@@ -385,8 +385,8 @@
     
     }
     
+
     function open_upcountry_model(sc_id, booking_id, amount_due, flat_upcountry){
-    
         $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/booking/booking_upcountry_details/'+sc_id+"/" + booking_id+"/"+amount_due + "/"+ flat_upcountry,
@@ -430,7 +430,6 @@
     {
         var type = id.search("b_notes");
         var count = id.replace( /^\D+/g, '');
-    
         if (type >= 0) {
             $('#bookingMailForm'+count).toggle(500);
         }

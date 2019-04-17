@@ -38,13 +38,13 @@
                                         <th class="text-center" data-orderable="false">Order ID</th>
                                         <th class="text-center" data-orderable="false">Received From</th>                                   
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and  Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>                                        
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>                                        
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Date</th>                                        
                                         <th class="text-center" data-orderable="false">Action</th>                                        
@@ -101,13 +101,13 @@
                                         <th class="text-center" data-orderable="false">Order ID</th>
                                         <th class="text-center" data-orderable="false">Received From</th>                                   
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>                                        
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>                                        
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Date</th>                                        
                                         <th class="text-center" data-orderable="false">Action</th>                                        
@@ -164,13 +164,13 @@
                                         <th class="text-center" data-orderable="false">Order ID</th>
                                         <th class="text-center" data-orderable="false">Received From</th>                                   
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and  Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Less Than 32 Inch</th>
-                                        <th class="text-center" data-orderable="false">32 Inch & Above</th>                                        
+                                        <th class="text-center" data-orderable="false">32 Inch and Above</th>                                        
                                         <th class="text-center" data-orderable="false">Total</th>
                                         <th class="text-center" data-orderable="false">Date</th>                                        
                                         <th class="text-center" data-orderable="false">Action</th>                                        

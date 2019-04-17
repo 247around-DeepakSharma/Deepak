@@ -513,7 +513,8 @@ class Booking extends CI_Controller {
                     $booking['create_date'] = date("Y-m-d H:i:s");
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
-                    $status = $this->booking_model->addbooking($booking,$booking_symptom);
+                    $status = $this->booking_model->addbooking($booking);
+                    $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
                         if ($booking['is_send_sms'] == 1) {
@@ -530,6 +531,9 @@ class Booking extends CI_Controller {
                     } else {
                         return false;
                     }
+                    
+                    if(!$symptomStatus)
+                        return false;
 
                     break;
 
@@ -908,7 +912,7 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom.id, symptom',
+        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
         $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
@@ -1176,6 +1180,7 @@ class Booking extends CI_Controller {
         } else {
             $services = $this->booking_model->selectservice();
         }
+        
         $data['partner_type'] = $partner_details[0]['partner_type'];
         $data['partner_id'] = $partner_id;
         $data['active'] = $prepaid['active'];
@@ -1471,6 +1476,7 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
+        $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         if(!empty($data['booking_history'])){
             $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
@@ -1526,17 +1532,17 @@ class Booking extends CI_Controller {
         $data['symptom'] =  array();
         $data['completion_symptom'] =  array();
         $data['technical_solution'] =  array();
-        if(!empty($data['booking_history'][0]['booking_request_symptom'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['booking_request_symptom']));
+        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
+            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         
         }
         
-        if(!empty($data['booking_history'][0]['completion_symptom'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_completion_symptom('symptom', array('symptom.id' => $data['booking_history'][0]['completion_symptom']));
+        if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
+            $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
         
         } 
-        if(!empty($data['booking_history'][0]['technical_solution'])){
-            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_history'][0]['technical_solution']));
+        if(!empty($data['booking_symptom'][0]['solution_id'])){
+            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
         } 
         $this->miscelleneous->load_nav_header();
@@ -1680,20 +1686,14 @@ class Booking extends CI_Controller {
             $booking['appliance_id'] = $appliance_id;
             $where_internal_status = array("page" => "FollowUp", "active" => '1');
             $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-
-            foreach ($booking['unit_details'] as $key => $value) {
-                
-                 $isWbrand = "";
-                
+            foreach ($booking['unit_details'] as $key => $value) {     
+                 $isWbrand = "";           
                 if ($booking['partner_type'] == OEM) {
                     $isWbrand = $value['brand'];
-                    
                     $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
                         'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $select = 'brand As brand_name';
-
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    
                     $where['brand'] = $value['brand'];
                     $model_where = array(
                        "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
@@ -1726,7 +1726,6 @@ class Booking extends CI_Controller {
                 } else {
                     $booking['unit_details'][$key]['brand_id'] = "";
                 }
-
                 array_push($booking['category'], $category);
                 array_push($booking['brand'], $brand);
                 array_push($booking['capacity'], $capacity);
@@ -4838,6 +4837,11 @@ class Booking extends CI_Controller {
         }
         
     }
+
+
+
+
+    
      function download_pending_bookings($status) {
         $booking_status = trim($status);
         //RM Specific Bookings
