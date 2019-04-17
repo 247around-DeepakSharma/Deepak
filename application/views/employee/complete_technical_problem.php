@@ -24,7 +24,7 @@
                         <td><?php echo ($key +1) ?></td>
                         <td><?php echo $row['services'];?>
                         <td><?php echo $row['service_category']; ?></td>
-                        <td><?php echo $row['completion_request_symptom'];?></td>
+                        <td><?php echo $row['symptom'];?></td>
                         <td>
                             <a href="#" class="btn btn-md btn-success" data-id='<?php echo $jsonData; ?>' onclick="update_spare_sympton(this, <?php echo $row['id']; ?>)">Update</a>
                             <a href="#" class="btn btn-md btn-warning" onclick="update_status(<?php echo $row['active']; ?>, <?php echo $row['id']; ?>)"><?php if($row['active'] == "0"){ echo "Active"; }else{ echo "Deactive"; } ?></a>
@@ -176,7 +176,7 @@
         else{
             var data = {};
             data.request_type = $("#model_request_type").val();
-            data.completion_request_symptom = $("#model_symptom").val();
+            data.symptom = $("#model_symptom").val();
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking_request/update_symptom_completion_request', 

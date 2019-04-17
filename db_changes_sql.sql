@@ -10294,6 +10294,10 @@ ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,
 
 --Kajal 09-April-2019  Starting ---
 
+--
+-- Table structure for table `defect`
+--
+
 CREATE TABLE `defect` (
   `id` int(11) NOT NULL,
   `request_type` int(28) NOT NULL,
@@ -10320,6 +10324,7 @@ ALTER TABLE `defect`
 --
 -- AUTO_INCREMENT for table `defect`
 --
+
 ALTER TABLE `defect`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
@@ -10339,7 +10344,7 @@ ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256)
 
 CREATE TABLE `booking_symptom_defect_details` (
   `id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
+  `booking_id` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
   `symptom_id_spare_request_time` int(11) DEFAULT NULL,
   `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
@@ -10418,3 +10423,4 @@ ALTER TABLE `alternate_inventory_set`
 ALTER TABLE `alternate_inventory_set`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
 
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
