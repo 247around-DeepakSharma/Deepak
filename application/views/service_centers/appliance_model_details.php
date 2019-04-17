@@ -115,7 +115,7 @@ div.dataTables_wrapper div.dataTables_processing {
                     <h3>Appliance Model List</h3>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-primary pull-right" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-files-o" style="margin-right:5px"></i>Map Model</a>
+                    <a class="btn btn-primary pull-right hide" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-files-o" style="margin-right:5px"></i>Map Model</a>
                     <a class="btn btn-success pull-right hide" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus" style="margin-right:5px"></i>Add New Model</a>
                 </div>
             </div>
@@ -165,6 +165,10 @@ div.dataTables_wrapper div.dataTables_processing {
                         <th>S.No</th>
                         <th>Model Number</th>
                         <th>Appliance</th>
+                           <th>Brand</th>
+                        <th>Category</th>
+                        
+                        <th>Capacity</th>
 
                         <?php 
 
@@ -405,7 +409,9 @@ div.dataTables_wrapper div.dataTables_processing {
                     var entity_details = get_entity_details();
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.partner_id = $('#model_partner_id').val()
+ 
                 }
             },
             "deferRender": true       
