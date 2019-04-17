@@ -545,7 +545,7 @@ class Upcountry_model extends CI_Model {
             $group = "AND booking_id = '$booking_id'";
             
         } else {
-            $group = "AND upcountry_paid_by_customer = 0 GROUP BY CASE WHEN (bd.flat_upcountry = 1 ) THEN ('') ELSE (  bd.booking_date, bd.booking_pincode, $upcountry_rate ) END  $having";
+            $group = "AND upcountry_paid_by_customer = 0 GROUP BY bd.booking_date, bd.booking_pincode, $upcountry_rate  $having";
         }
          $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, "
                  

@@ -499,7 +499,7 @@ if (filetype[1]=='Delivered') {
         event.preventDefault();
         var arr = {};
 
-
+  
   function isValidEmailAddress(emailAddress) {
         var pattern = new RegExp(/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/);
         return pattern.test(emailAddress);
@@ -525,7 +525,7 @@ if (filetype[1]=='Delivered') {
             alert("Please Fill Email Host Field");
         }else if($('#filetype').val() === ""){
             alert("Please Fill FileType Field");
-        }else if($('#revertemail').val() === ""){
+        }else if($('#sendback').val() ==1 && $('#revertemail').val() ===""){
             alert("Please Fill Revert Back Email Field");
         }
         else{
