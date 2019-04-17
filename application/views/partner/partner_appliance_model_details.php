@@ -254,7 +254,8 @@
                     var entity_details = get_entity_details();
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.partner_id = <?php echo $this->session->userdata('partner_id') ?>
                 }
             },
             "deferRender": true       

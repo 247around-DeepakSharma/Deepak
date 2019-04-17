@@ -2211,33 +2211,56 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function add_inventoy_master_list_data($data) {
-        $response = $this->inventory_model->insert_inventory_master_list_data($data);
-        if ($response) {
-            log_message("info",  __METHOD__.' Inventory added successfully');
-            if($this->input->post('model_number_id')){
-                //process inventory model mapping
-                $mapping_data = array();
-                $mapping_data['inventory_id'] = $response;
-                $mapping_data['model_number_id'] = trim($this->input->post('model_number_id'));
-                $insert_mapping = $this->inventory_model->insert_inventory_model_mapping($mapping_data); 
-                if($insert_mapping){
-                    log_message("info",  __METHOD__.' Inventory and mapping created successfully');
-                    $res['response'] = 'success';
-                    $res['msg'] = 'Inventory and mapping created successfully';
-                }else{
-                    $res['response'] = 'error';
-                    $res['msg'] = 'Inventory added successfully but mapping can not be created';
-                }
-            }else{
-                $res['response'] = 'success';
-                $res['msg'] = 'Inventory added successfully';
-            }
-        } else {
-            $res['response'] = 'error';
-            $res['msg'] = 'Error in inserting inventory details';
-            log_message("info",  __METHOD__.'Error in inserting inventory details');
-        }
         
+        
+       
+        
+        if(!empty($data['part_number'])){
+            
+            $where = array(
+                'inventory_master_list.entity_id' => $data['entity_id'],
+                'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+                'inventory_master_list.part_number' => trim($data['part_number']) 
+            );
+            
+            $part_number_detail = $this->inventory_model->get_generic_table_details('inventory_master_list', 'inventory_master_list.part_number', $where, array());
+           
+           if (empty($part_number_detail)) {
+                $response = $this->inventory_model->insert_inventory_master_list_data($data);
+                if ($response) {
+                    log_message("info", __METHOD__ . ' Inventory added successfully');
+                    if ($this->input->post('model_number_id')) {
+                        //process inventory model mapping
+                        $mapping_data = array();
+                        $mapping_data['inventory_id'] = $response;
+                        $mapping_data['model_number_id'] = trim($this->input->post('model_number_id'));
+                        $insert_mapping = $this->inventory_model->insert_inventory_model_mapping($mapping_data);
+                        if ($insert_mapping) {
+                            log_message("info", __METHOD__ . ' Inventory and mapping created successfully');
+                            $res['response'] = 'success';
+                            $res['msg'] = 'Inventory and mapping created successfully';
+                        } else {
+                            $res['response'] = 'error';
+                            $res['msg'] = 'Inventory added successfully but mapping can not be created';
+                        }
+                    } else {
+                        $res['response'] = 'success';
+                        $res['msg'] = 'Inventory added successfully';
+                    }
+                } else {
+                    $res['response'] = 'error';
+                    $res['msg'] = 'Error in inserting inventory details';
+                    log_message("info", __METHOD__ . 'Error in inserting inventory details');
+                }
+            } else {
+                $res['response'] = 'error';
+                $res['msg'] = 'Inventory part code already exists in database'; 
+            }
+        }else{
+           $res['response'] = 'error';
+           $res['msg'] = 'Inventory part code should not be blanck'; 
+        }
+         
         return $res;
     }
     
