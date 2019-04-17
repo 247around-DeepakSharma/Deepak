@@ -163,8 +163,9 @@ div.dataTables_wrapper div.dataTables_processing {
                 <thead>
                     <tr>
                         <th>S.No</th>
+                         <th>Appliance</th>
                         <th>Model Number</th>
-                        <th>Appliance</th>
+                       
                            <th>Brand</th>
                         <th>Category</th>
                         
