@@ -393,24 +393,24 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group col-md-6" style=" margin-left:-19px;">
-                                <label for="remark" class="col-md-12">Technical Problem *</label>
+                            <div class="form-group col-md-6" style=" margin-left:-29px;">
+                                <label for="remark" class="col-md-12">Symptom *</label>
                                 <div class="col-md-12" >
                                     <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
-                                        <option value="" selected="" disabled="">Please Select Technical Symptom</option>
+                                        <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php foreach ($technical_problem as $value) { 
-                                            $selected=(($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']) ? 'selected' :''); ?>
-                                        <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                            //$selected=(($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['id']?>" ><?php echo $value['symptom']; ?></option>
                                          
                                     <?php }?>
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6" style=" margin-left:-19px;">
-                                <label for="remark" class="col-md-12">Technical Defect *</label>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-12">Defect *</label>
                                 <div class="col-md-12" >
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
-                                        <option value="" selected="" disabled="">Please Select Technical Defect</option>
+                                        <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { ?>
                                         <option value="<?php echo $value['defect_id']?>"><?php echo $value['defect']; ?></option>
                                          
@@ -418,11 +418,15 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-12">Technical Solution *</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6" style=" margin-left:-29px;">
+                                <label for="remark" class="col-md-12">Solution *</label>
                                 <div class="col-md-12" >
                                     <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
-                                        <option value="" selected="" disabled="">Please Select Technical Solution</option>
+                                        <option value="" selected="" disabled="">Please Select Solution</option>
                                     </select>
                                 </div>
                             </div>
@@ -509,7 +513,7 @@
                 $('#technical_defect').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
-                var str="<option value='' selected='' disabled=''>Please Select Technical Defact</option>";
+                var str="<option value='' selected='' disabled=''>Please Select Defact</option>";
                 if(response.length>0)
                 {
                     for(var i=0;i<response.length;i++)
@@ -533,7 +537,7 @@
                 $('#technical_solution').removeAttr('disabled');
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
-                var str="<option value='' selected='' disabled=''>Please Select Technical Solution</option>";
+                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
                 if(response.length>0)
                 {
                     for(var i=0;i<response.length;i++)
@@ -739,7 +743,7 @@
         <?php if(!empty($technical_problem)){ ?>
             var technical_problem = $("#technical_problem").val();
             if(technical_problem === null){
-                alert('Please Select Technical Problem');
+                alert('Please Select Symptom');
                 document.getElementById('technical_problem').style.borderColor = "red";
                 flag = 1;
                 return false;
@@ -750,7 +754,7 @@
             var technical_defect = $("#technical_defect").val();
             
             if(technical_defect === null){
-                alert('Please Select Technical Defect');
+                alert('Please Select Defect');
                 document.getElementById('technical_defect').style.borderColor = "red";
                 flag = 1;
                 return false;
@@ -760,7 +764,7 @@
             var technical_solution = $("#technical_solution").val();
             
             if(technical_solution === null){
-                alert('Please Select Technical Solution');
+                alert('Please Select Solution');
                 document.getElementById('technical_solution').style.borderColor = "red";
                 flag = 1;
                 return false;

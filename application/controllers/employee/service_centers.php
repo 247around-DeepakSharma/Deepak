@@ -207,7 +207,11 @@ class Service_centers extends CI_Controller {
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
             $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
         
-        } 
+        }
+        if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
+            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']));
+        
+        }
         if(!empty($data['booking_symptom'][0]['solution_id'])){
             $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         

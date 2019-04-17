@@ -491,6 +491,47 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding:0;">Symptom *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" style="width:349px;" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Symptom</option>
+                                        <?php foreach ($technical_problem as $value) { 
+                                            //$selected=(($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['id']?>" ><?php echo $value['symptom']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding-left:10%;">Defect *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" style="width:349px;" required >
+                                        <option value="" selected="" disabled="">Please Select Defect</option>
+                                        <?php foreach ($technical_defect as $value) { ?>
+                                        <option value="<?php echo $value['defect_id']?>"><?php echo $value['defect']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="remark" class="col-md-2">Solution *</label>
+                                <div class="col-md-4" >
+                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
+                                        <option value="" selected="" disabled="">Please Select Solution</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="rating_star" class="col-md-2">Star Rating</label>
                                 <div class="col-md-4">
@@ -599,6 +640,54 @@
     
     $("#grand_total_price").val(price);
     });
+    
+        function update_defect(){
+        var technical_problem = $("#technical_problem").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_defect_on_symptom',
+            data:{technical_problem:technical_problem},
+            success: function (response) {
+                $('#technical_solution').attr('disabled',true);
+                $('#technical_defect').empty();
+                $('#technical_solution').empty();
+                response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Defact</option>";
+                if(response.length>0)
+                {
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['defect_id']+" >"+response[i]['defect']+"</option>";
+                    }
+                }
+                $('#technical_defect').append(str);
+            }
+        });
+    }
+    
+    function update_solution(){
+        var technical_symptom = $("#technical_problem").val();
+        var technical_defect = $("#technical_defect").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_solution_on_symptom_defect',
+            data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
+            success: function (response) {
+                $('#technical_solution').removeAttr('disabled');
+                $('#technical_solution').empty();
+                response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
+                if(response.length>0)
+                {
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['solution_id']+" >"+response[i]['technical_solution']+"</option>";
+                    }
+                }
+                $('#technical_solution').append(str);
+            }
+        });
+    }
     
     function onsubmit_form(upcountry_flag, number_of_div) { 
     
@@ -781,6 +870,37 @@
         } else if (Number(upcountry_charges) > 0) {
             flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
+        }
+    }
+    <?php if(!empty($technical_problem)){ ?>
+        var technical_problem = $("#technical_problem").val();
+
+        if(technical_problem === null){
+            alert('Please Select Symptom');
+            document.getElementById('technical_problem').style.borderColor = "red";
+            flag = 1;
+            return false;
+        }
+    <?php } ?>
+
+    <?php if(!empty($technical_defect)){ ?>
+        var technical_defect = $("#technical_defect").val();
+
+        if(technical_defect === null){
+            alert('Please Select Defect');
+            document.getElementById('technical_defect').style.borderColor = "red";
+            flag = 1;
+            return false;
+        }
+    <?php } ?>
+    if($("#technical_solution").val() != '') {
+        var technical_solution = $("#technical_solution").val();
+
+        if(technical_solution === null){
+            alert('Please Select Solution');
+            document.getElementById('technical_solution').style.borderColor = "red";
+            flag = 1;
+            return false;
         }
     }
     var closing_remarks = $("#closing_remarks").val();

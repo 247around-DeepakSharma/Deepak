@@ -202,17 +202,18 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
                         <tr>
-                            <th >Booking Request Symptom</th>
-                            <td style="max-width: 330px;"><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
-                            <th>Closing Technical Problem</th>
-                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
+                            <th >Symptom</th>
+                            <td style="max-width: 330px;"><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } else if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                            </td>
+                            <th>Defect</th>
+                            <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
                         </tr>
                         
                         <tr>
+                            <th >Solution</th>
+                            <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                             <th>Closing Remarks</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
-                            <th >Technical Solution</th>
-                            <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                         </tr>
                         <tr>
                             <th>Service Promise Date</th>

@@ -128,6 +128,28 @@ class Booking_request_model extends CI_Model {
         return $query->result_array();
     }
     /**
+     * @desc This function is used to get defect list
+     * @param String $select
+     * @param Array $where
+     * @param Array $where_in
+     * @return String
+     */
+    function get_defects($select, $where = array(), $where_in = array()){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        if(!empty($where_in)){
+            foreach ($where_in as $key => $value) {
+                $this->db->where_in($key, $value);
+            }
+        }
+        $this->db->from('defect');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
      * @desc This function is used to get defect based on symptoms
      * @param String $select
      * @param Array $where

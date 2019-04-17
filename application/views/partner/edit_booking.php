@@ -288,7 +288,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                             <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?>>
+                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?> max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                             <?php echo form_error('purchase_date'); ?>
                                         </div>
                                     </div>
