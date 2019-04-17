@@ -1208,7 +1208,7 @@ class Accounting extends CI_Controller {
      * @return Array  
      */
     function invoice_partner_datatable($order_list, $no){
-        //log_message("info",__METHOD__);
+        log_message("info",__METHOD__);
         $row = array();
         if($order_list->settle_amount == 1){
             $row[] = '<span class="satteled_row">'.$no.'</span>';
@@ -1226,6 +1226,7 @@ class Accounting extends CI_Controller {
         $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
         $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
+        $row[] = $order_list->tds_amount;
         $row[] = $order_list->total_amount_collected;
         $row[] = $order_list->amount_paid;
         $row[] = sprintf("%.2f", $order_list->total_amount_collected-$order_list->amount_paid);

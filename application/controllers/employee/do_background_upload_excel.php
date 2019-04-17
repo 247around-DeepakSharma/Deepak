@@ -237,23 +237,20 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation, $file_type, $partner_id, $emailTag) {
-        if (empty($this->email_send_to)) {
-            if (empty($this->session->userdata('official_email'))) {
-                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
-                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                    $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
-                } else {
-                    $file_upload_agent_email = _247AROUND_SALES_EMAIL;
-                }
+       
+        if (empty($this->session->userdata('official_email'))) {
+            $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+            if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
             } else {
-                $file_upload_agent_email = $this->session->userdata('official_email');
+                $file_upload_agent_email = _247AROUND_SALES_EMAIL;
             }
-
-            $this->email_send_to = $file_upload_agent_email;
         } else {
-            $file_upload_agent_email = $this->email_send_to;
+            $file_upload_agent_email = $this->session->userdata('official_email');
         }
 
+        $this->email_send_to = $file_upload_agent_email;
+       
 
         $to = ANUJ_EMAIL_ID . "," . $file_upload_agent_email;
         $from = "noreply@247around.com";
@@ -1952,7 +1949,7 @@ class Do_background_upload_excel extends CI_Controller {
         $letter = chr(65 + $numeric);
         $num2 = intval($num / 26);
         if ($num2 > 0) {
-            return getNameFromNumber($num2 - 1) . $letter;
+            return $this->getNameFromNumber($num2 - 1) . $letter;
         } else {
             return $letter;
         }
