@@ -159,10 +159,10 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modal_title_action"> </h4>
+                    <h4 class="modal-title" id="modal_title_action" style="display: inline-block;"> </h4> <span id="error_id" style="display: inline-block; margin-left: 100px;"></span>
                 </div>
                 <div class="modal-body">
-
+                   
                     <form class="form-horizontal" id="master_list_details">
                         <div class="row">
                             <div class="col-md-6">
@@ -616,15 +616,17 @@
                 url:'<?php echo base_url(); ?>employee/inventory/process_inventoy_master_list_data',
                 data : form_data,
                 success:function(response){
-                    $('#inventory_master_list_data').modal('toggle');
+                    
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
+                        $('#inventory_master_list_data').modal('toggle');
                         $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(data.msg);
                         inventory_master_list_table.ajax.reload();
                     }else if(data.response === 'error'){
                         $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(data.msg);
+                        $('#error_id').html(data.msg).css('color','red');
                         inventory_master_list_table.ajax.reload();
                     }
                     $('#master_list_submit_btn').attr('disabled',false).html('Add');
