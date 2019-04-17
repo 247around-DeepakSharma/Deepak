@@ -1482,7 +1482,7 @@ class Partner extends CI_Controller {
                     $booking['booking_landmark'] = $requestData['landmark'];
                     $booking['booking_pincode'] = trim($requestData['pincode']);
                     $booking['city'] = $requestData['city'];
-                    $booking['booking_request_symptom'] = $requestData['booking_request_symptom'];
+                    //$booking['booking_request_symptom'] = $requestData['booking_request_symptom'];
                     if(isset($requestData['parent_booking'])){
                         $booking['parent_booking'] = $requestData['parent_booking'];
                     }
@@ -1543,7 +1543,11 @@ class Partner extends CI_Controller {
                     $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
                     $booking['is_upcountry'] = 0;
                     $booking['create_date'] = date("Y-m-d H:i:s");
-
+                    
+                    $booking_symptom['booking_id'] = $booking['booking_id'];
+                    $booking_symptom['symptom_id_booking_creation_time'] = $requestData['booking_request_symptom'];;
+                    $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                    
                     if ($requestData['product_type'] == "Shipped") {
                         $booking['current_status'] = _247AROUND_FOLLOWUP;
                         $booking['internal_status'] = _247AROUND_FOLLOWUP;
@@ -1588,6 +1592,7 @@ class Partner extends CI_Controller {
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
                     $return_id = $this->booking_model->addbooking($booking);
+                    $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
                     if (!empty($return_id)) {
                         //Send Push Notification to Partner
 //                        if($booking['partner_id'] !=''){
@@ -1697,7 +1702,7 @@ class Partner extends CI_Controller {
 //                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 //                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
 //                        }
-                        $this->partner_cb->partner_callback($booking_id);
+                        $this->partner_cb->partner_callback($booking['booking_id']);
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
@@ -1711,6 +1716,13 @@ class Partner extends CI_Controller {
                             "orderID" => $booking['order_id'],
                             "247aroundBookingID" => $booking['booking_id'],
                             "247aroundBookingStatus" => $booking['current_status']);
+                        $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
+                    }
+                    
+                    if(!$symptomStatus) {
+                        log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
+                        //Send response
+                        $this->jsonResponseString['response'] = NULL;
                         $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
                     }
                 } else {

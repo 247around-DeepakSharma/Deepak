@@ -839,6 +839,8 @@ class Booking extends CI_Controller {
         $data['booking_id'] = $booking_id;
         //Get Booking Details
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        //Get Booking Symptom Details
+        $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
         //Get Partner Details Like source and partner Type
@@ -883,7 +885,9 @@ class Booking extends CI_Controller {
             }
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
-                array_push($unit_price_tags, $price_tag['price_tags']);
+                $price_tags1 = str_replace('(Free)', '', $price_tag['price_tags']);
+                $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                array_push($unit_price_tags, $price_tags2);
                 $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
                 // print_r($service_center_data);
                 if (!empty($service_center_data)) {
@@ -915,8 +919,11 @@ class Booking extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
-        $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
-                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $unit_price_tags));
+        $data['technical_defect'] = array();
+        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+            $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
+                    array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+        }
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1540,7 +1547,11 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
             $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
         
-        } 
+        }
+        if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
+            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']));
+        
+        }
         if(!empty($data['booking_symptom'][0]['solution_id'])){
             $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
@@ -2006,6 +2017,11 @@ class Booking extends CI_Controller {
         $spare_parts_required = $this->input->post('spare_parts_required');
         $price_tag_array = $this->input->post('price_tags');
         $model_number = $this->input->post('model_number');
+
+        $technical_symptom = $this->input->post('closing_symptom');
+        $technical_defect = $this->input->post('closing_defect');
+        $technical_solution = $this->input->post('technical_solution');
+
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -2018,6 +2034,9 @@ class Booking extends CI_Controller {
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
+            $booking_symptom['solution_id'] = $technical_solution;
+            $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+            $booking_symptom['defect_id_completion'] = $technical_defect;
             if (isset($serial_number[$unit_id])) {
                 $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                 $data['serial_number'] =  $trimSno;
@@ -2173,6 +2192,7 @@ class Booking extends CI_Controller {
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
+                $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             }
             $k = $k + 1;
         }

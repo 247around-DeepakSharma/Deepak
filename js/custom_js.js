@@ -273,6 +273,7 @@ function addBookingDialog(chanel = '') {
     var repeat_reason = $('#repeat_reason').val();
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
+    var symptom = $('#booking_request_symptom option:selected').text();
    // var customer_paid = $("#grand_total_price").val()
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
@@ -413,6 +414,11 @@ function addBookingDialog(chanel = '') {
     
     if(dealer_phone_number !=="" && dealer_name === ""){
         alert("Please Enter Dealer Name");
+        return false;
+    }
+    
+    if(symptom === "" || symptom === "Please Select Any Symptom"){
+        alert("Please Enter Symptom");
         return false;
     }
 //    if(customer_paid == 0  && type === "Booking"){
