@@ -5898,6 +5898,9 @@ class Service_centers extends CI_Controller {
         if(!empty($symptom_id)){
           $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $symptom_id));
         }
+        else {
+            $data[0] = array('defect_id' => 1, 'defect' => 'Default');
+        }
         echo json_encode($data);
     }
     
@@ -5911,6 +5914,9 @@ class Service_centers extends CI_Controller {
         $data = array();
         if(!empty($symptom_id) && !empty($defect_id)){
           $data = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $symptom_id, 'defect_id' => $defect_id));
+        }
+        else {
+            $data[0] = array('solution_id' => 1, 'technical_solution' => 'Default');
         }
         echo json_encode($data);
     }

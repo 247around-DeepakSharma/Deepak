@@ -111,7 +111,7 @@
                                             </div>                                            
                                         </div>
                                     </div>
-                                    <div class = 'col-md-6'>
+                                    <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
@@ -120,7 +120,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="parts_type" class="col-md-4">Part Type *</label>
@@ -351,7 +351,7 @@ function get_inventory_id(id){
         //get_technical_problem(postData,'0');
     });
 
-   function get_symptom(key){      
+   /*function get_symptom(key){      
         var array = [];
         var postData = {};
         var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
@@ -361,9 +361,9 @@ function get_inventory_id(id){
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
         get_technical_problem(postData,key);
-    }
+    }*/
     
-    function get_technical_problem(postData,key) {
+    /*function get_technical_problem(postData,key) {
         var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
          $.ajax({
              method:'POST',
@@ -379,7 +379,7 @@ function get_inventory_id(id){
                  }                  
              }
          });
-    }
+    }*/
     
     
     function dop_calendar(){

@@ -202,31 +202,37 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
                         <tr>
-                            <th >Symptom</th>
-                            <td style="max-width: 330px;"><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } else if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                            <th >Symptom (Booking Creation Time)</th>
+                            <td style="max-width: 330px;"><?php if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
                             </td>
-                            <th>Defect</th>
-                            <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
+                            <th >Symptom (Booking Completion Time)</th>
+                            <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } ;?>
+                            </td>
                         </tr>
                         
                         <tr>
+                            <th>Defect</th>
+                            <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
                             <th >Solution</th>
                             <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
+                        </tr>
+                        <tr>
                             <th>Closing Remarks</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
-                        </tr>
-                        <tr>
                             <th>Service Promise Date</th>
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
-                            <th >Jeeves CD/BD</th>
-                            <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                         </tr>
                         <tr>
+                            <th >Jeeves CD/BD</th>
+                            <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                             <th>Repeat Reason</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['repeat_reason'];?></td>
+                        </tr>
+                        <tr>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
+                            <td colspan="2">&nbsp;</td>
                         </tr>
                         
                     </table>
