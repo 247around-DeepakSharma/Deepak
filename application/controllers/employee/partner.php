@@ -205,7 +205,7 @@ class Partner extends CI_Controller {
         } 
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if ($spare_parts_details[0]) {
+        if (!empty($spare_parts_details)) {
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
             $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
         }
@@ -1498,6 +1498,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
+        $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
 
         if (!empty($booking_history)) {
             $data['booking_history'] = $booking_history;
@@ -1516,8 +1517,11 @@ class Partner extends CI_Controller {
 
             $unit_where = array('booking_id' => $booking_id);
             $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-            $price_tag = array();
+            $price_tag = $service_category = array();
             foreach ($data['unit_details'] as $unit) {
+                $price_tags1 = str_replace('(Free)', '', $unit['price_tags']);
+                $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                array_push($service_category, $price_tags2);
                 array_push($price_tag, $unit['price_tags']);
             }
             $data['price_tags'] = implode(",", $price_tag);
@@ -1537,6 +1541,15 @@ class Partner extends CI_Controller {
                     $data['dealer_data'] = $dealer_data[0];
                 }
             }
+            $data['symptom'] = array();
+            if(!empty($service_category)) {
+                $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                        array('service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+            }
+            if(count($data['symptom']) <= 0) {
+                $data['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
+            }
+            
             $data['is_repeat'] = $is_repeat;
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
@@ -1739,6 +1752,18 @@ class Partner extends CI_Controller {
 //            }
             $this->insert_details_in_state_change($booking_id, $tempStatus, $booking_details['booking_remarks'],$actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking_details);
+            $booking_symptom = $this->booking_model->getBookingSymptom($booking_id);
+            if(count($booking_symptom)>0)
+            {
+                $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
+                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+            }
+            else {
+                $bookingSymptom['booking_id'] = $booking_id;
+                $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
+                $bookingSymptom['create_date'] = date("Y-m-d H:i:s");
+                $this->booking_model->addBookingSymptom($bookingSymptom);
+            }
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/" . $up_flag;
             $async_data['booking'] = array();
@@ -1834,7 +1859,10 @@ class Partner extends CI_Controller {
                 . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
-        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+        $where = array();
+        if(!empty($data['spare_parts'])) {
+            $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+        }
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
         $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');

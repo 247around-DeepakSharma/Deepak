@@ -300,9 +300,15 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                            <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                            <label for="booking_request_symptom">Symptom * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                             <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
-                                                <option disabled selected>Select Identified Problem</option>
+                                                <option disabled selected>Please Select Any Symptom</option>
+                                                <?php if(isset($symptom)) {
+                                                    foreach ($symptom as $value) { 
+                                                        $selected=((($value['id'] == 1) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time'])) ? 'selected' :'');  ?>
+                                                    <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+
+                                                <?php } } ?>
                                             </select>
                                             <?php echo form_error('booking_request_symptom'); ?>
                                         </div>
@@ -772,7 +778,7 @@
                           $('#submitform').attr('disabled',false);
                           final_price();
                           set_upcountry();
-                          get_symptom('<?php echo $booking_history[0]['booking_request_symptom']; ?>');
+                          //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:''); ?>');
                      }
                 }
             });
