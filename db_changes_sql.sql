@@ -10365,6 +10365,14 @@ CREATE TABLE `symptom_defect_solution_mapping` (
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+  
+-- Change table name from `symptom_completion_request` to `symptom` 
+  
+RENAME TABLE symptom_completion_request TO symptom;
+  
+-- Change column name for `symptom` table 
+  
+ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 --
 -- Table structure for table `booking_symptom_defect_details`
 --
@@ -10464,3 +10472,44 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
+--Kajal 09-April-2019  Ending ---
+
+--Kajal 09-April-2019  Ending ---
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_addition_mail_to_brand', 'need to change', 'need to change', 'noreply@247around.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', '1', CURRENT_TIMESTAMP);
+
+-- Kalyani 18-April-2019 --
+
+--
+-- Table structure for table `engineer_appliance_mapping`
+--
+
+CREATE TABLE `engineer_appliance_mapping` (
+  `id` int(11) NOT NULL,
+  `engineer_id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `brand` varchar(225) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `update_date` datetime DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `engineer_appliance_mapping`
+--
+ALTER TABLE `engineer_appliance_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `engineer_appliance_mapping`
+--
+ALTER TABLE `engineer_appliance_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
