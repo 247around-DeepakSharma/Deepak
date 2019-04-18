@@ -670,21 +670,25 @@ class bookings_excel extends CI_Controller {
         $json_data = json_encode($order_list);
         $row[] = $no;
         $row[] = $order_list->public_name;
-        $row[] = $order_list->referred_date_and_time;
-        $row[] = $order_list->sub_order_id;
-        $row[] = $order_list->brand;
-        $row[] = $order_list->model;
-        $row[] = $order_list->product;
-        $row[] = $order_list->product_type;
-        $row[] = $order_list->customer_name;
-        $row[] = $order_list->customer_address;
-        $row[] = $order_list->pincode;
-        $row[] = $order_list->city;
-        $row[] = $order_list->phone;
-        $row[] = $order_list->email_id;
-        $row[] = $order_list->order_item_id;
-        $row[] = $order_list->spd;
-        $row[] = $order_list->delivery_date;
+        $row[] = $order_list->email_host;
+
+
+        
+        // $row[] = $order_list->referred_date_and_time;
+        // $row[] = $order_list->sub_order_id;
+        // $row[] = $order_list->brand;
+        // $row[] = $order_list->model;
+        // $row[] = $order_list->product;
+        // $row[] = $order_list->product_type;
+        // $row[] = $order_list->customer_name;
+        // $row[] = $order_list->customer_address;
+        // $row[] = $order_list->pincode;
+        // $row[] = $order_list->city;
+        // $row[] = $order_list->phone;
+        // $row[] = $order_list->email_id;
+        // $row[] = $order_list->order_item_id;
+        // $row[] = $order_list->spd;
+        // $row[] = $order_list->delivery_date;
         $row[] = $order_list->full_name;
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_mapping_details' data-id='$json_data'>Edit</a>";
         
