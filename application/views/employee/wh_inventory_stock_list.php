@@ -67,7 +67,7 @@
                                     <th>Appliance</th>
                                     <th>Type</th>
                                     <th>Name</th>
-                                    <th>Number</th>
+                                    <th>Parts Number</th>
                                     <th>Stock</th>
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
