@@ -919,11 +919,19 @@ class Booking extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
+        if(count($data['technical_problem']) <= 0) {
+            $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
+        }
+        
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
                     array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         }
+        else {
+            $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
+        }
+        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
