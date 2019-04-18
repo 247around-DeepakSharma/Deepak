@@ -119,7 +119,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" >
+                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -169,7 +169,7 @@
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]" onchange="get_symptom(0)">
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> <!--  onchange="get_symptom(0)" -->
                                                     <option selected disabled>Select Part Warranty Status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
                                                     <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
@@ -177,7 +177,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class = 'col-md-6'>
+                                    <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
@@ -186,7 +186,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
@@ -260,7 +260,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class = 'col-md-6'>
+                                        <!--<div class = 'col-md-6'>
                                             <div class="form-group">
                                                 <label for="Technical'Issue" class="col-md-4">Technical Problem *</label>                                             
                                                 <div class="col-md-6">
@@ -269,7 +269,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>-->
                                     </div>
                                     <div class="row">
                                         <div class = 'col-md-6'>
@@ -587,7 +587,7 @@
                 }
             });
             
-            $('.spare_request_symptom').each(function() {
+            /*$('.spare_request_symptom').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "spare_request_symptom"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
@@ -596,7 +596,7 @@
                        return false;
                     }
                 }
-            });
+            });*/
               
             if(prob_des === "" || prob_des === null){
                 alert("Please Enter problem description");
@@ -720,8 +720,8 @@
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
-                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
-                        .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Part Wrranty Status'}).end()
+                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
+                        //.find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Part Wrranty Status'}).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
                 
@@ -731,8 +731,8 @@
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
-                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr("onchange", "get_symptom('"+partIndex+"')").addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()
-                   .find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
+                   .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
+                   //.find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                    .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
@@ -781,7 +781,7 @@
     });
     
     
-    function get_symptom(key){
+    /*function get_symptom(key){
         var array = [];
         var postData = {};
         var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
@@ -806,7 +806,7 @@
                 }
             });
         }
-    }
+    }*/
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

@@ -103,7 +103,7 @@
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Part In Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control" id="part_warranty_status_0" name="part_warranty_status" onchange="get_symptom(0)">
+                                                <select class="form-control" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
                                                     <option selected="" disabled="">Select warranty status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
                                                     <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
@@ -111,7 +111,7 @@
                                             </div>                                            
                                         </div>
                                     </div>
-                                    <div class = 'col-md-6'>
+                                    <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
@@ -120,7 +120,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="parts_type" class="col-md-4">Parts Type *</label>
@@ -349,7 +349,7 @@ function get_inventory_id(id){
         get_technical_problem(postData,'0');
     });
 
-   function get_symptom(key){      
+   /*function get_symptom(key){      
         var array = [];
         var postData = {};
         var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
@@ -359,9 +359,9 @@ function get_inventory_id(id){
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
         get_technical_problem(postData,key);
-    }
+    }*/
     
-    function get_technical_problem(postData,key) {
+    /*function get_technical_problem(postData,key) {
         var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
          $.ajax({
              method:'POST',
@@ -377,7 +377,7 @@ function get_inventory_id(id){
                  }                  
              }
          });
-    }
+    }*/
     
     $(document).ready(function(){
         var service_id = "<?php echo $spare_parts_details['service_id']; ?>";
