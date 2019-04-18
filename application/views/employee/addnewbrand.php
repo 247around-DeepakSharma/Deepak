@@ -1,7 +1,7 @@
 <div id="page-wrapper"> 
   <div class="container-fluid">
     <div class="row">
-    	<h1 class="page-header" style="color:Blue;">
+    	<h1 class="page-header"  >
       	Add New Brands 
     	</h1>
     	<form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/booking/process_add_new_brand_form" >
