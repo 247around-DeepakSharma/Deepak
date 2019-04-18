@@ -290,6 +290,13 @@ class Service_centers extends CI_Controller {
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
+        
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+        if ($spare_parts_details[0]) {
+            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+        }
+
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -2413,7 +2420,7 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.id = '" . $sp_id . "' AND spare_parts_details.defective_part_required = 1 "
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-            
+          
             $data['courier_details'] = $this->inventory_model->get_courier_services('*');
             
             if (!empty($data['spare_parts'])) {
@@ -2443,7 +2450,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
         $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
-        
+                
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
@@ -2487,8 +2494,10 @@ class Service_centers extends CI_Controller {
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
 
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);  
+                    if(empty($this->input->post('courier_boxes_weight_flag'))){
+                       $this->service_centers_model->insert_into_awb_details($awb_data); 
+                    }
                     
-                    $this->service_centers_model->insert_into_awb_details($awb_data);
                     
                 }
 
@@ -5670,7 +5679,16 @@ class Service_centers extends CI_Controller {
         $awb = $this->input->post('awb');
         if(!empty($awb)){
             $data = $this->partner_model->get_spare_parts_by_any("awb_by_sf, courier_charges_by_sf, "
-                    . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb));
+                    . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb));           
+            if (!empty($awb)) {
+                $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $awb), array());
+                $data[0]['defective_parts_shipped_boxes_count'] = $courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
+                if (!empty($courier_boxes_weight_details[0]['defective_parts_shipped_weight'])) {
+                    $weight_seperated = explode('.', $courier_boxes_weight_details[0]['defective_parts_shipped_weight']);
+                    $data[0]['weight_in_kg'] = $weight_seperated[0];
+                    $data[0]['weight_in_gram'] = $weight_seperated[1];
+                }
+            }
             if(!empty($data)){
                 echo json_encode(array('code' => 247, "message" => $data));
             } else {
