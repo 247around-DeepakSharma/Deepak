@@ -110,12 +110,19 @@
     var model_name = $('#model_name').text();
     $('#inventory_part_and_model_mapping_table').DataTable({
         "dom": 'lBfrtip',
+        "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
         "buttons": [
                 {
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0,1,2,3,4,5,6,7,8]
+                        columns: [ 0,1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
                     },
                     title: 'parts_used_in_model_'+model_name+time
                 },
