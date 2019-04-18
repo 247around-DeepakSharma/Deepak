@@ -122,29 +122,24 @@
                                 <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
                             </tr>
                             <tr>
-                                <th>Remarks</th>
-                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                <th>Symptom</th>
-                                <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } else if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                                <th>Symptom (Booking Creation Time)</th>
+                                <td><?php if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                                </td>
+                                <th >Symptom (Booking Completion Time)</th>
+                                <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } ;?>
                                 </td>
                             </tr>
-                           
                             <tr>
-                                <th>Closing Remarks </th>
-                                <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                                 <th>Defect</th>
                                 <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
-                                
-                            </tr>
-                            
-                            <tr>
-                                <th>Rating </th>
-                                <td><?php if (!empty($booking_history[0]['rating_stars'])) {
-                                    echo $booking_history[0]['rating_stars'] . "/5";
-                                    } ?></td>
                                 <th>Solution</th>
                                 <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
-                              
+                            </tr>
+                            <tr>
+                                <th>Remarks</th>
+                                <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                <th>Closing Remarks </th>
+                                <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                             </tr>
                             <tr>
                                 <th>Repeat Reason </th>
@@ -180,7 +175,13 @@
                                 </td>
                             </tr>
                             <?php } ?>
-                             
+                            <tr>
+                                <th>Rating </th>
+                                <td><?php if (!empty($booking_history[0]['rating_stars'])) {
+                                    echo $booking_history[0]['rating_stars'] . "/5";
+                                    } ?></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr> 
                         </table>
                         <table class="table  table-striped table-bordered" >
                             <tr>
@@ -542,12 +543,12 @@
                         <td><?php echo $value['old_state']; ?></td>
                         <td><?php echo $value['new_state']; ?></td>
                         <td><?php echo $value['remarks']; ?></td>
-                        <td><?php echo $value['full_name']; ?></td>
+                        <td><?php echo ((isset($value['full_name'])) ? $value['full_name']:""); ?></td>
                         <td><?php
-                            if ($value['source'] == _247AROUND_WEBSITE) {
+                            if ((isset($value['source'])) && ($value['source'] == _247AROUND_WEBSITE)) {
                                 echo '247 Around';
                             } else {
-                                echo $value['source'];
+                                echo ((isset($value['source'])) ? $value['source']:"");
                             }
                                     ?></td>
                         <td><?php

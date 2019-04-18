@@ -378,10 +378,17 @@ class Service_centers extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $price_tags));
         
+        if(count($data['technical_problem']) <= 0) {
+            $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
+        }
+        
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
                     array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+        }
+        else {
+            $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
         }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -5902,6 +5909,9 @@ class Service_centers extends CI_Controller {
         if(!empty($symptom_id)){
           $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $symptom_id));
         }
+        else {
+            $data[0] = array('defect_id' => 1, 'defect' => 'Default');
+        }
         echo json_encode($data);
     }
     
@@ -5915,6 +5925,9 @@ class Service_centers extends CI_Controller {
         $data = array();
         if(!empty($symptom_id) && !empty($defect_id)){
           $data = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $symptom_id, 'defect_id' => $defect_id));
+        }
+        else {
+            $data[0] = array('solution_id' => 1, 'technical_solution' => 'Default');
         }
         echo json_encode($data);
     }
