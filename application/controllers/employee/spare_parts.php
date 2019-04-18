@@ -15,11 +15,13 @@ class Spare_parts extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->model('service_centers_model');
         $this->load->model('invoices_model');
+        $this->load->model('employee_model');
         
         
         $this->load->library('form_validation');
         $this->load->library('notify');
         $this->load->library('S3');
+        $this->load->library('PHPReport');
 
         $this->load->library('table');
 
@@ -264,7 +266,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
-                . "spare_parts_details.acknowledge_date, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number ";
+                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number ";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
             $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL);
         } else {
@@ -645,7 +647,7 @@ class Spare_parts extends CI_Controller {
         if($spare_list->around_pickup_from_service_center == COURIER_PICKUP_SCHEDULE){
             $row[] = 'Pickup Schedule'; 
         } else if( $spare_list->around_pickup_from_service_center == COURIER_PICKUP_REQUEST) {
-            $row[] = '<input type="checkbox" class="form-control pickup_schedule" data-sf_id="'.$spare_list->service_center_id.'" id="pickup_schedule_'.$no.'" onclick="uncheckedPickupRequest(this.id)" value="'.$spare_list->id.'" />';
+            $row[] = '<input type="checkbox" class="form-control pickup_schedule" pickup_courier= "'.$spare_list->around_pickup_courier.'"  data-sf_id="'.$spare_list->service_center_id.'" id="pickup_schedule_'.$no.'" onclick="uncheckedPickupRequest(this.id)" value="'.$spare_list->id.'" />';
         } else {
             $row[] = '';
         }
@@ -2113,6 +2115,8 @@ class Spare_parts extends CI_Controller {
                 } else {
                     $spare_data['around_pickup_from_service_center'] = COURIER_PICKUP_SCHEDULE;
                 }
+                
+                $spare_data['around_pickup_courier'] = $post['courier_name'];
 
                 if (!in_array($spare_parts_details[0]['service_center_id'], $service_center_id_list)) {
                     array_push($service_center_id_list, $spare_parts_details[0]['service_center_id']);
@@ -2187,6 +2191,109 @@ class Spare_parts extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_alternate_spare_parts_mapping');
+    }
+    
+    /**
+     * @desc This function is used to send MSL data to inventory manager
+     */
+    function get_msl_data($imwh = 1) {
+        $date_45 = date('Y-m-d', strtotime("-45 Days"));
+        $date_30 = date('Y-m-d', strtotime("-30 Days"));
+        $date_15 = date('Y-m-d', strtotime("-15 Days"));
+        
+        if($imwh == 1){
+            $temp_function = 'get_msl_data';
+             $template = "msl_data.xlsx";
+        } else {
+            $temp_function = 'get_microwarehouse_msl_data';
+            $template = "mwh_msl_data.xlsx";
+        }
+        $data = $this->inventory_model->$temp_function($date_45);
+        //print_r($data); 
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                
+                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id']);
+
+                if (!empty($day_30)) {
+                    $data[$key]['consumption_30_days'] = $day_30[0]['consumption'];
+                } else {
+                    $data[$key]['consumption_30_days'] = 0;
+                }
+
+                $day_15 = $this->inventory_model->$temp_function($date_15, $value['inventory_id']);
+                if (!empty($day_15)) {
+                    $data[$key]['consumption_15_days'] = $day_15[0]['consumption'];
+                } else {
+                    $data[$key]['consumption_15_days'] = 0;
+                }
+
+                $recommended_30 = $data[$key]['consumption_30_days'] - $value['stock'];
+                if ($recommended_30 > 0) {
+                    $data[$key]['recommended_30_days'] = $recommended_30;
+                    
+                } else if($recommended_30 == 0){
+                    
+                    $data[$key]['recommended_30_days']  = $data[$key]['consumption_30_days'];
+                    
+                } else if($data[$key]['consumption_30_days'] == 0){ 
+                    $recommended_45 = $data[$key]['consumption'] - $value['stock'];
+                    if($recommended_45 > 0){
+                        $data[$key]['recommended_30_days'] = $recommended_45;
+                    } else {
+                        $data[$key]['recommended_30_days'] = 0;
+                    }
+                } else {
+                    $data[$key]['recommended_30_days'] = 0;
+                }
+            }
+        }
+        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
+
+        $email = implode(', ', array_unique(array_map(function ($k) {
+                            return $k['official_email'];
+                        }, $user)));
+
+        $templateDir = __DIR__ . "/../excel-templates/";
+
+        $output_file_excel = "msldata_" . date('YmdHis') . ".xlsx";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'parts',
+                'repeat' => true,
+                'data' => $data,
+            )
+                )
+        );
+
+        $res1 = 0;
+        if (file_exists(TMP_FOLDER . $output_file_excel)) {
+
+            system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', TMP_FOLDER . $output_file_excel);
+
+        system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+
+        $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
+        if (!empty($email_template)) {
+            $subject = $email_template[4];
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $email;
+            $cc = $email_template[3];
+            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
+            unlink(TMP_FOLDER . $output_file_excel);
+        }
     }
 
 }

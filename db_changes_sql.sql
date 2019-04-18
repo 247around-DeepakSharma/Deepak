@@ -10247,7 +10247,7 @@ UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br
 --Kajal 05-April-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
-<<<<<<< HEAD
+
 CREATE TABLE `symptom_defect_solution_mapping` (
   `id` int(11) NOT NULL,
   `entity_id` int(11) NOT NULL,
@@ -10294,6 +10294,10 @@ ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,
 
 --Kajal 09-April-2019  Starting ---
 
+--
+-- Table structure for table `defect`
+--
+
 CREATE TABLE `defect` (
   `id` int(11) NOT NULL,
   `request_type` int(28) NOT NULL,
@@ -10320,6 +10324,7 @@ ALTER TABLE `defect`
 --
 -- AUTO_INCREMENT for table `defect`
 --
+
 ALTER TABLE `defect`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
@@ -10338,7 +10343,7 @@ ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256)
 
 CREATE TABLE `booking_symptom_defect_details` (
   `id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
+  `booking_id` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
   `symptom_id_spare_request_time` int(11) DEFAULT NULL,
   `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
@@ -10441,3 +10446,24 @@ ALTER TABLE `engineer_appliance_mapping`
 ALTER TABLE `engineer_appliance_mapping`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+----Gorakh 09-04-2019
+CREATE TABLE `alternate_inventory_set` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `alternate_inventory_set`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_id` (`group_id`,`inventory_id`);
+
+ALTER TABLE `alternate_inventory_set`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
+
+---------Gorakh 18-04-2019
+ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;

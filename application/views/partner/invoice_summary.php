@@ -55,7 +55,9 @@
                                 <th>Invoice Date</th>
                                 <th>Invoice Period</th>
                                 <th>Bookings/ Parts</th>
+                                 <th>TDS</th>
                                 <th>Total Invoice Amount</th>
+
                                 <th>Paid Amount</th>
                                 <th>Balance</th>
                                 <th>Download</th>

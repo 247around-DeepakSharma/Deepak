@@ -176,7 +176,9 @@
         partner = $("#partner_id :selected").text();
         partner_id = $(this).val();
         
-        get_partner_file_details();
+         get_partner_file_details();
+      //  show_upload_file_history();
+      //  table.ajax.reload();
         
         if(partner_id === '<?php echo SNAPDEAL_ID ?>' || partner_id === '<?php echo PAYTM_ID ?>'){
             $('#file_type').show();
@@ -209,9 +211,11 @@
                 type: "POST",
                 data: function(d){
                     d.file_source = 'partner_file_upload',
+                    d.partner_id= $("#partner_id").val(),
                     d.file_type = get_upload_file_type();
                 }
             },
+
             columnDefs: [
                 {
                     "targets": [0, 1, 2, 3,4,5],
@@ -220,9 +224,21 @@
             ]
         });
     }
+
+
+
+
+
+
     
     function get_partner_file_details(){
         if(partner_id){
+
+
+
+           // alert();
+
+
             $.ajax({
                 type:'POST',
                 url:'<?php echo base_url();?>employee/partner/get_partner_file_details',

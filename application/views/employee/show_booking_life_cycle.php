@@ -19,12 +19,12 @@
                 <td><?php echo $row['old_state']; ?></td>
                 <td><?php echo $row['new_state']; ?></td>
                 <td><?php echo $row['remarks']; ?></td>
-                <td><?php echo $row['full_name']; ?></td>
+                <td><?php echo ((isset($row['full_name'])) ? $row['full_name']:""); ?></td>
                 <td><?php
-                    if ($row['source'] == "Website") {
+                    if ((isset($row['source'])) && ($row['source'] == "Website")) {
                         echo '247 Around';
                     } else {
-                        echo $row['source'];
+                        echo ((isset($row['source'])) ? $row['source']:"");
                     }
                     ?></td>
                 <td><?php

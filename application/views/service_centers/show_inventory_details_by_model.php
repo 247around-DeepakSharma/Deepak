@@ -26,7 +26,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Spare Part Details For Model Number <span id="model_name"><strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></span></h3>
-                    
+                     
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">

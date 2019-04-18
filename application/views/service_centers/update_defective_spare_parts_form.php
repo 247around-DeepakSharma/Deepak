@@ -72,7 +72,7 @@
                         <div class="row">
                             <div class="col-md-6">                                                             
                                 <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
-                                    <label for="awb" class="col-md-4">AWB</label>
+                                    <label for="awb" class="col-md-4">AWB *</label>
                                     <div class="col-md-6">
                                         <input onblur="check_awb_exist()" type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "<?php if((set_value("awb_by_sf"))){ echo set_value("awb_by_sf");} else{ echo $spare_parts[0]['awb_by_sf'];}?>" placeholder="Please Enter AWB"  required>
                                     </div>
@@ -87,9 +87,9 @@
                                     <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>
                                  <div class="form-group <?php if (form_error('awb_by_sf')) { echo 'has-error';} ?>">
-                                    <label for="awb" class="col-md-4">No Of Boxes</label>
+                                    <label for="awb" class="col-md-4">No Of Boxes *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
+                                        <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required="">
                                             <option selected="" disabled="" value="">Select Boxes</option> 
                                             <?php for($i = 1 ; $i < 11; $i++){ ?>
                                             <option value="<?php echo $i;?>"><?php echo $i; ?></option> 
@@ -99,7 +99,7 @@
                                     <?php echo form_error('awb_by_sf'); ?>
                                 </div>  
                                 <div class="form-group <?php if (form_error('defective_courier_receipt')) { echo 'has-error';} ?>">
-                                    <label for="AWS Receipt" class="col-md-4">Courier Invoice</label>
+                                    <label for="AWS Receipt" class="col-md-4">Courier Invoice *</label>
                                     <div class="col-md-6">
                                         <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
                                         <?php if(!empty($value['defective_courier_receipt'])) {?><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to download previous invoice</a><?php } ?>
@@ -110,10 +110,10 @@
                             </div>
                             <div class="col-md-6">                                                                
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
-                                    <label for="courier" class="col-md-4">Courier Name</label>
+                                    <label for="courier" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-6">
                                         <select class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" required>
-                                            <option selected="" disabled="" value="">Select Courier Name</option>
+                                            <option selected="" disabled="" value="">Select Courier Name *</option>
                                             <?php foreach ($courier_details as $value1) { ?> 
                                             <option <?php if((set_value("courier_name_by_sf") == $value1['courier_name'])){ echo "selected";} else if($spare_parts[0]['courier_name_by_sf'] == $value1['courier_code']){ echo "selected";}?> value="<?php echo $value1['courier_code'];?>"><?php echo $value1['courier_name'];?></option>
                                             <?php } ?>
@@ -123,7 +123,7 @@
                                      <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>                              
                                 <div class="form-group <?php if (form_error('defective_part_shipped_date')) { echo 'has-error';} ?>">
-                                    <label for="shipment_date" class="col-md-4">Shipment Date</label>
+                                    <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                     <div class="col-md-6">
                                         <div class="input-group input-append date">
                                             <input id="defective_part_shipped_date" class="form-control"  name="defective_part_shipped_date" type="text" value = "<?php if(!empty($spare_parts[0]['defective_part_shipped_date'])){ echo $spare_parts[0]['defective_part_shipped_date']; } else { echo  date("Y-m-d", strtotime("+0 day"));} ?>" required readonly='true' style="background-color:#fff;pointer-events:cursor">
@@ -135,15 +135,15 @@
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) {
                                     echo 'has-error';
                                 } ?>">
-                                    <label for="courier" class="col-md-4">Weight</label>
+                                    <label for="courier" class="col-md-4">Weight *</label>
                                     <div class="col-md-6">
-                                        <input type="number" class="form-control" style="width: 31%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight in KG" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 31%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" name="defective_parts_shipped_gram" value="" placeholder="in gram" required="">&nbsp;<strong>in Gram </strong>                                       
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" name="defective_parts_shipped_gram" value=""placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                     </div>
                                 <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
                                 <div class="form-group <?php if (form_error('remarks_defective_part')) { echo 'has-error';} ?>">
-                               <label for="remarks_defective_part" class="col-md-4">Remarks</label>
+                               <label for="remarks_defective_part" class="col-md-4">Remarks *</label>
                                 <div class="col-md-6">
                                     <textarea type="text" class="form-control" id="remarks" name="remarks_defective_part" placeholder="Please Enter Remarks"  required><?php if((set_value("remarks_defective_part"))){ echo set_value("remarks_defective_part");} else{ echo $spare_parts[0]['remarks_defective_part_by_sf'];}?></textarea>
                                 </div>  
@@ -160,6 +160,7 @@
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
                     
                     <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']?>">
+                    <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="">
                     <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id']?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                 </div>
@@ -345,6 +346,16 @@
                             $("#courier_name_by_sf").val(data.message[0].courier_name_by_sf);
                             $("#courier_charges_by_sf").val("0");
                             $("#courier_charges_by_sf").css("display","none");
+                            $('#defective_parts_shipped_boxes_count option[value="'+data.message[0]['defective_parts_shipped_boxes_count']+'"]').attr("selected", "selected");
+                            
+                            if(data.message[0]['defective_parts_shipped_boxes_count'] !=''){
+                                $("#courier_boxes_weight_flag").val('1');
+                                $("#defective_parts_shipped_boxes_count").attr('disabled', true);
+                            }
+                            
+                            $("#defective_parts_shipped_weight_in_kg").val(data.message[0]['weight_in_kg']).attr('disabled', true);
+                            $("#defective_parts_shipped_weight_in_gram").val(data.message[0]['weight_in_gram']).attr('disabled', true);
+                            
                             if(data.message[0].defective_courier_receipt){
                                
                                 $("#exist_courier_image").val(data.message[0].defective_courier_receipt);

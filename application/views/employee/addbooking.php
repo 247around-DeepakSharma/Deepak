@@ -1,5 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
-<script src="<?php echo base_url();?>js/custom_js.js"></script>
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style>
       
     #dealer_list{
@@ -266,7 +266,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "">
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -351,7 +351,7 @@
                                 </div>
                             </div>-->
                             <div class="form-group ">
-                                <label for="type" class="col-md-4">Technical Problem</label>
+                                <label for="type" class="col-md-4">Symptom *</label>
                                 <div class="col-md-6">
                                     <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
                                         <option disabled selected>Please Select Any Symptom</option>

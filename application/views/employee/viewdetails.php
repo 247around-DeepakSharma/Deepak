@@ -198,30 +198,37 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
                         <tr>
-                            <th >Booking Request Symptom</th>
-                            <td style="max-width: 330px;"><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
-                            <th>Closing Technical Problem</th>
-                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
+                            <th >Symptom (Booking Creation Time)</th>
+                            <td style="max-width: 330px;"><?php if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                            </td>
+                            <th >Symptom (Booking Completion Time)</th>
+                            <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } ;?>
+                            </td>
                         </tr>
                         
                         <tr>
-                            <th>Closing Remarks</th>
-                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
-                            <th >Technical Solution</th>
+                            <th>Defect</th>
+                            <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
+                            <th >Solution</th>
                             <td ><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                         </tr>
                         <tr>
+                            <th>Closing Remarks</th>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th>Service Promise Date</th>
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
-                            <th >Jeeves CD/BD</th>
-                            <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                         </tr>
                         <tr>
+                            <th >Jeeves CD/BD</th>
+                            <td ><?php echo $booking_history[0]['api_call_status_updated_on_completed']; ?></td>
                             <th>Repeat Reason</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['repeat_reason'];?></td>
+                        </tr>
+                        <tr>
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
+                            <td colspan="2">&nbsp;</td>
                         </tr>
                         
                     </table>
@@ -630,6 +637,8 @@
                                     <tr>
                                         <th>Part Shipped By Partner/Warehouse</th>
                                         <th>Shipped Parts </th>
+                                        <th>Pickup Request </th>
+                                        <th>Pickup Schedule</th>
                                         <th>Courier Name</th>
                                         <th>AWB </th>
                                         <th>Shipped date </th>
@@ -646,7 +655,9 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
-                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>                                        
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>   
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|courier_name_by_partner";?>"><?php echo str_replace(array('-','_'), ' ', $sp['courier_name_by_partner']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <input type="hidden" value="<?php echo $sp['courier_name_by_partner'];  ?>" id="<?php echo $sp['id']."_courier_name_by_partner";?>" />
@@ -699,7 +710,9 @@
                                     <tr>
                                         <th >Shipped Parts </th>
                                         <th >Courier Name </th>
-                                        <th >AWB </th>
+                                        <th>AWB </th>
+                                        <th> No. Of Boxes </th>
+                                        <th> Weight</th>
                                         <th >Courier Charge </th>
                                         <th> Courier Invoice</th>
                                         <th >Shipped date </th>
@@ -724,6 +737,8 @@
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf'])){ echo $courier_boxes_weight_details['defective_parts_shipped_weight']; } ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                         <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>

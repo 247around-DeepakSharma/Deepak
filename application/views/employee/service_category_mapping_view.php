@@ -42,7 +42,7 @@
         
 -->        </div>
     </div>
-    <div class="panel-body">
+    <div class="panel-body"  style="border: 2px solid #edeaea;" >
         <div class="row">
             <div class="col-md-12">
                 <table class="table  table-striped table-bordered">

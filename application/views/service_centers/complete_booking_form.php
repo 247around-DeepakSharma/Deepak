@@ -141,7 +141,7 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
+                                    <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-12" <?php } else { ?> class="col-md-12" <?php } ?> >
                                         <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
                                             <?php } else {?> width:26.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
@@ -350,10 +350,65 @@
                         </div>
                     </div>
                     <?php } ?>
-                    <div class="row" style=" margin-left:-29px;">
+                    <div class="row">
                         <div class ="col-md-12">
-                            <?php if($booking_history[0]['is_upcountry'] == '1' 
+                            <div class="form-group col-md-6" style=" margin-left:-29px;">
+                                <label for="type" class="col-md-12">Total Customer Paid</label>
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">Rs.</div>
+                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; ?>" placeholder="Total Price" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-12">Symptom *</label>
+                                <div class="col-md-12" >
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Symptom</option>
+                                        <?php foreach ($technical_problem as $value) { 
+                                            $selected=(($value['id'] == 1) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                        <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6" style=" margin-left:-29px;">
+                                <label for="remark" class="col-md-12">Defect *</label>
+                                <div class="col-md-12" >
+                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
+                                        <option value="" selected="" disabled="">Please Select Defect</option>
+                                        <?php foreach ($technical_defect as $value) { 
+                                            $selected=(($value['defect_id'] == 1) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option>
+                                         
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-12">Solution *</label>
+                                <div class="col-md-12" >
+                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
+                                        <option value="" selected="" disabled="">Please Select Solution</option>
+                                        <?php if($technical_problem[0]['id'] == 1) { ?>
+                                        <option value="1" selected>Default</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <?php 
+                        if($booking_history[0]['is_upcountry'] == '1' 
                                 && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
+                        <div class="col-md-12">
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="type" class="col-md-12">Upcountry Charges Paid By Customer</label>
                                 <div class="col-md-12">
@@ -363,62 +418,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <?php } else { ?>
-                            <input  type="hidden" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
-                            <?php } ?>
-                            <div class="form-group col-md-6">
-                                <label for="type" class="col-md-12">Total Customer Paid</label>
-                                <div class="col-md-12">
-                                    <div class="input-group">
-                                        <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; ?>" placeholder="Total Price" readonly>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                    <div class="row" style="margin-top:25px;">
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group col-md-6" style=" margin-left:-19px;">
-                                <label for="remark" class="col-md-12">Technical Problem *</label>
-                                <div class="col-md-12" >
-                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
-                                        <option value="" selected="" disabled="">Please Select Technical Symptom</option>
-                                        <?php foreach ($all_technical_symptom as $value) { 
-                                            $selected=(($value['id'] == $technical_problem[0]['id']) ? 'selected' :''); ?>
-                                        <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
-                                         
-                                    <?php }?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-6" style=" margin-left:-19px;">
-                                <label for="remark" class="col-md-12">Technical Defect *</label>
-                                <div class="col-md-12" >
-                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
-                                        <option value="" selected="" disabled="">Please Select Technical Defect</option>
-                                        <?php foreach ($technical_defect as $value) { ?>
-                                        <option value="<?php echo $value['defect_id']?>"><?php echo $value['defect']; ?></option>
-                                         
-                                    <?php }?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-12">Technical Solution *</label>
-                                <div class="col-md-12" >
-                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
-                                        <option value="" selected="" disabled="">Please Select Technical Solution</option>
-                                        <?php foreach ($technical_solution as $value) { ?>
-                                        <option value="<?php echo $value['solution_id']?>" ><?php echo $value['technical_solution']; ?></option>
-                                         
-                                    <?php }?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <?php } else { ?>
+                        <input  type="hidden" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
+                        <?php } ?>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -475,7 +478,8 @@
                 return false;
             }
         });
-    
+        if($('#technical_solution').val() == 1)
+            $('#technical_solution').removeAttr('disabled');
     });
     
     
@@ -497,13 +501,19 @@
             url: '<?php echo base_url() ?>employee/service_centers/get_defect_on_symptom',
             data:{technical_problem:technical_problem},
             success: function (response) {
-                $('#technical_solution').removeAttr('disabled');
+                $('#technical_solution').attr('disabled',true);
+                $('#technical_defect').empty();
+                $('#technical_solution').empty();
                 response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Defect</option>";
                 if(response.length>0)
                 {
-                    $('#technical_defect option[value='+response[0]['defect_id']+']').prop('selected',true);
-                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['defect_id']+" >"+response[i]['defect']+"</option>";
+                    }
                 }
+                $('#technical_defect').append(str);
             }
         });
     }
@@ -517,11 +527,17 @@
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
+                $('#technical_solution').empty();
                 response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
                 if(response.length>0)
                 {
-                    $('#technical_solution option[value='+response[0]['solution_id']+']').prop('selected',true);
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['solution_id']+" >"+response[i]['technical_solution']+"</option>";
+                    }
                 }
+                $('#technical_solution').append(str);
             }
         });
     }
@@ -710,11 +726,11 @@
             }
         }
         
-        <?php if(!empty($all_technical_symptom)){ ?>
+        <?php if(!empty($technical_problem)){ ?>
             var technical_problem = $("#technical_problem").val();
             
             if(technical_problem === null){
-                alert('Please Select Technical Problem');
+                alert('Please Select Symptom');
                 document.getElementById('technical_problem').style.borderColor = "red";
                 flag = 1;
                 return false;
@@ -725,22 +741,22 @@
             var technical_defect = $("#technical_defect").val();
             
             if(technical_defect === null){
-                alert('Please Select Technical Defect');
+                alert('Please Select Defect');
                 document.getElementById('technical_defect').style.borderColor = "red";
                 flag = 1;
                 return false;
             }
         <?php } ?>
-        <?php if(!empty($technical_solution)){ ?>
+        if($("#technical_solution").val() != '') {
             var technical_solution = $("#technical_solution").val();
             
             if(technical_solution === null){
-                alert('Please Select Technical Solution');
+                alert('Please Select Solution');
                 document.getElementById('technical_solution').style.borderColor = "red";
                 flag = 1;
                 return false;
             }
-        <?php } ?>
+        }
         var closing_remarks = $("#closing_remarks").val();
         if (closing_remarks === "") {
             alert("Please Enter Remarks");

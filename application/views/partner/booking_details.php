@@ -110,16 +110,17 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Remarks: </th>
-                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <th>Booking Request Symptom</th>
+                                        <th>Symptom (Booking Creation Time)</th>
                                         <td><?php if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                                        </td>
+                                        <th >Symptom (Booking Completion Time)</th>
+                                        <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } ;?>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Closing Technical Problem</th>
-                                        <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
-                                        <th >Technical Solution</th>
+                                        <th>Defect</th>
+                                        <td ><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
+                                        <th >Solution</th>
                                         <td style="max-width:200px;"><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                                     </tr>
                                     <tr>
@@ -135,7 +136,12 @@
                                         <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
                                                     <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
                                             <?php } ?></td>
-                                    </tr> 
+                                    </tr>
+                                    <tr>
+                                        <th>Remarks: </th>
+                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <td colspan="2">&nbsp;</td>
+                                    </tr>
                                 </table>
                                 <table class="table  table-striped table-bordered" id="relative_holder">
                         <tr>
@@ -423,6 +429,8 @@
                                                             <tr>
                                                                 <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
+                                                                <th>Pickup Request </th>
+                                                                <th>Pickup Schedule</th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
                                                                 <th >Shipped date </th>
@@ -436,6 +444,8 @@
                                                                 <tr>
                                                                     <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
+                                                                    <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
+                                                                    <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
@@ -468,6 +478,8 @@
                                                                 <th >Shipped Parts </th>
                                                                 <th >Courier Name </th>
                                                                 <th >AWB </th>
+                                                                <th> No. Of Boxes </th>
+                                                                <th> Weight</th>
                                                                 <th >Courier Charge </th>
                                                                 <th> Courier Invoice</th>
                                                                 <th >Shipped date </th>
@@ -481,15 +493,25 @@
                                                                 <tr>
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
-                                                                    <?php
-                                        $spareStatus = DELIVERED_SPARE_STATUS;
-                                        if(!$sp['defactive_part_received_date_by_courier_api']){
-                                            $spareStatus = $sp['status'];
-                                        }
-                                        ?>
+                                                                            <?php
+                                                                            $spareStatus = DELIVERED_SPARE_STATUS;
+                                                                            if (!$sp['defactive_part_received_date_by_courier_api']) {
+                                                                                $spareStatus = $sp['status'];
+                                                                            }
+                                                                            ?>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                                                    <td><?php
+                                                                                if (!empty($sp['awb_by_sf'])) {
+                                                                                    echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count'];
+                                                                                }
+                                                                          ?></td>
+                                                                    <td><?php
+                                                                        if (!empty($sp['awb_by_sf'])) {
+                                                                            echo $courier_boxes_weight_details['defective_parts_shipped_weight'];
+                                                                        }
+                                                                        ?></td>
                                                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
