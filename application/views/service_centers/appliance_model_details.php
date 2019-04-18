@@ -375,18 +375,42 @@ div.dataTables_wrapper div.dataTables_processing {
         appliance_model_details_table = $('#appliance_model_details').DataTable({
             "processing": true, 
             "serverSide": true,
+            "order": [], 
+            "pageLength": 25,
             "dom": 'lBfrtip',
-            "buttons": [
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "ordering": false,
+               "buttons": [
                 {
                     extend: 'excel',
-                    text: 'Export',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Appliance Model List',
                     exportOptions: {
-                        columns: [ 0, 1, 2 ]
-                    },
-                    title: 'appliance_model_details'+time,
-                    action: newExportAction
-                },
+                       columns: [0,1,2,3,4,5],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
             ],
+
+
+            // "buttons": [
+            //     {
+            //         extend: 'excel',
+            //         text: 'Export',
+            //         exportOptions: {
+            //             columns: [ 0, 1, 2 ]
+            //         },
+            //         title: 'appliance_model_details'+time
+            //        // action: newExportAction
+            //     },
+            // ],
             "language":{ 
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
