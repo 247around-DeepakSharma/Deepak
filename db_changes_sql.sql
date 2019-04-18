@@ -10461,3 +10461,6 @@ ALTER TABLE `alternate_inventory_set`
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
 
 
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
+---------Gorakh 18-04-2019
+ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;

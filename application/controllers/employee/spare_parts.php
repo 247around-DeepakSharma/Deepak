@@ -265,7 +265,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
-                . "spare_parts_details.acknowledge_date, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number ";
+                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number ";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
             $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, NULL, 'service_centres.name', NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL);
         } else {
@@ -646,7 +646,7 @@ class Spare_parts extends CI_Controller {
         if($spare_list->around_pickup_from_service_center == COURIER_PICKUP_SCHEDULE){
             $row[] = 'Pickup Schedule'; 
         } else if( $spare_list->around_pickup_from_service_center == COURIER_PICKUP_REQUEST) {
-            $row[] = '<input type="checkbox" class="form-control pickup_schedule" data-sf_id="'.$spare_list->service_center_id.'" id="pickup_schedule_'.$no.'" onclick="uncheckedPickupRequest(this.id)" value="'.$spare_list->id.'" />';
+            $row[] = '<input type="checkbox" class="form-control pickup_schedule" pickup_courier= "'.$spare_list->around_pickup_courier.'"  data-sf_id="'.$spare_list->service_center_id.'" id="pickup_schedule_'.$no.'" onclick="uncheckedPickupRequest(this.id)" value="'.$spare_list->id.'" />';
         } else {
             $row[] = '';
         }
@@ -2113,6 +2113,8 @@ class Spare_parts extends CI_Controller {
                 } else {
                     $spare_data['around_pickup_from_service_center'] = COURIER_PICKUP_SCHEDULE;
                 }
+                
+                $spare_data['around_pickup_courier'] = $post['courier_name'];
 
                 if (!in_array($spare_parts_details[0]['service_center_id'], $service_center_id_list)) {
                     array_push($service_center_id_list, $spare_parts_details[0]['service_center_id']);
