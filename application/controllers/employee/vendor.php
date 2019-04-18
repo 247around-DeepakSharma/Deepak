@@ -4642,8 +4642,15 @@ class vendor extends CI_Controller {
                 $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
             }
         }else{
-            $data['bank_details'] = arrya();
+            $data['bank_details'] = array();
         }
+
+
+
+        
+
+
+        //exit;
         
         //output data
         if($data['is_ajax']){
