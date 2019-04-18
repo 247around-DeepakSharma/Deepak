@@ -135,7 +135,7 @@
                         <th>Appliance</th>
                         <th>Type</th>
                         <th>Name</th>
-                        <th>Number</th>
+                        <th>Parts Number</th>
                         <th>Description</th>
                         <th>Size</th>
                         <th>HSN</th>

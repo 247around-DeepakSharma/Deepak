@@ -81,7 +81,7 @@
                                                         <th class="text-center">S.N</th>
                                                         <th class="text-center">Booking ID</th>
                                                         <th class="text-center">Spare Part</th>
-                                                        <th class="text-center">Part Code</th>
+                                                        <th class="text-center">Parts Number</th>
                                                         <th class="text-center">Age Of Requested</th>
                                                         <th class="text-center">Model No</th>
                                                         <th class="text-center">Serial No</th>

@@ -2126,8 +2126,8 @@ class Inventory extends CI_Controller {
         $row[] = $no;
         $row[] = $stock_list->services;
         $row[] = $stock_list->type;
-        $row[] = $stock_list->part_name;
-        $row[] = $stock_list->part_number;
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->part_name ."</span>";
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->part_number ."</span>";
         $row[] = $stock_list->description;
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
@@ -3605,7 +3605,7 @@ $row[] = '<span id="total_amount_'.$inventory_list->inventory_id.'">'.number_for
         $row[] = $inventory_list->invoice_id;
         $row[] = $inventory_list->type;
         $row[] = $inventory_list->part_name;
-        $row[] = $inventory_list->part_number;
+        $row[] = "<span style='word-break: break-all;'>". $inventory_list->part_number ."</span>";
         $row[] = $inventory_list->quantity;
         $row[] = $inventory_list->courier_name;
         //$row[] = "<a href='#' onclick='get_msl_awb_details('".$inventory_list->courier_name."','".$inventory_list->AWB_no."','".$inventory_list->status."','msl_awb_loader_'".$inventory_list->AWB_no."')'>".$inventory_list->AWB_no."</a> <span id='msl_awb_loader_$inventory_list->AWB_no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>"; 
@@ -5770,4 +5770,5 @@ if ($this->session->userdata('userType') == 'service_center') {
         $return['message'] = "Status Updated Successfully";
         echo json_encode($return);
     }
+    
 }
