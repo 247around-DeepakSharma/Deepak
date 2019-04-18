@@ -1044,9 +1044,11 @@
             </div>
         </div>
         <!-- RM wise booking status -->
-
+    </div>
+    
+    <div class="row" style="margin-top:10px;">
         <!-- Logged In Users -->
-        <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding-right:0px !important">
+        <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="x_panel">
                     <div class="x_title">
@@ -1058,12 +1060,12 @@
                         <center><img id="loggedin_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                         <div class="table-responsive" id="loggedin_table_data">
                             <i class="fa fa-refresh" aria-hidden="true" id='refresh_icon' onclick='get_loggedin_users(this.id)' style="float:right;cursor:pointer;"></i><br>
-                            <table class="table table-striped table-bordered jambo_table bulk_action" border="1">
+                            <table class="table table-striped table-bordered jambo_table bulk_action" border="1" style="text-align:center;">
                                 <thead>
                                     <tr>
-                                        <th>Vendor</th>
-                                        <th>Partner</th>
-                                        <th>Admin</th>
+                                        <th style="text-align:center;">Vendor</th>
+                                        <th style="text-align:center;">Partner</th>
+                                        <th style="text-align:center;">Admin</th>
                                     </tr>
                                 </thead>
                                 <tbody id='tbody_loggedin_user'>
@@ -1576,7 +1578,7 @@
                 {
                     alert(response['data']);
                 }
-                var str = "<td align='right'>"+response['data']['service_center']+"&nbsp;</td><td align='right'>"+response['data']['partner']+"&nbsp;</td><td align='right'>"+response['data']['employee']+"&nbsp;</td>";
+                var str = "<td><b>"+response['data']['service_center']+"</b></td><td><b>"+response['data']['partner']+"</b></td><td><b>"+response['data']['employee']+"</b></td>";
 
                 $('#loggedin_loader').hide();
                 $("#tbody_loggedin_user").html(str);

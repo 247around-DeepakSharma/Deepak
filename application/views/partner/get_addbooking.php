@@ -267,7 +267,7 @@
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                 <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
+                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                 <?php echo form_error('purchase_date'); ?>
                             </div>
                         </div>
@@ -280,9 +280,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <label for="booking_request_symptom">Symptom * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                 <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
-                                    <option disabled selected>Select Identified Problem</option>
+                                    <option disabled selected>Please Select Any Symptom</option>
                                 </select>
                                 <?php echo form_error('booking_request_symptom'); ?>
                             </div>
@@ -413,6 +413,7 @@
         var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
+        var symptom = $('#booking_request_symptom option:selected').text();
         //var model_value = $("#model_number_1").val();
         var user_regex = /^([a-zA-Z\s]*)$/;
         if(!mobile_number.match(exp1)){
@@ -518,6 +519,10 @@
              return false;
         } else {
            display_message("purchase_date","error_purchase_date","green",""); 
+        }
+        if(symptom === "" || symptom === "Please Select Any Symptom"){
+            alert("Please Enter Symptom");
+            return false;
         }
         
         if(not_visible === 0){
@@ -1215,7 +1220,6 @@
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
-                console.log(data);
                 if(data === "Error"){
                     $('#booking_request_symptom').html("").change();
                     $("#booking_request_symptom").removeAttr('required');

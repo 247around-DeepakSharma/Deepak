@@ -16,6 +16,10 @@
             <th>Vendor Payout</th>
             <th>POD</th>
             <th>Upcountry</th>
+            
+            <th>Flat Partner Offer Upcountry</th>
+            <th>Flat Vendor Upcountry Payout</th>
+            <th>Flat Customer Upcountry Charges</th>
             <th>Select All <input type="checkbox" id="select_all" /></th>
             <?php } ?>
             
@@ -38,6 +42,9 @@
             <td><?php echo $value['vendor_total']; ?></td>
             <td><?php echo $value['pod']; ?></td>
             <td><?php echo $value['is_upcountry']; ?></td>
+            <td><?php echo $value['upcountry_partner_price']; ?></td>
+            <td><?php echo $value['upcountry_vendor_price']; ?></td>
+            <td><?php echo $value['upcountry_customer_price']; ?></td>
             <td><input type="checkbox" name="delete_charge[]" class="service_charge_id" value="<?php echo $value['id']; ?>" /></td>
             <?php } ?>
             

@@ -46,21 +46,7 @@
                         <tr>
                             <th>S.No.</th>
                             <th>Partner</th>
-                            <th>Referred Date and Time</th>
-                            <th>Sub Order Id</th>
-                            <th>Brand</th>
-                            <th>Model</th>
-                            <th>Product</th>
-                            <th>Product Description</th>
-                            <th>Customer Name</th>
-                            <th>Customer Address</th>
-                            <th>Pincode</th>
-                            <th>City</th>
-                            <th>Phone</th>
-                            <th>Email ID</th>
-                            <th>Order Item Id</th>
-                            <th>Service Promise Date</th>
-                            <th>Delivery Date</th>
+                            <th>Email Host</th>
                             <th>Agent Name</th>
                             <th>Edit</th>
                         </tr>
