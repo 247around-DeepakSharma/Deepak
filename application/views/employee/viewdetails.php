@@ -630,6 +630,8 @@
                                     <tr>
                                         <th>Part Shipped By Partner/Warehouse</th>
                                         <th>Shipped Parts </th>
+                                        <th>Pickup Request </th>
+                                        <th>Pickup Schedule</th>
                                         <th>Courier Name</th>
                                         <th>AWB </th>
                                         <th>Shipped date </th>
@@ -646,7 +648,9 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
-                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>                                        
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>   
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|courier_name_by_partner";?>"><?php echo str_replace(array('-','_'), ' ', $sp['courier_name_by_partner']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <input type="hidden" value="<?php echo $sp['courier_name_by_partner'];  ?>" id="<?php echo $sp['id']."_courier_name_by_partner";?>" />
