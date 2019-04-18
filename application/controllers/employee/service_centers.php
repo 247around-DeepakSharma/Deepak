@@ -1286,7 +1286,7 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-            
+            $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
                    
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
@@ -1771,7 +1771,9 @@ class Service_centers extends CI_Controller {
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
-                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                    if ($value['spare_request_symptom']) {
+                        $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                    }
                     $data['part_requested_on_approval'] = 0;
 
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {

@@ -155,16 +155,15 @@
                             <td style="max-width:200px;"><?php echo $booking_history[0]['booking_remarks']; ?></td>
                         </tr>
                         <tr >
-                            <th >Booking Request Symptom</th>
+                            <th >Symptom (Booking Creation Time)</th>
                             <td style="max-width: 200px;"><?php if(!empty($symptom)) { echo $symptom[0]['symptom']; } ?></td>
-                            <th >Reschedule Reason </th>
-                            <td style="max-width:200px;"><?php echo $booking_history[0]['reschedule_reason']; ?></td>
-                            
+                            <th>Symptom (Booking Completion Time)</th>
+                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
                         </tr>
                         <tr>
-                            <th>Closing Technical Problem</th>
-                            <td ><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; }?></td>
-                            <th >Technical Solution</th>
+                            <th >Defect</th>
+                            <td style="max-width:200px;"><?php if(!empty($technical_defect)) { echo $technical_defect[0]['defect']; }?></td>
+                            <th >Solution</th>
                             <td style="max-width:200px;"><?php if(!empty($technical_solution)) { echo $technical_solution[0]['technical_solution']; }?></td>
                         </tr>
                         <tr>
@@ -172,6 +171,11 @@
                             <td ><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th >Cancellation Reason </th>
                             <td style="max-width:200px;"><?php echo $booking_history[0]['cancellation_reason']; ?></td>
+                        </tr>
+                        <tr>
+                            <th >Reschedule Reason </th>
+                            <td style="max-width:200px;"><?php echo $booking_history[0]['reschedule_reason']; ?></td>
+                            <td colspan="2">&nbsp;</td>
                         </tr>
                     </table>
                 </div>

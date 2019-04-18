@@ -508,7 +508,7 @@
                                 <thead>
                                     <tr>
                                         <th >Partner/Warehouse </th>
-                                        <th>Technical Issue</th>
+                                        <!--<th>Technical Issue</th>-->
                                         <th >Model Number </th>
                                         <th >Requested Parts </th>
                                         <th> Parts Type </th>                                        
@@ -531,7 +531,7 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
                                         <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
-                                        <td><?php echo $sp['spare_request_symptom'];?></td>
+                                        <!--<td><?php echo $sp['spare_request_symptom'];?></td>-->
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
                                         <td><?php echo $sp['parts_requested_type']; ?></td>                                        

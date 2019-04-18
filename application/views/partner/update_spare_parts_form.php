@@ -22,19 +22,19 @@
                                 <div class="form-group ">
                                     <label for="booking_ids" class="col-md-4">Booking ID</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="booking_ids" name="booking_ids" value = "<?php echo $spare_parts[0]->booking_id; ?>" placeholder="Enter Booking ID" readonly="readonly" required>
+                                        <input type="text" class="form-control" id="booking_ids" name="booking_ids" value = "<?php echo ((isset($spare_parts[0]->booking_id)) ? $spare_parts[0]->booking_id : '') ?>" placeholder="Enter Booking ID" readonly="readonly" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="user" class="col-md-4">User</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="user" name="user_name" value = "<?php echo $spare_parts[0]->name; ?>"  readonly="readonly" required>
+                                        <input type="text" class="form-control" id="user" name="user_name" value = "<?php echo ((isset($spare_parts[0]->name)) ? $spare_parts[0]->name : '') ?>"  readonly="readonly" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="mobile" class="col-md-4">Mobile</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="mobile" name="mobile" value = "<?php echo $spare_parts[0]->booking_primary_contact_no; ?>" placeholder="Enter Mobile" readonly="readonly" required>
+                                        <input type="text" class="form-control" id="mobile" name="mobile" value = "<?php echo ((isset($spare_parts[0]->booking_primary_contact_no)) ? $spare_parts[0]->booking_primary_contact_no : '') ?>" placeholder="Enter Mobile" readonly="readonly" required>
                                     </div>
                                 </div>
                             </div>
@@ -42,34 +42,34 @@
                                 <div class="form-group ">
                                     <label for="model_number" class="col-md-4">Model Number</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="model_number" name="model_number" value = "<?php echo $spare_parts[0]->model_number; ?>"  readonly="readonly" required>
+                                        <input type="text" class="form-control" id="model_number" name="model_number" value = "<?php echo ((isset($spare_parts[0]->model_number)) ? $spare_parts[0]->model_number : '') ?>"  readonly="readonly" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="serial_number" class="col-md-4">Serial Number</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="serial_number" name="serial_number" value = "<?php echo $spare_parts[0]->serial_number; ?>"  readonly="readonly" required>
+                                        <input type="text" class="form-control" id="serial_number" name="serial_number" value = "<?php echo ((isset($spare_parts[0]->serial_number)) ? $spare_parts[0]->serial_number : '') ?>"  readonly="readonly" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="dop" class="col-md-4">Date of Purchase</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="dop" name="dop" value = "<?php echo $spare_parts[0]->date_of_purchase; ?>"  readonly="readonly" required>
+                                        <input type="text" class="form-control" id="dop" name="dop" value = "<?php echo ((isset($spare_parts[0]->date_of_purchase)) ? $spare_parts[0]->date_of_purchase : '') ?>"  readonly="readonly" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="invoice_pic" class="col-md-4">Invoice Image</label>
                                     <div class="col-md-6">
-                                        <?php if(!is_null($spare_parts[0]->invoice_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]->invoice_pic;?>" target="_blank" id="invoice_pic">View Image</a>
+                                        <?php if(!empty($spare_parts) && !is_null($spare_parts[0]->invoice_pic)){ ?>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo ((isset($spare_parts[0]->invoice_pic)) ? $spare_parts[0]->invoice_pic : '')?>" target="_blank" id="invoice_pic">View Image</a>
                                         <?php } ?>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="serial_no_pic" class="col-md-4">Serial Number Image</label>
                                     <div class="col-md-6">
-                                        <?php if(!is_null($spare_parts[0]->serial_number_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" target="_blank" id="serial_no_pic">View Image</a>
+                                        <?php if(!empty($spare_parts) && !is_null($spare_parts[0]->serial_number_pic)){ ?>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo ((isset($spare_parts[0]->serial_number_pic)) ? $spare_parts[0]->serial_number_pic : '')?>" target="_blank" id="serial_no_pic">View Image</a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -80,7 +80,7 @@
             </div>
         </div>
     </div>
-    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>partner/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
+    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>partner/process_update_spare_parts/<?php echo ((isset($spare_parts[0]->booking_id)) ? $spare_parts[0]->booking_id : '') ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
         <div class="row">
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
@@ -88,8 +88,8 @@
                         <h2 class="col-md-12">Update Spare Part <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h2>
                         <div class="clearfix"></div>
                     </div>
-                    <input type="hidden" name="request_type" value="<?php echo $spare_parts[0]->request_type?>"/>
-                    <input type="hidden" class="form-control" name="booking_id" value = "<?php echo $spare_parts[0]->booking_id; ?>"  required>
+                    <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
+                    <input type="hidden" class="form-control" name="booking_id" value = "<?php echo ((isset($spare_parts[0]->booking_id)) ? $spare_parts[0]->booking_id : '') ?>"  required>
                     <?php
                     $purchase_price = 0;
                     $warranty_status = SPARE_PART_IN_WARRANTY_STATUS;
@@ -122,12 +122,12 @@
                                 
                                 <div class="col-md-5">
 
-                                    <div class="form-group ">
+                                    <!--<div class="form-group ">
                                         <label for="symptom" class="col-md-4">Technical Problem</label>
                                         <div class="col-md-6">
                                             <textarea class="form-control" id="<?php echo "sparerequestsymptom_". $key; ?>" name="part[<?php echo $key;?>][spare_request_symptom]" readonly="readonly" ><?php echo $value->spare_request_symptom; ?></textarea>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Code</label>
@@ -377,7 +377,7 @@
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?> required  <?php } ?>>
+                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
                                     <?php echo form_error('approx_value'); ?>
                                 </div>
                             </div>
@@ -426,7 +426,7 @@
                     <div class="x_content">
                         <div class="text-center">
                             
-                            <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo $spare_parts[0]->assigned_vendor_id ;?>">
+                            <input type="hidden" name="assigned_vendor_id" id="assigned_vendor_id" value="<?php echo ((isset($spare_parts[0]->assigned_vendor_id)) ? $spare_parts[0]->assigned_vendor_id : '') ?>">
                             <input type="hidden" name="part_warranty_status" value="<?php echo $warranty_status ;?>">
                             <input type="submit"  <?php if ($purchase_price > 0) { ?> 
                                 onclick="return check_invoice_amount()" <?php } ?> value="Update Booking" class="btn btn-md btn-success" id="submit_form"/>
@@ -581,7 +581,7 @@
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
                     $('#shippedpartsname_'+key).val('val', "");
                     $('#shippedpartsname_' +key).val('Select Part Name').change();
@@ -611,7 +611,7 @@
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_price',
-                data: { part_name:part_name,model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>'},
+                data: { part_name:part_name,model_number_id:model_number_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>'},
                 success:function(data){
                     //console.log(data);
                     var obj = JSON.parse(data);
@@ -722,10 +722,10 @@
      <?php }else{ ?>         
 <script type="text/javascript">
     $(document).ready(function(){
-    var service_id = "<?php echo $spare_parts[0]->service_id; ?>"; 
+    var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 
     get_inventory_pary_type(service_id,'shippedparttype_0');
     $(".addButton").on('click',function(){  
-        var service_id = "<?php echo $spare_parts[0]->service_id; ?>";    
+        var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>";    
         var numItems = $('.spare_clone').length;
         spare_part_type_id = "shippedparttype_"+numItems;
         get_inventory_pary_type(service_id,spare_part_type_id);
@@ -743,7 +743,7 @@
             for(i=1; i < section_length; i++){
                 $("#shippedparttype_"+i).html(data);
             }
-           $('#shippedparttype_0 option[value="<?php echo strtoupper($spare_parts[0]->parts_requested); ?>"]').attr('selected','selected');                
+           $('#shippedparttype_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested) ? strtoupper($spare_parts[0]->parts_requested) : '') ?>"]').attr('selected','selected');                
        }
     });
     }        
