@@ -1545,6 +1545,12 @@ class Booking extends CI_Controller {
             $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
         } 
+        
+      $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+        if ($spare_parts_details[0]) {
+            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+        }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
