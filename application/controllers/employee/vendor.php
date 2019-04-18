@@ -1782,6 +1782,7 @@ class vendor extends CI_Controller {
         if(!empty($id)){
             $data['data'] = $this->vendor_model->get_engg_by_id($id); 
         }
+        $data['data'][0]['appliance_id'] = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$id, "is_active"=>1), "service_id");
         if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -1839,18 +1840,24 @@ class vendor extends CI_Controller {
 
                 //applicable services for an engineer come as array in service_id field.
                 $service_id = $this->input->post('service_id');
-                $services = array();
-                foreach ($service_id as $id) {
-                    array_push($services, array('service_id' => $id));
-                }
-
-                $data['appliance_id'] = json_encode($services);
+                
                 $data['active'] = "1";
                 $data['create_date'] = date("Y-m-d H:i:s");
 
                 $engineer_id = $this->vendor_model->insert_engineer($data);
 
                 if ($engineer_id) {
+                    //insert engineer appliance detail in engineer_appliance_mapping table
+                    $eng_services_data = array();
+                    foreach ($service_id as $id) {
+                        $eng_services['engineer_id'] = $engineer_id;
+                        $eng_services['service_id'] = $id;
+                        $eng_services['is_active'] = 1;
+                        array_push($eng_services_data, $eng_services);
+                    }
+
+                    $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
+                    
                     log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
                     $login["entity"] = "engineer";
                     $login["entity_name"] = $data['name'];
@@ -1943,16 +1950,16 @@ class vendor extends CI_Controller {
 
                 //applicable services for an engineer come as array in service_id field.
                 $service_id = $this->input->post('service_id');
-                $services = array();
-                foreach ($service_id as $id) {
-                    array_push($services, array('service_id' => $id));
-                }
-
-                $data['appliance_id'] = json_encode($services);
+                
                 $data['update_date'] = date("Y-m-d H:i:s");
 
                 $where = array('id' => $engineer_id);
-                $engineer_id = $this->vendor_model->update_engineer($where, $data);
+                $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
+                
+                if($engineer_id){
+                    
+                    $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                }
 
                 log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
@@ -4654,8 +4661,15 @@ class vendor extends CI_Controller {
                 $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
             }
         }else{
-            $data['bank_details'] = arrya();
+            $data['bank_details'] = array();
         }
+
+
+
+        
+
+
+        //exit;
         
         //output data
         if($data['is_ajax']){

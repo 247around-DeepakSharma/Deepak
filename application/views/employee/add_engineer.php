@@ -89,7 +89,7 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
                                                 <?php if(isset($data)){
-                                                    $appliance_id = json_decode($data[0]['appliance_id'], TRUE);
+                                                    $appliance_id = $data[0]['appliance_id'];
                                                     foreach($appliance_id as $key =>$value){
                                                         $list[] = $value['service_id'];
                                                     }

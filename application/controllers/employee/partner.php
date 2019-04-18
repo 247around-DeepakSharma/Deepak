@@ -207,7 +207,10 @@ class Partner extends CI_Controller {
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         if (!empty($spare_parts_details)) {
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
-            $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+           if(!empty($courier_boxes_weight)){
+               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+           }
+            
         }
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
@@ -5802,7 +5805,7 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
                     $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
-                    $tempArray[] =  $row['part_number'];
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
                     $tempArray[] =  $row['model_number'];
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];

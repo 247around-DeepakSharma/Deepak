@@ -163,9 +163,9 @@ class Login extends CI_Controller {
             'is_am' => $is_am
         );
         
-        if($this->db->login_partner_id){
-            $userSession['login_partner_id'] = $this->db->login_partner_id;
-        }
+//        if($this->db->login_partner_id){
+//            $userSession['login_partner_id'] = $this->db->login_partner_id;
+//        }
         }
         else{
             //Logging Message 
