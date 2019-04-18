@@ -423,6 +423,8 @@
                                                             <tr>
                                                                 <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
+                                                                <th>Pickup Request </th>
+                                                                <th>Pickup Schedule</th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
                                                                 <th >Shipped date </th>
@@ -436,6 +438,8 @@
                                                                 <tr>
                                                                     <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
+                                                                    <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
+                                                                    <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>

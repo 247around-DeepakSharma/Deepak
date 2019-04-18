@@ -314,6 +314,8 @@
              $("#modal_title").html('Pickup Schedule'); 
              $("#spare_pick_up").html("Schedule");
              $("#request_type").val('3');
+              var pickup_courier = $(".pickup_schedule:checkbox:checked").attr("pickup_courier");
+              $('#courier_name option[value="'+pickup_courier+'"]').attr("selected", "selected");
           }
           
             $("#spare_parts_ids").val(spare_ids_arr);
@@ -338,7 +340,7 @@
         var courier_name = $("#courier_name").val();
         var courier_email = $("#courier_to_email").val();
         var cc_email = $("#courier_cc_email").val();
-                        
+                               
         var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;  
         if(courier_name =='' || courier_name == null){
             $("#courier_name_err").html('Please Select Courier Name.').css({color:'red'});
@@ -370,7 +372,7 @@
                 cache: false,
                 data: $('#spare_parts_pick_up').serialize(),
                 success: function(data) {                    
-                   if(data=='success'){
+                   if(data){
                        $('#pickup_modal').modal('hide');
                        defective_part_pending_table.ajax.reload(null, false);
                    } 
