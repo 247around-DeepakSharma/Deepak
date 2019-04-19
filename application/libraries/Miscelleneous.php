@@ -305,10 +305,10 @@ class Miscelleneous {
                     } else {
                         
                         $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                        $booking['flat_upcountry'] =0;
-                        $booking['upcountry_sf_payout'] = 0;
+                        $booking['flat_upcountry'] = 0;
+                        $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                         $booking['partner_upcountry_charges'] = 0;
-                        $booking['upcountry_to_be_paid_by_customer'] =  0;
+                        $booking['upcountry_to_be_paid_by_customer'] =  $cust_price;
                     }
                     
 
@@ -330,20 +330,19 @@ class Miscelleneous {
                         
                          if(!empty($is_not_upcountry) && in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
                         
-                                $cust_price = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                                $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                                $cust_price = $is_not_upcountry[0]['upcountry_customer_price'];
+                                $booking['flat_upcountry'] = $is_not_upcountry[0]['flat_upcountry'];
+                                $booking['upcountry_sf_payout'] = $is_not_upcountry[0]['upcountry_vendor_price'];
+                                $booking['partner_upcountry_charges'] = $is_not_upcountry[0]['upcountry_partner_price'];
+                                $booking['upcountry_to_be_paid_by_customer'] = $is_not_upcountry[0]['upcountry_customer_price'];
                             } else {
 
                                 $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['flat_upcountry'] = 0;
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
+                                $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['partner_upcountry_charges'] = 0;
                                 $booking['upcountry_to_be_paid_by_customer'] = $cust_price;
-                                $booking['upcountry_to_be_paid_by_customer'] =  0;
+                               
                             }
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
@@ -380,11 +379,11 @@ class Miscelleneous {
                             $data['message'] = UPCOUNTRY_BOOKING;
                         }
                     }
-                    if(in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
-                        $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                        $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                        $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                        $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                    if(in_array(1, array_column($is_upcountry, 'flat_upcountry')) !== FALSE ){
+                        $booking['flat_upcountry'] = $is_upcountry[0]['flat_upcountry'];
+                        $booking['upcountry_sf_payout'] = $is_upcountry[0]['upcountry_vendor_price'];
+                        $booking['partner_upcountry_charges'] = $is_upcountry[0]['upcountry_partner_price'];
+                        $booking['upcountry_to_be_paid_by_customer'] = $is_upcountry[0]['upcountry_customer_price'];
                     }
                    
                     if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {

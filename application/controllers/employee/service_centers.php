@@ -292,9 +292,13 @@ class Service_centers extends CI_Controller {
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if ($spare_parts_details[0]) {
+
+        if (!empty($spare_parts_details)) {
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
-            $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+            if(!empty($courier_boxes_weight)){
+               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
+            }
+            
         }
 
         $this->load->view('service_centers/header');
@@ -1283,7 +1287,7 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-            
+            $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
                    
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
@@ -1768,7 +1772,9 @@ class Service_centers extends CI_Controller {
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
-                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                    if ($value['spare_request_symptom']) {
+                        $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                    }
                     $data['part_requested_on_approval'] = 0;
 
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {

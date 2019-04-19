@@ -223,17 +223,25 @@
         appliance_model_details_table = $('#appliance_model_details').DataTable({
             "processing": true, 
             "serverSide": true,
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "dom": 'lBfrtip',
-            "buttons": [
+                "buttons": [
                 {
                     extend: 'excel',
-                    text: 'Export',
-                    exportOptions: {
-                        columns: [ 0, 1, 2,3,4,5 ]
-                    },
-                    title: 'appliance_model_details'+time,
-                    action: newExportAction
-                },
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Model List', 
+                    exportOptions: { 
+                       columns: [0,1,2,3,4,5],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
             ],
             "language":{ 
                 "processing": "<div class='spinner'>\n\
@@ -408,3 +416,22 @@
         appliance_model_details_table.ajax.reload();
     };
 </script>
+<style type="text/css">
+    
+    .dataTables_length {
+    width: 12% !important;
+}
+
+
+        @media (min-width: 1200px){
+.container {
+    width: 100% !important;
+}
+
+.dataTables_filter{
+
+
+    float: right !important;
+    margin-top: -30px !important;
+}
+</style>

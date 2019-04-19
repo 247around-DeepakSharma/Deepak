@@ -127,7 +127,7 @@ foreach($booking_unit_details as $data){
     </td>
   </tr>
   <tr>
-    <td><p><b>Technical Issue</b></p></td>
+    <td><p><b>Symptom</b></p></td>
     <td colspan="5">
         <p><?php echo $symptom;?></p>
     </td>
