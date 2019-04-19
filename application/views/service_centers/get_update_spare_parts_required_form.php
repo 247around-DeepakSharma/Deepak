@@ -138,9 +138,11 @@
                                                 </select>
                                             </div>
                                             <?php } ?>
-                                            
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>                              
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
@@ -156,7 +158,6 @@
                                                 <input type="text" class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" value = "<?php echo $spare_parts_details['parts_requested']; ?>" placeholder="Parts Name" >
                                             </div>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
                                         
                                     </div>
@@ -171,7 +172,9 @@
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" id="display_defective_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                            <?php } ?>
                                         </div>
-                                    </div>                                    
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -346,7 +349,7 @@ function get_inventory_id(id){
             postData['request_type'] = array;
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
-        get_technical_problem(postData,'0');
+        //get_technical_problem(postData,'0');
     });
 
    function get_symptom(key){      
@@ -379,17 +382,7 @@ function get_inventory_id(id){
          });
     }
     
-    $(document).ready(function(){
-        var service_id = "<?php echo $spare_parts_details['service_id']; ?>";
-        $.ajax({
-            method:'POST',
-            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-            data: { service_id:service_id},
-            success:function(data){                       
-                $('.spare_parts_type').html(data);                  
-            }
-        });
-    });
+    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

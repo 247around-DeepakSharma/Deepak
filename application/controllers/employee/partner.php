@@ -1870,7 +1870,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING);
-        $where['select'] = "symptom_spare_request.spare_request_symptom, inventory_master_list.part_number, booking_details.booking_id, users.name, "
+        $where['select'] = "inventory_master_list.part_number, booking_details.booking_id, users.name, "
                 . "booking_primary_contact_no,parts_requested, "
                 . "spare_parts_details.model_number, spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
