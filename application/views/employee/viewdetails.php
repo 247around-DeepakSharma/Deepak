@@ -736,7 +736,7 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_sf'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
                                                         if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
