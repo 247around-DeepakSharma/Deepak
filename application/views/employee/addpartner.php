@@ -5216,6 +5216,7 @@
                     url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
                     data: {ifsc_code:ifsc_code, entity_type:"partner", entity_id:$("#partner_id").val()},
                     success: function (response) {
+                        response = response.trim();
                         if(response=='"Not Found"'){
                             $("#ifsc_validation").val("");
                             $("#info_div").css("display", "none");
