@@ -122,17 +122,17 @@
                                 
                                 <div class="col-md-5">
 
-                                    <!--<div class="form-group ">
-                                        <label for="symptom" class="col-md-4">Technical Problem</label>
-                                        <div class="col-md-6">
-                                            <textarea class="form-control" id="<?php echo "sparerequestsymptom_". $key; ?>" name="part[<?php echo $key;?>][spare_request_symptom]" readonly="readonly" ><?php echo $value->spare_request_symptom; ?></textarea>
-                                        </div>
-                                    </div>-->
                                     
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Code</label>
                                         <div class="col-md-6">
                                             <textarea class="form-control" id="<?php echo "requestedpartscode_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_code]" readonly="readonly"><?php echo $value->part_number; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label for="parts_name" class="col-md-4">Requested Parts</label>
+                                        <div class="col-md-6">
+                                            <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
                                         </div>
                                     </div>
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
@@ -197,10 +197,12 @@
                                             <textarea class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" required><?php echo $value->parts_requested_type; ?></textarea>
                                         </div>
                                     </div>
-                                    <div class="form-group ">
-                                        <label for="parts_name" class="col-md-4">Requested Parts</label>
+                                    <div class="form-group <?php
+                                        if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
+                                        <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
                                         <div class="col-md-6">
-                                            <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
+                                            <textarea class="form-control" id="<?php echo "remarks_".$key; ?>" name="part[<?php echo $key;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
+                                            <?php echo form_error('remarks_by_partner'); ?>
                                         </div>
                                     </div>
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>
@@ -230,14 +232,7 @@
                                         </div>
                                         <?php } ?>
                                     </div>
-                                    <div class="form-group <?php
-                                        if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
-                                        <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
-                                        <div class="col-md-6">
-                                            <textarea class="form-control" id="<?php echo "remarks_".$key; ?>" name="part[<?php echo $key;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
-                                            <?php echo form_error('remarks_by_partner'); ?>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
