@@ -2001,7 +2001,7 @@ class vendor extends CI_Controller {
            $select = "service_centres.name, service_centres.id";
            $service_center = $this->vendor_model->getVendorDetails($select, $where);
            $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = json_decode($value['appliance_id'],true);
+           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value['id'], "is_active"=>1), "service_id");
            $appliances = array();
            if(!empty($service_id)){
                 foreach ($service_id as  $values) {
