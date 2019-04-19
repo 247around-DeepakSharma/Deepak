@@ -49,7 +49,7 @@ include 'customer_foc_bill_of_supply_variables.php';
 
 
             <tr style="height: 20px" class="bold"><td colspan="6" style="border-right: 2px solid;">Name: Blackmelon Advance Technology Co. Pvt. Ltd.</td></tr>
-            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051</td></tr>
+            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051</td></tr>
             <tr><td colspan="2">GSTIN: 07AAFCB1281J1ZQ</td>
                 <td colspan="3" width="30%">Place of Supply: Delhi</td>	
                 <td style="border-right: 2px solid;">Code: 07</td></tr>
