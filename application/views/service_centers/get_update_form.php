@@ -273,9 +273,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
+                                        </div>-->
                                         <div class = 'col-md-6'>
                                             <div class="form-group">
                                                 <label for="parts_type" class="col-md-4">Part Type *</label>
