@@ -292,6 +292,18 @@ class Booking extends CI_Controller {
 
                             array_push($updated_unit_id, $result['unit_id']);
                             array_push($price_tag, $result['price_tags']);
+                            $booking_symptom = $this->booking_model->getBookingSymptom($booking_id);
+                            if(count($booking_symptom)>0)
+                            {
+                                $bookingSymptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
+                                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                            }
+                            else {
+                                $bookingSymptom['booking_id'] = $booking_id;
+                                $bookingSymptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
+                                $bookingSymptom['create_date'] = date("Y-m-d H:i:s");
+                                $this->booking_model->addBookingSymptom($bookingSymptom);
+                            }
                             break;
                     }
                 }
@@ -1368,9 +1380,11 @@ class Booking extends CI_Controller {
                 $vendor_data = array();
                 $vendor_data[0]['vendor_id'] = $assigned_vendor_id;
                 $vendor_data[0]['city'] = $this->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
-                $vendor_data[0]['min_upcountry_distance'] = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
-                        array('id' =>$assigned_vendor_id))[0]['min_upcountry_distance'];
-            
+                $min_upcountry_distance = $this->vendor_model->getVendorDetails("min_upcountry_distance", 
+                        array('id' =>$assigned_vendor_id));
+                if(!empty($min_upcountry_distance)) {
+                    $vendor_data[0]['min_upcountry_distance'] = $min_upcountry_distance[0]['min_upcountry_distance'];
+                }
                 $upcountry_data = $this->upcountry_model->action_upcountry_booking($booking_city, $booking_pincode, $vendor_data, $partner_data);
             }
 
@@ -1547,6 +1561,7 @@ class Booking extends CI_Controller {
         $data['symptom'] =  array();
         $data['completion_symptom'] =  array();
         $data['technical_solution'] =  array();
+        $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
             $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         
@@ -1705,7 +1720,7 @@ class Booking extends CI_Controller {
                 $booking['services'] = $this->booking_model->selectservice();
             }
 
-            
+            $service_category = array();
             $booking['capacity'] = array();
             $booking['category'] = array();
             $booking['brand'] = array();
@@ -1759,7 +1774,23 @@ class Booking extends CI_Controller {
                 array_push($booking['capacity'], $capacity);
                 array_push($booking['prices'], $prices);
                 array_push($booking['model'], $model);
+                foreach ($value['quantity'] as $key => $price_tag) {
+                    $price_tags1 = str_replace('(Free)', '', $price_tag['price_tags']);
+                    $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                    array_push($service_category, $price_tags2);
+                }
             }
+            $booking['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        
+            $booking['symptom'] = array();
+            if(!empty($service_category)) {
+                $booking['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                        array('service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+            }
+            if(count($booking['symptom']) <= 0) {
+                $booking['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
+            }
+            
             $booking['is_repeat'] = $is_repeat;
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
@@ -2691,6 +2722,7 @@ class Booking extends CI_Controller {
                     if (!empty($order_id)) {
                         //Check only If booking is not Repeat
                             $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $order_id, $booking_id,'Yes');
+                            if(is_array($partner_booking))
                             $recordCount = count($partner_booking);
                             if (is_null($partner_booking)) {
                                 return true;
@@ -4964,8 +4996,10 @@ class Booking extends CI_Controller {
     }
     function update_old_spare_booking_tat(){
       $spareData =   $this->reusable_model->get_search_result_data("spare_parts_details","id,booking_id",array("date(date_of_request)>'2018-03-31'"=>NULL),NULL,NULL,array("spare_parts_details.date_of_request"=>"ASC"),NULL,NULL,array());
-        foreach($spareData as $values){
-            $this->miscelleneous->process_booking_tat_on_spare_request($values['booking_id'],$values['id']);
+        if(!empty($spareData)) { 
+            foreach($spareData as $values){
+                $this->miscelleneous->process_booking_tat_on_spare_request($values['booking_id'],$values['id']);
+            }
         }
     }
     function update_old_completed_booking_tat(){

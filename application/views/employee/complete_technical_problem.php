@@ -2,8 +2,8 @@
     <div class="panel-group">
         <div class="panel panel-info">
             <div class="panel-heading">
-             <h4>   Completion Technical Problem List
-                <a class="btn btn-primary pull-right btn-md" href ="<?php echo base_url();?>employee/booking_request/add_new_completion_technical_problem">Add Completion Technical Problem</a>
+             <h4>   Symptom List
+                <a class="btn btn-primary pull-right btn-md" href ="<?php echo base_url();?>employee/booking_request/add_new_completion_technical_problem">Add Symptom</a>
              </h4>
             </div>
             <div class="panel-body">
