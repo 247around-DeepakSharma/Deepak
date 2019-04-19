@@ -617,6 +617,8 @@
                 response = "<option disabled selected>Select Category</option>"+response;
                 $('#mapping_category').html(response);
                 $('#mapping_category').select2();
+                get_mapping_capacity();
+                
             }
         });
         
