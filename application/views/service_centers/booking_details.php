@@ -440,8 +440,8 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])) { ?>
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
-                                <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
-                                <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
+                                <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
+                                <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                 <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
