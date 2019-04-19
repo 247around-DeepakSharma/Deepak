@@ -615,7 +615,7 @@
             data:{partner_id:$('#model_entity_id').val(), service_id:$('#mapping_service_id').val()},
             success:function(response){
                 response = "<option disabled selected>Select Category</option>"+response;
-                $('#mapping_category').html(response);
+                $('#mapping_category').html(response).change();
                 $('#mapping_category').select2();
             }
         });
