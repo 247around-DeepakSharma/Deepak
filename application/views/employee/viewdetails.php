@@ -1929,7 +1929,7 @@ background-color: #f5f5f5;
         $.ajax({
                     method: 'POST',
                     data: {},
-                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id'] ?>/'+type_val,
+                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php if(!empty($booking_history)){ echo $booking_history[0]['booking_id']; }?>/'+type_val,
                     success: function (response) {
                         if(type_val == 2){
                             document.getElementById("commentbox").remove();
