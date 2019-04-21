@@ -1460,12 +1460,14 @@ class Service_centers extends CI_Controller {
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
                 $data['requested_inventory_id'] = $current_inventory_id;
-                if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {                    
+                if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {
                     $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -1);
                 }
             } else {
                 $data['requested_inventory_id'] = $previous_inventory_id;
             }
+        } else {
+            $data['requested_inventory_id'] = $previous_inventory_id;
         }
 
         $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
@@ -4464,7 +4466,7 @@ class Service_centers extends CI_Controller {
                 . " AND wh_ack_received_part != 0 ";
         
         $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
