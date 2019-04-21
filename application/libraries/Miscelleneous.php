@@ -3267,8 +3267,13 @@ function generate_image($base64, $image_name,$directory){
                 . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
-        $is_partner_wh = $partner_details[0]['is_wh'];
-        $is_micro_wh = $partner_details[0]['is_micro_wh'];
+        $is_partner_wh = '';
+        $is_micro_wh = '';
+        if(!empty($partner_details)){
+          $is_partner_wh = $partner_details[0]['is_wh'];
+          $is_micro_wh = $partner_details[0]['is_micro_wh'];  
+        }
+        
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {

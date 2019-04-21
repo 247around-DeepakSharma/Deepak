@@ -630,15 +630,21 @@ class Invoice_lib {
      */
     function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
-        $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
-        $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
-        $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
-        $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
-        $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
-        $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
-        $excel_data['excel_data']['partner_contact_person_name'] = $partner_details[0]['contact_person_name'];
-        $excel_data['excel_data']['partner_contact_number'] = $partner_details[0]['contact_number'];
-        $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];
+        if(!empty($sf_details)){
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
+            $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
+            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
+        }
+                
+        if(!empty($partner_details)){
+            $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
+            $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
+            $excel_data['excel_data']['partner_contact_person_name'] = $partner_details[0]['contact_person_name'];
+            $excel_data['excel_data']['partner_contact_number'] = $partner_details[0]['contact_number'];
+            $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];  
+        }
+        
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
 //        if(!empty($service_center_closed_date)){
