@@ -206,6 +206,8 @@
                                             <?php } ?>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="parts_name" class="col-md-4">Parts Name *</label>
@@ -233,6 +235,8 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -270,8 +274,6 @@
                                                 </div>
                                             </div>
                                         </div>-->
-                                    </div>
-                                    <div class="row">
                                         <div class = 'col-md-6'>
                                             <div class="form-group">
                                                 <label for="parts_type" class="col-md-4">Parts Type *</label>
@@ -289,8 +291,11 @@
                                                     </select>
                                                 </div>
                                                 <?php } ?>
+                                                <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="parts_name" class="col-md-4">Parts Name *</label>
@@ -308,7 +313,6 @@
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
                                                 </div>
                                                 <?php } ?>
-                                                <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -319,6 +323,8 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>

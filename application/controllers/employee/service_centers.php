@@ -1443,9 +1443,6 @@ class Service_centers extends CI_Controller {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
                 
-                if ($value['spare_request_symptom']) {
-                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
-                }
                 
             }
         }
@@ -1471,7 +1468,7 @@ class Service_centers extends CI_Controller {
         }
 
         $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-
+        if(!empty($data['requested_inventory_id']))
         $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'));
 
         if (!empty($warehouse_details)) {
@@ -1773,9 +1770,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
-                    if ($value['spare_request_symptom']) {
-                        $data['spare_request_symptom'] = $value['spare_request_symptom'];
-                    }
+                    
                     $data['part_requested_on_approval'] = 0;
 
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
@@ -4565,7 +4560,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
-        $where['select'] = "symptom_spare_request.spare_request_symptom,booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+        $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
 
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
