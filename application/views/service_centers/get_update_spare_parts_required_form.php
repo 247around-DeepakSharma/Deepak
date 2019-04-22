@@ -387,6 +387,7 @@ function get_inventory_id(id){
     }
     
     function submitForm(){
+        var checkbox_value = 1;
         var model_number = $('#model_number').val();
         var serial_number = $("#serial_number").val();
         var prob_des = $("#prob_desc").val();
@@ -416,21 +417,23 @@ function get_inventory_id(id){
         }
         $('.parts_name').each(function() {
             var id = $(this).attr('id');
-            if(id !== "parts_name"){
+            if(id === "parts_name"){
                 if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                     alert('Please Enter Part Name');
+                    checkbox_value = 0;
                     return false;
 
                 }
               }
 
-            });
+        });
 
         $('.parts_type').each(function() {
             var id = $(this).attr('id');
-            if(id !== "parts_type"){
+            if(id === "parts_type"){
                 if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                     alert('Please Enter Part Type');
+                    checkbox_value = 0;
                     return false;
                 }
             }
@@ -439,9 +442,10 @@ function get_inventory_id(id){
 
         $('.defective_parts_pic').each(function() {
             var id = $(this).attr('id');
-            if(id !== "defective_parts_pic"){
+            if(id === "defective_parts_pic"){
                 if($(this).val().length === 0){
                     alert('Please Upload Defective Front Part Image');
+                    checkbox_value = 0;
                     return false;
                 }
             }
@@ -449,9 +453,10 @@ function get_inventory_id(id){
 
         $('.defective_back_parts_pic').each(function() {
             var id = $(this).attr('id');
-            if(id !== "defective_back_parts_pic"){
+            if(id === "defective_back_parts_pic"){
                 if($(this).val().length === 0){
                     alert('Please Upload Defective Back Part Image');
+                    checkbox_value = 0;
                     return false;
                 }
             }
@@ -461,7 +466,8 @@ function get_inventory_id(id){
             var id = $(this).attr('id');
             if(id !== "part_in_warranty_status"){
                 if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                    alert('Please Select Part Warranty Status');    
+                    alert('Please Select Part Warranty Status');  
+                    checkbox_value = 0;
                     return false;
                 }
             }
@@ -470,8 +476,12 @@ function get_inventory_id(id){
         if(prob_des === "" || prob_des === null){
             alert("Please Enter problem description");
             return false;
+        } 
+        if(checkbox_value === 0){
+            return false;
         }
-        return true;
+        else
+            return true;
     }
     
 </script>
