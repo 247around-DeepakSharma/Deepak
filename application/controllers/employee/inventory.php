@@ -5613,20 +5613,36 @@ class Inventory extends CI_Controller {
      *  @return : array
      */
     function update_model_number_mapping(){ 
-        $return = array();
-        $details = array(
+        $return = array();;
+        $where = array(
             "partner_id" => $this->input->post("partner_id"),
             "service_id" => $this->input->post("service_id"),
             "brand" => $this->input->post("brand"),
             "category" => $this->input->post("category"),
-            "capacity" => $this->input->post("capacity"),
             "model" => $this->input->post("model"),
+            "id != '".$this->input->post("partner_appliance_details_id")."'" => null
         );
-        
-        $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("partner_appliance_details_id")), $details);
-        
-        $return['status'] = true; 
-        $return['message'] = "Mapped Model Number Updated Successfully";
+        if($this->input->post("capacity")){
+            $where['capacity'] = $this->input->post("capacity");
+        }
+        $data = $this->partner_model->get_partner_appliance_details($where, 'id');
+        if(empty($data)){
+            $details = array(
+                "partner_id" => $this->input->post("partner_id"),
+                "service_id" => $this->input->post("service_id"),
+                "brand" => $this->input->post("brand"),
+                "category" => $this->input->post("category"),
+                "capacity" => $this->input->post("capacity"),
+                "model" => $this->input->post("model"),
+            );
+            $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("partner_appliance_details_id")), $details);
+            $return['status'] = true; 
+            $return['message'] = "Mapped Model Number Updated Successfully";
+        }
+        else{
+            $return['status'] = false; 
+            $return['message'] = "Model Number Mapping Already Exist";
+        }            
         echo json_encode($return);
     }
     

@@ -3149,7 +3149,7 @@
                          <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity*</label>
+                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="edit_mapping_capacity" name="edit_mapping_capacity">
                                         </select>
@@ -5180,6 +5180,7 @@
                     response = JSON.parse(response);
                     alert(response.message);
                     model_mapping_datatable.ajax.reload();
+                    $('#map_appliance_model').modal('toggle');
                 }
             });
         }
