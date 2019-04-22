@@ -292,9 +292,13 @@ class Service_centers extends CI_Controller {
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if ($spare_parts_details[0]) {
+
+        if (!empty($spare_parts_details)) {
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
-            $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+            if(!empty($courier_boxes_weight)){
+               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
+            }
+            
         }
 
         $this->load->view('service_centers/header');
@@ -378,10 +382,17 @@ class Service_centers extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $price_tags));
         
+        if(count($data['technical_problem']) <= 0) {
+            $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
+        }
+        
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
                     array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+        }
+        else {
+            $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
         }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -1276,7 +1287,7 @@ class Service_centers extends CI_Controller {
 
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-            
+            $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
                    
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
@@ -1433,9 +1444,6 @@ class Service_centers extends CI_Controller {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
                 
-                if ($value['spare_request_symptom']) {
-                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
-                }
                 
             }
         }
@@ -1450,16 +1458,18 @@ class Service_centers extends CI_Controller {
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
                 $data['requested_inventory_id'] = $current_inventory_id;
-                if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {                    
+                if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {
                     $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -1);
                 }
             } else {
                 $data['requested_inventory_id'] = $previous_inventory_id;
             }
+        } else {
+            $data['requested_inventory_id'] = $previous_inventory_id;
         }
 
         $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-
+        if(!empty($data['requested_inventory_id']))
         $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'));
 
         if (!empty($warehouse_details)) {
@@ -1761,7 +1771,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
-                    $data['spare_request_symptom'] = $value['spare_request_symptom'];
+                    
                     $data['part_requested_on_approval'] = 0;
 
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
@@ -4445,7 +4455,7 @@ class Service_centers extends CI_Controller {
                 . " AND wh_ack_received_part != 0 ";
         
         $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
@@ -4545,7 +4555,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $where['length'] = -1;
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
-        $where['select'] = "symptom_spare_request.spare_request_symptom,booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+        $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
@@ -5902,6 +5912,9 @@ class Service_centers extends CI_Controller {
         if(!empty($symptom_id)){
           $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $symptom_id));
         }
+        else {
+            $data[0] = array('defect_id' => 1, 'defect' => 'Default');
+        }
         echo json_encode($data);
     }
     
@@ -5915,6 +5928,9 @@ class Service_centers extends CI_Controller {
         $data = array();
         if(!empty($symptom_id) && !empty($defect_id)){
           $data = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $symptom_id, 'defect_id' => $defect_id));
+        }
+        else {
+            $data[0] = array('solution_id' => 1, 'technical_solution' => 'Default');
         }
         echo json_encode($data);
     }

@@ -22,7 +22,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="true">Part Status</th>
@@ -56,7 +56,7 @@
                                 <th class="text-center" data-orderable="false">Service Center</th>
                                 <th class="text-center" data-orderable="false">Partner</th>
                                 <th class="text-center" data-orderable="false">Requested Part</th>
-                                <th class="text-center" data-orderable="false">Part Code</th>
+                                <th class="text-center" data-orderable="false">Parts Number</th>
                                 <th class="text-center" data-orderable="false">Part Type</th>
                                 <th class="text-center" data-orderable="false">Shipped Part</th>
                                 <th class="text-center" data-orderable="false">Booking Type</th>
@@ -96,7 +96,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -130,7 +130,7 @@
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>   
+                                    <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -192,7 +192,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
@@ -225,7 +225,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
-                                         <th class="text-center" data-orderable="false">Part Code</th>
+                                         <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Shipped Date</th>
                                         <th class="text-center" data-orderable="false">Courier Name</th>
                                         <th class="text-center" data-orderable="false">AWB</th>
@@ -263,7 +263,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false"> Part Code</th>
+                                        <th class="text-center" data-orderable="false"> Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -302,7 +302,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
@@ -339,7 +339,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -376,7 +376,7 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>

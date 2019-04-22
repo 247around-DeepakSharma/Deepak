@@ -110,10 +110,11 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Remarks: </th>
-                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
-                                        <th>Symptom</th>
-                                        <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } else if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                                        <th>Symptom (Booking Creation Time)</th>
+                                        <td><?php if(!empty($symptom)){ echo $symptom[0]['symptom'];};?>
+                                        </td>
+                                        <th >Symptom (Booking Completion Time)</th>
+                                        <td><?php if(!empty($completion_symptom)) { echo $completion_symptom[0]['symptom']; } ;?>
                                         </td>
                                     </tr>
                                     <tr>
@@ -135,7 +136,12 @@
                                         <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
                                                     <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
                                             <?php } ?></td>
-                                    </tr> 
+                                    </tr>
+                                    <tr>
+                                        <th>Remarks: </th>
+                                        <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                                        <td colspan="2">&nbsp;</td>
+                                    </tr>
                                 </table>
                                 <table class="table  table-striped table-bordered" id="relative_holder">
                         <tr>
@@ -491,17 +497,26 @@
                                                                             ?>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                                                    <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                                                    
                                                                     <td><?php
-                                                                                if (!empty($sp['awb_by_sf'])) {
+                                                                                if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])) {
                                                                                     echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count'];
                                                                                 }
                                                                           ?></td>
                                                                     <td><?php
-                                                                        if (!empty($sp['awb_by_sf'])) {
-                                                                            echo $courier_boxes_weight_details['defective_parts_shipped_weight'];
-                                                                        }
-                                                                        ?></td>
+                                                                            if (!empty($sp['awb_by_sf'])) {
+                                                                                if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
+                                                                                    $expl_data = explode('.', $courier_boxes_weight_details['defective_parts_shipped_weight']);
+                                                                                    if (!empty($expl_data[0])) {
+                                                                                        echo $expl_data[0] . ' KG ';
+                                                                                    }
+                                                                                    if (!empty($expl_data[1])) {
+                                                                                        echo $expl_data[1] . ' Gram';
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                                    ?></td>
+                                                                    <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>

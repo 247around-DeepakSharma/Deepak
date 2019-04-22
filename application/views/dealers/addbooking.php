@@ -1,4 +1,4 @@
-
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
     /* example styles for validation form demo */
     .err {
@@ -268,9 +268,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <label for="booking_request_symptom">Symptom * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                 <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
-                                    <option disabled selected>Select Identified Problem</option>
+                                    <option disabled selected>Please Select Any Symptom</option>
                                 </select>
                                 <?php echo form_error('booking_request_symptom'); ?>
                             </div>
@@ -448,7 +448,7 @@
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', 
-        minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>'
+        minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
         maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     
     
@@ -945,7 +945,6 @@
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
-                console.log(data);
                 if(data === "Error"){
                     $('#booking_request_symptom').html("").change();
                     $("#booking_request_symptom").removeAttr('required');

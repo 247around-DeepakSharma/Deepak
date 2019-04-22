@@ -53,7 +53,7 @@ include("sf_foc_tax_invoice_variables_intrastate.php");
 
 
 	<<tr style="height: 20px"><td colspan="10">Name: Blackmelon Advance Technology Co. Pvt. Ltd.</td></tr>
-	<tr style="height: 5%; "><td colspan="10" style="padding-top: 2%; padding-bottom: 2%">Address: A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051</td></tr>
+	<tr style="height: 5%; "><td colspan="10" style="padding-top: 2%; padding-bottom: 2%">Address: A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051</td></tr>
 	<tr><td colspan="3">GSTIN: 07AAFCB1281J1ZQ</td>
 		<td colspan="6">Place of Supply: Delhi</td>	
 		<td>Code: 07</td></tr>

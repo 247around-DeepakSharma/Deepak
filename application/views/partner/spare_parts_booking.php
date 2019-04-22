@@ -54,7 +54,7 @@
                                     <th class="text-center">Customer Name</th>
                                     <th class="text-center">Part Request Age(Days)</th>
                                     <th class="text-center">Required Parts</th>
-                                    <th class="text-center">Part Code</th>
+                                    <th class="text-center">Parts Number</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
