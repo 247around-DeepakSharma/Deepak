@@ -458,7 +458,7 @@
                                 <div class="col-md-8">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost +$upcountry_charges;; ?>" placeholder="Total Price" readonly>
+                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo floatval($paid_basic_charges) + floatval($paid_additional_charges) + floatval($paid_parts_cost) +floatval($upcountry_charges); ?>" placeholder="Total Price" readonly>
                                     </div>
                                 </div>
                             </div>
