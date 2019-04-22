@@ -189,7 +189,7 @@
                                     </div>
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
-                                            <label for="parts_type" class="col-md-4">Parts Type *</label>
+                                            <label for="parts_type" class="col-md-4">Part Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" >
@@ -210,7 +210,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="parts_name" class="col-md-4">Parts Name *</label>
+                                            <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
@@ -222,7 +222,7 @@
                                             <input type="hidden" id="requested_inventory_id_0" name="part[0][requested_inventory_id]" value="" /> 
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Parts Name" required="">
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Part Name" required="">
                                             </div>
                                             <?php } ?>                                           
                                         </div>
@@ -278,7 +278,7 @@
                                     <div class="row">
                                         <div class = 'col-md-6'>
                                             <div class="form-group">
-                                                <label for="parts_type" class="col-md-4">Parts Type *</label>
+                                                <label for="parts_type" class="col-md-4">Part Type *</label>
                                                 <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                 <div class="col-md-6">
                                                     <select class="form-control parts_type spare_parts" id="parts_type">
@@ -300,7 +300,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="parts_name" class="col-md-4">Parts Name *</label>
+                                                <label for="parts_name" class="col-md-4">Part Name *</label>
                                                 <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                 <div class="col-md-6">
                                                     <select class="form-control parts_name spare_parts" id="parts_name" onchange="get_inventory_id(this.id)">
@@ -312,7 +312,7 @@
                                                 </div>
                                                 <?php } else { ?> 
                                                 <div class="col-md-6">
-                                                    <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Parts Name" >
+                                                    <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Part Name" >
                                                 </div>
                                                 <?php } ?>
                                             </div>
@@ -541,7 +541,7 @@
                 var id = $(this).attr('id');
                 if(id !== "parts_name"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Enter Parts Name');
+                        alert('Please Enter Part Name');
                         checkbox_value = 0;
                         return false;
                         
@@ -554,7 +554,7 @@
                 var id = $(this).attr('id');
                 if(id !== "parts_type"){
                     if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
-                        alert('Please Enter Parts Type');
+                        alert('Please Enter Part Type');
                         checkbox_value = 0;
                        return false;
                     }
@@ -566,7 +566,7 @@
                 var id = $(this).attr('id');
                 if(id !== "defective_parts_pic"){
                     if($(this).val().length === 0){
-                        alert('Please Upload Back Front Defective Front Parts Image');
+                        alert('Please Upload Defective Front Part Image');
                         checkbox_value = 0;
                        return false;
                     }
@@ -577,7 +577,7 @@
                 var id = $(this).attr('id');
                 if(id !== "defective_back_parts_pic"){
                     if($(this).val().length === 0){
-                        alert('Please Upload Back Defective Back Parts Image');
+                        alert('Please Upload Defective Back Part Image');
                         checkbox_value = 0;
                        return false;
                     }
