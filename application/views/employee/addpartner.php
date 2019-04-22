@@ -4765,10 +4765,10 @@
     
     function get_services(partner_id){
         $.ajax({
-            type:'GET',
+            type:'POST',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
+            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
+            data:{partner:partner_id},
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
@@ -4894,7 +4894,7 @@
             "pageLength": 10,
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/inventory/get_appliance_model_details",
+                "url": "<?php echo base_url(); ?>employee/inventory/get_partner_model_details",
                 "type": "POST",
                 data: function(d){ 
                     d.entity_id = $("#partner_id").val();
@@ -4962,7 +4962,7 @@
                         alert("Model Number Updated Successfully");
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("No Updation has been Done");
+                        alert("Model Number Already Exist");
                     }
                 }
             });
@@ -5070,6 +5070,7 @@
                 response = "<option  value='' disabled selected>Select Category</option>"+response;
                 $('#'+action+'mapping_category').html(response);
                 $('#'+action+'mapping_category').select2();
+                $('#'+action+'mapping_category').change();
             }
         });
         
@@ -5100,12 +5101,12 @@
     }
     
     function model_number_mapping(){
-        if(!$("#mapping_model_number").val()){
-            alert("Please Select Model Number");
+        if(!$("#mapping_service").val()){
+            alert("Please Select Appliance");
             return false;
         }
-        else if(!$("#mapping_service").val()){
-            alert("Please Select Service");
+        else if(!$("#mapping_model_number").val()){
+            alert("Please Select Model Number");
             return false;
         }
         else if(!$("#mapping_brand").val()){
@@ -5125,11 +5126,16 @@
                     response = JSON.parse(response);
                     console.log(response);
                     if(response.status == true){
+                        $("#mapping_service").prop('selectedIndex',0).change();
+                        $("#mapping_model_number").prop('selectedIndex',0).change();
+                        $("#mapping_brand").prop('selectedIndex',0).change();
+                        $("#mapping_category").prop('selectedIndex',0).change();
+                        $("#mapping_capacity").prop('selectedIndex',0).change();
                         alert("Model Mapped Successfully");
                         model_mapping_datatable.ajax.reload();
                     }
                     else{
-                       alert("Error");
+                       alert(response.message);
                     }
                     
                 }
