@@ -5685,7 +5685,10 @@ class Service_centers extends CI_Controller {
                     . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb));           
             if (!empty($awb)) {
                 $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $awb), array());
-                $data[0]['defective_parts_shipped_boxes_count'] = $courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
+                if (!empty($courier_boxes_weight_details)) {
+                    $data[0]['defective_parts_shipped_boxes_count'] = $courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
+                }
+
                 if (!empty($courier_boxes_weight_details[0]['defective_parts_shipped_weight'])) {
                     $weight_seperated = explode('.', $courier_boxes_weight_details[0]['defective_parts_shipped_weight']);
                     $data[0]['weight_in_kg'] = $weight_seperated[0];
