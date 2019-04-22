@@ -163,7 +163,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
                                             <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="">
-                                                <!--                                        <option selected disabled >Select Parts Name</option>-->
+                                                <!--                                        <option selected disabled >Select Part Name</option>-->
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
                                             <?php echo form_error('shipped_parts_name'); ?>
