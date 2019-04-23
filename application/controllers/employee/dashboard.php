@@ -2744,7 +2744,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         unset($data['seen']);
         $data['marquee'] = 1;
         $return['marquee_msg'] = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message", $data);
-        log_message('info', __METHOD__ . "=>query".$this->db->last_query());
+        //log_message('info', __METHOD__ . "=>query".$this->db->last_query());
         echo json_encode($return);
     }
     

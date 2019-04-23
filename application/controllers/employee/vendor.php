@@ -1033,7 +1033,7 @@ class vendor extends CI_Controller {
 //            }
             //Assign service centre and engineer
             $assigned_data = array('assigned_vendor_id' => $service_center_id,
-                'assigned_engineer_id' => DEFAULT_ENGINEER,
+                'assigned_engineer_id' => NULL,
                 'is_upcountry' => 0,
                 'upcountry_pincode' => NULL,
                 'sub_vendor_id' => NULL,
