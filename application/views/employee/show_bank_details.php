@@ -97,28 +97,26 @@
             <script>
                 function verify_bank_details(id,action,rm_email,poc_email,owner_email,sf_name){
                     if(action === 'approve'){
-                        $('#approve_'+id).html("<div>Processing...</div>");
+                      //  $('#approve_'+id).html("<div>Processing...</div>");
                     }else if(action === 'reject'){
-                        $('#reject_'+id).html("<div>Processing...</div>");
+                       // $('#reject_'+id).html("<div>Processing...</div>");
                     }
                     /////////////// START AJAX ////////////////
 
 if (action === 'approve') {
-
 var verify = "Verified";
-
+var color = "#5cb85c";
 }else{
-
 var verify = "Rejected";
-
+var color ="#3DD6B55";
 }
-
-
 swal({
   title: "Are you sure?",
   text: "SF bank details will be  "+verify,
-  type: "warning",
+  type: "info",
   showCancelButton: true,
+  confirmButtonColor: color,
+   cancelButtonColor: "#DD6B55", 
   confirmButtonClass: "btn-danger",
   confirmButtonText: "Yes, "+verify+" it!",
   cancelButtonText: "No, cancel please!",
@@ -163,7 +161,7 @@ function(isConfirm) {
 // );
 
   } else {
-    swal("Cancelled", "SF Bank Deatils are not "+verify, "error");
+    swal("Cancelled", "SF Bank Details are not "+verify, "error");
   }
 });
 

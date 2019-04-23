@@ -68,7 +68,9 @@
 
                     <?php    
                     $customertot = number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', '');
-                    $customertot = $customertot+($customertot*($value['oow_vendor_margin']+$value['oow_around_margin'])/100);
+
+
+                    $customertot = number_format((float)$customertot+($customertot*($value['oow_vendor_margin']+$value['oow_around_margin'])/100), 2, '.', '');
 
                                       ?>
 
