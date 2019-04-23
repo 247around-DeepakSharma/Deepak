@@ -1786,6 +1786,8 @@ class Service_centers extends CI_Controller {
 
                     if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
+                    } else {
+                        $data['requested_inventory_id'] = '';
                     }
 
                     /** search if there is any warehouse for requested spare parts
