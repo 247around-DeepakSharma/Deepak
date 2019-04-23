@@ -2105,7 +2105,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
-           echo  json_encode($sfData);
+            if($is_pending){
+                echo  json_encode($sfData);
+            }
+            else{
+                echo  json_encode($sfData['TAT']);
+            }
         }
     }
     
