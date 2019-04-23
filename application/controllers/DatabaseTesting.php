@@ -563,4 +563,56 @@ class DatabaseTesting extends CI_Controller {
             $this->partner_model->insert_data_in_batch("partner_code", $data, "gk");
         }
     }
+    
+    function all_partner_gst_checking_by_api(){
+        $partners = $this->partner_model->getpartner('', false);
+        foreach ($partners as $partner){
+            if($partner['gst_number']){
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://api.taxprogsp.co.in/commonapi/v1.1/search?aspid=1606680918&password=priya@b30&Action=TP&Gstin=".$partner['gst_number'],  
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                ));
+                $api_response = curl_exec($curl);
+                $err = curl_error($curl);
+                curl_close($curl);
+                if ($err) {
+                    echo "cURL Error :" . $err ."</br>"; 
+                    $emailBody =  "cURL Error :" . $err ."</br>"; 
+                    $this->notify->sendEmail('kalyanit@247around.com', 'kalyanit@247around.com', '', '', 'partner gst curl fail', $emailBody, "",'sf_permanent_on_off');
+                } else {
+                    $api_response = json_decode($api_response, TRUE);
+                    if(isset($api_response['error'])){
+                      $emailBody =json_encode($api_response, TRUE);
+                      $this->notify->sendEmail('kalyanit@247around.com', 'kalyanit@247around.com', '', '', 'partner gst error', $emailBody, "",'sf_permanent_on_off');
+                    }
+                    else{
+                        if(isset($api_response['dty'])){
+                            $data['gst_type'] = $api_response['dty'];
+                        }
+                        if(isset($api_response['sts'])){
+                            $data['gst_status'] = $api_response['sts'];
+                        }
+                       
+                        $this->partner_model->edit_partner($data, $partner['id']);
+                    }
+                }
+            }
+        }
+    }
+    
+    function engineer_old_date_appliances_mapping(){
+        $engineers = $this->engineer_model->get_engineers_details(array(), '*');
+        foreach ($engineers as $key => $value) {
+            $appliances = json_decode($value['appliance_id']);
+            if(!empty($appliances)){
+                foreach ($appliances as $akey => $avalue) {
+                    echo "insert into engineer_appliance_mapping (`engineer_id`, `service_id`, `is_active`) values ('".$value['id']."', '".$avalue->service_id."', '1');"."</br>";
+                }
+            }
+        }
+    }
 }
