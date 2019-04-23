@@ -533,8 +533,8 @@
                                     <tr>
                                         <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td>                                        
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>                                        
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -558,7 +558,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -802,8 +802,8 @@
                                      ?>
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
                                         <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
