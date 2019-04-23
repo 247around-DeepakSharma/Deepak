@@ -32,7 +32,8 @@ class buyback_scheduler extends CI_Controller {
                     $email_from = $email_template[2];
                     $to = $email_template[1];
                     $cc = $email_template[3];
-                    $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', BUYBACK_DISPUTED_ORDERS_SUMMARY);
+                    $bcc = $email_template[5];
+                    $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, '', BUYBACK_DISPUTED_ORDERS_SUMMARY);
                 }
     }
 }
