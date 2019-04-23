@@ -101,9 +101,9 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Part In Warranty*</label>
+                                            <label for="part_warranty" class="col-md-4">Part In Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
                                                     <option selected="" disabled="">Select warranty status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
                                                     <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
@@ -316,7 +316,6 @@ $(document).ready(function(){
                     url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
                     data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
                     success:function(data){
-                        console.log(data);                       
                         $('#parts_name').html(data);  
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
                         $("#current_inventory_id").val(inventory_id);
@@ -385,6 +384,104 @@ function get_inventory_id(id){
     
     function dop_calendar(){
         $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0}).datepicker('show');
+    }
+    
+    function submitForm(){
+        var checkbox_value = 1;
+        var model_number = $('#model_number').val();
+        var serial_number = $("#serial_number").val();
+        var prob_des = $("#prob_desc").val();
+        var dop = $("#dop").val();
+        var serial_number_pic = $('#serial_number_pic').val();
+
+        if(model_number ==="" || model_number === null){
+            alert("Please enter model number");
+            return false;
+        }
+
+        if(dop === ""){
+          alert("Please Select Date of Purchase");
+          checkbox_value = 0; 
+          return false;
+
+        }
+
+        if(serial_number === "" || serial_number === null){
+          alert("Please Enter serial number");
+          return false;
+        }
+
+        if(serial_number_pic.length === 0){
+          alert("Please Upload Serial Number Image");
+          return false;
+        }
+        $('.parts_name').each(function() {
+            var id = $(this).attr('id');
+            if(id === "parts_name"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Enter Part Name');
+                    checkbox_value = 0;
+                    return false;
+
+                }
+              }
+
+        });
+
+        $('.parts_type').each(function() {
+            var id = $(this).attr('id');
+            if(id === "parts_type"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Enter Part Type');
+                    checkbox_value = 0;
+                    return false;
+                }
+            }
+        });
+
+
+        $('.defective_parts_pic').each(function() {
+            var id = $(this).attr('id');
+            if(id === "defective_parts_pic"){
+                if($(this).val().length === 0){
+                    alert('Please Upload Defective Front Part Image');
+                    checkbox_value = 0;
+                    return false;
+                }
+            }
+        });
+
+        $('.defective_back_parts_pic').each(function() {
+            var id = $(this).attr('id');
+            if(id === "defective_back_parts_pic"){
+                if($(this).val().length === 0){
+                    alert('Please Upload Defective Back Part Image');
+                    checkbox_value = 0;
+                    return false;
+                }
+            }
+        });
+
+        $('.part_in_warranty_status').each(function() {
+            var id = $(this).attr('id');
+            if(id !== "part_in_warranty_status"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Select Part Warranty Status');  
+                    checkbox_value = 0;
+                    return false;
+                }
+            }
+        });
+        
+        if(prob_des === "" || prob_des === null){
+            alert("Please Enter problem description");
+            return false;
+        } 
+        if(checkbox_value === 0){
+            return false;
+        }
+        else
+            return true;
     }
     
 </script>
