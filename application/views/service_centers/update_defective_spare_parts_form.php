@@ -347,15 +347,14 @@
                             $("#courier_charges_by_sf").val("0");
                             $("#courier_charges_by_sf").css("display","none");
                             $('#defective_parts_shipped_boxes_count option[value="'+data.message[0]['defective_parts_shipped_boxes_count']+'"]').attr("selected", "selected");
-                            
-                            if(data.message[0]['defective_parts_shipped_boxes_count'] !=''){
+                           
+                            if(data.message[0]['defective_parts_shipped_boxes_count'] !='' && data.message[0]['defective_parts_shipped_boxes_count'] != undefined){
                                 $("#courier_boxes_weight_flag").val('1');
                                 $("#defective_parts_shipped_boxes_count").attr('disabled', true);
-                            }
-                            
-                            $("#defective_parts_shipped_weight_in_kg").val(data.message[0]['weight_in_kg']).attr('disabled', true);
-                            $("#defective_parts_shipped_weight_in_gram").val(data.message[0]['weight_in_gram']).attr('disabled', true);
-                            
+                                $("#defective_parts_shipped_weight_in_kg").val(data.message[0]['weight_in_kg']).attr('disabled', true);
+                                $("#defective_parts_shipped_weight_in_gram").val(data.message[0]['weight_in_gram']).attr('disabled', true);
+                            }                          
+                                                        
                             if(data.message[0].defective_courier_receipt){
                                
                                 $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
