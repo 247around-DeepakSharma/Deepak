@@ -4597,6 +4597,63 @@ $row[] = '<span id="total_amount_'.$inventory_list->inventory_id.'">'.number_for
         $this->load->view("employee/appliance_model_details");
     }
     
+     /**
+     *  @desc : This function is used to show partner appliance's model list in data table
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_model_details(){
+        $data = $this->get_partner_model_details_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("appliance_model_details", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("appliance_model_details", "count(model_number) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output); 
+    }
+    
+    function get_partner_model_details_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+
+        $post['order'] = array('appliance_model_details.model_number'=>"ASC", "services.services"=>"ASC");
+        $post['column_search'] = array('appliance_model_details.model_number', 'services.services');
+        $post['where'] = array('appliance_model_details.entity_id'=>$this->input->post('entity_id'));
+        $post['join'] = array(
+                            "services" => "services.id = appliance_model_details.service_id"
+                        );
+        $select = "appliance_model_details.*, services.services";
+
+        $post['joinType'] = array("services"=> "INNER");
+        $list = $this->reusable_model->get_datatable_data("appliance_model_details", $select, $post);
+        //log_message('info', __METHOD__. " kalyani ".$this->db->last_query());
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_partner_model_table($model_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    function get_partner_model_table($model_list, $no){
+        $row = array();
+        $json_data = json_encode($model_list);
+        $row[] = $no;
+        $row[] = $model_list->model_number;
+        $row[] = $model_list->services;
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>"; 
+        return $row;
+    }
+
     /**
      *  @desc : This function is used to show appliance model list
      *  @param : void
@@ -4772,7 +4829,15 @@ if ($this->session->userdata('userType') == 'service_center') {
      *  @return : $res array()
      */
     function edit_appliance_model_data($data) {
-        if($this->input->post('model_id')){
+        $aplliance_model_where = array(
+                            'service_id' => $data['service_id'],
+                            'model_number' => $data['model_number'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $data['entity_id'],
+                            'id != "'.$this->input->post('model_id').'"' => NULL
+                        );
+        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+        if(empty($model_detail)){
             $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);
             if (!empty($response)) {
                 $res['response'] = 'success';
@@ -4785,10 +4850,8 @@ if ($this->session->userdata('userType') == 'service_center') {
             }
         }else{
             $res['response'] = 'error';
-            $res['msg'] = 'Invalid Request';
+            $res['msg'] = 'Model Number Already Exist';
         }
-        
-        
         return $res;
     }
     
@@ -5675,10 +5738,11 @@ if ($this->session->userdata('userType') == 'service_center') {
                             "services" => "services.id = partner_appliance_details.service_id"
                         );
         $post['joinType'] = array("services"=> "INNER", "appliance_model_details"=>"LEFT");
-        $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number as model, partner_appliance_details.active";
+        $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number, partner_appliance_details.active";
 
 
         $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
+        //log_message('info', __METHOD__. "kalyani ".$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
@@ -5696,9 +5760,9 @@ if ($this->session->userdata('userType') == 'service_center') {
     
     function get_partner_mapped_model_table($model_list, $no, $source){
         $row = array();
-        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity, "model_number"=>$model_list->model));
+        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity, "model_number"=>$model_list->model_number));
         $row[] = $no;
-        $row[] = $model_list->model;
+        $row[] = $model_list->model_number;
         $row[] = $model_list->services;
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
@@ -5732,20 +5796,36 @@ if ($this->session->userdata('userType') == 'service_center') {
      *  @return : array
      */
     function update_model_number_mapping(){ 
-        $return = array();
-        $details = array(
+        $return = array();;
+        $where = array(
             "partner_id" => $this->input->post("partner_id"),
             "service_id" => $this->input->post("service_id"),
             "brand" => $this->input->post("brand"),
             "category" => $this->input->post("category"),
-            "capacity" => $this->input->post("capacity"),
             "model" => $this->input->post("model"),
+            "id != '".$this->input->post("partner_appliance_details_id")."'" => null
         );
-        
-        $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("partner_appliance_details_id")), $details);
-        
-        $return['status'] = true; 
-        $return['message'] = "Mapped Model Number Updated Successfully";
+        if($this->input->post("capacity")){
+            $where['capacity'] = $this->input->post("capacity");
+        }
+        $data = $this->partner_model->get_partner_appliance_details($where, 'id');
+        if(empty($data)){
+            $details = array(
+                "partner_id" => $this->input->post("partner_id"),
+                "service_id" => $this->input->post("service_id"),
+                "brand" => $this->input->post("brand"),
+                "category" => $this->input->post("category"),
+                "capacity" => $this->input->post("capacity"),
+                "model" => $this->input->post("model"),
+            );
+            $this->partner_model->update_partner_appliance_details(array("id"=> $this->input->post("partner_appliance_details_id")), $details);
+            $return['status'] = true; 
+            $return['message'] = "Mapped Model Number Updated Successfully";
+        }
+        else{
+            $return['status'] = false; 
+            $return['message'] = "Model Number Mapping Already Exist";
+        }            
         echo json_encode($return);
     }
     
