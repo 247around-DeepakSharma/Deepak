@@ -463,7 +463,8 @@ class Notify {
                          $dealerSms['booking_id'] = $query1[0]['booking_id'];
                          $dealerSms['smsData']['service'] = $query1[0]['services'];
                          $dealerSms['smsData']['call_type'] = $call_type[0];
-                         $dealerSms['smsData']['booking_type']='cancelled';
+                         $dealerSms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                         $dealerSms['smsData']['booking_type']='Cancelled';
                          $this->send_sms_msg91($dealerSms);
                       }
 			

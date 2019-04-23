@@ -460,7 +460,7 @@
                                                             </td>
                                                             <td>
                                                                 <?php
-                                                                 $onclick = "onclick='final_price(), enable_discount(this.id), set_upcountry()'";
+                                                                 $onclick = "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
                                                                 ?>
                                                                 <input type='hidden'name ='is_up_val'   data-customer_price = '<?php echo $price['upcountry_customer_price'];?>' data-flat_upcountry = '<?php echo $price['flat_upcountry'];?>' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
@@ -478,14 +478,14 @@
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                     $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true";
                                                                                     //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
-                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
                                                                                 }
                                                                             }
                                                                             else{ 
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
                                                                                    //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
-                                                                                    $onclick = 'onclick="final_price(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
                                                                                 }
                                                                             }
                                                                         }
@@ -493,7 +493,7 @@
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][<?php echo $clone_number; ?>][]' <?php if( $price['service_category'] ==REPAIR_OOW_PARTS_PRICE_TAGS){ if($customer_net_payable == 0){ echo "onclick='return false;' ";}}?>  <?php echo $onclick; ?> value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_1" ?>"  data-price_tag="<?php echo $price['service_category']?>" >
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -767,6 +767,12 @@
                                 <div class="col-md-6">
                                     <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
                                         <option disabled selected>Please Select Any Symptom</option>
+                                        <?php if(isset($symptom)) {
+                                            foreach ($symptom as $value) { 
+                                                $selected=((($value['id'] == 1) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time'])) ? 'selected' :'');  ?>
+                                            <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                         
+                                        <?php } } ?>
                                     </select>
                                 </div>
                             </div>
@@ -1032,7 +1038,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $('#repeat_booking_model').modal('hide');
     }
     
-    get_symptom('<?php echo $booking_history[0]['symptom'];?>');
+    //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:'');?>');
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
 

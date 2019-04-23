@@ -24,6 +24,7 @@
                                         <?php } ?> 
                                         <th class="text-center" data-orderable="false">Brands</th>
                                         <th  class="text-center" >Escalation</th>
+                                        <th  class="text-center" >Assign Engineer</th>
                                        <th class="text-center" data-orderable="false">Send Email</th> 
                                       <th class="text-center" data-orderable="false">Contacts</th> 
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -132,6 +133,7 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select></td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
@@ -203,6 +205,7 @@
                                         <?php } ?> 
                                         <th  class="text-center">Brands</th>
                                         <th  class="text-center">Escalation</th>
+                                        <th  class="text-center">Assign Engineer</th>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -299,6 +302,9 @@
                                                 <?php } ?>
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
@@ -803,4 +809,40 @@
         $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
         $("#relevant_content_modal").modal("show");
     }
+    
+    $(document).ready(function(){
+        $(".engineer_select").each(function(){  
+            var service_id = $(this).attr("service-id");
+            var engineer_id = $(this).attr("engineer-id");
+            var id = $(this).attr("id");
+            if(service_id){
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
+                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
+                    success: function (response) {
+                        $("#"+id).html(response);
+                        $("#"+id).select2();
+                   }
+                });
+            }
+        });
+    });
+    
+    $(".engineer_select").change(function(){
+        var booking_id = $(this).attr("booking-id");
+        if (confirm('Are you sure to assign this engineer for Booking Id'+booking_id)) {
+            var engineer = {};
+            engineer[booking_id] = $(this).val();
+            $.ajax({
+                type: 'post',
+                url: '<?php echo base_url()  ?>employee/service_centers/assigned_engineers',
+                data: {engineer:engineer},
+                success: function (response) {
+                    //console.log(response);
+                    location.reload();
+               }
+            });
+        } 
+    });
     </script>

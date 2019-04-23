@@ -283,7 +283,8 @@
                                                             <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if($price['is_sn_correct'] == IS_SN_CORRECT){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+
                                                             <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -457,7 +458,7 @@
                                 <div class="col-md-8">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost +$upcountry_charges;; ?>" placeholder="Total Price" readonly>
+                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo floatval($paid_basic_charges) + floatval($paid_additional_charges) + floatval($paid_parts_cost) +floatval($upcountry_charges); ?>" placeholder="Total Price" readonly>
                                     </div>
                                 </div>
                             </div>

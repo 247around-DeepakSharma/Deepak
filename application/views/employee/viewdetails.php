@@ -270,6 +270,7 @@
                         <thead>
                             <tr>
                                 <th>SF Name </th>
+                                <th>Engineer Name </th>
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
@@ -278,6 +279,7 @@
                         <tbody>
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
+                                <td><?php if(isset($booking_history[0]['assigned_engineer_name'])){echo $booking_history[0]['assigned_engineer_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
@@ -508,7 +510,6 @@
                                 <thead>
                                     <tr>
                                         <th >Partner/Warehouse </th>
-                                        <th>Technical Issue</th>
                                         <th >Model Number </th>
                                         <th >Requested Parts </th>
                                         <th> Parts Type </th>                                        
@@ -531,10 +532,9 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
                                         <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
-                                        <td><?php echo $sp['spare_request_symptom'];?></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td>                                        
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>                                        
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -558,7 +558,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -656,8 +656,8 @@
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>   
-                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_service_center'])){    echo 'Pickup Requested';} ?></td>
-                                        <td style="word-break: break-all;"><?php if(!empty($sp['around_pickup_from_partner'])){    echo 'Pickup Schedule';} ?></td>
+                                        <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
+                                        <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|courier_name_by_partner";?>"><?php echo str_replace(array('-','_'), ' ', $sp['courier_name_by_partner']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <input type="hidden" value="<?php echo $sp['courier_name_by_partner'];  ?>" id="<?php echo $sp['id']."_courier_name_by_partner";?>" />
@@ -736,7 +736,7 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_sf'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
                                                         if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
@@ -802,8 +802,8 @@
                                      ?>
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
                                         <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
@@ -1936,7 +1936,7 @@ background-color: #f5f5f5;
         $.ajax({
                     method: 'POST',
                     data: {},
-                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php echo $booking_history[0]['booking_id'] ?>/'+type_val,
+                    url: '<?php echo base_url(); ?>employee/booking/get_comment_section/<?php if(!empty($booking_history)){ echo $booking_history[0]['booking_id']; }?>/'+type_val,
                     success: function (response) {
                         if(type_val == 2){
                             document.getElementById("commentbox").remove();

@@ -152,5 +152,31 @@ class Engineer extends CI_Controller {
         $this->load->view('employee/review_engineer_action', array("data" => $data));
 
     }
+    
+    function get_service_based_engineer(){
+        $service_id = $this->input->post("service_id");
+        $service_center_id = $this->input->post("service_center_id");
+        $where = array(
+            "engineer_details.service_center_id" => $service_center_id,
+            "engineer_appliance_mapping.service_id" => $service_id,
+        );
+        if($service_id && $service_center_id){
+            $engineer = $this->engineer_model->get_service_based_engineer($where, "engineer_details.id, name");
+            $html = "<option disabled selected>Select Engineer</option>";
+            if(!empty($engineer)){
+                foreach ($engineer as $key => $value) {
+                    $html .= "<option value='".$value['id']."'";
+                    if($this->input->post("engineer_id") == $value['id']){
+                        $html .= "selected";
+                    }
+                    $html .= ">".$value['name']."</option>";
+                }
+            }
+            echo  $html;
+        }
+        else {
+            echo false;
+        }
+    }
 
 }

@@ -3149,7 +3149,7 @@
                          <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity*</label>
+                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="edit_mapping_capacity" name="edit_mapping_capacity">
                                         </select>
@@ -4024,7 +4024,7 @@
        $("#bank_name, #account_type, #account_number, #ifsc_code, #beneficiary_name, #BD_action").val(null);
        $("#bank_cancelled_check_img_update").css("display", "none");
        $("#bank_cancelled_check_img").show();
-       $("#BD_submit").val("Save Bank Deatil");
+       $("#BD_submit").val("Save Bank Detail");
        $('#bank_detail_form').hide();
     });
     
@@ -4276,7 +4276,7 @@
        $("#bank_cancelled_check_img_update").css("display", "inline");
        $("#bank_cancelled_check_img").hide();
        $("#BD_action").val(id);
-       $("#BD_submit").val("Update Bank Deatil");
+       $("#BD_submit").val("Update Bank Detail");
     }
     
     $("#is_micro_wh").on('click',function(){
@@ -4765,10 +4765,10 @@
     
     function get_services(partner_id){
         $.ajax({
-            type:'GET',
+            type:'POST',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
+            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
+            data:{partner:partner_id},
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
@@ -4894,7 +4894,7 @@
             "pageLength": 10,
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/inventory/get_appliance_model_details",
+                "url": "<?php echo base_url(); ?>employee/inventory/get_partner_model_details",
                 "type": "POST",
                 data: function(d){ 
                     d.entity_id = $("#partner_id").val();
@@ -4962,7 +4962,7 @@
                         alert("Model Number Updated Successfully");
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("No Updation has been Done");
+                        alert("Model Number Already Exist");
                     }
                 }
             });
@@ -5070,6 +5070,7 @@
                 response = "<option  value='' disabled selected>Select Category</option>"+response;
                 $('#'+action+'mapping_category').html(response);
                 $('#'+action+'mapping_category').select2();
+                $('#'+action+'mapping_category').change();
             }
         });
         
@@ -5100,12 +5101,12 @@
     }
     
     function model_number_mapping(){
-        if(!$("#mapping_model_number").val()){
-            alert("Please Select Model Number");
+        if(!$("#mapping_service").val()){
+            alert("Please Select Appliance");
             return false;
         }
-        else if(!$("#mapping_service").val()){
-            alert("Please Select Service");
+        else if(!$("#mapping_model_number").val()){
+            alert("Please Select Model Number");
             return false;
         }
         else if(!$("#mapping_brand").val()){
@@ -5125,11 +5126,16 @@
                     response = JSON.parse(response);
                     console.log(response);
                     if(response.status == true){
+                        $("#mapping_service").prop('selectedIndex',0).change();
+                        $("#mapping_model_number").prop('selectedIndex',0).change();
+                        $("#mapping_brand").prop('selectedIndex',0).change();
+                        $("#mapping_category").prop('selectedIndex',0).change();
+                        $("#mapping_capacity").prop('selectedIndex',0).change();
                         alert("Model Mapped Successfully");
                         model_mapping_datatable.ajax.reload();
                     }
                     else{
-                       alert("Error");
+                       alert(response.message);
                     }
                     
                 }
@@ -5179,6 +5185,7 @@
                     response = JSON.parse(response);
                     alert(response.message);
                     model_mapping_datatable.ajax.reload();
+                    $('#map_appliance_model').modal('toggle');
                 }
             });
         }
@@ -5203,7 +5210,7 @@
             var first4char =  ifsc_code.substring(0, 4);
             var first5char =  ifsc_code.substring(4, 5);
             if(!first4char.match(/^[A-Za-z]+$/)){
-                alert("In IFSC code first four digit should be Charecter");
+                alert("In IFSC code first four digit should be Character");
                 return false;
             }
             else if(first5char != "0"){
@@ -5216,8 +5223,10 @@
                     url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
                     data: {ifsc_code:ifsc_code, entity_type:"partner", entity_id:$("#partner_id").val()},
                     success: function (response) {
+                        response = response.trim();
                         if(response=='"Not Found"'){
                             $("#ifsc_validation").val("");
+                            $("#info_div").css("display", "none");
                             alert("Incorrect IFSC Code");
                         }
                         else{
@@ -5225,7 +5234,7 @@
                                 var bank_data = JSON.parse(response);
                                 $("#ifsc_validation").val(JSON.stringify(bank_data));
                                 $("#info_div").css("display", "block");
-                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK.toLowerCase()+" <br/> Branch = "+bank_data.BRANCH.toLowerCase()+" <br/> City = "+bank_data.CITY.toLowerCase()+" <br/> State = "+bank_data.STATE.toLowerCase()+" <br/> Address = "+bank_data.ADDRESS.toLowerCase());
                             }
                             else{
                                 $("#ifsc_validation").val("");
