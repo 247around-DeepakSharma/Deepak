@@ -404,7 +404,7 @@
     function get_services(div_to_update){
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/partner/get_service_id',
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id:<?php echo $this->session->userdata('partner_id');?>},
             success:function(response){
                 $('#'+div_to_update).html(response);
