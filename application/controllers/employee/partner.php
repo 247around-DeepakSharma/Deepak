@@ -5093,6 +5093,32 @@ class Partner extends CI_Controller {
     }
     
     /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_partner_specific_appliance(){
+        $partner_id = $this->input->get('partner_id');
+        if($partner_id){
+            $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance</option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value->id . "'";
+                $option .= " > ";
+                $option .= $value->services . "</option>";
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+    }
+    
+    /**
      * @desc: This function is used to show the inventory details of the partner
      * @params: void
      * @return: void

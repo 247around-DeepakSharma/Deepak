@@ -2088,7 +2088,7 @@ class Inventory extends CI_Controller {
     function get_master_list_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','services.services','services.id','serial_number');
+        $post['column_search'] = array('part_name','part_number','services.services','services.id');
         $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')));
         
         if($this->input->post('service_id') && $this->input->post('service_id') !== 'all'){
@@ -2343,7 +2343,7 @@ class Inventory extends CI_Controller {
         if(($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))){
             $post[''] = array();
             $post['column_order'] = array();
-            $post['column_search'] = array('part_name','part_number','serial_number','type');
+            $post['column_search'] = array('part_name','part_number','type');
             $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
 
             if ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {

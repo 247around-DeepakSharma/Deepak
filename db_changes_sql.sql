@@ -1579,9 +1579,6 @@ ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
 
 
--- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
-
-
 -- Belal 5 Jan
 
 ALTER TABLE `partners` ADD `owner_alternate_email` VARCHAR(50) NOT NULL AFTER `owner_email`;
@@ -10472,6 +10469,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
+
 --Kajal 09-April-2019  Ending ---
 
 --Kajal 09-April-2019  Ending ---
