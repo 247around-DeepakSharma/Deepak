@@ -1382,7 +1382,7 @@ class Booking_model extends CI_Model {
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
-                . 'booking_details.partner_id');
+                . 'booking_details.partner_id, booking_details.flat_upcountry');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');

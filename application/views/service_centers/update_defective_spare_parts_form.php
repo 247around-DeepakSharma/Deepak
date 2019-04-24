@@ -55,8 +55,11 @@
                     <!-- Close Panel Body -->
                 </div>
             </div>
+        <?php  
+        $datacourier =  $this->inventory_model->get_generic_table_details($spare_parts[0]['awb_by_sf']);
+        $billwight=explode('.', $datacourier[0]['billable_weight']);
+        ?>
             <?php $sp_id = array();?>
-          
                 <?php  foreach ($spare_parts as $value) { ?>
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="defective_part_shipped[<?php echo $value['id'];?>]" value="<?php echo $value['parts_shipped']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="partner_challan_number[<?php echo $value['id'];?>]" value="<?php echo $value['partner_challan_number']; ?>">
@@ -79,10 +82,19 @@
                                     <?php echo form_error('awb_by_sf'); ?>
 
                                 </div>
-                                <div class="form-group <?php if (form_error('courier_charges_by_sf')) { echo 'has-error';} ?>">
+                                <div id="courier_charges_by_sfrow" class="form-group <?php if (form_error('courier_charges_by_sf')) { echo 'has-error';} ?>">
                                     <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if((set_value("courier_charges_by_sf"))){ echo set_value("courier_charges_by_sf");} else{ echo $spare_parts[0]['courier_charges_by_sf'];}?>" placeholder="Please Enter Courier Charges"  required>
+
+
+                                        <?php 
+
+                             $awbcount= $this->inventory_model->getAwbCount($spare_parts[0]['awb_by_sf'],$spare_parts[0]['id']);
+                                        ?>
+
+
+
+                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if((set_value("courier_charges_by_sf"))){ echo set_value("courier_charges_by_sf");} else{ echo round($spare_parts[0]['courier_charges_by_sf']*$awbcount,0);}?>" placeholder="Please Enter Courier Charges"  required>
                                     </div>
                                     <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>
@@ -92,21 +104,43 @@
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required="">
                                             <option selected="" disabled="" value="">Select Boxes</option> 
                                             <?php for($i = 1 ; $i < 11; $i++){ ?>
-                                            <option value="<?php echo $i;?>"><?php echo $i; ?></option> 
+            <option value="<?php echo $i;?>"      <?php if($datacourier[0]['defective_parts_shipped_boxes_count']==$i) {echo 'selected';} ?>       ><?php echo $i; ?></option> 
                                             <?php } ?>
                                         </select>     
                                     </div>
                                     <?php echo form_error('awb_by_sf'); ?>
                                 </div>  
-                                <div class="form-group <?php if (form_error('defective_courier_receipt')) { echo 'has-error';} ?>">
+
+
+                                <div class="form-group  <?php if(!empty($value['defective_courier_receipt'])) {echo 'hideeee';}?>     <?php if (form_error('defective_courier_receipt')) { echo 'has-error';} ?>"   id="exist_courier_image_row">
                                     <label for="AWS Receipt" class="col-md-4">Courier Invoice *</label>
                                     <div class="col-md-6">
-                                        <input id="aws_receipt" class="form-control"  name="defective_courier_receipt" type="file" required  style="background-color:#fff;pointer-events:cursor">
+
+
+
+                                        <input id="aws_receipt" class="form-control <?php if(!empty($value['defective_courier_receipt'])) {echo 'hide';}?>"  name="defective_courier_receipt" type="file"   <?php if(empty($value['defective_courier_receipt'])) {echo 'required';}?>   value="<?php if(!empty($value['defective_courier_receipt'])) {echo $value['defective_courier_receipt'];}?>"      style="background-color:#fff;pointer-events:cursor">
+
+
                                         <?php if(!empty($value['defective_courier_receipt'])) {?><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $value['defective_courier_receipt']; ?> " target="_blank">Click Here to download previous invoice</a><?php } ?>
-                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
+
+
+                                        <input type="hidden" class="form-control"  value="<?php if(!empty($value['defective_courier_receipt'])) {echo $value['defective_courier_receipt'];}?>"  id="exist_courier_image" name="exist_courier_image" >
+
+
                                     </div>
                                      <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
+
+
+                                <?php  
+
+                               // print_r($value);
+
+
+                                ?>
+
+
+
                             </div>
                             <div class="col-md-6">                                                                
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) { echo 'has-error';} ?>">
@@ -137,8 +171,10 @@
                                 } ?>">
                                     <label for="courier" class="col-md-4">Weight *</label>
                                     <div class="col-md-6">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" name="defective_parts_shipped_gram" value=""placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="<?php if(!empty($datacourier[0]['billable_weight'])){echo $billwight[0];} ?>" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value="<?php if(!empty($datacourier[0]['billable_weight'])){echo $billwight[1];} ?>"   name="defective_parts_shipped_gram" value=""placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                     </div>
                                 <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
@@ -160,10 +196,14 @@
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
                     
                     <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']?>">
+
+                    
                     <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="">
                     <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id']?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                 </div>
+
+                <?php//  print_r($courier_details);  ?>
             </form>
         </div>
     </div>
@@ -335,14 +375,24 @@
                     url: '<?php echo base_url() ?>employee/service_centers/check_sf_shipped_defective_awb_exist',
                     data:{awb:awb},
                     success: function (response) {
-                        console.log(response);
+                        // console.log(response);
                         var data = jQuery.parseJSON(response);
+
+
+                     //console.log(re);
+
                         if(data.code === 247){
+
+                            $("#same_awb").css({"color":"green","font-weight":"900"});
+                          //  $("#same_awb").css("font-wight",900);
                             alert("This AWB already used same price will be added");
                             $("#same_awb").css("display","block");
                             $('body').loadingModal('destroy');
+
+                            $("#courier_name_by_sf").val("");
                            
                             $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
+<<<<<<< Updated upstream
                             $("#courier_name_by_sf").val(data.message[0].courier_name_by_sf);
                             $("#courier_charges_by_sf").val("0");
                             $("#courier_charges_by_sf").css("display","none");
@@ -360,14 +410,79 @@
                                 $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
                                 $("#aws_receipt").css("display","none");
                             }
+=======
+
+                           if(data.message[0].courier_name_by_sf){
+
+$("#courier_name_by_sf").val(data.message[0].courier_name_by_sf);
+// $("#courier_name_by_sf").attr('readonly',"readonly");
+var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
+// $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
+$('#courier_name_by_sf').val(courier).trigger('change');
+}
+
+ 
+$("#courier_charges_by_sf").val(data.message[0].courier_charge);
+if(data.message[0].courier_charge){
+//  defective_courier_receipt
+$("#courier_charges_by_sf").attr('readonly',"readonly");
+}
+
+  //alert(data.message[0]['partcount']);
+
+
+if (data.message[0].partcount==0) {
+$('#defective_parts_shipped_boxes_count').val("");
+// $('#defective_parts_shipped_boxes_count option[value="'+data.message[0]['partcount']+'"]').attr("selected", "selected");
+}else{
+$("#defective_parts_shipped_boxes_count").val("");
+$('#defective_parts_shipped_boxes_count').val(data.message[0]['partcount']).trigger('change');
+
+ 
+}
+                       
+if(data.message[0]['partcount'] !=''){
+$("#courier_boxes_weight_flag").val('1');
+//   $("#defective_parts_shipped_boxes_count").attr('readonly',"readonly");
+}
+                            
+                        //    alert(data.message[0]['partcount'])
+var wieght = data.message[0]['billable_weight'].split(".");
+if (wieght!='') {
+$("#defective_parts_shipped_weight_in_kg").val(wieght[0]).attr('readonly',"readonly");
+$("#defective_parts_shipped_weight_in_gram").val(wieght[1]).attr('readonly',"readonly");
+}else{
+$("#defective_parts_shipped_weight_in_kg").val("");
+$("#defective_parts_shipped_weight_in_gram").val("");
+}
+
+
+if(data.message[0].defective_courier_receipt){
+//  defective_courier_receipt
+$("#exist_courier_image").val(data.message[0].defective_courier_receipt);
+$("#aws_receipt").css("display","none");
+}
+>>>>>>> Stashed changes
 
                         } else {
+
+
 
                             $('body').loadingModal('destroy');
                             $("#aws_receipt").css("display","block");
                             $("#courier_charges_by_sf").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+
+                            $("#courier_name_by_sf").val("");
+                            $("#courier_charges_by_sf").val("");
+                            $("#defective_part_shipped_date").val("");
+                            $("#defective_parts_shipped_boxes_count").val("");
+
+                            $("#defective_parts_shipped_weight_in_kg").val("");
+                            $("#defective_parts_shipped_weight_in_gram").val("");
+                            $("#remarks").val("");
+                            $("#aws_receipt").css("display","block");
                         }
 
                     }

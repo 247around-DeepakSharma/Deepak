@@ -759,10 +759,10 @@ class bookings_excel extends CI_Controller {
         switch (strtolower(trim($submit_type))) {
             case 'add':
                 $data['create_date'] = date('Y-m-d H:i:s');
-                $response = $this->add_file_upload_header_mapping($data,$dataarr);
+                $response = $this->add_file_upload_header_mapping($data);
                 break;
             case 'edit':
-                $response = $this->edit_file_upload_header_mapping($data,$dataarr);
+                $response = $this->edit_file_upload_header_mapping($data);
                 break;
         }
         
@@ -774,7 +774,7 @@ class bookings_excel extends CI_Controller {
      *  @param : $data array()
      *  @return : $res array()
      */
-    function add_file_upload_header_mapping($data,$dataarr) {
+    function add_file_upload_header_mapping($data) {
 
 
         
@@ -821,8 +821,8 @@ class bookings_excel extends CI_Controller {
      *  @param : $data array()
      *  @return : $res array()
      */
-    function edit_file_upload_header_mapping($data,$dataarr) {
-        $response = $this->partner_model->update_partner_file_upload_header_mapping(array('id' => $this->input->post('file_upload_header_mapping_id')), $data);
+    function edit_file_upload_header_mapping($data) {
+$response = $this->partner_model->update_partner_file_upload_header_mapping(array('id' => $this->input->post('file_upload_header_mapping_id')), $data);
         if (!empty($response)) {
 
 
@@ -838,13 +838,13 @@ class bookings_excel extends CI_Controller {
                       'file_type'=>trim($filename),
                       'send_file_back'=>trim($this->input->post('sendback')),
                       'revert_file_to_email'=>trim($this->input->post('revertemail')),
-                      'email_function_name'=>'employee/do_background_upload_excel/process_upload_file',
+                      'email_function_name'=>'employee/do_background_upload_excel/process_upload_file'
                      // 'email_map_id'=>$response
 
             );
 
 
-                      $this->db->where('email_map_id',$this->input->post('email_map_id'));
+            $this->db->where('email_map_id',$this->input->post('email_map_id'));
             $this->db->update('email_attachment_parser',$dataarr);
 
 
