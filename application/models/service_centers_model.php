@@ -373,7 +373,7 @@ class Service_centers_model extends CI_Model {
         return $result;
     }
 
- 
+
     /**
      * @desc: This is used to update micro warehouse state mapping table
      * @param Array $where

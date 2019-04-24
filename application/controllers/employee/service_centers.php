@@ -287,10 +287,8 @@ class Service_centers extends CI_Controller {
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
             if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
-            }
-            
+            } 
         }
-
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -2453,33 +2451,10 @@ class Service_centers extends CI_Controller {
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($sp_id);
         } else {
+            
             $defective_courier_receipt = $this->input->post("sp_parts");
+            
             if (!empty($defective_courier_receipt)) {
-                $data['defective_courier_receipt'] = $this->input->post("sp_parts");
-                $service_center_id = $this->session->userdata('service_center_id');
-                $defective_part_shipped = $this->input->post('defective_part_shipped');
-                $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
-                $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
-                $data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                $booking_id = $this->input->post('booking_id');
-                $partner_id = $this->input->post('booking_partner_id');
-                if (!empty($sp_id)) {
-                    if (!empty($this->input->post('courier_charges_by_sf'))) {
-
-                        $data['courier_charges_by_sf'] = round((float)($this->input->post('courier_charges_by_sf')/$awbcount),2);
-                    } else {
-                        $data['courier_charges_by_sf'] = 0;
-                    }
-                    $awb_data['awb_no'] = $data['awb_by_sf'] = $this->input->post('awb_by_sf');
-                    $awb_data['defective_parts_shipped_boxes_count'] = $this->input->post('defective_parts_shipped_boxes_count');                 
-                    $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
-                    $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
-                    $awb_data['defective_parts_shipped_weight'] = $kilo_gram .".". $gram; 
-                    if(!empty($this->input->post('exist_courier_image'))){                        
-                        $awb_data['courier_invoice_file'] = $this->input->post('exist_courier_image');
-                    }else{
-                        $awb_data['courier_invoice_file'] = $this->input->post('sp_parts');
-                    }  
                 if (!empty($sp_id)) {
                     $data['defective_courier_receipt'] = $this->input->post("sp_parts");
                     $awb = $this->input->post('awb_by_sf');
@@ -2491,23 +2466,32 @@ class Service_centers extends CI_Controller {
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
+
                     $booking_id = $this->input->post('booking_id');
                     $partner_id = $this->input->post('booking_partner_id');
                     $data['awb_by_sf'] = $awb;
                     $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
                     $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
+
                     $billable_weight = $kilo_gram . "." . $gram;
                     $courier_boxes_weight_flag = $this->input->post('courier_boxes_weight_flag');
+
                     if ($courier_boxes_weight_flag > 0) {
-                        $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);  
+                        $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+                        
                         $this->service_centers_model->update_spare_parts(array('awb_by_sf' => $awb, 'status != "'._247AROUND_CANCELLED.'" ' => NULL),
                             array('courier_charges_by_sf' => $pricecourier));
+                        
                     } else {
-                        $pricecourier = $this->input->post('courier_charges_by_sf');    
+                        $pricecourier = $this->input->post('courier_charges_by_sf');
+                        
                     }
+                    
                     $data['courier_charges_by_sf'] = $pricecourier;
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
-                    if ($courier_boxes_weight_flag > 0) { 
+
+                    if ($courier_boxes_weight_flag > 0) {
+                        
                         $awb_data=array(
                             'awb_number'=>trim($this->input->post('$awb')),
                             'company_name'=>trim($this->input->post('courier_name_by_sf')),
@@ -2525,6 +2509,7 @@ class Service_centers extends CI_Controller {
                        
                         $this->service_centers_model->insert_into_awb_details($awb_data);
                     }
+                    
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
 
                     //insert details into state change table   
@@ -2612,6 +2597,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+
 
     /**
      * @desc This function is used to download challan/Address
@@ -5710,86 +5696,13 @@ class Service_centers extends CI_Controller {
     /**
      * @desc This is used to check awb exist or not when Sf will be updating Awb( defective Parts)
      */
-    function check_sf_shipped_defective_awb_exist() {
+       function check_sf_shipped_defective_awb_exist() {
         $awb = $this->input->post('awb');
-<<<<<<< HEAD
-        if(!empty($awb)){
- 
-=======
         if (!empty($awb)) {
->>>>>>> 8dbd0630d... #CRM-2800
             $data = $this->partner_model->get_spare_parts_by_any("awb_by_sf, courier_charges_by_sf, "
                     . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb, 'status !="' . _247AROUND_CANCELLED . '" ' => NULL));
             $courier_boxes_weight_details =$this->inventory_model->get_courier_company_invoice_details('*', array('awb_number' => $awb));
 
-<<<<<<< HEAD
-                if (!empty($courier_boxes_weight_details[0]['defective_parts_shipped_weight'])) {
-                    $weight_seperated = explode('.', $courier_boxes_weight_details[0]['defective_parts_shipped_weight']);
-                    $data[0]['weight_in_kg'] = $weight_seperated[0];
-                    $data[0]['weight_in_gram'] = $weight_seperated[1];
- 
-
-             $data = $this->partner_model->get_spare_parts_by_any("*", array('awb_by_sf' => $awb )); 
-            
-              if (!empty($data)) {
-
-                $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
-
-
-
-
-                if (!empty($courier_boxes_weight_details)) {
-                  
-                $data[0]['billable_weight'] =$courier_boxes_weight_details[0]['billable_weight'];
-                $data[0]['partcount'] =$courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
-                $data[0]['remark'] =$courier_boxes_weight_details[0]['remark'];
-                $data[0]['courier_charge'] =$courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
-
-                }else{
-
-
-                $data[0]['billable_weight'] ='';
-                $data[0]['partcount'] =0;
-                $data[0]['remark'] ='';
-                $data[0]['courier_charge'] =$data[0]['courier_charges_by_sf'];  //defective_courier_receipt
-
-                }
-
-
-
-                array_push($data[0],$data[0]['billable_weight']);
-                array_push($data[0],$data[0]['partcount']);
-                array_push($data[0],$data[0]['remark']);
-                array_push($data[0],$data[0]['courier_charge']);
-
-                echo json_encode(array('code' => 247, "message" => $data));
-
-            
-            }else{
-
-
-                $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
-
-                if (!empty($courier_boxes_weight_details)) {
-                    
-
-                    $data[0] =array(
-                        'defective_part_shipped_date'=>$courier_boxes_weight_details[0]['defective_part_shipped_date'],
-                        'courier_name_by_sf'=>$courier_boxes_weight_details[0]['company_name'],
-                        'partcount'=>$courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'],
-                        'remark'=>$courier_boxes_weight_details[0]['remark'],
-                        'defective_courier_receipt'=>$courier_boxes_weight_details[0]['courier_invoice_file'],
-                        'billable_weight'=>$courier_boxes_weight_details[0]['billable_weight'],
-                        'courier_charge'=>$courier_boxes_weight_details[0]['courier_charge']
-
-
-
-                    );
-
-                    echo json_encode(array('code' => 247, "message" => $data));
-                }else{
-                    echo json_encode(array("code" => -247));
-=======
             if (!empty($data)) {
                 $data[0]['partcount'] = count($data);
                 if (!empty($courier_boxes_weight_details)) {
@@ -5798,7 +5711,6 @@ class Service_centers extends CI_Controller {
                     $data[0]['box_count'] = $courier_boxes_weight_details[0]['box_count'];
                     $data[0]['courier_charge'] = $courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
                 } else {
->>>>>>> 8dbd0630d... #CRM-2800
 
                     $data[0]['billable_weight'] = '0.00';
                     $data[0]['box_count'] = 0;
@@ -5811,13 +5723,8 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-<<<<<<< HEAD
-}
-}
-    
-=======
-
->>>>>>> 8dbd0630d... #CRM-2800
+ 
+ 
     function check_wh_shipped_defective_awb_exist(){
         log_message('info', __METHOD__. " AWB NO ".$this->input->post('awb'));
         $awb = $this->input->post('awb');
