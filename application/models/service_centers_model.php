@@ -354,6 +354,8 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
+
+
     function update_spare_parts($where, $data) {
         $this->db->where($where);
         $this->db->update('spare_parts_details', $data);
@@ -367,6 +369,24 @@ class Service_centers_model extends CI_Model {
         
         return $result;
     }
+
+
+
+
+function updateDividedAmount($awb,$data,$sp_id){
+
+$this->db->where('awb_by_sf',$awb);
+$this->db->update('spare_parts_details',$data);
+
+$this->db->where('id',$sp_id);
+$this->db->update('spare_parts_details',$data);
+
+
+
+
+}
+
+
 
     /**
      * @desc: This is used to update micro warehouse state mapping table
@@ -923,7 +943,40 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: id
      */
     function insert_into_awb_details($data){
-        $this->db->insert('awb_spare_parts_details',$data);
+
+$awb = $this->input->post('awb_by_sf');
+$this->db->where('awb_number',$awb);
+$this->db->delete('courier_company_invoice_details');
+
+ 
+                    $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
+                    $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
+                    $weight = $kilo_gram .".". $gram; 
+
+$data=array(
+'awb_number'=>trim($this->input->post('awb_by_sf')),
+'company_name'=>trim($this->input->post('courier_name_by_sf')),
+'courier_charge'=>trim($this->input->post('courier_charges_by_sf')),  //
+//  'invoice_id'=>trim($this->input->post('awb_no')),
+'defective_parts_shipped_boxes_count'=>trim($this->input->post('defective_parts_shipped_boxes_count')),   //defective_parts_shipped_gram
+'billable_weight'=>trim($weight),
+'actual_weight'=>trim($this->input->post('defective_parts_shipped_kg')),
+//  'is_exist'=>trim($this->input->post('awb_no'))
+// 'create_date'=>trim($this->input->post('awb_no'))
+/// 'update_date'=>trim($this->input->post('awb_no'))
+'partner_id'=>trim($this->input->post('booking_partner_id')),
+'basic_billed_charge_to_partner'=>trim($this->input->post('awb_no')),
+// 'partner_invoice_id'=>trim($this->input->post('awb_no')),
+'booking_id'=>trim($this->input->post('booking_id')),
+'courier_invoice_file'=>trim($this->input->post('exist_courier_image')),
+'remark'=>trim($this->input->post('remarks_defective_part')),
+'defective_part_shipped_date'=>trim($this->input->post('defective_part_shipped_date'))      //defective_part_shipped_date
+// 'created_by'=>trim($this->input->post('awb_no'))
+);
+
+
+
+        $this->db->insert('courier_company_invoice_details',$data);
         $return_id=$this->db->insert_id();
     }
 }
