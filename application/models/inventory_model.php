@@ -2126,36 +2126,21 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_generic_table_details($awb){
+       // $sql = "SELECT * FROM courier_company_invoice_details WHERE awb_number='$awb'";
+        $this->db->select("*");
+        $this->db->from('set_oow_part_type_margin');  
+        $query = $this->db->get();
+        return $query->result_array();
 
-
-
-
-        $sql = "SELECT * FROM courier_company_invoice_details WHERE awb_number='$awb'";
-        return $this->db->query($sql)->result_array();
-       
-       // $this->db->select($select);
-       
-       //  if(!empty($where)){
-       //      $this->db->where($where);
-       //  }
-        
-       //  if(!empty($where_in)){
-       //     $this->db->where_in('alternate_inventory_set.inventory_id', $where_in);
-       //  }
-        
-       //  $this->db->from($table);        
-       //  $query = $this->db->get();         
-       //  return $query->result_array(); 
     }
 
 
 
 
  function getAwbCount($awb,$spid){
-
         $sql = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb'";
+        $this->db->select("*");
         $count  = count($this->db->query($sql)->result());
-
         $sql2 = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb' and id='$spid'";
         $count2  = count($this->db->query($sql2)->result());
         if ($count2>0) {
@@ -2163,9 +2148,6 @@ class Inventory_model extends CI_Model {
         }else{
              return $count+1;
         }
-
-
-
  }
 
 

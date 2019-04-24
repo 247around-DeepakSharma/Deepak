@@ -374,16 +374,10 @@ class Service_centers_model extends CI_Model {
 
 
 function updateDividedAmount($awb,$data,$sp_id){
-
 $this->db->where('awb_by_sf',$awb);
 $this->db->update('spare_parts_details',$data);
-
 $this->db->where('id',$sp_id);
 $this->db->update('spare_parts_details',$data);
-
-
-
-
 }
 
 

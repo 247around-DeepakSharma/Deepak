@@ -5719,7 +5719,6 @@ $this->service_centers_model->updateDividedAmount($awbbysf,$dataupdatearray,$sp_
     function check_sf_shipped_defective_awb_exist(){
         $awb = $this->input->post('awb');
         if(!empty($awb)){
-<<<<<<< Updated upstream
             $data = $this->partner_model->get_spare_parts_by_any("awb_by_sf, courier_charges_by_sf, "
                     . "courier_name_by_sf, defective_courier_receipt, defective_part_shipped_date", array('awb_by_sf' => $awb));           
             if (!empty($awb)) {
@@ -5732,53 +5731,28 @@ $this->service_centers_model->updateDividedAmount($awbbysf,$dataupdatearray,$sp_
                     $weight_seperated = explode('.', $courier_boxes_weight_details[0]['defective_parts_shipped_weight']);
                     $data[0]['weight_in_kg'] = $weight_seperated[0];
                     $data[0]['weight_in_gram'] = $weight_seperated[1];
-=======
-
-       $data = $this->partner_model->get_spare_parts_by_any("*", array('awb_by_sf' => $awb )); 
-            
+             $data = $this->partner_model->get_spare_parts_by_any("*", array('awb_by_sf' => $awb )); 
               if (!empty($data)) {
-
                 $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
-
-
-
-
-                if (!empty($courier_boxes_weight_details)) {
-                  
+                if (!empty($courier_boxes_weight_details)) {  
                 $data[0]['billable_weight'] =$courier_boxes_weight_details[0]['billable_weight'];
                 $data[0]['partcount'] =$courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
                 $data[0]['remark'] =$courier_boxes_weight_details[0]['remark'];
                 $data[0]['courier_charge'] =$courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
-
                 }else{
-
-
                 $data[0]['billable_weight'] ='';
                 $data[0]['partcount'] =0;
                 $data[0]['remark'] ='';
                 $data[0]['courier_charge'] =$data[0]['courier_charges_by_sf'];  //defective_courier_receipt
-
->>>>>>> Stashed changes
                 }
-
-
-
                 array_push($data[0],$data[0]['billable_weight']);
                 array_push($data[0],$data[0]['partcount']);
                 array_push($data[0],$data[0]['remark']);
                 array_push($data[0],$data[0]['courier_charge']);
-
                 echo json_encode(array('code' => 247, "message" => $data));
-
-            
             }else{
-
-
                 $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
-
                 if (!empty($courier_boxes_weight_details)) {
-                    
-
                     $data[0] =array(
                         'defective_part_shipped_date'=>$courier_boxes_weight_details[0]['defective_part_shipped_date'],
                         'courier_name_by_sf'=>$courier_boxes_weight_details[0]['company_name'],
@@ -5787,9 +5761,6 @@ $this->service_centers_model->updateDividedAmount($awbbysf,$dataupdatearray,$sp_
                         'defective_courier_receipt'=>$courier_boxes_weight_details[0]['courier_invoice_file'],
                         'billable_weight'=>$courier_boxes_weight_details[0]['billable_weight'],
                         'courier_charge'=>$courier_boxes_weight_details[0]['courier_charge']
-
-
-
                     );
 
                     echo json_encode(array('code' => 247, "message" => $data));
