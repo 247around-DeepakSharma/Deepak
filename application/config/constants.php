@@ -1,4 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+include('instance_load.php');
+include('third_party_credentials.php');
 include('email_template_constant.php');
 include('spare_parts_constant.php');
 include('push_notifications_constant.php');
@@ -15,6 +17,7 @@ include('taxpro_api_constant.php');
 include('invoice_constant.php');
 include('buyback_constant.php');
 include('sms_constant.php');
+include('partner_permission_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -55,13 +58,13 @@ define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer n
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
 //Agent ID used when Partner inserts a Booking by calling our API
-define('DEFAULT_PARTNER_AGENT', 978978);
+//define('DEFAULT_PARTNER_AGENT', 978978);
 
 //define('_247AROUND2',247002);
 //define('_247AROUND3',247003);
 //define('_247AROUND99',247999);
-define('_247AROUND_DEFAULT_AGENT',1);
-define('_247AROUND_DEFAULT_AGENT_NAME',"247Around");
+define('_247AROUND_DEFAULT_AGENT', $db->default_agent_id);
+define('_247AROUND_DEFAULT_AGENT_NAME', $db->crm_title);
 
 //constant to define Pending state
 define('_247AROUND_PENDING','Pending');
