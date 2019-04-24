@@ -10289,6 +10289,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
 ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
 ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
+
+
 ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
 ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
 
@@ -10496,3 +10498,5 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_wei
 ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
 
 ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
+
+
