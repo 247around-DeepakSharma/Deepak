@@ -4410,9 +4410,12 @@ class Invoice extends CI_Controller {
                     $actor,$next_action,_247AROUND);
                             
                             // Send OOW invoice to Inventory Manager
-                            $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $value->id;
-                            $async_data['booking_id'] = $value->booking_id;
-                            $this->asynchronous_lib->do_background_process($url, $async_data);
+                            /* changed by kalyani for removing duplicate invoice id error
+                            //$url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $value->id;
+                            //$async_data['booking_id'] = $value->booking_id;
+                            //$this->asynchronous_lib->do_background_process($url, $async_data);
+                            */
+                            $this->generate_oow_parts_invoice($value->id);
                         }
                         
                         
