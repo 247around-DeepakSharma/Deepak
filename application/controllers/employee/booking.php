@@ -1588,8 +1588,11 @@ class Booking extends CI_Controller {
         } 
         
       $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+      
         if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
             if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
             }
