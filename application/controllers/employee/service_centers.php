@@ -1787,6 +1787,8 @@ class Service_centers extends CI_Controller {
 
                     if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
+                    } else {
+                        $data['requested_inventory_id'] = '';
                     }
 
                     /** search if there is any warehouse for requested spare parts
@@ -2424,9 +2426,20 @@ class Service_centers extends CI_Controller {
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $sp_id . "' AND spare_parts_details.defective_part_required = 1 "
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+
+
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+
+       //     $data['courier_info'] = $this->inventory_model->getCourierInfo();
           
             $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+
+
+
+
+
+
+
             
             if (!empty($data['spare_parts'])) {
                 $this->load->view('service_centers/header');
@@ -2454,8 +2467,31 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
-        $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
-                
+
+
+ $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
+
+
+
+
+
+
+
+$awbbysf =$this->input->post('awb_by_sf');
+$awbcount= $this->inventory_model->getAwbCount($awbbysf,$sp_id);
+
+
+$dataupdatearray = array(
+'courier_charges_by_sf'=>round((float)($this->input->post('courier_charges_by_sf')/$awbcount),2)
+);
+
+
+
+$this->service_centers_model->updateDividedAmount($awbbysf,$dataupdatearray,$sp_id);
+
+
+
+
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
@@ -2475,9 +2511,8 @@ class Service_centers extends CI_Controller {
                 $partner_id = $this->input->post('booking_partner_id');
 
                 if (!empty($sp_id)) {
-                    
                     if (!empty($this->input->post('courier_charges_by_sf'))) {
-                        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
+                        $data['courier_charges_by_sf'] = round((float)($this->input->post('courier_charges_by_sf')/$awbcount),2);
                     } else {
                         $data['courier_charges_by_sf'] = 0;
                     }
@@ -2498,7 +2533,9 @@ class Service_centers extends CI_Controller {
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
 
+
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);  
+
                     if(empty($this->input->post('courier_boxes_weight_flag'))){
                        $this->service_centers_model->insert_into_awb_details($awb_data); 
                     }
@@ -5719,12 +5756,44 @@ class Service_centers extends CI_Controller {
                     $weight_seperated = explode('.', $courier_boxes_weight_details[0]['defective_parts_shipped_weight']);
                     $data[0]['weight_in_kg'] = $weight_seperated[0];
                     $data[0]['weight_in_gram'] = $weight_seperated[1];
+             $data = $this->partner_model->get_spare_parts_by_any("*", array('awb_by_sf' => $awb )); 
+              if (!empty($data)) {
+                $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
+                if (!empty($courier_boxes_weight_details)) {  
+                $data[0]['billable_weight'] =$courier_boxes_weight_details[0]['billable_weight'];
+                $data[0]['partcount'] =$courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'];
+                $data[0]['remark'] =$courier_boxes_weight_details[0]['remark'];
+                $data[0]['courier_charge'] =$courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
+                }else{
+                $data[0]['billable_weight'] ='';
+                $data[0]['partcount'] =0;
+                $data[0]['remark'] ='';
+                $data[0]['courier_charge'] =$data[0]['courier_charges_by_sf'];  //defective_courier_receipt
                 }
-            }
-            if(!empty($data)){
+                array_push($data[0],$data[0]['billable_weight']);
+                array_push($data[0],$data[0]['partcount']);
+                array_push($data[0],$data[0]['remark']);
+                array_push($data[0],$data[0]['courier_charge']);
                 echo json_encode(array('code' => 247, "message" => $data));
-            } else {
-                echo json_encode(array("code" => -247));
+            }else{
+                $courier_boxes_weight_details = $this->inventory_model->get_generic_table_details($awb);
+                if (!empty($courier_boxes_weight_details)) {
+                    $data[0] =array(
+                        'defective_part_shipped_date'=>$courier_boxes_weight_details[0]['defective_part_shipped_date'],
+                        'courier_name_by_sf'=>$courier_boxes_weight_details[0]['company_name'],
+                        'partcount'=>$courier_boxes_weight_details[0]['defective_parts_shipped_boxes_count'],
+                        'remark'=>$courier_boxes_weight_details[0]['remark'],
+                        'defective_courier_receipt'=>$courier_boxes_weight_details[0]['courier_invoice_file'],
+                        'billable_weight'=>$courier_boxes_weight_details[0]['billable_weight'],
+                        'courier_charge'=>$courier_boxes_weight_details[0]['courier_charge']
+                    );
+
+                    echo json_encode(array('code' => 247, "message" => $data));
+                }else{
+                    echo json_encode(array("code" => -247));
+
+                }
+
             }
         }
     }

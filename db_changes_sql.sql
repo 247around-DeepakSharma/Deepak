@@ -10468,7 +10468,6 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
 
-
 -- Release 63 -23/04/01
 --Abhay 23/04/01
 ALTER TABLE `db_config` ADD `default_agent_id` INT NOT NULL AFTER `title`;
@@ -10600,3 +10599,31 @@ ALTER TABLE `third_party_api_credentials`
 --
 ALTER TABLE `third_party_api_credentials`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(255) NULL DEFAULT NULL AFTER `booking_id`;
+
+
+
+
+
+ ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `defective_parts_shipped_boxes_count` INT(11) NOT NULL DEFAULT '0';
+
+
+ALTER TABLE `courier_company_invoice_details` ADD `created_by` INT(11) NOT NULL DEFAULT '1' AFTER `courier_invoice_file`;
+
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `actual_weight`;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `invoice_id` `invoice_id` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
+
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+
+
+ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
+
+ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';

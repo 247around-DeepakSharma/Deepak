@@ -1446,6 +1446,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false){
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
+        //$this->db->where('status',)
         $this->db->from('spare_parts_details');
         //$this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
@@ -1576,9 +1577,11 @@ function get_data_for_partner_callback($booking_id) {
         }
         
         if ($post['length'] != -1) {
-            $this->db->limit($post['length'], $post['start']);
+             $this->db->limit($post['length'], $post['start']);
         }
         $query = $this->db->get();
+
+        //echo $this->db->last_query();
         return $query->result();
     }
     
@@ -1601,6 +1604,12 @@ function get_data_for_partner_callback($booking_id) {
     function update_partner_file_upload_header_mapping($where, $data){
         $this->db->where($where);
         $this->db->update('partner_file_upload_header_mapping',$data);
+
+
+       // echo $this->db->last_query();
+
+
+
         if($this->db->affected_rows() > 0 ){
             return TRUE;
         }else{

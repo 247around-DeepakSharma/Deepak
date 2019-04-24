@@ -209,4 +209,14 @@ class Engineer_model extends CI_Model {
             }
         }
     }
+    
+    function get_service_based_engineer($where, $select = "*"){
+        $this->db->select($select);
+        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
+        if($where){
+           $this->db->where($where);  
+        }
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+    }
 }

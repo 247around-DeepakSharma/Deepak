@@ -1535,7 +1535,14 @@ class Booking extends CI_Controller {
             "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
             $data['signature_details'] = $sig_table;
         }
-        
+        //get engineer name
+        if($data['booking_history'][0]['assigned_engineer_id']){
+            $engineer_name = $this->engineer_model->get_engineers_details(array("id"=>$data['booking_history'][0]['assigned_engineer_id']), "name");
+            if(!empty($engineer_name)){
+               $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
+            }
+        }
+       
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
@@ -3341,10 +3348,10 @@ class Booking extends CI_Controller {
                         switch ($completed_booking){
                                 case 'a':
                                     if($booking_status == _247AROUND_COMPLETED){
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_CANCELLED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     else{
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_COMPLETED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     break;
                                 case 'b':
