@@ -5804,6 +5804,8 @@ $this->service_centers_model->updateDividedAmount($awbbysf,$dataupdatearray,$sp_
             }
         }
     }
+}
+}
     
     function check_wh_shipped_defective_awb_exist(){
         log_message('info', __METHOD__. " AWB NO ".$this->input->post('awb'));
