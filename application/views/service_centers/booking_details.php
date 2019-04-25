@@ -1,4 +1,4 @@
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     th,td{
@@ -495,13 +495,13 @@
                                 <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                
-                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])) {
-                                    echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count'];
+                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
+                                    echo $courier_boxes_weight_details['box_count'];
                                 } ?></td>
                                 <td><?php
                                         if (!empty($sp['awb_by_sf'])) {
-                                            if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
-                                                $expl_data = explode('.', $courier_boxes_weight_details['defective_parts_shipped_weight']);
+                                            if (!empty($courier_boxes_weight_details['billable_weight'])) {
+                                                $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                 if (!empty($expl_data[0])) {
                                                     echo $expl_data[0] . ' KG ';
                                                 }
