@@ -2125,21 +2125,16 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_generic_table_details($table, $select, $where, $where_in){
-       
-       $this->db->select($select);
-       
+    function get_generic_table_details($table_name, $select, $where =  array()){
+        
+        $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
         }
         
-        if(!empty($where_in)){
-           $this->db->where_in('alternate_inventory_set.inventory_id', $where_in);
-        }
+        $query = $this->db->get($table_name);
+        return $query->result_array();
         
-        $this->db->from($table);        
-        $query = $this->db->get();         
-        return $query->result_array(); 
     }
         
      /**

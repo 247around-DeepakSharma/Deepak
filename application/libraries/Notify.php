@@ -463,7 +463,8 @@ class Notify {
                          $dealerSms['booking_id'] = $query1[0]['booking_id'];
                          $dealerSms['smsData']['service'] = $query1[0]['services'];
                          $dealerSms['smsData']['call_type'] = $call_type[0];
-                         $dealerSms['smsData']['booking_type']='cancelled';
+                         $dealerSms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                         $dealerSms['smsData']['booking_type']='Cancelled';
                          $this->send_sms_msg91($dealerSms);
                       }
 			
@@ -778,9 +779,9 @@ class Notify {
     function send_sms_using_msg91($phone_number,$body){
         $data = array();
         $message = urlencode($body);
-        $url = "https://control.msg91.com/api/sendhttp.php?authkey=141750AFjh6p9j58a80789&mobiles="
+        $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
                 . $phone_number . "&message=" . $message
-                . "&sender=AROUND&route=4&country=91";
+                . "&sender=".MSG91_SENDER_NAME."&route=4&country=91";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data['content'] = curl_exec($ch);

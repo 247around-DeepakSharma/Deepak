@@ -1073,7 +1073,8 @@ class Buyback_process extends CI_Controller {
     }
     function search_for_buyback(){
         log_message("info",__METHOD__);
-        $search_data =  preg_replace('/[^A-Za-z0-9-]/', '', trim($this->input->post('search')));
+        $search_data =   $this->input->post('search');
+        //$search_data =  preg_replace('/[^A-Za-z0-9-]/', '', $this->input->post('search'));
         if(strpos($search_data,',')){
             $search_value = explode(',', $search_data);
         }else{

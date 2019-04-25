@@ -206,8 +206,10 @@ class Partner extends CI_Controller {
         } 
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+         $awb =$spare_parts_details[0]['awb_by_sf'];
+        if (!empty($spare_parts_details)) {           
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
            if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
            }
@@ -5086,6 +5088,32 @@ class Partner extends CI_Controller {
             
             if($this->input->get('is_all_option')){
                 $option .= '<option value="all" >All</option>';
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_partner_specific_appliance(){
+        $partner_id = $this->input->get('partner_id');
+        if($partner_id){
+            $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance</option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value->id . "'";
+                $option .= " > ";
+                $option .= $value->services . "</option>";
             }
             echo $option;
         }else{

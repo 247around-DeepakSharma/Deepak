@@ -96,7 +96,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_alternate_contact_no, "
                 . " bd.request_type, "
                 . " bd.internal_status, "
-                . " bd.booking_remarks, "
+                . " bd.booking_remarks, bd.service_id,"
                 . " services,"
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
@@ -354,6 +354,8 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
+
+
     function update_spare_parts($where, $data) {
         $this->db->where($where);
         $this->db->update('spare_parts_details', $data);
@@ -923,7 +925,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: id
      */
     function insert_into_awb_details($data){
-        $this->db->insert('awb_spare_parts_details',$data);
-        $return_id=$this->db->insert_id();
+        $this->db->insert('courier_company_invoice_details',$data);
+        return $this->db->insert_id();
     }
 }

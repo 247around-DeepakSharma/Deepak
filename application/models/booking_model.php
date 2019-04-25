@@ -1382,7 +1382,7 @@ class Booking_model extends CI_Model {
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
-                . 'booking_details.partner_id');
+                . 'booking_details.partner_id, booking_details.flat_upcountry');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -2596,6 +2596,23 @@ class Booking_model extends CI_Model {
         $this->db->select('*');
         $this->db->from('booking_symptom_defect_details');
         $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false){
+        $this->db->select($select);
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        if($is_service){
+            $this->db->join("services", "services.id = booking_details.service_id");
+        }
+        if($is_user){
+            $this->db->join('users',' users.user_id = booking_details.user_id');
+        }
+        if($is_unit){
+            $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+        }
         $query = $this->db->get();
         return $query->result_array();
     }

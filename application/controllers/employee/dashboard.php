@@ -1835,7 +1835,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
@@ -2101,7 +2101,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
-           echo  json_encode($sfData);
+            if($is_pending){
+                echo  json_encode($sfData);
+            }
+            else{
+                echo  json_encode($sfData['TAT']);
+            }
         }
     }
     
@@ -2741,7 +2746,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         unset($data['seen']);
         $data['marquee'] = 1;
         $return['marquee_msg'] = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message", $data);
-        log_message('info', __METHOD__ . "=>query".$this->db->last_query());
+        //log_message('info', __METHOD__ . "=>query".$this->db->last_query());
         echo json_encode($return);
     }
     

@@ -264,7 +264,8 @@
                         <?php } ?>
                         <?php  if(1){ ?>
                         <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span><?php if ($this->session->userdata('is_wh') == 1) {echo "Warehouse";
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <span style="font-weight: bold;" class="badge nt-badge <?php if($this->session->userdata('is_wh') != 1){echo 'hide';}  ?>" id="inventory_count" title="New Spare Request">0</span><?php if ($this->session->userdata('is_wh') == 1) {echo "Warehouse";
                                     }else if($this->session->userdata('is_micro_wh') == 1){echo "Micro Warehouse";
                                     }else{ echo "Inventory";
                                     } ?>

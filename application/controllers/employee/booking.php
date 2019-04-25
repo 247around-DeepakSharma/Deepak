@@ -1539,7 +1539,14 @@ class Booking extends CI_Controller {
             "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
             $data['signature_details'] = $sig_table;
         }
-        
+        //get engineer name
+        if($data['booking_history'][0]['assigned_engineer_id']){
+            $engineer_name = $this->engineer_model->get_engineers_details(array("id"=>$data['booking_history'][0]['assigned_engineer_id']), "name");
+            if(!empty($engineer_name)){
+               $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
+            }
+        }
+       
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         
         $data['unit_details'] = $booking_unit_details;
@@ -1586,8 +1593,11 @@ class Booking extends CI_Controller {
         } 
         
       $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+      
         if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
             if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
             }
@@ -3346,10 +3356,10 @@ class Booking extends CI_Controller {
                         switch ($completed_booking){
                                 case 'a':
                                     if($booking_status == _247AROUND_COMPLETED){
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_CANCELLED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     else{
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_COMPLETED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     break;
                                 case 'b':

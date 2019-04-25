@@ -1,5 +1,5 @@
 <?php if(!empty($booking_history)) { ?> 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
     
@@ -270,6 +270,7 @@
                         <thead>
                             <tr>
                                 <th>SF Name </th>
+                                <th>Engineer Name </th>
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
@@ -278,6 +279,7 @@
                         <tbody>
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
+                                <td><?php if(isset($booking_history[0]['assigned_engineer_name'])){echo $booking_history[0]['assigned_engineer_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
                                     <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
@@ -531,8 +533,8 @@
                                     <tr>
                                         <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td>                                        
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>                                        
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -556,7 +558,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -734,11 +736,11 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])){ echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
-                                                        if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
-                                                            $expl_data = explode('.', $courier_boxes_weight_details['defective_parts_shipped_weight']);
+                                                        if (!empty($courier_boxes_weight_details['billable_weight'])) {
+                                                            $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                             if (!empty($expl_data[0])) {
                                                                 echo $expl_data[0] . ' KG ';
                                                             }
@@ -800,8 +802,8 @@
                                      ?>
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
                                         <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
