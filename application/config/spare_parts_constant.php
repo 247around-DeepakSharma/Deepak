@@ -58,10 +58,8 @@ define('PARTNER_SPARE_OOT_DAYS','30');
 define('SF_SPARE_OOT_DAYS','7');
 
 //for now default warehouse id is 10 (sf = manish ji)
-define('DEFAULT_WAREHOUSE_ID',10);
+define('DEFAULT_WAREHOUSE_ID',15);
 
-//tracking more production api key
-define('TRACKINGMORE_PROD_API_KEY','06ec4a31-6125-4b01-9da9-bf8d420767df');
 define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Company');
 
 define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');

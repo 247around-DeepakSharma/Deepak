@@ -10470,6 +10470,137 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
 
+-- Release 63 -23/04/01
+--Abhay 23/04/01
+ALTER TABLE `db_config` ADD `default_agent_id` INT NOT NULL AFTER `title`;
+
+--Abhay 24/04/19
+
+CREATE TABLE `db_config` (
+  `id` int(11) NOT NULL,
+  `domain` varchar(64) NOT NULL,
+  `db_name` varchar(64) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `login_function` varchar(128) NOT NULL,
+  `title` varchar(28) NOT NULL,
+  `default_agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `db_config`
+--
+ALTER TABLE `db_config`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `db_config`
+--
+ALTER TABLE `db_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+
+CREATE TABLE `partner_permission` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `permission_type` varchar(64) NOT NULL,
+  `description` varchar(128) DEFAULT NULL,
+  `role` int(11) DEFAULT NULL,
+  `is_on` int(11) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_permission`
+--
+
+INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`, `update_date`) VALUES
+(1, 247073, 'auto_approve_requested_spare', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:02'),
+(2, 247073, 'auto_approve_oow_charges_on_behalf_customer', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:05'),
+(3, 247073, 'auto_pick_oow_part_estimate', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:06');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_permission`
+--
+ALTER TABLE `partner_permission`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_permission`
+--
+ALTER TABLE `partner_permission`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+
+
+
+--
+-- Table structure for table `third_party_api_credentials`
+--
+
+CREATE TABLE `third_party_api_credentials` (
+  `id` int(11) NOT NULL,
+  `company_name` varchar(128) NOT NULL,
+  `secret_key` varchar(256) NOT NULL,
+  `constant_tag` varchar(64) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `third_party_api_credentials`
+--
+
+INSERT INTO `third_party_api_credentials` (`id`, `company_name`, `secret_key`, `constant_tag`, `active`, `create_date`, `update_date`) VALUES
+(1, 'Sendgrid Mail Server', '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', 'SENDGRID_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:16:26'),
+(2, 'Paytm Gateway MID', '247PAR00642934549295', 'MID', 1, '2019-04-23 11:16:26', '2019-04-23 11:17:42'),
+(3, 'Paytm Merchant Key', 'GLmqfJkuK0UsEX&Z', 'PAYTM_MERCHANT_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:17:42'),
+(4, 'Paytm Merchant Guid', 'd0fb852e-7a86-4235-9044-4c17910eaff0', 'MERCHANT_GUID', 1, '2019-04-23 11:16:26', '2019-04-23 11:24:12'),
+(5, 'Push Notification API', '5e80dc70981389335ae38d969ca075be', 'PUSH_NOTIFICATION_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(6, 'Google Analytics', 'UA-115612033-1', '_247AROUND_CRM_GGL_ANALYTICS_TAG_ID', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(7, 'Google Url Shortner Key', 'AIzaSyAx1favE357DJusgkTXhFItRwfOIMvaD9w', 'GOOGLE_URL_SHORTNER_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(8, 'Tracking More Courier API', '06ec4a31-6125-4b01-9da9-bf8d420767df', 'TRACKINGMORE_PROD_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(9, 'SMS- Message91 Key', '141750AFjh6p9j58a80789', 'MSG91_AUTH_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(10, 'SMS- Message91 Sender Name', 'AROUND', 'MSG91_SENDER_NAME', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `third_party_api_credentials`
+--
+ALTER TABLE `third_party_api_credentials`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `third_party_api_credentials`
+--
+ALTER TABLE `third_party_api_credentials`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(255) NULL DEFAULT NULL AFTER `booking_id`;
 
@@ -10498,5 +10629,3 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_wei
 ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
 
 ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
-
-
