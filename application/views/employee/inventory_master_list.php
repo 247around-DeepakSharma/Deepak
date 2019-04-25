@@ -185,91 +185,8 @@
                             </div>
                             
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="part_name">Part Name*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_name" name="part_name">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="part_number">Part Number*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_number" name="part_number">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="type">Part Type*</label>
-                                    <div class="col-md-7 col-md-offset-1">                                        
-                                        <select class="form-control inventory_part_type" id="part_type" name="type" tabindex="-1" aria-hidden="true" required="">
-                                            <option selected="" disabled="">Select Partner</option>                                            
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="description">Description</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <textarea class="form-control" id="description" name="description"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="price">Price*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="size">Size</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="size"  name="size">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="" required="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="control-label col-md-4" for="serial_number">Serial Number</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number">
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-6" id="model_number_div">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number_id">Model Number*</label>
@@ -280,9 +197,85 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="part_name">Part Name*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="part_name" name="part_name">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="part_number">Part Number*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="part_number" name="part_number">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="type">Part Type*</label>
+                                    <div class="col-md-7 col-md-offset-1">                                        
+                                        <select class="form-control inventory_part_type" id="part_type" name="type" tabindex="-1" aria-hidden="true" required="">
+                                            <option selected="" disabled="">Select Partner</option>                                            
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="description">Description</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <textarea class="form-control" id="description" name="description"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="price">Price*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="size">Size</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="size"  name="size">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="" required="">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="serial_number">Vendor Margin</label>
@@ -291,6 +284,16 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>                        
+                        <div class="row">
+<!--                        <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="serial_number">Serial Number</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number">
+                                    </div>
+                                </div>
+                            </div>-->
                             <div class="col-md-6" id="model_number_div">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number_id">Around Margin*</label>
@@ -568,7 +571,7 @@
                
         $('#part_name').val(form_data.part_name);
         $('#part_number').val(form_data.part_number);
-        $('#serial_number').val(form_data.serial_number);
+       // $('#serial_number').val(form_data.serial_number);
         $('#entity_type').val(form_data.entity_type);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
