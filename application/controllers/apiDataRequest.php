@@ -340,6 +340,8 @@ class ApiDataRequest extends CI_Controller {
                             $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "", 'oow_estimate_given', "", $booking_id);
                         }
                     }
+                    
+                   $a = $this->auto_approve_requested_spare($booking_id, $partner_id );
 
                     echo "Success";
                 } else {
@@ -348,6 +350,36 @@ class ApiDataRequest extends CI_Controller {
             } else {
                 echo 'Error';
             }
+        }
+    }
+    
+    function auto_approve_requested_spare($booking_id, $partner_id ){
+        log_message('info', __METHOD__. " ". $booking_id);
+        $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id, 
+            'permission_type' => AUTO_APPROVED_OOW_CHARGES_ON_BEHALF_CUSTOMER, 'is_on' => 1));
+        
+        if(!empty($access)){
+            $url = base_url().'employee/service_centers/approve_oow/'.$booking_id;
+            $fields = array();
+
+            //url-ify the data for the POST
+            $fields_string = http_build_query($fields);
+
+            //open connection
+            $ch = curl_init();
+
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch,CURLOPT_URL, $url);
+            curl_setopt($ch,CURLOPT_POST, 1);
+            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+
+            //execute post
+            $result = curl_exec($ch);
+            //close connection
+            curl_close($ch);
+            
+            return json_decode($result, true);
+            
         }
     }
 

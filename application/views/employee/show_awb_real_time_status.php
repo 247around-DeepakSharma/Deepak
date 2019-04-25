@@ -58,8 +58,10 @@
                             </div>
                         </div>
                         <div class="shipment_details col-md-8 col-md-offset-2">
-                            <table class="table table-responsive">
-                                        <?php foreach ($awb_details_by_api['items'][0]['origin_info']['trackinfo'] as $val) { ?>
+                            <table class="table table-responsive">                
+                                    <?php 
+                                    if(!empty($awb_details_by_api['items'][0]['origin_info']['trackinfo'])){
+                                    foreach ($awb_details_by_api['items'][0]['origin_info']['trackinfo'] as $val) { ?>
                                     <tr>
                                         <td class=" text-center">
                                             <?php
@@ -82,7 +84,7 @@
                                         </td>
                                         <td><?php echo $val['StatusDescription'] . ' ' . $val['Details']; ?></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php }} ?>
                             </table>
                         </div>
                     <?php } else if(isset($awb_details_by_db) && !empty($awb_details_by_db)) { ?> 

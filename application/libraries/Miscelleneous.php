@@ -3987,7 +3987,7 @@ function generate_image($base64, $image_name,$directory){
     }
     function google_map_address_api($pincode){
         log_message('info', __METHOD__ . "=>Start"."Pincode =".$pincode);
-        $request = "https://maps.google.com/maps/api/geocode/json?address=".$pincode."&sensor=false&region=India&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $request = "https://maps.google.com/maps/api/geocode/json?address=".$pincode."&sensor=false&region=India&key=".GOOGLE_MAPS_API_KEY;
         $ch = curl_init();
         curl_setopt_array(
         $ch, array(

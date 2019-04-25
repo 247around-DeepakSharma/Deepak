@@ -2107,5 +2107,25 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    /**
+     * @desc This function is used to get permission for the partner
+     */
+    function get_partner_permission($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_permission');
+        return $query->result_array();
+    }
+    
+    function get_third_party_credentials($where = array()){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        $query = $this->db->get('third_party_api_credentials');
+        return $query->result_array();
+    }
 }
 
