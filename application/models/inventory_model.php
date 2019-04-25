@@ -2125,33 +2125,17 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_generic_table_details($awb){
-       // $sql = "SELECT * FROM courier_company_invoice_details WHERE awb_number='$awb'";
-        $this->db->select("*");
-        $this->db->from('set_oow_part_type_margin');  
-        $query = $this->db->get();
-        return $query->result_array();
-
-    }
-
-
-
-
- function getAwbCount($awb,$spid){
-        $sql = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb'";
-        $this->db->select("*");
-        $count  = count($this->db->query($sql)->result());
-        $sql2 = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb' and id='$spid'";
-        $count2  = count($this->db->query($sql2)->result());
-        if ($count2>0) {
-           return $count;
-        }else{
-             return $count+1;
+    function get_generic_table_details($table_name, $select, $where =  array()){
+        
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
         }
- }
-
-
-
+        
+        $query = $this->db->get($table_name);
+        return $query->result_array();
+        
+    }
         
      /**
      * @desc: This function is used to insert data in alternate_inventory_set table

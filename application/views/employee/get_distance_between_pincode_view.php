@@ -1,4 +1,4 @@
- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc"></script>
+ <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
  <script src="<?php echo base_url();?>js/googleScript.js"></script>
 <?php if ($is_ajax) { ?> 
     <table class="table table-bordered table-hover table-responsive">
