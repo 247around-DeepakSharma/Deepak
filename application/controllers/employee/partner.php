@@ -196,7 +196,8 @@ class Partner extends CI_Controller {
         
         }
         if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']));
+            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
         
         }
         if(!empty($data['booking_symptom'][0]['solution_id'])){
@@ -1547,7 +1548,7 @@ class Partner extends CI_Controller {
             $data['symptom'] = array();
             if(!empty($service_category)) {
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                        array('service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
             }
             if(count($data['symptom']) <= 0) {
                 $data['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
