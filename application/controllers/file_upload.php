@@ -910,7 +910,7 @@ class File_upload extends CI_Controller {
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 }
-
+              
                 if ($rowData['part_code'] != $rowData['alt_part_code']) {
 
                     $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING);
@@ -940,33 +940,28 @@ class File_upload extends CI_Controller {
                 }
             }
             
-                    
+                             
             if(!empty($this->dataToInsert)){
                  $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
                  
-                 $select = "inventory_alternate_spare_parts_mapping.inventory_id, inventory_alternate_spare_parts_mapping.alt_inventory_id";
-                 $alternate_spare_parts_list = $this->inventory_model->get_generic_table_details('inventory_alternate_spare_parts_mapping',$select, array(), array());
-                 
-                 foreach ($alternate_spare_parts_list as $key => $val){  
-                     
+                 foreach ($this->dataToInsert as $val){  
+                                           
                       $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array($val['inventory_id'], $val['alt_inventory_id']));
-                      
+                     
                       if(!empty($inventory_group_id_list)){
                           
                           if(count($inventory_group_id_list) > 1){
                              $min_group_id = min(array_column($inventory_group_id_list, 'group_id'));
                              $max_group_id = max(array_column($inventory_group_id_list, 'group_id'));
                              if($max_group_id !== $min_group_id){
-                                 foreach ($inventory_group_id_list as $keys => $value) {
+                                 foreach ($inventory_group_id_list as  $value) {
                                     if ($value['group_id'] === $max_group_id) {
                                         $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
                                     }
                                 }
                             }
                                           
-                          }
-                          
-                            if(count($inventory_group_id_list) == 1){
+                          } else if(count($inventory_group_id_list) == 1){
                                $inventory_id = $inventory_group_id_list[0]['inventory_id'];
                                 if($val['inventory_id'] != $inventory_id ){
                                    $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['inventory_id']); 
@@ -988,7 +983,7 @@ class File_upload extends CI_Controller {
                  }
                  
             }
-               
+                           
             if ($insert_data) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
