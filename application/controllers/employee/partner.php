@@ -196,7 +196,8 @@ class Partner extends CI_Controller {
         
         }
         if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']));
+            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
         
         }
         if(!empty($data['booking_symptom'][0]['solution_id'])){
@@ -205,8 +206,10 @@ class Partner extends CI_Controller {
         } 
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+         $awb =$spare_parts_details[0]['awb_by_sf'];
+        if (!empty($spare_parts_details)) {           
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
            if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
            }
@@ -1547,7 +1550,7 @@ class Partner extends CI_Controller {
             $data['symptom'] = array();
             if(!empty($service_category)) {
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                        array('service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
             }
             if(count($data['symptom']) <= 0) {
                 $data['symptom'][0] = array('id' => 1, 'symptom' => 'Default');

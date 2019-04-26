@@ -499,14 +499,14 @@
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     
                                                                     <td><?php
-                                                                                if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['defective_parts_shipped_boxes_count'])) {
-                                                                                    echo $courier_boxes_weight_details['defective_parts_shipped_boxes_count'];
+                                                                                if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
+                                                                                    echo $courier_boxes_weight_details['box_count'];
                                                                                 }
                                                                           ?></td>
                                                                     <td><?php
                                                                             if (!empty($sp['awb_by_sf'])) {
-                                                                                if (!empty($courier_boxes_weight_details['defective_parts_shipped_weight'])) {
-                                                                                    $expl_data = explode('.', $courier_boxes_weight_details['defective_parts_shipped_weight']);
+                                                                                if (!empty($courier_boxes_weight_details['billable_weight'])) {
+                                                                                    $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                                                     if (!empty($expl_data[0])) {
                                                                                         echo $expl_data[0] . ' KG ';
                                                                                     }

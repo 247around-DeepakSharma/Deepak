@@ -929,7 +929,7 @@ class Booking extends CI_Controller {
         }
         
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
+                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
         if(count($data['technical_problem']) <= 0) {
             $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
@@ -1197,39 +1197,43 @@ class Booking extends CI_Controller {
         $prepaid['active'] = true;
         $prepaid['is_notification'] = false;
         
-        if($partner_details[0]['is_prepaid'] == 1){
-            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
-        } else  if($partner_details[0]['is_prepaid'] == 0){
-            
-            $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
-        }
+        $data = array();
         
+        if(!empty($partner_details)) {
+            if($partner_details[0]['is_prepaid'] == 1){
+                $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+            } else  if($partner_details[0]['is_prepaid'] == 0){
 
-        if ($partner_details[0]['partner_type'] == OEM) {
-            $services = $this->partner_model->get_partner_specific_services($partner_id);
-        } else {
-            $services = $this->booking_model->selectservice();
+                $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+            }
+            
+            if ($partner_details[0]['partner_type'] == OEM) {
+                $services = $this->partner_model->get_partner_specific_services($partner_id);
+            } else {
+                $services = $this->booking_model->selectservice();
+            }
+            
+            $data['partner_type'] = $partner_details[0]['partner_type'];
+            $data['partner_id'] = $partner_id;
+            $data['active'] = $prepaid['active'];
+            if($prepaid['is_notification']){
+                $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+
+            } else {
+                $data['prepaid_msg'] = "";
+            }
+            $data['services'] = "<option selected disabled>Select Service</option>";
+            foreach ($services as $appliance) {
+                $data['services'] .= "<option ";
+                if ($selected_service_id == $appliance->id) {
+                    $data['services'] .= " selected ";
+                } else if (count($services) == 1) {
+                    $data['services'] .= " selected ";
+                }
+                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            }
         }
         
-        $data['partner_type'] = $partner_details[0]['partner_type'];
-        $data['partner_id'] = $partner_id;
-        $data['active'] = $prepaid['active'];
-        if($prepaid['is_notification']){
-            $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
-            
-        } else {
-            $data['prepaid_msg'] = "";
-        }
-        $data['services'] = "<option selected disabled>Select Service</option>";
-        foreach ($services as $appliance) {
-            $data['services'] .= "<option ";
-            if ($selected_service_id == $appliance->id) {
-                $data['services'] .= " selected ";
-            } else if (count($services) == 1) {
-                $data['services'] .= " selected ";
-            }
-            $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
-        }
         print_r(json_encode($data, true));
         
     }
@@ -1583,7 +1587,8 @@ class Booking extends CI_Controller {
         
         }
         if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']));
+            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
         
         }
         if(!empty($data['booking_symptom'][0]['solution_id'])){
@@ -1592,8 +1597,11 @@ class Booking extends CI_Controller {
         } 
         
       $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+      
         if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
             if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
             }
@@ -1797,7 +1805,7 @@ class Booking extends CI_Controller {
             $booking['symptom'] = array();
             if(!empty($service_category)) {
                 $booking['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                        array('service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
             }
             if(count($booking['symptom']) <= 0) {
                 $booking['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
