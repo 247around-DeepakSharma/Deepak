@@ -10723,3 +10723,8 @@ VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_
 
 --Kajal 25-April-2019  Ending ---
 
+--------Gorakh 19-04-2019
+ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
+-----Gorakh 25 -04 -2019
+ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;
+
