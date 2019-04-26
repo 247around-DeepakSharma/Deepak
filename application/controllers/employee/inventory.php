@@ -2043,7 +2043,7 @@ class Inventory extends CI_Controller {
     function spare_invoice_list(){
         log_message("info", __METHOD__);
         $w['length'] =-1;
-        $w['where'] = array("booking_details.request_type" => REPAIR_OOW_TAG, 
+        $w['where'] = array("spare_parts_details.part_warranty_status" => 2, 
             "status != 'Cancelled'" => NULL, 
             "spare_parts_details.create_date >= '2017-12-01'" => NULL, 
             "(`purchase_invoice_id` IS NULL )" => NULL,
