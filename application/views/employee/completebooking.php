@@ -178,9 +178,11 @@
                                             }
                                             ?>" readonly="readonly">
                                     </div>
+                                    <?php if($c2c){ ?>
                                     <div class="col-md-2">
                                         <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                                     </div>
+                                    <?php }?>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Pincode</label>

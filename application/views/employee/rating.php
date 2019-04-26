@@ -44,9 +44,12 @@
                            <div class="col-md-6">
                               <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if (isset($data[0]['booking_primary_contact_no'])) {echo $data[0]['booking_primary_contact_no']; } ?>" readonly="readonly">
                            </div>
+                           <?php if($c2c){ ?>
                            <div class="col-md-2">
+                              
                                 <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                             </div>
+                           <?php } ?>
                         </div>
                 </div>
         </div>
