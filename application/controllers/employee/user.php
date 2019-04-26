@@ -645,10 +645,14 @@ class User extends CI_Controller {
             
 
             $employee_details = $this->employee_model->getemployeefromid($id);
-            $manager_details = $this->employee_model->getemployeefromid($manager_id);
             
             //Setting TO for Email
-            $to = (($employee_details[0]['official_email'] != '')?$employee_details[0]['official_email']:'') . (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
+            $to = (($employee_details[0]['official_email'] != '')?$employee_details[0]['official_email']:'');
+            
+            if(!empty($manager_id)) {
+                $manager_details = $this->employee_model->getemployeefromid($manager_id);
+                $to .= (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
+            }
             
             $to = trim($to,',');
             
