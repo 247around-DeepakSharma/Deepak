@@ -2458,7 +2458,7 @@ class Inventory extends CI_Controller {
             "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
             "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
             "data" => $data,
-        );
+        );   
         
         echo json_encode($output);
     }

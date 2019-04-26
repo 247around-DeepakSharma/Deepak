@@ -10561,3 +10561,72 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_wei
 ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
 
 ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
+
+
+--Kajal 25-April-2019  Starting ---
+ALTER TABLE `symptom` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `defect` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `symptom_completion_solution` CHANGE `request_type` `service_id` INT(11) NOT NULL;
+
+ALTER TABLE `defect` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`, 
+ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, 
+ADD `partner_id` INT(11) NULL DEFAULT '247001' AFTER `update_date`, 
+ADD `partner_symptom_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
+ADD `partner_symptom_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
+
+
+ALTER TABLE `symptom` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `active` `active` INT(1) NOT NULL DEFAULT '1';
+
+UPDATE `header_navigation` SET `title` = 'Solution' WHERE `header_navigation`.`title` = 'Technical Solution';
+UPDATE `header_navigation` SET `title` = 'Symptom' WHERE `header_navigation`.`title` = 'Symptom List';
+UPDATE `header_navigation` SET `title` = 'Defect' WHERE `header_navigation`.`title` = 'Technical Problem List';
+UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`title` = 'Spare Symptom List';
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_request/symptom_defect_solution_mapping', '2', '202', 'admin,developer,accountmanager,callcenter,closure', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Kajal 25-April-2019  Ending ---
+--- Abhishek --
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL; 
+--Abhishek end---
+
+--------Gorakh 19-04-2019
+ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
+-----Gorakh 25 -04 -2019
+ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;
+
+
+--Kajal 26-April-2019  Starting ---
+
+--
+-- Table structure for table `employee_hierarchy_mapping`
+--
+
+CREATE TABLE `employee_hierarchy_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `employee_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `manager_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `employee_hierarchy_mapping`
+--
+ALTER TABLE `employee_hierarchy_mapping`
+  ADD UNIQUE KEY `employee_hierarchy` (`employee_id`,`manager_id`) USING BTREE,
+  ADD KEY `employee_id` (`employee_id`);
+
+ALTER TABLE `employee` ADD `role` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
+
+INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
+('employee', 'employee_login_details', '247Around Login Details', 'Dear %s,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
+
+
+--Kajal 26-April-2019  Ending ---
+
