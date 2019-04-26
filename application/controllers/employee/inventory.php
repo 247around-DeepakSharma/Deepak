@@ -2159,7 +2159,6 @@ class Inventory extends CI_Controller {
         if(!empty($submit_type)){
             $data = array('part_name' => trim($this->input->post('part_name')),
                       'part_number' => trim($this->input->post('part_number')),
-                      'serial_number' => trim($this->input->post('serial_number')),
                       'size' => trim($this->input->post('size')),
                       'price' => trim($this->input->post('price')),
                       'hsn_code' => trim($this->input->post('hsn_code')),
@@ -2430,7 +2429,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post[''] = array();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','serial_number','type','services.id','services.services');
+        $post['column_search'] = array('part_name','part_number','type','services.id','services.services');
         $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')),'inventory_stocks.stock <> 0' => NULL);
         if($this->input->post('is_show_all')){
             unset($post['where']['inventory_stocks.stock <> 0']);
