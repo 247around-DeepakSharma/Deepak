@@ -770,8 +770,10 @@ class vendor extends CI_Controller {
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
+        $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
+            'c2c' => $c2c));
     }
     
     function get_filterd_sf_cp_data(){
@@ -2025,9 +2027,11 @@ class vendor extends CI_Controller {
                      }
                 }
            }
+           
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
        }
+       $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');

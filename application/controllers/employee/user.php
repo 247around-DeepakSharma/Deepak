@@ -147,6 +147,7 @@ class User extends CI_Controller {
      */
     function load_search_view($data,$view){
         $this->miscelleneous->load_nav_header();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->load->view($view, $data);
     }
 
@@ -249,6 +250,7 @@ class User extends CI_Controller {
 
         $data['user'] = $this->user_model->search_user($phone_number);
         $data['state'] = $this->vendor_model->getall_state();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/edituser', $data);
     }
@@ -399,6 +401,7 @@ class User extends CI_Controller {
     function show_employee_list(){
         $data['data'] = $this->employee_model->get_employee();
         $data['session_data'] = $this->session->all_userdata();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_list',$data);
     }

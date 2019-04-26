@@ -189,7 +189,9 @@
                                 <th>Vendor Status</th>
                             <?php } 
                         } ?>
-                        <th>Call</th>
+                        <?php if($c2c) { ?>
+                            <th>Call</th>
+                        <?php } ?>
                         <th>SMS</th>
                         <th>View</th>
                         <?php if($query_status != _247AROUND_CANCELLED){?>
@@ -296,6 +298,7 @@
                     d.appliance =  $('#appliance').val();
                     d.pincode_status = pincode_status;
                     d.city =  $('#city').val();
+                    d.c2c = '<?php echo $c2c;?>';
                  }
             },
             "deferRender": true,

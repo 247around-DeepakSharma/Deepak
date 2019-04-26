@@ -60,7 +60,7 @@
                    
                         <table class="table  table-striped table-bordered" >
                             <tr>
-                                <th >Name </th>
+                                <th >Name</th>
                                 <td><?php echo $booking_history[0]['name']; ?></td>
                                   <th>Mobile </th>
                                 <td><?php echo $booking_history[0]['booking_primary_contact_no'];
@@ -180,7 +180,12 @@
                                 <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                     echo $booking_history[0]['rating_stars'] . "/5";
                                     } ?></td>
-                                <td colspan="2">&nbsp;</td>
+                                
+                                <th>Engineer Name </th>
+                                <td><?php if (isset($booking_history[0]['assigned_engineer_name'])) {
+                                    echo $booking_history[0]['assigned_engineer_name'] . "/5";
+                                    } ?>
+                                </td>
                             </tr> 
                         </table>
                         <table class="table  table-striped table-bordered" >
