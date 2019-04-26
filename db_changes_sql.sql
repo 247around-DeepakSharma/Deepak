@@ -10718,6 +10718,9 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_request/symptom_defect_solution_mapping', '2', '202', 'admin,developer,accountmanager,callcenter,closure', 'main_nav', '1', CURRENT_TIMESTAMP);
 
 --Kajal 25-April-2019  Ending ---
+--- Abhishek --
+ALTER TABLE `courier_company_invoice_details` CHANGE `box_count1` `box_count` INT(11) NOT NULL DEFAULT '0', CHANGE `shippment_date1` `shippment_date` DATE NULL DEFAULT NULL;
+--Abhishek end---
 
 --------Gorakh 19-04-2019
 ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
