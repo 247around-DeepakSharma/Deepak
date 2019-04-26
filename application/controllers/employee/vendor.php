@@ -799,7 +799,8 @@ class vendor extends CI_Controller {
             }
             $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh,$state,$city);
             if(!empty($query)){
-                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
+                $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true, 'c2c' => $c2c));
             }else{
                 $response = "No Data Found";
             }
