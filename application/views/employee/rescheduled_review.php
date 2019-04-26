@@ -27,7 +27,11 @@
                         <td>
                             <?php echo $value['customername'];  ?>
                             <br/>
+                            <?php if($c2c) { ?>
                             <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>)"><?php echo $value['booking_primary_contact_no'];  ?></a>
+                            <?php } else { ?>
+                                <?php echo $value['booking_primary_contact_no'] ?>
+                          <?php  }?>
                         </td>
                        
                         <td><?php echo $value['initial_booking_date'];  ?></td>
