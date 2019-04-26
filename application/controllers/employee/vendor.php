@@ -222,6 +222,7 @@ class vendor extends CI_Controller {
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
+        $vendor_data['is_micro_wh'] = 1;
         return $vendor_data;
     }
 
