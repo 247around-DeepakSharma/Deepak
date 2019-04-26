@@ -160,10 +160,12 @@
             <td><a href="mailto:<?php echo $row['primary_contact_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"><?=$row['primary_contact_name'];?></a></td>
           	<td>
           	    <?=$row['primary_contact_phone_1'];?>
+                    <?php if($c2c) { ?>
                 <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                    <?php } ?>
                 <button type="button" onclick="model_for_sms('<?php echo $row['primary_contact_phone_1']; ?>', '<?php echo $row['id']?>')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
                         <i class = 'fa fa-envelope' aria-hidden = 'true'></i>
                </button>
@@ -171,10 +173,12 @@
                 <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
           	<td>
           	    <?=$row['owner_phone_1'];?>
+                    <?php if($c2c) { ?>
                 <button type="button" onclick="outbound_call(<?php echo $row['owner_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                    <?php } ?>
           	</td>
                 <td>
                        <?php echo (!empty($row['district'])?$row['district']:'').'  /  ' .(!empty($row['state'])?$row['state']:''); ?>

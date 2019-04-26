@@ -911,8 +911,10 @@ class Booking extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_completion_symptom('symptom_completion_request.id, completion_request_symptom',
                 array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_request.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
-        $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('symptom_completion_solution.id, technical_solution',
-                array('service_id' => $data['booking_history'][0]['service_id'], 'symptom_completion_solution.active' => 1), array('request_type.service_category' => $unit_price_tags));
+
+        
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -1033,9 +1035,9 @@ class Booking extends CI_Controller {
                         }
                     }
                }
-            
+            $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/reschedulebooking', array('data' => $getbooking));
+            $this->load->view('employee/reschedulebooking', array('data' => $getbooking, 'c2c' => $c2c));
         } else {
             echo "This Id doesn't Exists";
         }
@@ -1388,8 +1390,9 @@ class Booking extends CI_Controller {
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         if ($getbooking) {
             $this->session->userdata('employee_id');
+            $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status));
+            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c));
         } else {
             echo "Id doesn't exist";
         }
@@ -1555,6 +1558,7 @@ class Booking extends CI_Controller {
             }
             
         }
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }
@@ -1749,6 +1753,7 @@ class Booking extends CI_Controller {
                 array_push($booking['model'], $model);
             }
             $booking['is_repeat'] = $is_repeat;
+            $booking['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         } else {
@@ -1941,6 +1946,7 @@ class Booking extends CI_Controller {
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/admin_booking_review', $data);
     }
@@ -3107,6 +3113,7 @@ class Booking extends CI_Controller {
         
         $data['booking_status'] = trim($status);
         $data['booking_id'] = trim($booking_id);
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
@@ -3443,10 +3450,12 @@ class Booking extends CI_Controller {
         }else{
             $sn = "";
         }
-        
-        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
-        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        $c2c= $this->input->post('c2c');
+        if($c2c){
+            $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
+            $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
+            $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        }
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
             $rating_btn_disabled = "";
@@ -3481,7 +3490,9 @@ class Booking extends CI_Controller {
         {
             $row[] ="" ;
         }
-        $row[] = $call_btn;
+        if($c2c){
+           $row[] = $call_btn;
+         }
         if($booking_status === _247AROUND_COMPLETED){
             $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
             $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
@@ -3947,6 +3958,8 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',array('is_active'=> '1'));
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/view_pending_queries', $data);
     }
@@ -3997,10 +4010,12 @@ class Booking extends CI_Controller {
     
     private function get_queries_table($order_list, $no, $query_status,$pincode_status){
         $row = array();
+        $c2c = $this->input->post('c2c');
         $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand, 'service' => $order_list->services));
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
+        
         $row[] = $order_list->services;
         $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
         if($query_status != _247AROUND_CANCELLED){
@@ -4026,7 +4041,9 @@ class Booking extends CI_Controller {
             
             $row[] = $pincode;
         }
-        $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        if($c2c){
+             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+        }
         $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
         
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
@@ -4947,6 +4964,7 @@ class Booking extends CI_Controller {
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
         $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         if($is_tab == 0){
          $this->miscelleneous->load_nav_header();
         }

@@ -896,5 +896,14 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
             throw new Exception($error . $response, $httpcode);
         }
     }
+    
+    function check_feature_enable_or_not($fetaure){
+        $c2c_enable = true;
+        $permission = json_decode(PERMISSION_CONSTANT, TRUE);
+        if(!empty($permission) && isset($permission[$fetaure])){
+            return $permission[$fetaure]['is_on'];
+
+        } 
+    }
 
 }
