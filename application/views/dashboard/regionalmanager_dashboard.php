@@ -395,7 +395,7 @@
             </div>
         </div>
     </div>
-    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <div id="admin_dashboard_app">
         <div class="x_panel">
             <div class="x_title" style="padding-left:0px;">
@@ -737,7 +737,7 @@
             </div>
             </div>
     </div> 
-    
+    <?php } ?>
     
     <div ng-app="rm_dashboard" ng-cloak="">
     <!-- top tiles -->
@@ -797,7 +797,7 @@ if($this->session->userdata("wrong_pincode_msg")){
             </div>
         </div>
     </div>
- 
+ <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
  <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -815,6 +815,7 @@ if($this->session->userdata("wrong_pincode_msg")){
             </div>
         </div>
     </div>
+ <?php } ?>
     <!-- End Missing Pincode Section -->
         </div>
         <div class="clearfix"></div>
@@ -912,7 +913,7 @@ if($this->session->userdata("wrong_pincode_msg")){
                     </div>
                 </div>-->
     </div>
-    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
      <!-- SF Brackets snapshot Section -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -977,6 +978,7 @@ if($this->session->userdata("wrong_pincode_msg")){
         </div>
     </div>
     <!-- SF Brackets Snapshot Section -->
+    <?php } ?>
     <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
         <div class="col-md-6 col-sm-12 col-xs-12">
