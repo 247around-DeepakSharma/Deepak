@@ -1607,7 +1607,7 @@ EOD;
         $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
         $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
         $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"vinesh.poojari@flipkart.com,manish.agarwal@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"bsdflipkart@jeeves.co.in, radha.c@jeeves.co.in, naveen.n@jeeves.co.in, manish.agarwal@flipkart.com, vinesh.poojari@flipkart.com, sathis.s@mnw.co.in, dilipkumar.ms@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
                 $subject, $email_body,
                 $csv,"partner_summary_report_percentage_format");
         unlink($csv);
