@@ -10757,6 +10757,8 @@ ALTER TABLE `employee` ADD `role` VARCHAR(256) CHARACTER SET latin1 COLLATE lati
 INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
 ('employee', 'employee_login_details', '247Around Login Details', 'Dear %s,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
 
+INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
+(247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 
 --Kajal 26-April-2019  Ending ---
 

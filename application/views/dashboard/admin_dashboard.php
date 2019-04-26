@@ -366,7 +366,7 @@
         </div>
     </div>
     
-    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Partner Booking Status -->
        <div class="row" style="margin-bottom: 10px;">
         <div class="col-md-12 col-sm-12 col-xs-12 dashboard_graph" style="">
@@ -744,7 +744,7 @@
             </div>
         </div>
     </div>  
-
+    <?php } ?>
     <!-- Booking Report End-->
     <!-- Missing Pincode Section -->
     <div class="row">
@@ -790,6 +790,7 @@
         </div>
     </div>
     <!-- get rm missing pincode ajax request-->
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get Am Total Booking Call data-->
      <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -861,6 +862,7 @@
             </div>
         </div>
     </div>
+    <?php } ?>
     <!-- End Missing Pincode Section -->
     
 <!--     SF Brackets snapshot Section 
@@ -924,7 +926,7 @@
         </div>
     </div>
      SF Brackets Snapshot Section -->
-
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
      <div class="row">
         <!-- Partner Spare Parts Details -->
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -944,7 +946,7 @@
         </div>
         <!-- End  Partner Spare Parts Details -->
     </div>
-    
+    <?php } ?>
     
     <!-- Escalation Start-->
     <div class="row">
@@ -1046,6 +1048,7 @@
         <!-- RM wise booking status -->
     </div>
     
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <div class="row" style="margin-top:10px;">
         <!-- Logged In Users -->
         <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
@@ -1160,7 +1163,7 @@
         </center>
     </div>
     <!-- End show more button -->
-    
+    <?php } ?>
     <!-- Modal -->
     <div id="modalDiv" class="modal fade" role="dialog">
         <div class="modal-dialog">
