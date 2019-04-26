@@ -157,19 +157,19 @@
                     </div>
                     <div class="col-md-6">
                         <div  class="form-group <?php
-                        if (form_error('role')) {
+                        if (form_error('dept')) {
                             echo 'has-error';
                         }
                         ?>">
-                            <label  for="role" class="col-md-4">Role *</label>
+                            <label  for="dept" class="col-md-4">Department *</label>
                             <div class="col-md-7">
-                                <select id="role" class="form-control" name ="role" required="">
-                                    <option selected disabled>Select Role</option>
-                                    <?php foreach ($employee_role as $key => $value) { ?>
-                                    <option value ="<?php echo $value['role']; ?>" <?php if(isset($query[0]['role']) && $query[0]['role'] == $value['role'] ){echo 'selected'; }?> <?php if(isset($query[0]['role']) && $query[0]['role'] == $value['role'] ){echo 'selected'; }?> ><?php echo $value['role']; ?></option>
+                                <select id="dept" class="form-control" name ="department" required="" onchange="get_role_on_department()">
+                                    <option selected disabled>Select Department</option>
+                                    <?php foreach ($employee_dept as $key => $value) { ?>
+                                    <option value ="<?php echo $value['department']; ?>" <?php if(isset($query[0]['department']) && $query[0]['department'] == $value['department'] ){echo 'selected'; }?> ><?php echo $value['department']; ?></option>
                                     <?php  } ?>
                                 </select>
-                                        <?php echo form_error('role'); ?>
+                                        <?php echo form_error('dept'); ?>
                             </div>
                         </div>
                     </div>
@@ -181,13 +181,14 @@
                             echo 'has-error';
                         }
                         ?>">
-                            <label  for="groups" class="col-md-4">Department *</label>
+                            <label  for="groups" class="col-md-4">Role *</label>
                             <div class="col-md-7">
                                 <select id="groups" class="form-control" name ="groups" required="">
-                                    <option selected disabled>Select Department</option>
-                                    <?php foreach ($employee_dept as $key => $value) { ?>
-                                    <option value ="<?php echo $value['groups']; ?>" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == $value['groups'] ){echo 'selected'; }?> ><?php echo $value['groups']; ?></option>
-                                    <?php  } ?>
+                                    <option selected disabled>Select Role</option>
+                                    <?php if(isset($employee_role)) {
+                                        foreach ($employee_role as $key => $value) { ?>
+                                    <option value ="<?php echo $value['role']; ?>" <?php if(isset($query[0]['groups']) && $query[0]['groups'] == $value['role'] ){echo 'selected'; }?> ><?php echo $value['role']; ?></option>
+                                    <?php  } } ?>
                                 </select>
                                         <?php echo form_error('groups'); ?>
                             </div>
@@ -224,8 +225,10 @@
                                 <select id='subordinate' name='subordinate[]' class="form-control subordinate" multiple="multiple" style="min-width:350px;"  >
                                                             <!--<option value="0" selected="" disabled="">Select Subordinate</option>-->
                                     <?php foreach ($employee_list as $key => $value) {
-                                        foreach($subordinate as $sub_id) {
-                                            $selected[$sub_id['employee_id']] = "selected";
+                                        if(isset($subordinate)) {
+                                            foreach($subordinate as $sub_id) {
+                                                $selected[$sub_id['employee_id']] = "selected";
+                                            }
                                         }
                                         ?>
                                     <option value ="<?=$value['id']; ?>" <?=(isset($selected[$value['id']])?$selected[$value['id']]:'')?> ><?php echo $value['full_name']; ?></option>
@@ -252,8 +255,8 @@
     </div>
 
 <script type="text/javascript">
-    //Select 2 in role dropdown
-    //$('#role').select2();
+    //Select 2 in groups dropdown
+    //$('#groups').select2();
     //$('.select2-selection').css('background-color', '#FF8080');
     
     (function ($, W, D)
@@ -273,7 +276,8 @@
                                     maxlength: 10,
                                     number:true
                                 },
-                                role: "required",
+                                dept: "required",
+                                groups: "required",
                                 official_email: {
                                     //required: true,
                                     email: true
@@ -284,7 +288,8 @@
                             },
                             messages: {
                                 full_name: "Please Enter Full Name",
-                                role: "Please select Role",
+                                dept: "Please select Department",
+                                groups: "Please select Role",
                                 //official_email: "Please enter Official email",
                                 phone: {required: "Please enter Personal Phone",number:"Please enter numbers Only"}
                             },
@@ -317,6 +322,28 @@
             return false;
         }
         return true;
+    }
+    
+    function get_role_on_department() {
+        var department = $('#dept').val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/user/get_role_on_department',
+            async:false,
+            data:{'department' : department},
+            success: function (response) {
+                response=JSON.parse(response);
+                if(response.length>0)
+                {
+                    var str='';
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value ='"+response[i]['role']+"'  >"+response[i]['role']+"</option>";
+                    }
+                }
+                $('#groups').html(str);
+            }
+        });
     }
     
 </script>
