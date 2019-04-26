@@ -371,9 +371,8 @@ class User extends CI_Controller {
      * 
      */
     function add_employee(){
-        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'role');
-        $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
-        $data['employee_dept'] = $this->employee_model->get_employee_groups();
+        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
+        $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);//$this->employee_model->get_employee_groups();
         $data['employee_list'] = $this->employee_model->get_employee();
         $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
@@ -395,7 +394,7 @@ class User extends CI_Controller {
         if($data == $data1)
             exit("Please add manager or subordinate!");
         
-        $data1['clear_password'] = $this->randomPassword();//exit($data1['clear_password']);
+        $data1['clear_password'] = $this->randomPassword();
         $data1['employee_password'] = md5($data1['clear_password']);
         $data1['create_date'] = date('Y-m-d H:i:s');
         
@@ -403,7 +402,7 @@ class User extends CI_Controller {
             $randomNumber .= mt_rand(0, 9);
         }
         
-        $data1['employee_id'] = $randomNumber;//++$maxid;
+        $data1['employee_id'] = $randomNumber;
         $id = $this->employee_model->insertData($data1);
         $data2 = array();
         
@@ -424,8 +423,8 @@ class User extends CI_Controller {
         
         if(count($data2) > 0)
             $this->employee_model->insertManagerData($data2);
-        
-        if(!$this->process_mail_to_employee($id,$manager)) {
+        $tag='employee_login_details';
+        if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
             log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
             $error = ' Sending Mail Error..  ';
@@ -476,10 +475,12 @@ class User extends CI_Controller {
         $employee_list = $this->employee_model->get_employee($id);
         $data['employee_list']=array_filter($employee_list, function($v) use($id) {return $v['id'] != $id;});
         
-        //$data['employee_groups'] = $this->employee_model->get_employee_groups();
-        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'role');
-        $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
-        $data['employee_dept'] = $this->employee_model->get_employee_groups();
+        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
+        $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);
+        if(!empty($data['employee_dept'])) {
+            $cond= array('where' => array('entity_type'=>'247Around', 'department' => $data['query'][0]['department']), 'order_by' => 'role');
+            $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
+        }
         
         $manager=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $id));
         $subordinate=$this->employee_model->getemployeeManagerfromid(array('manager_id' => $id));
@@ -505,10 +506,6 @@ class User extends CI_Controller {
         $removeKeys = array('manager', 'subordinate');
         $data1=array_diff_key($data, array_flip($removeKeys));
         
-        if(!empty($this->input->post('employee_password'))){
-            $data1['employee_password'] = md5($this->input->post('employee_password'));
-            $data1['clear_password'] = $this->input->post('employee_password');
-        }
         $this->employee_model->update($data1['id'],$data1);
         
         $data2 = array();
@@ -562,6 +559,31 @@ class User extends CI_Controller {
     }
     
     /**
+     * 
+     * @Desc: This function is used to reset employee password
+     * @params: employee id
+     * @return: view
+     */
+    function reset_password($id){
+        $data['clear_password'] = $this->randomPassword();
+        $data['employee_password'] = md5($data['clear_password']);
+        $this->employee_model->update($id,$data);
+        $manager=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $id));
+        if(!empty($manager))
+            $manager = $manager[0]['manager_id'];
+        $tag='employee_reset_password';
+        if(!$this->process_mail_to_employee($tag,$id,$manager)) {
+            //Logging error if there is some error in sending mail
+            log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
+            $error = ' Sending Mail Error..  ';
+            $this->session->set_userdata('error', $error);
+            redirect(base_url() . "employee/user/show_employee_list");
+        }
+        
+        $this->session->set_userdata('success','Password Reset Sucessfully.');
+        redirect(base_url() . "employee/user/show_employee_list");
+    }
+    /**
      *@Desc: This function is used to show holiday list to employees
      * @params: void
      * @return: void 
@@ -590,20 +612,20 @@ class User extends CI_Controller {
         return implode($pass); //turn the array into a string
     }
     /**
-     * @desc: This function is used to send mail newly created employee
+     * @desc: This function is used to send mail to newly created employee or if password is reset
      * params: employee id
      * return: void
      * 
      */
-    function process_mail_to_employee($id,$manager_id) {
+    function process_mail_to_employee($tag,$id,$manager_id) {
         //Setting flag as TRUE ->Success and FALSE -> Failure
         $flag = TRUE;
         $attachment = "";
         //Get email template values for employee
         $email = array();
         $email['where'] = array(
-            'entity' => 'employee'//,
-            //'id' => $id
+            'entity' => 'employee',
+            'template' => $tag
         );
         $email['select'] = '*';
         $email_template = $this->vendor_model->get_247around_email_template($email);
@@ -664,6 +686,23 @@ class User extends CI_Controller {
             }
         }
         return $flag;
+    }
+    /**
+     * @Desc: This function is used to get role based on department
+     * @params: void
+     * @return: view
+     * 
+     */
+    function get_role_on_department(){
+        $department = $this->input->post('department');
+        
+        $data = array();
+        if(!empty($department))
+        {
+            $cond= array('where' => array('entity_type'=>'247Around', 'department' => $department), 'order_by' => 'role');
+            $data = $this->employee_model->get_entity_role('role',$cond);
+        }
+        echo json_encode($data);
     }
      
 }
