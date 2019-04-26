@@ -15,6 +15,7 @@
     </div>
     <!-- /top tiles -->
     <hr>
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Agent Graph -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -48,6 +49,7 @@
     </div>
     </div>
     <!-- End Agent Graph -->
+    <?php } ?>
     
     <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
