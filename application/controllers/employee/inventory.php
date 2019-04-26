@@ -2067,6 +2067,17 @@ class Inventory extends CI_Controller {
     }
     
     /**
+     *  @desc : This function is used to show alternate parts inventory master list table
+     *  @param : void
+     *  @return : void
+     */
+    function alternate_parts_inventory_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/alternate_parts_inventory_list");
+    }
+    
+    /**
      *  @desc : This function is used to show inventory master list data
      *  @param : void
      *  @return : void
@@ -2147,6 +2158,120 @@ class Inventory extends CI_Controller {
         
         return $row;
     }
+        
+    /**
+     *  @desc : This function is used to show alternate inventory master list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_wise_alternate_inventory_list(){
+        $data = $this->get_alternate_master_list_data();
+        $post = $data['post'];
+        if(!empty($data['data'])){
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_alternate_inventory_master_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_alternate_inventory_master_list($post),
+                "data" => $data['data'],
+                "set_id" => $data['group_id']
+            ); 
+        }else{
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+                "set_id" => $data['group_id']
+            );  
+        }
+        echo json_encode($output);
+    }
+    
+    
+        function get_alternate_master_list_data(){
+        $post = $this->get_post_data();
+        
+        $inventory_id = $this->input->post('inventory_id');
+        
+        $entity_type = trim($this->input->post('entity_type'));
+        $entity_id = trim($this->input->post('entity_id'));
+        $service_id = trim($this->input->post('service_id'));
+
+        if(!empty($inventory_id)){
+            $group_inventory_id = $this->inventory_model->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id,alternate_inventory_set.group_id', $inventory_id);
+            $inventory_ids = implode(',', array_map(function ($entry) {
+                  return $entry['inventory_id'];
+              }, $group_inventory_id));
+        }
+      
+        $data = array(); 
+        $group_id = '';     
+        if(!empty($group_inventory_id)){
+            $group_id = $group_inventory_id[0]['group_id'];
+            $post['column_order'] = array();
+            $post['column_search'] = array('part_name','part_number','services.services','services.id');
+            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)";
+            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status";
+            $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
+            $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $stock_list) {
+                $no++;
+                $row = $this->get_alternate_inventory_master_list_table($stock_list, $no, $partners);
+                $data[] = $row;
+            }
+        }
+        
+        return array(
+            'data' => $data,
+            'group_id' => $group_id,
+            'post' => $post
+            
+        ); 
+        
+    }
+    
+    
+    function get_alternate_inventory_master_list_table($stock_list, $no,$partners){
+        $row = array();
+        if($stock_list->entity_type === _247AROUND_PARTNER_STRING){
+            $stock_list->entity_public_name = $partners[$stock_list->entity_id];
+        }
+        $json_data = json_encode($stock_list);
+       
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->type;
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->part_name ."</span>";
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->part_number ."</span>";
+        $row[] = "<span style='word-break: break-all;'>".$stock_list->description."</span>";
+        $row[] = $stock_list->size;
+        $row[] = $stock_list->hsn_code;
+        $row[] = "<i class ='fa fa-inr'></i> ". $stock_list->price;
+        $row[] = $stock_list->gst_rate."%";
+        $total = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate/100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> ". $total;
+        if($this->session->userdata('userType') == 'employee'){
+            $row[] = $stock_list->oow_vendor_margin." %";
+            $row[] = $stock_list->oow_around_margin." %";
+            
+            $row[] = "<i class ='fa fa-inr'></i> ".round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin)/100 )),0);
+        }
+       
+                if($stock_list->status == 1){
+                  $icon = " <i class='glyphicon glyphicon-remove'></i>";
+                  $colour_class = 'btn-danger';
+                }else{
+                  $icon ="<i class='glyphicon glyphicon-ok'></i>"; 
+                  $colour_class = 'btn-primary';
+                }
+        $json_data = json_encode(array('status'=> $stock_list->status,'inventory_id'=> $stock_list->inventory_id));   
+        $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part' title='Spare Part Status'>".$icon."</a>";
+                
+        return $row;
+    }
+     
     
     /**
      *  @desc : This function is used to perform add/edit action on the inventory_master_list table
@@ -5667,4 +5792,59 @@ class Inventory extends CI_Controller {
         echo json_encode($return);
     }
     
+     /**
+     *  @desc : This function is used to get Partner Wise Spare Parts List
+     *  @param : $inventory_id, 
+     *  @return : $res array
+     */
+    
+    function partner_wise_inventory_spare_parts_list() {
+
+        if (!empty($this->input->post("entity_id"))) {
+            $where = array(
+                'inventory_master_list.entity_id' => $this->input->post("entity_id"),
+                'inventory_master_list.entity_type' => $this->input->post("entity_type"),
+                'inventory_master_list.service_id' => $this->input->post("service_id")
+            );          
+            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_name', $where);
+        }
+       
+        $option = '<option selected disabled>Select Part Name</option>';
+        
+        if (!empty($master_list)) {
+            foreach ($master_list as $value) {
+                $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'>";               
+                $option .= $value['part_name'] . "</option>";
+            }
+        }
+        echo $option;
+    }
+    
+     /**
+     *  @desc : This function is used to update alternate inventory set
+     *  @param : $inventory_id, 
+     *  @return : json
+     */
+    
+    function upate_alternate_inventory_set() {
+        $res = array();
+        if (!empty($this->input->post("inventory_id"))) {
+            $data = array('alternate_inventory_set.status' => $this->input->post("status"));
+            $where = array(
+                'alternate_inventory_set.group_id' => $this->input->post("inventory_set_id"),
+                'alternate_inventory_set.inventory_id' => $this->input->post("inventory_id")
+            );
+            $affect_row = $this->inventory_model->update_alternate_inventory_set($data, $where);
+            if ($affect_row) {
+                $res['status'] = TRUE;
+            } else {
+                $res['status'] = FALSE;
+            }
+        } else {
+            $res['status'] = 'Inventory id not found';
+        }
+
+        echo json_encode($res);
+    }
+
 }

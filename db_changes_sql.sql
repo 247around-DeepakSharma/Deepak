@@ -10658,3 +10658,55 @@ ALTER TABLE `third_party_api_credentials`
 --
 ALTER TABLE `third_party_api_credentials`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  
+ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(255) NULL DEFAULT NULL AFTER `booking_id`;
+
+ ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `defective_parts_shipped_boxes_count` INT(11) NOT NULL DEFAULT '0';
+
+ALTER TABLE `courier_company_invoice_details` ADD `created_by` INT(11) NOT NULL DEFAULT '1' AFTER `courier_invoice_file`;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `actual_weight`;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `invoice_id` `invoice_id` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+
+ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
+
+ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
+
+
+--Kajal 25-April-2019  Starting ---
+ALTER TABLE `symptom` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `defect` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `symptom_completion_solution` CHANGE `request_type` `service_id` INT(11) NOT NULL;
+
+ALTER TABLE `defect` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`, 
+ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, 
+ADD `partner_id` INT(11) NULL DEFAULT '247001' AFTER `update_date`, 
+ADD `partner_symptom_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
+ADD `partner_symptom_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
+
+
+ALTER TABLE `symptom` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `active` `active` INT(1) NOT NULL DEFAULT '1';
+
+UPDATE `header_navigation` SET `title` = 'Solution' WHERE `header_navigation`.`title` = 'Technical Solution';
+UPDATE `header_navigation` SET `title` = 'Symptom' WHERE `header_navigation`.`title` = 'Symptom List';
+UPDATE `header_navigation` SET `title` = 'Defect' WHERE `header_navigation`.`title` = 'Technical Problem List';
+UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`title` = 'Spare Symptom List';
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_request/symptom_defect_solution_mapping', '2', '202', 'admin,developer,accountmanager,callcenter,closure', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Kajal 25-April-2019  Ending ---
+
+--------Gorakh 19-04-2019
+ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
+-----Gorakh 25 -04 -2019
+ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;

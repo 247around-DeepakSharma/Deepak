@@ -284,7 +284,8 @@
                                                         <tr>
                                                             <th >Request to Partner/Warehouse </th>
                                                             <th >Model Number </th>
-                                                            <th >Requested Parts </th>
+                                                            <th >Original Requested Parts </th>
+                                                            <th >Final Requested Parts </th>
                                                             <th >Requested Parts type </th>
                                                             <th >Requested Date</th>
                                                             <th >Invoice Image </th>
@@ -302,7 +303,8 @@
                                                             <tr>
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td><?php echo $sp['parts_requested']; ?></td>
+                                                                <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>                                                                
                                                                 <td><?php echo $sp['create_date']; ?></td>
                                                                 <td><?php

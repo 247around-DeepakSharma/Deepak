@@ -751,7 +751,7 @@ class Booking_model extends CI_Model {
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
-            
+                         
             log_message('info', __METHOD__ . $this->db->last_query());
             return $data;
 

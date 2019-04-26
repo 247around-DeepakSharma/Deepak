@@ -633,7 +633,39 @@ class Inventory_model extends CI_Model {
         return $result;
         
     }
+      
+    /**
+    *  @desc : This function is used to get alternate spare parts
+    *  @param : $inventory_id, 
+    *  @return : $res array
+    */
     
+   function get_alternate_inventory_stock_list($inventory_id, $service_center_id) {
+
+        $inventory_stock_details = array();
+        if (!empty($inventory_id)) {
+            $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $inventory_id);
+            if(!empty($inventory_id_sets)){
+                $inventory_ids = implode(',', array_map(function ($entry) {
+                        return $entry['inventory_id'];
+                    }, $inventory_id_sets));
+                    
+                if (!empty($service_center_id)) {
+                    $where = "inventory_stocks.entity_id = " . $service_center_id;
+                } else {
+                    $where = "service_centres.is_wh = 1 ";
+                }
+                
+                $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                if (!empty($inventory_ids)) {
+                    $inventory_stock_details = $this->get_inventory_stock_details('max(inventory_stocks.stock) as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                }
+            }
+        }
+
+        return $inventory_stock_details;
+    }
+
     /**
      *  @desc : This function is used to get total inventory stocks
      *  @param : $post string
@@ -731,6 +763,97 @@ class Inventory_model extends CI_Model {
         }else{
             return $query->result();
         }
+    }
+    
+    
+    
+     /**
+     * @Desc: This function is used to get data from the alternate inventory_master_list table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_alternate_inventory_master_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('inventory_master_list');
+        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        $this->db->join('alternate_inventory_set', 'inventory_master_list.inventory_id = alternate_inventory_set.inventory_id','left');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('inventory_master_list.service_id','DESC');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get alternate inventory master list
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_alternate_inventory_master_list($post, $select = "",$is_array = false) {
+        $this->_get_alternate_inventory_master_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get total alternate inventory master list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_alternate_inventory_master_list($post) {
+        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered alternate inventory master list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_alternate_inventory_master_list($post){
+        $this->_get_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
     }
     
     /**
@@ -1965,6 +2088,25 @@ class Inventory_model extends CI_Model {
         
     }
     
+    
+    /**
+     * @Desc: This function is used to update Inventory Parts Type
+     * @params: Array, Int id
+     * @return: Int
+     * 
+     */
+    function update_alternate_inventory_set($data,$where){
+        $this->db->where($where);
+	$this->db->update('alternate_inventory_set', $data);
+        if($this->db->affected_rows() > 0){
+             log_message ('info', __METHOD__ . "=> Alternate Inventory Set SQL ". $this->db->last_query());
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
     /**
      * @Desc: This function is used to get inventory mapped model number
      * @params: $select string
@@ -2142,8 +2284,30 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();         
         return $query->result_array(); 
     }
-        
+       
      /**
+     * @Desc: This function is used to get data from the spare_parts_details table
+     * @params $table string 
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+
+    function getAwbCount($awb, $spid) {
+        $sql = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb'";
+        $this->db->select("*");
+        $count = count($this->db->query($sql)->result());
+        $sql2 = "SELECT * FROM spare_parts_details WHERE awb_by_sf='$awb' and id='$spid'";
+        $count2 = count($this->db->query($sql2)->result());
+        if ($count2 > 0) {
+            return $count;
+        } else {
+            return $count + 1;
+        }
+    }
+
+    /**
      * @desc: This function is used to insert data in alternate_inventory_set table
      * @params: Array of data
      * return : boolean
@@ -2206,8 +2370,11 @@ class Inventory_model extends CI_Model {
         if (!empty($where_in)) {
             $this->db->where('inventory_stocks.inventory_id IN (' . $where_in . ') ', NULL);
         }
-        
+               
         $this->db->from('inventory_stocks');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
                 
         $query = $this->db->get();
         return $query->result_array();
