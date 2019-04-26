@@ -129,7 +129,7 @@ $('#channellist').DataTable({
          @media (min-width: 1200px){
 .container {
     width: 100% !important;
-}
+}}
 </style>
 </html>
 

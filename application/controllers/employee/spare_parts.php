@@ -1634,11 +1634,11 @@ class Spare_parts extends CI_Controller {
         if (!empty($spare_id)) {
 
             $select = 'spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
-                    . 'spare_parts_details.requested_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
+                    . 'spare_parts_details.requested_inventory_id,spare_parts_details.original_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
                     . 'spare_parts_details.is_micro_wh,spare_parts_details.model_number,spare_parts_details.serial_number,spare_parts_details.shipped_inventory_id,spare_parts_details.date_of_request,'
                     . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id';
 
-            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);                        
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);                                    
             if (!empty($spare_parts_details)) {
 
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
@@ -1708,7 +1708,7 @@ class Spare_parts extends CI_Controller {
 
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $requested_inventory_id, 'state' => $sf_state[0]['state'], 'inventory_id' => $data['requested_inventory_id'], 'service_center_id' => $service_center_id), $partner_id);
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['original_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
                         
                         if (!empty($warehouse_details)) {
                             $spare_data['partner_id'] = $warehouse_details['entity_id'];
@@ -1743,7 +1743,13 @@ class Spare_parts extends CI_Controller {
                 $spare_data['part_warranty_status'] = $part_warranty_status;            
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
+
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED ) {
+                    
+                     if(isset($spare_data['requested_inventory_id']) && !empty($spare_data['requested_inventory_id'])){
+                        $requested_inventory_id = $spare_data['requested_inventory_id'];
+                    } 
+                    
                     $auto_estimate_approve = 0;
                     
                     if($entity_type == _247AROUND_SF_STRING){
