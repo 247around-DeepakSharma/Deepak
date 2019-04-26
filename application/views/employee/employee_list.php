@@ -150,8 +150,9 @@
                             </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
                             <td style="text-align: center;"><?php echo $value['phone']?>
-                                <?php if(!empty($value['phone'])){
+                                <?php if(!empty($value['phone']) && !empty($c2c)){
                                     ?>
+                                
                             <button type="button" onclick="outbound_call(<?php echo $value['phone'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></td>
                                 <?php } ?>
                             <td style="text-align: center;"><?php echo $value['exotel_phone']?></td>

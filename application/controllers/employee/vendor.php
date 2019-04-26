@@ -49,6 +49,9 @@ class vendor extends CI_Controller {
        $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
         $this->load->model('push_notification_model');
+        $this->load->model('indiapincode_model');
+        
+        
     }
 
     /**
@@ -767,8 +770,10 @@ class vendor extends CI_Controller {
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
+        $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
+            'c2c' => $c2c));
     }
     
     function get_filterd_sf_cp_data(){
@@ -2022,9 +2027,11 @@ class vendor extends CI_Controller {
                      }
                 }
            }
+           
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
        }
+       $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -5470,4 +5477,106 @@ class vendor extends CI_Controller {
         $api_response = $this->invoice_lib->validate_bank_ifsc_code($ifsc_code, $entity_type, $entity_id);
         echo $api_response;
     }
+    
+    
+    function view_pincodes(){
+         $this->miscelleneous->load_nav_header();
+         $this->load->view("employee/show_indiapincode");
+        
+    }
+    
+        function getIndiaPincodes(){
+        $data = $this->get_indiapincode_master_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->indiapincode_model->count_all_indiapincode_master_list($post),
+            "recordsFiltered" =>  $this->indiapincode_model->count_filtered_indiapincode_master_list($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    
+    
+        function get_indiapincode_master_list_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('pincode','district','state','taluk','region','division','area');
+        $select = "*";
+        $list = $this->indiapincode_model->get_indiapincode_master_list($post,$select); 
+       // $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1,'partners.is_wh' => 1)), 'public_name','id');
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_indiapincode_master_list_table($stock_list, $no);
+            $data[] = $row;
+        }       
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    
+    
+        function get_indiapincode_master_list_table($stock_list, $no){
+        $row = array();           
+        $json_data = json_encode($stock_list);      
+        $row[] = $no;
+        $row[] = $stock_list->pincode;
+        $row[] = $stock_list->division;
+        $row[] = $stock_list->area;
+        $row[] = $stock_list->region;
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->taluk ."</span>";
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->district ."</span>";
+        $row[] = $stock_list->state;                 
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";           
+        return $row;
+    }
+    
+    
+        private function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+    
+    function process_updateIndiaPincode(){
+         $id =trim($this->input->post('id'));
+         $data=array(
+            'area'=>trim($this->input->post('area')),
+            'region'=>trim($this->input->post('region')),
+            'pincode'=>trim($this->input->post('pincode')),
+            'division'=>trim($this->input->post('division')),
+            'taluk'=>trim($this->input->post('taluk')),
+            'district'=>trim($this->input->post('district')),
+            'state'=>trim($this->input->post('state'))
+        );
+        
+        
+        $check= $this->indiapincode_model->checkDuplicatePincode($data);
+        if(!empty($check)){ 
+            echo json_encode(array('response' =>247));
+        }else{     
+             $update=$this->indiapincode_model->updateIndiaPincode($data,$id);
+             if($update){
+                 echo json_encode(array('response' =>'success'));
+             }else{
+                 echo json_encode(array('response' =>'error'));
+             }
+        }
+        
+        
+    }
+    
+    
 }

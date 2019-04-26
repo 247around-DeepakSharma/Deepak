@@ -101,9 +101,11 @@
                         <input type="text" class="form-control"  name="mobile" value = "<?php if (isset($data[0]['booking_primary_contact_no'])) {echo $data[0]['booking_primary_contact_no']; }?>"  disabled>
                         <?php echo form_error('mobile'); ?>
                       </div>
+                      <?php if($c2c){ ?>
                       <div class="col-md-2">
                           <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                       </div>
+                      <?php } ?>
                     </div>
 
                     <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
