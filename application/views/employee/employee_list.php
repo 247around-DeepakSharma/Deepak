@@ -115,6 +115,7 @@
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Personal Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Group</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">Manager</th>
                         
                         <?php if($session_data['user_group'] == _247AROUND_ADMIN){?>
                            <th class="jumbotron" style="padding:1px;text-align: center">CRM Login</th>
@@ -160,6 +161,7 @@
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
                            
                             <td  <?php echo $style?>><b><?php echo $value['groups']?></b></td>
+                            <td  style="text-align: center;"><b><?php echo ((isset($value['manager'][0]['full_name']))?$value['manager'][0]['full_name']:'');?></b></td>
                             <?php if($session_data['user_group'] == _247AROUND_ADMIN) {?>
                             <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
                             <td style="text-align: center">

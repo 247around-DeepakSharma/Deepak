@@ -195,4 +195,81 @@ class Employee_model extends CI_Model{
            return $query->result_array();
        }
 
+    /* @desc : this function for create employee managerial mapping
+     * @param : array(employee manager hierarchy)
+     * @return : void
+     */
+    function insertManagerData($data){
+        $query = "Insert into employee_hierarchy_mapping(employee_id,manager_id) values ";
+        foreach($data as $value) {
+            $query .=  " (".$value['id'].",".$value['manager'].") ,"; // ,".$value['level']."
+        }
+        $query = trim($query," ,");
+        $result=$this->db->query($query);
+    }
+      /**
+   * @desc : This funtion for delete employee managerial mapping
+   * @param : ids (one or more comma separated)
+   * @return : void
+   */
+
+   function deleteManager($ids){
+   	$query =  "DELETE FROM employee_hierarchy_mapping where employee_id in (".$ids."); ";
+        $result=$this->db->query($query);
+   }
+   /**
+   * @desc : This funtion for update employee managerial mapping
+   * @param : data
+   * @return : void
+   */
+
+   function updateManager($data){
+   	$query = "";
+        foreach($data as $value) {
+            $query .=  "Update employee_hierarchy_mapping set manager_id=".$value['manager']." where employee_id=".$value['id']."; ";
+        }
+        $result=$this->db->query($query);
+   }
+   /**
+   * @desc : This funtion get employee managerial mapping
+   * @param : employee id
+   * @return : array(employee managerial detail)
+   */
+
+
+   function getemployeeManagerfromid($where=array()){
+        $this->db->where($where);
+   	//$this->db->where('employee_id',$id);
+   	$query = $this->db->get('employee_hierarchy_mapping');
+   	return $query->result_array();
+   }
+
+    /**
+    * @Desc: This function is used to get roles
+    * @params: void
+    * @return: Array
+    * 
+    */
+    function get_entity_role($select, $condition = array()){
+        $this->db->select($select);
+        $this->db->distinct();
+        
+        if(!empty($condition['where'])){
+            $this->db->where($condition['where']);
+        }
+
+        if(!empty($condition['where_in'])){
+            foreach ($condition['where_in'] as $key => $value) {
+                $this->db->where_in($key, $value);
+            }
+        }
+        
+        if(!empty($condition['order_by'])){
+            $this->db->order_by($condition['order_by']);
+        }
+        
+        $this->db->from('entity_role');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }
