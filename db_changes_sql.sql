@@ -10472,9 +10472,6 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
 
---Kajal 09-April-2019  Ending ---
-
---Kajal 09-April-2019  Ending ---
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_addition_mail_to_brand', 'need to change', 'need to change', 'noreply@247around.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', '1', CURRENT_TIMESTAMP);
 
 -- Kalyani 18-April-2019 --
@@ -10572,7 +10569,6 @@ ALTER TABLE `db_config`
 --
 ALTER TABLE `db_config`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
 
 CREATE TABLE `partner_permission` (
   `id` int(11) NOT NULL,
@@ -10727,4 +10723,36 @@ VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_
 ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
 -----Gorakh 25 -04 -2019
 ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;
+
+
+--Kajal 26-April-2019  Starting ---
+
+--
+-- Table structure for table `employee_hierarchy_mapping`
+--
+
+CREATE TABLE `employee_hierarchy_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `employee_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `manager_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `employee_hierarchy_mapping`
+--
+ALTER TABLE `employee_hierarchy_mapping`
+  ADD UNIQUE KEY `employee_hierarchy` (`employee_id`,`manager_id`) USING BTREE,
+  ADD KEY `employee_id` (`employee_id`);
+
+ALTER TABLE `employee` ADD `role` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
+
+INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
+('employee', 'employee_login_details', '247Around Login Details', 'Dear %s,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
+
+
+--Kajal 26-April-2019  Ending ---
 
