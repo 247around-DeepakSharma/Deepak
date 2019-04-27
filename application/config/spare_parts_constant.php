@@ -120,6 +120,8 @@ define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
 define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
 // Courier in pickup request 
 define("COURIER_PICKUP_REQUEST", 2);
-//Courier in pickup schedule 
+//Courier in pickup schedule
 define("COURIER_PICKUP_SCHEDULE", 3);
+//Pre Sale Repair Tag
+define('PRESALE_REPAIR_TAG', 'Presale Repair');
 
