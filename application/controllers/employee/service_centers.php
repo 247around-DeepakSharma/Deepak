@@ -1287,7 +1287,8 @@ class Service_centers extends CI_Controller {
                         }
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)) {
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
