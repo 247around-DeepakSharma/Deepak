@@ -330,37 +330,40 @@
                         backgroundColor: 'rgb(0,0,0)',
                         animation: 'wave'
                     });
-
-                        },
-                    url: '<?php echo base_url() ?>employee/service_centers/check_sf_shipped_defective_awb_exist',
-                    data:{awb:awb},
-                    success: function (response) {
-                        console.log(response);
-                        var data = jQuery.parseJSON(response);
-                        if(data.code === 247){
-                            alert("This AWB already used same price will be added");
-                            $("#same_awb").css("display","block");
-                            $('body').loadingModal('destroy');
-                           
-                            $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
-                            $("#courier_name_by_sf").val(data.message[0].courier_name_by_sf);
-                            $("#courier_charges_by_sf").val("0");
-                            $("#courier_charges_by_sf").css("display","none");
-                            $('#defective_parts_shipped_boxes_count option[value="'+data.message[0]['defective_parts_shipped_boxes_count']+'"]').attr("selected", "selected");
-                           
-                            if(data.message[0]['defective_parts_shipped_boxes_count'] !='' && data.message[0]['defective_parts_shipped_boxes_count'] != undefined){
-                                $("#courier_boxes_weight_flag").val('1');
-                                $("#defective_parts_shipped_boxes_count").attr('disabled', true);
-                                $("#defective_parts_shipped_weight_in_kg").val(data.message[0]['weight_in_kg']).attr('disabled', true);
-                                $("#defective_parts_shipped_weight_in_gram").val(data.message[0]['weight_in_gram']).attr('disabled', true);
-                            }                          
-                                                        
-                            if(data.message[0].defective_courier_receipt){
-                               
-                                $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
-                                $("#aws_receipt").css("display","none");
-                            }
-
+    
+                },
+                url: '<?php echo base_url() ?>employee/service_centers/check_sf_shipped_defective_awb_exist',
+                data: {awb: awb},
+                success: function (response) {
+                    console.log(response);
+                    var data = jQuery.parseJSON(response);
+                    if (data.code === 247) {
+    
+                        $("#same_awb").css({"color": "green", "font-weight": "900"});
+                        //  $("#same_awb").css("font-wight",900);
+                        alert("This AWB already used same price will be added");
+                        $("#same_awb").css("display", "block");
+                        $('body').loadingModal('destroy');
+    
+                        
+    
+                        $("#defective_part_shipped_date").val(data.message[0].defective_part_shipped_date);
+                        
+                        $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").attr('readonly',"readonly");
+                        var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
+                        // $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
+                        $('#courier_name_by_sf').val(courier).trigger('change');
+                        if(data.message[0].courier_charge > 0){
+                            $("#courier_charges_by_sf").val(data.message[0].courier_charge);
+                            $("#courier_charges_by_sf").attr('readonly', "readonly");
+                        }
+                        
+                        // $("#courier_charges_by_sf").css("display","none");
+                        $('#defective_parts_shipped_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                        if (data.message[0]['box_count'] === 0) {
+                            $('#defective_parts_shipped_boxes_count').val("");
+                            
                         } else {
 
                             $('body').loadingModal('destroy');
