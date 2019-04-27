@@ -268,12 +268,14 @@
                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                         
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
-                        <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
+                        <td><?php $up_charges = 0; if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
                             } else if($booking_history[0]['flat_upcountry'] == 1){
-                                        echo $booking_history[0]['upcountry_to_be_paid_by_customer'];
+                                  $up_charges =  $booking_history[0]['upcountry_to_be_paid_by_customer'];
+                                        echo $up_charges;
                         } else {
-                             echo $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
+                            $up_charges =  $booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'];
+                             echo $up_charges;
                         } }
                             ?>
                         </td>
@@ -281,7 +283,7 @@
                         <td><?php if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo $unit_detail['customer_net_payable'];
                             } else {
-                            echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']) + $unit_detail['customer_net_payable'];
+                            echo ($up_charges) + $unit_detail['customer_net_payable'];
                             }
                                     ?></td>
                         <?php } else { ?>
@@ -343,8 +345,9 @@
                         <thead>
                             <tr>
                                 <th >Model Number </th>
-                                <th >Requested Parts </th>
-                                 <th >Requested Parts Type</th>
+                                <th >Original Requested Parts </th>
+                                <th >Final Requested Parts </th>
+                                <th >Requested Parts Type</th>
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -360,7 +363,8 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td><?php echo $sp['parts_requested']; ?></td>
+                                <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {

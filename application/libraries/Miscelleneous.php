@@ -3356,6 +3356,19 @@ function generate_image($base64, $image_name,$directory){
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
+
+        if (empty($inventory_stock_details)) {
+            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
+            
+            if (!empty($alternate_inventory_stock_details)) {
+                $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                        . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
+            
+                $inventory_stock_details = $alternate_inventory_stock_details;
+            }
+            
+        }
+        
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 $response = array();
