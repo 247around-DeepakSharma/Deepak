@@ -169,8 +169,9 @@
                         <th width="250px;">Query Remarks</th>
                         <?php if($c2c) { ?>
                               <th width="60px;">Call</th>
+                              <th width="60px;">SMS</th>
                         <?php } ?>
-                        <th width="60px;">SMS</th>
+                        
                         <th width="60px;">View</th>
                         <th width="60px;">Update</th>
                         <th width="60px;">Cancel</th>
@@ -216,8 +217,9 @@
                     <?php if($c2c) { ?>
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
-                    <?php } ?>
                     <td><button type="button" json-data='<?php echo $sms_json; ?>' onclick="send_whtasapp_number(this)" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
+                    <?php } ?>
+                    
                     <td>
                         <?php echo "<a class='btn btn-sm btn-color' "
                             . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
