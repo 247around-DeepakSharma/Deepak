@@ -1997,7 +1997,7 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     
-     * @desc This function is used to  get count of all Partners
+     /* @desc This function is used to  get count of all Partners
      * @param Array $post
      */
     public function count_all_partners($post) {
