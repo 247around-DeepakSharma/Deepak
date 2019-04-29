@@ -193,7 +193,6 @@ class Paytm_gateway extends CI_Controller {
             $request_param_list = array("MID" => PAYTM_GATEWAY_MERCHANT_MID, "ORDERID" => $ORDER_ID);
 
             $StatusCheckSum = $this->encdec_paytm->getChecksumFromArray($request_param_list, PAYTM_GATEWAY_MERCHANT_KEY);
-            
             $request_param_list['CHECKSUMHASH'] = $StatusCheckSum;
             // Call the PG's getTxnStatusNew() function for verifying the transaction status.
             $response_param_list = $this->encdec_paytm->getTxnStatus($request_param_list);

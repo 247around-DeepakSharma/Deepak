@@ -23,7 +23,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">With Out of Stock</label>
                                     </div>
                                     <button class="btn btn-success btn-sm col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
@@ -37,14 +37,15 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Appliance</th>
-                                    <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Part Number</th>
-                                    <th>Spare Stock</th>
-                                    <th>Spare Basic Price</th>
-                                    <th>Spare GST Rate</th>
-                                    <th>Spare Total Price</th>
+                                    <th>Appliance  <?php //echo $this->session->userdata('userType'); ?></th>
+                                    <th> Type</th>
+                                    <th>  Part Name</th>
+                                    <th>  Part Number</th>
+                                    <th>  Stock</th>
+                                    <th> SF Basic Price</th>
+                                    <th>  GST Rate</th>
+                                    <th>  Total Price</th>
+                                    <th>  Customer  Total</th>
                                     
                                 </tr>
                             </thead>
@@ -93,6 +94,7 @@
         inventory_stock_table = $('#inventory_stock_table').DataTable({
             "processing": true,
             "serverSide": true,
+               "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "language": {
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -104,12 +106,31 @@
             },
             "order": [],
             "pageLength": 25,
+            "dom": 'lBfrtip',
             "ordering": false,
+              "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span>   Export',
+                    pageSize: 'LEGAL',
+                    title: 'Inventory List',
+                    exportOptions: {
+                       columns: [0,1,2,3,4,5,6,7,8,9],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 url: "<?php echo base_url(); ?>employee/inventory/get_inventory_stocks_details",
                 type: "POST",
                 data: function(d){
-                    
+                 //   console.log(d); 
                     var entity_details = get_entity_details();
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,

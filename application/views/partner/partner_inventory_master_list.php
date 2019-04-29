@@ -345,13 +345,21 @@
         inventory_master_list_table = $('#inventory_master_list').DataTable({
             "processing": true, 
             "serverSide": true,
+             "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "dom": 'lBfrtip',
             "buttons": [
                 {
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ],
+                         modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+
                     },
                     title: 'inventory_master_list_'+time,
                     action: newExportAction
@@ -396,7 +404,7 @@
     function get_services(div_to_update){
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/partner/get_service_id',
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id:<?php echo $this->session->userdata('partner_id');?>},
             success:function(response){
                 $('#'+div_to_update).html(response);

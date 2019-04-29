@@ -323,9 +323,7 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['gst_rate'] = DEFAULT_TAX_RATE;
 
                 $sd = $ed = $invoice_date = date("Y-m-d");
-
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Payment Voucher", $invoice_date);
-
                 $response['meta']['customer_name'] = $data[0]->name;
                 $response['meta']['customer_address'] = $data[0]->home_address . ", " . $data[0]->city . ", Pincode - " . $data[0]->pincode . ", " . $data[0]->state;
                 $response['meta']['customer_phone_number'] = $data[0]->booking_primary_contact_no;
@@ -373,7 +371,6 @@ class User_invoice extends CI_Controller {
             log_message("info" , __METHOD__ . " Invoice Already Exsit dor booking ID " . $booking_id . " Invoice Data " . $txnID);
         }
     }
-
     
     function insert_sf_credit_note($booking_id, $invoice, $sf_id, $invoice_date, $agent_id, $convert, $txnID) {
         $invoice_details = array(
@@ -615,7 +612,6 @@ class User_invoice extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($booking_id));
                 $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
                 $email_from = $email_template[2];
-
                 $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
                 $cc = $vendor_data['invoice_email_cc'].",".$email_template[3];
                 //$to = $email_template[1];
@@ -646,7 +642,6 @@ class User_invoice extends CI_Controller {
 
             if($inserted_invoice){
                 /* Send mail to partner */
-
                 if($email_parts_name_partner){
                     $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
                     $subject = vsprintf($email_template[4], array($booking_id));
@@ -1121,7 +1116,6 @@ class User_invoice extends CI_Controller {
                             foreach ($invoiceData['mapping_data'] as $value1) {
                                 $this->invoices_model->insert_inventory_invoice($value1);
                             }
-
 
 //                            foreach ($invoiceData['settle_data'] as $value2) {
 //                                $id = $value2['breakup_invoice_id'];

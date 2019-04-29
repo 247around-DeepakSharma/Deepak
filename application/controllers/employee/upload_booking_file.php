@@ -1243,10 +1243,16 @@ class Upload_booking_file extends CI_Controller {
      */
     public function get_upload_file_history()
     {
+
+
+
+
+
         $post_data = array('length' =>$this->input->post('length'),
                            'start' =>$this->input->post('start'),
                            'file_type' =>trim($this->input->post('file_type')),
-                           'search_value' => trim($this->input->post('search')['value'])
+                           'search_value' => trim($this->input->post('search')['value']),
+                           'partner_id'=>$this->input->post('partner_id')
                         );
         
         $filtered_post_data = array(
@@ -1266,7 +1272,11 @@ class Upload_booking_file extends CI_Controller {
             $filtered_post_data['partner_id'] = $this->input->post("partner_id");
         }
         
+    //    $post_data['partner_id']
+
         $list = $this->reporting_utils->get_uploaded_file_history($post_data);
+
+
         $table_data = array();
         $no = $post_data['start'];
         foreach ($list as $file_list) {
@@ -1275,7 +1285,12 @@ class Upload_booking_file extends CI_Controller {
             $row =  $this->upload_file_table_data($file_list, $no);
             $table_data[] = $row;
         }
+
+
+
         $allRecords = $this->reporting_utils->get_uploaded_file_history();
+
+
         $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history($filtered_post_data);
         $output = array(
             "draw" => $this->input->post('draw'),
@@ -1305,10 +1320,17 @@ class Upload_booking_file extends CI_Controller {
         
         $row = array();
         $row[] = $no;
-        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".
-        $file_list->file_name."'>$file_list->file_name</a>";
+
+        // BITBUCKET_DIRECTORY
+
+        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$file_list->file_name."'>".$file_list->file_name."</a>";
+
+             //  $row[] = "Abhishek";
+
         $row[] = $file_list->agent_name;
+
         $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
+
         if($file_list->file_source == 'partner_file_upload'){
             if(!empty($file_list->revert_file_name)){
                 $row[] = '<button type="button" onclick="view_revert_file('.$file_list->id.')" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#revert_file_model">View Revert File</button>';

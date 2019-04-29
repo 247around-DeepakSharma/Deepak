@@ -971,7 +971,6 @@ admin_dashboard.controller('pendingBooking_ControllerAM', function ($scope, $htt
     }
 });
 
-
 //Get Review Page Details 
 buyback_dashboard.controller('review_page_summary', function ($scope, $http) {
     $scope.showLoaderReview = true;
@@ -985,7 +984,6 @@ buyback_dashboard.controller('review_page_summary', function ($scope, $http) {
             $scope.faulty_bookings = data;
     });
 });
-
 
 buyback_dashboard.controller('claimed_price_order_summary', function ($scope, $http) {
     $scope.showLoaderClaimed = true;

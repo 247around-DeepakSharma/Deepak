@@ -235,7 +235,7 @@ class Booking_request extends CI_Controller {
      /**
      * @desc This function is used to update symptom
      */
-    function update_symptom(){
+   function update_symptom(){
         $data = $this->input->post("data");
         $id = $this->input->post("id");
         if(!empty($data)){

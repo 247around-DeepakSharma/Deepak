@@ -50,7 +50,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">With Out of Stock</label>
                                     </div>
                                     <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
@@ -69,9 +69,10 @@
                                     <th>Name</th>
                                     <th>Parts Number</th>
                                     <th>Stock</th>
-                                    <th>Basic Price</th>
+                                    <th> SF Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>  Customer  Total</th>
                                     <?php if($this->session->userdata('userType') == "employee") { ?>
                                         <th>Return Qty</th>
                                         <th>Add</th>

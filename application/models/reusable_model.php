@@ -91,9 +91,14 @@ class reusable_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    function insert_batch($table,$data){
-        $this->db->insert_batch($table, $data); 
-        return $this->db->affected_rows();
+     function insert_batch($table,$data){
+        if($data){
+            $this->db->insert_batch($table, $data); 
+            return $this->db->affected_rows();
+        }
+        else{
+            return 0;
+        }
     }
     
      function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
@@ -126,7 +131,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         $this->db->where($where);
         $this->db->delete($table);
     }
-
     
      /**
      * @desc This is used to get count of all data from given table
@@ -141,7 +145,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         $query = $this->db->count_all_results();
         return $query;
     }
-
     
     /**
      * @desc This is used to get count of all data filtered from given table
@@ -168,7 +171,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         $this->db->update($table,$data);
         return true;
     }
-
     /**
      *  @desc : This function is used to get data from any table in datatable format
      *  @param : $table, $select, $post data
@@ -235,4 +237,3 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
     }
     
 }
-

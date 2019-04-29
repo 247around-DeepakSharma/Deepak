@@ -1,11 +1,11 @@
 <div id="page-wrapper"> 
   <div class="container-fluid">
     <div class="row">
-    	<h1 class="page-header" style="color:Blue;">
+    	<h1 class="page-header"  >
       	Add New Brands 
     	</h1>
     	<form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/booking/process_add_new_brand_form" >
-    	  <table class="table table-striped table-bordered" style="width:500px;">
+    	  <table class="table table-striped table-bordered" style="width:500px;border: 2px solid #edeaea;">
     	  	<tr>
     	  	  <th>S. No.</th>
     	  	  <th>Appliance</th>
@@ -26,16 +26,16 @@
         			</select>
         		</td>
         		<td width="200px;">
-                            <input type="text" disabled="" name="brand_name[]" id="<?php echo 'brands_'.$i ?>" value="<?php echo set_value('brand_name'); ?>" onblur="remove_hint()" onkeyup="show_hint(<?php echo $i ?>)">
+                            <input type="text" class="form-control" disabled="" name="brand_name[]" id="<?php echo 'brands_'.$i ?>" value="<?php echo set_value('brand_name'); ?>" onblur="remove_hint()" onkeyup="show_hint(<?php echo $i ?>)">
                             <div id="<?php echo 'show_hInt_'.$i ?>" style="width: 174px;position: absolute;border: 1px solid;background: #e3ffe1;padding: 3px; display: none;" class="show_hint"></div>
         		</td>
         	  </tr>
         	<?php }?>
     	  </table>
-    	  <center>
+    	   
           	<div><input type="Submit" value="Save" class="btn btn-primary btn-lg">
           	<input type="Reset" value="Cancel" class="btn btn-danger btn-lg"></div>
-          </center>
+           
     	</form>
     </div>
   </div>

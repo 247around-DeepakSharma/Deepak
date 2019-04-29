@@ -305,10 +305,10 @@ class Miscelleneous {
                     } else {
                         
                         $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                        $booking['flat_upcountry'] =0;
-                        $booking['upcountry_sf_payout'] = 0;
+                        $booking['flat_upcountry'] = 0;
+                        $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                         $booking['partner_upcountry_charges'] = 0;
-                        $booking['upcountry_to_be_paid_by_customer'] =  0;
+                        $booking['upcountry_to_be_paid_by_customer'] =  $cust_price;
                     }
                     
 
@@ -330,20 +330,19 @@ class Miscelleneous {
                         
                          if(!empty($is_not_upcountry) && in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
                         
-                                $cust_price = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                                $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                                $cust_price = $is_not_upcountry[0]['upcountry_customer_price'];
+                                $booking['flat_upcountry'] = $is_not_upcountry[0]['flat_upcountry'];
+                                $booking['upcountry_sf_payout'] = $is_not_upcountry[0]['upcountry_vendor_price'];
+                                $booking['partner_upcountry_charges'] = $is_not_upcountry[0]['upcountry_partner_price'];
+                                $booking['upcountry_to_be_paid_by_customer'] = $is_not_upcountry[0]['upcountry_customer_price'];
                             } else {
 
                                 $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['flat_upcountry'] = 0;
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
+                                $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['partner_upcountry_charges'] = 0;
                                 $booking['upcountry_to_be_paid_by_customer'] = $cust_price;
-                                $booking['upcountry_to_be_paid_by_customer'] =  0;
+                               
                             }
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
@@ -380,11 +379,11 @@ class Miscelleneous {
                             $data['message'] = UPCOUNTRY_BOOKING;
                         }
                     }
-                    if(in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
-                        $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                        $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                        $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                        $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                    if(in_array(1, array_column($is_upcountry, 'flat_upcountry')) !== FALSE ){
+                        $booking['flat_upcountry'] = $is_upcountry[0]['flat_upcountry'];
+                        $booking['upcountry_sf_payout'] = $is_upcountry[0]['upcountry_vendor_price'];
+                        $booking['partner_upcountry_charges'] = $is_upcountry[0]['upcountry_partner_price'];
+                        $booking['upcountry_to_be_paid_by_customer'] = $is_upcountry[0]['upcountry_customer_price'];
                     }
                    
                     if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
@@ -2965,7 +2964,6 @@ function generate_image($base64, $image_name,$directory){
             return FALSE;
         }
     }
-
     /**
      * /**
      * @desc This is used to fetch challan id.
@@ -3007,7 +3005,6 @@ function generate_image($base64, $image_name,$directory){
         
         return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
     }
-
     function create_serviceability_report_csv($postData){
         log_message('info', __FUNCTION__ . " Function Start With Request  ".print_r($postData,true));
         $services = $postData['service_id'];
@@ -3055,9 +3052,7 @@ function generate_image($base64, $image_name,$directory){
         fclose ($csv_handler);
         log_message('info', __FUNCTION__ . " Function End  ");
     }
-
-
-function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
+    function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         log_message('info', __FUNCTION__ . " Start For  ".$bookingID.$number);
         if(!$bookingID){
             $bookingDetails = $this->My_CI->booking_model->get_missed_call_rating_booking_count($number);
@@ -3123,7 +3118,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         exec("rm -rf " . escapeshellarg($csv));
         unlink($csv);
     }
-
     /*
      * This Function used to load navigation header from cache
      */
@@ -3210,7 +3204,7 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $login_email['password'] = "***********";
+                   // $login_email['password'] = "***********";
                     $login_emailBody247 = vsprintf($login_template[0], $login_email);
                     //Send Login Details to partner
                     $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
@@ -3292,7 +3286,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         return $data;
     }
     
-
     function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
@@ -4041,7 +4034,6 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
         CURLOPT_RETURNTRANSFER => true
         ));
        $output = curl_exec($ch);
-
        log_message('info', __METHOD__ . "=>End"."Pincode =".$pincode." , Response - ".$output);
        // $output = '{ "results" : [ { "address_components" : [ { "long_name" : "110051", "short_name" : "110051", "types" : [ "postal_code" ] }, { "long_name" : "New Delhi", "short_name" : "New Delhi", "types" : [ "locality", "political" ] }, { "long_name" : "Delhi", "short_name" : "DL", "types" : [ "administrative_area_level_1", "political" ] }, { "long_name" : "India", "short_name" : "IN", "types" : [ "country", "political" ] } ], "formatted_address" : "New Delhi, Delhi 110051, India", "geometry" : { "bounds" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } }, "location" : { "lat" : 28.6569035, "lng" : 77.28229229999999 }, "location_type" : "APPROXIMATE", "viewport" : { "northeast" : { "lat" : 28.66559119999999, "lng" : 77.29854069999999 }, "southwest" : { "lat" : 28.6433122, "lng" : 77.2725126 } } }, "place_id" : "ChIJ85SOHWD7DDkRI-0i7DDZy-M", "types" : [ "postal_code" ] } ], "status" : "OK" }';
         return $output;

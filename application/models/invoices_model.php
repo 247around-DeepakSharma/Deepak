@@ -2364,7 +2364,6 @@ class invoices_model extends CI_Model {
         if(!empty($partner_active)){
            $partner_wh = " AND partners.is_active = 1 ";
         }
-
         $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
                 . " WHERE partners.id = v.vendor_partner_id "
                 . " AND v.vendor_partner = 'partner' "
@@ -2374,7 +2373,6 @@ class invoices_model extends CI_Model {
                 . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
                 . "  $wh $partner_wh ) "
                 .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
-
         $query = $this->db->query($sql);
         return $query->result();
     }
@@ -2491,7 +2489,6 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
-    
     function _querySearchInvoicesdata($select, $post){
         $this->db->from('vendor_partner_invoices');
         $this->db->select($select, FALSE);
@@ -2533,9 +2530,6 @@ class invoices_model extends CI_Model {
         if(isset($post['group_by']) && !empty($post['group_by'])){
             $this->db->group_by($post['group_by']);
         }
-
-    }
- 
      /**
      * @desc This function is used to  get count of all invoice
      * @param Array $post
@@ -2788,7 +2782,6 @@ class invoices_model extends CI_Model {
         $query = $this->db->get("booking_tat");
         return $query->result_array();
     }
-
     /**
      * @desc This function is used to insert fixed variable charges
      * @param String $data

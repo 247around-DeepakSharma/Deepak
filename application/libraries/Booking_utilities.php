@@ -267,7 +267,6 @@ class Booking_utilities {
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
-
     function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){
         $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber,$regenrate_flag);
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));

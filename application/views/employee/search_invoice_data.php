@@ -273,7 +273,6 @@
             }
         });
     }
-
 </script>
 <script>
     function get_invoice_payment_history(button){  
@@ -291,4 +290,3 @@
           }
       };
   </script>
-

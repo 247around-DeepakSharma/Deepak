@@ -591,7 +591,6 @@
             
                 $(".dataTables_filter").addClass("pull-right");
             }
-
         });
     
     
@@ -602,7 +601,6 @@
             order: false, //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50', '100', '500', 'All' ]],
             buttons: [
                 {
@@ -711,10 +709,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-
                 $(".dataTables_filter").addClass("pull-right");
            }
-
         });
         
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
@@ -753,10 +749,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-
                 $(".dataTables_filter").addClass("pull-right");
             }
-
         });
         
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
@@ -791,10 +785,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-
                 $(".dataTables_filter").addClass("pull-right");
             }
-
         });
         
         defective_part_shipped_by_sf_table = $('#defective_part_shipped_by_sf_table').DataTable({
@@ -829,10 +821,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-
                 $(".dataTables_filter").addClass("pull-right");
             }
-
         });
         
         
@@ -872,10 +862,8 @@
             ],
             "fnInitComplete": function (oSettings, response) {
             
-
                $(".dataTables_filter").addClass("pull-right");
             }
-
         });
        
     });
@@ -1114,4 +1102,3 @@
     }
     
 </script>
-

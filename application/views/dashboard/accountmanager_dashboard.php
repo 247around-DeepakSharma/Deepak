@@ -229,7 +229,7 @@
                         </div>
                     </div>
                 </div>
-                        <div class="form-group col-md-3" style="width:190px;">
+                        <div class="form-group col-md-3" style="width:190px;margin-left: -18px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
@@ -254,7 +254,7 @@
                         </div>
                     </div>
                 </div>
-                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
@@ -275,7 +275,7 @@
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:186px;">
-                                         <label for="">Initial Booking Date</label>
+                                         <label for="">Booking Completed Date</label>
                                          <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_am" ng-change="ShowAMPendingBookingBYDateRange()" ng-model="dates">
                             </div>
                     </form>
@@ -481,7 +481,7 @@
                         <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.leg_1[$index].id}}" class="btn btn-info" target="_blank" 
                                          onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
                                    {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
@@ -577,7 +577,7 @@
                             </div>
                         </div>
                     </div>
-                        <div class="form-group col-md-3" style="width:190px;">
+                        <div class="form-group col-md-3" style="width:190px;margin-left: -18px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
@@ -614,16 +614,15 @@
                         </div>
                     </div>
                 </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
-
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
-                        <div class="form-group col-md-3" style="width:200px;">
+                        <div class="form-group col-md-3" style="width:186px;">
                                 <label for="">Initial Booking Date</label>
                                 <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_rm" ng-change="ShowRMPendingBookingBYDateRange()" ng-model="dates">
                             </div>
@@ -650,7 +649,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
  <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 

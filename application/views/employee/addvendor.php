@@ -1259,7 +1259,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (!isset($query[0]['bank_name'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1791,7 +1791,6 @@ function manageAccountNameField(value){
             $("#gst_type, #gst_status").val("");
         }
     }
-
     function validate_ifsc_code(){
         var ifsc_code = $("#ifsc_code").val();
         if(ifsc_code.length == '11'){
@@ -1811,8 +1810,10 @@ function manageAccountNameField(value){
                     url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
                     data: {ifsc_code:ifsc_code, entity_type:"vendor", entity_id:$("#vendor_id").val()},
                     success: function (response) {
+                        response = response.trim();
                         if(response=='"Not Found"'){
                             $("#ifsc_validation").val("");
+                            $("#info_div").css("display", "none");
                             alert("Incorrect IFSC Code");
                         }
                         else{
@@ -1820,7 +1821,7 @@ function manageAccountNameField(value){
                                 var bank_data = JSON.parse(response);
                                 $("#ifsc_validation").val(JSON.stringify(bank_data));
                                 $("#info_div").css("display", "block");
-                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK.toLowerCase()+" <br/> Branch = "+bank_data.BRANCH.toLowerCase()+" <br/> City = "+bank_data.CITY.toLowerCase()+" <br/> State = "+bank_data.STATE.toLowerCase()+" <br/> Address = "+bank_data.ADDRESS.toLowerCase());
                             }
                             else{
                                 $("#ifsc_validation").val("");

@@ -2099,7 +2099,7 @@ class Inventory extends CI_Controller {
     function get_master_list_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name','part_number','services.services','services.id','serial_number');
+        $post['column_search'] = array('part_name','part_number','services.services','services.id');
         $post['where'] = array('inventory_master_list.entity_id'=>trim($this->input->post('entity_id')),'inventory_master_list.entity_type' => trim($this->input->post('entity_type')));
         
         if($this->input->post('service_id') && $this->input->post('service_id') !== 'all'){
@@ -2464,12 +2464,10 @@ class Inventory extends CI_Controller {
     
     function get_inventory_stocks_details(){
         $post = $this->get_post_data();
-        
-         
         if(($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))){
             $post[''] = array();
             $post['column_order'] = array();
-            $post['column_search'] = array('part_name','part_number','serial_number','type');
+            $post['column_search'] = array('part_name','part_number','type');
             $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
 
             if ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
@@ -2478,7 +2476,7 @@ class Inventory extends CI_Controller {
             }
 
             if ($this->input->post('sender_entity_id') && $this->input->post('sender_entity_type')) {
-                $post['where']['inventory_master_list.entity_id'] = trim($this->input->post('sender_entity_id'));
+                 $post['where']['inventory_master_list.entity_id'] = trim($this->input->post('sender_entity_id'));
                 $post['where']['inventory_master_list.entity_type'] = trim($this->input->post('sender_entity_type'));
             }
 
@@ -2502,7 +2500,7 @@ class Inventory extends CI_Controller {
 //            }
 
             $list = $this->inventory_model->get_inventory_stock_list($post,$select);
-            
+
             $data = array();
             $no = $post['start'];
             foreach ($list as $inventory_list) {               
@@ -2531,6 +2529,19 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($output);
     }
+
+
+        function inventory_stock_list(){
+       //  $this->check_WH_UserSession();
+        $this->load->view('employee/header');
+        $this->load->view('employee/inventory_stock_list');
+    }
+
+
+
+
+
+
     
     function get_inventory_stocks_details_for_warehouse(){
         $post = $this->get_post_data();
@@ -2566,39 +2577,95 @@ class Inventory extends CI_Controller {
             "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
             "recordsFiltered" =>  $this->inventory_model->count_filtered_inventory_stocks($post),
             "data" => $data,
-        );
+        );   
         
         echo json_encode($output);
     }
     
     
-    private function get_inventory_stocks_details_table($inventory_list,$sn){
+    private function get_inventory_stocks_details_table($inventory_list, $sn) {
         $row = array();
-        
+
         $row[] = $sn;
-        $row[] = '<span id="services_'.$inventory_list->inventory_id.'">'.$inventory_list->services.'</span>';
-        $row[] = '<span id="type_'.$inventory_list->inventory_id.'">'.$inventory_list->type.'</span>';
-        $row[] = '<span id="part_name_'.$inventory_list->inventory_id.'">'.$inventory_list->part_name.'</span>';
-        $row[] = '<span id="part_number_'.$inventory_list->inventory_id.'">'.$inventory_list->part_number.'</span>';
-        $row[] = '<a href="'. base_url().'employee/inventory/show_inventory_ledger_list/0/'.$inventory_list->receiver_entity_type.'/'.$inventory_list->receiver_entity_id.'/'.$inventory_list->inventory_id.'" target="_blank" title="Get Ledger Details">'.$inventory_list->stock.'<a>';
-        
+        $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
+        $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
+        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '">' . $inventory_list->part_name . '</span>';
+        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '">' . $inventory_list->part_number . '</span>';
+        $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
+
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
-        if($inventory_list->oow_around_margin > 0){
-            $repair_oow_around_percentage = $inventory_list->oow_around_margin/100;
+        if ($inventory_list->oow_around_margin > 0) {
+            $repair_oow_around_percentage = $inventory_list->oow_around_margin / 100;
         }
-        
-        $row[] = '<span id="basic_'.$inventory_list->inventory_id.'">'.round($inventory_list->price *( 1 + $repair_oow_around_percentage),0).'</span>';
-        $row[] = '<span id="gst_rate_'.$inventory_list->inventory_id.'">'.$inventory_list->gst_rate.'</span>';
-        $row[] = '<span id="total_amount_'.$inventory_list->inventory_id.'">'.number_format((float)($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate/100))), 2, '.', '')."</span>";
-        if($this->session->userdata('userType') == "employee"){
-            $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity['.$inventory_list->inventory_id.'][]" class="form-control" id="qty_'.$inventory_list->inventory_id.'" />';
-            $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart('.$inventory_list->inventory_id.', '.$inventory_list->stock.' )">ADD</a>';
+
+
+
+        $repair_oow_around_percentage_vendor = 0;
+        $sfbaseprice = 0;
+//  if ($this->session->userdata('userType')=='service_center') {
+        $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
+
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+
+
+//    $sfbaseprice=$inventory_list->price+($inventory_list->price*$repair_oow_around_percentage_vendor/100);
+//    }
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 2) . '</span>';
+        } else {
+
+//$row[] = '<span id="basic_'.$inventory_list->inventory_id.'">'.round($inventory_list->price *( 1 + $repair_oow_around_percentage),0).'</span>'; 
+
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
+        }
+
+
+
+        $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+
+// service_center
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+
+            $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
+
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+        } else {
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+
+        }
+
+
+        if ($this->session->userdata('userType') == 'service_center') {
+
+            $repair_oow_around_percentage_vendor1 = $inventory_list->oow_vendor_margin / 100;
+
+
+            $totalpriceforsf = number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '');
+
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
+        } else {
+
+            $totalpricepartner = number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '');
+            $repair_oow_around_percentage_vendor2 = $inventory_list->oow_vendor_margin + $inventory_list->oow_around_margin;
+            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
+
+
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($totpartner), 2, '.', '') . "</span>";
+        }
+
+
+        if ($this->session->userdata('userType') == "employee") {
+            $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
+            $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
 
         return $row;
     }
-    
-    
+
     /**
      *  @desc : This function is used to get inventory part name
      *  @param : void
@@ -3307,7 +3374,6 @@ class Inventory extends CI_Controller {
             $list = $this->inventory_model->get_inventory_stock_list($post,$select);
             $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
             if(!empty($list)){
-
                 if($list[0]['oow_around_margin'] > 0){
                     $repair_oow_around_percentage = $list[0]['oow_around_margin']/100;
                 }
@@ -3655,9 +3721,7 @@ class Inventory extends CI_Controller {
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
         $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
-
         $row[] = "<input type='checkbox' class= 'check_reject_single_row' id='reject_spare_$inventory_list->inventory_id' data-inventory_id='".$inventory_list->inventory_id."' data-is_wh_micro='".$inventory_list->is_wh_micro."' data-quantity='".$inventory_list->quantity."' data-ledger_id = '".$inventory_list->id."' data-part_name = '".$inventory_list->part_name."' data-booking_id = '".$inventory_list->booking_id."' data-invoice_id = '".$inventory_list->invoice_id."' data-part_number = '".$inventory_list->part_number."'>";
-
         return $row;
     }
     
@@ -3780,7 +3844,6 @@ class Inventory extends CI_Controller {
         if (!empty($data->booking_id)) {
            
             $where['booking_id'] = $data->booking_id;
-
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, array('wh_ack_received_part' => 1));
             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
              log_message('info', __METHOD__ . " Booking ID updated ". $data->booking_id);
@@ -4636,12 +4699,71 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/appliance_model_details");
     }
     
+     /**
+     *  @desc : This function is used to show partner appliance's model list in data table
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_model_details(){
+        $data = $this->get_partner_model_details_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("appliance_model_details", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("appliance_model_details", "count(model_number) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output); 
+    }
+    
+    function get_partner_model_details_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+
+        $post['order'] = array('appliance_model_details.model_number'=>"ASC", "services.services"=>"ASC");
+        $post['column_search'] = array('appliance_model_details.model_number', 'services.services');
+        $post['where'] = array('appliance_model_details.entity_id'=>$this->input->post('entity_id'));
+        $post['join'] = array(
+                            "services" => "services.id = appliance_model_details.service_id"
+                        );
+        $select = "appliance_model_details.*, services.services";
+
+        $post['joinType'] = array("services"=> "INNER");
+        $list = $this->reusable_model->get_datatable_data("appliance_model_details", $select, $post);
+        //log_message('info', __METHOD__. " kalyani ".$this->db->last_query());
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_partner_model_table($model_list, $no);
+            $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    function get_partner_model_table($model_list, $no){
+        $row = array();
+        $json_data = json_encode($model_list);
+        $row[] = $no;
+        $row[] = $model_list->model_number;
+        $row[] = $model_list->services;
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>"; 
+        return $row;
+    }
+
     /**
      *  @desc : This function is used to show appliance model list
      *  @param : void
      *  @return : void
      */
     function get_appliance_model_details(){
+
+
         $data = $this->get_appliance_model_data();
         
         $post = $data['post'];
@@ -4657,18 +4779,24 @@ class Inventory extends CI_Controller {
     
     function get_appliance_model_data(){
         $post = $this->get_post_data();
+
+
         $post['column_order'] = array();
         $post['column_search'] = array('model_number', 'services.services');
-        $post['where'] = array('appliance_model_details.entity_id'=>trim($this->input->post('entity_id')),'appliance_model_details.entity_type' => trim($this->input->post('entity_type')));
+
+        $post['where'] = array('appliance_model_details.entity_id'=>trim($this->input->post('partner_id')),'appliance_model_details.entity_type' => trim($this->input->post('entity_type')));
         
         if($this->input->post('service_id') && $this->input->post('service_id') !== 'all'){
-            $post['where']['service_id'] = $this->input->post('service_id');
+            $post['where']['appliance_model_details.service_id'] = $this->input->post('service_id');
         }
         
-        $select = "appliance_model_details.*,services.services";
+        $select = "appliance_model_details.*,services.services,partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity,partner_appliance_details.active";
+
         
         $list = $this->inventory_model->get_appliance_model_list($post,$select);
-        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1,'partners.is_wh' => 1)), 'public_name','id');
+
+
+        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1)), 'public_name','id');
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
@@ -4692,11 +4820,35 @@ class Inventory extends CI_Controller {
         $json_data = json_encode($model_list);
         
         $row[] = $no;
-        $row[] = $model_list->model_number;
         $row[] = $model_list->services;
-        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
-        $row[] = "<a href='".base_url()."employee/inventory/get_inventory_by_model/".urlencode($model_list->id)."' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+        $row[] = $model_list->model_number;
+
+
+        $row[] = $model_list->brand;
+        $row[] = $model_list->category;
         
+        $row[] = $model_list->capacity;
+        
+
+
+if ($this->session->userdata('userType') == 'service_center') {
+    //   $row[] = "<a href='javascript:void(0)' class ='btn btn-primary hide' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+}else{
+          $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>"; 
+}
+
+
+if ($this->session->userdata('userType') == 'service_center') {
+
+
+        $row[] = "<a href='".base_url()."service_center/inventory/inventory_list_by_model/".urlencode($model_list->id)."' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+
+
+}else{
+        $row[] = "<a href='".base_url()."employee/inventory/get_inventory_by_model/".urlencode($model_list->id)."' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+}
+
+
         return $row;
     }
     
@@ -4779,7 +4931,15 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function edit_appliance_model_data($data) {
-        if($this->input->post('model_id')){
+        $aplliance_model_where = array(
+                            'service_id' => $data['service_id'],
+                            'model_number' => $data['model_number'],
+                            'entity_type' => 'partner',
+                            'entity_id' => $data['entity_id'],
+                            'id != "'.$this->input->post('model_id').'"' => NULL
+                        );
+        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+        if(empty($model_detail)){
             $response = $this->inventory_model->update_appliance_model_data(array('id' => $this->input->post('model_id')),$data);
             if (!empty($response)) {
                 $res['response'] = 'success';
@@ -4792,10 +4952,8 @@ class Inventory extends CI_Controller {
             }
         }else{
             $res['response'] = 'error';
-            $res['msg'] = 'Invalid Request';
+            $res['msg'] = 'Model Number Already Exist';
         }
-        
-        
         return $res;
     }
     
@@ -5578,7 +5736,6 @@ class Inventory extends CI_Controller {
                 $affected_id = $this->inventory_model->update_inventory_parts_type($data, array('id' => $part_type_id));
 
                 if ($affected_id) {
-
                     $select = "inventory_parts_type.part_type,services.services as service_name,hsn_code_details.hsn_code as hsn_code ";
                     $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details($select, array('inventory_parts_type.id'=> $part_type_id), TRUE);
                     
@@ -5674,6 +5831,7 @@ class Inventory extends CI_Controller {
     function get_partner_mapped_model_data(){
         $post = $this->get_post_data();
         $post['column_order'] = array();
+
         $post['order'] = array('appliance_model_details.model_number'=>"ASC", "services.services"=>"ASC");
         $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
         $post['where'] = array('partner_appliance_details.partner_id'=>$this->input->post('partner_id'));
@@ -5682,8 +5840,11 @@ class Inventory extends CI_Controller {
                             "services" => "services.id = partner_appliance_details.service_id"
                         );
         $post['joinType'] = array("services"=> "INNER", "appliance_model_details"=>"LEFT");
-        $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number as model, partner_appliance_details.active";
+        $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number, partner_appliance_details.active";
+
+
         $list = $this->reusable_model->get_datatable_data("partner_appliance_details", $select, $post);
+        //log_message('info', __METHOD__. "kalyani ".$this->db->last_query());
         $data = array();
         $no = $post['start'];
         foreach ($list as $model_list) {
@@ -5701,9 +5862,9 @@ class Inventory extends CI_Controller {
     
     function get_partner_mapped_model_table($model_list, $no, $source){
         $row = array();
-        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity, "model_number"=>$model_list->model));
+        $json = json_encode(array("map_id"=>$model_list->tid, "model"=>$model_list->model_id, "service"=>$model_list->service_id, "brand"=>$model_list->brand, "category"=> $model_list->category, "capacity"=>$model_list->capacity, "model_number"=>$model_list->model_number));
         $row[] = $no;
-        $row[] = $model_list->model;
+        $row[] = $model_list->model_number;
         $row[] = $model_list->services;
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
@@ -5791,14 +5952,12 @@ class Inventory extends CI_Controller {
         $return['message'] = "Status Updated Successfully";
         echo json_encode($return);
     }
-    
-     /**
+      /**
      *  @desc : This function is used to get Partner Wise Spare Parts List
      *  @param : $inventory_id, 
      *  @return : $res array
      */
-    
-    function partner_wise_inventory_spare_parts_list() {
+function partner_wise_inventory_spare_parts_list() {
 
         if (!empty($this->input->post("entity_id"))) {
             $where = array(
@@ -5846,5 +6005,4 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
-
 }

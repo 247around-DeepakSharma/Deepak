@@ -10175,6 +10175,11 @@ ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> CRM_Release_1.63.0.0
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
@@ -10182,6 +10187,7 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
 
+<<<<<<< HEAD
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
@@ -10191,6 +10197,8 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
 
+=======
+>>>>>>> CRM_Release_1.63.0.0
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
@@ -10210,9 +10218,12 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `part
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 --Gorakh 15-03-2019
 =======
 >>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+=======
+>>>>>>> CRM_Release_1.63.0.0
 
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
@@ -10396,6 +10407,7 @@ RENAME TABLE symptom_completion_request TO symptom;
 -- Change column name for `symptom` table 
   
 ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+<<<<<<< HEAD
 --
 -- Table structure for table `booking_symptom_defect_details`
 --
@@ -10415,13 +10427,15 @@ CREATE TABLE `booking_symptom_defect_details` (
 
 <<<<<<< HEAD
 
+=======
+>>>>>>> CRM_Release_1.63.0.0
 --
 -- Table structure for table `booking_symptom_defect_details`
 --
 
 CREATE TABLE `booking_symptom_defect_details` (
   `id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
+  `booking_id` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
   `symptom_id_spare_request_time` int(11) DEFAULT NULL,
   `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
@@ -10514,10 +10528,15 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 
 >>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+=======
+
+
+>>>>>>> CRM_Release_1.63.0.0
 ----Gorakh 09-04-2019
 CREATE TABLE `alternate_inventory_set` (
   `id` int(11) NOT NULL,
@@ -10535,16 +10554,28 @@ ALTER TABLE `alternate_inventory_set`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> CRM_Release_1.63.0.0
 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
 
 
+<<<<<<< HEAD
 >>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+=======
+>>>>>>> CRM_Release_1.63.0.0
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
 ---------Gorakh 18-04-2019
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
 
+<<<<<<< HEAD
+=======
+--Kajal 09-April-2019  Ending ---
+
+--Kajal 09-April-2019  Ending ---
+>>>>>>> CRM_Release_1.63.0.0
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_addition_mail_to_brand', 'need to change', 'need to change', 'noreply@247around.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', '1', CURRENT_TIMESTAMP);
 
 -- Kalyani 18-April-2019 --
@@ -10606,6 +10637,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 -- Release 63 -23/04/01
 --Abhay 23/04/01
@@ -10744,7 +10776,7 @@ ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR
 
 ALTER TABLE `courier_company_invoice_details` ADD `created_by` INT(11) NOT NULL DEFAULT '1' AFTER `courier_invoice_file`;
 
-=======
+
 ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(255) NULL DEFAULT NULL AFTER `booking_id`;
 
 
@@ -10757,7 +10789,7 @@ ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR
 ALTER TABLE `courier_company_invoice_details` ADD `created_by` INT(11) NOT NULL DEFAULT '1' AFTER `courier_invoice_file`;
 
 
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11) NOT NULL;
 ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11) NOT NULL;
 ALTER TABLE `courier_company_invoice_details` ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `actual_weight`;
@@ -10766,23 +10798,20 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `invoice_id` `invoice_id` V
 
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
 
-<<<<<<< HEAD
-ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
-
-=======
 
 ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
 
 
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+
+
+
 ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
 
 ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
 
-<<<<<<< HEAD
 
-=======
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
 --Kajal 25-April-2019  Starting ---
 ALTER TABLE `symptom` CHANGE `request_type` `service_id` INT(28) NOT NULL;
 ALTER TABLE `defect` CHANGE `request_type` `service_id` INT(28) NOT NULL;
@@ -10807,18 +10836,24 @@ UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`titl
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
 VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_request/symptom_defect_solution_mapping', '2', '202', 'admin,developer,accountmanager,callcenter,closure', 'main_nav', '1', CURRENT_TIMESTAMP);
 
-<<<<<<< HEAD
+
 --Kajal 25-April-2019  Ending ---
 
-<<<<<<< HEAD
+
+--Kajal 25-April-2019  Ending ---
+--- Abhishek --
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL; 
+--Abhishek end---
+
+
 --------Gorakh 19-04-2019
 ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
 -----Gorakh 25 -04 -2019
 ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;
 
 
-=======
->>>>>>> 25af3656d... CRM-2558 : Create employee Hierarchy Structure
+
 --Kajal 26-April-2019  Starting ---
 
 --
@@ -10842,26 +10877,25 @@ ALTER TABLE `employee_hierarchy_mapping`
   ADD UNIQUE KEY `employee_hierarchy` (`employee_id`,`manager_id`) USING BTREE,
   ADD KEY `employee_id` (`employee_id`);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 ALTER TABLE `employee` ADD `department` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
-=======
+
 ALTER TABLE `employee` ADD `role` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
->>>>>>> 25af3656d... CRM-2558 : Create employee Hierarchy Structure
-=======
+
+
 ALTER TABLE `employee` ADD `department` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
->>>>>>> 2ee9a160f... CRM-2713 : Improvements in Login profile creation Process
+
+
+ALTER TABLE `employee` ADD `role` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
+
 
 INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
 ('employee', 'employee_login_details', '247Around Login Details', 'Dear %s,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
 ('employee', 'employee_reset_password', '247Around Login Details', 'Dear %s,<br><br> Your password has been reset.<br><br> URL: <a href="https://www.aroundhomzapp.com/employee/login">https://www.aroundhomzapp.com/employee/login</a><br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
-=======
-=======
+
 INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
 ('employee', 'employee_reset_password', '247Around Login Details', 'Dear %s,<br><br> Your password has been reset.<br><br> URL: <a href="https://www.aroundhomzapp.com/employee/login">https://www.aroundhomzapp.com/employee/login</a><br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
 
@@ -10874,10 +10908,10 @@ insert into entity_role(entity_type,department,role,is_filter_applicable,create_
 ('247Around','Calling','Booking Manager',0,CURRENT_TIMESTAMP),
 ('247Around','Admin','developer',1,CURRENT_TIMESTAMP);
 
->>>>>>> 2ee9a160f... CRM-2713 : Improvements in Login profile creation Process
+
 INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
 (247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
->>>>>>> 80cdff449... Changes in Dashboard for SaaS Model
+
 
 insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values
 ('247Around','Admin','admin',1,CURRENT_TIMESTAMP),
@@ -10922,10 +10956,4 @@ ALTER TABLE `partner_invoice_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-=======
---Kajal 25-April-2019  Ending ---
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
-=======
 
---Kajal 26-April-2019  Ending ---
->>>>>>> 25af3656d... CRM-2558 : Create employee Hierarchy Structure

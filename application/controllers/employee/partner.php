@@ -204,7 +204,7 @@ class Partner extends CI_Controller {
             $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
         } 
-        
+     
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -222,8 +222,10 @@ class Partner extends CI_Controller {
         }
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
-        if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+         $awb =$spare_parts_details[0]['awb_by_sf'];
+        if (!empty($spare_parts_details)) {           
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
            if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
            }
@@ -4364,7 +4366,9 @@ class Partner extends CI_Controller {
      * @return: string
      */
     function get_partner_list(){
-        $is_wh = $this->input->post('is_wh');
+       //  $is_wh = $this->input->post('is_wh');
+          $is_wh = 0;
+
         if(!empty($is_wh)){
             $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
@@ -4678,6 +4682,10 @@ class Partner extends CI_Controller {
      */
     function get_partner_file_details(){
         $this->partner_id = trim($this->input->post('partner_id'));
+
+
+
+         
         
         if(!empty($this->partner_id)){
             $data = $this->around_scheduler_model->get_data_for_parsing_email_attachments(array('partner_id' => $this->partner_id));
@@ -5096,6 +5104,32 @@ class Partner extends CI_Controller {
             
             if($this->input->get('is_all_option')){
                 $option .= '<option value="all" >All</option>';
+            }
+            echo $option;
+        }else{
+            echo FALSE;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to get service_id from Ajax call
+     * @params: void
+     * @return: string
+     */
+    function get_partner_specific_appliance(){
+        $partner_id = $this->input->get('partner_id');
+        if($partner_id){
+            $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
+            if($this->input->get('is_option_selected')){
+                $option = '<option  selected="" disabled="">Select Appliance</option>';
+            }else{
+                $option = '';
+            }
+
+            foreach ($appliance_list as $value) {
+                $option .= "<option value='" . $value->id . "'";
+                $option .= " > ";
+                $option .= $value->services . "</option>";
             }
             echo $option;
         }else{
@@ -6892,16 +6926,13 @@ class Partner extends CI_Controller {
 
                                     $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
                                     unlink(TMP_FOLDER . $sample_file);
-                                    $msg=$msg.$name.' File Uploaded successfully ';
                                     //Logging success for file uppload
                                     log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
                           }
                           else
                           {
                               $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
-                                                             
                           }
-                         
                       }
                       else
                       {
@@ -6913,11 +6944,9 @@ class Partner extends CI_Controller {
                 {
                     $this->session->set_userdata('error', $errormsg);
                 }
-                if(!empty($msg))
-                {
-                    $this->session->set_userdata('success', $msg);
-                }
-                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+                      $msg = "Partner Sample Pic has been updated successfully";
+                       $this->session->set_userdata('success', $msg);
+                  redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
         
@@ -6942,7 +6971,6 @@ class Partner extends CI_Controller {
         echo $msg;
         
     }
-
     /**
      * @desc: This function is used to show the appliance model mapping of the partner
      * @params: void
@@ -6954,7 +6982,6 @@ class Partner extends CI_Controller {
         $this->load->view('partner/show_appliance_model_mapping');
         $this->load->view('partner/partner_footer');
     }
-
     public function brandCollateral()
     {
         $partnerArray = array();

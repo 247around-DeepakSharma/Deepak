@@ -115,7 +115,6 @@ class Utilities extends CI_Controller {
         }
     }
     
-
     function update_appliance_view(){
         $booking_id = $this->input->get("booking_id");
         if(!empty($booking_id)){

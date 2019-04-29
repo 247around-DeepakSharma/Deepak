@@ -827,7 +827,6 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-
     function spare_parts_requested_table_data($spare_list, $no, $request_type){
                 
         $row = array();
@@ -2283,23 +2282,32 @@ class Spare_parts extends CI_Controller {
     /**
      * @desc This function is used to send MSL data to inventory manager
      */
-    function get_msl_data() {
+    function get_msl_data($imwh = 1) {
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-        $data = $this->inventory_model->get_msl_data($date_45);
-
+        
+        if($imwh == 1){
+            $temp_function = 'get_msl_data';
+             $template = "msl_data.xlsx";
+        } else {
+            $temp_function = 'get_microwarehouse_msl_data';
+            $template = "mwh_msl_data.xlsx";
+        }
+        $data = $this->inventory_model->$temp_function($date_45);
+        //print_r($data); 
         if (!empty($data)) {
             foreach ($data as $key => $value) {
+                
+                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id']);
 
-                $day_30 = $this->inventory_model->get_msl_data($date_30, $value['inventory_id']);
                 if (!empty($day_30)) {
                     $data[$key]['consumption_30_days'] = $day_30[0]['consumption'];
                 } else {
                     $data[$key]['consumption_30_days'] = 0;
                 }
 
-                $day_15 = $this->inventory_model->get_msl_data($date_15, $value['inventory_id']);
+                $day_15 = $this->inventory_model->$temp_function($date_15, $value['inventory_id']);
                 if (!empty($day_15)) {
                     $data[$key]['consumption_15_days'] = $day_15[0]['consumption'];
                 } else {
@@ -2309,12 +2317,24 @@ class Spare_parts extends CI_Controller {
                 $recommended_30 = $data[$key]['consumption_30_days'] - $value['stock'];
                 if ($recommended_30 > 0) {
                     $data[$key]['recommended_30_days'] = $recommended_30;
+                    
+                } else if($recommended_30 == 0){
+                    
+                    $data[$key]['recommended_30_days']  = $data[$key]['consumption_30_days'];
+                    
+                } else if($data[$key]['consumption_30_days'] == 0){ 
+                    $recommended_45 = $data[$key]['consumption'] - $value['stock'];
+                    if($recommended_45 > 0){
+                        $data[$key]['recommended_30_days'] = $recommended_45;
+                    } else {
+                        $data[$key]['recommended_30_days'] = 0;
+                    }
                 } else {
                     $data[$key]['recommended_30_days'] = 0;
                 }
             }
         }
-        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP));
+        $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
                             return $k['official_email'];
@@ -2324,7 +2344,7 @@ class Spare_parts extends CI_Controller {
 
         $output_file_excel = "msldata_" . date('YmdHis') . ".xlsx";
         $config = array(
-            'template' => "msl_data.xlsx",
+            'template' => $template,
             'templateDir' => $templateDir
         );
 

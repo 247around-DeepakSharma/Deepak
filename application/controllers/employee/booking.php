@@ -929,14 +929,13 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+       $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
-           
-        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
-
+        
         if(count($data['technical_problem']) <= 0) {
             $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
         }
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
@@ -1188,7 +1187,7 @@ class Booking extends CI_Controller {
     /**
      * @desc: This is used to get appliance list its called by Ajax
      */
-    function get_appliances($selected_service_id) {
+ function get_appliances($selected_service_id) {
         $partner_id = $this->input->post('partner_id');
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
@@ -1614,7 +1613,9 @@ class Booking extends CI_Controller {
         
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         if (!empty($spare_parts_details)) {
-            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('awb_spare_parts_details', 'awb_spare_parts_details.defective_parts_shipped_boxes_count,awb_spare_parts_details.defective_parts_shipped_weight', array('awb_spare_parts_details.awb_no' => $spare_parts_details[0]['awb_by_sf']), array());
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
+            
             if(!empty($courier_boxes_weight)){
                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
             }
@@ -1761,20 +1762,14 @@ class Booking extends CI_Controller {
             $booking['appliance_id'] = $appliance_id;
             $where_internal_status = array("page" => "FollowUp", "active" => '1');
             $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-
-            foreach ($booking['unit_details'] as $key => $value) {
-                
-                 $isWbrand = "";
-                
+            foreach ($booking['unit_details'] as $key => $value) {     
+                 $isWbrand = "";           
                 if ($booking['partner_type'] == OEM) {
                     $isWbrand = $value['brand'];
-                    
                     $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
                         'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
                     $select = 'brand As brand_name';
-
                     $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    
                     $where['brand'] = $value['brand'];
                     $model_where = array(
                        "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
@@ -1807,7 +1802,6 @@ class Booking extends CI_Controller {
                 } else {
                     $booking['unit_details'][$key]['brand_id'] = "";
                 }
-
                 array_push($booking['category'], $category);
                 array_push($booking['brand'], $brand);
                 array_push($booking['capacity'], $capacity);
@@ -2779,7 +2773,7 @@ class Booking extends CI_Controller {
                                  return true;
                             }
                             else {
-                                if($partner_booking['current_status'] !== _247AROUND_CANCELLED){
+                                if($partner_booking[0]['current_status'] !== _247AROUND_CANCELLED){
                                     $output = "Duplicate Order ID";
                                     $userSession = array('error' => $output);
                                     $this->session->set_userdata($userSession);
@@ -3376,9 +3370,7 @@ class Booking extends CI_Controller {
         $actor = $this->input->post('actor');
         $rm_id = $this->input->post('rm_id');
         $is_upcountry = $this->input->post('is_upcountry');
-
         $completed_booking=$this->input->post('completed_booking');
-
         $bulk_booking_id = NULL;
         if($this->input->post('bulk_booking_id')){
             $bulk_booking_id = $this->input->post('bulk_booking_id');
@@ -3388,29 +3380,39 @@ class Booking extends CI_Controller {
         }
         if($type == 'booking'){
             if($booking_status == _247AROUND_COMPLETED || $booking_status == _247AROUND_CANCELLED){
-                $post['where']['type']= 'Booking';
-                if($booking_status == _247AROUND_COMPLETED) {
-                        if(!empty($completed_booking)) {
-                                    switch ($completed_booking){
-                                        case 'a':
-                                            $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
-                                            break;
-                                        case 'b':
-                                            $post['where']['(service_center_closed_date IS NOT NULL) AND (current_status !="'.$booking_status.'")'] = NULL;
-                                            break;
-                                        case 'c':
-                                           $post['where']['current_status'] = $booking_status;
-                                            break;
+                   $post['where']['type']= 'Booking';
+                   if(!empty($completed_booking)) {
+                        switch ($completed_booking){
+                                case 'a':
+                                    if($booking_status == _247AROUND_COMPLETED){
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_CANCELLED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
                                     }
+                                    else{
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_COMPLETED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                    }
+                                    break;
+                                case 'b':
+                                     if($booking_status == _247AROUND_COMPLETED){
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'")'] = NULL;
+                                    }
+                                    else{
+                                        $post['where']['(service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'")'] = NULL;
+                                    }
+                                    $post['where_in']['booking_details.current_status'] =  array(_247AROUND_RESCHEDULED,_247AROUND_PENDING);
+                                    break;
+                                case 'c':
+                                   $post['where']['current_status'] = $booking_status;
+                                    break;
                             }
-                        else{
-                               $post['where']['(service_center_closed_date IS NOT NULL) OR (current_status="'.$booking_status.'")'] = NULL;
-                            }
-                }
-                else{
-                     $post['where']['current_status'] = $booking_status;
-                }
-               
+                   }
+                   else{
+                       if($booking_status == _247AROUND_COMPLETED){
+                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                       }
+                       else{
+                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                        }
+                    }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
                     $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (current_status = '"._247AROUND_PENDING."' ))"=>NULL,
@@ -4958,6 +4960,11 @@ class Booking extends CI_Controller {
         }
         
     }
+
+
+
+
+    
      function download_pending_bookings($status) {
         $booking_status = trim($status);
         //RM Specific Bookings
@@ -5092,7 +5099,7 @@ class Booking extends CI_Controller {
             echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
     }
-     function sms_test($number,$text){
+    function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
     

@@ -29,7 +29,6 @@
                 </td>
             </tr>
             <tr style="">
-
                 <td align="left" style="border-right: hidden;">
                     <?php if($meta['main_company_logo']){ ?>
                     <img style="padding: 5px; height: 110px; width: 101px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">

@@ -747,7 +747,6 @@
                 document.getElementById('upcountry_charges').style.borderColor = "green";
             }
         }
-
         <?php if(!empty($technical_problem)){ ?>
             var technical_problem = $("#technical_problem").val();
             if(technical_problem === null){

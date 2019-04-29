@@ -95,7 +95,15 @@ $route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee
 $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
+
+
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
+
+$route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
+
+
+
+
 $route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
 $route['service_center/spare_parts/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
@@ -113,6 +121,16 @@ $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_cent
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
+
+
+
+$route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
+
+//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
+
+
+
+
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
@@ -193,6 +211,19 @@ $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_revi
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
+
+
+
+
+
+
+//$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
+
+
+// $route['inventory/appliance_model_list']='employee/inventory/appliance_model_list';
+
+
+
 
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';

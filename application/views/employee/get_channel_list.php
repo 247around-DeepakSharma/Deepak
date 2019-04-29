@@ -1,14 +1,15 @@
 <div class = "container"> 
     <div class="panel-group">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                   Channel List 
+        <div class="panel ">
+            <div class=" ">
+                 <h1>Channel List </h1>  
                 <a class="btn btn-primary pull-right btn-md" href ="<?php echo base_url();?>employee/partner/add_channel">Add Channel</a>
             </div>
             <div class="panel-body">
-                <table class = "table table-condensed table-bordered table-striped table-responsive">
-                    
-                    <tr>
+                <table class = "table table-condensed table-bordered table-striped table-responsive" id="channellist">
+                    <thead>
+                     
+                                         <tr>
                         <th>S No</th>
                         <th>Partner Name</th>
                         <th>Channel Name</th>
@@ -16,7 +17,10 @@
                         <th>Create Date</th>
                         <th>Action</th>
                         
-                    </tr>
+                    </tr>   
+
+                    </thead>
+
                 <?php
                 if (!empty($fetch_data)) {
                     foreach ($fetch_data as $key => $row) {
@@ -43,9 +47,13 @@
     </div> 
 </div>
 
+
+
+
+
+
                  
 </body>
-
 <script>
     
 
@@ -104,7 +112,6 @@ $('#channellist').DataTable({
 </script>
 
 <style type="text/css">
-
     .dataTables_length {
     width: 12% !important;
 }
@@ -113,13 +120,11 @@ $('#channellist').DataTable({
     float: right !important;
 }
 
-
  @media (min-width: 1200px){
 .container {
     width: 100% !important;
 }
 
 </style>
-
 </html>
 

@@ -67,7 +67,6 @@ class Booking_model extends CI_Model {
         if($data['customer_paid_basic_charges'] == 0){
            
             $is_gst = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id']);
-           
             if(empty($is_gst[0]['gst_no']) ){
                 $vendor_total_basic_charges =  $data['vendor_basic_charges'];
                 $data['vendor_st_or_vat_basic_charges'] = 0;
@@ -95,7 +94,6 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
-
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -130,7 +128,6 @@ class Booking_model extends CI_Model {
             $this->db->select('id as unit_id, pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
-
             $this->db->order_by("price_tags","asc");
             $query2 = $this->db->get('booking_unit_details');
 
@@ -710,7 +707,7 @@ class Booking_model extends CI_Model {
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
                     . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
-	    $service_centre = ", service_centres ";
+	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
             $partner_name = ", partners.public_name  ";
             $partner = ", partners  ";
@@ -729,11 +726,8 @@ class Booking_model extends CI_Model {
         $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('booking_id' => $booking_id));//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
-           
             $result['spare_parts'] = $result1;
-           
         }
-        
         return $result;
     }
 
@@ -863,15 +857,15 @@ class Booking_model extends CI_Model {
             $this->db->where('brand', $brand);
         //}
 
-        if (!empty($capacity)) {
-            $this->db->where('capacity', $capacity);
-        }
+    	if (!empty($capacity)) {
+    		$this->db->where('capacity', $capacity);
+    	}
         
         $this->db->order_by('service_category', 'asc');
 
-        $query = $this->db->get('service_centre_charges');
+    	$query = $this->db->get('service_centre_charges');
 
-        return $query->result_array();
+    	return $query->result_array();
     }
 
     /**
@@ -1386,7 +1380,7 @@ class Booking_model extends CI_Model {
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
-                . 'booking_details.partner_id');
+                . 'booking_details.partner_id, booking_details.flat_upcountry');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -1648,7 +1642,6 @@ class Booking_model extends CI_Model {
         $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
     }
-
     function update_request_type($booking_id, $price_tag) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Price Tags " . print_r($price_tag, true));
 
@@ -2415,7 +2408,6 @@ class Booking_model extends CI_Model {
     function insert_state_map($data){
         return $this->db->insert_batch('warehouse_state_relationship',$data)->insert_id;
     }
-
     
     function partner_completed_call_status_mapping($booking_id, $data){
         $this->db->where('booking_id', $booking_id);
@@ -2560,7 +2552,6 @@ class Booking_model extends CI_Model {
         } 
         return $result;
     }
-
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
           $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags != 'Repeat Booking' AND booking_id != '".$booking_id."'"
                 . " UNION "
@@ -2604,8 +2595,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false){
+function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false){
         $this->db->select($select);
         $this->db->from('booking_details');
         $this->db->where($where);

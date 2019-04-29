@@ -26,7 +26,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Spare Part Details For Model Number <span id="model_name"><strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></span></h3>
-                    
+                     
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -68,6 +68,8 @@
 
                     <?php    
                     $customertot = number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', '');
+
+
                     $customertot = number_format((float)$customertot+($customertot*($value['oow_vendor_margin']+$value['oow_around_margin'])/100), 2, '.', '');
 
                                       ?>
@@ -116,18 +118,15 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0,1,2,3,4,5,6,7,8]
-                    },
-                    title: 'parts_used_in_model_'+model_name+time,
-                         exportOptions: { 
-                         columns: [0,1,2,3,4,5,6,7,8],
+                        columns: [ 0,1,2,3,4,5,6,7,8],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
                              page : 'current',      // 'all',     'current'
                              search : 'none'     // 'none',    'applied', 'removed'
                          }
-                    }
+                    },
+                    title: 'parts_used_in_model_'+model_name+time
                 },
             ],
     });

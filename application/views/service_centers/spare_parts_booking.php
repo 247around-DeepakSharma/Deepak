@@ -377,11 +377,9 @@ if ($this->uri->segment(3)) {
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
 } ?>
-
 <?php if ($this->session->userdata('stock_not_exist')) {
     $this->session->unset_userdata('stock_not_exist');
 } ?>
 <?php if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
-

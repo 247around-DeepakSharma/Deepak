@@ -940,7 +940,6 @@ class File_upload extends CI_Controller {
                     $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
                 }
             }
-            
             if(!empty($table_flag)){
                 $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                 $not_exist_data_msg .= $this->table->generate();    
@@ -988,7 +987,6 @@ class File_upload extends CI_Controller {
                  }
                  
             }
-                        
             if ($insert_data) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;

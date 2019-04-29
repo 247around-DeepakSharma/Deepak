@@ -502,8 +502,8 @@ class Inventory_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
-        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id');
-        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         
 //        if(isset($post['type_join']) && $post['type_join'] == true){
@@ -1130,6 +1130,24 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+
+
+
+
+
+
+        function get_appliance_from_partner($partner_id){
+        $this->db->distinct();
+        $this->db->select('services.id,services');
+        $this->db->from('services');
+        $this->db->join('service_centre_charges','services.id = service_centre_charges.service_id');
+        $this->db->where('service_centre_charges.partner_id ' , $partner_id);
+        $this->db->order_by('services');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     
     /**
      * @desc This is used to insert details into inventory_model_mapping table in batch
@@ -1178,7 +1196,12 @@ class Inventory_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('appliance_model_details');
-        $this->db->join('services', 'appliance_model_details.service_id = services.id','left');
+        $this->db->join('services', 'appliance_model_details.service_id = services.id');
+
+        $this->db->join('partner_appliance_details', 'partner_appliance_details.model = appliance_model_details.id ', 'left');
+
+
+
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1222,6 +1245,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
+        log_message('info', __METHOD__. " ".$this->db->last_query());
         if($is_array){
             return $query->result_array();
         }else{
@@ -1894,7 +1918,6 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
-    }           
     /**
      * @desc This is used to get list of inventory stock count from inventory_stocks     
      * @table inventory_stocks 
@@ -2182,7 +2205,6 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
      /**
      * @Desc: This function is used to get data from the set_oow_part_type_margin table
      * @params: $select string
@@ -2242,18 +2264,45 @@ class Inventory_model extends CI_Model {
        
         $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
                 . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
-        $this->db->from('inventory_master_list as im');
+        $this->db->from('spare_parts_details as s');
+        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-         $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND i.entity_type = "vendor" AND sc.is_wh = 1 ', 'left');
-        $this->db->join('spare_parts_details as s', 's.requested_inventory_id = im.inventory_id ');
-       
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
-        $this->db->order_by('p.public_name');
+        $this->db->order_by('p.public_name, sc.name');
+        
+        $this->db->group_by('im.inventory_id');
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc Used to get MicroWarehouse MSL
+     * @param String $date
+     * @param int $inventory_id
+     * @return Array
+     */
+    function get_microwarehouse_msl_data($date, $inventory_id = ""){
+        $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
+                . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->from('spare_parts_details as s');
+        $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
+        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
+
+        if(!empty($inventory_id)){
+            $this->db->where('im.inventory_id', $inventory_id);
+        }
+        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->order_by('p.public_name, sc.name');
         
         $this->db->group_by('im.inventory_id');
         
@@ -2268,7 +2317,7 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-    function get_generic_table_details($table, $select, $where, $where_in){
+     function get_generic_table_details($table, $select, $where, $where_in){
        
        $this->db->select($select);
        
@@ -2284,8 +2333,6 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();         
         return $query->result_array(); 
     }
-       
-     /**
      * @Desc: This function is used to get data from the spare_parts_details table
      * @params $table string 
      * @params: $select string
@@ -2307,8 +2354,7 @@ class Inventory_model extends CI_Model {
         }
     }
 
-    /**
-     * @desc: This function is used to insert data in alternate_inventory_set table
+     /* @desc: This function is used to insert data in alternate_inventory_set table
      * @params: Array of data
      * return : boolean
      */

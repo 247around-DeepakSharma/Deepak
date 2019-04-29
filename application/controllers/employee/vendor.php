@@ -2056,7 +2056,7 @@ class vendor extends CI_Controller {
            $select = "service_centres.name, service_centres.id";
            $service_center = $this->vendor_model->getVendorDetails($select, $where);
            $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = json_decode($value['appliance_id'],true);
+           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value['id'], "is_active"=>1), "service_id");
            $appliances = array();
            if(!empty($service_id)){
                 foreach ($service_id as  $values) {
@@ -4182,6 +4182,7 @@ class vendor extends CI_Controller {
            * @input - VendorID
            */
         function download_vendor_pin_code($vendorID) {
+        log_message('info',__METHOD__. " Vendor ID ". $vendorID);
         //ob_start();
         $join = array("service_centres" => "service_centres.id = pm.Vendor_ID", "services" => "services.id=pm.Appliance_ID");
         $orderBYArray = array("services.services" => "ASC");
@@ -4706,8 +4707,15 @@ class vendor extends CI_Controller {
                 $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
             }
         }else{
-            $data['bank_details'] = arrya();
+            $data['bank_details'] = array();
         }
+
+
+
+        
+
+
+        //exit;
         
         //output data
         if($data['is_ajax']){
@@ -5481,7 +5489,6 @@ class vendor extends CI_Controller {
         $this->session->set_flashdata('success', "SMS Sent Successfully");
         redirect(base_url() . 'employee/vendor/send_broadcast_sms_to_vendors');
     }
-
     function get_city()
     {
        $state_value=$this->input->post('state'); 
@@ -5612,4 +5619,3 @@ class vendor extends CI_Controller {
     
     
 }
-

@@ -2524,7 +2524,6 @@ class Partner extends CI_Controller {
     }
     
     function encrypt_e($input, $ky) {
-
 	$key = $ky;
 	$size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, 'cbc');
 	$input = pkcs5_pad_e($input, $size);
@@ -2537,7 +2536,6 @@ class Partner extends CI_Controller {
 	mcrypt_module_close($td);
 	$data = base64_encode($data);
 	return $data;
-
 }
 
     function Apitest(){

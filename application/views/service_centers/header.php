@@ -262,11 +262,26 @@
                             </ul>
                         </li>
                         <?php } ?>
-                        <?php  if($this->session->userdata('is_wh') == 1){ ?>
+                        <?php  if(1){ ?>
                         <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Warehouse <span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <span style="font-weight: bold;" class="badge nt-badge <?php if($this->session->userdata('is_wh') != 1){echo 'hide';}  ?>" id="inventory_count" title="New Spare Request">0</span><?php if ($this->session->userdata('is_wh') == 1) {echo "Warehouse";
+                                    }else if($this->session->userdata('is_micro_wh') == 1){echo "Micro Warehouse";
+                                    }else{ echo "Inventory";
+                                    } ?>
+                                     <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
+
+                                        <?php  
+
+                                            if ($this->session->userdata('is_wh') == 1) { ?>
+                                              <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li> 
+                                              <li class="divider"></li>  
+                                          <?php   }
+
+                                      
+
+                                     ?>
                                <!-- <li role="separator" class="divider"></li>
                                       <li class="dropdown dropdown-submenu">
                                         <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
@@ -293,8 +308,11 @@
                                             </li>                                                                            
                                         </ul>
                                     </li>-->
-                                    <li class="divider"></li>                                    
+                                                                      
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                    <li class="divider"></li>
+
+                                    <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>  
                                     
                                 </ul>
                             </li>
@@ -363,7 +381,7 @@
 
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i ></i> <?php echo $this->session->userdata('service_center_name'); ?> <i class="fa fa-caret-down"></i>
+                            <i ></i> <?php echo substr($this->session->userdata('service_center_name'),0,10); ?> <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="dropdown">
@@ -607,10 +625,7 @@
             }
         });
     }
-    
-
      <?php if($this->session->userdata('is_sf') === '1'){ ?>
-
     function get_defective_parts_count(){
        $.ajax({
             method:'GET',
@@ -715,4 +730,9 @@
         height: 25px;
         padding: 2px;
     }
+
+    #bs-example-navbar-collapse-1 {
+    margin-top: 14px;
+    margin-left: 125px !important;
+}
 </style>

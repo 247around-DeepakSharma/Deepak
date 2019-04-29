@@ -142,6 +142,24 @@ class Service_centers_model extends CI_Model {
         
     }
 
+
+
+
+            function get_service_brands_for_partner($partner_id){
+        $sql = "Select Distinct partner_appliance_details.brand, services.services,services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+
+
+
+
+
+
+
     /**
      * @desc: this method return completed and cancelled booking according to request status
      * @param: End limit
@@ -189,13 +207,10 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-
     function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0){
         $limit = "";
         $where_in = "";
-
         $userSelect = $join = $groupBy = "";
-        
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
@@ -339,6 +354,8 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
+
+
     function update_spare_parts($where, $data) {
         $this->db->where($where);
         $this->db->update('spare_parts_details', $data);
@@ -352,6 +369,7 @@ class Service_centers_model extends CI_Model {
         
         return $result;
     }
+
     /**
      * @desc: This is used to update micro warehouse state mapping table
      * @param Array $where
@@ -906,7 +924,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: id
      */
     function insert_into_awb_details($data){
-        $this->db->insert('awb_spare_parts_details',$data);
-        $return_id=$this->db->insert_id();
+        $this->db->insert('courier_company_invoice_details',$data);
+        return $this->db->insert_id();
     }
 }

@@ -67,7 +67,6 @@ class Dashboard extends CI_Controller {
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
-
             }
             $this->load->view('dashboard/dashboard_footer');
             $this->load->view('employee/header/push_notification');
@@ -1734,9 +1733,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $structuredArray;
     }
     function get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id){
-
         $where = $joinType  = $join = $requestTypeArray = $where_in = array();
-
         //Filter on service ID
         if($service_id !="not_set"){
                  $where['booking_details.service_id'] = $service_id;
@@ -1808,7 +1805,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
             }
             return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
-
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
@@ -1839,13 +1835,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
-
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
-
             }
             $conditionArray['where']['booking_details.type != "Query"'] = NULL;
              //Group by on booking_tat
@@ -2107,7 +2101,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
-           echo  json_encode($sfData);
+            if($is_pending){
+                echo  json_encode($sfData);
+            }
+            else{
+                echo  json_encode($sfData['TAT']);
+            }
         }
     }
     
@@ -2768,7 +2767,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->dashboard_model->update_dashboard_notification($data, $where);
         echo json_encode($notifications);
     }
-
     
     function get_dashboard_notification_type(){
         $html = "<option selected disabled>Select Notification Type</option>";
@@ -2783,7 +2781,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
-
     function get_servicability_missing_data($rmID = NULL){
         $rm_arr = $vendorStructuredArray = $stateCodeArray =array();
         $pincode_state_wise =$this->vendor_model->get_india_pincode_group_by_state(array());
@@ -2837,7 +2834,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $rmmissingview=$this->load->view('dashboard/rm_missing_report',$data,true);
         echo $rmmissingview;
     }
-
     function get_am_booking_data()
     {
                $am=array();

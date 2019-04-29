@@ -127,7 +127,7 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Generate Price</th>
                     <th class='jumbotron' style="text-align: center">View Price</th>
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
-                    <th class='jumbotron' style="text-align: center">Partner Activation/Deactivation History</th>
+                    <th class='jumbotron' style="text-align: center">Activation / Deactivation<br>History</th>
                 </tr>
 
 

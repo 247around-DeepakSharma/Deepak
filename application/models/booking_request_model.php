@@ -86,7 +86,7 @@ class Booking_request_model extends CI_Model {
      * @param Array $where_in
      * @return String
      */
-    function symptom_completion_solution($select, $where = array(), $where_in = array()){
+   function symptom_completion_solution($select, $where = array(), $where_in = array()){
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
@@ -142,7 +142,6 @@ class Booking_request_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    /**
      * @desc This function is used to get solution list
      * @param String $select
      * @param Array $where

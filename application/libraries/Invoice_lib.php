@@ -229,7 +229,6 @@ class Invoice_lib {
         }
     }
     
-    
     function send_request_to_convert_excel_to_pdf($invoice_id, $invoice_type, $copy = false, $triplicate = FALSE){
         $excel_file_to_convert_in_pdf = $invoice_id.'-draft.xlsx';
         

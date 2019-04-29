@@ -13,7 +13,8 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong><?php echo $this->session->userdata('failed') ?></strong>
+                        <center><strong><?php echo $this->session->userdata('failed') ?></strong></center>
+                        
                     </div>
              <?php } ?>
         
@@ -23,7 +24,8 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong><?php echo $this->session->userdata('success') ?></strong>
+                        <center> <strong><?php echo $this->session->userdata('success') ?></strong></center>
+                       
                     </div>
              <?php } ?>
         
@@ -34,18 +36,18 @@
 //            
              ?>
         
-<div class="panel panel-info" >
+<div class="panel  " >
     <div 
         class="panel-heading">
-        Appliance Table
+       <h1>Appliance Table</h1> 
         <button type="button" class="btn btn-primary" id="submit_btn" onClick="window.location.href = '<?php echo base_url();?>employee/service_centre_charges/add_new_category';return false;" style="float:right"   value="Add"  >Add</button><!--
         
 -->        </div>
     </div>
-    <div class="panel-body">
+    <div class="panel-body"   >
         <div class="row">
             <div class="col-md-12">
-                <table class="table  table-striped table-bordered">
+                <table class="table  table-striped table-bordered" id="datatablemappingview">
                     <thead>
                         <tr>
                             <th>Service ID</th>
@@ -171,3 +173,81 @@
            
        }
     </script>
+
+
+    <script type="text/javascript">
+    
+
+
+
+
+$('#datatablemappingview').DataTable({
+"processing": true, 
+"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+"serverSide": false,  
+ "dom": 'lBfrtip',
+                "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+
+                    title: 'Appliance Table', 
+                    exportOptions: { 
+                       columns: [0,1,2,3],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+            "language":{ 
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>"
+            },
+            select: {
+                style: 'multi'
+            },
+            
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "ordering": false,
+
+            "order": [], 
+            "pageLength": 25,
+            "ordering": false,
+                
+            "deferRender": true   
+
+
+});
+
+
+
+
+
+</script>
+
+
+    <style>
+        
+        @media (min-width: 1200px){
+.container {
+    width: 100% !important;
+}
+
+.dataTables_filter{
+
+
+    float: right !important;
+    margin-top: -30px !important;
+}
+
+    </style>

@@ -79,6 +79,33 @@
     .form-horizontal .control-label {
         text-align: left;
     }
+
+
+
+    div.dataTables_wrapper div.dataTables_processing {
+    position: absolute;
+    top: 50%;
+    /* left: 50%; */
+    width: 200px;
+    /* margin-left: -100px; */
+    margin-top: -26px;
+    text-align: center;
+    padding: 1em 0;
+}
+
+
+div.dataTables_wrapper div.dataTables_processing {
+    position: absolute;
+    top: 50%;
+      left: 0% !important;  
+    width: 200px;
+    margin-left: 0px !important;  
+    margin-top: -26px;
+    text-align: center;
+    padding: 1em 0;
+}
+
+
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -88,8 +115,8 @@
                     <h3>Appliance Model List</h3>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-primary pull-right" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-files-o" style="margin-right:5px"></i>Map Model</a>
-                    <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus" style="margin-right:5px"></i>Add New Model</a>
+                    <a class="btn btn-primary pull-right hide" style="margin-top: 10px; margin-left: 10px;" id="map_model" title="Map Model Number"><i class="fa fa-files-o" style="margin-right:5px"></i>Map Model</a>
+                    <a class="btn btn-success pull-right hide" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus" style="margin-right:5px"></i>Add New Model</a>
                 </div>
             </div>
         </div>
@@ -99,7 +126,7 @@
                 <div class="form-inline">
                     <div class="form-group col-md-3">
                         <select class="form-control" id="model_partner_id">
-                            <option value="" disabled="">Select Partner</option>
+                            <option value="" disabled="">Select Partner  </option>
                         </select>
                     </div>
                     <div class="form-group col-md-3">
@@ -136,14 +163,32 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>Appliance</th>
+                         <th>Appliance</th>
                         <th>Model Number</th>
-                        <th>Brand</th>
+                       
+                           <th>Brand</th>
                         <th>Category</th>
                         
                         <th>Capacity</th>
-                        
-                        <th>Edit</th>
+
+                        <?php 
+
+                        if ($this->session->userdata('userType') == 'service_center') {
+
+                        }else{ ?>
+
+                             <th>Edit</th> 
+                       <?php  }
+
+
+                         ?>
+
+
+
+
+                      
+
+
                         <th>Get Part Details</th>
                     </tr>
                 </thead>
@@ -200,10 +245,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-
-                        
                         
                         <div class="modal-footer">
                             <input type="hidden" id="entity_type" name='entity_type' value="partner">
@@ -334,18 +375,42 @@
         appliance_model_details_table = $('#appliance_model_details').DataTable({
             "processing": true, 
             "serverSide": true,
+            "order": [], 
+            "pageLength": 25,
             "dom": 'lBfrtip',
-            "buttons": [
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "ordering": false,
+               "buttons": [
                 {
                     extend: 'excel',
-                    text: 'Export',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Appliance Model List',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4,5 ]
-                    },
-                    title: 'appliance_model_details'+time,
-                    action: newExportAction
-                },
+                       columns: [0,1,2,3,4,5],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
             ],
+
+
+            // "buttons": [
+            //     {
+            //         extend: 'excel',
+            //         text: 'Export',
+            //         exportOptions: {
+            //             columns: [ 0, 1, 2 ]
+            //         },
+            //         title: 'appliance_model_details'+time
+            //        // action: newExportAction
+            //     },
+            // ],
             "language":{ 
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -371,6 +436,7 @@
                     d.entity_type = entity_details.entity_type,
                     d.service_id = entity_details.service_id,
                     d.partner_id = $('#model_partner_id').val()
+ 
                 }
             },
             "deferRender": true       
@@ -421,10 +487,15 @@
     
     function get_services(div_to_update,partner_id){
         $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
-            data:{partner:partner_id},
+            type:'GET',
+            url:'<?php echo base_url();?>employee/service_centers/get_service_id_by_partner',
+            data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
+
+
+                  console.log(response);
+
+
                 $('#'+div_to_update).html(response);
             }
         });
@@ -617,8 +688,6 @@
                 response = "<option disabled selected>Select Category</option>"+response;
                 $('#mapping_category').html(response);
                 $('#mapping_category').select2();
-                get_mapping_capacity();
-                
             }
         });
         
