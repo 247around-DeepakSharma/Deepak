@@ -122,12 +122,50 @@ class Invoice_lib {
             unlink($output_file_excel);
         }
         $cell = false;
+        $logo_path = false;
+        $seal_path = false;
         $sign_path = false;
-//        if(isset($meta['sign_path'])){
-//          $cell = $meta['cell'];
-//          $sign_path = $meta['sign_path'];
-//        }
-        $R->render('excel', $output_file_excel,$cell, $sign_path);
+        $imagePath = array();
+        
+        if(isset($meta['main_company_logo_cell'])){
+          $logo_cell = $meta['main_company_logo_cell'];
+          $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
+          copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
+          $logo_path = TMP_FOLDER . $meta['main_company_logo'];
+          $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
+          array_push($imagePath, $logo_detail);
+        }
+        
+        if(isset($meta['main_company_seal_cell'])){
+          $seal_cell = $meta['main_company_seal_cell'];
+          $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
+          copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
+          $seal_path = TMP_FOLDER . $meta['main_company_seal'];
+          $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
+          array_push($imagePath, $seal_detail);
+        }
+        
+        if(isset($meta['main_company_sign_cell'])){
+          $sign_cell = $meta['main_company_sign_cell'];
+          $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
+          copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
+          $sign_path = TMP_FOLDER . $meta['main_company_signature'];
+          $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
+          array_push($imagePath, $sign_detail);
+        }
+        
+        
+        $R->render('excel', $output_file_excel,$cell, $imagePath);
+        
+        if($logo_path){
+            unlink($logo_path);
+        }
+        if($seal_path){
+           unlink($seal_path);
+        }
+        if($sign_path){
+            unlink($sign_path);
+        }
         
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
 
@@ -631,6 +669,13 @@ class Invoice_lib {
      */
     function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
+        $challan_logo = $this->ci->partner_model->get_partner_logo("partner_logo", array("partner_id" => _247AROUND));
+        if(!empty($challan_logo)){
+            $excel_data['main_company_logo'] = $challan_logo[0]['partner_logo'];
+        }
+        else{
+            $excel_data['main_company_logo'] = "logo.png";
+        }
         if(!empty($sf_details)){
             $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
