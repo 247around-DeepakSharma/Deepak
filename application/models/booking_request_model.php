@@ -142,7 +142,7 @@ class Booking_request_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-     * @desc This function is used to get solution list
+    /* @desc This function is used to get solution list
      * @param String $select
      * @param Array $where
      * @param Array $where_in

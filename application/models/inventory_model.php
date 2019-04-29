@@ -1918,6 +1918,7 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
+    }
     /**
      * @desc This is used to get list of inventory stock count from inventory_stocks     
      * @table inventory_stocks 
@@ -2333,7 +2334,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();         
         return $query->result_array(); 
     }
-     * @Desc: This function is used to get data from the spare_parts_details table
+     /* @Desc: This function is used to get data from the spare_parts_details table
      * @params $table string 
      * @params: $select string
      * @params: $where array
