@@ -116,6 +116,27 @@ class vendor extends CI_Controller {
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
+                if(!empty($sc_id)){
+                    $data = array(
+                        'partner_id' => _247AROUND,
+                        'state' => $vendor_data['state'],
+                        'micro_warehouse_charges' => '0',
+                        'vendor_id' => $sc_id
+                    );
+                   
+                    $wh_on_of_data = array(
+                        'partner_id' => _247AROUND,
+                        'agent_id' => $this->session->userdata('id'),
+                        'vendor_id' => $sc_id,
+                        'active' => 1
+                    );
+                    
+                    $c2c = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
+                    if(!empty($c2c)){
+                      $this->miscelleneous->create_micro_warehouse($data,$wh_on_of_data);  
+                    }
+                    
+                }
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -222,7 +243,6 @@ class vendor extends CI_Controller {
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
-        $vendor_data['is_micro_wh'] = 1;
         return $vendor_data;
     }
 

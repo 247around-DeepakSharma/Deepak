@@ -3096,11 +3096,12 @@ function generate_image($base64, $image_name,$directory){
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
         }
     }
-    function update_serial_number_in_appliance_details($unitTableID){
-       $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
+    function update_appliance_details($unitTableID){
+       $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number,purchase_date",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
        if (!empty($applianceData)) {
             $applianceID = $applianceData[0]['appliance_id'];
             $data['sf_serial_number'] = $applianceData[0]['serial_number'];
+            $data['sf_purchase_date'] = $applianceData[0]['purchase_date'];
             $this->My_CI->booking_model->update_appliances($applianceID, $data);
        }
     }
@@ -4114,4 +4115,20 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
+    
+    /**
+     * @desc This function is used to Create new micro-warehouse
+     * @param array $data
+     * @param array $wh_on_of_data
+     */
+    function create_micro_warehouse($data,$wh_on_of_data){
+        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id']), '*');
+        if (empty($micro_wh_mapping_list)) {
+            $this->My_CI->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
+            $this->My_CI->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
+            $service_center = array('is_micro_wh' => 1);
+            $this->My_CI->vendor_model->edit_vendor($service_center, $data['vendor_id']);
+        }
+    }
+    
 }
