@@ -394,6 +394,8 @@ class User extends CI_Controller {
         if($data == $data1)
             exit("Please add manager or subordinate!");
         
+        $data1['groups']= str_replace(' ', '', $data1['groups']);
+        
         $data1['clear_password'] = $this->randomPassword();
         $data1['employee_password'] = md5($data1['clear_password']);
         $data1['create_date'] = date('Y-m-d H:i:s');
@@ -506,6 +508,8 @@ class User extends CI_Controller {
         $removeKeys = array('manager', 'subordinate');
         $data1=array_diff_key($data, array_flip($removeKeys));
         
+        $data1['groups']= str_replace(' ', '', $data1['groups']);
+        
         $this->employee_model->update($data1['id'],$data1);
         
         $data2 = array();
@@ -537,7 +541,7 @@ class User extends CI_Controller {
         $data3=$this->employee_model->getemployeeManagerfromid(array('manager_id' => $data1['id']));
         
         if(count($data3) > 0)
-            $this->employee_model->deleteManager(implode(',',$data['subordinate']));
+            $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
         $this->employee_model->insertManagerData($data2);
         
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
