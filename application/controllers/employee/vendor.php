@@ -107,7 +107,7 @@ class vendor extends CI_Controller {
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Send SF Update email
-                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                 redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
@@ -116,6 +116,27 @@ class vendor extends CI_Controller {
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
+                if(!empty($sc_id)){
+                    $data = array(
+                        'partner_id' => _247AROUND,
+                        'state' => $vendor_data['state'],
+                        'micro_warehouse_charges' => '0',
+                        'vendor_id' => $sc_id
+                    );
+                   
+                    $wh_on_of_data = array(
+                        'partner_id' => _247AROUND,
+                        'agent_id' => $this->session->userdata('id'),
+                        'vendor_id' => $sc_id,
+                        'active' => 1
+                    );
+                    
+                    $c2c = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
+                    if(!empty($c2c)){
+                      $this->miscelleneous->create_micro_warehouse($data,$wh_on_of_data);  
+                    }
+                    
+                }
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -152,7 +173,7 @@ class vendor extends CI_Controller {
                    $engineer['name'] = "Default Engineer";
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -222,7 +243,6 @@ class vendor extends CI_Controller {
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
-        $vendor_data['is_micro_wh'] = 1;
         return $vendor_data;
     }
 
@@ -363,8 +383,16 @@ class vendor extends CI_Controller {
             
             return $vendor_data;
     }
-    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details){
+    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details, $rm_id=''){
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+        
+        if(!empty($rm_id)) {
+            $manager_id = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_id));
+
+            if(!empty($manager_id)) {
+                $managerData = $this->employee_model->getemployeefromid($manager_id[0]['manager_id']);
+            }
+        }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
@@ -372,9 +400,14 @@ class vendor extends CI_Controller {
             
             //send mail to brand on new sf addition
             $template = $this->booking_model->get_booking_email_template(SF_ADDITION_MAIL_TO_BRAND);
+            
             if (!empty($template)) {
                 $to = $template[1];
                 $cc = $template[3];
+
+                if(!empty($managerData))
+                    $cc .= ",".$managerData[0]['official_email'];
+                
                 $subject = $template[4];
                 $emailBody = $template[0];
                 $this->notify->sendEmail($template[2], $to, $cc, "", $subject, $emailBody, "", SF_ADDITION_MAIL_TO_BRAND);
@@ -411,6 +444,10 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        
+        if(!empty($managerData))
+            $to .= ",".$managerData[0]['official_email'];
+
         //Cleaning Email Variables
         $this->email->clear(TRUE);
         //Send report via email

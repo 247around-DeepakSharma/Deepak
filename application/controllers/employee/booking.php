@@ -909,6 +909,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1092,7 +1093,7 @@ class Booking extends CI_Controller {
         $data['service_center_closed_date'] = NULL;
         //$data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
-//        $data['current_status'] = 'Rescheduled';
+        $data['current_status'] = 'Rescheduled';
 //        $data['internal_status'] = 'Rescheduled';
         $data['update_date'] = date("Y-m-d H:i:s");
         $reason=!empty($this->input->post('reason'))?$this->input->post('reason'):'';
@@ -1594,9 +1595,7 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_symptom'][0]['solution_id'])){
             $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
         
-        } 
-     
-      $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+        }
                          
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
@@ -2095,6 +2094,7 @@ class Booking extends CI_Controller {
         }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
+        $purchase_date = $this->input->post('purchase_date');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2242,6 +2242,7 @@ class Booking extends CI_Controller {
                     $service_center['internal_status'] = $data['booking_status'];
                 }
 
+                $data['sf_purchase_date'] = $purchase_date;
                 $data['id'] = $unit_id;
 
                 log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
@@ -3201,6 +3202,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = trim($booking_id);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -3246,6 +3248,7 @@ class Booking extends CI_Controller {
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $data['status'] = $status;
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
             $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
@@ -4138,8 +4141,9 @@ class Booking extends CI_Controller {
         }
         if($c2c){
              $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+             $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
         }
-        $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
+        
         
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         if($query_status != _247AROUND_CANCELLED){

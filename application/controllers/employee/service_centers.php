@@ -467,6 +467,10 @@ class Service_centers extends CI_Controller {
                 $technical_defect = $this->input->post('closing_defect');
                 $technical_solution = $this->input->post('technical_solution');
 
+                $purchase_date =NULL;
+                if($this->input->post('dop')){
+                    $purchase_date = $this->input->post('dop');
+                }
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
                 $approval = $this->input->post("approval");
@@ -533,6 +537,9 @@ class Service_centers extends CI_Controller {
                         if (!empty($closing_remarks)) {
                             $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                         }
+                    }
+                    if($purchase_date){
+                        $data['sf_purchase_date'] = $purchase_date;
                     }
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
@@ -1369,7 +1376,8 @@ class Service_centers extends CI_Controller {
                         }
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)) {
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
