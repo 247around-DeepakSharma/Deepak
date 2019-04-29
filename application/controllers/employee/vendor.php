@@ -107,7 +107,7 @@ class vendor extends CI_Controller {
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Send SF Update email
-                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                 redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
@@ -173,7 +173,7 @@ class vendor extends CI_Controller {
                    $engineer['name'] = "Default Engineer";
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -383,12 +383,36 @@ class vendor extends CI_Controller {
             
             return $vendor_data;
     }
-    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details){
+    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details, $rm_id=''){
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+        
+        if(!empty($rm_id)) {
+            $manager_id = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_id));
+
+            if(!empty($manager_id)) {
+                $managerData = $this->employee_model->getemployeefromid($manager_id[0]['manager_id']);
+            }
+        }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
             $html = "<p>New Sf Added :</p><ul>";
+            
+            //send mail to brand on new sf addition
+            $template = $this->booking_model->get_booking_email_template(SF_ADDITION_MAIL_TO_BRAND);
+            
+            if (!empty($template)) {
+                $to = $template[1];
+                $cc = $template[3];
+
+                if(!empty($managerData))
+                    $cc .= ",".$managerData[0]['official_email'];
+                
+                $subject = $template[4];
+                $emailBody = $template[0];
+                $this->notify->sendEmail($template[2], $to, $cc, "", $subject, $emailBody, "", SF_ADDITION_MAIL_TO_BRAND);
+            }
+            
         }
         $html .= "<li><b>" . 'SF Name' . '</b> =>';
         $html .= " " . $updated_vendor_details['name'] . '</li>';
@@ -420,6 +444,10 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        
+        if(!empty($managerData))
+            $to .= ",".$managerData[0]['official_email'];
+
         //Cleaning Email Variables
         $this->email->clear(TRUE);
         //Send report via email
