@@ -909,6 +909,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -2093,6 +2094,7 @@ class Booking extends CI_Controller {
         }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
+        $purchase_date = $this->input->post('purchase_date');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2240,6 +2242,7 @@ class Booking extends CI_Controller {
                     $service_center['internal_status'] = $data['booking_status'];
                 }
 
+                $data['sf_purchase_date'] = $purchase_date;
                 $data['id'] = $unit_id;
 
                 log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
@@ -3199,6 +3202,7 @@ class Booking extends CI_Controller {
         $data['booking_id'] = trim($booking_id);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
        $this->miscelleneous->load_nav_header();
         if(strtolower($data['booking_status']) == 'pending'){
             $this->load->view('employee/view_pending_bookings', $data);
@@ -3244,6 +3248,7 @@ class Booking extends CI_Controller {
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $data['status'] = $status;
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
             $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
