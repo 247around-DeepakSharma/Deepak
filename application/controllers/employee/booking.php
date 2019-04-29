@@ -1092,7 +1092,7 @@ class Booking extends CI_Controller {
         $data['service_center_closed_date'] = NULL;
         //$data['cancellation_reason'] = NULL;
         //$data['booking_remarks'] = $this->input->post('reason');
-//        $data['current_status'] = 'Rescheduled';
+        $data['current_status'] = 'Rescheduled';
 //        $data['internal_status'] = 'Rescheduled';
         $data['update_date'] = date("Y-m-d H:i:s");
         $reason=!empty($this->input->post('reason'))?$this->input->post('reason'):'';
