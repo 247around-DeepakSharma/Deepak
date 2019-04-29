@@ -191,8 +191,9 @@
                         } ?>
                         <?php if($c2c) { ?>
                             <th>Call</th>
+                            <th>SMS</th>
                         <?php } ?>
-                        <th>SMS</th>
+                        
                         <th>View</th>
                         <?php if($query_status != _247AROUND_CANCELLED){?>
                             <th>Update</th>

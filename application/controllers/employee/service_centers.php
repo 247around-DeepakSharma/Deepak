@@ -292,6 +292,22 @@ class Service_centers extends CI_Controller {
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
         
+        if (!empty($data['booking_history']['spare_parts'])) {
+            $spare_parts_list = array();
+            foreach ($data['booking_history']['spare_parts'] as $key => $val) {
+                if (!empty($val['requested_inventory_id'])) {
+                    $inventory_spare_parts_details = $this->inventory_model->get_generic_table_details('inventory_master_list', 'inventory_master_list.part_number,inventory_master_list.part_name', array('inventory_master_list.inventory_id' => $val['requested_inventory_id']), array());
+                    if (!empty($inventory_spare_parts_details)) {
+                        $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
+                    }
+                }
+            }
+        }
+
+        if (!empty($spare_parts_list)) {
+            $data['booking_history']['spare_parts'] = $spare_parts_list;
+        }
+
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         
         if (!empty($spare_parts_details)) {
@@ -1353,7 +1369,8 @@ class Service_centers extends CI_Controller {
                         }
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG)) {
+                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
@@ -1708,7 +1725,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
 
         $is_same_parts_type = $this->is_part_already_requested();
-        
+                    
         if (empty($is_same_parts_type)) {
             $is_file = $this->validate_part_data();
 
@@ -1736,7 +1753,7 @@ class Service_centers extends CI_Controller {
                 //$price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');
-                $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+                $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh", array('partners.id' => $partner_id));
 
                 $status = SPARE_PART_ON_APPROVAL;
 
@@ -1789,9 +1806,8 @@ class Service_centers extends CI_Controller {
 
                     if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
-                    } else {
-                        $data['requested_inventory_id'] = '';
-                    }
+                        $data['original_inventory_id'] = $value['requested_inventory_id'];
+                    } 
 
                     /** search if there is any warehouse for requested spare parts
                      * if any warehouse exist then assign this spare request to that service center otherwise assign
@@ -1807,10 +1823,10 @@ class Service_centers extends CI_Controller {
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
-
+                    
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state'], 'inventory_id' => $data['requested_inventory_id']), $partner_id);
+                        $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
                         if (!empty($warehouse_details)) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
