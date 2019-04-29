@@ -1,6 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
-<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+ <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
+ <?php $dop_mendatory = 0; ?>
 <div id="page-wrapper" >
     <div class="" >
         <?php if(validation_errors()){?>
@@ -141,9 +142,9 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-8" <?php } else { ?> class="col-md-12" <?php } ?> >
-                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
-                                            <?php } else {?> width:26.32%;<?php }?>">
+                                    <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-12" <?php } else { ?> class="col-md-12" <?php } ?> >
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
+                                            <?php } else {?> width:20.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <label> Product Found Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
@@ -154,8 +155,8 @@
                                             </div>
                                         </div>
                                         <input type="hidden" id="<?php echo "count_line_item_".$key1;?>" value="<?php echo count($unit_details['quantity']);?>"/>
-                                        <div class="form-group col-md-4" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
-                                            <?php } else {?> width:26.32%;<?php }?>">
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
+                                            <?php } else {?> width:22.6%;<?php }?>">
                                             <div class="col-md-12 ">
                                                  <label> Brand</label>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
@@ -163,7 +164,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4" style="width:26.3%">
+                                        <div class="form-group col-md-3" style="width:22.6%">
                                             <div class="col-md-12 ">
                                                 <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
@@ -171,7 +172,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-4"style="width:26.2%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:22.6%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -181,6 +182,13 @@
                                                 </select>
                                                 
                                             </div>
+                                        </div>
+                                        <div class="form-group col-md-3"style="width:21.6%" style=" padding-right: 0px;">
+                                            <label> Purchase Date</label>
+                                            <div class="input-group input-append date">
+                                                        <input id="dop" class="form-control dop" placeholder="Purchase Date" name="dop" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
+                                                        <span class="input-group-addon add-on" onclick="dop_calendar('dop')"><span class="glyphicon glyphicon-calendar"></span></span>
+                                             </div>
                                         </div>
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -219,7 +227,11 @@
                                                           <?php } ?>
                                                         </td>
                                                         <td>
-                                                            <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} ?>
+                                                            <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} 
+                                                            if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
+                                                                   $dop_mendatory = 1; 
+                                                            }
+                                                            ?>
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
@@ -709,10 +721,15 @@
                 document.getElementById('upcountry_charges').style.borderColor = "green";
             }
         }
-        
-        <?php if(!empty($all_technical_symptom)){ ?>
+        <?php if($dop_mendatory ==1){ ?>
+        var dop = $(".dop").val();
+        if(dop === ""){
+                alert("Please Select Date of Purchase");
+                return false; 
+              }  
+        <?php } ?>
+        <?php if(!empty($technical_problem)){ ?>
             var technical_problem = $("#technical_problem").val();
-            
             if(technical_problem === null){
                 alert('Please Select Technical Problem');
                 document.getElementById('technical_problem').style.borderColor = "red";
@@ -935,5 +952,12 @@
             $("#sno_required"+index).val('0');
        }
     }
-    
+    function dop_calendar(id){
+         $("#"+id).datepicker({
+             dateFormat: 'yy-mm-dd', 
+             changeMonth: true,
+             changeYear: true,
+             maxDate:0
+         }).datepicker('show');
+    }
 </script>

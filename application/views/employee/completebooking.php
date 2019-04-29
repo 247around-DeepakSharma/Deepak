@@ -24,7 +24,7 @@
                 } 
                 ?>
         <?php $required_sp_id = array(); $can_sp_id = array(); ?>
-        <?php $isModelMandatory =0 ; $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php $isModelMandatory =0 ; $dop_mendatory=0; $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -255,6 +255,12 @@
                                         </div>
                                     </div>
                                     <?php } ?>
+                                     <div class="form-group">
+                                        <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                                    <input id="dop" class="form-control" placeholder="Purchase Date" name="<?php echo "purchase_date" ?>" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                    <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                         </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-9">
                                     <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -280,6 +286,10 @@
                                             <tr style="background-color: white; ">
                                                 <td>
                                                     <?php if ($price['pod'] == "1") { ?>
+                                                    <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
+                                                                   $dop_mendatory = 1; 
+                                                            }
+                                                            ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
                                                             <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
@@ -670,6 +680,13 @@
                     <?php
                 }
                 ?>
+       <?php if($dop_mendatory ==1){ ?>
+        var dop = $("#dop").val();
+        if(dop === ""){
+                alert("Please Select Date of Purchase");
+                return false; 
+              }  
+        <?php } ?>
             var amount_due = $("#amount_due" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();
