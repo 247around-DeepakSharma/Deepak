@@ -1505,9 +1505,22 @@ class Miscelleneous {
      * This Functiotn is used to send sf not found email to associated rm
      */
 
-    function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
+    function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner, $rm_id='') {
+        
         $cc = "";
         $booking['service'] = NULL;
+        
+        if(!empty($rm_id)) {
+            $manager_id = $this->My_CI->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_id));
+
+            if(!empty($manager_id)) {
+                $managerData = $this->My_CI->employee_model->getemployeefromid($manager_id[0]['manager_id']);
+            }
+
+            if(!empty($managerData))
+                $cc .= $managerData[0]['official_email'];
+        }
+        
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
             $booking['service'] = $this->My_CI->reusable_model->get_search_result_data("services", "services", array('id' => $booking['service_id']), NULL, NULL, NULL, NULL, NULL)[0]['services'];
@@ -1553,16 +1566,19 @@ class Miscelleneous {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $pincode =  $booking['booking_pincode'];
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
+        
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state_id'];
+            
             $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
             $rm_email = $query->result_array();
             if (empty($rm_email)) {
                 $rm_email[0]['official_email'] = NULL;
             }
+            
             $subject = "SF Not Exist in the Pincode " . $pincode;
-            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE);
+            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE, $result[0]['rm_id']);
         }else{
             $pincodeJsonData = $this->google_map_address_api($pincode);
             $pincodeArray = json_decode($pincodeJsonData,true);
@@ -3047,7 +3063,7 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
+            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -3057,11 +3073,23 @@ function generate_image($base64, $image_name,$directory){
             $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+            if(!empty($bookingData[0]['emp_id'])) {
+                $manager_id = $this->My_CI->employee_model->getemployeeManagerfromid(array('employee_id' => $bookingData[0]['emp_id']));
+                
+                if(!empty($manager_id)) {
+                    $managerData = $this->My_CI->employee_model->getemployeefromid($manager_id[0]['manager_id']);
+                }
+            }
+            
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
+            
+            if(!empty($managerData))
+                $cc .= ",".$managerData[0]['official_email'];
+            
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
