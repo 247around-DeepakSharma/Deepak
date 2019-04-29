@@ -628,6 +628,9 @@ define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
 
 define('INVENTORY_USER_GROUP', 'inventory_manager');
 
-
+define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On Website - www.247around.com');
+define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
+define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
+define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'N27');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
