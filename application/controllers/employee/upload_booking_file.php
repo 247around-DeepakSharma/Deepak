@@ -1323,7 +1323,7 @@ class Upload_booking_file extends CI_Controller {
 
         // BITBUCKET_DIRECTORY
 
-        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/bucket/vendor-partner-docs/".$file_list->file_name."'>".$file_list->file_name."</a>";
+        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$file_list->file_name."'>".$file_list->file_name."</a>";
 
              //  $row[] = "Abhishek";
 

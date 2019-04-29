@@ -903,6 +903,8 @@ class File_upload extends CI_Controller {
         
         if ($partner_id) {
             //get file data to process
+            $table_flag = false;
+            $not_exist_data_msg ='';
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -928,10 +930,9 @@ class File_upload extends CI_Controller {
                             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                         );
                         $this->table->set_template($template);
-                        $this->table->set_heading(array('Part Name', 'Part Code', 'Alt Part Code'));
-                        $this->table->add_row($rowData['part_name'], $rowData['part_code'], $rowData['alt_part_code']);
-                        $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
-                        $not_exist_data_msg .= $this->table->generate();
+                        $this->table->set_heading(array('Part Code', 'Alt Part Code'));
+                        $this->table->add_row($rowData['part_code'], $rowData['alt_part_code']);                        
+                        $table_flag = true;
                     }
                 } else {
                     log_message("info", __METHOD__ . " error in creating mapping.");
@@ -940,13 +941,17 @@ class File_upload extends CI_Controller {
                 }
             }
             
-                             
+            if(!empty($table_flag)){
+                $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                $not_exist_data_msg .= $this->table->generate();    
+            }
+                     
             if(!empty($this->dataToInsert)){
                  $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
                  
                  foreach ($this->dataToInsert as $val){  
                                            
-                      $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array($val['inventory_id'], $val['alt_inventory_id']));
+                      $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
                      
                       if(!empty($inventory_group_id_list)){
                           
@@ -983,11 +988,11 @@ class File_upload extends CI_Controller {
                  }
                  
             }
-                           
+                        
             if ($insert_data) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
-                $message = "<b>" . count(array_unique($this->dataToInsert)) . "</b> mapping created successfully.";
+                $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
                 $response['message'] = $message . ' ' . $not_exist_data_msg;
             } else {
                 log_message("info", __METHOD__ . " error in creating mapping.");
