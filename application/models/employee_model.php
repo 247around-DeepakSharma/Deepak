@@ -209,12 +209,12 @@ class Employee_model extends CI_Model{
     }
       /**
    * @desc : This funtion for delete employee managerial mapping
-   * @param : ids (one or more comma separated)
+   * @param : $cond (where cond)
    * @return : void
    */
 
-   function deleteManager($ids){
-   	$query =  "DELETE FROM employee_hierarchy_mapping where employee_id in (".$ids."); ";
+   function deleteManager($cond){
+   	$query =  "DELETE FROM employee_hierarchy_mapping where ".$cond." ";
         $result=$this->db->query($query);
    }
    /**
