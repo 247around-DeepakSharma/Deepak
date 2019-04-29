@@ -10772,5 +10772,34 @@ insert into entity_role(entity_type,department,role,is_filter_applicable,create_
 INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
 (247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 
---Kajal 26-April-2019  Ending ---
+--Kalyani 29-April-2019  Ending ---
+
+CREATE TABLE `partner_invoice_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `seal` varchar(255) DEFAULT NULL,
+  `signature` varchar(255) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_invoice_details`
+--
+ALTER TABLE `partner_invoice_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_invoice_details`
+--
+ALTER TABLE `partner_invoice_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
 
