@@ -2092,7 +2092,7 @@ class Booking extends CI_Controller {
         }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
-        $purchase_date = $this->input->post('purchase_date');
+        $purchase_date = $this->input->post('appliance_dop');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2134,6 +2134,10 @@ class Booking extends CI_Controller {
             $data['sf_model_number'] = "";
              if (isset($model_number[$unit_id])) {
                 $data['sf_model_number'] = $model_number[$unit_id];
+            }
+            $data['sf_purchase_date'] = NULL;
+            if (isset($purchase_date[$unit_id])) {
+                $data['sf_purchase_date'] = $purchase_date[$unit_id];
             }
             if(!empty($data['serial_number_pic'])){
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
@@ -2240,7 +2244,6 @@ class Booking extends CI_Controller {
                     $service_center['internal_status'] = $data['booking_status'];
                 }
 
-                $data['sf_purchase_date'] = $purchase_date;
                 $data['id'] = $unit_id;
 
                 log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
@@ -2280,6 +2283,7 @@ class Booking extends CI_Controller {
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
                 $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             }
+            $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
         }
         

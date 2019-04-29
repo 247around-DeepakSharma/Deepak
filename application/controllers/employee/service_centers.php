@@ -303,6 +303,7 @@ class Service_centers extends CI_Controller {
 
             }
             $bookng_unit_details[$key1]['is_broken'] = $broken;
+            $bookng_unit_details[$key1]['dop'] = $broken;
         }
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -392,11 +393,8 @@ class Service_centers extends CI_Controller {
                 $technical_symptom = $this->input->post('closing_symptom');
                 $technical_defect = $this->input->post('closing_defect');
                 $technical_solution = $this->input->post('technical_solution');
+                $purchase_date = $this->input->post('appliance_dop');
 
-                $purchase_date =NULL;
-                if($this->input->post('dop')){
-                    $purchase_date = $this->input->post('dop');
-                }
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
                 $approval = $this->input->post("approval");
@@ -464,9 +462,7 @@ class Service_centers extends CI_Controller {
                             $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                         }
                     }
-                    if($purchase_date){
-                        $data['sf_purchase_date'] = $purchase_date;
-                    }
+                    $data['sf_purchase_date'] = $purchase_date[$unit_id];
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
