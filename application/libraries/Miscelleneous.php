@@ -4091,5 +4091,20 @@ function send_bad_rating_email($rating,$bookingID=NULL,$number=NULL){
             }
         }
     }
-
+    
+    /**
+     * @desc This function is used to Create new micro-warehouse
+     * @param array $data
+     * @param array $wh_on_of_data
+     */
+    function create_micro_warehouse($data,$wh_on_of_data){
+        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id']), '*');
+        if (empty($micro_wh_mapping_list)) {
+            $this->My_CI->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
+            $this->My_CI->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
+            $service_center = array('is_micro_wh' => 1);
+            $this->My_CI->vendor_model->edit_vendor($service_center, $data['vendor_id']);
+        }
+    }
+    
 }

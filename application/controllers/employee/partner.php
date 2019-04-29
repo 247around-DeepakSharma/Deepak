@@ -6681,13 +6681,7 @@ class Partner extends CI_Controller {
                 foreach ($value['sf_id'] as $vendor_id) {
                     $data['vendor_id'] = $vendor_id;
                     $wh_on_of_data['vendor_id'] = $vendor_id;
-                    $micro_wh_mapping_list = $this->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $vendor_id), '*');
-                    if (empty($micro_wh_mapping_list)) {
-                        $this->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
-                        $this->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
-                        $service_center = array('is_micro_wh' => 1);
-                        $this->vendor_model->edit_vendor($service_center, $vendor_id);
-                    }
+                    $this->miscelleneous->create_micro_warehouse($data, $wh_on_of_data);
                 }
             }
             $partner = array(
