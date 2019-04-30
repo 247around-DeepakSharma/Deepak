@@ -131,8 +131,8 @@ class vendor extends CI_Controller {
                         'active' => 1
                     );
                     
-                    $c2c = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
-                    if(!empty($c2c)){
+                    $create_auto_micro = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
+                    if(!empty($create_auto_micro)){
                       $this->miscelleneous->create_micro_warehouse($data,$wh_on_of_data);  
                     }
                     
