@@ -914,9 +914,11 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         $c2c_enable = true;
         $permission = json_decode(PERMISSION_CONSTANT, TRUE);
         if(!empty($permission) && isset($permission[$fetaure])){
-            return $permission[$fetaure]['is_on'];
+            $c2c_enable =  $permission[$fetaure]['is_on'];
 
         } 
+        return $c2c_enable;
+        
     }
 
 }
