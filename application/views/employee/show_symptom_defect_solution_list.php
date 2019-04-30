@@ -142,8 +142,8 @@
             "processing": true, 
             "serverSide": true,
             "order": [],
-            "pageLength": 5,
-            "lengthMenu": [[5,10, 25, 50,100, 500, -1], [5,10, 25, 50, 100, 500, "All"]],
+            "pageLength": 25,
+            "lengthMenu": [[10, 25, 50,100, 500, -1], [10, 25, 50, 100, 500, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
@@ -157,22 +157,6 @@
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
                              page : 'current',      // 'all',     'current'
-                             search : 'none'     // 'none',    'applied', 'removed'
-                         }
-                    }
-                    
-                },
-                {
-                    extend: 'excel',
-                    text: '<span class="fa fa-file-excel-o"></span> Export All',
-                    pageSize: 'LEGAL',
-                    title: 'symptom_defect_solution_data_all',
-                    exportOptions: {
-                       columns: [0,1,2,3,4,5],
-                        modifier : {
-                             // DataTables core
-                             order : 'index',  // 'current', 'applied', 'index',  'original'
-                             page : 'All',      // 'all',     'current'
                              search : 'none'     // 'none',    'applied', 'removed'
                          }
                     }

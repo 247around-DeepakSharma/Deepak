@@ -267,8 +267,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                            <option value="247Around" selected="selected">247Around</option>
-                                            <option value="Partner">Partner</option>
+                                            <option value="247Around:Partner">Admin</option>
                                             <option value="Vendor" selected="selected">Vendor</option>
                                         </select>
                     </div>
@@ -759,7 +758,9 @@
                 <div class="x_title">
                     <h2>Pincode Call Missed Report</h2>
                     <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
                     <a id="download_pin_code" class="btn btn-success btn-xs" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
+                    <?php } ?>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse" id="pincode_table_data_div">

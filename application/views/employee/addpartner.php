@@ -379,7 +379,7 @@
                                         } ?>">
                                         <label  for="account_manager" class="col-md-4">Account Managers </label>
                                         <div class="col-md-8">
-                                            <select name="account_manager_id" class="form-control" id="account_manager">
+                                            <select name="account_manager_id" class="form-control" id="account_manager" <?php echo ((strtolower($this->session->userdata('user_group')) !== 'admin')? 'disabled' :''); ?> >
                                                 <option selected disabled>Select Account Managers</option>
                                                 <?php foreach($employee_list as $employee){ ?>
                                                 <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
@@ -2543,7 +2543,7 @@
                         </div>
                         <div id="cloned"></div>
                         <div class="clear clear_bottom">   
-                            <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
+                            <input type="hidden" name="partner_id" value="<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>">
                             <center><input type="Submit" value="Save" class="btn btn-primary" id="submit_spare_parts"></center>
                         </div>
                     </div>
@@ -2837,7 +2837,7 @@
                                     <label for="service_name" class="col-md-4 vertical-align">Correspondence Address</label>
                                     <div class="col-md-6">
                                         <textarea  type="text" rows="2" class="form-control input-model"  name="contact_person_c_address" id="contact_person_c_address" value = "" placeholder="Enter Address"></textarea>
-                                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  ((isset($query[0]['id']))?$query[0]['id']:'')?> >
                                         <input type="hidden" id="agentid" name="agentid" value="">
                                     </div>
                                 </div>
@@ -4759,7 +4759,7 @@
         tags: true
     });
             
-    get_services('<?php echo $query[0]['id']; ?>');
+    get_services('<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>');
     
     function get_services(partner_id){
         $.ajax({

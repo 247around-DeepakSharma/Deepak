@@ -69,7 +69,8 @@ class Dashboard extends CI_Controller {
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
-            $this->load->view('employee/header/push_notification');
+            if(isset($data['saas_flag']) && (!$data['saas_flag']))
+                $this->load->view('employee/header/push_notification');
         }
     }
     
