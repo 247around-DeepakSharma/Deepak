@@ -69,7 +69,7 @@
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                             </div>
-                                            <label class="col-xs-4 col-sm-2 control-label"><?php if($saas){ ?>247around<?php }?> Warehouses *</label>
+                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around<?php }?> Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="wh_id" id="wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
@@ -264,7 +264,7 @@
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="partner_id" class="partner_id" id="on_partner_id" required=""></select>
                                             </div>
-                                            <label class="col-xs-4 col-sm-2 control-label"><?php if($saas){ ?>247around <?php } ?>Warehouses *</label>
+                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around <?php } ?>Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
