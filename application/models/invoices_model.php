@@ -974,6 +974,9 @@ class invoices_model extends CI_Model {
                 $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
                 $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
             }
+            else{
+                $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
+            }
             
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
