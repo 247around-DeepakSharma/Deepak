@@ -772,9 +772,10 @@ class vendor extends CI_Controller {
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
         $this->miscelleneous->load_nav_header();
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
+            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $saas_module));
         } else{
             echo "Vendor Not Exist";
         }
@@ -810,9 +811,10 @@ class vendor extends CI_Controller {
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
-            'c2c' => $c2c));
+            'c2c' => $c2c,'saas_module' => $saas_module));
     }
     
     function get_filterd_sf_cp_data(){
@@ -1224,8 +1226,9 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/broadcastemailtovendor');
+         $this->miscelleneous->load_nav_header();
+         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS); 
+         $this->load->view('employee/broadcastemailtovendor',$data);
     }
 
     /**
@@ -4059,7 +4062,7 @@ class vendor extends CI_Controller {
         
         $is_wh = $this->input->post('is_wh');
         if(!empty($is_wh)){
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1,'active' => 1);
             $option = '<option selected="" disabled="">Select Warehouse</option>';
         }else{
@@ -4076,6 +4079,7 @@ class vendor extends CI_Controller {
             $whereIN = NULL;
         }
         $data= $this->reusable_model->get_search_result_data("service_centres",$select,$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -4083,7 +4087,12 @@ class vendor extends CI_Controller {
             
             if(!empty($is_wh)){
                 $option .= " data-warehose='1' > ";
-                $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                if($saas){
+                    $option .=  $value['name'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                } else {
+                    $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                }
+                
             }else{
                 $option .= " > ";
                 $option .= $value['name'] . "</option>";
@@ -4100,15 +4109,16 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_with_micro_wh() {
-        log_message('info', __METHOD__ . print_r($this->input->post('partner_id')));
+        log_message('info', __METHOD__ . print_r($this->input->post('partner_id'), true));
 
         $partner_id = $this->input->post('partner_id');
 
         $partner_data = $this->partner_model->getpartner($partner_id);
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
         if ($partner_data[0]['is_wh'] == 1) {
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1);
 
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
@@ -4116,13 +4126,15 @@ class vendor extends CI_Controller {
             foreach ($data as $value) {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
-
-                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                if($saas){
+                    $option .=  $value['name'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                } else {
+                    $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                }
             }
         }
         if ($partner_data[0]['is_micro_wh'] == 1) {
              $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
-
 
             if (!empty($micro_wh_state_mapp_data_list)) {
                 foreach ($micro_wh_state_mapp_data_list as $value) {
@@ -4215,8 +4227,16 @@ class vendor extends CI_Controller {
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
         $R->render('excel', $output_file_excel);
+         if(file_exists($output_file_excel)){
 
-        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            } 
+
+       // echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
     }
 
     /*

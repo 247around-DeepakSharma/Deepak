@@ -38,6 +38,7 @@
       // document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
        $('#download_pin_code').attr('data-vendor_id', id);
        document.getElementById("upload_pin_code").href ="upload_pin_code_vendor/"+id;
+       document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
        document.getElementById("v_name").innerHTML = name;
     }
 </script>
@@ -103,6 +104,7 @@
                                 <option value="">Select City</option>
                             </select> 
                     </div>
+                    <?php if(!$saas_module){ ?>
                     <div class="col-sm-3 col-lg-3 col-md-3">
                         <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
                                 <option value="sf">Service Center</option>
@@ -110,6 +112,7 @@
                                 <option value="wh">Warehouse</option>
                         </select>
                     </div> 
+                    <?php } ?>
             </div>
 <!--                </div>-->
                 <div class="row">
@@ -311,7 +314,7 @@
         <h4 class="modal-title" id="v_name" align="center"></h4>
       </div>
       <div class="modal-body" align="center">
-          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()">Download Pin code</a>
+          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()" href="<?php echo base_url();?>employee/vendor/download_vendor_pin_code/">Download Pin code</a>
           <a id='upload_pin_code' class='btn btn-info' href="<?php echo base_url();?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
       </div>
       <div class="modal-footer">
