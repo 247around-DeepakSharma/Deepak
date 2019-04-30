@@ -1498,14 +1498,20 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $totalTempArray['TAT_5'] = $totalTempArray['TAT_4'] + count($values['TAT_5']);
             $totalTempArray['TAT_8'] = $totalTempArray['TAT_5'] + count($values['TAT_8']);
             $totalTempArray['TAT_16'] = $totalTempArray['TAT_8'] + count($values['TAT_16']);
-            $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+            if($totalTempArray['TAT_16']){
+                $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+            }
+            else{
+                $totalTempArray['TAT_0_per'] = $totalTempArray['TAT_1_per'] = $totalTempArray['TAT_2_per'] = $totalTempArray['TAT_3_per'] = $totalTempArray['TAT_4_per'] = $totalTempArray['TAT_5_per']
+                       = $totalTempArray['TAT_8_per'] = $totalTempArray['TAT_16_per'] = 0;
+            }
             $totalTempArray["entity"] =  $values['entity_name'];
             $totalTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $totalTempArray;
