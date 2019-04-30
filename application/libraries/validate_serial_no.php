@@ -67,6 +67,7 @@ class Validate_serial_no {
         $logic[WYBOR_ID] = 'wybor_serialNoValidation';
         $logic[BURLY_ID]='burly_serialNoValidation';
         $logic[VIDEOCON_ID]='videocon_serialNoValidation';
+        $logic[KENSTAR_ID]='kenstar_serialNoValidation';
 
         
 	if (isset($logic[$partnerID])) {
@@ -828,6 +829,15 @@ class Validate_serial_no {
              return false;
          }
          return true;
+    }
+    function kenstar_serialNoValidation(){
+        $stringLength = strlen($serialNo);
+         if($stringLength == 18){
+             return true;
+         }
+         else{
+             return false;
+         }
     }
 }
 
