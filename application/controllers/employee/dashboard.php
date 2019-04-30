@@ -2814,12 +2814,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state($stateCodeArray);
         foreach($vendor_mapping_data as $pincodeVendorArray){
             if(array_key_exists('state_'.$pincodeVendorArray['id'], $india_pincode)){
-                $india_pincode['state_'.$pincodeVendorArray['id']] = intval($india_pincode['state_'.$pincodeVendorArray['id']]);
                 $missingPincode = $india_pincode['state_'.$pincodeVendorArray['id']] - $pincodeVendorArray['total_pincode'];
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode'] = $missingPincode;
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['servicable_pincode'] = $pincodeVendorArray['total_pincode'];
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['total_pincode'] = $india_pincode['state_'.$pincodeVendorArray['id']];
-                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode_per'] = ((isset($india_pincode['state_'.$pincodeVendorArray['id']]) && ($india_pincode['state_'.$pincodeVendorArray['id']] !== 0))?round($missingPincode/$india_pincode['state_'.$pincodeVendorArray['id']],0):0);
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode_per'] = round($missingPincode/$india_pincode['state_'.$pincodeVendorArray['id']],0);
             }
         }
         $missing_pincode_rm=array(
