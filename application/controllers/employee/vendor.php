@@ -4059,7 +4059,7 @@ class vendor extends CI_Controller {
         
         $is_wh = $this->input->post('is_wh');
         if(!empty($is_wh)){
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1,'active' => 1);
             $option = '<option selected="" disabled="">Select Warehouse</option>';
         }else{
@@ -4085,7 +4085,7 @@ class vendor extends CI_Controller {
             if(!empty($is_wh)){
                 $option .= " data-warehose='1' > ";
                 if($saas){
-                    $option .=  $value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                    $option .=  $value['name'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
                 } else {
                     $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
                 }
@@ -4115,7 +4115,7 @@ class vendor extends CI_Controller {
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
         if ($partner_data[0]['is_wh'] == 1) {
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1);
 
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
@@ -4124,7 +4124,7 @@ class vendor extends CI_Controller {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
                 if($saas){
-                    $option .=  $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                    $option .=  $value['name'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
                 } else {
                     $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
                 }
