@@ -680,13 +680,9 @@ class Invoice_lib {
      */
     function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
-        $challan_logo = $this->ci->partner_model->get_partner_logo("partner_logo", array("partner_id" => _247AROUND));
-        if(!empty($challan_logo)){
-            $excel_data['main_company_logo'] = $challan_logo[0]['partner_logo'];
-        }
-        else{
-            $excel_data['main_company_logo'] = "logo.png";
-        }
+        $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         if(!empty($sf_details)){
             $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
@@ -704,11 +700,6 @@ class Invoice_lib {
         
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
-//        if(!empty($service_center_closed_date)){
-//            $excel_data['excel_data']['date'] = date('Y-m-d', strtotime($service_center_closed_date));
-//        } else {
-//            $excel_data['excel_data']['date'] = date('Y-m-d');
-//        }
         $excel_data['excel_data']['date'] = "";
 
         $booking_id = $spare_details[0]['booking_id'];

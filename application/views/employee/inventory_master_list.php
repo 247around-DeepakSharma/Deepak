@@ -143,7 +143,10 @@
                         <th>GST Rate</th>
                         <th>Total Price</th>
                         <th>Vendor Margin</th>
+                        <?php if(!$saas_module){ ?>
                         <th>Around Margin</th>
+                        <?php } ?>
+                        <?php ?>
                         <th>Customer Price</th>
                         <th>Edit</th>
                         <th>Get Model</th>
