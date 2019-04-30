@@ -378,7 +378,7 @@
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && ($unit_details[0]['purchase_date'] != '0000-00-00')){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="date" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                                <input <?php if($is_repeat && ($unit_details[0]['purchase_date'] != '0000-00-00')){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
@@ -591,8 +591,8 @@
                                              <div class="form-group ">
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
-                                <div class="input-group input-append date">
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="date" value = "<?php if(isset($booking_unit_details['purchase_date'])) { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" />
+                                <div class="input-group date">
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(isset($booking_unit_details['purchase_date'])) { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" />
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -970,6 +970,12 @@
    
 });
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+  $('.purchase_date').each(function () {
+    if ($(this).hasClass('hasDatepicker')) {
+        $(this).removeClass('hasDatepicker');
+    } 
+    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+ });
   
   function readonly_select(objs, action) {
     if (action===true)
