@@ -4227,8 +4227,16 @@ class vendor extends CI_Controller {
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
         $R->render('excel', $output_file_excel);
+         if(file_exists($output_file_excel)){
 
-        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            } 
+
+       // echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
     }
 
     /*
