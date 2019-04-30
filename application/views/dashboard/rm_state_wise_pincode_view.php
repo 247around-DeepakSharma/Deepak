@@ -5,7 +5,7 @@
   </ul>
 
     <div class="tab-content" style="    margin-top: 15px;">
-    <div id="state" class="tab-pane fade in active">
+    <div id="state" class="tab-pane fade in active container">
          <table class="table table-striped table-bordered" id="state_table" > 
         <thead>
                 <tr style="background: #2C9D9C;color: #fff;margin-top: 5px;">

@@ -1863,7 +1863,7 @@ class Spare_parts extends CI_Controller {
                 }
                 
 
-                $to = $vendor_details[0]['email'] . "," . $get_partner_details[0]['owner_email'];
+                $to = $vendor_details[0]['email'];
                 $cc = $email_template[3] . "," . $am_email;
                 $subject = vsprintf($email_template[4], array($data['parts_requested_type'], $data['booking_id']));
                 

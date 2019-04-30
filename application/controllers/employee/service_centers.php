@@ -377,6 +377,7 @@ class Service_centers extends CI_Controller {
 
             }
             $bookng_unit_details[$key1]['is_broken'] = $broken;
+            $bookng_unit_details[$key1]['dop'] = $broken;
         }
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -466,11 +467,8 @@ class Service_centers extends CI_Controller {
                 $technical_symptom = $this->input->post('closing_symptom');
                 $technical_defect = $this->input->post('closing_defect');
                 $technical_solution = $this->input->post('technical_solution');
+                $purchase_date = $this->input->post('appliance_dop');
 
-                $purchase_date =NULL;
-                if($this->input->post('dop')){
-                    $purchase_date = $this->input->post('dop');
-                }
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
                 $approval = $this->input->post("approval");
@@ -538,9 +536,7 @@ class Service_centers extends CI_Controller {
                             $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                         }
                     }
-                    if($purchase_date){
-                        $data['sf_purchase_date'] = $purchase_date;
-                    }
+                    $data['sf_purchase_date'] = $purchase_date[$unit_id];
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
@@ -1414,7 +1410,7 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);             
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
         $data['spare_parts_details'] = $spare_parts_details[0];       
         $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
@@ -1475,15 +1471,15 @@ class Service_centers extends CI_Controller {
         }
 
         $partner_id = $this->input->post('partner_id');
-        $booking_partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
         $current_inventory_id = $this->input->post('current_inventory_id');
         $booking_id = $this->input->post('booking_id');     
         
+        $change_inventory_id = '';
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
-                $data['requested_inventory_id'] = $current_inventory_id;
+                $change_inventory_id = $current_inventory_id;
                 if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {
                     $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -1);
                 }
@@ -1495,27 +1491,36 @@ class Service_centers extends CI_Controller {
         }
 
         $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-        if(!empty($data['requested_inventory_id']))
-        $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'));
+        if(!empty($change_inventory_id)){
+            
+            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'));
 
-        if (!empty($warehouse_details)) {
-            $data['partner_id'] = $warehouse_details['entity_id'];
-            $data['entity_type'] = $warehouse_details['entity_type'];
-            $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
-            $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
-            $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+            if (!empty($warehouse_details)) {
+                $data['partner_id'] = $warehouse_details['entity_id'];
+                $data['entity_type'] = $warehouse_details['entity_type'];
+                $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
+                $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
+                $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
 
-            if (!empty($warehouse_details['inventory_id'])) {
-                $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                if (!empty($warehouse_details['inventory_id'])) {
+                    $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                }
+            } else {
+                $data['partner_id'] = $partner_id;
+                $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                $data['is_micro_wh'] = 0;
+                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                $data['defective_return_to_entity_id'] = $partner_id;
+                $data['requested_inventory_id'] = $change_inventory_id;
             }
         } else {
-            $data['partner_id'] = $booking_partner_id;
+            $data['partner_id'] = $partner_id;
             $data['entity_type'] = _247AROUND_PARTNER_STRING;
             $data['is_micro_wh'] = 0;
             $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['defective_return_to_entity_id'] = $booking_partner_id;
+            $data['defective_return_to_entity_id'] = $partner_id;
         }
-
+        
 //        if (!isset($data['defective_return_to_entity_id'])) {
 //            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
 //                $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
