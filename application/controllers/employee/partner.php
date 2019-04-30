@@ -992,6 +992,7 @@ class Partner extends CI_Controller {
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
+        if(isset($all_code))
         $results['all_partner_code'] = $all_code;
         //Getting Sample no picture details
         $sample_no_pic_arr=$this->reusable_model->get_search_result_data('partner_sample_no_picture','*',array('partner_id'=>$id,'active'=>'1'),NULL,NULL,array(),NULL,NULL,array());
