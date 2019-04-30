@@ -170,7 +170,7 @@ class Booking_utilities {
         unlink($output_file_excel);
     }
 
-        public function lib_prepare_job_card_using_booking_id($booking_id) {
+    public function lib_prepare_job_card_using_booking_id($booking_id) { 
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($booking_id);
@@ -187,7 +187,8 @@ class Booking_utilities {
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
-            $main_partner = $this->My_CI->partner_model->get_main_partner_invoice_detail();
+            $partner_on_saas = $this->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->My_CI->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             $meta['main_company_logo'] = $main_partner['main_company_logo'];
             $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
             $meta['main_company_description'] = $main_partner['main_company_description'];

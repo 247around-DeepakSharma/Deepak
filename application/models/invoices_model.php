@@ -964,7 +964,8 @@ class invoices_model extends CI_Model {
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
-            $meta += $this->partner_model->get_main_partner_invoice_detail();
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             
             $parts_count = 0;
             $service_count = 0;
@@ -1146,7 +1147,8 @@ class invoices_model extends CI_Model {
             $meta = $result1[0];
             
             //get main partner detail
-            $main_partner = $this->partner_model->get_main_partner_invoice_detail();
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             $meta['main_company_name'] = $main_partner['main_company_name'];
             $meta['main_company_logo'] = $main_partner['main_company_logo'];
             $meta['main_company_address'] = $main_partner['main_company_address'];
@@ -1823,7 +1825,8 @@ class invoices_model extends CI_Model {
             $commission_charge = array();
             $meta = $data[0];
             //get company detail who generated invoice
-            $meta += $this->partner_model->get_main_partner_invoice_detail();
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             
             $commission_charge[0]['description'] = "Commission Charge";
             $total_amount_invoice = (array_sum(array_column($data, 'total_amount')));
@@ -1976,7 +1979,8 @@ class invoices_model extends CI_Model {
             $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
             
             //get main partner detail
-            $main_partner = $this->partner_model->get_main_partner_invoice_detail();
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             $meta['main_company_name'] = $main_partner['main_company_name'];
             $meta['main_company_logo'] = $main_partner['main_company_logo'];
             $meta['main_company_address'] = $main_partner['main_company_address'];
