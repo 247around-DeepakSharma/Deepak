@@ -10719,8 +10719,15 @@ VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_
 
 --Kajal 25-April-2019  Ending ---
 --- Abhishek --
+ 
 ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
 ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL; 
+ 
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL;
+
+ 
 --Abhishek end---
 
 --------Gorakh 19-04-2019

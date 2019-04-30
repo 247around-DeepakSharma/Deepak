@@ -3,7 +3,7 @@
         <div class="row">
 
             <h1 class="page-header">
-                <b> Broadcast Email</b>
+                <b> Broadcast Email  </b>
             </h1>
             <form class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_broadcast_mail_to_vendors_form" 
                   method="POST" enctype="multipart/form-data">
@@ -21,7 +21,8 @@
                             <div class="checkbox" style="display: inline;">
                                 <label><input type="checkbox" value="POC" id="bcc_poc" name="bcc_poc">SF POC</label>
                             </div>
-
+                            
+                             <?php if(!empty($saas)){ ?>
                             <div class="checkbox" style="display: inline; margin-left: 8px;">
                                 <label><input type="checkbox" value="partner_owner" id="bcc_owner" name="bcc_partner_owner">Partner Owner</label>
                             </div>
@@ -29,10 +30,15 @@
                             <div class="checkbox" style="display: inline;">
                                 <label><input type="checkbox" value="partner_poc" id="bcc_poc" name="bcc_partner_poc">Partner POC</label>
                             </div>
+                            
+                             <?php }  ?>
 
                             <div class="checkbox" style="display: inline;">
                                 <label><input type="checkbox" value="employee" id="bcc_poc" name="bcc_employee">Employee</label>
                             </div>
+                            
+                           
+                                    
 
                         </div>
                     </div>
