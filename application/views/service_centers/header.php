@@ -308,7 +308,9 @@
                                             </li>                                                                            
                                         </ul>
                                     </li>-->
-                                                                      
+                                    <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
+                                        <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
+                                   <?php }?>                                 
                                     <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
                                     <li class="divider"></li>
 
