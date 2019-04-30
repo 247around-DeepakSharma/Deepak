@@ -2919,8 +2919,7 @@ class Inventory extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');                     
-        $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $this->load->view("employee/tag_spare_invoice_send_by_partner",$data);                
+        $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);                
         $this->load->view("employee/tag_spare_invoice_send_by_partner", $data);
                         
     }
