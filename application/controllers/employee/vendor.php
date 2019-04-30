@@ -4076,6 +4076,7 @@ class vendor extends CI_Controller {
             $whereIN = NULL;
         }
         $data= $this->reusable_model->get_search_result_data("service_centres",$select,$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -4083,7 +4084,12 @@ class vendor extends CI_Controller {
             
             if(!empty($is_wh)){
                 $option .= " data-warehose='1' > ";
-                $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                if($saas){
+                    $option .=  $value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                } else {
+                    $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                }
+                
             }else{
                 $option .= " > ";
                 $option .= $value['name'] . "</option>";
@@ -4105,6 +4111,7 @@ class vendor extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
 
         $partner_data = $this->partner_model->getpartner($partner_id);
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
         if ($partner_data[0]['is_wh'] == 1) {
@@ -4116,13 +4123,15 @@ class vendor extends CI_Controller {
             foreach ($data as $value) {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
-
-                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                if($saas){
+                    $option .=  $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                } else {
+                    $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                }
             }
         }
         if ($partner_data[0]['is_micro_wh'] == 1) {
              $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
-
 
             if (!empty($micro_wh_state_mapp_data_list)) {
                 foreach ($micro_wh_state_mapp_data_list as $value) {
