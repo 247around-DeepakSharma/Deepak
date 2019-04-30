@@ -43,4 +43,5 @@ define('QWIKCILVER_PARTNER_ID','247025');
 define("BURLY_ID",247123);
 //Videocon partner id
 define("VIDEOCON_ID",247130);
-
+//Kenstar partner id
+define("KENSTAR_ID",2470001);
