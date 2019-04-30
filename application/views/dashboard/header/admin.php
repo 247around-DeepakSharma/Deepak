@@ -259,10 +259,10 @@
                         </li>
                         <li class="col-md-4">
                             <a href="javascript:void(0)" style="background: #EDEDED;">
-                           
+                                <?php if($saas_flag){ ?>
                                 <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
                                        style="border-radius:25px 25px 25px 25px">
-                            
+                                <?php } ?>
                             </a>
                         </li>
                     </ul>
