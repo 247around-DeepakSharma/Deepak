@@ -120,7 +120,7 @@
                     else{
                     ?>
                  <li class="dropdown "><a class="dropdown-toggle" data-toggle="dropdown" href="<?php echo $link?>"><?php echo $main_nav['navData']["id_".$p_id]['title']?> <i class="fa fa-caret-down"></i></a>
-                     <ul class="dropdown-menu">
+                     <ul class="dropdown-menu" style="z-index:1003;">
                          <?php
                          $t=0;
                      foreach($main_nav['navFlow']["id_".$p_id] as $childID){

@@ -424,7 +424,7 @@
                             </div>
                         </div>
                 </div>
-
+                <?php if(!$saas_module){ ?>
                 <div class="panel panel-info">
                         <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type*</b></div>
                         <div class="panel-body">
@@ -444,7 +444,13 @@
                             </div>
                         </div>
                 </div>
-                
+                <?php } 
+                else{
+                    ?>
+                <p style="display:none;"><input  type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1" checked=""><b>Service Center</b></p>
+                <?php
+                }
+                ?>
                 <div  class = "panel panel-info">
                         <div class="panel-heading"  style="background-color:#ECF0F1"><b>Non Working Days</b></div>
                         <div class="panel-body">
