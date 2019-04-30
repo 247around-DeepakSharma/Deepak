@@ -138,13 +138,17 @@
                         <?php if($c2c) {?>
                         <th>Call</th>
                         <?php } ?>
+                        <?php if(!$saas_module){?>
                         <?php if($booking_status === _247AROUND_COMPLETED) { ?> 
                         <th>Edit</th>
                         <th>Cancel</th>
                         <?php } else if ($booking_status === _247AROUND_CANCELLED) { ?> 
                         <th>Complete</th>
                         <?php } ?>
+                        <?php } ?>
+                        <?php if(!$saas_module){?>
                         <th>Open</th>
+                        <?php } ?>
                         <th>View</th>
                         <?php if($booking_status === _247AROUND_COMPLETED){ ?> 
                         <th>Rate</th>

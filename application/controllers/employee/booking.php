@@ -3538,6 +3538,7 @@ class Booking extends CI_Controller {
      */
     private function get_completed_cancelled_bookings_table($order_list, $no, $booking_status){
         $row = array();
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
@@ -3591,25 +3592,26 @@ class Booking extends CI_Controller {
         if($c2c){
            $row[] = $call_btn;
          }
-        if($booking_status === _247AROUND_COMPLETED){
-            $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
-            $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
-        }else if($booking_status === _247AROUND_CANCELLED){
-            $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
-        }
-        
-        if($booking_status === _247AROUND_COMPLETED &&  $order_list->amount_paid > 0){
-             $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
-             
-        } else if($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER){
-            if($booking_status === _247AROUND_CANCELLED && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
-                $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+         if(!$saas_flag){
+            if($booking_status === _247AROUND_COMPLETED){
+                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
+            }else if($booking_status === _247AROUND_CANCELLED){
+                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+            }
+            if($booking_status === _247AROUND_COMPLETED &&  $order_list->amount_paid > 0){
+                 $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+
+            } else if($this->session->userdata('user_group') !== _247AROUND_ADMIN || $this->session->userdata('user_group') !== _247AROUND_DEVELOPER){
+                if($booking_status === _247AROUND_CANCELLED && strtotime($order_list->closed_date) <= strtotime("-1 Months")){
+                    $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                }else{
+                    $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                }
             }else{
+
                 $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
             }
-        }else{
-            
-            $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
         }
         
         $row[] = "<a id='view' class='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title='view' target='_blank'><i class='fa fa-eye' aria-hidden='true'></i></a>";
