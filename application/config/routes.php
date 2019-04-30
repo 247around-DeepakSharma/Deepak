@@ -122,10 +122,12 @@ $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
 
-
+    
 
 $route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
-
+$route['service_center/booking_spare_list'] = 'employee/service_centers/booking_spare_list';
+$route['service_center/spare_transfer'] = 'employee/service_centers/spare_transfer';
+$route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_transfer';
 //$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
 
 

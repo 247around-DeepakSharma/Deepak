@@ -2136,34 +2136,36 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->where('partners.id', $partner_id);
         }
         $this->db->select($select);
-        $this->db->join("account_holders_bank_details", "account_holders_bank_details.entity_id = partners.id AND account_holders_bank_details.entity_type='partner' AND account_holders_bank_details.is_active = 1"); 
-        $this->db->join("partner_invoice_details", "partner_invoice_details.partner_id = partners.id");
-        $this->db->join("partner_brand_logo", "partner_brand_logo.partner_id=partners.id");
+        $this->db->join("account_holders_bank_details", "account_holders_bank_details.entity_id = partners.id AND account_holders_bank_details.entity_type='partner' AND account_holders_bank_details.is_active = 1", "left"); 
+        $this->db->join("partner_invoice_details", "partner_invoice_details.partner_id = partners.id", "left");
+        $this->db->join("partner_brand_logo", "partner_brand_logo.partner_id=partners.id", "left");
         $query = $this->db->get('partners');
-        //echo $this->db->last_query(); die(); 
         return $query->result_array();
     }
     
-    function get_main_partner_invoice_detail(){
+    function get_main_partner_invoice_detail($partner_on_saas = false){
         $meta = array(); 
-        $main_partner = $this->partner_model->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
-                    . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
-        
-        if(!empty($main_partner)){
-            $meta['main_company_name'] = $main_partner[0]['company_name'];
-            $meta['main_company_public_name'] = $main_partner[0]['public_name'];
-            $meta['main_company_address'] = $main_partner[0]['address'];
-            $meta['main_company_state'] = $main_partner[0]['state'];
-            $meta['main_company_pincode'] = $main_partner[0]['pincode'];
-            $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
-            $meta['main_company_phone'] = $main_partner[0]['primary_contact_phone_1'];
-            $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
-            $meta['main_company_bank_name'] = $main_partner[0]['bank_name'];
-            $meta['main_company_bank_account'] = $main_partner[0]['bank_account'];
-            $meta['main_company_ifsc_code'] = $main_partner[0]['ifsc_code'];
-            $meta['main_company_seal'] = $main_partner[0]['seal'];
-            $meta['main_company_signature'] = $main_partner[0]['signature'];
-            $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
+        if($partner_on_saas){
+            $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
+                        . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
+
+            if(!empty($main_partner)){
+                $meta['main_company_name'] = $main_partner[0]['company_name'];
+                $meta['main_company_public_name'] = $main_partner[0]['public_name'];
+                $meta['main_company_address'] = $main_partner[0]['address'];
+                $meta['main_company_state'] = $main_partner[0]['state'];
+                $meta['main_company_pincode'] = $main_partner[0]['pincode'];
+                $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
+                $meta['main_company_phone'] = $main_partner[0]['primary_contact_phone_1'];
+                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                $meta['main_company_bank_name'] = $main_partner[0]['bank_name'];
+                $meta['main_company_bank_account'] = $main_partner[0]['bank_account'];
+                $meta['main_company_ifsc_code'] = $main_partner[0]['ifsc_code'];
+                $meta['main_company_seal'] = $main_partner[0]['seal'];
+                $meta['main_company_signature'] = $main_partner[0]['signature'];
+                $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
+                $meta['main_company_description'] = "";
+            }
         }
         else{
             $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
@@ -2180,12 +2182,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_seal'] = "247aroundstamp.jpg";
             $meta['main_company_signature'] = "anujsign.jpg";
             $meta['main_company_logo'] = "logo.png";
-        }
-        if(_247AROUND == '247001'){
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
-        }
-        else{
-            $meta['main_company_description'] = "";
         }
         return $meta;
     }

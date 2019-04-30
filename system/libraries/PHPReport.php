@@ -991,8 +991,8 @@ class PHPReport {
         if(!empty($imagePath)){
             foreach ($imagePath as $key => $value) {
                 $objDrawing = new PHPExcel_Worksheet_Drawing();
-                $objDrawing->setName('QR CODE');
-                $objDrawing->setDescription('QR');
+                $objDrawing->setName('Image');
+                $objDrawing->setDescription('Image');
                 $objDrawing->setPath($value['image_path']);
                 $objDrawing->setOffsetX(100);                     //setOffsetX works properly
                 $objDrawing->setOffsetY(1);                     //setOffsetY works properly
