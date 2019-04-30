@@ -103,6 +103,7 @@
                                 <option value="">Select City</option>
                             </select> 
                     </div>
+                    <?php if(!$saas_module){ ?>
                     <div class="col-sm-3 col-lg-3 col-md-3">
                         <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
                                 <option value="sf">Service Center</option>
@@ -110,6 +111,7 @@
                                 <option value="wh">Warehouse</option>
                         </select>
                     </div> 
+                    <?php } ?>
             </div>
 <!--                </div>-->
                 <div class="row">

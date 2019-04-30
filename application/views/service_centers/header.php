@@ -200,11 +200,19 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge defectivecount" >0</span>Spare Parts <span class="caret"></span></a>
                             <ul class="dropdown-menu">
+                                
                                 <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts (<span class="defectivecount"></span>)</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/search_docket_number">Search Docket Number</a></li>
+                                <li role="separator" class="divider"></li>
+                               <?php  
+                                if ($this->session->userdata('is_wh') == 1) { ?> 
+                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li> 
+                                                                      
+                              <?php   }
+                               ?>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -273,13 +281,13 @@
                                 <ul class="dropdown-menu">
 
                                         <?php  
-
                                             if ($this->session->userdata('is_wh') == 1) { ?>
                                               <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li> 
                                               <li class="divider"></li>  
+                                              <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer</strong></a></li> 
+                                              <li class="divider"></li>   
+                                              
                                           <?php   }
-
-                                      
 
                                      ?>
                                <!-- <li role="separator" class="divider"></li>

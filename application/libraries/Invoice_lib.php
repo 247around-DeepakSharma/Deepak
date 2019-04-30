@@ -128,42 +128,54 @@ class Invoice_lib {
         $imagePath = array();
         
         if(isset($meta['main_company_logo_cell'])){
-          $logo_cell = $meta['main_company_logo_cell'];
-          $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
-          copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
-          $logo_path = TMP_FOLDER . $meta['main_company_logo'];
-          $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
-          array_push($imagePath, $logo_detail);
+          if($meta['main_company_logo']){
+            $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
+            if(file_exists($main_logo_path)){
+                $logo_cell = $meta['main_company_logo_cell'];
+                copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
+                $logo_path = TMP_FOLDER . $meta['main_company_logo'];
+                $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
+                array_push($imagePath, $logo_detail);
+            }
+          }
         }
         
         if(isset($meta['main_company_seal_cell'])){
-          $seal_cell = $meta['main_company_seal_cell'];
-          $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
-          copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
-          $seal_path = TMP_FOLDER . $meta['main_company_seal'];
-          $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
-          array_push($imagePath, $seal_detail);
+          if($meta['main_company_seal']){
+            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
+            if(file_exists($main_seal_path)){
+                $seal_cell = $meta['main_company_seal_cell'];
+                copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
+                $seal_path = TMP_FOLDER . $meta['main_company_seal'];
+                $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
+                array_push($imagePath, $seal_detail);
+            }
+          }
         }
         
         if(isset($meta['main_company_sign_cell'])){
-          $sign_cell = $meta['main_company_sign_cell'];
-          $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
-          copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
-          $sign_path = TMP_FOLDER . $meta['main_company_signature'];
-          $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
-          array_push($imagePath, $sign_detail);
+            if($meta['main_company_seal']){
+                $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
+                if(file_exists($main_sign_path)){
+                    $sign_cell = $meta['main_company_sign_cell'];
+                    copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
+                    $sign_path = TMP_FOLDER . $meta['main_company_signature'];
+                    $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
+                    array_push($imagePath, $sign_detail);
+                }
+            }
         }
         
         
         $R->render('excel', $output_file_excel,$cell, $imagePath);
         
-        if($logo_path){
+        if(file_exists($logo_path)){
             unlink($logo_path);
         }
-        if($seal_path){
+        if(file_exists($seal_path)){
            unlink($seal_path);
         }
-        if($sign_path){
+        if(file_exists($sign_path)){
             unlink($sign_path);
         }
         
