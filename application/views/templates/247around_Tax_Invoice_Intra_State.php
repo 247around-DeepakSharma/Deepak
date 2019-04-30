@@ -24,14 +24,17 @@
     <body>
         <table class="table"  style="border:solid 2px; border-collapse: collapse; width: 960px; height: 75%; font-family: sans-serif; font-size: 15px; margin: auto;">
             <tr>
-                <td style="text-align: center;border-bottom: hidden; padding-bottom: 0px; border-right: 1px solid;" colspan="10" ><h1 style="margin-bottom: 0px;">Blackmelon Advance Technology Co. Pvt. Ltd.</h1></td>
+                <td style="text-align: center;border-bottom: hidden; padding-bottom: 0px; border-right: 1px solid;" colspan="10" ><h1 style="margin-bottom: 0px;"><?php echo $meta['main_company_name']; ?></h1></td>
             </tr>
-            <tr style=""><td align="left" style="border-right: hidden;"><img style="padding: 5px;" src="<?php echo base_url();?>images/logo.jpg"></td>
-                <td colspan="7"  align="center" style="border:hidden;padding-right: 15%; ">A-1/7a, A BLOCK, KRISHNA NAGAR,
-                    <br> DELHI 110051
-                    <br>Email: billing@247around.com
+            <tr style=""><td align="left" style="border-right: hidden;">
+                <?php if($meta['main_company_logo']){ ?>
+                <img style="padding: 5px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>"></td>
+                <?php } ?>
+                <td colspan="7"  align="center" style="border:hidden;padding-right: 15%; "><?php echo $meta['main_company_address']; ?>,
+                    <br><?php echo $meta['main_company_state'].", ".$meta['main_company_pincode']; ?>
+                    <br>Email: <?php echo $meta['main_company_email']; ?>
                     <br><br>
-                    <b>GSTIN: 07AAFCB1281J1ZQ</b>
+                    <b>GSTIN: <?php echo $meta['main_company_gst_number']; ?></b>
                 </td>
                 <td colspan="2" style="text-align: right; border-left: hidden; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
@@ -131,16 +134,24 @@
 
             <tr>
                 <td width="32%" align="center" style="background-color: rgb(211,211,211);"><b>Bank Details</td>
-                <td rowspan="6" colspan="3"><img style="width: 160px;" src="<?php echo base_url()."images/247aroundstamp.jpg"; ?>"></td>
+                <td rowspan="6" colspan="3">
+                    <?php if($meta['main_company_seal']){ ?>
+                    <img style="width: 160px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal']; ?>">
+                    <?php } ?>
+                </td>
                 <td colspan="5"><b>GST on Reverse Charge</td>
                 <td colspan="1" align="center" style="border-right: 2px solid;">0</td>
             </tr>
-            <tr><td width="32%">Bank Name: ICICI Bank</td>
-                <td rowspan="2" colspan="7" style="padding: 2%;background-color: rgb(211,211,211);"><b>For Blackmelon Advance Technology Co. Pvt. Ltd.</td>
+            <tr><td width="32%">Bank Name: <?php echo $meta['main_company_bank_name']; ?></td>
+                <td rowspan="2" colspan="7" style="padding: 2%;background-color: rgb(211,211,211);"><b>For <?php echo $meta['main_company_name']; ?></td>
             </tr>
-            <tr><td width="32%">Acc No: 102405500277</td></tr>
-            <tr><td width="32%">IFSC: ICIC0001024</td>
-                <td rowspan="2" colspan="7" align="center"><img src="<?php echo base_url()."images/anujsign.jpg"; ?>" style="width: 170px;"></td>
+            <tr><td width="32%">Acc No: <?php echo $meta['main_company_bank_account']; ?></td></tr>
+            <tr><td width="32%">IFSC: <?php echo $meta['main_company_ifsc_code']; ?></td>
+                <td rowspan="2" colspan="7" align="center">
+                    <?php if($meta['main_company_signature']){ ?>
+                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature']; ?>" style="width: 170px;">
+                    <?php } ?>
+                </td>
             </tr>
             <tr>
                 <td style="border-bottom: hidden;">	</td>
