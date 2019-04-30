@@ -3987,7 +3987,7 @@ class Booking extends CI_Controller {
         }else{
             $d_btn = "";
         }
-        
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $b_date = date("Y-m-d", strtotime($order_list->booking_date));
         $date1 = date_create($b_date);
         $date2 = date_create(date("Y-m-d"));
@@ -4034,8 +4034,10 @@ class Booking extends CI_Controller {
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
-        $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
-                . ' <span class="glyphicon glyphicon-user"></span></button>';
+        if(isset($saas_flag) && (!$saas_flag)) {
+            $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
+                    . ' <span class="glyphicon glyphicon-user"></span></button>';
+        }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
