@@ -376,8 +376,9 @@
             </div> 
             </div>
         </div>
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get rm missing pincode ajax request-->
-     <div class="row">
+    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
@@ -395,7 +396,6 @@
             </div>
         </div>
     </div>
-    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <div id="admin_dashboard_app">
         <div class="x_panel">
             <div class="x_title" style="padding-left:0px;">

@@ -770,6 +770,7 @@
             </div>
         </div>
     </div>
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get rm missing pincode ajax request-->
      <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -790,7 +791,6 @@
         </div>
     </div>
     <!-- get rm missing pincode ajax request-->
-    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get Am Total Booking Call data-->
      <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">

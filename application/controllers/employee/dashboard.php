@@ -466,8 +466,10 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
-        array_shift($month);
-        array_shift($completed_booking);
+        if(count($month)>1)
+            array_shift($month);
+        if(count($completed_booking)>1)
+            array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);

@@ -520,12 +520,14 @@ class User extends CI_Controller {
             
         }
         
-        $data3=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $data1['id']));
-        
-        if(count($data3) <= 0)
-            $this->employee_model->insertManagerData($data2);
-        else
-            $this->employee_model->updateManager($data2);
+        if(count($data2) > 0) {
+            $data3=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $data1['id']));
+
+            if(count($data3) <= 0)
+                $this->employee_model->insertManagerData($data2);
+            else
+                $this->employee_model->updateManager($data2);
+        }
         
         
         $data2 = array();
@@ -542,7 +544,9 @@ class User extends CI_Controller {
         
         if(count($data3) > 0)
             $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
-        $this->employee_model->insertManagerData($data2);
+        if(count($data2) > 0) {
+            $this->employee_model->insertManagerData($data2);
+        }
         
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
         
