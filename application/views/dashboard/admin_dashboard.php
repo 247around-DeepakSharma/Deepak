@@ -268,7 +268,7 @@
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
                                             <option value="247Around:Partner">Admin</option>
-                                            <option value="Vendor" selected="selected">Vendor</option>
+                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
                                         </select>
                     </div>
                     <div class="form-group col-md-3">
