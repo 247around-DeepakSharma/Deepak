@@ -3793,11 +3793,15 @@ class Inventory extends CI_Controller {
             'wh_ack_received_part' => 0,
             'requested_inventory_id' => $data->inventory_id
         );
+        $update['wh_ack_received_part'] = 1;
+        if ($data->is_wh_micro == 2) {
+            $update['status'] = SPARE_DELIVERED_TO_SF;
+        }
         if (!empty($data->booking_id)) {
 
             $where['booking_id'] = $data->booking_id;
-
-            $update_spare_part = $this->service_centers_model->update_spare_parts($where, array('wh_ack_received_part' => 1));
+            
+            $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
             log_message('info', __METHOD__ . " Booking ID updated " . $data->booking_id);
         } else {
@@ -3810,7 +3814,7 @@ class Inventory extends CI_Controller {
             if (!empty($spare)) {
                 foreach ($spare as $value) {
                     if ($data->quantity >= $qty) {
-                        $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), array('wh_ack_received_part' => 1));
+                        $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $update);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                         log_message('info', __METHOD__ . "Multi Booking Booking ID updated " . $data->booking_id . " requested inventory id " . $data->inventory_id);
                         $qty = $qty - 1;
@@ -3830,12 +3834,12 @@ class Inventory extends CI_Controller {
                 }
                 $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
                 if (!empty($spare)) {
+                    $update['entity_type'] = _247AROUND_SF_STRING;
+                    $update['partner_id'] = $receiver_entity_id;
                     foreach ($spare as $value) {
                         if ($data->quantity >= $qty) {
                             log_message('info', __METHOD__ . " Rest qty " . $qty . " spare id " . $value['id']);
-                            $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), array('wh_ack_received_part' => 1,
-                                'entity_type' => _247AROUND_SF_STRING,
-                                'partner_id' => $receiver_entity_id));
+                            $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $update);
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                             $qty = $qty - 1;
                         }
@@ -5405,6 +5409,14 @@ class Inventory extends CI_Controller {
         $partner_id = $this->uri->segment(4);
         $warehouse_id = $this->uri->segment(5);
         $total_quantity = $this->uri->segment(6);
+        $meta = array();
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+        }
+        
         if (!empty($warehouse_id)) {
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
@@ -5426,7 +5438,7 @@ class Inventory extends CI_Controller {
             }
             $wh_address_details[0]['vendor'] = $booking_details[0];
         }
-        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity));
+        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity, 'meta'=>$meta));
     }
 
     /**
