@@ -5406,6 +5406,14 @@ class Inventory extends CI_Controller {
         $partner_id = $this->uri->segment(4);
         $warehouse_id = $this->uri->segment(5);
         $total_quantity = $this->uri->segment(6);
+        $meta = array();
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+        }
+        
         if (!empty($warehouse_id)) {
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
@@ -5427,7 +5435,7 @@ class Inventory extends CI_Controller {
             }
             $wh_address_details[0]['vendor'] = $booking_details[0];
         }
-        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity));
+        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity, 'meta'=>$meta));
     }
 
     /**
