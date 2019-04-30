@@ -2034,7 +2034,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         else{
-            $status = '247around:Vendor';
+            $status = '247around:Vendor:not_set';
         }
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
