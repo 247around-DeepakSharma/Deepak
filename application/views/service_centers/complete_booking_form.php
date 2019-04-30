@@ -186,8 +186,8 @@
                                         <div class="form-group col-md-3"style="width:21.6%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
-                                                        <input id="dop" class="form-control dop" placeholder="Purchase Date" name="dop" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
-                                                        <span class="input-group-addon add-on" onclick="dop_calendar('dop')"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                <input onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
+                                                        <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
                                         <div class="col-md-12" style="padding-left:0px;">
@@ -225,7 +225,10 @@
                                                            <?php } else { ?>
                                                             <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
+                                                            <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
                                                         </td>
+                                                               
                                                         <td>
                                                             <?php $sr =FALSE; if(isset($price['en_serial_number'])){ if(!empty($price['en_serial_number'])){ $sr = TRUE; }} 
                                                             if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
@@ -570,6 +573,13 @@
                 flag = 1;
                 return false;
             }
+           <?php if($dop_mendatory ==1){ ?>
+            var dop = $("#dop_0").val();
+            if(dop === ""){
+                    alert("Purchase Date Should Not Blank For Repair Call");
+                    return false; 
+              }  
+        <?php } ?>
         }
         var prediv = -1;
         $(':radio:checked').each(function(i) {
@@ -738,13 +748,6 @@
             }
         }
          
-        <?php if($dop_mendatory ==1){ ?>
-        var dop = $(".dop").val();
-        if(dop === ""){
-                alert("Please Select Date of Purchase");
-                return false; 
-              }  
-        <?php } ?>
         <?php if(!empty($technical_problem)){ ?>
             var technical_problem = $("#technical_problem").val();
             if(technical_problem === null){
@@ -860,6 +863,13 @@
     
     })(jQuery, window, document);
     
+    function update_dop_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var dopValue = $("#dop_"+div).val();
+            for(i = 0; i < Number(div_item_count); i++ ){
+                $(".unit_dop_"+div+"_"+i).val(dopValue);
+         }
+    }
     function check_broken(div){
         
         var broken = Number($("#broken_"+ div).val());

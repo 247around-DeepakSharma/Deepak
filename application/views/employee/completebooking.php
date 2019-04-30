@@ -256,9 +256,9 @@
                                     </div>
                                     <?php } ?>
                                      <div class="form-group">
-                                        <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                                    <input id="dop" class="form-control" placeholder="Purchase Date" name="<?php echo "purchase_date" ?>" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
-                                                    <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                         <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                                <input onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                        <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
                                 </div>
@@ -279,12 +279,13 @@
                                                 $paid_additional_charges = 0;
                                                 $paid_parts_cost = 0;
                                                 
-                                                foreach ($unit_details['quantity'] as $key => $price) {
-                                                    //print_r($price);
-                                                    ?>
+                                                foreach ($unit_details['quantity'] as $key => $price) { ?>
+                                                    <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
+                                                                                                        <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
@@ -1133,5 +1134,19 @@
     
     
     }
-    
+    function update_dop_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var dopValue = $("#dop_"+div).val();
+            for(i = 0; i < Number(div_item_count); i++ ){
+                $(".unit_dop_"+div+"_"+i).val(dopValue);
+         }
+    }
+      function dop_calendar(id){
+         $("#"+id).datepicker({
+             dateFormat: 'yy-mm-dd', 
+             changeMonth: true,
+             changeYear: true,
+             maxDate:0
+         }).datepicker('show');
+    }
 </script>
