@@ -830,13 +830,13 @@ class Validate_serial_no {
          }
          return true;
     }
-    function kenstar_serialNoValidation(){
+    function kenstar_serialNoValidation($partnerID,$serialNo){
         $stringLength = strlen($serialNo);
          if($stringLength == 18){
-             return true;
+              return array('code' => SUCCESS_CODE);
          }
          else{
-             return false;
+             return array('code' => FAILURE_CODE, "message" => "Serial Number Length should be 18");
          }
     }
 }
