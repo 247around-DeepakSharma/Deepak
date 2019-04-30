@@ -1226,8 +1226,9 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/broadcastemailtovendor');
+         $this->miscelleneous->load_nav_header();
+         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS); 
+         $this->load->view('employee/broadcastemailtovendor',$data);
     }
 
     /**
