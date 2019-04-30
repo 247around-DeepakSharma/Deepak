@@ -97,7 +97,7 @@
                             <option value="" disabled="">Select Completed Type</option>
                             <option value="a" selected="selected">All</option>
                             <option value="b">Completed by Service Center (In Review)</option>
-                            <option value="c">Completed</option>
+                            <option value="c">Reviewed By 247around (Fully Completed)</option>
                         </select>
                     </div>
                 </div>

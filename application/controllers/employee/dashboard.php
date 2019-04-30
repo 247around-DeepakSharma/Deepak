@@ -51,8 +51,8 @@ class Dashboard extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
         else{
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
             $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
@@ -467,8 +467,10 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
-        array_shift($month);
-        array_shift($completed_booking);
+        if(count($month)>1)
+            array_shift($month);
+        if(count($completed_booking)>1)
+            array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);

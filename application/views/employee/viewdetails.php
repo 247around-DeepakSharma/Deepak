@@ -354,7 +354,7 @@
                                 <th>Model Number</th>
                                 <th>SF Model Number</th>
                                 <th>SF / Partner Serial Number</th>
-                                <th>Purchase Date</th>
+                                <th>Purchase Date / SF Purchase Date</th>
                                 <th>Description</th>
                                 <th>Service Category</th>
                                 <th>Pay to SF</th>
@@ -418,7 +418,7 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
                                     </td>
-                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
+                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo $unit_detail['sf_purchase_date'];}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>

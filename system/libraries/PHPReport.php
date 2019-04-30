@@ -910,7 +910,7 @@ class PHPReport {
      * @param string $type
      * @param string $filename
      */
-    public function render($type='html',$filename='', $cell = false, $imagePath = false )
+    public function render($type='html',$filename='', $cell = false, $imagePath = array() )
     {
         //create or generate report
         if($this->_usingTemplate)
@@ -986,18 +986,21 @@ class PHPReport {
         //exit();
     }
     
-    function insertImage($cell =false, $imagePath = false){
-        if($imagePath){
-            $objDrawing = new PHPExcel_Worksheet_Drawing();
-            $objDrawing->setName('QR CODE');
-            $objDrawing->setDescription('QR');
-            $objDrawing->setPath($imagePath);
-            $objDrawing->setOffsetX(100);                     //setOffsetX works properly
-            $objDrawing->setOffsetY(1);                     //setOffsetY works properly
-            $objDrawing->setCoordinates($cell);
-            $objDrawing->setWidth(110);  
-            $objDrawing->setHeight(65);  
-            $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
+    function insertImage($cell = array(), $imagePath = array()){
+        
+        if(!empty($imagePath)){
+            foreach ($imagePath as $key => $value) {
+                $objDrawing = new PHPExcel_Worksheet_Drawing();
+                $objDrawing->setName('Image');
+                $objDrawing->setDescription('Image');
+                $objDrawing->setPath($value['image_path']);
+                $objDrawing->setOffsetX(100);                     //setOffsetX works properly
+                $objDrawing->setOffsetY(1);                     //setOffsetY works properly
+                $objDrawing->setCoordinates($value['cell']);
+                $objDrawing->setWidth(110);  
+                $objDrawing->setHeight(65);  
+                $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
+            }
         }
 
     }

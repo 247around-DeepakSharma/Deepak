@@ -175,12 +175,24 @@ class Booking_utilities {
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($booking_id);
         if (!empty($booking_details)) {
-            $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
-            $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            $saas_flag = $this->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if($saas_flag){
+               $qr = false; 
+            }
+            else{
+                $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
+                $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
+                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            }
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
+            $main_partner = $this->My_CI->partner_model->get_main_partner_invoice_detail();
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
+            $meta['main_company_description'] = $main_partner['main_company_description'];
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            
             $meta['upcountry_charges'] = 0;
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
                 if($booking_details[0]['flat_upcountry']  == 1){

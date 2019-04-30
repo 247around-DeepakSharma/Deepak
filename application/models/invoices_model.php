@@ -957,15 +957,28 @@ class invoices_model extends CI_Model {
     
     function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
+            //get company detail who generated invoice
+            
             $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+            $meta += $this->partner_model->get_main_partner_invoice_detail();
+            
             $parts_count = 0;
             $service_count = 0;
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
+            if($meta["invoice_template"] == "247around_Tax_Invoice_Intra_State.xlsx" || $meta["invoice_template"] == "247around_Tax_Invoice_Inter_State.xlsx"){
+                $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
+                $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
+                $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
+            }
+            else{
+                $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
+            }
+            
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
@@ -1132,7 +1145,23 @@ class invoices_model extends CI_Model {
         if ($query->num_rows > 0) {
             $result1 = $query->result_array();
             $meta = $result1[0];
-
+            
+            //get main partner detail
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail();
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_address'] = $main_partner['main_company_address'];
+            $meta['main_company_state'] = $main_partner['main_company_state'];
+            $meta['main_company_pincode'] = $main_partner['main_company_pincode'];
+            $meta['main_company_email'] = $main_partner['main_company_email'];
+            $meta['main_company_gst_number'] = $main_partner['main_company_gst_number'];
+            $meta['main_company_bank_name'] = $main_partner['main_company_bank_name'];
+            $meta['main_company_bank_account'] = $main_partner['main_company_bank_account'];
+            $meta['main_company_ifsc_code'] = $main_partner['main_company_ifsc_code'];
+            $meta['main_company_seal'] = $main_partner['main_company_seal'];
+            $meta['main_company_signature'] = $main_partner['main_company_signature'];
+            
+            
             $c_s_gst = $this->check_gst_tax_type($meta['state']);
             $meta['total_qty'] = $meta['total_rate'] = $meta['total_taxable_value'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['igst_total_tax_amount'] = $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] = $meta['total_parts_tax'] = $meta['total_inst_tax'] = 0;
@@ -1794,6 +1823,9 @@ class invoices_model extends CI_Model {
         if (!empty($data)) {
             $commission_charge = array();
             $meta = $data[0];
+            //get company detail who generated invoice
+            $meta += $this->partner_model->get_main_partner_invoice_detail();
+            
             $commission_charge[0]['description'] = "Commission Charge";
             $total_amount_invoice = (array_sum(array_column($data, 'total_amount')));
             if ($total_amount_invoice > 0) {
@@ -1943,6 +1975,21 @@ class invoices_model extends CI_Model {
             $meta['owner_email'] = $commission_charge[0]['owner_email'];
             $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
             $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
+            
+            //get main partner detail
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail();
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_address'] = $main_partner['main_company_address'];
+            $meta['main_company_state'] = $main_partner['main_company_state'];
+            $meta['main_company_pincode'] = $main_partner['main_company_pincode'];
+            $meta['main_company_email'] = $main_partner['main_company_email'];
+            $meta['main_company_gst_number'] = $main_partner['main_company_gst_number'];
+            $meta['main_company_bank_name'] = $main_partner['main_company_bank_name'];
+            $meta['main_company_bank_account'] = $main_partner['main_company_bank_account'];
+            $meta['main_company_ifsc_code'] = $main_partner['main_company_ifsc_code'];
+            $meta['main_company_seal'] = $main_partner['main_company_seal'];
+            $meta['main_company_signature'] = $main_partner['main_company_signature'];
             
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;

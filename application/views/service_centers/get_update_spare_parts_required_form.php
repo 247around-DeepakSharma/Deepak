@@ -133,7 +133,7 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">                                                
-                                                <select class="form-control spare_parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                <select class="form-control parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
@@ -203,14 +203,12 @@
                         <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                     </div>                                        
                     <div class="col-md-6 col-md-offset-2">
-                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">
-                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['booking_partner_id']; ?>">                        
+                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">  
                         <input type="hidden" name="entity_type" value="<?php echo $spare_parts_details['entity_type']; ?>">
                         <input type="hidden" name="spare_id" value="<?php echo $spare_parts_details['id']; ?>">
                         <input type="hidden" name="booking_id" value="<?php echo $spare_parts_details['booking_id']; ?>">
                         <input type="hidden" name="previous_inventory_id" value="<?php echo $spare_parts_details['requested_inventory_id']; ?>"> 
                         <input type="hidden" name="current_inventory_id" id="current_inventory_id" value="">
-                        
                         <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
                 </form>
@@ -219,8 +217,7 @@
     </div>
 </div>
 </div>
-
-<?php if(empty($spare_parts_details['requested_inventory_id'])){ ?>
+<?php if(empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){ 
     defults_inventory_part_type();  
@@ -230,8 +227,8 @@ $(document).ready(function(){
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
                 data: { service_id:<?php echo $spare_parts_details['service_id']; ?>},
                 success:function(data){                       
-                    $('#parts_type').html(data);
-                    $('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                    $('.parts_type').html(data);
+                    $('.parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
                     
                 }
             });
@@ -393,7 +390,14 @@ function get_inventory_id(id){
         var prob_des = $("#prob_desc").val();
         var dop = $("#dop").val();
         var serial_number_pic = $('#serial_number_pic').val();
-
+        var old_serial_number_pic = $('#old_serial_number_pic').val();
+        var defective_parts_pic = $("#defective_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        var defective_parts_pic = $("#defective_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        var defective_back_parts_pic = $("#defective_back_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        
         if(model_number ==="" || model_number === null){
             alert("Please enter model number");
             return false;
@@ -411,10 +415,21 @@ function get_inventory_id(id){
           return false;
         }
 
-        if(serial_number_pic.length === 0){
+        if(serial_number_pic.length === 0 && old_serial_number_pic.length === 0){
           alert("Please Upload Serial Number Image");
           return false;
         }
+        
+        if(defective_parts_pic.length === 0 && old_defective_back_parts_pic.length === 0){
+          alert('Please Upload Defective Front Part Image');
+          return false;
+        }
+        
+        if(defective_back_parts_pic.length === 0 && old_defective_back_parts_pic.length === 0){
+          alert('Please Upload Defective Back Part Image');
+          return false;
+        }
+        
         $('.parts_name').each(function() {
             var id = $(this).attr('id');
             if(id === "parts_name"){
@@ -433,29 +448,6 @@ function get_inventory_id(id){
             if(id === "parts_type"){
                 if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
                     alert('Please Enter Part Type');
-                    checkbox_value = 0;
-                    return false;
-                }
-            }
-        });
-
-
-        $('.defective_parts_pic').each(function() {
-            var id = $(this).attr('id');
-            if(id === "defective_parts_pic"){
-                if($(this).val().length === 0){
-                    alert('Please Upload Defective Front Part Image');
-                    checkbox_value = 0;
-                    return false;
-                }
-            }
-        });
-
-        $('.defective_back_parts_pic').each(function() {
-            var id = $(this).attr('id');
-            if(id === "defective_back_parts_pic"){
-                if($(this).val().length === 0){
-                    alert('Please Upload Defective Back Part Image');
                     checkbox_value = 0;
                     return false;
                 }

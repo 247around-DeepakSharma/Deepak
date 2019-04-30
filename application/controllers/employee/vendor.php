@@ -735,9 +735,10 @@ class vendor extends CI_Controller {
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
+        $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
+        $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days,'saas_module' => $saas_module));
     }
 
     /**
