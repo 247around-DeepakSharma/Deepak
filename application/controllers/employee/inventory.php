@@ -1078,6 +1078,7 @@ class Inventory extends CI_Controller {
             }
             $flag = true;
             $b = array();
+            $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
