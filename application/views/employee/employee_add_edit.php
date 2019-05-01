@@ -41,7 +41,7 @@
                                 if (isset($query[0]['full_name'])) {
                                     echo $query[0]['full_name'];
                                 }
-                                ?>" placeholder="Full Name">
+                                ?>" placeholder="Full Name" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 32">
                                         <?php echo form_error('full_name'); ?>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                                 if (isset($query[0]['phone'])) {
                                     echo $query[0]['phone'];
                                 }
-                                ?>" placeholder="Phone">
+                                ?>" placeholder="Phone" onkeypress="return (event.charCode > 47 && event.charCode < 58)">
                                         <?php echo form_error('phone'); ?>
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                                 if (isset($query[0]['exotel_phone'])) {
                                     echo $query[0]['exotel_phone'];
                                 }
-                                ?>" placeholder="Exotel Phone">
+                                ?>" placeholder="Exotel Phone" onkeypress="return (event.charCode > 47 && event.charCode < 58)">
                                         <?php echo form_error('exotel_phone'); ?>
                             </div>
                         </div>
@@ -114,7 +114,7 @@
                                 if (isset($query[0]['languages'])) {
                                     echo $query[0]['languages'];
                                 }
-                                ?>" placeholder="Language Known">
+                                ?>" placeholder="Language Known" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 32 || event.charCode == 44">
                                         <?php echo form_error('languages'); ?>
                             </div>
                         </div>
