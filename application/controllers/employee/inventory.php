@@ -1078,6 +1078,7 @@ class Inventory extends CI_Controller {
             }
             $flag = true;
             $b = array();
+            $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -1091,7 +1092,7 @@ class Inventory extends CI_Controller {
                         . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
 
                     $line_items = count($spare_parts_details);
-
+                                      
                     if ($requestType == "CANCEL_PARTS") {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
