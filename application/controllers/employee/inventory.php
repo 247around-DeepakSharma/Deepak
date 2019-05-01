@@ -1066,6 +1066,7 @@ class Inventory extends CI_Controller {
      * @param String $booking_id
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType) {
+        ob_end_clean();
         log_message('info', __FUNCTION__ . "Entering... id " . $id . " Booking ID " . $booking_id);
         if (!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))) {
             $this->checkUserSession();
@@ -1078,6 +1079,7 @@ class Inventory extends CI_Controller {
             }
             $flag = true;
             $b = array();
+            $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
