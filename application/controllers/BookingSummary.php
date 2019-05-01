@@ -1243,7 +1243,8 @@ EOD;
                 $not_assigned_vendors .= $val['id'] . ',';
             }
         }
-        $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
+        if(!empty($not_assigned_vendors))
+            $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
 
         $not_assigned_old_crimes = 0;
         $not_assigned_update = 0;
