@@ -173,8 +173,8 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 " id="purchase_d">
                                     <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
-                                <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                <div class="input-group date">
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -930,6 +930,13 @@
             return false;
     }
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+  
+  $('.purchase_date').each(function () {
+    if ($(this).hasClass('hasDatepicker')) {
+        $(this).removeClass('hasDatepicker');
+    } 
+    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+  });
   
   function get_symptom(symptom_id = ""){
         var array = [];
