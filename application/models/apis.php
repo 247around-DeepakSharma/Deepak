@@ -1848,4 +1848,29 @@ class Apis extends CI_Model {
          $this->db->insert('fake_reschedule_missed_call_log', $data);
         return $this->db->insert_id();
     }
+    
+    function getMissedBookingSlots($time_slot = false){
+        $hr = "";
+        if($time_slot){
+            $booking_slot = explode("-", $time_slot);
+            $hr = trim($booking_slot[0]);
+        }
+        else{
+           $hr =  date("H");
+        }
+        if($hr >= "10" && $hr <= "13"){
+            return false;
+        }
+        else if($hr >= "13" && $hr <= "16"){
+            $return =  array(TIMESLOT_10AM_TO_1PM);
+            return $return;
+        }
+        else if($hr >= "16" && $hr <= "19"){
+            $return =  array(TIMESLOT_10AM_TO_1PM, TIMESLOT_1PM_TO_4PM);
+            return $return;
+        }
+        else{
+            return false;
+        }
+    }
 }
