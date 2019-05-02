@@ -282,6 +282,25 @@ class Booking extends CI_Controller {
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: ");
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
                             array_push($price_tag, $result['price_tags']);
+                            if($booking['partner_id'] == VIDEOCON_ID){
+                                if((stripos($result['price_tags'], 'In Warranty') !== false) || stripos($result['price_tags'], 'Extended Warranty') !== false){
+                                    //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                    $service = $this->booking_model->get_booking_details("services, public_name, users.phone_number as phone_number", array("booking_id" => $booking["booking_id"]), true, true, false, true);
+                                    $sms = array();
+                                    $sms['status'] = "";
+                                    $sms['phone_no'] = $service[0]['phone_number'];
+                                    $sms['booking_id'] = $booking["booking_id"];
+                                    $sms['type'] = "user";
+                                    $sms['type_id'] = trim($booking['user_id']);
+                                    $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                                    $sms['smsData']['brand'] = $result['appliance_brand'];
+                                    $sms['smsData']['service'] = $service[0]['services'];
+                                    $sms['smsData']['whatsapp_no'] = VIDEOCON_INVOICE_WHATSAPP_NUMBER;
+                                    $sms['smsData']['partner_brand'] = $service[0]['public_name'];
+                                    $this->notify->send_sms_msg91($sms);
+                                }
+                            }
+                            
                             break;
                         default:
 
@@ -338,7 +357,6 @@ class Booking extends CI_Controller {
                 //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
-                    
                     //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']) {
@@ -1564,10 +1582,18 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['channels'] = implode(", ", $isPaytmTxn['channels']);
             }
         }
-        if($data['booking_history'][0]['dealer_id']){ 
+        if(!empty($data['booking_history'][0]['dealer_id'])){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+            if(!empty($dealer_detail)){
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
-            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];   
+            }else{
+            $data['booking_history'][0]['dealer_name'] = 'Not Available'; 
+            $data['booking_history'][0]['dealer_phone_number_1'] ='Not Avaialble';      
+                
+            }
+            
+
         }
         }else{
             $data['booking_history'] = array();
