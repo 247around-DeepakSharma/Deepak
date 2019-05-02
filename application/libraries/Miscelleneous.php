@@ -1589,7 +1589,8 @@ class Miscelleneous {
                 if($country == 'India'){
                         $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
                         $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
-                        $this->process_if_pincode_valid($pincode,$state,$city);
+                        if(!is_null($pincode) && !is_null($state) && !is_null($city))
+                            $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
                         //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
