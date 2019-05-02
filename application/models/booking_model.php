@@ -2595,7 +2595,8 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false){
+
+    function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false){
         $this->db->select($select);
         $this->db->from('booking_details');
         $this->db->where($where);
@@ -2607,6 +2608,9 @@ function get_booking_details($select="*", $where = array(), $is_user = false, $i
         }
         if($is_unit){
             $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+        }
+        if($is_partner){
+            $this->db->join('partners', 'booking_details.partner_id = partners.id'); 
         }
         $query = $this->db->get();
         return $query->result_array();
