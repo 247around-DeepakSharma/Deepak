@@ -69,7 +69,7 @@
                                 </td>
 
 
-                                <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php if(!empty($value['is_verified'])){ echo "disabled";}?>>Approve <?php  //echo $value['is_verified']; ?></button></td>
+                                <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php if(!empty($value['is_verified'])){ echo "disabled";}?> >Approve <?php  //echo $value['is_verified']; ?></button></td>
 
 
                                 <td><button class="btn btn-danger"  id="reject_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','reject', '<?php echo $value['rm_email']; ?>', '<?php echo $value['primary_contact_email']; ?>', '<?php echo $value['owner_email']; ?>','<?php echo $value['name']; ?>')">Reject</button></td>
