@@ -316,6 +316,26 @@
                     });
                 });
             })(jQuery);
+            
+            function checkSpcialChar(event){
+                var valid = ((event.which > 64 && event.which < 91) || (event.which > 96 && event.which < 123) || (event.which > 47 && event.which < 58) || event.which == 45 || event.which == 8 || event.which == 13);
+                if (!valid) {
+                    event.preventDefault();
+                    return false;
+                }
+                else {
+                    var initVal = $("#search_in").val();
+                    var re = /[`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]/gi;
+                    var isSplChar = re.test(initVal);
+                    if(isSplChar)
+                    {
+                            var no_spl_char = initVal.replace(/[`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+                            $("#search_in").val(no_spl_char);
+                    }
+                    return true;
+                }
+            }
+            
         </script>
         <style type="text/css">
             
@@ -399,7 +419,7 @@
 
         <div class="main_search">
             <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
-                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
+                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; " onkeypress="return checkSpcialChar(event)">
             </form>
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
                     <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #1a8a2dd4">
