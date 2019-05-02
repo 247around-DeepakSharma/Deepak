@@ -100,9 +100,9 @@
                if($is_pending){ ?>
                    <div class="form-group col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
                        <select class="form-control"  ng-model="status" id="status" name="status[]" multiple="">
-                                                  <option value="247Around" <?php if(isset($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>247Around</option>
-                                <option value="Partner" <?php if(isset($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
-                                <option value="Vendor" <?php if(isset($filters['status'])){if(in_array("Vendor", $filters['status'])){echo 'selected="selected"';}} ?>>Vendor</option>  
+                                                  <option value="247Around" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>247Around</option>
+                                <option value="Partner" <?php if(!empty($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
+                                <option value="Vendor" <?php if(!empty($filters['status'])){if(in_array("Vendor", $filters['status'])){echo 'selected="selected"';}} ?>>Vendor</option>  
                                         </select>
                     </div>
                <?php } else {
