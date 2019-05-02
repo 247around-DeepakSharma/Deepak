@@ -2527,16 +2527,17 @@ class Service_centers extends CI_Controller {
                         
                     } else {
                         $pricecourier = $this->input->post('courier_charges_by_sf');
+                      //  $this->service_centers_model->insert_into_awb_details();
                         
                     }
                     
                     $data['courier_charges_by_sf'] = $pricecourier;
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
 
-                    if ($courier_boxes_weight_flag > 0) {
+                    if ($courier_boxes_weight_flag == 0) {
                         
                         $awb_data=array(
-                            'awb_number'=>trim($this->input->post('$awb')),
+                            'awb_number'=>trim($awb),
                             'company_name'=>trim($this->input->post('courier_name_by_sf')),
                             'courier_charge'=>trim($this->input->post('courier_charges_by_sf')),  //
                             'box_count'=>trim($this->input->post('defective_parts_shipped_boxes_count')),   //defective_parts_shipped_gram

@@ -1392,9 +1392,28 @@ function sf_tab_active(){
                             child_string = child_string+(i+1)+") <a href = '<?php echo base_url(); ?>employee/booking/viewdetails/"+child_array[i]+"' target = '_blank'>"+child_array[i]+"</a><br>";
                         }
                     }
+                    console.log(parent_string);
+                    
+ 
+                    
+                   // if(parent_string !== null){
                     $('#parent_holder').html(parent_string);
-                    $('#sibling_holder').html(sibling_string);
-                    $('#child_holder').html(child_string);
+                   // }else{
+                   // $('#parent_holder').html("<span>NA</span>");
+                   // }
+                   // if(val !== null){
+                    $('#parent_holder').html(sibling_string);
+                   // }else{
+                   // $('#parent_holder').html("<span>NA</span>");
+                   //// }
+                    
+                   // if(val !== null){
+                    $('#parent_holder').html(child_string);
+                   // }else{
+                   // $('#parent_holder').html("<span>NA</span>");
+                   // }
+                    //$('#sibling_holder').html(sibling_string);
+                   // $('#child_holder').html(child_string);
                 }
              }
             });

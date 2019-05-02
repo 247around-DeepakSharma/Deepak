@@ -73,7 +73,7 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <div class="col-md-12 col-md-offset-6">
+                        <div class="col-md-12  ">
                             <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary">Create Purchase Invoice</button>
                         </div>
                     </div>
