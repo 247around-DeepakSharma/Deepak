@@ -632,7 +632,26 @@ class Do_background_upload_excel extends CI_Controller {
                         $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
                         $row_data['error'][$key]['invalid_data'] = $value;
                     }
-
+                    
+                    //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                    if($booking['partner_id'] == VIDEOCON_ID){
+                        if((stripos($booking['request_type'], 'In Warranty') !== false) || stripos($booking['request_type'], 'Extended Warranty') !== false){
+                            $service = $this->booking_model->get_booking_details("services, public_name, users.phone_number as phone_number", array("booking_id" => $booking["booking_id"]), true, true, false, true);
+                            $sms = array();
+                            $sms['status'] = "";
+                            $sms['phone_no'] = $service[0]['phone_number'];
+                            $sms['booking_id'] = $booking["booking_id"];
+                            $sms['type'] = "user";
+                            $sms['type_id'] = trim($booking['user_id']);
+                            $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                            $sms['smsData']['brand'] = $unit_details['appliance_brand']; 
+                            $sms['smsData']['service'] = $service[0]['services'];
+                            $sms['smsData']['whatsapp_no'] = VIDEOCON_INVOICE_WHATSAPP_NUMBER;
+                            $sms['smsData']['partner_brand'] = $service[0]['public_name'];
+                            $this->notify->send_sms_msg91($sms);
+                        }
+                    }
+                    
                     if (empty($booking['state'])) {
                         log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " .
                                 $booking['booking_id']);
