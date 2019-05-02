@@ -10963,4 +10963,9 @@ ALTER TABLE `partner_invoice_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+--
+-- Addd new menu for view indiapincode`
+--
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('0', '247Around', 'View India Pincodes', NULL, 'employee/vendor/view_pincodes', '2', '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', '1', '2018-02-20 11:27:39');
+
 
