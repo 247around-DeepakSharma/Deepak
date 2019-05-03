@@ -19,7 +19,6 @@ define('SPARE_ON_IN_WARRANTY_SMS_TAG', 'sms_in_warranty_spare_parts_customer_tag
 define('SEND_WHATSAPP_NUMBER_TAG', 'send_whatsapp_number_tag');
 //247around whatsapp number
 define('_247AROUND_WHATSAPP_NUMBER', '9555000247');
-define('VIDEOCON_INVOICE_WHATSAPP_NUMBER', '8130070247');
 
 
 

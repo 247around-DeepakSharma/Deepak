@@ -286,6 +286,14 @@ class Booking extends CI_Controller {
                                 if((stripos($result['price_tags'], 'In Warranty') !== false) || stripos($result['price_tags'], 'Extended Warranty') !== false){
                                     //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
                                     $service = $this->booking_model->get_booking_details("services, public_name, users.phone_number as phone_number", array("booking_id" => $booking["booking_id"]), true, true, false, true);
+                                    $whatsapp_details = $this->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$booking['partner_id'], "is_whatsapp" => 1));
+                                    $whatsapp_no = "";
+                                    if(!empty($whatsapp_details)){
+                                       $whatsapp_no =  $whatsapp_details[0]['whatsapp_number'];
+                                    }
+                                    else{
+                                        $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
+                                    }
                                     $sms = array();
                                     $sms['status'] = "";
                                     $sms['phone_no'] = $service[0]['phone_number'];
@@ -295,7 +303,7 @@ class Booking extends CI_Controller {
                                     $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
                                     $sms['smsData']['brand'] = $result['appliance_brand'];
                                     $sms['smsData']['service'] = $service[0]['services'];
-                                    $sms['smsData']['whatsapp_no'] = VIDEOCON_INVOICE_WHATSAPP_NUMBER;
+                                    $sms['smsData']['whatsapp_no'] = $whatsapp_no;
                                     $sms['smsData']['partner_brand'] = $service[0]['public_name'];
                                     $this->notify->send_sms_msg91($sms);
                                 }
