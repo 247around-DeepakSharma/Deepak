@@ -1835,10 +1835,10 @@ class Service_centers extends CI_Controller {
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
-                    
+
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
+                        $warehouse_details = $this->get_warehouse_details(array('state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
                         if (!empty($warehouse_details)) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -4635,11 +4635,18 @@ class Service_centers extends CI_Controller {
         $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
-        $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
+
+        if(!empty($booking_id)){
+           $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where); 
+        }    
+                
+       if(!empty($data['spare_parts'])){
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];
+        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];        
+       }        
+        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_spare_parts_form', $data);
     }

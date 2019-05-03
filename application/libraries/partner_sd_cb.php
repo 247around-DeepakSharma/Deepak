@@ -673,7 +673,7 @@ class partner_sd_cb {
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($data['booking_id']);
         $this->requestUrl = __METHOD__;
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && ($data['internal_status'] == "Pending" || $data['internal_status'] == "Scheduled")) {
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING ) {
             log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);

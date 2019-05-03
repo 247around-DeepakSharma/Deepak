@@ -533,11 +533,18 @@ class Notify {
 		    break;
 
 		case 'Customer not reachable':
-                    //Max name length = 15 to fit in 1 SMS
-		    //$sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
-		    //$sms['smsData']['service'] = $query1[0]['services'];
+                    //get partner customer care number
+                    $cc_number = "";
+                    $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id"=>$query1[0]['partner_id'], "is_customer_care"=>1));
+                    if(!empty($cc_detail)){
+                        $cc_number = $cc_detail[0]['customer_care_number'];
+                    }
+                    else{
+                        $cc_number = _247AROUND_WHATSAPP_NUMBER;
+                    }
                     $call_type = explode(" ", $query1[0]['request_type']);
                     $sms['smsData']['service'] = $query1[0]['services']." ".$call_type[0];
+                    $sms['smsData']['cc_number'] = $cc_number;
 		    $sms['tag'] = "call_not_picked_other";
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";

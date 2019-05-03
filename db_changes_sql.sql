@@ -10810,3 +10810,21 @@ ALTER TABLE `partner_invoice_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
+--Kalyani 03-May-2019
+
+CREATE TABLE `partner_additional_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `whatsapp_number` varchar(255) DEFAULT NULL,
+  `is_whatsapp` tinyint(4) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `partner_additional_details` (`id`, `partner_id`, `whatsapp_number`, `is_whatsapp`) VALUES
+(1, 247130, '8130070247', 1);
+
+ALTER TABLE `partner_additional_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `partner_additional_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+COMMIT;
