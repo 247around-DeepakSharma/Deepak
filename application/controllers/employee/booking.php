@@ -282,6 +282,33 @@ class Booking extends CI_Controller {
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: ");
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
                             array_push($price_tag, $result['price_tags']);
+                            if($booking['partner_id'] == VIDEOCON_ID){
+                                if((stripos($result['price_tags'], 'In Warranty') !== false) || stripos($result['price_tags'], 'Extended Warranty') !== false){
+                                    //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                    $service = $this->booking_model->get_booking_details("services, public_name, users.phone_number as phone_number", array("booking_id" => $booking["booking_id"]), true, true, false, true);
+                                    $whatsapp_details = $this->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$booking['partner_id'], "is_whatsapp" => 1));
+                                    $whatsapp_no = "";
+                                    if(!empty($whatsapp_details)){
+                                       $whatsapp_no =  $whatsapp_details[0]['whatsapp_number'];
+                                    }
+                                    else{
+                                        $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
+                                    }
+                                    $sms = array();
+                                    $sms['status'] = "";
+                                    $sms['phone_no'] = $service[0]['phone_number'];
+                                    $sms['booking_id'] = $booking["booking_id"];
+                                    $sms['type'] = "user";
+                                    $sms['type_id'] = trim($booking['user_id']);
+                                    $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                                    $sms['smsData']['brand'] = $result['appliance_brand'];
+                                    $sms['smsData']['service'] = $service[0]['services'];
+                                    $sms['smsData']['whatsapp_no'] = $whatsapp_no;
+                                    $sms['smsData']['partner_brand'] = $service[0]['public_name'];
+                                    $this->notify->send_sms_msg91($sms);
+                                }
+                            }
+                            
                             break;
                         default:
 
@@ -338,7 +365,6 @@ class Booking extends CI_Controller {
                 //2 means booking is getting updated
                 if ($booking['is_send_sms'] == 1) {
                     //Query converted to Booking OR New Booking Inserted
-                    
                     //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']) {
@@ -1564,10 +1590,18 @@ class Booking extends CI_Controller {
                 $data['booking_history'][0]['channels'] = implode(", ", $isPaytmTxn['channels']);
             }
         }
-        if($data['booking_history'][0]['dealer_id']){ 
+        if(!empty($data['booking_history'][0]['dealer_id'])){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+            if(!empty($dealer_detail)){
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
-            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];   
+            }else{
+            $data['booking_history'][0]['dealer_name'] = 'Not Available'; 
+            $data['booking_history'][0]['dealer_phone_number_1'] ='Not Avaialble';      
+                
+            }
+            
+
         }
         }else{
             $data['booking_history'] = array();
@@ -3987,7 +4021,7 @@ class Booking extends CI_Controller {
         }else{
             $d_btn = "";
         }
-        
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $b_date = date("Y-m-d", strtotime($order_list->booking_date));
         $date1 = date_create($b_date);
         $date2 = date_create(date("Y-m-d"));
@@ -4034,8 +4068,10 @@ class Booking extends CI_Controller {
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
-        $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
-                . ' <span class="glyphicon glyphicon-user"></span></button>';
+        if(isset($saas_flag) && (!$saas_flag)) {
+            $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
+                    . ' <span class="glyphicon glyphicon-user"></span></button>';
+        }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
         $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";

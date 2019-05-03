@@ -424,18 +424,21 @@
                         $("#aws_receipt").css("display", "block");
                         $("#courier_charges_by_sf").css("display", "block");
                         $("#same_awb").css("display", "none");
-                        $("#exist_courier_image").val("");
-    
+                        $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").val("");
+                        $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
                         $("#defective_parts_shipped_boxes_count").val("");
-    
+                        $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
+                        $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_kg").val("");
                         $("#defective_parts_shipped_weight_in_gram").val("");
                         $("#remarks").val("");
                         $("#aws_receipt").css("display", "block");
                         $("#courier_boxes_weight_flag").val("0" );
+                        
                     }
     
                 }

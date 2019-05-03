@@ -35,4 +35,10 @@ define('NEXT_ACTION_NOT_DEFINE','NULL');
 define('CANCELLED_BY_PARTNER_API','Cancelled By Partner API');
 define("BOOKING_DETAILS_UPDATED", "Booking Details Updated");
 
+//booking timeslots constants
+define("TIMESLOT_10AM_TO_1PM", "10AM-1PM");
+define("TIMESLOT_1PM_TO_4PM", "1PM-4PM");
+define("TIMESLOT_4PM_TO_7PM", "4PM-7PM");
+
+
 

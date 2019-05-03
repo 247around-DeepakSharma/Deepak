@@ -1835,10 +1835,10 @@ class Service_centers extends CI_Controller {
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
-                    
+
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('model_number_id' => $this->input->post('model_number_id'), 'part_name' => $value['parts_name'], 'part_type' => $data['parts_requested_type'], 'state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
+                        $warehouse_details = $this->get_warehouse_details(array('state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
                         if (!empty($warehouse_details)) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -2526,17 +2526,15 @@ class Service_centers extends CI_Controller {
                             array('courier_charges_by_sf' => $pricecourier));
                         
                     } else {
-                        $pricecourier = $this->input->post('courier_charges_by_sf');
-                        
+                        $pricecourier = $this->input->post('courier_charges_by_sf');   
                     }
                     
                     $data['courier_charges_by_sf'] = $pricecourier;
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
-
-                    if ($courier_boxes_weight_flag > 0) {
+                    if ($courier_boxes_weight_flag == 0) {
                         
                         $awb_data=array(
-                            'awb_number'=>trim($this->input->post('$awb')),
+                            'awb_number'=>trim($awb),
                             'company_name'=>trim($this->input->post('courier_name_by_sf')),
                             'courier_charge'=>trim($this->input->post('courier_charges_by_sf')),  //
                             'box_count'=>trim($this->input->post('defective_parts_shipped_boxes_count')),   //defective_parts_shipped_gram
@@ -2551,8 +2549,7 @@ class Service_centers extends CI_Controller {
                             );
                        
                         $this->service_centers_model->insert_into_awb_details($awb_data);
-                    }
-                    
+                    }                    
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
 
                     //insert details into state change table   
@@ -5063,10 +5060,16 @@ class Service_centers extends CI_Controller {
     function download_shippment_address($booking_address) {
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
-
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+           
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
-        
+            if(!empty($main_partner)){
+                $booking_history['details'][$key]['main_company_public_name'] = $main_partner['main_company_public_name'];
+                $booking_history['details'][$key]['main_company_logo'] = $main_partner['main_company_logo'];
+            }
+            
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                     . "warehouse_details.warehouse_pincode as pincode,"

@@ -31,7 +31,11 @@
 </style>
 <table id="table1">
     <tr>
-        <td colspan="2" style="border-right: hidden;"><img style="padding: 2px;" src="https://aroundhomzapp.com/images/logo.jpg"></td>
+        <td colspan="2" style="border-right: hidden;">
+            <?php if($excel_data['main_company_logo']){ ?>
+            <img style="padding: 2px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$excel_data['main_company_logo']; ?>">
+            <?php } ?>
+        </td>
         <td colspan="11" align="left"><h1>Delivery Challan</h1></td>
     </tr>
     <tr>

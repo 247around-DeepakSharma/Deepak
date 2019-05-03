@@ -131,8 +131,8 @@ class vendor extends CI_Controller {
                         'active' => 1
                     );
                     
-                    $c2c = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
-                    if(!empty($c2c)){
+                    $create_auto_micro = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
+                    if(!empty($create_auto_micro)){
                       $this->miscelleneous->create_micro_warehouse($data,$wh_on_of_data);  
                     }
                     
@@ -775,7 +775,7 @@ class vendor extends CI_Controller {
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $saas_module));
+            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $data['saas_module']));
         } else{
             echo "Vendor Not Exist";
         }

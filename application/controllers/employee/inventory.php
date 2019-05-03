@@ -1066,6 +1066,7 @@ class Inventory extends CI_Controller {
      * @param String $booking_id
      */
     function update_action_on_spare_parts($id, $booking_id, $requestType) {
+        ob_end_clean();
         log_message('info', __FUNCTION__ . "Entering... id " . $id . " Booking ID " . $booking_id);
         if (!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))) {
             $this->checkUserSession();
@@ -1078,6 +1079,7 @@ class Inventory extends CI_Controller {
             }
             $flag = true;
             $b = array();
+            $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -2036,7 +2038,8 @@ class Inventory extends CI_Controller {
     function inventory_master_list() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/inventory_master_list");
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view("employee/inventory_master_list", $data);
     }
 
     /**
@@ -2117,10 +2120,16 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->gst_rate . "%";
         $total = number_format((float) ($stock_list->price + ($stock_list->price * ($stock_list->gst_rate / 100))), 2, '.', '');
         $row[] = "<i class ='fa fa-inr'></i> " . $total;
+        
+        $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+       
         if ($this->session->userdata('userType') == 'employee') {
             $row[] = $stock_list->oow_vendor_margin . " %";
-            $row[] = $stock_list->oow_around_margin . " %";
-
+            
+            if(!$saas_partner){
+                $row[] = $stock_list->oow_around_margin . " %";
+            }
+            
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
@@ -5386,6 +5395,14 @@ class Inventory extends CI_Controller {
         $partner_id = $this->uri->segment(4);
         $warehouse_id = $this->uri->segment(5);
         $total_quantity = $this->uri->segment(6);
+        $meta = array();
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+        }
+        
         if (!empty($warehouse_id)) {
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
@@ -5407,7 +5424,7 @@ class Inventory extends CI_Controller {
             }
             $wh_address_details[0]['vendor'] = $booking_details[0];
         }
-        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity));
+        $this->load->view('service_centers/print_warehouse_address', array('details' => $wh_address_details, 'total_quantiry' => $total_quantity, 'meta'=>$meta));
     }
 
     /**
