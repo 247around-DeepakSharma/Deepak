@@ -10828,3 +10828,6 @@ ALTER TABLE `partner_additional_details`
 ALTER TABLE `partner_additional_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
+
+ALTER TABLE `partner_additional_details` ADD `customer_care_number` INT NULL AFTER `is_whatsapp`, ADD `is_customer_care` BOOLEAN NOT NULL DEFAULT FALSE AFTER `customer_care_number`;
+UPDATE `sms_template` SET `template` = 'Dear Customer, we were unable to contact you for your %s. Call will be cancelled after 3 attempts. Call@%s. 247around' WHERE `sms_template`.`tag` = "call_not_picked_other";
