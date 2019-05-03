@@ -1024,8 +1024,10 @@ class Partner extends CI_Controller {
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
+       $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
        $this->miscelleneous->load_nav_header();
-       $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh));
+       $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
+           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
     }
 
     /**
