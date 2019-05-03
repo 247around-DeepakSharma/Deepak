@@ -87,6 +87,7 @@
     <div class="row">
         <div class="clear"></div>
         <div class="panel panel-info">
+            <?php if(!$saas_flag) {?>
             <div class="panel-heading" style="padding: 6px 7px 0px 10px;">
                 <b><?php if (isset($query[0]['id'])) {
                     echo "EDIT PARTNER";
@@ -102,6 +103,7 @@
                 </div>
                 <div class="clear"></div>
             </div>
+            <?php } ?>
             <div id="tabs" style="border:0px solid #fff;float:left;">
                 <div class="col-md-12" style="">
                     <ul>
@@ -438,6 +440,7 @@
                             </div>
                         </div>
                     </div>
+                    <?php if(!$saas_flag) { ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>UpCountry Details</b></div>
@@ -509,6 +512,7 @@
                             </div>
                         </div>
                     </div>
+                    <?php } ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Spare Parts</b></div>
@@ -723,6 +727,7 @@
                             </div>
                         </div>
                     </div>
+                    <?php if(!$saas_flag) { ?>
                     <div class="col-md-12">
                         <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
@@ -788,6 +793,7 @@
                             </div>
                         </div>
                     </div>
+ 
                     <div class="col-md-12">
                         <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
@@ -851,6 +857,7 @@
                             </div>
                         </div>
                     </div>
+                                      
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Central Warehouse</b></div>
@@ -895,6 +902,7 @@
                             </div>
                         </div>
                     </div>
+                                        <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
@@ -2519,6 +2527,7 @@
                                     </div>
                                 </div>
                                 <div class="row"> 
+                                    <?php if(!$saas_flag){ ?> 
                                     <div class="col-md-6">
                                          <label for="defective_parts_pic">Around Margin</label>
                                         <div class="form-group" style="padding: 10px;">
@@ -2527,6 +2536,7 @@
                                         </div>
                                           
                                     </div>
+                                    <?php } ?>
                                     <div class="col-md-6">
                                         <label for="defective_parts_pic">Vendor Margin</label>
                                         <div class="form-group" style="padding: 10px;">
