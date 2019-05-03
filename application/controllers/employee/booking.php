@@ -955,12 +955,13 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+       $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
         if(count($data['technical_problem']) <= 0) {
             $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
         }
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
@@ -970,9 +971,6 @@ class Booking extends CI_Controller {
         else {
             $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
         }
-        
-        
-        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
