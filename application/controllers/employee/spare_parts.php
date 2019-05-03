@@ -1881,31 +1881,33 @@ class Spare_parts extends CI_Controller {
       
         foreach ($delivered_sp as $value) {
             $data = array();
-            $data['model_number_shipped'] = $value['model_number'];
-            $data['parts_shipped'] = $value['parts_requested'];
-            $data['shipped_parts_type'] = $value['parts_requested_type'];
-            $data['shipped_date'] = $value['date_of_request'];
-            $data['shipped_date'] = $value['date_of_request'];
-            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-            $data['shipped_inventory_id'] = $value['requested_inventory_id'];
-            
-            $where = array('id' => $value['spare_id']);
-            $this->service_centers_model->update_spare_parts($where, $data);
-            
-            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['service_center_id'], $value['requested_inventory_id'], -1);
-            
-            $in['receiver_entity_id'] = $value['service_center_id'];
-            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
-            $in['sender_entity_id'] = $value['service_center_id'];
-            $in['sender_entity_type'] = _247AROUND_SF_STRING;
-            $in['stock'] = -1;
-            $in['booking_id'] = $value['booking_id'];
-            $in['agent_id'] = $this->session->userdata('id');
-            $in['agent_type'] = _247AROUND_SF_STRING;
-            $in['is_wh'] = TRUE;
-            $in['inventory_id'] = $data['shipped_inventory_id'];
-            $this->miscelleneous->process_inventory_stocks($in);
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, '', FALSE);
+            if (!empty($value['service_center_id'])) {
+                $data['model_number_shipped'] = $value['model_number'];
+                $data['parts_shipped'] = $value['parts_requested'];
+                $data['shipped_parts_type'] = $value['parts_requested_type'];
+                $data['shipped_date'] = $value['date_of_request'];
+                $data['shipped_date'] = $value['date_of_request'];
+                $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                $data['shipped_inventory_id'] = $value['requested_inventory_id'];
+
+                $where = array('id' => $value['spare_id']);
+                $this->service_centers_model->update_spare_parts($where, $data);
+
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['service_center_id'], $value['requested_inventory_id'], -1);
+
+                $in['receiver_entity_id'] = $value['service_center_id'];
+                $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $in['sender_entity_id'] = $value['service_center_id'];
+                $in['sender_entity_type'] = _247AROUND_SF_STRING;
+                $in['stock'] = -1;
+                $in['booking_id'] = $value['booking_id'];
+                $in['agent_id'] = $this->session->userdata('id');
+                $in['agent_type'] = _247AROUND_SF_STRING;
+                $in['is_wh'] = TRUE;
+                $in['inventory_id'] = $data['shipped_inventory_id'];
+                $this->miscelleneous->process_inventory_stocks($in);
+                $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, true, FALSE);
+            }
         }
     }
     
