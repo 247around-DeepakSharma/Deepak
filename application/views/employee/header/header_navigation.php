@@ -457,8 +457,10 @@
                 <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; " onkeypress="return checkSpcialChar(event)">
             </form>
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
+            <?php if(!$saas_module) { ?>
                     <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #1a8a2dd4">
     <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
+            <?php } ?>
         </div>
         <!-- Modal -->
          <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
