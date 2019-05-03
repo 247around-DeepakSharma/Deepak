@@ -10830,4 +10830,4 @@ ALTER TABLE `partner_additional_details`
 COMMIT;
 
 ALTER TABLE `partner_additional_details` ADD `customer_care_number` INT NULL AFTER `is_whatsapp`, ADD `is_customer_care` BOOLEAN NOT NULL DEFAULT FALSE AFTER `customer_care_number`;
-UPDATE `sms_template` SET `template` = 'Dear Customer, we were unable to contact you for your %s. Call will be cancelled after 3 attempts. Call@%s. 247around' WHERE `sms_template`.`tag` = "call_not_picked_other";
+UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm booking please Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around %s Service Partner.' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';

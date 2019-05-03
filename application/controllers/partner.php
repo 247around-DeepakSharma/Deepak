@@ -417,9 +417,9 @@ class Partner extends CI_Controller {
                                         $sms['type'] = "user";
                                         $sms['type_id'] = trim($booking['user_id']);
                                         $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                                        $sms['smsData']['whatsapp_no'] = $whatsapp_no;
                                         $sms['smsData']['brand'] = $unit_details['appliance_brand']; 
                                         $sms['smsData']['service'] = $service[0]['services'];
-                                        $sms['smsData']['whatsapp_no'] = $whatsapp_no;
                                         $sms['smsData']['partner_brand'] = $service[0]['public_name'];
                                         $this->notify->send_sms_msg91($sms);
                                     }
