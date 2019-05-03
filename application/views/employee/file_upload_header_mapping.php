@@ -52,7 +52,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    </tbody>
+                    </tbody>   
                 </table>
             </div>
         </div>
@@ -90,9 +90,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="sub_order_id">Sub Order ID*</label>
+                                <label class="control-label col-sm-4" for="sub_order_id">Order ID*</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Sub Order ID" required="">
+                                    <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Order ID" required="">
                                 </div>
                             </div>
                         </div>
@@ -377,6 +377,7 @@
         table = $('#header_mapping_table_data').DataTable({
             processing: true,
             serverSide: true,
+            "lengthMenu": [[ 25, 50,100, -1], [ 25, 50, 100,"All"]],
             ordering: false,
             pageLength: 25,
             ajax: {
@@ -475,7 +476,7 @@ if (filetype[1]=='Delivered') {
 
 
         $('#file_upload_header_mapping_id').val(form_data.id);
-        $('#mapping_details_submit_btn').val('Edit');
+        $('#mapping_details_submit_btn').val('Save');
         $('#modal_title_action').html("Edit Details");
         $('#file_upload_header_mapping').modal('toggle');
            
@@ -491,12 +492,27 @@ if (filetype[1]=='Delivered') {
         return pattern.test(emailAddress);
  };
 
+        var sendbackhost =$('#host').val(); 
+       // var domain =  sendbackhost.split('.');
+
+     //   alert(domain.length);
+        
+       // var regx = new RegExp(/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/);
+
+
+// mystring = sendbackhost;
+// yourstring = "bad & string";
+
+ 
+//alert(sendbackhost.includes("."));
+//alert(yourstring.match(validRegEx))
+
 
         var form_data = $("#mapping_details").serializeArray();
         if($('#partner_id').val() === "" || $('#partner_id').val() === undefined || $('#partner_id').val() === null){
             alert("Please select Partner");
         }else if($('#sub_order_id').val() === ""){
-            alert("Please Fill Sub Order ID Field");
+            alert("Please Fill  Order ID Field");
         }else if($('#product_type').val() === ""){
             alert("Please Fill Product Description Field");
         }else if($('#customer_name').val() === ""){
@@ -509,10 +525,12 @@ if (filetype[1]=='Delivered') {
             alert("Please Fill Phone Field");
         }else if($('#host').val() === ""){
             alert("Please Fill Email Host Field");
-        }else if($('#filetype').val() === ""){
+        }else if($('#filetype').val() === "" ){
             alert("Please Fill FileType Field");
         }else if($('#sendback').val() ==1 && $('#revertemail').val() ===""){
             alert("Please Fill Revert Back Email Field");
+        }else if(sendbackhost.includes(".")===false){
+            alert("Please enter valid domain");
         }
         else{
             arr.name = 'submit_type'
@@ -531,6 +549,7 @@ if (filetype[1]=='Delivered') {
                     if(data.response === 'success'){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(500);});   
                         $('#success_msg').html(data.msg);
+                        location.reload();
                         table.ajax.reload();
                     }else if(data.response === 'error'){
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(500);});
