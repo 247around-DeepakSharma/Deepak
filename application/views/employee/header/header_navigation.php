@@ -333,13 +333,15 @@
                         $("#search_in").focus();
                         return false;
                     }
-                    else{
+                    else if(event.which == 13){
                         var mob = '^[6-9]{1}[0-9]{9}$';
                         var regmob = new RegExp(mob);
                         if((regmob.test(initVal)) || (!regmob.test(initVal) && check_booking_id('search_in')))
                             return true;
                         return false;
                     }
+                    else
+                        return true;
                 }
             }
             
