@@ -337,7 +337,7 @@ class Partner extends CI_Controller {
     function create_booking_or_query(){
         if($this->input->post('prices')){
             $prices = $this->input->post('prices');
-            $where['service_category LIKE "%Installation%" OR service_category LIKE "%Repair - Out Of Warranty%"'] = NULL;
+            $where['(service_category LIKE "%Installation%" OR service_category LIKE "%Repair - Out Of Warranty%")'] = NULL;
             foreach($prices as $values){
                 $temp = explode("_",$values);
                 $serviceChargeID[] = $temp[0];
