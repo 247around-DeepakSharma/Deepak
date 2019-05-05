@@ -656,6 +656,38 @@ class Notify {
                      }
                               
 		    break;
+                    
+                case 'SendWhatsAppNo':
+                    if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            if((stripos($query1[0]['request_type'], 'In Warranty') !== false) || stripos($query1[0]['price_tags'], 'Extended Warranty') !== false){
+                                //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                
+                                $whatsapp_details = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$query1[0]['partner_id'], "is_whatsapp" => 1));
+                                $whatsapp_no = "";
+                                if(!empty($whatsapp_details)){
+                                   $whatsapp_no =  $whatsapp_details[0]['whatsapp_number'];
+                                }
+                                else{
+                                    $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
+                                }
+                                $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$query1[0]["booking_id"]), false, 'appliance_brand');
+                                if(!empty($brand_name)){
+                                    $brand = $brand_name[0]['appliance_brand'];
+                                } else {
+                                    $brand = $query1[0]['public_name'];
+                                }
+
+                                $sms['type'] = "user";
+                                $sms['type_id'] = trim($query1[0]['user_id']);
+                                $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                                $sms['smsData']['whatsapp_no'] = $whatsapp_no;
+                                $sms['smsData']['brand'] = $brand;
+                                $sms['smsData']['service'] = $query1[0]['services'];
+                                $sms['smsData']['partner_brand'] = $brand;
+                                $this->send_sms_msg91($sms);
+                            }
+                        }
+                    break;
 
 		case 'Default_tax_rate':
 		    sleep(180);

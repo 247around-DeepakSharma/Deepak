@@ -1653,6 +1653,11 @@ class Partner extends CI_Controller {
                         $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
                         $is_price['customer_net_payable'] = $customer_net_payable;
                         $is_price['is_upcountry'] = $booking['is_upcountry'];
+                        
+                        $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                        $send1['booking_id'] = $booking['booking_id'];
+                        $send1['state'] = "SendWhatsAppNo";
+                        $this->asynchronous_lib->do_background_process($url1, $send1);
 
                         if ($requestData['product_type'] == "Shipped") {
                             $this->initialized_variable->fetch_partner_data($this->partner['id']);
