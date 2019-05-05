@@ -20,5 +20,8 @@ define('SEND_WHATSAPP_NUMBER_TAG', 'send_whatsapp_number_tag');
 //247around whatsapp number
 define('_247AROUND_WHATSAPP_NUMBER', '9555000247');
 
+define('VIDEOCON_NOT_PICKED_SMS_TAG', 'videocon_not_picked_sms');
+define('VIDEOCON_CANCELLED_BOOKING_TAG', 'videocon_cancelled_booking_sms');
+
 
 

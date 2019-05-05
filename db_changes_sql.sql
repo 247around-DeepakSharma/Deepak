@@ -9866,7 +9866,6 @@ ALTER TABLE `bb_order_details` ADD `auto_acknowledge_date` DATE NULL DEFAULT NUL
 --Kalyani 31-jan-2019
 ALTER TABLE `vendor_partner_variable_charges` ADD `status` TINYINT(1) NOT NULL DEFAULT '1' AFTER `validity_in_month`;
 
-<<<<<<< HEAD
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
 
 
@@ -10949,4 +10948,10 @@ ALTER TABLE `partner_additional_details`
 COMMIT;
 
 ALTER TABLE `partner_additional_details` ADD `customer_care_number` INT NULL AFTER `is_whatsapp`, ADD `is_customer_care` BOOLEAN NOT NULL DEFAULT FALSE AFTER `customer_care_number`;
-UPDATE `sms_template` SET `template` = 'Dear Customer, we were unable to contact you for your %s. Call will be cancelled after 3 attempts. Call@%s. 247around' WHERE `sms_template`.`tag` = "call_not_picked_other";
+UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm booking please Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around %s Service Partner.' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_not_picked_sms', 'Dear Customer, We were unable to contact you for %s request. To confirm booking Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around, %s Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_cancelled_booking_sms', 'Sorry! Your %s booking is cancelled. For support call with capital city STD code %s, 247around %s Service Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+UPDATE `partner_additional_details` SET `customer_care_number` = '39404040' WHERE `partner_additional_details`.`partner_id` = '247130';
+UPDATE `partner_additional_details` SET `is_customer_care` = '1' WHERE `partner_additional_details`.`partner_id` = '247130';
