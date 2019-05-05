@@ -10831,3 +10831,9 @@ COMMIT;
 
 ALTER TABLE `partner_additional_details` ADD `customer_care_number` INT NULL AFTER `is_whatsapp`, ADD `is_customer_care` BOOLEAN NOT NULL DEFAULT FALSE AFTER `customer_care_number`;
 UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm booking please Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around %s Service Partner.' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_not_picked_sms', 'Dear Customer, We were unable to contact you for %s request. To confirm booking Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around, %s Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_cancelled_booking_sms', 'Sorry! Your %s booking is cancelled. For support call with capital city STD code %s, 247around %s Service Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+UPDATE `partner_additional_details` SET `customer_care_number` = '39404040' WHERE `partner_additional_details`.`partner_id` = '247130';
+UPDATE `partner_additional_details` SET `is_customer_care` = '1' WHERE `partner_additional_details`.`partner_id` = '247130';
