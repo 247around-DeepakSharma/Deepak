@@ -659,7 +659,7 @@ class Notify {
                     
                 case 'SendWhatsAppNo':
                     if($query1[0]['partner_id'] == VIDEOCON_ID){
-                            if((stripos($query1[0]['request_type'], 'In Warranty') !== false) || stripos($query1[0]['price_tags'], 'Extended Warranty') !== false){
+                            if((stripos($query1[0]['request_type'], 'In Warranty') !== false) || stripos($query1[0]['request_type'], 'Extended Warranty') !== false){
                                 //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
                                 
                                 $whatsapp_details = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$query1[0]['partner_id'], "is_whatsapp" => 1));
