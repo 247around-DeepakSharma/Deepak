@@ -2090,10 +2090,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $where['current_status'] = _247AROUND_CANCELLED;
         $join['services'] = "services.id = booking_details.service_id";
         $join['partners'] = "partners.id = booking_details.partner_id";
-        $cancelledBookings = $this->reusable_model->get_search_result_data("booking_details","user_id,booking_id,booking_primary_contact_no,services.services,partners.public_name",$where,$join,NULL,NULL,NULL,NULL,array());
+        $cancelledBookings = $this->reusable_model->get_search_result_data("booking_details","user_id,booking_id,booking_primary_contact_no,services.services,partners.public_name, booking_details.request_type",$where,$join,NULL,NULL,NULL,NULL,array());
         foreach($cancelledBookings as $bookingData){
             $sms['tag'] = "partner_missed_call_for_installation";
             $sms['smsData']['service'] = $bookingData['services'];
+            $sms['smsData']['request_type'] = $bookingData['request_type'];
             $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
             $sms['booking_id'] = $bookingData['booking_id'] ;
             $sms['type'] = "user";

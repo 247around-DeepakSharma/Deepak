@@ -196,8 +196,16 @@
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script>
         $(document).on("click", ".open-AddBookDialog", function () {
-            var myBookId = $(this).data('id');
-            $(".modal-body #ec_booking_id").val( myBookId );
+            var disabled = $(this).data('disabled');
+            if(disabled === "Disabled"){
+                alert('Do not allow to escalate this booking. It is closed by Service Center');
+               
+                return false;
+            } else {
+                var myBookId = $(this).data('id');
+                $(".modal-body #ec_booking_id").val( myBookId );
+            }
+            
         });
         $('#state_search').select2();
         $(document).ready(function(){
