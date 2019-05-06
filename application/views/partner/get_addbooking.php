@@ -239,7 +239,7 @@
                     echo 'has-error';
                     } ?>">
                     <label for="serial_number">Serial Number <span id="error_serial_number" style="color:red"></span></label>
-                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
+                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" >
                 </div>
             </div>
             <div class="col-md-3 ">

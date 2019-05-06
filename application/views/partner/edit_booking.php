@@ -258,7 +258,7 @@
                                     echo set_value('serial_number');
                                     } else {
                                     echo $unit_details[0]['serial_number'];
-                                    } ?>" placeholder="Enter Serial Number" <?php if($is_repeat){echo 'readonly';} ?>>
+                                    } ?>" placeholder="Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" <?php if($is_repeat){echo 'readonly';} ?>>
                             </div>
                         </div>
                         <div class="col-md-3 ">
