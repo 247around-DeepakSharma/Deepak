@@ -711,6 +711,7 @@ class Invoice_lib {
                 $tmp_arr['value'] = $value['challan_approx_value'];
                 $tmp_arr['booking_id'] = $value['booking_id'];
                 $tmp_arr['spare_desc'] = $value['parts_shipped'];
+                $tmp_arr['part_number'] = $value['part_number'];
                 $tmp_arr['qty'] = 1;
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
@@ -742,7 +743,6 @@ class Invoice_lib {
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
             $output_pdf_file_name = $output_file . ".pdf";
-
             $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
             $pdf_response = json_decode($json_result, TRUE);
@@ -785,6 +785,15 @@ class Invoice_lib {
         $spare_parts_details = $this->ci->partner_model->get_spare_parts_by_any($select, $where);
         if (!empty($spare_parts_details)) {
             $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
+            
+            $shipped_inventory_id = $spare_parts_details[0]['shipped_inventory_id'];
+            if (!empty($shipped_inventory_id)){
+            $whereinventory = array('inventory_id'=>$shipped_inventory_id);
+            $inventory_master_data = $this->$this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+            $spare_parts_details[0]['part_number']=$inventory_master_data[0]['part_number'];   
+            }else{
+            $spare_parts_details[0]['part_number']='-';    
+            }
 
             $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
 
@@ -807,7 +816,10 @@ class Invoice_lib {
                 $partner_details[0]['address'] = $wh_address_details[0]['address'];
                 $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
                 $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+            
             }
+            
+            
             
             log_message('info', __FUNCTION__ . 'Gorakh sf challan debugging spare_id: ' . $spare_id, true);
 
@@ -817,6 +829,7 @@ class Invoice_lib {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
 
+            
             $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
 
             $data['sf_challan_number'] = $sf_challan_number;
