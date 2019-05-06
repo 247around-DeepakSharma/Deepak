@@ -10844,3 +10844,4 @@ UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm your repair bo
 
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';

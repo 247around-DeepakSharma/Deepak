@@ -1899,21 +1899,23 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
-    function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
+    function get_brand_collateral_data($condition,$order_by_column,$sorting_type)
     {
 
         $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
         $this->db->from("collateral");
-        $this->db->where('entity_id',$partner_id);
         $this->db->where('entity_type','partner');
         $this->db->where('is_valid',1);
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
         $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
         $this->db->join('services','services.id=collateral.appliance_id','left');
-        $this->db->limit($limitArray['length'],$limitArray['start']);
+        $this->db->join('request_type','request_type.service_id=services.id','left');
         $this->db->group_by($group_by);
         $this->db->order_by($order_by_column,$sorting_type);
+        
+        $this->conditions($condition);
+        
         $return=$this->db->get()->result_array();
         return $return;
     }
@@ -2197,6 +2199,61 @@ function get_data_for_partner_callback($booking_id) {
         }
         $query = $this->db->get('partner_additional_details');
         return $query->result_array();
+    }
+    
+    function conditions($condition) {
+        if(!empty($condition['join'])){
+            foreach($condition['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
+        
+        if(!empty($condition['where'])){
+            $this->db->where($condition['where']);
+        }
+        
+        if (isset($condition['where_in'])) {
+            foreach ($condition['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+        if (!empty($condition['search'])) {
+            $key = 0;
+            $like = "";
+            foreach ($condition['search'] as $index => $item) {
+                if ($key === 0) { // first loop
+                   // $this->db->like($index, $item);
+                    $like .= "( ".$index." LIKE '%".$item."%' ";
+                } else {
+                    $like .= " OR ".$index." LIKE '%".$item."%' ";
+                }
+                $key++;
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if (!empty($condition['search_value'])) {
+            $like = "";
+            foreach ($condition['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        if(isset($condition['length'])){
+            if ($condition['length'] != -1) {
+                $this->db->limit($condition['length'], $condition['start']);
+            }
+        }
     }
 }
 
