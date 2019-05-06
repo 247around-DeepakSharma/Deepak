@@ -5790,7 +5790,7 @@ class Partner extends CI_Controller {
             else{
               $tempArray[] =  "";
             }
-            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
+            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
             $datediff = $now - $initialBooking;
@@ -5809,7 +5809,17 @@ class Partner extends CI_Controller {
             else{
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
               }
-            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+              
+            $disable = "";
+            $toggle = "modal";
+            if(!empty($row->service_center_closed_date)){
+                $disable = "Disabled";
+                $toggle = "tooltip";
+                
+            }
+            $tempArray[] = '<a  href="javascript:void(0)" title="Escalate" data-disabled ="'.$disable.'" '
+                    . 'class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.''
+                    . ' data-toggle="'.$toggle.'"><i class="fa fa-circle" aria-hidden="true"></i></a>';
             $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning btn-sm" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick=get_brand_collateral("'.$row->booking_id.'")><i class="fa fa-file-text-o" aria-hidden="true"></i></a>';
             $finalArray[] = $tempArray;
              $sn_no++;
