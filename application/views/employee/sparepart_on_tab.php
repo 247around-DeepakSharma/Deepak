@@ -330,14 +330,14 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="shipped">
+<div role="tabpanel" class="tab-pane" id="partner_shipped_part">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="partner_shipped_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="partner_shipped_part_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
@@ -368,14 +368,14 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="delivered">
+<div role="tabpanel" class="tab-pane" id="sf_received_part">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="sf_received_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="sf_received_part_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
@@ -472,13 +472,15 @@
 
 <script>
     var spare_parts_requested_table;
-    var partner_shipped_part;
-    var sf_received_part;
+    var partner_shipped_part_table;
+    var sf_received_part_table;
     var defective_part_pending_table;
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
     var estimate_cost_given_table;
     var oow_part_shipped_table;
+    var defective_part_shipped_by_SF_table;
+    
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
@@ -636,7 +638,7 @@
         });
     
     
-    partner_shipped_part = $('#partner_shipped_part').DataTable({
+    partner_shipped_part_table = $('#partner_shipped_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[ 12, "desc" ]],//Initial no order.
@@ -672,7 +674,7 @@
             }
         });
         
-        sf_received_part = $('#sf_received_part').DataTable({
+        sf_received_part_table = $('#sf_received_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [[15, "desc"]], //Initial no order.
@@ -1035,7 +1037,7 @@
                 success:function(res){                    
                     var obj = JSON.parse(res);
                     if(obj.status === true){
-                        partner_shipped_part.ajax.reload(null, false);
+                        partner_shipped_part_table.ajax.reload(null, false);
                         $("#courier_lost").hide();
                     }
                 }
