@@ -317,6 +317,9 @@ class Dashboard extends CI_Controller {
         if ($this->input->post('partner_id')) {
             $partner_id = $this->input->post('partner_id');
         }
+       if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+        }
         if ($is_repeat_ajax) {
             $sDate = $this->input->post('sDate');
             $eDate = $this->input->post('eDate');

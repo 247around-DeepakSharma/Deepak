@@ -299,17 +299,18 @@ class Validate_serial_no {
                         
                             if($price_tags == $value['price_tags']){
                           
-                                $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                                $msg = " You already used in Booking ID - ".$value['booking_id'];
                                 $isDuplicate = TRUE;
                                 break;
                             }
                         } else {
-                            $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                            $msg = " You already used in Booking ID - ".$value['booking_id'];
                             $isDuplicate = TRUE;
                             break;
                         }
                     }
                } else {
+                   $msg = " You already used in Booking ID - ".$value['booking_id'];
                    $isDuplicate = TRUE;
                    break;
                }

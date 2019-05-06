@@ -2352,6 +2352,7 @@ class Miscelleneous {
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
+            $data['saas_module'] = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
             $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
             $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
         }

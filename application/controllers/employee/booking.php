@@ -282,32 +282,6 @@ class Booking extends CI_Controller {
                             log_message('info', __METHOD__ . " Insert Booking Unit Details: ");
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state'], $b_key);
                             array_push($price_tag, $result['price_tags']);
-                            if($booking['partner_id'] == VIDEOCON_ID){
-                                if((stripos($result['price_tags'], 'In Warranty') !== false) || stripos($result['price_tags'], 'Extended Warranty') !== false){
-                                    //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
-                                    $service = $this->booking_model->get_booking_details("services, public_name, users.phone_number as phone_number", array("booking_id" => $booking["booking_id"]), true, true, false, true);
-                                    $whatsapp_details = $this->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$booking['partner_id'], "is_whatsapp" => 1));
-                                    $whatsapp_no = "";
-                                    if(!empty($whatsapp_details)){
-                                       $whatsapp_no =  $whatsapp_details[0]['whatsapp_number'];
-                                    }
-                                    else{
-                                        $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
-                                    }
-                                    $sms = array();
-                                    $sms['status'] = "";
-                                    $sms['phone_no'] = $service[0]['phone_number'];
-                                    $sms['booking_id'] = $booking["booking_id"];
-                                    $sms['type'] = "user";
-                                    $sms['type_id'] = trim($booking['user_id']);
-                                    $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
-                                    $sms['smsData']['brand'] = $result['appliance_brand'];
-                                    $sms['smsData']['service'] = $service[0]['services'];
-                                    $sms['smsData']['whatsapp_no'] = $whatsapp_no;
-                                    $sms['smsData']['partner_brand'] = $service[0]['public_name'];
-                                    $this->notify->send_sms_msg91($sms);
-                                }
-                            }
                             
                             break;
                         default:
@@ -407,6 +381,10 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
+            
+            if($booking_id == INSERT_NEW_BOOKING){
+                $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
+            }
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
@@ -935,6 +913,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
+                    if(!empty($service_center_data[0]['sf_purchase_date']))
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
@@ -955,12 +934,13 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+       $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
                 array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
         if(count($data['technical_problem']) <= 0) {
             $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
         }
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['technical_defect'] = array();
         if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
@@ -970,9 +950,6 @@ class Booking extends CI_Controller {
         else {
             $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
         }
-        
-        
-        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();

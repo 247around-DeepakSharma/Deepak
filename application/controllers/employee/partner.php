@@ -334,7 +334,24 @@ class Partner extends CI_Controller {
             $this->load->view('partner/partner_footer');
         }
     }
-
+    function create_booking_or_query(){
+        if($this->input->post('prices')){
+            $prices = $this->input->post('prices');
+            $where['(service_category LIKE "%Installation%" OR service_category LIKE "%Repair - Out Of Warranty%")'] = NULL;
+            foreach($prices as $values){
+                $temp = explode("_",$values);
+                $serviceChargeID[] = $temp[0];
+            }
+            $whereIN['id'] = $serviceChargeID;
+            $is_exists = $this->reusable_model->get_search_result_data("service_centre_charges","id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+            if(!empty($is_exists)){
+               $_POST['product_type'] = 'Delivered';
+            }
+            else{
+                $_POST['product_type'] = 'Shipped';
+            }
+        }
+    }
     /**
      * @desc: This method is used to process to add booking by partner
      */
@@ -349,6 +366,9 @@ class Partner extends CI_Controller {
 
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
+                if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+                    $this->create_booking_or_query();
+                }   
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
@@ -1024,8 +1044,10 @@ class Partner extends CI_Controller {
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
+       $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
        $this->miscelleneous->load_nav_header();
-       $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh));
+       $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
+           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
     }
 
     /**
@@ -1596,6 +1618,9 @@ class Partner extends CI_Controller {
         // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
 
         if ($validate == true && !empty($booking_id)) {
+            if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+                $this->create_booking_or_query();
+             }   
             log_message('info', 'Edit booking validation true' . $this->session->userdata('partner_name'));
             $post = $this->get_booking_form_data();
             $user['name'] = $post['name'];

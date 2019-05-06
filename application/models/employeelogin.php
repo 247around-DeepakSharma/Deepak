@@ -45,9 +45,9 @@ class Employeelogin extends CI_Model{
        *@params: employee_id(name)
        * @return: Mix
        */
-      function get_employee_group_name($employee_id){
+      function get_employee_group_name($id){
           $this->db->select('groups');
-          $this->db->where('employee_id', $employee_id);
+          $this->db->where('id', $id);
           $query = $this->db->get('employee');
           if($query->num_rows() > 0){
               $result =  $query->result_array();
