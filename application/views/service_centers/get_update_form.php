@@ -96,20 +96,22 @@
                                 <div class = 'col-md-6'>
                                     <div class="form-group">
                                         <label for="model_number" class="col-md-4">Model Number *</label>
-                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                        <?php $is_modal_number = false;  if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
-                                                <option value="" disabled="" selected="">Select Model Number</option>
+                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  >
+                                                <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
+                                                <option value="<?php echo $value['id']; ?>"   <?php if($unit_model_number==$value['model_number']){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
-                                            <input type="hidden" id="model_number" name="model_number">
+                                            
+                                            <input type="hidden" id="model_number" name="model_number" value="<?php echo $unit_model_number; ?>">
+                                            
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Model Number" required="">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -119,7 +121,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && !empty($purchase_date)){ echo $purchase_date; } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -131,18 +133,19 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo set_value('serial_number'); ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
+                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if(!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)){echo '*';}  ?></label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
-                                        </div>
+                                            <input type="file" class="form-control spare_parts   " id="serial_number_pic"       name="serial_number_pic" >
+                                            <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
+                                        </div> <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL.$unit_serial_number_pic;}  ?>">View</a>
                                     </div>
-                                </div>
+                                </div> 
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -376,6 +379,17 @@
 </div>
 </div>
 <script type="text/javascript">
+    
+    
+    
+function alpha(e) {
+   var k;
+   document.all ? k = e.keyCode : k = e.which;
+   return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || k == 32 || (k >= 48 && k <= 57) || k==189);
+}
+
+    
+    
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
         
         $('#model_number_id').select2();
@@ -388,9 +402,37 @@
             allowClear:true
         });
         
-        $('#model_number_id').on('change', function() {
-        
-            var model_number_id = $('#model_number_id').val();
+//      function getPartTypes(){
+//            $('#model_number_id').on('change', function() {
+//            var model_number_id = $('#model_number_id').val();
+//            
+//            var model_number = $("#model_number_id option:selected").text();
+//            $('#spinner').addClass('fa fa-spinner').show();
+//            if(model_number){
+//                $('#model_number').val(model_number);
+//                $.ajax({
+//                    method:'POST',
+//                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
+//                    data: { model_number_id:model_number_id},
+//                    success:function(data){
+//                        $('.parts_type').val('val', "");
+//                        $('.parts_type').val('Select Part Type').change();
+//                        $('.parts_type').html(data);
+//                        $('.parts_name').val('val', "");
+//                        $('.parts_name').val('Select Part Type').change();
+//                        $('#spinner').removeClass('fa fa-spinner').hide();
+//                    }
+//                });
+//            }else{
+//                alert("Please Select Model Number");
+//            }
+//        });
+//      }  
+
+   
+ 
+ function getPartType(){
+            var model_number_id = $('#model_number_id option:selected').val();
             var model_number = $("#model_number_id option:selected").text();
             $('#spinner').addClass('fa fa-spinner').show();
             if(model_number){
@@ -411,7 +453,20 @@
             }else{
                 alert("Please Select Model Number");
             }
+     
+ }
+ 
+ <?php if(!empty($is_modal_number)) { ?>
+ 
+ getPartType();
+ <?php } ?>
+ 
+        
+        $('#model_number_id').on('change', function() {
+        
+            getPartType();
         });
+        
         
         $('.parts_type').on('change', function() {
             
@@ -526,13 +581,16 @@
                 checkbox_value = 0;
                 return false;
               }
-              
-              if(serial_number_pic.length === 0){
+  <?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){ ?>
+      
+                if(serial_number_pic.length === 0){
                 alert("Please Upload Serial Number Image");
                 checkbox_value = 0; 
                 return false;
-            } 
+               } 
               
+  <?php } ?>            
+
               
               
               $('.parts_name').each(function() {
