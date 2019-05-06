@@ -1646,8 +1646,11 @@ class Partner extends CI_Controller {
                             $this->initialized_variable->fetch_partner_data($this->partner['id']);
 
                             //check upcountry details and send sms to customer as well
+                            $booking_details_data = $this->booking_model->get_booking_details("request_type", array("booking_id" => $booking['booking_id']));
+                            $booking['request_type'] = $booking_details_data[0]['request_type'];
                             $this->miscelleneous->check_upcountry($booking, $requestData['appliance_name'], $is_price, "shipped");
-
+                            unset($booking['request_type']);
+                            
                             //insert in state change table
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['booking_remarks'], $agent_id, 
                                     $requestData['partnerName'],$actor,$next_action, $booking['partner_id']);
