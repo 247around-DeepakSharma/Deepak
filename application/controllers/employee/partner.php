@@ -1786,8 +1786,11 @@ class Partner extends CI_Controller {
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];
                 $price_array['customer_net_payable'] = round($customer_net_payable, 0);
                 $this->initialized_variable->fetch_partner_data($post['partner_id']);
-
+                
+                $booking_details_data = $this->booking_model->get_booking_details("request_type", array("booking_id" => $booking_id));
+                $booking_details['request_type'] = $booking_details_data[0]['request_type'];
                 $this->miscelleneous->check_upcountry($booking_details, $post['appliance_name'], $price_array, "shipped");
+                unset($booking_details['request_type']);
                 $tempStatus = _247AROUND_FOLLOWUP;
                 $booking_details['assigned_vendor_id'] = NULL;
             }
