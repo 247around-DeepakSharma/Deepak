@@ -777,6 +777,10 @@ class Miscelleneous {
     function check_upcountry($booking, $appliance, $is_price, $file_type, $appliance_brand = false) {
         log_message('info', __FUNCTION__ . ' booking_data: ' . print_r($booking, true) . ' appliance: ' . print_r($appliance, true) . ' file_type: ' . $file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
+        $booking_request = "";
+        if(isset($booking['request_type'])){
+            $booking_request = $booking['request_type'];
+        }
         $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$partner_data[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
         if($partner_type == OEM){
             if(!empty($appliance_brand)){
@@ -893,10 +897,10 @@ class Miscelleneous {
                     return FALSE;
             }
 
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, $charges);
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, $charges, $booking_request);
             return true;
         } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, "");
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, "", $booking_request);
             return true;
         }
     }
@@ -912,13 +916,15 @@ class Miscelleneous {
      * @param String $price
      * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner, $price) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner, $price, $request_type) {
         log_message('info', __FUNCTION__ . ' phone_number: ' . $phone_number . ' user_id: ' . $user_id . ' booking_id: ' . $booking_id . ' partner: ' . $partner . ' appliance: ' . $appliance . ' price: ' . $price);
 
         $sms['tag'] = "partner_missed_call_for_installation";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
         $sms['smsData']['service'] = $appliance;
+        $request = explode(" ", $request_type);
+        $sms['smsData']['request_type'] = $request[0];
         $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
 
         /* If price exist then send sms according to that otherwise
@@ -937,8 +943,9 @@ class Miscelleneous {
         $sms['booking_id'] = $booking_id;
         $sms['type'] = "user";
         $sms['type_id'] = $user_id;
-
+                
         $this->My_CI->notify->send_sms_msg91($sms);
+       
     }
 
     function allot_partner_id_for_brand($service_id, $state, $brand) {
