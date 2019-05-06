@@ -40,6 +40,7 @@
                         </thead>
                         <tbody>
                             <?php 
+                               $assign_collection_partner = "";
                                 foreach($list as $key => $value){ ?>
                             <tr>
                                 <td><?php echo ($key +1);?></td>
