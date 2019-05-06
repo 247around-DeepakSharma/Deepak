@@ -779,7 +779,13 @@ class Miscelleneous {
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
         $booking_request = "";
         if(isset($booking['request_type'])){
-            $booking_request = $booking['request_type'];
+            if ((stripos($booking['request_type'], 'Installation') !== false) || stripos($booking['request_type'], 'Repair') !== false) {
+                $request_type = explode(" ", $booking['request_type']);
+                $booking_request = $request_type[0];
+            } else {
+                $booking_request = $booking['request_type'];
+            }
+            
         }
         $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$partner_data[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
         if($partner_type == OEM){
@@ -923,14 +929,14 @@ class Miscelleneous {
 
         //ordering of smsData is important, it should be as per the %s in the SMS
         $sms['smsData']['service'] = $appliance;
-        $request = explode(" ", $request_type);
-        $sms['smsData']['request_type'] = $request[0];
+        $sms['smsData']['request_type'] = $request_type;
         $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-
+        
         /* If price exist then send sms according to that otherwise
          *  send sms by checking function get_product_free_not
          */
         if (!empty($price)) {
+            $sms['smsData']['request_type_charge'] = $request_type;
             $sms['smsData']['message'] = $price;
         } else {
             //Price does not go in this SMS template
