@@ -931,11 +931,12 @@ class Miscelleneous {
         $sms['smsData']['service'] = $appliance;
         $sms['smsData']['request_type'] = $request_type;
         $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-
+        
         /* If price exist then send sms according to that otherwise
          *  send sms by checking function get_product_free_not
          */
         if (!empty($price)) {
+            $sms['smsData']['request_type_charge'] = $request_type;
             $sms['smsData']['message'] = $price;
         } else {
             //Price does not go in this SMS template
