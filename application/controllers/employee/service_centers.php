@@ -1315,7 +1315,6 @@ class Service_centers extends CI_Controller {
                 $is_est_approved = false;
                 $spareShipped = false;
                 if (isset($data['bookinghistory']['spare_parts'])) {
-
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
                             array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
@@ -1361,6 +1360,10 @@ class Service_centers extends CI_Controller {
                 }
 
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                $model_nunmber = "";
+                $serial_number = "";
+                $dateofpurchase="";
+                $serial_number_pic="";
                 foreach ($unit_details as $value) {
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
                         if(!$is_est_approved){
@@ -1378,7 +1381,37 @@ class Service_centers extends CI_Controller {
                     if (stristr($value['price_tags'], "Service Center Visit")) {
                         array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
+                    
+                    if(empty($model_nunmber)){
+                        if(!empty($value['model_number'])){  
+                            $model_nunmber = $value['model_number'];
+                      
+                        } else if(!empty($value['sf_model_number'])) {
+                            $model_nunmber = $value['sf_model_number'];
+                        }
+                    }
+                    if(empty($serial_number)){
+                        if(!empty($value['serial_number'])){
+                            $serial_number = $value['serial_number'];    
+                       }
+                    } 
+                   if(empty($dateofpurchase)){
+                        if(!empty($value['purchase_date'])){
+                            $dateofpurchase = $value['purchase_date'];    
+                       }
+                    }
+                   if(empty($serial_number_pic)){
+                        if(!empty($value['serial_number_pic'])){
+                            $serial_number_pic = $value['serial_number_pic'];    
+                       }
+                    }
+  
                 }
+                
+                $data['unit_model_number'] = $model_nunmber;
+                $data['unit_serial_number'] = $serial_number; 
+                $data['purchase_date'] = $dateofpurchase; 
+                $data['unit_serial_number_pic'] = $serial_number_pic; 
 
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
@@ -1564,6 +1597,7 @@ class Service_centers extends CI_Controller {
         if ($f_status) {
             $reason = $this->input->post('reason');
             
+                               
             switch ($reason) {
                 
                  CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
@@ -1747,15 +1781,18 @@ class Service_centers extends CI_Controller {
                 if ($this->input->post('invoice_pic')) {
                     $data['invoice_pic'] = $this->input->post('invoice_pic');
                 }
-
-                if ($this->input->post('serial_number_pic')) {
-                    $data['serial_number_pic'] = $this->input->post('serial_number_pic');
-                }
-
-
+                
+                $data['serial_number_pic'] = $this->input->post('serial_number_pic');
                 $data['model_number'] = $this->input->post('model_number');
                 $data['serial_number'] = $this->input->post('serial_number');
                 $data['date_of_purchase'] = $this->input->post('dop');
+                
+                $dataunit_details =array(
+                    'sf_model_number'=>trim($data['model_number']),
+                    'serial_number_pic'=>$data['serial_number_pic'],
+                    'serial_number'=>$data['serial_number']
+                );
+                $this->booking_model->update_booking_unit_details($booking_id, $dataunit_details);
 
                 $booking_date = $this->input->post('booking_date');
                 $reason = $this->input->post('reason');
@@ -1776,7 +1813,6 @@ class Service_centers extends CI_Controller {
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
                 $requested_part_name = array();
-
                 foreach ($parts_requested as $value) {
 
                     if (array_key_exists("spare_id", $data)) {
@@ -5379,6 +5415,7 @@ function update_defective_parts($sp_id) {
      * @return: boolean
      */
     function validate_serial_number_pic_upload_file() {
+        $serial_number_pic_exist = $this->input->post('serial_number_pic_exist');
         if (!empty($_FILES['serial_number_pic']['tmp_name'])) {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
@@ -5393,6 +5430,9 @@ function update_defective_parts($sp_id) {
                 return false;
             }
             
+        } else if(!empty($serial_number_pic_exist)){
+            $_POST['serial_number_pic'] = $serial_number_pic_exist;
+            return true;
         } else {
             $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Please Upload Serial Number Image');
                 return FALSE;
