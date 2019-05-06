@@ -162,20 +162,6 @@ class service_centre_charges extends CI_Controller {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      *  @desc  : This is used to load view of excel file for service price list and tax rate
      *  @param : void
