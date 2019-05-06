@@ -682,9 +682,9 @@ class Notify {
                                 $sms['type'] = "user";
                                 $sms['type_id'] = trim($query1[0]['user_id']);
                                 $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
-                                $sms['smsData']['whatsapp_no'] = $whatsapp_no;
                                 $sms['smsData']['brand'] = $brand;
                                 $sms['smsData']['service'] = $query1[0]['services'];
+                                $sms['smsData']['whatsapp_no'] = $whatsapp_no;
                                 $sms['smsData']['partner_brand'] = $brand;
                                 $this->send_sms_msg91($sms);
                             }
@@ -999,10 +999,9 @@ class Notify {
         else{
             $wh_number = _247AROUND_WHATSAPP_NUMBER;
         }
+        $sms['smsData']['public_name'] = $data['public_name'];
         $sms['smsData']['service'] = $data['services'];
         $sms['smsData']['wh_number'] = $wh_number;
-        $sms['smsData']['public_name'] = $data['public_name'];
-        $sms['smsData']['service_2'] = $data['services'];
         $sms['smsData']['public_name_2'] = $data['public_name'];
         $sms['phone_no'] = $data['booking_primary_contact_no'];
         $sms['tag'] = VIDEOCON_NOT_PICKED_SMS_TAG;
