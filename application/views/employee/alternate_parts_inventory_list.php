@@ -184,7 +184,7 @@
                 style: 'multi'
             },
             "order": [], 
-            "pageLength": 10,
+            "pageLength": 50,
             "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "ordering": false,
             "ajax": {
@@ -277,10 +277,9 @@
         var status = data.status;
         var inventory_id = data.inventory_id;
         if(inventory_id!='' && status != ''){
-            if(status == 1){
-                confirm("Are you sure you want to deactivate ?");
+            if(status == 1 && confirm("Are you sure you want to deactivate ?")){
                 status = '0';
-            }else{
+            }else if(status == 0 && confirm("Are you sure you want to activate ?")){
                 status = '1';
             }
             

@@ -147,7 +147,8 @@ class Login extends CI_Controller {
      */
     function setSession($employee_id, $id, $phone,$official_email,$emp_name,$is_am) {
         // Getting values for Groups of particular employee
-        $groups = $this->employeelogin->get_employee_group_name($employee_id);
+        if(!empty($id))
+        $groups = $this->employeelogin->get_employee_group_name($id);
         if($groups){
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),

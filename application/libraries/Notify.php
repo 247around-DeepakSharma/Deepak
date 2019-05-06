@@ -433,24 +433,28 @@ class Notify {
 			$this->send_email($email_data);
 		    } else {
 
-
-			$call_type = explode(" ", $query1[0]['request_type']);
-                        $sms['smsData']['service'] = $query1[0]['services'];
-                        $sms['smsData']['call_type'] = $call_type[0];
-                        $sms['tag'] = "cancel_booking";
-                        $sms['booking_id'] = $query1[0]['booking_id'];
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $query1[0]['user_id'];
-                        
-                        if($query1[0]['partner_id'] == JEEVES_ID){
-                            $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
-                            $sms['smsData']['name'] = JEEVES_WEBSITE;
-                        }else{
-                            $sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
-                            $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                        if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            $this->vediocon_cancelled_booking_sms($query1[0]);  
                         }
+                        else{
+                            $call_type = explode(" ", $query1[0]['request_type']);
+                            $sms['smsData']['service'] = $query1[0]['services'];
+                            $sms['smsData']['call_type'] = $call_type[0];
+                            $sms['tag'] = "cancel_booking";
+                            $sms['booking_id'] = $query1[0]['booking_id'];
+                            $sms['type'] = "user";
+                            $sms['type_id'] = $query1[0]['user_id'];
 
-                        $this->send_sms_msg91($sms);
+                            if($query1[0]['partner_id'] == JEEVES_ID){
+                                $sms['smsData']['number'] = JEEVES_CALLCENTER_NUMBER;
+                                $sms['smsData']['name'] = JEEVES_WEBSITE;
+                            }else{
+                                $sms['smsData']['number'] = _247AROUND_CALLCENTER_NUMBER;
+                                $sms['smsData']['name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                            }
+
+                            $this->send_sms_msg91($sms);
+                        }
                         //SEND MSG TO DEALER ON BOOKING REJECTION
                         if(!empty($query1[0]['dealer_id']))
                       {
@@ -536,14 +540,19 @@ class Notify {
                     //Max name length = 15 to fit in 1 SMS
 		    //$sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
 		    //$sms['smsData']['service'] = $query1[0]['services'];
-                    $call_type = explode(" ", $query1[0]['request_type']);
-                    $sms['smsData']['service'] = $query1[0]['services']." ".$call_type[0];
-		    $sms['tag'] = "call_not_picked_other";
-		    $sms['booking_id'] = $query1[0]['booking_id'];
-		    $sms['type'] = "user";
-		    $sms['type_id'] = $query1[0]['user_id'];
+                    if($query1[0]['partner_id'] == VIDEOCON_ID){
+                        $this->vediocon_call_not_picked_sms($query1[0]);
+                    }
+                    else{
+                        $call_type = explode(" ", $query1[0]['request_type']);
+                        $sms['smsData']['service'] = $query1[0]['services']." ".$call_type[0];
+                        $sms['tag'] = "call_not_picked_other";
+                        $sms['booking_id'] = $query1[0]['booking_id'];
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $query1[0]['user_id'];
 
-		    $this->send_sms_msg91($sms);
+                        $this->send_sms_msg91($sms);
+                    }
 		    break;
 
 		case 'Newbooking':
@@ -649,6 +658,38 @@ class Notify {
                      }
                               
 		    break;
+                    
+                case 'SendWhatsAppNo':
+                    if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            if((stripos($query1[0]['request_type'], 'In Warranty') !== false) || stripos($query1[0]['request_type'], 'Extended Warranty') !== false){
+                                //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                
+                                $whatsapp_details = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$query1[0]['partner_id'], "is_whatsapp" => 1));
+                                $whatsapp_no = "";
+                                if(!empty($whatsapp_details)){
+                                   $whatsapp_no =  $whatsapp_details[0]['whatsapp_number'];
+                                }
+                                else{
+                                    $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
+                                }
+                                $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$query1[0]["booking_id"]), false, 'appliance_brand');
+                                if(!empty($brand_name)){
+                                    $brand = $brand_name[0]['appliance_brand'];
+                                } else {
+                                    $brand = $query1[0]['public_name'];
+                                }
+
+                                $sms['type'] = "user";
+                                $sms['type_id'] = trim($query1[0]['user_id']);
+                                $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+                                $sms['smsData']['brand'] = $brand;
+                                $sms['smsData']['service'] = $query1[0]['services'];
+                                $sms['smsData']['whatsapp_no'] = $whatsapp_no;
+                                $sms['smsData']['partner_brand'] = $brand;
+                                $this->send_sms_msg91($sms);
+                            }
+                        }
+                    break;
 
 		case 'Default_tax_rate':
 		    sleep(180);
@@ -946,5 +987,50 @@ class Notify {
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "","sms_length_overruns");
             }
         }
+    }
+    
+    function vediocon_call_not_picked_sms($data){
+        //get partner whatsapp number
+        $wh_number = "";
+        $wh_detail = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$data['partner_id'], "is_whatsapp"=>1));
+        if(!empty($wh_detail)){
+            $wh_number = $wh_detail[0]['whatsapp_number'];
+        }
+        else{
+            $wh_number = _247AROUND_WHATSAPP_NUMBER;
+        }
+        $sms['smsData']['public_name'] = $data['public_name'];
+        $sms['smsData']['service'] = $data['services'];
+        $sms['smsData']['wh_number'] = $wh_number;
+        $sms['smsData']['public_name_2'] = $data['public_name'];
+        $sms['phone_no'] = $data['booking_primary_contact_no'];
+        $sms['tag'] = VIDEOCON_NOT_PICKED_SMS_TAG;
+        $sms['booking_id'] = $data['booking_id'];
+        $sms['type'] = "user";
+        $sms['type_id'] = $data['user_id'];
+
+        $this->send_sms_msg91($sms);
+    }
+    
+    function vediocon_cancelled_booking_sms($data){
+        //get partner customer care number
+        $cc_number = "";
+        $cc_detail = $this->My_CI->partner_model->get_partner_additional_details("customer_care_number", array("partner_id"=>$data['partner_id'], "is_customer_care"=>1));
+        if(!empty($cc_detail)){
+            $cc_number = $cc_detail[0]['customer_care_number'];
+        }
+        else{
+            $cc_number = _247AROUND_WHATSAPP_NUMBER;
+        }
+        $sms['smsData']['service'] = $data['services'];
+        $sms['smsData']['cc_number'] = $cc_number;
+        $sms['smsData']['public_name'] = $data['public_name'];
+        $sms['phone_no'] = $data['booking_primary_contact_no'];
+	$sms['tag'] = VIDEOCON_CANCELLED_BOOKING_TAG;
+        $sms['booking_id'] = $data['booking_id'];
+        $sms['type'] = "user";
+        $sms['type_id'] = $data['user_id'];
+
+        $this->send_sms_msg91($sms);
     }
 }

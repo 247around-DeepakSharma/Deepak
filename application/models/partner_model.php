@@ -2186,5 +2186,17 @@ function get_data_for_partner_callback($booking_id) {
         }
         return $meta;
     }
+    
+    /*
+     * @desc: This is used to get partner's invoicing details
+     */
+    function get_partner_additional_details($select="*", $where=array()) {
+        $this->db->select($select);
+        if(!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get('partner_additional_details');
+        return $query->result_array();
+    }
 }
 
