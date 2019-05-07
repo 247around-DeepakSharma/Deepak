@@ -150,6 +150,7 @@
                         <th>Customer Price</th>
                         <th>Edit</th>
                         <th>Get Model</th>
+                        <th>Alternate Parts</th>
                     </tr>
                 </thead>
                 <tbody></tbody>

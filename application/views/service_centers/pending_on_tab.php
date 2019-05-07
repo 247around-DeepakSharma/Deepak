@@ -142,7 +142,7 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -318,7 +318,7 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -486,7 +486,7 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -592,7 +592,7 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Contacts" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1,'<?php echo $row['partner_id']; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
                                         <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
@@ -736,14 +736,14 @@
 
 <?php } ?>
 <script>
-     function show_contacts(bookingID,create_booking_contacts_flag){
+     function show_contacts(bookingID,create_booking_contacts_flag,partner_id){
                     $.ajax({
                         type: 'post',
                         url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
                         data: {},
                         success: function (response) {
                             if(create_booking_contacts_flag){
-                              create_booking_contacts(response);
+                              create_booking_contacts(response,partner_id);
                             }
                             else{
                                 var result = JSON.parse(response);
@@ -761,7 +761,7 @@
                     $("#email_title").html("Send Email For Booking "+booking_id);
                     $("#send_email_form").modal("show");
                     $("#internal_email_booking_id").val(booking_id);
-                    show_contacts(booking_id,create_booking_contacts_flag);
+                    show_contacts(booking_id,create_booking_contacts_flag,'');
                 }
                 function send_booking_internal_conversation_email(){ 
                     var to = $("#internal_email_booking_to").val();
@@ -793,11 +793,19 @@
                         return false;
                     }
                 }
-                function create_booking_contacts(response){
+    function create_booking_contacts(response,partner_id){
         var data="";
         var result = JSON.parse(response);
-        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        if(partner_id == '<?php echo VIDEOCON_ID ?>'){
+            data =data +  "<tr><td>1) </td><td>247around Account Manager <br>(Gujarat, Rest of maharashtra)</td><td> Adil Akhtar</td><td>9205732247</td></tr>";
+            data =data +  "<tr><td>2) </td><td>247around Account Manager <br>(Tamil Nadu, Andhra Pradesh, Uttar Pradesh, Uttarakhand, Kerala, Orissa, West Bengal, Jharkhand)</td><td> Amit Tyagi</td><td>7303653247</td></tr>";
+            data =data +  "<tr><td>3) </td><td>247around Account Manager <br>(Delhi, Haryana, Punjab, J&K, Madhya Pradesh, Karnataka)</td><td> Sakshi</td><td>9810948247</td></tr>";
+            data =data +  "<tr><td>4) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }
+        else{
+            data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+            data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }
         var tb="<table class='table  table-bordered table-condensed ' >";
         tb+='<thead>';
         tb+='<tr>';

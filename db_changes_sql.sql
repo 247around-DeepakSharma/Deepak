@@ -10842,7 +10842,6 @@ UPDATE `partner_additional_details` SET `is_customer_care` = '1' WHERE `partner_
 --Kalyani 06-05-2019
 UPDATE `sms_template` SET `template` = 'Dear Customer, We were unable to contact you. To confirm booking Whatsapp your %s %s bill on %s. 247around, %s Partner.' WHERE `sms_template`.`tag` = 'videocon_not_picked_sms';
 UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm your repair booking please Whatsapp %s %s Bill on %s. 247around %s Service Partner' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
-
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
@@ -10857,3 +10856,14 @@ UPDATE `header_navigation` SET `link` = 'employee/booking_request/symptom_list' 
 UPDATE `header_navigation` SET `link` = 'employee/booking_request/defect_list' WHERE `header_navigation`.`title` = 'Defect';
 UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list' WHERE `header_navigation`.`title` = 'Solution';
 --Kajal 07-05-2019 ending--
+
+--Gorakh 07-05-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload Alternate Parts  List', NULL, 'upload_alternate_spare_parts_file', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-05-07 13:24:48');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Alternate part Inventory  List', NULL, 'employee/inventory/alternate_parts_inventory_list', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:28:47');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', '247around warehouse Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+

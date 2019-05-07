@@ -1018,7 +1018,7 @@ class Do_background_upload_excel extends CI_Controller {
                 if (stristr($prod, "Stove")) {
                     $data['valid_data'][$key]['appliance'] = 'Gas Stove';
                 }
-                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") || stristr($prod, "Vaccum Cleaner")) {
+                if (stristr($prod, "Mixer Grinder") || stristr($prod, "SHA") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") || stristr($prod, "Vaccum Cleaner")) {
 
                     $data['valid_data'][$key]['appliance'] = 'SHA';
                 }
@@ -1041,16 +1041,21 @@ class Do_background_upload_excel extends CI_Controller {
                     unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
                 }
+                
+                if(isset($data['valid_data'][$key]['appliance'])){
+                    if ($flag == 0) {
+                        $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
+                        if ($service_id) {
 
-                if ($flag == 0) {
-                    $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
-                    if ($service_id) {
-
-                        $data['valid_data'][$key]['service_id'] = $service_id;
-                    } else {
-                        unset($data['valid_data'][$key]);
-                        array_push($invalid_data, $value);
+                            $data['valid_data'][$key]['service_id'] = $service_id;
+                        } else {
+                            unset($data['valid_data'][$key]);
+                            array_push($invalid_data, $value);
+                        }
                     }
+                } else {
+                    unset($data['valid_data'][$key]);
+                    array_push($invalid_data, $value);
                 }
             }
         }
@@ -1761,12 +1766,12 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = $data['partner_source'];
 
-
-        if (isset($data[$header_data['spd']]) && !empty($data[trim($header_data['spd'])])) {
+        if (isset($data[$header_data['spd']]) && !empty($header_data['spd'])) {
             $tmpArr['service_promise_date'] = $data['promise_before_date'];
         } else {
             $tmpArr['service_promise_date'] = '';
         }
+
         if ($file_type) {
             if (strpos($file_type, 'shipped') !== false) {
                 if ($data['shipped_date']) {
@@ -1826,6 +1831,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $rowData['partner_id'] = $this->input->post('partner_id');
                 $this->get_final_file_data($rowData, $data['actual_header_data'][$response['key']], $data['file_type']);
             }
+            echo '<pre/>'; print_r($this->deliveredArray); exit();
             if ($data['file_type']) {
                 if (strpos($data['file_type'], 'shipped') !== false) {
                     $this->process_upload_sd_file($this->deliveredArray, 'shipped', $data['file_name'], $this->input->post('partner_id'));
