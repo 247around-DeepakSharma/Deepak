@@ -414,9 +414,10 @@
         $("#email_map_id").val(form_data.email_map_id)
 
         var options = "<option value='"+form_data.partner_id+"' selected='' readonly=''>"+form_data.public_name+"</option>";
-
+        
         $('#partner_id').html(options);
         $('#r_d_a_t').val(form_data.referred_date_and_time);
+        $("#request_type").val(form_data.category);
         $('#sub_order_id').val(form_data.sub_order_id);
         $('#brand').val(form_data.brand);
         $('#model').val(form_data.model);
