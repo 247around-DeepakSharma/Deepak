@@ -143,7 +143,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-12" <?php } else { ?> class="col-md-12" <?php } ?> >
-                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:26.32%;
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:20.32%;
                                             <?php } else {?> width:20.32%;<?php }?>">
                                             <div class="col-md-12" style="padding-left:0px;">
                                                 <label> Product Found Broken</label>
@@ -155,7 +155,7 @@
                                             </div>
                                         </div>
                                         <input type="hidden" id="<?php echo "count_line_item_".$key1;?>" value="<?php echo count($unit_details['quantity']);?>"/>
-                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:29.32%;
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:22.6%;
                                             <?php } else {?> width:22.6%;<?php }?>">
                                             <div class="col-md-12 ">
                                                  <label> Brand</label>
@@ -186,7 +186,7 @@
                                         <div class="form-group col-md-3"style="width:21.6%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
-                                                <input onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
+                                                <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
