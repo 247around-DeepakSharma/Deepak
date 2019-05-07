@@ -7030,19 +7030,18 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner();
         foreach($partners as $partnersDetails){
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
-        }
+        }        
         $this->load->view('partner/brand_collateral_partner_filter',array("partnerArray"=>$partnerArray));
        
     }
     public function brandCollateralPartner()
     {
        $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
-       $receieved_Data = $this->input->post();
-       $id=$receieved_Data['partner_id'];
-       $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
-       if(!empty($receieved_Data['order']))
+       $receieved_Data = $this->get_post_data();
+       $new_receieved_Data = $this->get_brand_partner_filtered_data($receieved_Data);
+       if(!empty($new_receieved_Data['order']))
        {
-            $order=$receieved_Data['order'];
+            $order=$new_receieved_Data['order'];
             $column_sort=$order['0']['column'];
             $sort_type=$order['0']['dir'];
             if(!empty($coloumnarr))
@@ -7056,12 +7055,11 @@ class Partner extends CI_Controller {
            $order_by_column='collateral.id';
            $sorting_type='ASC';
        }
-       $group_by='concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)';
-       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($id,$limitArray,$order_by_column,$sorting_type);
+       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($new_receieved_Data,$order_by_column,$sorting_type);
        $data=array();
        $result_final=$results['partner_contracts'];
        $count=count($result_final);
-       $no = $receieved_Data['start'];
+       $no = $new_receieved_Data['start'];
        if(!empty($results['partner_contracts']))
        {
             foreach ($results['partner_contracts'] as $filter_result) {
@@ -7071,13 +7069,51 @@ class Partner extends CI_Controller {
              }
        }
        $output = array(
-            "draw" => $receieved_Data['draw'],
+            "draw" => $new_receieved_Data['draw'],
             "recordsTotal" => $count,
             "recordsFiltered" => $count,
             "data" => $data,
             
         );
         echo json_encode($output);
+    }
+    
+    function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['status'] = $this->input->post('status');
+        $post['partner_id'] = $this->input->post('partner_id');
+        $post['service_id']=$this->input->post('service_id');
+        $post['brand']=$this->input->post('brand');
+        $post['request_type']=$this->input->post('request_type');
+
+        return $post;
+    }
+    
+    function get_brand_partner_filtered_data($data){
+        $id = $data['partner_id'];
+        $service_id=$data['service_id'];
+        $brand=$data['brand'];
+        $request_type=$data['request_type'];
+        
+        if(!empty($id)){
+            $data['where']['entity_id'] =  $id;
+        }
+        if(!empty($service_id))
+            $data['where']['collateral.appliance_id'] =  $service_id;
+        if(!empty($brand))
+            $data['where']['collateral.brand'] =  $brand;
+        if(!empty($request_type))
+            $data['where_in']['request_type.id'] =  $request_type;
+        
+        $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
+        $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');
+        
+        return $data;
     }
     
     public function get_brand_partner_filter($filter_result,$no)
@@ -7095,9 +7131,9 @@ class Partner extends CI_Controller {
                   }
                $row[]=$no;                
                $row[]=$filter_result['collateral_type'];
-               $row[]= $filter_result['services'];
-               $row[]=$filter_result['brand'] ;
-               $row[]=ucfirst($filter_result['request_type']);
+               $row[]= $filter_result['model'];
+               $row[]=$filter_result['category'] ;
+               $row[]=$filter_result['capacity'];
                $row[]=$this->miscelleneous->get_reader_by_file_type($filter_result['document_type'],$url,"200");
                $row[]=$filter_result['document_description'];
               // $row[]="<div class='checkbox'><input type='checkbox' name='coll_id[]' value='". $filter_result['id']."'> </div>";
