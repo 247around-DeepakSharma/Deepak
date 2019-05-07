@@ -10701,8 +10701,8 @@ ALTER TABLE `symptom_completion_solution` CHANGE `request_type` `service_id` INT
 ALTER TABLE `defect` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`, 
 ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, 
 ADD `partner_id` INT(11) NULL DEFAULT '247001' AFTER `update_date`, 
-ADD `partner_symptom_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
-ADD `partner_symptom_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
+ADD `partner_defect_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
+ADD `partner_defect_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
 
 
 ALTER TABLE `symptom` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
@@ -10769,15 +10769,16 @@ INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`,
 
 insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values
 ('247Around','Admin','admin',1,CURRENT_TIMESTAMP),
+('247Around','Admin','developer',1,CURRENT_TIMESTAMP),
+('247Around','Admin','closure',1,CURRENT_TIMESTAMP),
 ('247Around','Management','regionalmanager',1,CURRENT_TIMESTAMP),
 ('247Around','Management','inventory_manager',1,CURRENT_TIMESTAMP),
-('247Around','Warehouse','Warehouse Incharge',0,CURRENT_TIMESTAMP),
-('247Around','Calling','callcenter',1,CURRENT_TIMESTAMP),
-('247Around','Calling','Booking Manager',0,CURRENT_TIMESTAMP),
-('247Around','Admin','developer',1,CURRENT_TIMESTAMP);
+('247Around','Calling','callcenter',1,CURRENT_TIMESTAMP);
 
 INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
 (247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+--Kajal 26-April-2019  Ending ---
 
 --Kalyani 29-April-2019  Ending ---
 
@@ -10845,3 +10846,14 @@ UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm your repair bo
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
+
+--Kajal 07-05-2019 starting--
+insert into symptom values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into defect values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_completion_solution values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_defect_solution_mapping(entity_id,entity_mapping_id,product_id,request_id,symptom_id,defect_id,solution_id,is_active,create_date) values(1,1,1,1,0,0,0,1,CURRENT_TIMESTAMP);
+
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/symptom_list' WHERE `header_navigation`.`title` = 'Symptom';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/defect_list' WHERE `header_navigation`.`title` = 'Defect';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list' WHERE `header_navigation`.`title` = 'Solution';
+--Kajal 07-05-2019 ending--
