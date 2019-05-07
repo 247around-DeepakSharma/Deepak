@@ -98,7 +98,8 @@ $route['service_center/inventory'] = 'employee/service_centers/warehouse_default
 
 
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
-
+$route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/service_centers/alternate_inventory_stock_list/$1/$2/$3';
+$route['service_center/inventory/alternate_parts_inventory_list'] = 'employee/service_centers/alternate_parts_inventory_list';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
 
 
@@ -195,6 +196,8 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 $route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+$route['partner/inventory/alternate_parts_list'] = 'employee/partner/alternate_parts_list';
+$route['partner/inventory/alternate_inventory_list/(:any)'] = 'employee/partner/alternate_inventory_stock_list/$1/$2/$3';
 $route['partner/reports'] = 'employee/partner/get_reports';
 $route['partner/contracts'] = 'employee/partner/get_contracts';
 $route['partner/contact_us'] = 'employee/partner/get_contact_us_page';

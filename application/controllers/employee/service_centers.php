@@ -4549,9 +4549,50 @@ function update_defective_parts($sp_id) {
      *  @return : void
      */
     function inventory_stock_list(){
-       //  $this->check_WH_UserSession();
+        $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/inventory_stock_list');
+    }
+      
+    /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory.
+     *          By using this method SF can can only see their current stock of their warehouses.
+     *  @param : $partner_id
+     *  @param :$inventory_id
+     * @param :$service_id
+     *  @return : void
+     */
+    function alternate_inventory_stock_list($partner_id, $inventory_id, $service_id) {
+        $this->check_WH_UserSession();
+        $where = array(
+            'inventory_master_list.entity_id' => $partner_id,
+            'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+            'inventory_master_list.inventory_id' => $inventory_id,
+            'inventory_master_list.service_id' => $service_id,
+        );
+
+        $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
+        $data = array();
+        $data['partner_id'] = $partner_id;
+        $data['inventory_id'] = $inventory_id;
+        $data['service_id'] = $service_id;
+        if (!empty($inventory_list)) {
+            $data['part_name'] = $inventory_list[0]['part_name'];
+        }
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/alternate_inventory_stock_list', $data);
+    }
+
+    /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory.
+     *          By using this method SF can can only see their current stock of their warehouses.
+     *  @return : void
+     */
+    function  alternate_parts_inventory_list(){
+        $this->check_WH_UserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/alternate_parts_list');
+        
     }
     
     /**
