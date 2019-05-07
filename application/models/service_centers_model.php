@@ -76,6 +76,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_primary_contact_no, "
                 . " users.name as customername,  "
                 . " bd.booking_date,"
+                . " bd.partner_id,"
                 . " bd.booking_jobcard_filename,"
                 . " bd.assigned_engineer_id,"
                 . " bd.booking_timeslot, "
