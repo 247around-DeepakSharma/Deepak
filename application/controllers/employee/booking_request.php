@@ -138,7 +138,7 @@ class Booking_request extends CI_Controller {
             echo $option;
         } else {
             //echo 'Error';
-            echo $option = "<option value='1' selected>Default</option>";
+            echo $option = "<option value='0' selected>Default</option>";
         }
     }
     /**
