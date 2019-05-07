@@ -1786,8 +1786,11 @@ class Partner extends CI_Controller {
                 $price_array['is_upcountry'] = $booking_details['is_upcountry'];
                 $price_array['customer_net_payable'] = round($customer_net_payable, 0);
                 $this->initialized_variable->fetch_partner_data($post['partner_id']);
-
+                
+                $booking_details_data = $this->booking_model->get_booking_details("request_type", array("booking_id" => $booking_id));
+                $booking_details['request_type'] = $booking_details_data[0]['request_type'];
                 $this->miscelleneous->check_upcountry($booking_details, $post['appliance_name'], $price_array, "shipped");
+                unset($booking_details['request_type']);
                 $tempStatus = _247AROUND_FOLLOWUP;
                 $booking_details['assigned_vendor_id'] = NULL;
             }
@@ -5836,7 +5839,7 @@ class Partner extends CI_Controller {
             else{
               $tempArray[] =  "";
             }
-            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
+            $tempArray[] =  '<a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/'.$row->booking_jobcard_filename.'" class="btn btn-sm btn-primary btn-sm" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a>';
             $initialBooking = strtotime($row->initial_booking_date);
             $now = time();
             $datediff = $now - $initialBooking;
@@ -5855,7 +5858,17 @@ class Partner extends CI_Controller {
             else{
               $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
               }
-            $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.' data-toggle="modal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>';
+              
+            $disable = "";
+            $toggle = "modal";
+            if(!empty($row->service_center_closed_date)){
+                $disable = "Disabled";
+                $toggle = "tooltip";
+                
+            }
+            $tempArray[] = '<a  href="javascript:void(0)" title="Escalate" data-disabled ="'.$disable.'" '
+                    . 'class="btn btn-sm btn-warning open-AddBookDialog" data-id= "'.$row->booking_id.'" '.$helperText_2.''
+                    . ' data-toggle="'.$toggle.'"><i class="fa fa-circle" aria-hidden="true"></i></a>';
             $tempArray[] = '<a  href="#" class="btn btn-sm btn-warning btn-sm" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick=get_brand_collateral("'.$row->booking_id.'")><i class="fa fa-file-text-o" aria-hidden="true"></i></a>';
             $finalArray[] = $tempArray;
              $sn_no++;
@@ -5897,7 +5910,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
@@ -5908,7 +5921,7 @@ class Partner extends CI_Controller {
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic ";
-        $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order);
+         $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order);
          $bookingCount = $this->service_centers_model->get_spare_parts_on_group($where, "count( Distinct spare_parts_details.booking_id) AS total_rows","spare_parts_details.booking_id", FALSE,-1,-1,1)[0]['total_rows'];
          $sn = $postData['start'];
          foreach ($bookingData as $key => $row) {
@@ -5920,6 +5933,7 @@ class Partner extends CI_Controller {
                     }
                     $tempArray[] =  $sn. $tempString;
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] =  $row['services'];
                     $tempArray[] =  $row['name'];
                     $tempArray[] =  $row['age_of_request'];
                     $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
@@ -7063,19 +7077,18 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner();
         foreach($partners as $partnersDetails){
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
-        }
+        }        
         $this->load->view('partner/brand_collateral_partner_filter',array("partnerArray"=>$partnerArray));
        
     }
     public function brandCollateralPartner()
     {
        $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
-       $receieved_Data = $this->input->post();
-       $id=$receieved_Data['partner_id'];
-       $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
-       if(!empty($receieved_Data['order']))
+       $receieved_Data = $this->get_post_data();
+       $new_receieved_Data = $this->get_brand_partner_filtered_data($receieved_Data);
+       if(!empty($new_receieved_Data['order']))
        {
-            $order=$receieved_Data['order'];
+            $order=$new_receieved_Data['order'];
             $column_sort=$order['0']['column'];
             $sort_type=$order['0']['dir'];
             if(!empty($coloumnarr))
@@ -7089,12 +7102,11 @@ class Partner extends CI_Controller {
            $order_by_column='collateral.id';
            $sorting_type='ASC';
        }
-       $group_by='concat_ws("_",`collateral`.`brand`,`collateral`.`collateral_id`,`collateral`.`appliance_id`)';
-       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($id,$limitArray,$order_by_column,$sorting_type);
+       $results['partner_contracts'] = $this->partner_model->get_brand_collateral_data($new_receieved_Data,$order_by_column,$sorting_type);
        $data=array();
        $result_final=$results['partner_contracts'];
        $count=count($result_final);
-       $no = $receieved_Data['start'];
+       $no = $new_receieved_Data['start'];
        if(!empty($results['partner_contracts']))
        {
             foreach ($results['partner_contracts'] as $filter_result) {
@@ -7104,13 +7116,51 @@ class Partner extends CI_Controller {
              }
        }
        $output = array(
-            "draw" => $receieved_Data['draw'],
+            "draw" => $new_receieved_Data['draw'],
             "recordsTotal" => $count,
             "recordsFiltered" => $count,
             "data" => $data,
             
         );
         echo json_encode($output);
+    }
+    
+    function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+        $post['status'] = $this->input->post('status');
+        $post['partner_id'] = $this->input->post('partner_id');
+        $post['service_id']=$this->input->post('service_id');
+        $post['brand']=$this->input->post('brand');
+        $post['request_type']=$this->input->post('request_type');
+
+        return $post;
+    }
+    
+    function get_brand_partner_filtered_data($data){
+        $id = $data['partner_id'];
+        $service_id=$data['service_id'];
+        $brand=$data['brand'];
+        $request_type=$data['request_type'];
+        
+        if(!empty($id)){
+            $data['where']['entity_id'] =  $id;
+        }
+        if(!empty($service_id))
+            $data['where']['collateral.appliance_id'] =  $service_id;
+        if(!empty($brand))
+            $data['where']['collateral.brand'] =  $brand;
+        if(!empty($request_type))
+            $data['where_in']['request_type.id'] =  $request_type;
+        
+        $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
+        $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');
+        
+        return $data;
     }
     
     public function get_brand_partner_filter($filter_result,$no)
@@ -7128,9 +7178,9 @@ class Partner extends CI_Controller {
                   }
                $row[]=$no;                
                $row[]=$filter_result['collateral_type'];
-               $row[]= $filter_result['services'];
-               $row[]=$filter_result['brand'] ;
-               $row[]=ucfirst($filter_result['request_type']);
+               $row[]= $filter_result['model'];
+               $row[]=$filter_result['category'] ;
+               $row[]=$filter_result['capacity'];
                $row[]=$this->miscelleneous->get_reader_by_file_type($filter_result['document_type'],$url,"200");
                $row[]=$filter_result['document_description'];
               // $row[]="<div class='checkbox'><input type='checkbox' name='coll_id[]' value='". $filter_result['id']."'> </div>";

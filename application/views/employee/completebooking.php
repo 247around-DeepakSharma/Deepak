@@ -224,6 +224,11 @@
                             </div>
                         </div>
                     </div>
+                    <?php
+                            $paid_basic_charges = 0;
+                            $paid_additional_charges = 0;
+                            $paid_parts_cost = 0;
+                    ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
@@ -257,7 +262,7 @@
                                     <?php } ?>
                                      <div class="form-group">
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                                <input onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
@@ -275,9 +280,6 @@
                                         </tr>
                                         <tbody>
                                             <?php
-                                                $paid_basic_charges = 0;
-                                                $paid_additional_charges = 0;
-                                                $paid_parts_cost = 0;
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
                                                     <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
