@@ -51,6 +51,7 @@
                                 <tr>
                                     <th class="text-center">S.N</th>
                                     <th class="text-center">Booking ID</th>
+                                    <th class="text-center">Appliance</th>
                                     <th class="text-center">Customer Name</th>
                                     <th class="text-center">Part Request Age(Days)</th>
                                     <th class="text-center">Required Parts</th>
@@ -171,7 +172,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,5,6,7,8,9,10,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,5,6,7,8,9,10,11,12,13,14,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

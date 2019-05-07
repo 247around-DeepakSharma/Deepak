@@ -785,7 +785,7 @@ class Upcountry_model extends CI_Model {
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode, sub_vendor_id"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, bd.district as upcountry_city, booking_pincode, sub_vendor_id"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.partner_id = '$partner_id' "

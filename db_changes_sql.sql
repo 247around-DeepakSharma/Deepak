@@ -10955,3 +10955,11 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_cancelled_booking_sms', 'Sorry! Your %s booking is cancelled. For support call with capital city STD code %s, 247around %s Service Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
 UPDATE `partner_additional_details` SET `customer_care_number` = '39404040' WHERE `partner_additional_details`.`partner_id` = '247130';
 UPDATE `partner_additional_details` SET `is_customer_care` = '1' WHERE `partner_additional_details`.`partner_id` = '247130';
+
+--Kalyani 06-05-2019
+UPDATE `sms_template` SET `template` = 'Dear Customer, We were unable to contact you. To confirm booking Whatsapp your %s %s bill on %s. 247around, %s Partner.' WHERE `sms_template`.`tag` = 'videocon_not_picked_sms';
+UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm your repair booking please Whatsapp %s %s Bill on %s. 247around %s Service Partner' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
+
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';

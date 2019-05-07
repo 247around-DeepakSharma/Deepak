@@ -80,6 +80,7 @@
                                                     <tr>
                                                         <th class="text-center">S.N</th>
                                                         <th class="text-center">Booking ID</th>
+                                                        <th class="text-center">Appliance</th>
                                                         <th class="text-center">Spare Part</th>
                                                         <th class="text-center">Parts Number</th>
                                                         <th class="text-center">Age Of Requested</th>

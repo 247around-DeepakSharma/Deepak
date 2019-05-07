@@ -1063,6 +1063,8 @@ class Spare_parts extends CI_Controller {
                         $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                         $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                         $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+                        $data['challan_approx_value'] = $warehouse_details['estimate_cost'];
+                        $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                         if (!empty($warehouse_details['inventory_id'])) {
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                         }
@@ -1715,6 +1717,8 @@ class Spare_parts extends CI_Controller {
                             $spare_data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                             $spare_data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                             $spare_data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+                            $spare_data['challan_approx_value'] = $warehouse_details['estimate_cost'];
+                            $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
 
                             if (!empty($warehouse_details['inventory_id'])) {
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
