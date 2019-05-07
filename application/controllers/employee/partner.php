@@ -4788,6 +4788,52 @@ class Partner extends CI_Controller {
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
+    
+     /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory in 247around warehouse.
+     *  @param : void
+     *  @param : void
+     *  @param : void
+     *  @return : void
+     */
+    function alternate_inventory_stock_list($inventory_id, $service_id) {
+        
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array(
+            'inventory_master_list.entity_id' => $partner_id,
+            'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+            'inventory_master_list.inventory_id' => $inventory_id,
+            'inventory_master_list.service_id' => $service_id,
+        );
+
+        $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
+        $data = array();
+        $data['inventory_id'] = $inventory_id;
+        $data['service_id'] = $service_id;
+        $data['partner_id'] = $partner_id;
+         if (!empty($inventory_list)) {
+            $data['part_name'] = $inventory_list[0]['part_name'];
+        }        
+        $this->miscelleneous->load_partner_nav_header();  
+        $this->load->view('partner/alternate_inventory_stock_list',$data);
+        $this->load->view('partner/partner_footer');
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show alternate parts inventory  list 
+     *  @param : void
+     *  @return : void
+     */
+    function alternate_parts_list() {
+        $this->checkUserSession();
+        $data = array();
+        $data['partner_id'] = $this->session->userdata('partner_id');
+        $this->miscelleneous->load_partner_nav_header();  
+        $this->load->view("partner/alternate_parts_list",$data);
+    }
+    
     function get_pending_part_on_sf(){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();

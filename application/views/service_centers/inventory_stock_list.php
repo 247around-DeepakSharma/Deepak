@@ -2,13 +2,19 @@
     .select2.select2-container.select2-container--default{
         width: 100%!important;
     }
+    .alternate_spare_list{
+        float: right;  
+        font-size: 22px;
+        color: #131212cc;
+        padding: 5px;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Inventory List</h3>
+                    <h3>Inventory List  ---</h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -46,6 +52,7 @@
                                     <th>  GST Rate</th>
                                     <th>  Total Price</th>
                                     <th>  Customer  Total</th>
+                                    <th>Alternate Parts</th>
                                     
                                 </tr>
                             </thead>
@@ -55,21 +62,7 @@
                 </div>
             </div>
         </div>
-
-        <!--Modal start-->
-        <div id="modal_data" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div id="open_model"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal end -->
+         
     </div>
 </div>
 <script>
@@ -166,5 +159,5 @@
             }
         });
     }
-
+    
 </script>
