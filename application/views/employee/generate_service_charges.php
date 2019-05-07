@@ -62,7 +62,7 @@
                         <option value="0" selected>No</option>
                         <option value="1">Yes</option>
                     </select>
-                    <input type="hidden" id="product_or_services" name="product_or_services" />
+                    
                 </div>
             </div>
         </div>
