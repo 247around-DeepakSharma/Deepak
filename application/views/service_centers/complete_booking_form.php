@@ -382,7 +382,7 @@
                                     <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
                                         <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php foreach ($technical_problem as $value) { 
-                                            $selected=(($value['id'] == 1) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                            $selected=(($value['id'] == 0) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
                                         <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                     <?php }?>
@@ -399,7 +399,7 @@
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
                                         <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { 
-                                            $selected=(($value['defect_id'] == 1) ? 'selected' :''); ?>
+                                            $selected=(($value['defect_id'] == 0) ? 'selected' :''); ?>
                                         <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option>
                                          
                                     <?php }?>
@@ -411,8 +411,8 @@
                                 <div class="col-md-12" >
                                     <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Solution</option>
-                                        <?php if($technical_problem[0]['id'] == 1) { ?>
-                                        <option value="1" selected>Default</option>
+                                        <?php if($technical_problem[0]['id'] == 0) { ?>
+                                        <option value="0" selected>Default</option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -493,7 +493,7 @@
                 return false;
             }
         });
-        if($('#technical_solution').val() == 1)
+        if($('#technical_solution').val() == 0)
             $('#technical_solution').removeAttr('disabled');
     });
     

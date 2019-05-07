@@ -387,11 +387,7 @@ class vendor extends CI_Controller {
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
         
         if(!empty($rm_id)) {
-            $manager_id = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_id));
-
-            if(!empty($manager_id)) {
-                $managerData = $this->employee_model->getemployeefromid($manager_id[0]['manager_id']);
-            }
+            $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
         }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
@@ -405,8 +401,9 @@ class vendor extends CI_Controller {
                 $to = $template[1];
                 $cc = $template[3];
 
-                if(!empty($managerData))
+                if(!empty($managerData)) {
                     $cc .= ",".$managerData[0]['official_email'];
+                }
                 
                 $subject = $template[4];
                 $emailBody = $template[0];
@@ -445,9 +442,10 @@ class vendor extends CI_Controller {
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
         
-        if(!empty($managerData))
+        if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
-
+        }
+        
         //Cleaning Email Variables
         $this->email->clear(TRUE);
         //Send report via email
