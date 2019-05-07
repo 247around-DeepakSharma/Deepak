@@ -90,7 +90,7 @@
                                         <h2><b>Sakshi</b></h2>
                                         <p style="padding: 10px 0px;"><strong>About: </strong> Escalation Delhi, Haryana, Punjab, J&K, Madhya Pradesh, Karnataka </p>
                                         <ul class="list-unstyled">
-                                            <li><i class="fa fa-phone"></i> Phone: 981094824  </li>
+                                            <li><i class="fa fa-phone"></i> Phone: 9810948247 </li>
                                             <li><i class="fa fa-envelope"></i> Email: sakshit@247around.com</li>
                                         </ul>
                                     </div>
