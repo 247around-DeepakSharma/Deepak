@@ -2599,8 +2599,8 @@ class Inventory extends CI_Controller {
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
-        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '">' . $inventory_list->part_name . '</span>';
-        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '">' . $inventory_list->part_number . '</span>';
+        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
+        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
