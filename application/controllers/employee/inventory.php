@@ -2291,7 +2291,7 @@ class Inventory extends CI_Controller {
         
         if ($this->session->userdata('userType') == 'employee') {
             $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id));
-            $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part' title='Spare Part Status'>" . $icon . "</a>";
+            $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
         }
         return $row;
     }
