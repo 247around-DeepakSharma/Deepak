@@ -765,13 +765,13 @@
                             </div>
                             
                             <div class="form-group ">
-                                <label for="type" class="col-md-4">Symptom</label>
+                                <label for="type" class="col-md-4">Symptom *</label>
                                 <div class="col-md-6">
                                     <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
                                         <option disabled selected>Please Select Any Symptom</option>
                                         <?php if(isset($symptom)) {
                                             foreach ($symptom as $value) { 
-                                                $selected=((($value['id'] == 1) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time'])) ? 'selected' :'');  ?>
+                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']))) ? 'selected' :'');  ?>
                                             <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                         <?php } } ?>
@@ -857,6 +857,7 @@
 </script>
 <script>
     check_pincode();
+    $("#booking_request_symptom").select2();
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
