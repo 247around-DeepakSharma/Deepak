@@ -10973,3 +10973,7 @@ UPDATE `header_navigation` SET `link` = 'employee/booking_request/symptom_list' 
 UPDATE `header_navigation` SET `link` = 'employee/booking_request/defect_list' WHERE `header_navigation`.`title` = 'Defect';
 UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list' WHERE `header_navigation`.`title` = 'Solution';
 --Kajal 07-05-2019 ending--
+
+--Kalyani 08-05-2019
+INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
+
