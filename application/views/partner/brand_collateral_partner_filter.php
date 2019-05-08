@@ -23,7 +23,7 @@
                 <div class="col-md-2">
                     <div class="form-group" >
 
-                        <select class="form-control" id="service_id" required="" name="service_id" onchange='get_brand();get_request_type();'>
+                        <select class="form-control" id="service_id" required="" name="service_id" onchange='get_brand();'>
                             <option selected disabled  >Select Service</option>
                         </select>
                     </div>
@@ -42,7 +42,9 @@
                     <div class="form-group" >
 
                         <select class="form-control" id="request_type" required="" name="request_type[]" multiple="multiple" style="width: 430px">
-                            <!--<option selected disabled  >Select Service Category</option>-->
+                            <option disabled  >Select Service Category</option>
+                            <option value="Installation"  >Installation</option>
+                            <option value="Repair"  >Repair</option>
                         </select>
                     </div>
                     <?php echo form_error('request_type'); ?>
@@ -167,20 +169,6 @@
                 //First Resetting Options values present if any
                 $('#brand').html("<option selected disabled  >Select Brand</option>");
                 $('#brand').append(data);
-            }
-        });
-    }
-    
-    function get_request_type() {
-        var service_id =  $("#service_id").val();
-        $('.select2-selection__choice').remove();
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/service_centre_charges/get_service_category_request_type',
-            data: {service_id: service_id},
-            success: function (data) {
-                //First Resetting Options values present if any
-                $('#request_type').html(data);
             }
         });
     }
