@@ -2549,6 +2549,10 @@ class Service_centers extends CI_Controller {
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
+                    $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
+                    if(!empty($is_p)){
+                        $data['approved_defective_parts_by_admin'] = 1;
+                    }
 
                     $booking_id = $this->input->post('booking_id');
                     $partner_id = $this->input->post('booking_partner_id');
