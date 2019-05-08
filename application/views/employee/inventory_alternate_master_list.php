@@ -66,18 +66,21 @@
     .dataTables_length{
      width: 15%;   
     }
+    .dataTables_filter{
+        float: right;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3><?php echo $part_name; ?> <small style="font-size: 16px;">Alternate Parts List</small> </h3>
+                    <h3><?php echo $part_name; ?> <small style="font-size: 16px;">Alternate Parts List </small> </h3>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <div class="inventory_stock_list">
-                        <table class="table table-bordered table-hover table-striped" id="alternate_inventory_master_list">
+                        <table class="table table-bordered table-hover table-striped pull-right" id="alternate_inventory_master_list">
                             <thead>
                                 <tr>
                                     <th>S.No</th>
@@ -91,6 +94,8 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>Vendor Margin</th>
+                                    <th>Around Margin</th>
                                     <th>Customer Price</th>
                                 </tr>
                             </thead>
