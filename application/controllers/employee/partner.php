@@ -7158,7 +7158,7 @@ class Partner extends CI_Controller {
         if(!empty($brand))
             $data['where']['collateral.brand'] =  $brand;
         if(!empty($request_type))
-            $data['where_in']['request_type.id'] =  $request_type;
+            $data['where_in']['request_type'] =  $request_type;
         
         $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
         $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');

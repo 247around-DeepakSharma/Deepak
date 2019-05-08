@@ -305,7 +305,7 @@
                                                 <option disabled selected>Please Select Any Symptom</option>
                                                 <?php if(isset($symptom)) {
                                                     foreach ($symptom as $value) { 
-                                                        $selected=((($value['id'] == 0) || (isset($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']))) ? 'selected' :'');  ?>
+                                                        $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']))) ? 'selected' :'');  ?>
                                                     <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
 
                                                 <?php } } ?>
@@ -568,6 +568,7 @@
     });
     $("#price_tag").select2();
     // $("#service_name").select2();
+    $("#booking_request_symptom").select2();
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
