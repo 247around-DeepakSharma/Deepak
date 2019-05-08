@@ -1830,7 +1830,6 @@ class Do_background_upload_excel extends CI_Controller {
                 $rowData['partner_id'] = $this->input->post('partner_id');
                 $this->get_final_file_data($rowData, $data['actual_header_data'][$response['key']], $data['file_type']);
             }
-            echo '<pre/>'; print_r($this->deliveredArray); exit();
             if ($data['file_type']) {
                 if (strpos($data['file_type'], 'shipped') !== false) {
                     $this->process_upload_sd_file($this->deliveredArray, 'shipped', $data['file_name'], $this->input->post('partner_id'));
