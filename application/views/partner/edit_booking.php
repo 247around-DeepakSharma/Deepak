@@ -305,7 +305,7 @@
                                                 <option disabled selected>Please Select Any Symptom</option>
                                                 <?php if(isset($symptom)) {
                                                     foreach ($symptom as $value) { 
-                                                        $selected=((($value['id'] == 1) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time'])) ? 'selected' :'');  ?>
+                                                        $selected=((($value['id'] == 0) || (isset($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_creation_time']))) ? 'selected' :'');  ?>
                                                     <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
 
                                                 <?php } } ?>
@@ -1232,14 +1232,14 @@
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
-                console.log(data);
+                $('#booking_request_symptom').html("<option disabled selected>Please Select Any Symptom</option>");
                 if(data === "Error"){
-                    $('#booking_request_symptom').html("").change();
+                    $('#booking_request_symptom').append("").change();
                     $("#booking_request_symptom").removeAttr('required');
                 } else {
-                    $('#booking_request_symptom').html(data).change();
+                    $('#booking_request_symptom').append(data).change();
                     $("#booking_request_symptom").attr('required', 'required');
-    
+
                 }
             });
         }
