@@ -10867,3 +10867,5 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', '247around warehouse Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
+--Kalyani 08-05-2019
+INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
