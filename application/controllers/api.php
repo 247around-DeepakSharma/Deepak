@@ -4570,11 +4570,11 @@ class Api extends CI_Controller {
             $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             
-            $response['missed_bookings'] = $missed_bookings_count[0]['bookings'];
-            $response['tommorow_bookings'] = $tommorow_bookings_count[0]['bookings'];
-            $response['today_morning_booking'] = $morning_slot_bookings;
-            $response['noon_morning_booking'] = $noon_slot_bookings;
-            $response['evening_morning_booking'] = $evening_slot_bookings;
+            $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
+            $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
+            $response['todayMoriningBooking'] = $morning_slot_bookings;
+            $response['todayAfternoonBooking'] = $noon_slot_bookings;
+            $response['todayEveningBooking'] = $evening_slot_bookings;
             
             log_message("info", __METHOD__ . "Booking Found Successfully");
             $this->jsonResponseString['response'] = $response;
