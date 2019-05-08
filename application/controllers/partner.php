@@ -1646,7 +1646,7 @@ class Partner extends CI_Controller {
                             $this->initialized_variable->fetch_partner_data($this->partner['id']);
 
                             //check upcountry details and send sms to customer as well
-                            if((stripos($booking['booking_id'], 'Q-') !== false) && $booking['partner_id'] == VIDEOCON_ID){ }
+                            if(($booking['type'] == _247AROUND_QUERY) && $booking['partner_id'] == VIDEOCON_ID){ }
                             else{
                                 
                                 $booking_details_data = $this->booking_model->get_booking_details("request_type", array("booking_id" => $booking['booking_id']));
