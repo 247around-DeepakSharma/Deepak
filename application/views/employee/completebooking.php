@@ -614,6 +614,9 @@
 </div>
 </div>
 <script>
+    $("#technical_problem").select2();
+    $('#technical_defect').select2();
+    $('#technical_solution').select2();
     $(".booking_source").select2();
     $(".model_number").select2();
 </script>

@@ -857,6 +857,7 @@
 </script>
 <script>
     check_pincode();
+    $("#booking_request_symptom").select2();
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
