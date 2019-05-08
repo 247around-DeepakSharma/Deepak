@@ -9874,7 +9874,6 @@ ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFT
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
 
 
-=======
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
 
 
@@ -9883,7 +9882,6 @@ ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFT
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
 
 
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
 ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;
 
 
@@ -10174,11 +10172,6 @@ ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> CRM_Release_1.63.0.0
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
@@ -10186,23 +10179,18 @@ DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_bookin
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
 
-<<<<<<< HEAD
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
 
-<<<<<<< HEAD
-=======
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
 
 
-=======
->>>>>>> CRM_Release_1.63.0.0
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
 >>>>>>> CRM_Release_1.62.0.0
->>>>>>> be16923a2... CRM-2765 : Create Symptom Defect solution mapping view
+
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
 
@@ -10779,8 +10767,8 @@ ALTER TABLE `symptom_completion_solution` CHANGE `request_type` `service_id` INT
 ALTER TABLE `defect` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`, 
 ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, 
 ADD `partner_id` INT(11) NULL DEFAULT '247001' AFTER `update_date`, 
-ADD `partner_symptom_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
-ADD `partner_symptom_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
+ADD `partner_defect_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
+ADD `partner_defect_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
 
 
 ALTER TABLE `symptom` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
@@ -10867,12 +10855,11 @@ INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`,
 
 insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values
 ('247Around','Admin','admin',1,CURRENT_TIMESTAMP),
+('247Around','Admin','developer',1,CURRENT_TIMESTAMP),
+('247Around','Admin','closure',1,CURRENT_TIMESTAMP),
 ('247Around','Management','regionalmanager',1,CURRENT_TIMESTAMP),
 ('247Around','Management','inventory_manager',1,CURRENT_TIMESTAMP),
-('247Around','Warehouse','Warehouse Incharge',0,CURRENT_TIMESTAMP),
-('247Around','Calling','callcenter',1,CURRENT_TIMESTAMP),
-('247Around','Calling','Booking Manager',0,CURRENT_TIMESTAMP),
-('247Around','Admin','developer',1,CURRENT_TIMESTAMP);
+('247Around','Calling','callcenter',1,CURRENT_TIMESTAMP);
 
 
 INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
@@ -10890,6 +10877,8 @@ insert into entity_role(entity_type,department,role,is_filter_applicable,create_
 
 INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
 (247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+--Kajal 26-April-2019  Ending ---
 
 --Kalyani 29-April-2019  Ending ---
 
@@ -10974,3 +10963,13 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', '247around warehouse Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
+--Kajal 07-05-2019 starting--
+insert into symptom values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into defect values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_completion_solution values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_defect_solution_mapping(entity_id,entity_mapping_id,product_id,request_id,symptom_id,defect_id,solution_id,is_active,create_date) values(1,1,1,1,0,0,0,1,CURRENT_TIMESTAMP);
+
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/symptom_list' WHERE `header_navigation`.`title` = 'Symptom';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/defect_list' WHERE `header_navigation`.`title` = 'Defect';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list' WHERE `header_navigation`.`title` = 'Solution';
+--Kajal 07-05-2019 ending--
