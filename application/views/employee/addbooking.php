@@ -398,6 +398,7 @@
 </div>
 
 <script>
+    $("#booking_request_symptom").select2();
     $(".booking_source").select2();
     $("#service_id").select2();
     $("#booking_city").select2({
