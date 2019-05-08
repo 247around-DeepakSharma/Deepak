@@ -603,6 +603,7 @@
     $("#booking_city").select2({
          tags: true
     });
+    $("#booking_request_symptom").select2();
     $("#price_tag").select2();
     $("#service_name").select2();
     $("#appliance_brand_1").select2();
