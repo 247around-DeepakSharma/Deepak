@@ -824,9 +824,9 @@ class Booking_request extends CI_Controller {
     function get_symptom_defect_solution_mapping(){
         $post = $this->get_post_data();
         $new_post = $this->get_filtered_data($post);
-        $new_post['join']['symptom'] =  "FIND_IN_SET( symptom.id , symptom_defect_solution_mapping.symptom_id )";
-        $new_post['join']['defect'] =  "FIND_IN_SET( defect.id , symptom_defect_solution_mapping.defect_id )";
-        $new_post['join']['symptom_completion_solution'] =  "FIND_IN_SET( symptom_completion_solution.id , symptom_defect_solution_mapping.solution_id )";
+        $new_post['join']['symptom'] =  " symptom.id = symptom_defect_solution_mapping.symptom_id ";
+        $new_post['join']['defect'] =  " defect.id = symptom_defect_solution_mapping.defect_id ";
+        $new_post['join']['symptom_completion_solution'] =  " symptom_completion_solution.id = symptom_defect_solution_mapping.solution_id ";
         $select = "symptom_defect_solution_mapping.*, services, request_type.service_category, services.id as service_id, request_type.id as request_type_id";
         $list = $this->booking_request_model->get_symptom_defect_solution_mapping($new_post,$select);
         $data = array();
