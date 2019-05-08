@@ -86,7 +86,7 @@
            
        </div>
    </div>
-    <input type="text" id="reload_table_id" value="spare_parts_requested_table">
+    <input type="hidden" id="reload_table_id" value="spare_parts_requested_table">
 <!--     <div class="custom_pagination" style="margin-left: 16px;" > <?php //if(isset($links)){ echo $links;} ?></div>-->    
 </div>
 <!-- Pickup Request Modal --->
