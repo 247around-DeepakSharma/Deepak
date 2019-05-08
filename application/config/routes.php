@@ -74,6 +74,9 @@ $route['service_center/update_defective_parts/(:any)'] = 'employee/service_cente
 $route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
 $route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
 $route['service_center/get_approved_defective_parts_booking/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking/$1';
+
+$route['service_center/defective_part_shipped_by_sf'] = 'employee/service_centers/defective_part_shipped_by_sf';
+
 $route['service_center/pending_booking_upcountry_price/(:any)'] = 'employee/service_centers/pending_booking_upcountry_price/$1';
 $route['service_center/gst_details'] = 'employee/service_centers/gst_update_form/';
 $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_form/';

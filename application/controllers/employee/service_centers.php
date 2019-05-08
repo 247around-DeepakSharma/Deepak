@@ -6159,6 +6159,13 @@ class Service_centers extends CI_Controller {
         }
     }
     
+    
+  
+        /*
+      This function is for spare transfer  
+     */
+  
+    
     function do_spare_transfer(){
         $frominventory = $this->input->post('frominventry');
         $toinventory = $this->input->post('toinventory');
@@ -6217,6 +6224,33 @@ class Service_centers extends CI_Controller {
         }
         
     }
+    
+        /*
+      This function is for list of defective part shipped by SF  
+     */
+    
+        function defective_part_shipped_by_sf($offset = 0){
+           $this->checkUserSession();
+           log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+           $service_center_id = $this->session->userdata('service_center_id');
+           $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
+                . "  AND status='".DEFECTIVE_PARTS_SHIPPED."'";
+
+           $config['base_url'] = base_url() . 'service_center/defective_part_shipped_by_sf';
+           $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+           $config['total_rows'] = $total_rows[0]['total_rows'];
+           $config['per_page'] = 50;
+           $config['uri_segment'] = 3;
+           $config['first_link'] = 'First';
+           $config['last_link'] = 'Last';
+           $this->pagination->initialize($config);
+           $data['links'] = $this->pagination->create_links();
+           $data['count'] = $config['total_rows'];
+           $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+           $this->load->view('service_centers/header');
+           $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
+    }
+    
     
     
 }
