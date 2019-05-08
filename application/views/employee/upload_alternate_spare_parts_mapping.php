@@ -48,7 +48,7 @@
                                 } ?>">
                                 <label for="excel" class="col-md-3">Upload File</label>
                                 <div class="col-md-9">
-                                    <input type="file" class="form-control"  name="file" >
+                                    <input type="file" class="form-control" id="alternate_parts_file"  name="file" >
                                     <?php if (form_error('excel')) {
                                         echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                         } ?>
@@ -66,7 +66,7 @@
                     </div>
                     <div class="col-md-6">
                         <p style="font-size: 18px;"><b>Download Sample File. Use this file to upload Alternate Spare Parts details.</b></p>
-                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/inventory_master_list_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/alternate_part_inventory_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
@@ -94,8 +94,18 @@
     var table;    
     function submitForm() {
         
-        if($('#partner_id').val()){
-           
+        var partner_id = $('#partner_id').val();
+        var alternate_parts_file = $("#alternate_parts_file").val();
+        if(partner_id == '' || partner_id == null){
+            alert("Please Select Partner ");
+            return false;
+        }
+        if(alternate_parts_file ==''){
+            alert("Please Choose File.");
+            return false;
+        }
+        
+        if(partner_id !='' && alternate_parts_file !=''){
                 var fd = new FormData(document.getElementById("fileinfo"));
                 fd.append("label", "WEBUPLOAD");
                 fd.append('partner_id',$('#partner_id').val());                
@@ -112,9 +122,6 @@
                 });
                 alert('File validation is in progress, please wait....');
                        
-        }else{
-            alert("Please Select Partner ");
-            return false;
         }
         
     }
