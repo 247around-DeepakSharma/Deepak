@@ -180,6 +180,11 @@
     });
     
     function update_status(status, id){
+        var status_val = ((status == 0)?"Active":"Deactive");
+        var cnfrm = confirm("Are you sure, you want to make this mapping "+status_val+" ?");
+        if(!cnfrm){
+            return false;
+        }
         var is_active = 0;
         if(status == "0"){
            is_active = 1; 
