@@ -568,6 +568,7 @@
     });
     $("#price_tag").select2();
     // $("#service_name").select2();
+    $("#booking_request_symptom").select2();
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();

@@ -479,6 +479,9 @@
 </div>
 </div>
 <script>
+    $("#technical_problem").select2();
+    $('#technical_defect').select2();
+    $('#technical_solution').select2();
     $("#service_id").select2();
     $("#booking_city").select2();
     
