@@ -156,9 +156,10 @@
                             <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
                             <select class="form-control"  id="partner_source" name="partner_source" required>
                                 <option value="" selected disabled>Please select seller channel</option>
-                                <?php foreach ($channel as $key => $value) { ?>
+                                <?php if(isset($channel)) {
+                                    foreach ($channel as $key => $value) { ?>
                                 <option><?php echo $value['channel_name'];  ?></option>
-                                <?php } ?>
+                                <?php } } ?>
                             </select>
                             <?php echo form_error('partner_source'); ?>
                         </div>
@@ -1220,11 +1221,12 @@
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
+                $('#booking_request_symptom').html("<option disabled selected>Please Select Any Symptom</option>");
                 if(data === "Error"){
-                    $('#booking_request_symptom').html("").change();
+                    $('#booking_request_symptom').append("").change();
                     $("#booking_request_symptom").removeAttr('required');
                 } else {
-                    $('#booking_request_symptom').html(data).change();
+                    $('#booking_request_symptom').append(data).change();
                     $("#booking_request_symptom").attr('required', 'required');
 
                 }

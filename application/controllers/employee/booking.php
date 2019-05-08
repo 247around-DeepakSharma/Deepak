@@ -913,7 +913,6 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] = $service_center_data[0]['parts_cost'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
-                    if(!empty($service_center_data[0]['sf_purchase_date']))
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
@@ -938,17 +937,17 @@ class Booking extends CI_Controller {
                 array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $unit_price_tags));
         
         if(count($data['technical_problem']) <= 0) {
-            $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
+            $data['technical_problem'][0] = array('id' => 0, 'symptom' => 'Default');
         }
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['technical_defect'] = array();
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+        if(count($data['booking_symptom'])>0 && !is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
                     array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         }
         else {
-            $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
+            $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
         $data['upcountry_charges'] = $upcountry_price;
@@ -1589,23 +1588,25 @@ class Booking extends CI_Controller {
         $data['completion_symptom'] =  array();
         $data['technical_solution'] =  array();
         $data['technical_defect'] = array();
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-        
-        }
-        
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-        
-        }
-        if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-        
-        }
-        if(!empty($data['booking_symptom'][0]['solution_id'])){
-            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-        
+        if(count($data['booking_symptom'])>0) {
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
+                $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+
+            }
+
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
+                $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
+
+            }
+            if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
+                $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+                $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
+
+            }
+            if(!is_null($data['booking_symptom'][0]['solution_id'])){
+                $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
+
+            }
         }
                          
         if (!empty($data['booking_history']['spare_parts'])) {
@@ -1835,7 +1836,7 @@ class Booking extends CI_Controller {
                         array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
             }
             if(count($booking['symptom']) <= 0) {
-                $booking['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
+                $booking['symptom'][0] = array('id' => 0, 'symptom' => 'Default');
             }
             
             $booking['is_repeat'] = $is_repeat;

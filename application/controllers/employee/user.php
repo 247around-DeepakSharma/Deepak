@@ -448,11 +448,7 @@ class User extends CI_Controller {
     function show_employee_list(){
         $data['data'] = $this->employee_model->get_employee();
         foreach($data['data'] as $key => $value) {
-            $manager=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $value['id']));
-            
-            if(!empty($manager)) {
-                $data['data'][$key]['manager'] = $this->employee_model->getemployeefromid($manager[0]['manager_id']);
-            }
+            $data['data'][$key]['manager'] = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $value['id']));
         }
         
         $data['session_data'] = $this->session->all_userdata();
@@ -484,8 +480,8 @@ class User extends CI_Controller {
             $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
         }
         
-        $manager=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $id));
-        $subordinate=$this->employee_model->getemployeeManagerfromid(array('manager_id' => $id));
+        $manager=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $id));
+        $subordinate=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $id));
         
         if(!empty($manager))
         $data['manager']=$manager[0]['manager_id'];
@@ -521,7 +517,7 @@ class User extends CI_Controller {
         }
         
         if(count($data2) > 0) {
-            $data3=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $data1['id']));
+            $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $data1['id']));
 
             if(count($data3) <= 0)
                 $this->employee_model->insertManagerData($data2);
@@ -540,7 +536,7 @@ class User extends CI_Controller {
             }
         }
         
-        $data3=$this->employee_model->getemployeeManagerfromid(array('manager_id' => $data1['id']));
+        $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $data1['id']));
         
         if(count($data3) > 0)
             $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
@@ -576,7 +572,7 @@ class User extends CI_Controller {
         $data['clear_password'] = $this->randomPassword();
         $data['employee_password'] = md5($data['clear_password']);
         $this->employee_model->update($id,$data);
-        $manager=$this->employee_model->getemployeeManagerfromid(array('employee_id' => $id));
+        $manager=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $id));
         if(!empty($manager))
             $manager = $manager[0]['manager_id'];
         $tag='employee_reset_password';

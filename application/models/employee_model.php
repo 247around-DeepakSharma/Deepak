@@ -239,7 +239,6 @@ class Employee_model extends CI_Model{
 
    function getemployeeManagerfromid($where=array()){
         $this->db->where($where);
-   	//$this->db->where('employee_id',$id);
    	$query = $this->db->get('employee_hierarchy_mapping');
    	return $query->result_array();
    }
@@ -272,4 +271,20 @@ class Employee_model extends CI_Model{
         $query = $this->db->get();
         return $query->result_array();
     }
+    /**
+    * @desc : This function is used to get employee Manager Details based on employee ID
+    * @param : select, where condition
+    * @return : array
+    */
+    function getemployeeManagerDetails($select,$where=array()){
+        $this->db->select($select);
+        $this->db->from('employee_hierarchy_mapping');
+        $this->db->join('employee', 'employee.id = employee_hierarchy_mapping.manager_id');
+        $this->db->where('active',1);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+   	$query = $this->db->get();
+        return $query->result_array();
+   }
 }

@@ -4,10 +4,10 @@
 <div class="right_col" role="main">
     <h1 class="col-md-6 col-sm-12 col-xs-12"><b> Brand Collateral </b></h1>
     <div class="clearfix"></div>
-    <div class="container" style='margin-top:2%;'>
+    <div style='margin:3%;'>
         <form method="POST" action="#">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <div class="form-group" id="partner_holder">
 
                         <select class="form-control" name="partner" id="partner" onchange='get_appliance()'>
@@ -20,7 +20,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <div class="form-group" >
 
                         <select class="form-control" id="service_id" required="" name="service_id" onchange='get_brand();get_request_type();'>
@@ -29,7 +29,7 @@
                     </div>
                     <?php echo form_error('service_id'); ?>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <div class="form-group" >
 
                         <select class="form-control" id="brand" required="" name="brand">
@@ -38,27 +38,24 @@
                     </div>
                     <?php echo form_error('brand'); ?>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-2" style="width: 450px">
                     <div class="form-group" >
 
-                        <select class="form-control" id="request_type" required="" name="request_type[]" multiple="multiple">
+                        <select class="form-control" id="request_type" required="" name="request_type[]" multiple="multiple" style="width: 430px">
                             <!--<option selected disabled  >Select Service Category</option>-->
                         </select>
                     </div>
                     <?php echo form_error('request_type'); ?>
                 </div>
-
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <div class="form-group">
-                        <button type="button" class="btn btn-small btn-success" id="search" onclick="validform()">Search</button>
+                        <button type="button" class="btn btn-small btn-primary" id="search" onclick="validform()">Search</button>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-    <div class="x_panel" style="height: auto;">
+    <div class="x_panel" style="height: auto;display:none;">
         <table id="brand_collateral_partner" class="table table-striped table-bordered">
             <thead>
                <tr>
@@ -86,15 +83,34 @@
 </style>
 <script>
     function validform(){
-       var partner = $("#partner option:selected").val();
-       if(partner!=='option_holder')
-        {
-            ad_table.ajax.reload( function ( json ) {} );
-         }
-        else
+        var partner = $("#partner option:selected").val();
+        var service =  $("#service_id option:selected").val();
+        var brand =  $("#brand option:selected").val();
+        var request_type =  $("#request_type").val();
+        
+        if(partner==='option_holder')
         {
            alert("Please Select Partner ");
            return false;
+        }
+        else if(service==='Select Service')
+        {
+           alert("Please Select Service ");
+           return false;
+        }
+        else if(brand==='Select Brand')
+        {
+           alert("Please Select Brand ");
+           return false;
+        }
+        else if(request_type==null || request_type=='')
+        {
+           alert("Please Select Service Category ");
+           return false;
+        }
+        else {
+            $(".x_panel").css("display","block");
+            ad_table.ajax.reload( function ( json ) {} );
         }
     }
      function getMultipleSelectedCheckbox(fieldName){
@@ -214,7 +230,7 @@
                 }
             ],
         });
-        $("#partner").select2();
+        $("#partner,#service_id,#brand").select2();
         $("#request_type").select2({
                 placeholder: "Select Service Category",
                 allowClear: true
