@@ -1524,14 +1524,11 @@ class Miscelleneous {
         $booking['service'] = NULL;
         
         if(!empty($rm_id)) {
-            $manager_id = $this->My_CI->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_id));
-
-            if(!empty($manager_id)) {
-                $managerData = $this->My_CI->employee_model->getemployeefromid($manager_id[0]['manager_id']);
-            }
-
-            if(!empty($managerData))
+            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+            
+            if(!empty($managerData)) {
                 $cc .= $managerData[0]['official_email'];
+            }
         }
         
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
@@ -3089,11 +3086,7 @@ function generate_image($base64, $image_name,$directory){
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
             if(!empty($bookingData[0]['emp_id'])) {
-                $manager_id = $this->My_CI->employee_model->getemployeeManagerfromid(array('employee_id' => $bookingData[0]['emp_id']));
-                
-                if(!empty($manager_id)) {
-                    $managerData = $this->My_CI->employee_model->getemployeefromid($manager_id[0]['manager_id']);
-                }
+                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups' => 'regionalmanager'));
             }
             
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
@@ -3102,8 +3095,9 @@ function generate_image($base64, $image_name,$directory){
             $to = $template[1];  
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             
-            if(!empty($managerData))
+            if(!empty($managerData)) {
                 $cc .= ",".$managerData[0]['official_email'];
+            }
             
             $bcc = "";
             $from = $template[2];

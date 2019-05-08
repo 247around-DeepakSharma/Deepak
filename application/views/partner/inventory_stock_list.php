@@ -109,8 +109,8 @@
                                     <th>Spare Basic Price</th>
                                     <th>Spare GST Rate</th>
                                     <th>Spare Total Price</th>
-
-                                     <th>Customer Total Price</th>
+                                    <th>Customer Total Price</th>
+                                    <th>Alternate Parts</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

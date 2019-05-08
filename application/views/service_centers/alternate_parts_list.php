@@ -42,10 +42,6 @@
     .form-horizontal .control-label {
         text-align: left;
     }
-    
-    .dataTables_filter{
-        float: right;
-    }
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -99,13 +95,11 @@
                         <th>Description</th>
                         <th>Size</th>
                         <th>HSN</th>
-                        <th>Basic Price</th>
+                        <th>SF Basic Price</th>
                         <th>GST Rate</th>
                         <th>Total Price</th>
-                        <th>Vendor Margin</th>
-                        <th>Around Margin</th>
                         <th>Customer Price</th>
-                        <th>Action</th>
+                       
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -170,7 +164,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11]
                     },
                     title: 'alternate_inventory_master_list_'+time,
                     action: newExportAction
@@ -188,7 +182,7 @@
                 style: 'multi'
             },
             "order": [], 
-            "pageLength": 50,
+            "pageLength": 5,
             "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "ordering": false,
             "ajax": {
@@ -267,7 +261,7 @@
         $.ajax({
             type:'GET',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
+            url:'<?php echo base_url();?>employee/service_centers/get_service_id_by_partner',
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);

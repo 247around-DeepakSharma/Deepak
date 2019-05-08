@@ -2041,6 +2041,35 @@ class Inventory extends CI_Controller {
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view("employee/inventory_master_list", $data);
     }
+    
+     /**
+     *  @desc : This function is used to show inventory alternate part master list table
+     *  @param : $partner_id
+     *  @param : $inventory_id
+     *  @param : $service_id
+     *  @return : void
+     */
+    function alternate_inventory_list($partner_id, $inventory_id, $service_id) {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $where = array(
+            'inventory_master_list.entity_id' => $partner_id,
+            'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+            'inventory_master_list.inventory_id' => $inventory_id,
+            'inventory_master_list.service_id' => $service_id,
+        );
+
+        $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
+        $data = array();
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $data['partner_id'] = $partner_id;
+        $data['inventory_id'] = $inventory_id;
+        $data['service_id'] = $service_id;
+        if (!empty($inventory_list)) {
+            $data['part_name'] = $inventory_list[0]['part_name'];
+        }
+        $this->load->view("employee/inventory_alternate_master_list", $data);
+    }
 
     /**
      *  @desc : This function is used to show alternate parts inventory master list table
@@ -2052,7 +2081,7 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/alternate_parts_inventory_list");
     }
-
+    
     /**
      *  @desc : This function is used to show inventory master list data
      *  @param : void
@@ -2134,7 +2163,7 @@ class Inventory extends CI_Controller {
         }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='" . base_url() . "employee/inventory/get_appliance_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
-
+        $row[] = '<a href="' . base_url() . 'employee/inventory/alternate_inventory_list/' . $stock_list->entity_id . '/' . $stock_list->inventory_id . '/' . $stock_list->service_id . '" target="_blank" class="btn btn-info">View</a>';            
 
 
         return $row;
@@ -2216,7 +2245,7 @@ class Inventory extends CI_Controller {
             $stock_list->entity_public_name = $partners[$stock_list->entity_id];
         }
         $json_data = json_encode($stock_list);
-
+       
         $row[] = $no;
         $row[] = $stock_list->services;
         $row[] = $stock_list->type;
@@ -2229,11 +2258,27 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->gst_rate . "%";
         $total = number_format((float) ($stock_list->price + ($stock_list->price * ($stock_list->gst_rate / 100))), 2, '.', '');
         $row[] = "<i class ='fa fa-inr'></i> " . $total;
+        
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
+        if ($stock_list->oow_around_margin > 0) {
+            $repair_oow_around_percentage = $stock_list->oow_around_margin / 100;
+        }
+        
+        if ($this->session->userdata('userType') == 'service_center') {
+            $repair_oow_around_percentage_vendor1 = $stock_list->oow_vendor_margin / 100;
+            $totalpriceforsf = number_format((float) (round($stock_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($stock_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($stock_list->gst_rate / 100))), 2, '.', '');
+            $row[] = '<span id="total_amount_' . $stock_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
+        }
+        
         if ($this->session->userdata('userType') == 'employee') {
             $row[] = $stock_list->oow_vendor_margin . " %";
             $row[] = $stock_list->oow_around_margin . " %";
 
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
+        }
+        
+        if($this->session->userdata('userType') == 'partner'){
+           $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0); 
         }
 
         if ($stock_list->status == 1) {
@@ -2243,9 +2288,11 @@ class Inventory extends CI_Controller {
             $icon = "<i class='glyphicon glyphicon-ok'></i>";
             $colour_class = 'btn-primary';
         }
-        $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id));
-        $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part' title='Spare Part Status'>" . $icon . "</a>";
-
+        
+        if ($this->session->userdata('userType') == 'employee') {
+            $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id));
+            $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
+        }
         return $row;
     }
 
@@ -2276,14 +2323,21 @@ class Inventory extends CI_Controller {
             if (!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type'])) {
 
                 if (!empty($data['price']) && !empty($data['hsn_code']) && !empty($data['gst_rate'])) {
-                    switch (strtolower($submit_type)) {
-                        case 'add':
-                            $data['create_date'] = date('Y-m-d H:i:s');
-                            $response = $this->add_inventoy_master_list_data($data);
-                            break;
-                        case 'edit':
-                            $response = $this->edit_inventoy_master_list_data($data);
-                            break;
+                    $where = array('inventory_master_list.part_number' => $this->input->post('part_number'));
+                    $exist_inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number', $where, array());
+                    if (empty($exist_inventory_details)) {
+                        switch (strtolower($submit_type)) {
+                            case 'add':
+                                $data['create_date'] = date('Y-m-d H:i:s');
+                                $response = $this->add_inventoy_master_list_data($data);
+                                break;
+                            case 'edit':
+                                $response = $this->edit_inventoy_master_list_data($data);
+                                break;
+                        }
+                    } else {
+                        $response['response'] = 'error';
+                        $response['msg'] = 'Part Number is already exist in our database.';
                     }
                 } else {
                     $response['response'] = 'error';
@@ -2369,7 +2423,7 @@ class Inventory extends CI_Controller {
      */
     function edit_inventoy_master_list_data($data) {
         $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')), $data);
-        ;
+
         if (!empty($response)) {
             $res['response'] = 'success';
             $res['msg'] = 'Details has been updated successfully';
@@ -2548,12 +2602,12 @@ class Inventory extends CI_Controller {
     
     private function get_inventory_stocks_details_table($inventory_list, $sn) {
         $row = array();
-
+        
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
-        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '">' . $inventory_list->part_name . '</span>';
-        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '">' . $inventory_list->part_number . '</span>';
+        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
+        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
@@ -2568,13 +2622,11 @@ class Inventory extends CI_Controller {
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
 
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 2) . '</span>';
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
         } else {
 
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
         }
-
-
 
         $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
 
@@ -2590,14 +2642,11 @@ class Inventory extends CI_Controller {
 
         }
 
-
         if ($this->session->userdata('userType') == 'service_center') {
 
             $repair_oow_around_percentage_vendor1 = $inventory_list->oow_vendor_margin / 100;
 
-
             $totalpriceforsf = number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '');
-
 
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
         } else {
@@ -2609,12 +2658,17 @@ class Inventory extends CI_Controller {
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($totpartner), 2, '.', '') . "</span>";
         }
 
-
+       
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
 
+        if ($this->session->userdata('userType') == 'service_center') {
+            $row[] = '<a href="' . base_url() . 'service_center/inventory/alternate_inventory_list/' . $inventory_list->entity_id . '/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
+        } else {
+            $row[] = '<a href="' . base_url() . 'partner/inventory/alternate_inventory_list/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
+        }
         return $row;
     }
 

@@ -1,8 +1,44 @@
 <style>
-    #inventory_master_list_filter{
-        text-align: right;
+    .select2.select2-container.select2-container--default{
+        width: 100%!important;
     }
-    
+    .spinner {
+        margin: 0px auto;
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .spinner > div {
+        height: 100%;
+        width: 6px;
+        display: inline-block;
+
+        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .spinner .rect2 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .spinner .rect3 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .spinner .rect4 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .spinner .rect5 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+
     @-webkit-keyframes sk-stretchdelay {
         0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
         20% { -webkit-transform: scaleY(1.0) }
@@ -18,101 +54,72 @@
         }
     }
     
-    #inventory_master_list_processing{
+    #inventory_stock_table_processing{
             position: absolute;
             z-index: 999999;
             width: 100%;
             background: rgba(0,0,0,0.5);
             height: 100%;
             top: 10px;
+            left:6%;
     }
-    
-    .select2-container{
-        width: 100%!important;
-    }
-    .select2-container .select2-selection--single{
-        height: 35px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered{
-        line-height: 33px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow{
-        height: 31px;
-    }
-    .form-horizontal .control-label {
-        text-align: left;
-    }
-    
-    .dataTables_filter{
-        float: right;
+    .dataTables_length{
+     width: 15%;   
     }
 </style>
-<div id="page-wrapper">
+<div class="right_col" role="main">
     <div class="row">
-        <div class="title">
-            <div class="row">
-                <div class="col-md-6">
-                    <h3>Alternate Spare Part List</h3>
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h3>Alternate Parts List</h3>
+                    <hr>
+                    <div class="clearfix"></div>
                 </div>
-            </div>
-        </div>
-        <hr>
-        <div class="filter_box">
-            <div class="form-group">
-                <div class="form-inline">
-                    <div class="form-group col-md-3">
-                        <select class="form-control" id="partner_id">
-                            <option value="" disabled="">Select Partner</option>
-                        </select>
+                <div class="x_content">
+                    <div class="filter_box">
+                        <div class="form-group col-md-3">
+                            <select class="form-control" id="inventory_service_id">
+                                <option value="" disabled="">Select Appliance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group col-md-4">
+                                <select class="form-control" id="spare_parts_inventory_id">
+                                    <option value="" selected="" disabled="">Select Spare Part</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
+                        </div>
+
                     </div>
-
+                    <div class="clearfix"></div>
+                    <hr>
+                    <div class="alternate_inventory_master_list">
+                        <table class="table table-bordered table-hover table-striped" id="alternate_inventory_master_list">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Appliance</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Parts Number</th>
+                                    <th>Description</th>
+                                    <th>Size</th>
+                                    <th>HSN</th>
+                                    <th>Basic Price</th>
+                                    <th>GST Rate</th>
+                                    <th>Total Price</th>
+                                    <th>Customer Price</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="form-group col-md-3">
-                <select class="form-control" id="inventory_service_id">
-                    <option value="" disabled="">Select Appliance</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <div class="form-group col-md-4">
-                    <select class="form-control" id="spare_parts_inventory_id">
-                        <option value="" selected="" disabled="">Select Spare Part</option>
-                    </select>
-                </div>
-                <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
-            </div>
-
-        </div>
-        </br>
-        </br>       
-        <hr>   
-        <div class="inventory-table">
-            <input type="hidden" id="inventory_set_id" value="">
-            <table class="table table-bordered table-hover table-striped" id="alternate_inventory_master_list">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Appliance</th>
-                        <th>Type</th>
-                        <th>Name</th>
-                        <th>Parts Number</th>
-                        <th>Description</th>
-                        <th>Size</th>
-                        <th>HSN</th>
-                        <th>Basic Price</th>
-                        <th>GST Rate</th>
-                        <th>Total Price</th>
-                        <th>Vendor Margin</th>
-                        <th>Around Margin</th>
-                        <th>Customer Price</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
-  
 </div>
 <script>
     var alternate_inventory_master_list_table;
@@ -130,20 +137,14 @@
     });
     
     $(document).ready(function(){
-        get_partner('partner_id');
         get_inventory_list();
+        get_services('inventory_service_id','<?php echo $partner_id; ?>');
     });
     
     $('#get_inventory_data').on('click',function(){
-        var partner_id = $('#partner_id').val();
         var service_id = $('#inventory_service_id').val();
         var spare_parts_inventory_id = $('#spare_parts_inventory_id').val();
       
-        if(partner_id == '' || partner_id == null){
-            alert("Please Select Partner"); 
-            return false;
-        }
-        
         if(service_id == '' || service_id == null){
             alert("Please Select Appliance"); 
             return false;
@@ -170,7 +171,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11 ]
                     },
                     title: 'alternate_inventory_master_list_'+time,
                     action: newExportAction
@@ -210,7 +211,7 @@
        
     function get_entity_details(){
         var data = {
-            'entity_id': $('#partner_id').val(),
+            'entity_id': '<?php echo $partner_id; ?>',
             'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'inventory_id': $("#spare_parts_inventory_id").find('option:selected').attr("data-inventory"),
             'service_id': $('#inventory_service_id').val()
@@ -219,20 +220,7 @@
         return data;
     }
     
-    function get_partner(div_to_update){
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/partner/get_partner_list',
-            data:{is_wh:true},
-            success:function(response){
-                $('#'+div_to_update).html(response);
-                $('#'+div_to_update).select2();
-            }
-        });
-    }
-    
     $('#inventory_service_id').on('change',function(){
-        var partner_id = $('#partner_id').val();
         var service_id = $('#inventory_service_id').val();
         if(service_id == '' || service_id == null){
             alert('Please Select Appliance');
@@ -240,7 +228,7 @@
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/partner_wise_inventory_spare_parts_list',
-                data:{ entity_id : partner_id, entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id },
+                data:{ entity_id : '<?php echo $partner_id; ?>', entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id },
                 success:function(data){   
                     console.log(data);
                     $("#spare_parts_inventory_id").html(data);
@@ -251,23 +239,14 @@
         }
     });
     
-    
-    $('#partner_id').on('change',function(){
-        var partner_id = $('#partner_id').val();
-        if(partner_id){
-            get_services('inventory_service_id',partner_id);
-        }else{
-            alert('Please Select Partner');
-        }
-    });
-    
+       
     
     function get_services(div_to_update,partner_id){
         
         $.ajax({
             type:'GET',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
+            url:'<?php echo base_url();?>employee/partner/get_service_id',
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
@@ -348,3 +327,8 @@
     };
     
 </script>
+<style>
+    .dataTables_length {
+    width: 12% !important;
+}
+</style>
