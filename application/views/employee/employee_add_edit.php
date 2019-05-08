@@ -316,7 +316,7 @@
     })(jQuery, window, document);
     
     function validateForm() {
-        if(($('#manager option:selected').val() == "") || ($('#subordinate option:selected').val() == ""))
+        if(($('#manager option:selected').val() == "") && (($('#subordinate option:selected').val() == "") || ($('#subordinate option:selected').val() == undefined)))
         {
             alert("Please add manager or subordinate!");
             return false;

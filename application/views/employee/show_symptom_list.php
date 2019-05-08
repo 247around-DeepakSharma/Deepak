@@ -158,6 +158,11 @@
     });
     
     function update_status(status, id){
+        var status_val = ((status == 0)?"Active":"Deactive");
+        var cnfrm = confirm("Are you sure, you want to make this symptom "+status_val+" ?");
+        if(!cnfrm){
+            return false;
+        }
         var active = 0;
         if(status == "0"){
            active = 1; 
