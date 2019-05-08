@@ -18,6 +18,7 @@ class Booking_request_model extends CI_Model {
      */
     function get_booking_request_symptom($select, $where = array(), $where_in = array()){
         $this->db->select($select);
+        $this->db->distinct();
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -88,6 +89,7 @@ class Booking_request_model extends CI_Model {
      */
    function symptom_completion_solution($select, $where = array(), $where_in = array()){
         $this->db->select($select);
+        $this->db->distinct();
         if(!empty($where)){
             $this->db->where($where);
         }
@@ -192,7 +194,7 @@ class Booking_request_model extends CI_Model {
         }
         
         $this->db->from('symptom_defect_solution_mapping');
-        $this->db->join('symptom_completion_solution', 'symptom_defect_solution_mapping.solution_id = symptom_completion_solution.id');
+        $this->db->join('symptom_completion_solution', 'symptom_defect_solution_mapping.solution_id = symptom_completion_solution.id AND product_id=service_id');
         $query = $this->db->get();
         return $query->result_array();
     }

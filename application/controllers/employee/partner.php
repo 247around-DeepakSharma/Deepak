@@ -187,24 +187,26 @@ class Partner extends CI_Controller {
         
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
         
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-        
-        } 
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-        
+        if(count($data['booking_symptom'])>0) {
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
+                $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+
+            } 
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
+                $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
+
+            }
+            if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
+                $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+                $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
+
+            }
+            if(!is_null($data['booking_symptom'][0]['solution_id'])){
+                $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
+
+            }
         }
-        if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-        
-        }
-        if(!empty($data['booking_symptom'][0]['solution_id'])){
-            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-        
-        } 
-     
+
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -1593,7 +1595,7 @@ class Partner extends CI_Controller {
                         array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
             }
             if(count($data['symptom']) <= 0) {
-                $data['symptom'][0] = array('id' => 1, 'symptom' => 'Default');
+                $data['symptom'][0] = array('id' => 0, 'symptom' => 'Default');
             }
             
             $data['is_repeat'] = $is_repeat;
@@ -4791,6 +4793,53 @@ class Partner extends CI_Controller {
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
+    
+     /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory in 247around warehouse.
+     *  @param : void
+     *  @param : void
+     *  @param : void
+     *  @return : void
+     */
+    function alternate_inventory_stock_list($inventory_id, $service_id) {
+        
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array(
+            'inventory_master_list.entity_id' => $partner_id,
+            'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+            'inventory_master_list.inventory_id' => $inventory_id,
+            'inventory_master_list.service_id' => $service_id,
+        );
+
+        $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
+        $data = array();
+        $data['inventory_id'] = $inventory_id;
+        $data['service_id'] = $service_id;
+        $data['partner_id'] = $partner_id;
+         if (!empty($inventory_list)) {
+            $data['part_name'] = $inventory_list[0]['part_name'];
+        }        
+        $this->miscelleneous->load_partner_nav_header();  
+        $this->load->view('partner/alternate_inventory_stock_list',$data);
+        $this->load->view('partner/partner_footer');
+    }
+    
+    
+    /**
+     *  @desc : This function is used to show alternate parts inventory  list 
+     *  @param : void
+     *  @return : void
+     */
+    function alternate_parts_list() {
+        $this->checkUserSession();
+        $data = array();
+        $data['partner_id'] = $this->session->userdata('partner_id');
+        $this->miscelleneous->load_partner_nav_header();  
+        $this->load->view("partner/alternate_parts_list",$data);
+        $this->load->view('partner/partner_footer');
+    }
+    
     function get_pending_part_on_sf(){
          log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
@@ -7108,7 +7157,7 @@ class Partner extends CI_Controller {
         if(!empty($brand))
             $data['where']['collateral.brand'] =  $brand;
         if(!empty($request_type))
-            $data['where_in']['request_type.id'] =  $request_type;
+            $data['where_in']['request_type'] =  $request_type;
         
         $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
         $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');

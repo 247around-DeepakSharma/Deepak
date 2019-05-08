@@ -26,7 +26,6 @@
         <script src="<?php echo base_url();?>js/sweetalert.min.js"></script>
         <!-- Datatable JS-->
         <script type="text/javascript" src="<?php echo base_url() ?>assest/DataTables/datatables.min.js"></script>
-        
         <!-- Daterange picker-->
         <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
         <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -38,110 +37,104 @@
             }
             #datepicker{cursor:pointer;}
             .card,.long-card {
-                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-                transition: 0.3s;
-                border-radius: 5px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            border-radius: 5px;
             }.long-card{
-                min-height: 230px;
+            min-height: 230px;
             }
-
             .card:hover {
-                box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
             }
             .card h5{
-                font-size: 16px;
+            font-size: 16px;
             }
             .long-card h5{
-                font-size: 16px;
+            font-size: 16px;
             }
-
             img {
-                border-radius: 5px 5px 0 0;
+            border-radius: 5px 5px 0 0;
             }
-
             .container {
-                padding: 2px 16px;
+            padding: 2px 16px;
             }
             .modal-title{
-                color: #333;
-                font-weight: 700;
+            color: #333;
+            font-weight: 700;
             }
             .nt-badge{
-                font-weight: bold;
-                bottom: 14px;
-                left: 70px;
-                position: relative;
-                background-color: green;
+            font-weight: bold;
+            bottom: 14px;
+            left: 70px;
+            position: relative;
+            background-color: green;
             }
             .notification:hover {
-                background: red;
+            background: red;
             }
-
             .notification .badge {
-                position: absolute;
-                top: 0px;
-                right: -2px;
-                padding: 3px 6px;
-                border-radius: 50%;
-                background-color: red;
-                color: white;
+            position: absolute;
+            top: 0px;
+            right: -2px;
+            padding: 3px 6px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
             }
             .notification { 
-                background: none;
+            background: none;
             }
             /* MODAL FADE LEFT RIGHT BOTTOM */
             .export_modal .modal.fade:not(.in).left .modal-dialog {
-                -webkit-transform: translate3d(-25%, 0, 0);
-                transform: translate3d(-25%, 0, 0);
+            -webkit-transform: translate3d(-25%, 0, 0);
+            transform: translate3d(-25%, 0, 0);
             }
             .export_modal .modal.fade:not(.in).right .modal-dialog {
-                -webkit-transform: translate3d(25%, 0, 0);
-                transform: translate3d(25%, 0, 0);
+            -webkit-transform: translate3d(25%, 0, 0);
+            transform: translate3d(25%, 0, 0);
             }
             .export_modal .modal.fade:not(.in).bottom .modal-dialog {
-                -webkit-transform: translate3d(0, 25%, 0);
-                transform: translate3d(0, 25%, 0);
+            -webkit-transform: translate3d(0, 25%, 0);
+            transform: translate3d(0, 25%, 0);
             }
             .export_modal .modal.right .modal-dialog {
-                position:absolute;
-                top:0;
-                right:0;
-                margin:0;
+            position:absolute;
+            top:0;
+            right:0;
+            margin:0;
             }
             .export_modal .modal.right .modal-content {
-                min-height:100vh;
-                border:0;
-                border-radius: 0px;
+            min-height:100vh;
+            border:0;
+            border-radius: 0px;
             }
             .export_modal .modal.right .modal-footer {
-                position: fixed;
-                left: 0;
-                right: 0;
+            position: fixed;
+            left: 0;
+            right: 0;
             }
             .export_modal .modal-header .close {
-                margin-top: -2px;
-                position: absolute;
-                top: 4px;
-                left: -30px;
-                background-color: #183247;
-                width: 30px;
-                height: 30px;
-                opacity: 1;
-                color: #fff;
+            margin-top: -2px;
+            position: absolute;
+            top: 4px;
+            left: -30px;
+            background-color: #183247;
+            width: 30px;
+            height: 30px;
+            opacity: 1;
+            color: #fff;
             }
         </style>
-        
         <?php if(ENVIRONMENT === 'production') { ?> 
-            <!-- Global site tag (gtag.js) - Google Analytics -->
-            <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>"></script>
-            <script>
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', '<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>');
-            </script>
-
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            
+            gtag('config', '<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID; ?>');
+        </script>
         <?php } ?>
     </head>
     <body>
@@ -159,7 +152,6 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -200,19 +192,20 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge defectivecount" >0</span>Spare Parts <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                
                                 <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts (<span class="defectivecount"></span>)</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
                                 <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/defective_part_shipped_by_sf">Defective Parts Shipped By SF</a></li>
+                                <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/search_docket_number">Search Docket Number</a></li>
                                 <li role="separator" class="divider"></li>
-                               <?php  
-                                if ($this->session->userdata('is_wh') == 1) { ?> 
-                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li> 
-                                                                      
-                              <?php   }
-                               ?>
+                                <?php  
+                                    if ($this->session->userdata('is_wh') == 1) { ?> 
+                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li>
+                                <li class="divider"></li>
+                                <?php   }
+                                    ?>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -229,7 +222,6 @@
                                 </li>
                             </ul>
                         </li>
-                        
                         <?php if($this->session->userdata('service_center_id') == '10'){ ?>
                         <li>
                             <a href="<?php echo base_url() ;?>employee/service_centers/show_brackets_list"><span style="font-weight: bold;" class="badge nt-badge" id="brackets_count" title="New Brackets Request">0</span>Brackets</a>
@@ -270,83 +262,36 @@
                             </ul>
                         </li>
                         <?php } ?>
-                        <?php  if(1){ ?>
                         <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                <span style="font-weight: bold;" class="badge nt-badge <?php if($this->session->userdata('is_wh') != 1){echo 'hide';}  ?>" id="inventory_count" title="New Spare Request">0</span><?php if ($this->session->userdata('is_wh') == 1) {echo "Warehouse";
-                                    }else if($this->session->userdata('is_micro_wh') == 1){echo "Micro Warehouse";
-                                    }else{ echo "Inventory";
-                                    } ?>
-                                     <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-
-                                        <?php  
-                                            if ($this->session->userdata('is_wh') == 1) { ?>
-                                              <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li> 
-                                              <li class="divider"></li>  
-                                              <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer</strong></a></li> 
-                                              <li class="divider"></li>   
-                                              
-                                          <?php   }
-
-                                     ?>
-                               <!-- <li role="separator" class="divider"></li>
-                                      <li class="dropdown dropdown-submenu">
-                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Outbound Processing</strong></a>     
-                                        <ul class="dropdown-menu">                                           
-                                            <li><a href="<?php echo base_url();?>service_center/spare_parts"><strong> Send To SF</strong></a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="<?php echo base_url();?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Send To Partner</strong></a>
-                                            </li>                                                                        
-<!--                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Defective Spare Shipped By SF</strong></a>
-                                            </li>
-                                            <li class="divider"></li>
-                                            <li><a href="<?php echo base_url(); ?>service_center/approved_defective_parts_booking_by_warehouse"><strong> Defective Spare Received </strong></a>
-                                            </li>
-                                            <li class="divider"></li>
-                                        </ul>
-                                    </li> 
-                                   <li class="divider"></li>
-                                    <li class="dropdown dropdown-submenu">
-                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
-                                        <ul class="dropdown-menu">                                           
-                                            <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="<?php echo base_url();?>service_center/defective_spare_parts"><strong> Acknowledge Shipped Spares By SF </strong></a>
-                                            </li>                                                                            
-                                        </ul>
-                                    </li>-->
-                                                                    
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
-                                    <li class="divider"></li>
-
-                                    <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>  
-                                    
-                                    <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <span style="font-weight: bold;" class="badge nt-badge <?php if($this->session->userdata('is_wh') != 1){echo 'hide';}  ?>" id="inventory_count" title="New Spare Request">0</span><?php if ($this->session->userdata('is_wh') == 1) {echo "Warehouse";
+                                }else if($this->session->userdata('is_micro_wh') == 1){echo "Micro Warehouse";
+                                }else{ echo "Inventory";
+                                } ?>
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <?php  
+                                    if ($this->session->userdata('is_wh') == 1) { ?>
+                                        <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
                                         <li class="divider"></li>
-                                        <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
-                                   <?php }?>  
-                                </ul>
-                            </li>
-                        <?php }else if ($this->session->userdata('is_micro_wh') == 1) { ?>
-                          <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold;" class="badge nt-badge" id="inventory_count" title="New Spare Request">0</span>Micro Warehouse <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
-<!--                                    <li role="separator" class="divider"></li> 
-                                    <li><a href="<?php //echo base_url(); ?>service_center/inventory/requested_spare_on_sf"><strong>Spare Parts In Current</strong></a></li>-->
-                                    <li role="separator" class="divider"></li>                          
-                                    <li class="dropdown dropdown-submenu">
-                                        <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <strong>Inbound Processing</strong></a>     
-                                        <ul class="dropdown-menu">
-                                            <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                        <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer</strong></a></li>
+                                        <li class="divider" style="height: 1.5px;"></li>
+                                <?php   }
+                                    ?>
+                                       
+                                <li><a href="<?php echo base_url(); ?>service_center/inventory/inventory_list"><strong>Inventory List</strong></a></li>
+                                <li class="divider" style="height: 1.5px;"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/inventory/alternate_parts_inventory_list"><strong>Alternate Parts Inventory List</strong></a></li>
+                                <li class="divider" style="height: 1.5px;"></li>
+                                <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>
+                                <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
+                                <li class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
+                                <?php }?>  
+                            </ul>
+                        </li>
 
-                                </ul>
-                            </li>      
-                        <?php } ?>
+                      
                         <li>
                             <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
                         </li>
@@ -356,41 +301,37 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><b>&nbsp;Contact Us&nbsp;</b></a>
-                        </li>
+                                    <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactUsModal"><b>&nbsp;Contact Us&nbsp;</b></a>
+                                </li>
                                 <li role="separator" class="divider"></li>
-                             <li>
-                            <a href="<?php echo base_url();?>employee/service_centers/holiday_list"><b>&nbsp;Holiday List&nbsp;</b></a>
-                        </li>
+                                <li>
+                                    <a href="<?php echo base_url();?>employee/service_centers/holiday_list"><b>&nbsp;Holiday List&nbsp;</b></a>
+                                </li>
                             </ul>
                         </li>
-                        
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
                         <?php if($is_buyback != 'buyback'){ ?>
-                            <li>
-                                <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search" onsubmit="return checkStringLength()">
-                                    <div class="form-group">
-                                        <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text" id="searched_text">
-                                    </div>
-                                    <!--                      <button type="submit" class="btn btn-default">Submit</button>-->
-                                </form>
-                            </li>
+                        <li>
+                            <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search" onsubmit="return checkStringLength()">
+                                <div class="form-group">
+                                    <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text" id="searched_text">
+                                </div>
+                                <!--                      <button type="submit" class="btn btn-default">Submit</button>-->
+                            </form>
+                        </li>
                         <?php } else{ ?>
-                            <li>
-                                <a href="javascript:void(0)" style="width:110%;margin-top: -9px;">
-                           
-                                <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
-                                       style=" border-radius:25px 25px 25px 25px">
-                            
+                        <li>
+                            <a href="javascript:void(0)" style="width:110%;margin-top: -9px;">
+                            <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
+                                style=" border-radius:25px 25px 25px 25px">
                             </a>
-                            </li>
-                       <?php  } ?>
-<!--                        <li>
+                        </li>
+                        <?php  } ?>
+                        <!--                        <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
-                        </li>-->
-
+                            </li>-->
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <i ></i> <?php echo substr($this->session->userdata('service_center_name'),0,10); ?> <i class="fa fa-caret-down"></i>
@@ -403,18 +344,18 @@
                                 </li>
                             </ul>
                         </li>
-<!--                        <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
-                                    <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('service_center_id'); ?>,'vendor')"></a>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 34px;border: 1px solid #2c9d9c;
-                                            height: auto;max-height: 650px;overflow-x: hidden;"> 
-                                    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-                                    </ul>
-  </div></li>-->
+                        <!--                        <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
+                            <a class=" dropdown-toggle fa fa-bell" id="notification_holder"  data-toggle="dropdown" onclick="get_notifications(<?php echo $this->session->userdata('service_center_id'); ?>,'vendor')"></a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="notification_holder" id="notification_container" style="padding-top: 0px;margin-top: 34px;border: 1px solid #2c9d9c;
+                                    height: auto;max-height: 650px;overflow-x: hidden;"> 
+                            <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                            </ul>
+                            </div></li>-->
                         <li><a href="<?php echo base_url()?>employee/service_centers/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
                         <li>
                             <a href="#" class="notification" onclick="read_dashboard_notification()">
-                                <i class="fa fa-bell"></i>
-                                <span class="badge" id="dashboard_notification_count">0</span>
+                            <i class="fa fa-bell"></i>
+                            <span class="badge" id="dashboard_notification_count">0</span>
                             </a>
                         </li>
                     </ul>
@@ -428,58 +369,51 @@
             <div style="text-align: right; margin-top: -19px; margin-right: 10px;"><i class="fa fa-times" aria-hidden="true" onclick="marquee_close()"></i></div>
         </div>
         <div class="main_search">
-                    <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:93%;border: none;background-color: #2C9D9C">
-    <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
+            <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:93%;border: none;background-color: #2C9D9C">
+            <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
         </div>
         <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
-             <div class="modal-dialog">
-
-                 <!-- Modal content-->
-                 <div class="modal-content">
-                     <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
-                         <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
-                         <h4 class="modal-title"style="color:white;text-align: center;">Partners Contacts</h4>
-                     </div>
-                     <div class="modal-body">
-
-                     </div>
-                     </div>
-
-
-             </div>
-         </div>
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
+                        <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
+                        <h4 class="modal-title"style="color:white;text-align: center;">Partners Contacts</h4>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
         <style type="text/css">
         </style>
     </body>
 </html>
-
 <!-- Start Dashboard Notification Modal -->
-    <div class="export_modal">
-        <div class="modal fade right" id="dashboard_notification" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form method="post" action="">
+<div class="export_modal">
+    <div class="modal fade right" id="dashboard_notification" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" action="">
                     <div class="modal-header" style="background:#d9edf7">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="main_modal_title"><i class="fa fa-fw fa-desktop" style="margin: 10px;"></i>247around Notifications</h4>
                     </div>
                     <div class="modal-body" id="main_modal_body" style="height: 630px; overflow-y: auto;">
                         <table style="width: 100%; line-height: 25px;" id="dashboard_notification_table">
-                            
                         </table>
                     </div>
                     <div class="modal-footer">
                         <div class="text-right">
                             <div class="btn btn-default" data-dismiss="modal">Cancel</div>
-                         </div>
+                        </div>
                     </div>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 <!-- End -->
-
 <script>
     $("#partner_tollfree").click(function(){
                     $("#partner_tollfree_no_modal").modal("show");
@@ -569,7 +503,7 @@
     
     function search_order_id(ele){
         if(event.keyCode === 13 && ele.value !== '') {
-
+    
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/service_centers/search_for_buyback',
@@ -577,13 +511,13 @@
                 success: function (response) {
                  console.log(response);
                  $(".right_col").html(response);
-
+    
                 }
             });
         }
     }
-
-
+    
+    
     function showConfirmDialougeBox(url){
         swal({
                 title: "Do You Want To Continue?",
@@ -596,7 +530,7 @@
                 window.location.href = url;
             });
     }
-
+    
     function checkStringLength() {
             var searched_text = $("#searched_text").val();
             var regex = new RegExp("^[a-zA-Z0-9- ]+$");
@@ -611,7 +545,7 @@
                 alert("Special character not allowed");
                 return false;
             }
-
+    
     }
     
     function get_notifications(entity_id,entity_type){
@@ -689,31 +623,31 @@
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
-        background-color: #2c9d9c;
+    background-color: #2c9d9c;
     }
     .navigation_li{
-        font-size:14px;
-        color: #fff;
-        list-style: none;
-        padding: 2px 0px 0px 42px;
+    font-size:14px;
+    color: #fff;
+    list-style: none;
+    padding: 2px 0px 0px 42px;
     }
     .navigation_li a:hover {
-        background: none;
+    background: none;
     }
     .Normal{
-        background: url(<?php echo base_url() ?>/images/norm_final.png) 7px 5px no-repeat;
+    background: url(<?php echo base_url() ?>/images/norm_final.png) 7px 5px no-repeat;
     }    
     .Important{
-        background: url(<?php echo base_url() ?>/images/n_imp_final.png) 7px 13px no-repeat;
+    background: url(<?php echo base_url() ?>/images/n_imp_final.png) 7px 13px no-repeat;
     }
     .no_new_notification{
-        color: #000;
-            text-align: center;
-        padding: 3px;
+    color: #000;
+    text-align: center;
+    padding: 3px;
     }
     .navbar-top-links .dropdown-menu li a {
-            margin-left: 14px;
-            padding: 3px 8px;
+    margin-left: 14px;
+    padding: 3px 8px;
     }
     .marginBottom-0 {margin-bottom:0;}
     .dropdown-submenu{position:relative;}
@@ -722,29 +656,28 @@
     .dropdown-submenu:hover>a:after{border-left-color:#555;}
     .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
     .notification_icon{ 
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        box-shadow: 0 6px 10px 0 #666;
-        font-size: 18px;
-        line-height: 45px;
-        text-align: center; 
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    box-shadow: 0 6px 10px 0 #666;
+    font-size: 18px;
+    line-height: 45px;
+    text-align: center; 
     }
     .notification_icon_td{
-        width: 65px;
-        vertical-align: top;
-        padding-top: 10px;
+    width: 65px;
+    vertical-align: top;
+    padding-top: 10px;
     }
     .marquee {
-        width: 98%;
-        overflow: hidden;
-        background: #faebcc;
-        height: 25px;
-        padding: 2px;
+    width: 98%;
+    overflow: hidden;
+    background: #faebcc;
+    height: 25px;
+    padding: 2px;
     }
-
     #bs-example-navbar-collapse-1 {
     margin-top: 14px;
     margin-left: 125px !important;
-}
+    }
 </style>

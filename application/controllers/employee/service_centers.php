@@ -271,22 +271,25 @@ class Service_centers extends CI_Controller {
         
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
         $data['symptom'] = $data['completion_symptom'] =  $data['technical_solution'] = array();
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
-            $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-        
-        } 
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
-            $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-        
+        if(count($data['booking_symptom'])>0) {
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
+                $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+
+            } 
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
+                $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
+
+            }
+            if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
+                $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
+                $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
+
+            }
+            if(!is_null($data['booking_symptom'][0]['solution_id'])){
+                $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
+
+            }
         }
-        if(!empty($data['booking_symptom'][0]['defect_id_completion'])){
-            $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
-            $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-        }
-        if(!empty($data['booking_symptom'][0]['solution_id'])){
-            $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-        
-        } 
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
@@ -399,16 +402,16 @@ class Service_centers extends CI_Controller {
                 array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $price_tags));
         
         if(count($data['technical_problem']) <= 0) {
-            $data['technical_problem'][0] = array('id' => 1, 'symptom' => 'Default');
+            $data['technical_problem'][0] = array('id' => 0, 'symptom' => 'Default');
         }
         
         $data['technical_defect'] = array();
-        if(!empty($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+        if(count($data['booking_symptom'])>0 && !is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
                     array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
         }
         else {
-            $data['technical_defect'][0] = array('defect_id' => 1, 'defect' => 'Default');
+            $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -2544,6 +2547,10 @@ function update_defective_parts($sp_id) {
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
+                    $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
+                    if(!empty($is_p)){
+                        $data['approved_defective_parts_by_admin'] = 1;
+                    }
 
                     $booking_id = $this->input->post('booking_id');
                     $partner_id = $this->input->post('booking_partner_id');
@@ -4549,9 +4556,50 @@ function update_defective_parts($sp_id) {
      *  @return : void
      */
     function inventory_stock_list(){
-       //  $this->check_WH_UserSession();
+        $this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/inventory_stock_list');
+    }
+      
+    /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory.
+     *          By using this method SF can can only see their current stock of their warehouses.
+     *  @param : $partner_id
+     *  @param :$inventory_id
+     * @param :$service_id
+     *  @return : void
+     */
+    function alternate_inventory_stock_list($partner_id, $inventory_id, $service_id) {
+        $this->check_WH_UserSession();
+        $where = array(
+            'inventory_master_list.entity_id' => $partner_id,
+            'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
+            'inventory_master_list.inventory_id' => $inventory_id,
+            'inventory_master_list.service_id' => $service_id,
+        );
+
+        $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
+        $data = array();
+        $data['partner_id'] = $partner_id;
+        $data['inventory_id'] = $inventory_id;
+        $data['service_id'] = $service_id;
+        if (!empty($inventory_list)) {
+            $data['part_name'] = $inventory_list[0]['part_name'];
+        }
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/alternate_inventory_stock_list', $data);
+    }
+
+    /**
+     *  @desc : This function is used to show the current alternate spare parts stock of partner inventory.
+     *          By using this method SF can can only see their current stock of their warehouses.
+     *  @return : void
+     */
+    function  alternate_parts_inventory_list(){
+        $this->check_WH_UserSession();
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/alternate_parts_list');
+        
     }
     
     /**
@@ -6039,11 +6087,11 @@ function update_defective_parts($sp_id) {
         $symptom_id = $this->input->post('technical_problem');
         
         $data = array();
-        if(!empty($symptom_id)){
+        if(!is_null($symptom_id)){
           $data = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $symptom_id));
         }
-        else {
-            $data[0] = array('defect_id' => 1, 'defect' => 'Default');
+        if(count($data)<=0) {
+            $data[0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         echo json_encode($data);
     }
@@ -6056,11 +6104,11 @@ function update_defective_parts($sp_id) {
         $defect_id = $this->input->post('technical_defect');
         
         $data = array();
-        if(!empty($symptom_id) && !empty($defect_id)){
+        if(!is_null($symptom_id) && !is_null($defect_id)){
           $data = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $symptom_id, 'defect_id' => $defect_id));
         }
-        else {
-            $data[0] = array('solution_id' => 1, 'technical_solution' => 'Default');
+        if(count($data)<=0) {
+            $data[0] = array('solution_id' => 0, 'technical_solution' => 'Default');
         }
         echo json_encode($data);
     }
@@ -6102,6 +6150,13 @@ function update_defective_parts($sp_id) {
             $this->load->view('service_centers/spare_part_transfer',$data);   
         }
     }
+    
+    
+  
+        /*
+      This function is for spare transfer  
+     */
+  
     
     function do_spare_transfer(){
         $frominventory = $this->input->post('frominventry');
@@ -6161,6 +6216,33 @@ function update_defective_parts($sp_id) {
         }
         
     }
+    
+        /*
+      This function is for list of defective part shipped by SF  
+     */
+    
+        function defective_part_shipped_by_sf($offset = 0){
+           $this->checkUserSession();
+           log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+           $service_center_id = $this->session->userdata('service_center_id');
+           $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
+                . "  AND status='".DEFECTIVE_PARTS_SHIPPED."'";
+
+           $config['base_url'] = base_url() . 'service_center/defective_part_shipped_by_sf';
+           $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+           $config['total_rows'] = $total_rows[0]['total_rows'];
+           $config['per_page'] = 50;
+           $config['uri_segment'] = 3;
+           $config['first_link'] = 'First';
+           $config['last_link'] = 'Last';
+           $this->pagination->initialize($config);
+           $data['links'] = $this->pagination->create_links();
+           $data['count'] = $config['total_rows'];
+           $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+           $this->load->view('service_centers/header');
+           $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
+    }
+    
     
     
 }

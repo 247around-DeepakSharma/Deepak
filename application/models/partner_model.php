@@ -1907,7 +1907,6 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
         $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
         $this->db->join('services','services.id=collateral.appliance_id','left');
-        $this->db->join('request_type','request_type.service_id=services.id','left');
         $this->db->group_by($group_by);
         $this->db->order_by($order_by_column,$sorting_type);
         

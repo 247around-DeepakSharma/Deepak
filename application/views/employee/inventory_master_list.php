@@ -150,6 +150,7 @@
                         <th>Customer Price</th>
                         <th>Edit</th>
                         <th>Get Model</th>
+                        <th>Alternate Parts</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -635,7 +636,7 @@
                         $('#error_id').html(data.msg).css('color','red');
                         inventory_master_list_table.ajax.reload();
                     }
-                    $('#master_list_submit_btn').attr('disabled',false).html('Add');
+                    $('#master_list_submit_btn').attr('disabled',false).html('Submit');
                 }
             });
         }

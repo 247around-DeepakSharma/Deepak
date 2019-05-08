@@ -1090,6 +1090,7 @@ class service_centre_charges extends CI_Controller {
         
        $combos = $this->generate_combinations($data);
        $service_data = $this->generate_service_charges_data($form_data, $combos, $existing_key, $key_data);
+       
        if(!empty($service_data['service_charge'])){
            $this->service_centre_charges_model->insert_data_in_temp("service_centre_charges", $service_data['service_charge']);
        }
@@ -1165,6 +1166,10 @@ class service_centre_charges extends CI_Controller {
         $data['tax_code'] = $tax_code;
         $data['pod'] = $pod;
         $data['is_upcountry'] = -1;
+        $data['flat_upcountry'] = 0;
+        $data['upcountry_customer_price'] = 0;
+        $data['upcountry_vendor_price'] = 0;
+        $data['upcountry_partner_price'] = 0;
         $data['customer_total'] = 0;
         $data['customer_net_payable'] = 0;
         $data['partner_net_payable'] = 0;
