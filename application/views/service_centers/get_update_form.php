@@ -133,7 +133,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-
+ 
                                             <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                         </div>
                                     </div>
@@ -144,9 +144,6 @@
                                         <div class="col-md-6">
                                             <input type="file" class="form-control spare_parts   " id="serial_number_pic"       name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
-
-                                        </div>
-
                                         </div>
                                         <?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){ ?>
                                             <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL.$unit_serial_number_pic;}  ?>">View</a>
@@ -539,8 +536,8 @@ function alpha(e) {
      });
      
      if(checkbox_value ===0){
-     	  alert('Please select atleast one checkbox.');
-     	  checkbox_value = 0;
+          alert('Please select atleast one checkbox.');
+          checkbox_value = 0;
      }
      
       var reason = $("input[name='reason']:checked"). val();
