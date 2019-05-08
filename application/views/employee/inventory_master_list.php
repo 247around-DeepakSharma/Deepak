@@ -636,7 +636,7 @@
                         $('#error_id').html(data.msg).css('color','red');
                         inventory_master_list_table.ajax.reload();
                     }
-                    $('#master_list_submit_btn').attr('disabled',false).html('Add');
+                    $('#master_list_submit_btn').attr('disabled',false).html('Submit');
                 }
             });
         }

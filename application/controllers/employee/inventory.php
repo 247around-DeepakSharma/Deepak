@@ -2323,14 +2323,21 @@ class Inventory extends CI_Controller {
             if (!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type'])) {
 
                 if (!empty($data['price']) && !empty($data['hsn_code']) && !empty($data['gst_rate'])) {
-                    switch (strtolower($submit_type)) {
-                        case 'add':
-                            $data['create_date'] = date('Y-m-d H:i:s');
-                            $response = $this->add_inventoy_master_list_data($data);
-                            break;
-                        case 'edit':
-                            $response = $this->edit_inventoy_master_list_data($data);
-                            break;
+                    $where = array('inventory_master_list.part_number' => $this->input->post('part_number'));
+                    $exist_inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number', $where, array());
+                    if (empty($exist_inventory_details)) {
+                        switch (strtolower($submit_type)) {
+                            case 'add':
+                                $data['create_date'] = date('Y-m-d H:i:s');
+                                $response = $this->add_inventoy_master_list_data($data);
+                                break;
+                            case 'edit':
+                                $response = $this->edit_inventoy_master_list_data($data);
+                                break;
+                        }
+                    } else {
+                        $response['response'] = 'error';
+                        $response['msg'] = 'Part Number is already exist in our database.';
                     }
                 } else {
                     $response['response'] = 'error';
@@ -2416,7 +2423,7 @@ class Inventory extends CI_Controller {
      */
     function edit_inventoy_master_list_data($data) {
         $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')), $data);
-        ;
+
         if (!empty($response)) {
             $res['response'] = 'success';
             $res['msg'] = 'Details has been updated successfully';
