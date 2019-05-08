@@ -4837,6 +4837,7 @@ class Partner extends CI_Controller {
         $data['partner_id'] = $this->session->userdata('partner_id');
         $this->miscelleneous->load_partner_nav_header();  
         $this->load->view("partner/alternate_parts_list",$data);
+        $this->load->view('partner/partner_footer');
     }
     
     function get_pending_part_on_sf(){

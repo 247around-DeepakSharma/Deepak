@@ -230,7 +230,6 @@
                 url:'<?php echo base_url(); ?>employee/inventory/partner_wise_inventory_spare_parts_list',
                 data:{ entity_id : '<?php echo $partner_id; ?>', entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id },
                 success:function(data){   
-                    console.log(data);
                     $("#spare_parts_inventory_id").html(data);
                 }
             });
@@ -245,8 +244,8 @@
         
         $.ajax({
             type:'GET',
-            async: false,
-            url:'<?php echo base_url();?>employee/partner/get_service_id',
+            async: true,
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
