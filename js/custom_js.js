@@ -983,6 +983,7 @@ function get_symptom(symptom_id = ""){
     });
     
     if(array.length > 0){
+        postData['partner_id'] = $("#source_code option:selected").attr('data-id');
         postData['request_type'] = array;
         postData['service_id'] = $("#service_id").val();
         postData['booking_request_symptom'] = symptom_id;
