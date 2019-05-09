@@ -184,7 +184,9 @@
                                         'booking_id'=>$row->booking_id, 
                                         'user_id' => $row->user_id,
                                         'service' => $row->services,
-                                        'request_type' => $row->request_type
+                                        'request_type' => $row->request_type,
+                                        'partner_id' => $row->partner_id,
+                                        'booking_state' => $row->state
                                     ));
                 ?>
                  <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
@@ -861,7 +863,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/'+true,
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service, partner_id:json.partner_id, booking_state:json.booking_state},
                 success: function(response) {
                     //console.log(response);
                 }
