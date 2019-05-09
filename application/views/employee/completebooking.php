@@ -652,7 +652,7 @@
     $("#grand_total_price").val(price);
     });
     
-        function update_defect(){
+    function update_defect(){
         var technical_problem = $("#technical_problem").val();
         $.ajax({
             type: 'POST',
@@ -660,6 +660,8 @@
             data:{technical_problem:technical_problem},
             success: function (response) {
                 $('#technical_solution').attr('disabled',true);
+                $('#select2-technical_defect-container').empty();
+                $('#select2-technical_solution-container').empty();
                 $('#technical_defect').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
@@ -685,6 +687,7 @@
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
+                $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
                 var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
