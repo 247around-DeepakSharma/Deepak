@@ -10846,6 +10846,17 @@ UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
 UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
 
+--Gorakh 07-05-2019
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload Alternate Parts  List', NULL, 'upload_alternate_spare_parts_file', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-05-07 13:24:48');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Alternate part Inventory  List', NULL, 'employee/inventory/alternate_parts_inventory_list', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:28:47');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
 --Kajal 07-05-2019 starting--
 insert into symptom values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
 insert into defect values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
