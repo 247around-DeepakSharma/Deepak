@@ -1047,8 +1047,9 @@ class Notify {
     }
     
     function get_vediocon_state_whatsapp_number($state){
-        if (array_key_exists($state, VIDEOCON_STATES_WHATSAPP_NUMBER)){ 
-            return VIDEOCON_STATES_WHATSAPP_NUMBER[$state];
+        $videocon_states_number = array("Uttar Pradesh" => "8448759247", "Delhi" => "8130070247", "Maharashtra" => "8130070247", "Gujarat" => "8130070247");
+        if (array_key_exists($state, $videocon_states_number)){ 
+            return $videocon_states_number[$state];
         }
         else{
             return _247AROUND_WHATSAPP_NUMBER;
