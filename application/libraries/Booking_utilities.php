@@ -912,7 +912,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     }
     
     function check_feature_enable_or_not($fetaure){
-        $c2c_enable = true;
+        $c2c_enable = TRUE;
         $permission = json_decode(PERMISSION_CONSTANT, TRUE);
         if(!empty($permission) && isset($permission[$fetaure])){
             $c2c_enable =  $permission[$fetaure]['is_on'];

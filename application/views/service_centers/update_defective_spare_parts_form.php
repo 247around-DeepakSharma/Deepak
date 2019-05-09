@@ -382,6 +382,7 @@
                         
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").attr('readonly',"readonly");
+                        $("#courier_name_by_sf").css("pointer-events","none");
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
                         // $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
                         $('#courier_name_by_sf').val(courier).trigger('change');

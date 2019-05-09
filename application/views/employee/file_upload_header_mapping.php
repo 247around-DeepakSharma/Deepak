@@ -409,15 +409,12 @@
     
     $(document).on("click", "#edit_mapping_details", function () {
         var form_data = $(this).data('id');
-
-
         $("#email_map_id").val(form_data.email_map_id)
-
         var options = "<option value='"+form_data.partner_id+"' selected='' readonly=''>"+form_data.public_name+"</option>";
-        
         $('#partner_id').html(options);
         $('#r_d_a_t').val(form_data.referred_date_and_time);
-        $("#request_type").val(form_data.category);
+        $("#request_type").val(form_data.request_type);
+        $("#category").val(form_data.category);
         $('#sub_order_id').val(form_data.sub_order_id);
         $('#brand').val(form_data.brand);
         $('#model').val(form_data.model);
@@ -432,50 +429,25 @@
         $('#delivery_date').val(form_data.delivery_date);
         $('#order_item_id').val(form_data.order_item_id);
         $('#spd').val(form_data.spd);
-
-
         $('#host').val(form_data.email_host);
 
+       var ty = form_data.file_type;
+       if (form_data.file_type!=null) {
+      var filetype = ty.split("-")
+      if (filetype[1]=='Delivered') {
+      $('#filetype').val("Delivered");
+      }else{
+      $('#filetype').val("Shipped");   
+       }
+      }
 
-var ty = form_data.file_type;
-
-
-if (form_data.file_type!=null) {
-  var filetype = ty.split("-")
-
-if (filetype[1]=='Delivered') {
-   $('#filetype').val("Delivered");
-}else{
-
-    $('#filetype').val("Shipped");   
-}
-  
-}
-
-
-
- 
-        if (form_data.send_file_back==1) {
-
- 
-            $('#sendback').html('<option value="1" selected>Yes</option><option value="0">No</option>');
+      if (form_data.send_file_back==1) {
+        $('#sendback').html('<option value="1" selected>Yes</option><option value="0">No</option>');
             // $('#sendback').text("Yes");
-
-        }else{
-           $('#sendback').html('<option value="1">Yes</option><option value="0" selected >No</option>');
-            /// $('#sendback').val("0");
-            // $('#sendback').text("No");
-
-
+      }else{
+        $('#sendback').html('<option value="1">Yes</option><option value="0" selected >No</option>');
         }
-
         $('#revertemail').val(form_data.revert_file_to_email);
-       ///  $('#spd').val(form_data.spd);
-
-
-
-
-
         $('#file_upload_header_mapping_id').val(form_data.id);
         $('#mapping_details_submit_btn').val('Save');
         $('#modal_title_action').html("Edit Details");
