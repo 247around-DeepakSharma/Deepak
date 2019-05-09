@@ -1592,7 +1592,7 @@ class Partner extends CI_Controller {
             $data['symptom'] = array();
             if(!empty($service_category)) {
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $service_category));
+                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $service_category));
             }
             if(count($data['symptom']) <= 0) {
                 $data['symptom'][0] = array('id' => 0, 'symptom' => 'Default');

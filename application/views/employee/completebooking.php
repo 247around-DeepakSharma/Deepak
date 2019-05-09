@@ -224,6 +224,11 @@
                             </div>
                         </div>
                     </div>
+                    <?php
+                            $paid_basic_charges = 0;
+                            $paid_additional_charges = 0;
+                            $paid_parts_cost = 0;
+                    ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
@@ -275,9 +280,6 @@
                                         </tr>
                                         <tbody>
                                             <?php
-                                                $paid_basic_charges = 0;
-                                                $paid_additional_charges = 0;
-                                                $paid_parts_cost = 0;
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
                                                     <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
@@ -652,7 +654,7 @@
     $("#grand_total_price").val(price);
     });
     
-        function update_defect(){
+    function update_defect(){
         var technical_problem = $("#technical_problem").val();
         $.ajax({
             type: 'POST',
@@ -660,6 +662,8 @@
             data:{technical_problem:technical_problem},
             success: function (response) {
                 $('#technical_solution').attr('disabled',true);
+                $('#select2-technical_defect-container').empty();
+                $('#select2-technical_solution-container').empty();
                 $('#technical_defect').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
@@ -685,6 +689,7 @@
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
+                $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
                 var str="<option value='' selected='' disabled=''>Please Select Solution</option>";

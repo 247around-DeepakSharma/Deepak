@@ -401,7 +401,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/',
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service, partner_id:json.partner_id, booking_state:json.booking_state},
                 success: function(response) {
                     //console.log(response);
                 }

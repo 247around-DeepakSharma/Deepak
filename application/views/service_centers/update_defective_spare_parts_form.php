@@ -134,7 +134,7 @@
                                     <label for="courier" class="col-md-4">Courier Name *</label>
                                     <div class="col-md-6">
                                         <select class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" required>
-                                            <option selected="" disabled="" value="">Select Courier Name *</option>
+                                            <option selected="" disabled="" value="">Select Courier Name</option>
                                             <?php foreach ($courier_details as $value1) { ?> 
                                             <option <?php if ((set_value("courier_name_by_sf") == $value1['courier_name'])) {
                                                 echo "selected";
@@ -382,6 +382,7 @@
                         
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").attr('readonly',"readonly");
+                        $("#courier_name_by_sf").css("pointer-events","none");
                         var courier = data.message[0]['courier_name_by_sf'].toLowerCase();
                         // $('#courier_name_by_sf option[value="'+data.message[0].courier_name_by_sf.toLowerCase()+'"]').attr("selected", "selected");
                         $('#courier_name_by_sf').val(courier).trigger('change');

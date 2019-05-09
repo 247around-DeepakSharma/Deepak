@@ -10977,3 +10977,14 @@ UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list'
 --Kalyani 08-05-2019
 INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
 
+---Abhishek 08-05-2019
+
+
+--Kalyani 08-05-2019
+INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
+
+
+---Abhishek 08-05-2019
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;

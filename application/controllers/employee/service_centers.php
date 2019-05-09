@@ -399,7 +399,7 @@ class Service_centers extends CI_Controller {
         $data['bookng_unit_details'] = $bookng_unit_details;
         
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1), array('request_type.service_category' => $price_tags));
+                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['booking_history'][0]['partner_id']), array('request_type.service_category' => $price_tags));
         
         if(count($data['technical_problem']) <= 0) {
             $data['technical_problem'][0] = array('id' => 0, 'symptom' => 'Default');
@@ -408,9 +408,9 @@ class Service_centers extends CI_Controller {
         $data['technical_defect'] = array();
         if(count($data['booking_symptom'])>0 && !is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
-                    array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
+                    array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time'], 'partner_id' => $data['booking_history'][0]['partner_id']));
         }
-        else {
+        if(count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         $this->load->view('service_centers/header');
@@ -1534,6 +1534,7 @@ class Service_centers extends CI_Controller {
                 $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                 $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                 $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+                $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
 
                 if (!empty($warehouse_details['inventory_id'])) {
                     $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
@@ -1883,7 +1884,7 @@ class Service_centers extends CI_Controller {
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['challan_approx_value'] = $warehouse_details['estimate_cost'];
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
-
+                            $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
                             if (!empty($warehouse_details['inventory_id'])) {
                                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             }
@@ -2480,6 +2481,10 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/approved_defective_parts', $data);
     }
+    
+   
+    
+    
     /**
      * @desc: This method is used to load update form(defective shipped parts)
      * @param String $sp_id
