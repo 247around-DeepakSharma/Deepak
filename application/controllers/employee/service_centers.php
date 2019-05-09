@@ -4561,7 +4561,7 @@ function update_defective_parts($sp_id) {
      *  @return : void
      */
     function inventory_stock_list(){
-        $this->check_WH_UserSession();
+        //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/inventory_stock_list');
     }
@@ -4575,7 +4575,7 @@ function update_defective_parts($sp_id) {
      *  @return : void
      */
     function alternate_inventory_stock_list($partner_id, $inventory_id, $service_id) {
-        $this->check_WH_UserSession();
+        //$this->check_WH_UserSession();
         $where = array(
             'inventory_master_list.entity_id' => $partner_id,
             'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING,
