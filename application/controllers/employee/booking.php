@@ -1377,8 +1377,7 @@ class Booking extends CI_Controller {
                     $html .= "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 else{
-                    $html .= "  onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" .
-                            "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number . "data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 $i++;
             }
