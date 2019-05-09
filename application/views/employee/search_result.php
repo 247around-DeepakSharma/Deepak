@@ -179,13 +179,7 @@
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                 <?php  foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {
-                       $sms_json =  json_encode(array(
-                                        'phone_number'=>$row->phone_number, 
-                                        'booking_id'=>$row->booking_id, 
-                                        'user_id' => $row->user_id,
-                                        'service' => $row->services,
-                                        'request_type' => $row->request_type
-                                    ));
+                        
                 ?>
                  <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
                     <td><?php echo $count; ?></td>
@@ -217,7 +211,7 @@
                     <?php if($c2c) { ?>
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
-                    <td><button type="button" json-data='<?php echo $sms_json; ?>' onclick="send_whtasapp_number(this)" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
+                    <td><button type="button" onclick="send_whtasapp_number('<?php echo $row->booking_id; ?>')" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
                     <?php } ?>
                     
                     <td>
@@ -853,15 +847,13 @@
         $("#relevant_content_modal").modal("show");
     }
     
-    function send_whtasapp_number(btn){
-       var json = JSON.parse($(btn).attr("json-data"));
-       //console.log(json);
+    function send_whtasapp_number(booking_id){
         var confirm_sms = confirm("Send Whatsapp Number ?");
         if (confirm_sms == true) {
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/'+true,
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service},
+                data:{booking_id:booking_id},
                 success: function(response) {
                     //console.log(response);
                 }
