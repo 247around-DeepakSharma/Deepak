@@ -4128,6 +4128,7 @@ class Booking extends CI_Controller {
     private function get_queries_table($order_list, $no, $query_status,$pincode_status){
         $row = array();
         $c2c = $this->input->post('c2c');
+        $sms_json = json_encode(array('phone_number'=>$order_list->booking_primary_contact_no, 'booking_id'=>$order_list->booking_id, 'user_id' => $order_list->user_id, 'appliance_brand' => $order_list->appliance_brand, 'service' => $order_list->services, 'partner_id' => $order_list->partner_id, 'booking_state'=>$order_list->state));
         $row[] = $no." <div><input type = 'hidden' id = 'service_id_".$no."' value = '".$order_list->service_id."'><input type = 'hidden' id = 'pincode_".$no."' value = '".$order_list->booking_pincode."'></div>";
         $row[] = $order_list->booking_id;
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
@@ -4159,7 +4160,7 @@ class Booking extends CI_Controller {
         }
         if($c2c){
              $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
-             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'send_whtasapp_number(".'"'.$order_list->booking_id.'"'.")'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
+             $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
         }
         
         
@@ -5231,12 +5232,31 @@ class Booking extends CI_Controller {
     /**
     * @Desc - This is used to ask customer for sending appliance's invoice
     */
-    function send_whatsapp_number(){
-        if($this->input->post('booking_id')){
-            $this->notify->send_sms_email_for_booking($this->input->post('booking_id'), "SendWhatsAppNo");
+    function send_whatsapp_number($unit_query = false){
+        $whatsapp_no = "";
+        if($unit_query == true){
+            $brand = $this->booking_model->get_unit_details(array("booking_id"=>$this->input->post("booking_id")), FALSE, "appliance_brand")[0]['appliance_brand'];
         }
         else{
-            return false;
+           $brand =  $this->input->post("appliance_brand");
         }
+        if($this->input->post("partner_id") == VIDEOCON_ID){
+            $whatsapp_no = $this->notify->get_vediocon_state_whatsapp_number($this->input->post("booking_state"));
+        }
+        else{
+            $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
+        }
+        $sms = array();
+        $sms['status'] = "";
+        $sms['phone_no'] = trim($this->input->post("phone_no"));
+        $sms['booking_id'] = $this->input->post("booking_id");
+        $sms['type'] = "user";
+        $sms['type_id'] = $this->input->post("user_id");
+        $sms['tag'] = SEND_WHATSAPP_NUMBER_TAG;
+        $sms['smsData']['brand'] = $brand;
+        $sms['smsData']['service'] = $this->input->post("service");
+        $sms['smsData']['whatsapp_no'] = $whatsapp_no;
+        $sms['smsData']['partner_brand'] = $brand;
+        $this->notify->send_sms_msg91($sms);
     }
 }

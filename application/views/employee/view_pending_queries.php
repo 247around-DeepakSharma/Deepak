@@ -394,13 +394,14 @@
         });
     }
     
-    function send_whtasapp_number(booking_id){
+    function send_whtasapp_number(btn){
+        var json = JSON.parse($(btn).attr("json-data"));
         var confirm_sms = confirm("Send Whatsapp Number ?");
         if (confirm_sms == true) {
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/',
-                data:{booking_id:booking_id},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service, partner_id:json.partner_id, booking_state:json.booking_state},
                 success: function(response) {
                     //console.log(response);
                 }
