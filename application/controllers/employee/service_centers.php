@@ -4603,7 +4603,7 @@ class Service_centers extends CI_Controller {
      *  @return : void
      */
     function  alternate_parts_inventory_list(){
-        $this->check_WH_UserSession();
+        //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/alternate_parts_list');
         
