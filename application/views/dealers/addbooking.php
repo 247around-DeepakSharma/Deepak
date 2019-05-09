@@ -948,6 +948,7 @@
 
         });
         if(array.length > 0){
+            postData['partner_id'] = $("#appliance_brand_1 option:selected").attr('data-id');
             postData['request_type'] = array;
             postData['service_id'] = $("#service_name").val();
             postData['booking_request_symptom'] = symptom_id;
