@@ -360,7 +360,7 @@
     
     //this function is used to get the brackets data of sf
     function sf_brackets_details(){
-        url =  '<?php echo base_url(); ?>/employee/inventory/get_inventory_snapshot';
+        url =  '<?php echo base_url(); ?>employee/inventory/get_inventory_snapshot';
         data = {is_show_all:false};
         sendAjaxRequest(data,url,post_request).done(function(response){
             create_sf_brackets_table(response);

@@ -3302,7 +3302,7 @@ function generate_image($base64, $image_name,$directory){
         $response = array(); 
 
         $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
+                . 'inventory_master_list.inventory_id, price, gst_rate','inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3365,7 +3365,8 @@ function generate_image($base64, $image_name,$directory){
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
             $response['inventory_id'] = $inventory_id;
-            $response['is_micro_wh'] = 0;
+            $response['is_micro_wh'] = 0;    //
+            $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
             $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
             $response['defective_return_to_entity_id'] = $partner_id;
 //            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {

@@ -1217,6 +1217,7 @@
 
         });
         if(array.length > 0){
+            postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
             postData['request_type'] = array;
             postData['service_id'] = $("#service_name").val();
             postData['booking_request_symptom'] = symptom_id;
