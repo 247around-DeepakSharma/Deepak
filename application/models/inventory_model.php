@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         if(isset($post['is_inventory'])){
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
         }
-        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        $this->db->join('services', 'booking_details.service_id = services.id','left');
         
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
