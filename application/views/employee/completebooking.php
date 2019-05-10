@@ -520,7 +520,7 @@
                                         <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php if(isset($technical_problem)) {
                                             foreach ($technical_problem as $value) { 
-                                                $selected=(($value['id'] == 0) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                                $selected=((($value['id'] == 0) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time'])) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
                                             <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                         <?php } } ?>
@@ -533,7 +533,7 @@
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
                                         <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { 
-                                            $selected=(($value['defect_id'] == 0) ? 'selected' :''); ?>
+                                            $selected=((($value['defect_id'] == 0) || ($value['defect_id'] == $booking_symptom[0]['defect_id_completion'])) ? 'selected' :''); ?>
                                         <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
                                     <?php }?>
                                     </select>
@@ -626,7 +626,7 @@
     var categoryForServiceUrl = '<?php echo base_url();?>/employee/booking/getCategoryForService/';
     var CapacityForCategoryUrl = '<?php echo base_url();?>/employee/booking/getCapacityForCategory/';
     
-    
+    var solution_id = "";
     $(document).ready(function () {
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
@@ -637,8 +637,15 @@
     return false;
      }
     });
-    if($('#technical_solution').val() == 0)
+    
+    solution_id = "<?=$booking_symptom[0]['solution_id']?>";
+    if(solution_id !== "") {
+        update_solution();
+    }
+    
+    if($('#technical_solution').val() == 0) {
         $('#technical_solution').removeAttr('disabled');
+    }
     });
     
     
@@ -687,17 +694,26 @@
             type: 'POST',
             url: '<?php echo base_url() ?>employee/service_centers/get_solution_on_symptom_defect',
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
+            async: false,
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
                 $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
                 var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
+                
+                var selected;
                 if(response.length>0)
                 {
                     for(var i=0;i<response.length;i++)
                     {
-                        str+="<option value="+response[i]['solution_id']+" >"+response[i]['technical_solution']+"</option>";
+                        selected="";
+                        if(response[i]['solution_id'] === solution_id)
+                        {
+                            selected = "selected";
+                            $('#select2-technical_solution-container').text(response[i]['technical_solution']);
+                        }
+                        str+="<option value="+response[i]['solution_id']+" "+selected+" >"+response[i]['technical_solution']+"</option>";
                     }
                 }
                 $('#technical_solution').append(str);
