@@ -320,6 +320,7 @@ class Service_centers extends CI_Controller {
             }
             
         }
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
@@ -2751,6 +2752,16 @@ class Service_centers extends CI_Controller {
         $booking_history['details'] = array();
         $i=0;
         
+        $main_company_public_name = "";
+        $main_company_logo = "";
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $main_company_public_name = $main_partner['main_company_public_name'];
+            $main_company_logo = $main_partner['main_company_logo'];
+        }
+       
+        
         if(!empty($booking_address)){
             
            foreach ($booking_address as $spare_id) {
@@ -2793,6 +2804,9 @@ class Service_centers extends CI_Controller {
                     $booking_history['details'][$i]['booking_id'] = $sp_details[0]['booking_id'];
                     $i++;
                 }
+                
+                $booking_history['meta']['main_company_public_name'] = $main_company_public_name;
+                $booking_history['meta']['main_company_logo'] = $main_company_logo;
             
         }else{
            //Logging

@@ -114,7 +114,7 @@
                                 if (isset($query[0]['languages'])) {
                                     echo $query[0]['languages'];
                                 }
-                                ?>" placeholder="Language Known" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 32 || event.charCode == 44">
+                                ?>" placeholder="Language Known" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 32 || event.charCode == 44 || event.charCode == 38">
                                         <?php echo form_error('languages'); ?>
                             </div>
                         </div>
@@ -255,9 +255,9 @@
     </div>
 
 <script type="text/javascript">
-    //Select 2 in groups dropdown
-    //$('#groups').select2();
-    //$('.select2-selection').css('background-color', '#FF8080');
+    $('#groups').select2();
+    $('#dept').select2();
+    $('#manager').select2();
     
     (function ($, W, D)
     {
@@ -332,10 +332,11 @@
             async:false,
             data:{'department' : department},
             success: function (response) {
+                $('#select2-groups-container').empty();
                 response=JSON.parse(response);
                 if(response.length>0)
                 {
-                    var str='';
+                    var str='<option selected disabled>Select Role</option>';
                     for(var i=0;i<response.length;i++)
                     {
                         str+="<option value ='"+response[i]['role']+"'  >"+response[i]['role']+"</option>";
