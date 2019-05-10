@@ -333,42 +333,9 @@
                         $("#search_in").focus();
                         return false;
                     }
-                    else if(event.which == 13){
-                        var mob = '^[6-9]{1}[0-9]{9}$';
-                        var regmob = new RegExp(mob);
-                        if((regmob.test(initVal)) || (!regmob.test(initVal) && check_booking_id('search_in')))
-                            return true;
-                        return false;
-                    }
                     else
                         return true;
                 }
-            }
-            
-            function check_booking_id(id){
-
-                var booking_id = $('#'+id).val().trim();
-                var is_valid_booking;
-                if(booking_id){
-                    $.ajax({
-                        method:'POST',
-                        url:'<?php echo base_url(); ?>check_booking_id_exists/'+booking_id,
-                        data:{is_ajax:true},
-                        async:false,
-                        success:function(res){
-                            var obj = JSON.parse(res);
-                            if(obj.status === true){
-                                is_valid_booking = true;
-                            }else{
-                                is_valid_booking = false;
-                                alert('Invalid Booking ID/Phone Number');
-                            }
-                        }
-                    });
-                }else{
-                    return false;
-                }
-                return is_valid_booking;
             }
             
         </script>
