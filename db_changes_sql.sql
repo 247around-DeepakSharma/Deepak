@@ -10999,4 +10999,9 @@ UPDATE `entity_role` SET `department` = 'Operations' WHERE `entity_role`.`id` in
 UPDATE `entity_role` SET `department` = 'Call Center' WHERE `entity_role`.`id` = 13;
 insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values ('247Around','Operations','accountmanager',1,CURRENT_TIMESTAMP);
 
+UPDATE `employee` SET `department` = 'Developers' WHERE groups in ('developer');
+UPDATE `employee` SET `department` = 'Admin' WHERE groups in ('admin');
+UPDATE `employee` SET `department` = 'Call Center' WHERE groups in ('callcenter');
+UPDATE `employee` SET `department` = 'Operations' WHERE groups in ('regionalmanager','accountmanager','inventory_manager','closure');
+
 --Kajal 09-05-2019 ending ---
