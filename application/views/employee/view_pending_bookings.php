@@ -166,6 +166,7 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Center</th>
+                        <th>State</th>
                         <?php if(isset($saas_module) && (!$saas_module)) { ?>
                         <th></th>
                         <?php } ?>
@@ -319,6 +320,7 @@
                     if ($('#rm_id').length){         d.rm_id          =  $('#rm_id').val();}else{ d.rm_id = ""; }
                     if ($('#is_upcountry').length){  d.is_upcountry   =  $('#is_upcountry').val();}else{ d.rm_id = ""; }
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }
+                     if ($('#state').length){d.state =  $('#state').val();}else{ d.state = ""; }
                     d.bulk_booking_id =  $('#bookingIDString').val();
                     d.internal_status = getMultipleSelectedValues('internal_status');
                     d.request_type = getMultipleSelectedValues('request_type');
