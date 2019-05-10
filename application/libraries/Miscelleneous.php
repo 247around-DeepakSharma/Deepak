@@ -3301,8 +3301,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate','inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
