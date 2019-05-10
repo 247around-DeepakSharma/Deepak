@@ -361,11 +361,12 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
-                        <?php if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
-                        <input type="hidden" name="product_type" value="Shipped"/>
-                        <?php } else { ?>
                         <input type="hidden" name="product_type" value="Delivered"/>
-                        <?php  }//if(!empty($this->session->userdata('status'))) {?>
+                        <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+<!--                        <input type="hidden" name="product_type" value="Shipped"/>-->
+                        <?php// } else { ?>
+<!--                        <input type="hidden" name="product_type" value="Delivered"/>-->
+                        <?php // }//if(!empty($this->session->userdata('status'))) {?>
                         <div class="row">
                             <div class="form-group  col-md-12" >
                                 <center>
