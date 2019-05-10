@@ -2597,7 +2597,7 @@ class Booking_model extends CI_Model {
     }
     
     function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
-        $this->db->select($select);
+        $this->db->select($select, false);
         $this->db->from('booking_details');
         $this->db->where($where);
         if($is_service){
