@@ -274,8 +274,6 @@
                                     if ($this->session->userdata('is_wh') == 1) { ?>
                                         <li><a href="<?php echo base_url(); ?>service_center/inventory"><strong>Warehouse Task</strong></a></li>
                                         <li class="divider"></li>
-                                        <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer</strong></a></li>
-                                        <li class="divider" style="height: 1.5px;"></li>
                                 <?php   }
                                     ?>
                                        
