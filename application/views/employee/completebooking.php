@@ -521,7 +521,7 @@
                                         <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php if(isset($technical_problem)) {
                                             foreach ($technical_problem as $value) { 
-                                                $selected=((($value['id'] == 0) || ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time'])) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time']))) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
                                             <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                         <?php } } ?>
@@ -534,7 +534,7 @@
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
                                         <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { 
-                                            $selected=((($value['defect_id'] == 0) || ($value['defect_id'] == $booking_symptom[0]['defect_id_completion'])) ? 'selected' :''); ?>
+                                            $selected=((($value['defect_id'] == 0) || (!empty($booking_symptom) && ($value['defect_id'] == $booking_symptom[0]['defect_id_completion']))) ? 'selected' :''); ?>
                                         <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
                                     <?php }?>
                                     </select>
@@ -639,7 +639,7 @@
      }
     });
     
-    solution_id = "<?=$booking_symptom[0]['solution_id']?>";
+    solution_id = "<?php echo (!empty($booking_symptom)?$booking_symptom[0]['solution_id']:"");?>";
     if(solution_id !== "") {
         update_solution();
     }
