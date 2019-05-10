@@ -332,6 +332,7 @@
             async:false,
             data:{'department' : department},
             success: function (response) {
+                $('#select2-groups-container').empty();
                 response=JSON.parse(response);
                 if(response.length>0)
                 {
