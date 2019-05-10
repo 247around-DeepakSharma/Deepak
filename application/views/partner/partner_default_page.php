@@ -403,7 +403,7 @@
          <?php $column = array(NULL,NUll,NUll,"age_of_request", NULL,NULL, NULL, NULL, NULL);?>
          var column_order = <?php echo json_encode($column);?>;
          var obj = '<?php echo json_encode($data); ?>';
-         var select = '<?php echo "spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, assigned_vendor_id, "
+         var select = '<?php echo "services.services, spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, assigned_vendor_id, "
          . "amount_due, spare_parts_details.id, spare_parts_details.booking_id, defective_parts_pic, serial_number_pic,booking_details.partner_id ,inventory_master_list.part_number"; ?>';
          oow_spare = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
