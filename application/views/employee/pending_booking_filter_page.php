@@ -111,6 +111,18 @@
                 </div>
             </div>
         </div>
+          <div class="col-md-4">
+            <div class="item form-group">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <select class="form-control filter_table" onchange="filter_changes()" id="state">
+                        <option value="" selected="selected" disabled="">Select State</option>
+                        <?php foreach($state as $val){ ?>
+                        <option value="<?php echo $val['state']?>"><?php echo $val['state']?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="col-md-4" <?php if($saas_module){ ?> style="display: none;" <?php } ?>>
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -147,6 +159,11 @@
             placeholder: "Select City",
             allowClear: true
         });
+        $('#state').select2({
+            placeholder: "Select State",
+            allowClear: true
+        });
+        
           $('#internal_status').select2({
             placeholder: "Select Partner Internal Status",
             allowClear: true
