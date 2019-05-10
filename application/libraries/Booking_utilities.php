@@ -373,11 +373,22 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
             }
             //Send SMS to vendor
-            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             
-            //For saving SMS to the database on sucess
-            $this->My_CI->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
-                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf", $status['content']);            
+            $sms = array();
+            $sms['status'] = "";
+            $sms['tag']="booking_details_to_sf";
+            $sms['phone_no'] = $getbooking[0]['primary_contact_phone_1'];
+            $sms['booking_id'] = $getbooking[0]['booking_id'];
+            $sms['type_id'] = $getbooking[0]['user_id'];
+            $sms['type'] = "vendor";
+            $sms['smsData']['booking_id'] = substr($getbooking[0]['name'], 0, 20);
+            $sms['smsData']['primary_contact'] = $getbooking[0]['booking_primary_contact_no'];
+            $sms['smsData']['service'] = $getbooking[0]['services'];
+            $sms['smsData']['bookingdate'] = $bookingdate;
+            $sms['smsData']['booking_timeslot'] = $getbooking[0]['booking_timeslot'];
+            $sms['smsData']['booking_address'] = substr($getbooking[0]['booking_address'], 0, 60);
+            $sms['smsData']['booking_pincode'] = $getbooking[0]['booking_pincode'];
+            $this->My_CI->notify->send_sms_msg91($sms);
         } else {
             echo "Booking does not exist.";
         }
