@@ -79,7 +79,7 @@
         <div class="hidden-xs">Engineer Action</div>
     </button>
 </div>
-    <?php }  if($booking_history[0]['current_status'] != 'Cancelled'){?>
+    <?php }  if($booking_history[0]['current_status'] != 'Cancelled' && isset($saas_module) && !$saas_module){?>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-default" href="#tab7" data-toggle="tab">
         <div class="hidden-xs">Transactions</div>
@@ -362,14 +362,18 @@
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                 <th>Charges</th>
                                 <th>Partner Offer</th>
+                                <?php if(isset($saas_module) && !$saas_module) { ?>
                                 <th>247Around Offer</th>
+                                <?php } ?>
                                 <th>Upcountry Charges</th>
                                 <th>Partner Offer Upcountry Charges</th>
                                 <th>Total Charges</th>
                                 <?php } else { ?>
                                 <th>Charges</th>
                                 <th>Partner Offer</th>
+                                <?php if(isset($saas_module) && !$saas_module) { ?>
                                 <th>247Around Offer</th>
+                                <?php } ?>
                                 <th>Upcountry Charges</th>
                                 <th>Partner Offer Upcountry Charges</th>
                                 <th>Paid Service Charges</th>
@@ -426,7 +430,9 @@
                                     <td><?php if($unit_detail['is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
                                     <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
+                                    <?php if(isset($saas_module) && !$saas_module) { ?>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                    <?php } ?>
                                     <!--Upcountry Charges-->
                                     <td><?php echo round($c_up + $p_up, 0); ?></td>
                                     <!--Partner Offer Upcountry Charges-->
@@ -439,7 +445,9 @@
                                     <td><?php if($unit_detail['is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
                                     <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                     <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
+                                    <?php if(isset($saas_module) && !$saas_module) { ?>
                                     <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                    <?php } ?>
                                     <td><?php if($key == 0){ if($booking_history[0]['is_upcountry'] == 1){ echo round($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate'],0); } } ?></td>
                                     <!--Partner Offer Upcountry Charges-->
                                     <td><?php echo round($p_up, 0); ?></td>

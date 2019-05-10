@@ -1635,6 +1635,7 @@ class Booking extends CI_Controller {
             
         }
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewdetails', $data);
     }

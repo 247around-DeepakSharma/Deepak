@@ -39,12 +39,13 @@
             <div class="hidden-xs">Penalty</div>
         </button>
     </div>
+    <?php if(isset($saas_module) && !$saas_module) { ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab8" data-toggle="tab">
             <div class="hidden-xs">Transactions</div>
         </button>
     </div>
-    <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
+    <?php } if($this->session->userdata('is_engineer_app') == 1){ ?>
     <div class="btn-group" role="group">
         <button type="button" id="following" class="btn btn-default" href="#tab6" data-toggle="tab">
             <div class="hidden-xs">Engineer Action</div>
