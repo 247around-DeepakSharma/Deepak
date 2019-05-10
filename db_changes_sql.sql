@@ -10886,3 +10886,15 @@ INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`
 
 ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
+
+
+--Kajal 09-05-2019 starting ---
+INSERT INTO `sms_template` (`tag`, `template`, `active`, `create_date`) VALUES
+('booking_details_to_sf', 'Booking - %s, %s, %s, %s/%s, %s, %s. 247around', '1', CURRENT_TIMESTAMP);
+
+UPDATE `entity_role` SET `department` = 'Developers' WHERE `entity_role`.`id` = 9;
+UPDATE `entity_role` SET `department` = 'Operations' WHERE `entity_role`.`id` in (10,11,12);
+UPDATE `entity_role` SET `department` = 'Call Center' WHERE `entity_role`.`id` = 13;
+insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values ('247Around','Operations','accountmanager',1,CURRENT_TIMESTAMP);
+
+--Kajal 09-05-2019 ending ---

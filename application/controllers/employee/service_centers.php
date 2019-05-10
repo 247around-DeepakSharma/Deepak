@@ -320,6 +320,7 @@ class Service_centers extends CI_Controller {
             }
             
         }
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
