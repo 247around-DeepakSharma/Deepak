@@ -2257,6 +2257,17 @@ class Partner extends CI_Controller {
     function download_shippment_address($booking_address) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $main_company_public_name = $main_partner['main_company_public_name'];
+            $main_company_logo = $main_partner['main_company_logo'];
+        }
+        else{
+            $main_company_public_name = "";
+            $main_company_logo = "";
+        }
 
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
@@ -2300,6 +2311,9 @@ class Partner extends CI_Controller {
             } else {
                 $booking_history['details'][$key]['partner'] = $partner_details;
             }
+            
+            $booking_history['details'][$key]['main_company_public_name'] = $main_company_public_name;
+            $booking_history['details'][$key]['main_company_logo'] = $main_company_logo;
         }
         
         $this->load->view('partner/print_address', $booking_history);
