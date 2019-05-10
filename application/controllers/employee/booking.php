@@ -3260,7 +3260,8 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
-        $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['cities'] = $this->booking_model->get_advance_search_result_data("cities","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
+        $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         $data['status'] = $status;
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
@@ -3325,7 +3326,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray,0,'Spare');
          }
          else{
@@ -3333,7 +3334,8 @@ class Booking extends CI_Controller {
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
          }
         unset($new_post['order_performed_on_count']);
@@ -3387,6 +3389,9 @@ class Booking extends CI_Controller {
         $bulk_booking_id = NULL;
         if($this->input->post('bulk_booking_id')){
             $bulk_booking_id = $this->input->post('bulk_booking_id');
+        }
+         if($this->input->post('state')){
+            $state = $this->input->post('state');
         }
         if($bulk_booking_id){
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
@@ -3519,7 +3524,9 @@ class Booking extends CI_Controller {
         if(!empty($city)){
             $post['where']['booking_details.city = '] =  trim($city);
         }
-        
+        if(!empty($state)){
+            $post['where']['service_centres.state = '] =  trim($state);
+        }
         $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
         $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
@@ -3945,7 +3952,11 @@ class Booking extends CI_Controller {
         }else{
             $sf = "";
         }
-        
+        if(!empty($order_list->service_centre_name)){
+            $state = $order_list->state;
+        }else{
+            $state = "";
+        }
         if ($order_list->assigned_vendor_id == "") {
             $complete =  "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
@@ -4044,6 +4055,7 @@ class Booking extends CI_Controller {
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
             $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
                     . ' <span class="glyphicon glyphicon-user"></span></button>';
