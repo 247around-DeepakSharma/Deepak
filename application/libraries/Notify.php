@@ -663,7 +663,7 @@ class Notify {
                     if($query1[0]['partner_id'] == VIDEOCON_ID){
                             if((stripos($query1[0]['request_type'], 'In Warranty') !== false) || stripos($query1[0]['request_type'], 'Extended Warranty') !== false){
                                 //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
-                                
+                                /*
                                 $whatsapp_details = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$query1[0]['partner_id'], "is_whatsapp" => 1));
                                 $whatsapp_no = "";
                                 if(!empty($whatsapp_details)){
@@ -672,6 +672,9 @@ class Notify {
                                 else{
                                     $whatsapp_no = _247AROUND_WHATSAPP_NUMBER;
                                 }
+                                */ 
+                                
+                                $whatsapp_no = $this->get_vediocon_state_whatsapp_number($query1[0]['state']);
                                 $brand_name = $this->My_CI->booking_model->get_unit_details(array('booking_id'=>$query1[0]["booking_id"]), false, 'appliance_brand');
                                 if(!empty($brand_name)){
                                     $brand = $brand_name[0]['appliance_brand'];
@@ -685,7 +688,7 @@ class Notify {
                                 $sms['smsData']['brand'] = $brand;
                                 $sms['smsData']['service'] = $query1[0]['services'];
                                 $sms['smsData']['whatsapp_no'] = $whatsapp_no;
-                                $sms['smsData']['partner_brand'] = $brand;
+                                $sms['smsData']['partner_brand'] = $query1[0]['public_name'];
                                 $this->send_sms_msg91($sms);
                             }
                         }
@@ -991,6 +994,7 @@ class Notify {
     
     function vediocon_call_not_picked_sms($data){
         //get partner whatsapp number
+        /*
         $wh_number = "";
         $wh_detail = $this->My_CI->partner_model->get_partner_additional_details("whatsapp_number", array("partner_id"=>$data['partner_id'], "is_whatsapp"=>1));
         if(!empty($wh_detail)){
@@ -999,6 +1003,8 @@ class Notify {
         else{
             $wh_number = _247AROUND_WHATSAPP_NUMBER;
         }
+        */
+        $wh_number = $this->get_vediocon_state_whatsapp_number($data['state']);
         $sms['smsData']['public_name'] = $data['public_name'];
         $sms['smsData']['service'] = $data['services'];
         $sms['smsData']['wh_number'] = $wh_number;
@@ -1032,5 +1038,16 @@ class Notify {
         $sms['type_id'] = $data['user_id'];
 
         $this->send_sms_msg91($sms);
+    }
+    
+    function get_vediocon_state_whatsapp_number($state){
+        $videocon_states_number = array("Uttar Pradesh" => "8448759247", "Delhi" => "8130070247", "Maharashtra" => "8130070247", "Gujarat" => "8130070247");
+        if (array_key_exists($state, $videocon_states_number)){ 
+            return $videocon_states_number[$state];
+        }
+        else{
+            return _247AROUND_WHATSAPP_NUMBER;
+        }
+        
     }
 }

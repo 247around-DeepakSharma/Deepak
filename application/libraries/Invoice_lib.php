@@ -789,7 +789,7 @@ class Invoice_lib {
             $shipped_inventory_id = $spare_parts_details[0]['shipped_inventory_id'];
             if (!empty($shipped_inventory_id)){
             $whereinventory = array('inventory_id'=>$shipped_inventory_id);
-            $inventory_master_data = $this->$this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+            $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
             $spare_parts_details[0]['part_number']=$inventory_master_data[0]['part_number'];   
             }else{
             $spare_parts_details[0]['part_number']='-';    
@@ -821,7 +821,7 @@ class Invoice_lib {
             
             
             
-            log_message('info', __FUNCTION__ . 'Gorakh sf challan debugging spare_id: ' . $spare_id, true);
+            log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
 
             $sf_challan_number = $spare_parts_details[0]['sf_challan_number'];
 
