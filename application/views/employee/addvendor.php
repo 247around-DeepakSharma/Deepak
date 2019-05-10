@@ -1265,7 +1265,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (strtolower($this->session->userdata('user_group')) !== 'admin')) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
