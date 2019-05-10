@@ -942,9 +942,15 @@ class Booking extends CI_Controller {
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         $data['technical_defect'] = array();
-        if(count($data['booking_symptom'])>0 && !is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+        
+        $symptom_id = "";
+        if(count($data['booking_symptom'])>0) {
+            $symptom_id = ((!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $data['booking_symptom'][0]['symptom_id_booking_completion_time'] : $data['booking_symptom'][0]['symptom_id_booking_creation_time']);
+        }
+        
+        if($symptom_id !== "") {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
-                    array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time'], 'partner_id' => $partner_id));
+                    array('symptom_id' => $symptom_id, 'partner_id' => $partner_id));
         }
         if(count($data['technical_defect'])<=0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
