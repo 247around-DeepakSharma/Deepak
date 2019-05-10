@@ -347,11 +347,10 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
-        //$this->db->join('symptom_spare_request','symptom_spare_request.id = spare_parts_details.spare_request_symptom', "left");
-        
         if(isset($post['is_inventory'])){
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
         }
+        $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
@@ -503,7 +502,7 @@ class Inventory_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
-         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         
 //        if(isset($post['type_join']) && $post['type_join'] == true){
