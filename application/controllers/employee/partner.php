@@ -381,9 +381,9 @@ class Partner extends CI_Controller {
 
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
-                if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
-                    $this->create_booking_or_query();
-                }   
+//                if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+//                    $this->create_booking_or_query();
+//                }   
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
@@ -1633,9 +1633,9 @@ class Partner extends CI_Controller {
         // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
 
         if ($validate == true && !empty($booking_id)) {
-            if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
-                $this->create_booking_or_query();
-             }   
+//            if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+//                $this->create_booking_or_query();
+//             }   
             log_message('info', 'Edit booking validation true' . $this->session->userdata('partner_name'));
             $post = $this->get_booking_form_data();
             $user['name'] = $post['name'];
