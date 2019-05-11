@@ -274,34 +274,33 @@ class Service_centers extends CI_Controller {
         if(count($data['booking_symptom'])>0) {
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-
+                
+                if(count($data['symptom'])<=0) {
+                    $data['symptom'][0] = array("symptom" => "Default");
+                }
             } 
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
                 $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-
+                
+                if(count($data['completion_symptom'])<=0) {
+                    $data['completion_symptom'][0] = array("symptom" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
                 $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
                 $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-
+                
+                if(count($data['technical_defect'])<=0) {
+                    $data['technical_defect'][0] = array("defect" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['solution_id'])){
                 $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-
+                
+                if(count($data['technical_solution'])<=0) {
+                    $data['technical_solution'][0] = array("technical_solution" => "Default");
+                }
             }
-        }
-        
-        if(count($data['symptom'])<=0) {
-            $data['symptom'][0] = array("symptom" => "Default");
-        }
-        if(count($data['completion_symptom'])<=0) {
-            $data['completion_symptom'][0] = array("symptom" => "Default");
-        }
-        if(count($data['technical_defect'])<=0) {
-            $data['technical_defect'][0] = array("defect" => "Default");
-        }
-        if(count($data['technical_solution'])<=0) {
-            $data['technical_solution'][0] = array("technical_solution" => "Default");
         }
         
         $data['unit_details'] = $booking_unit_details;
