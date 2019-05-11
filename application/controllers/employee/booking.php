@@ -1614,6 +1614,19 @@ class Booking extends CI_Controller {
             }
         }
         
+        if(count($data['symptom'])<=0) {
+            $data['symptom'][0] = array("symptom" => "Default");
+        }
+        if(count($data['completion_symptom'])<=0) {
+            $data['completion_symptom'][0] = array("symptom" => "Default");
+        }
+        if(count($data['technical_defect'])<=0) {
+            $data['technical_defect'][0] = array("defect" => "Default");
+        }
+        if(count($data['technical_solution'])<=0) {
+            $data['technical_solution'][0] = array("technical_solution" => "Default");
+        }
+        
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
