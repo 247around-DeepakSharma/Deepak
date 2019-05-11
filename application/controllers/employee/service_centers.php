@@ -270,7 +270,7 @@ class Service_centers extends CI_Controller {
         }
         
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
-        $data['symptom'] = $data['completion_symptom'] =  $data['technical_solution'] = array();
+        $data['symptom'] = $data['completion_symptom'] =  $data['technical_defect'] = $data['technical_solution'] = array();
         if(count($data['booking_symptom'])>0) {
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
@@ -290,6 +290,20 @@ class Service_centers extends CI_Controller {
 
             }
         }
+        
+        if(count($data['symptom'])<=0) {
+            $data['symptom'][0] = array("symptom" => "Default");
+        }
+        if(count($data['completion_symptom'])<=0) {
+            $data['completion_symptom'][0] = array("symptom" => "Default");
+        }
+        if(count($data['technical_defect'])<=0) {
+            $data['technical_defect'][0] = array("defect" => "Default");
+        }
+        if(count($data['technical_solution'])<=0) {
+            $data['technical_solution'][0] = array("technical_solution" => "Default");
+        }
+        
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);

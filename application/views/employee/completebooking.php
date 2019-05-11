@@ -640,7 +640,7 @@
     });
     
     solution_id = "<?php echo (!empty($booking_symptom)?$booking_symptom[0]['solution_id']:"");?>";
-    if(solution_id !== "") {
+    if((solution_id !== "") && (solution_id != 0)) {
         update_solution();
     }
     
