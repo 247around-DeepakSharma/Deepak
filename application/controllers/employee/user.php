@@ -401,26 +401,19 @@ class User extends CI_Controller {
         $data1['employee_password'] = md5($data1['clear_password']);
         $data1['create_date'] = date('Y-m-d H:i:s');
         
-        $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        
-        if(isset($saas_module) && !$saas_module && !empty($data1['full_name'])) {
-            $data1['employee_id'] = explode(" ",$data1['full_name'])[0];
+        $maxid = 0;
+        $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
+        if ($row) {
+            $maxid = $row->maxid; 
         }
-        else if(isset($saas_module) && $saas_module) {
-            $maxid = 0;
-            $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
-            if ($row) {
-                $maxid = $row->maxid; 
-            }
-            
-            $maxid=10000+$maxid;
-            
-            do {
-                ++$maxid;
-                $row = $this->db->query('SELECT * FROM employee where employee_id='.$maxid)->result_array();
-            }while (count($row)>0);
-            $data1['employee_id'] = $maxid;
-        }
+
+        $maxid=10000+$maxid;
+
+        do {
+            ++$maxid;
+            $row = $this->db->query('SELECT * FROM employee where employee_id='.$maxid)->result_array();
+        }while (count($row)>0);
+        $data1['employee_id'] = $maxid;
         
         $id = $this->employee_model->insertData($data1);
         $data2 = array();
