@@ -196,7 +196,8 @@ class Dashboard extends CI_Controller {
         $data['paid'] = $count[0]['Paid'];
         $data['startDate'] = $startDate;
         $data['endDate'] = $endDate;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/partner_specific_dashboard', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -506,7 +507,8 @@ class Dashboard extends CI_Controller {
     }
     
     function buyback_dashboard(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/buyback_dashboard');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -710,7 +712,8 @@ class Dashboard extends CI_Controller {
      * This function use to create a dashboard for RM
      */
     function rm_dashboard(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/rm_dashboard');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -718,7 +721,8 @@ class Dashboard extends CI_Controller {
      * This function use to create full view of missing pincode table
      */
     function missing_pincode_full_view($agentID = NULL){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
 //       $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
 //        if($agentID){
 //          $where['sf.rm_id'] = $agentID;  
@@ -1308,7 +1312,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      */
     function pending_full_view_by_sf($rm_id){
         $data['rm']=$rm_id;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/pending_booking_full_view_by_sf',$data);
         $this->load->view('dashboard/dashboard_footer');        
     }
@@ -1321,7 +1326,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     
     function brackets_snapshot_full_view(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/brackets_snapshot_view');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2254,7 +2260,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
         $data['partner_name'] = urldecode($partner_name);
         $data['partner_id'] = urldecode($partner_id);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/partner_specific_spare_parts_dashboard', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2330,7 +2337,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         
         $data['partner_id'] = urldecode($partner_id);
         $data['partner_name'] = urldecode($partner_name);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/sf_oot_spare_full_view', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2563,7 +2571,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $data['state_data'] = $this->get_servicability_missing_data_district("state_id",$rm_id);
                 $data['services'] = $this->vendor_model->get_active_services();
                 $data['rm_id'] = $rm_id;
-                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+                $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
                 $this->load->view('dashboard/rm_state_wise_pincode_view',$data);
                 $this->load->view('dashboard/dashboard_footer');
            }
