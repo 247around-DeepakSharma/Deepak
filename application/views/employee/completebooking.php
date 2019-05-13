@@ -548,7 +548,7 @@
                                 <div class="col-md-8" >
                                     <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Solution</option>
-                                        <?php if($technical_problem[0]['id'] == 0) { ?>
+                                        <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
                                         <option value="0" selected>Default</option>
                                         <?php } ?>
                                     </select>
@@ -638,7 +638,7 @@
      }
     });
     
-    solution_id = "<?php echo (!empty($booking_symptom)?$booking_symptom[0]['solution_id']:"");?>";
+    solution_id = "<?php echo ((!empty($booking_symptom) && ($technical_problem[count($technical_problem)-1]['id'] != 0))?$booking_symptom[0]['solution_id']:"");?>";
     if((solution_id !== "") && (solution_id != 0)) {
         update_solution();
     }

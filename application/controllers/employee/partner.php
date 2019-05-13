@@ -1823,7 +1823,7 @@ class Partner extends CI_Controller {
             if(count($booking_symptom)>0)
             {
                 $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
-                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
             }
             else {
                 $bookingSymptom['booking_id'] = $booking_id;

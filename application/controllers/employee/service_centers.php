@@ -483,7 +483,11 @@ class Service_centers extends CI_Controller {
                 $technical_defect = $this->input->post('closing_defect');
                 $technical_solution = $this->input->post('technical_solution');
                 $purchase_date = $this->input->post('appliance_dop');
-
+                
+                $booking_symptom['solution_id'] = $technical_solution;
+                $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+                $booking_symptom['defect_id_completion'] = $technical_defect;
+                
                 //$internal_status = "Cancelled";
                 $getremarks = $this->booking_model->getbooking_charges($booking_id);
                 $approval = $this->input->post("approval");
@@ -495,9 +499,6 @@ class Service_centers extends CI_Controller {
                     // variable $unit_id  is existing id in booking unit details table of given booking id 
                     $data = array();
                     $data['unit_details_id'] = $unit_id;
-                    $booking_symptom['solution_id'] = $technical_solution;
-                    $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
-                    $booking_symptom['defect_id_completion'] = $technical_defect;
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['is_broken'] = $broken[$unit_id];
                     $data['mismatch_pincode'] = $mismatch_pincode;
@@ -554,8 +555,16 @@ class Service_centers extends CI_Controller {
                     $data['sf_purchase_date'] = $purchase_date[$unit_id];
                     $i++;
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                    $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                 }
+                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+                if(!$rowsStatus)
+                {
+                    $booking_symptom['booking_id'] = $booking_id;
+                    $booking_symptom['symptom_id_booking_creation_time'] = 0;
+                    $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                    $this->booking_model->addBookingSymptom($booking_symptom);
+                }
+                
                 //Send Push Notification to account group
                 $clouserAccountArray = array();
                 $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "accountmanager"), NULL, NULL, NULL, NULL, NULL, array());

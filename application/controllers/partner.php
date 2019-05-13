@@ -1603,6 +1603,14 @@ class Partner extends CI_Controller {
                     }
                     $return_id = $this->booking_model->addbooking($booking);
                     $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if(!$symptomStatus) {
+                        log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
+                        //Send response
+                        $this->jsonResponseString['response'] = NULL;
+                        $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
+                    }
+                    
                     if (!empty($return_id)) {
                         //Send Push Notification to Partner
 //                        if($booking['partner_id'] !=''){
@@ -1741,12 +1749,6 @@ class Partner extends CI_Controller {
                         $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
                     }
                     
-                    if(!$symptomStatus) {
-                        log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
-                        //Send response
-                        $this->jsonResponseString['response'] = NULL;
-                        $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
-                    }
                 } else {
                     log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 
