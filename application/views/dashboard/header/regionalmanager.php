@@ -184,7 +184,7 @@
                             <li><a href="<?php echo base_url(); ?>employee/user" target="_blank"><i class="fa fa-home"></i>Go TO CRM</a>
                             <li><a href="<?php echo base_url(); ?>employee/dashboard"><i class="fa fa-bar-chart-o"></i>SERVICE DASHBOARD</a>
                             </li>
-                            <?php if(!$saas_flag){ ?>
+                            <?php if(isset($saas_flag) && (!$saas_flag)){ ?>
                             <li><a href="<?php echo base_url(); ?>employee/dashboard/buyback_dashboard" target="_blank"><i class="fa fa-bar-chart-o"></i>BUYBACK DASHBOARD</a>
                             </li>
                             
@@ -258,7 +258,7 @@
                         </li>
                         <li class="col-md-4">
                             <a href="javascript:void(0)" style="background: #EDEDED;">
-                                 <?php if($saas_flag){ ?>
+                                 <?php if(isset($saas_flag) && (!$saas_flag)){ ?>
                                 <input type="text" class="form-control" placeholder="Search Order/Tracking ID ..." onkeydown="search_order_id(this)" 
                                        style="border-radius:25px 25px 25px 25px">
                                 <?php } ?>
