@@ -582,6 +582,21 @@ class Notify {
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
                          $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        $cc_number = ""; 
+                        if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            $cc_number = $this->get_vediocon_state_whatsapp_number($query1[0]['state']);
+                        }
+                        else{
+                            $cc_number = _247AROUND_CALLCENTER_NUMBER;
+                        }
+                        
+                        if($query1[0]['is_upcountry'] == 1){
+                            $sms['tag'] = "upcountry_add_new_booking";
+                        } else {
+                            $sms['tag'] = "add_new_booking";
+                            $sms['smsData']['cc_number'] = $cc_number;
+                        }
+                        
                         log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
@@ -596,12 +611,7 @@ class Notify {
                             $sms['smsData']['public_name'] = $query1[0]['public_name'];
                         }
                         
-                        if($query1[0]['is_upcountry'] == 1){
-                            $sms['tag'] = "upcountry_add_new_booking";
-                        } else {
-                            $sms['tag'] = "add_new_booking";
-                        }
-                         $sms['smsData']['url']=$tinyUrl;
+                        $sms['smsData']['url']=$tinyUrl;
                         
                     }
 		   //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];

@@ -11005,3 +11005,5 @@ UPDATE `employee` SET `department` = 'Call Center' WHERE groups in ('callcenter'
 UPDATE `employee` SET `department` = 'Operations' WHERE groups in ('regionalmanager','accountmanager','inventory_manager','closure');
 
 --Kajal 09-05-2019 ending ---
+--Kalyani 13-May-2019
+UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call %s for Support. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
