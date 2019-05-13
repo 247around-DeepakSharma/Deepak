@@ -221,7 +221,11 @@ class Service_centers_model extends CI_Model {
         }
         else if($status == "Completed"){
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+            
+        } else if($status == "All"){
+             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status IN ('Completed', 'Cancelled') LIMIT 1) ";
         }
+        
         if ($booking_id != "") {
             $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
