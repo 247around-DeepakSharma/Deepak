@@ -88,7 +88,9 @@
                                     <label for="Appliances" class="col-md-4">Appliances *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
-                                                <?php if(isset($data)){
+                                                <?php 
+                                                $list = [];
+                                                if(isset($data)){
                                                     $appliance_id = $data[0]['appliance_id'];
                                                     foreach($appliance_id as $key =>$value){
                                                         $list[] = $value['service_id'];
@@ -98,8 +100,9 @@
                                                 ?>
                                             
                                             <option <?php echo isset($data)?(in_array($values->id,$list))?"selected":'':(set_value('service_id') == $values->id)?"selected":'';  ?> value=<?php echo $values->id; ?>>
-                                                <?php echo $values->services; }    ?>
+                                                <?php echo $values->services; ?>
                                             </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                      <?php echo form_error('service_id'); ?>
