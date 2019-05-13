@@ -3207,7 +3207,7 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
                     $bcc = $login_template[5];
-                    if($accountManagerData){
+                    if(!empty($accountManagerData)){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
