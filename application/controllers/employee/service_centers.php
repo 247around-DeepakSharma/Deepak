@@ -5184,16 +5184,20 @@ class Service_centers extends CI_Controller {
     function download_shippment_address($booking_address) {
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+       
         $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $main_company_public_name = $main_partner['main_company_public_name'];
+            $main_company_logo = $main_partner['main_company_logo'];
+        }
+        else{
+            $main_company_public_name = "";
+            $main_company_logo = "";
+        }
            
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
-            if(!empty($main_partner)){
-                $booking_history['details'][$key]['main_company_public_name'] = $main_partner['main_company_public_name'];
-                $booking_history['details'][$key]['main_company_logo'] = $main_partner['main_company_logo'];
-            }
-            
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                     . "warehouse_details.warehouse_pincode as pincode,"
@@ -5231,6 +5235,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $booking_history['details'][$key]['partner'] = $wh_sf_details;
             }
+            
+            $booking_history['details'][$key]['main_company_public_name'] = $main_company_public_name;
+            $booking_history['details'][$key]['main_company_logo'] = $main_company_logo;
         }
 
         $this->load->view('partner/print_address', $booking_history);
