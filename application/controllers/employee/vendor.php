@@ -4873,6 +4873,7 @@ class vendor extends CI_Controller {
              * This function used to update multiple pincode data in india pincode table
              */
         function add_multiple_pincode(){
+            $finalArray = [];
             $pincodeCount = $this->input->post('pincode_count');
             for($i=0;$i<$pincodeCount;$i++){
                 $cityArray = $this->input->post('city_'.$i);
