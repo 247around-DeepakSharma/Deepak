@@ -2200,4 +2200,63 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
     }
+    
+    /**
+     * @desc This function is used to approve all booking which Cancelled /Completed By SF
+     * It called By Cron
+     */
+    function auto_review_booking(){
+        $data = $this->service_centers_model->get_admin_review_bookings(NULL, "All", array(), 0,NULL,-1);
+        if(!empty($data)){
+            $requested_bookings = array_column($data, 'booking_id');
+            $partner_id_array =   array_column($data, 'partner_id', 'booking_id');
+            if($requested_bookings){
+                $where['is_in_process'] = 0;
+                $whereIN['booking_id'] = $requested_bookings; 
+                $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+                foreach($tempArray as $values){
+                    $approved_booking[] = $values['booking_id'];
+                }
+                $url = base_url() . "employee/do_background_process/complete_booking";
+                if (!empty($approved_booking)) {
+                    $this->booking_model->mark_booking_in_process($approved_booking);
+                    $data['booking_id'] = $approved_booking;
+                    $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                    $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
+                    $data['partner_id'] = $partner_id_array;
+                    $data['approved_by'] = _247AROUND;
+                    $this->asynchronous_lib->do_background_process($url, $data);
+                    $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
+                } else {
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+                }
+            }
+        }
+        echo 'success'; exit();
+    }
+    /**
+     * @desc this function is used to auto approve for reschedule booking
+     * It called from CRON
+     */
+    function auto_approve_reschedule_booking(){
+        $data = $this->booking_model->review_reschedule_bookings_request();
+        if(!empty($data)){
+            $reschedule_booking_date = $reschedule_booking_id = $reschedule_reason = array();
+            
+            foreach ($data as $value) {
+                log_message('info', __METHOD__. " Reschedule Booking ".$value['booking_id']);
+                $reschedule_booking_date[$value['booking_id']] = $value['reschedule_date_request'];
+                $reschedule_booking_id[] = $value['booking_id'];
+                $reschedule_reason[$value['booking_id']] = $value['reschedule_reason'];
+                $partner_id_array[$value['booking_id']] = $value['partner_id'];
+            }
+            
+            $employeeID = _247AROUND;
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            
+            $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$agent_id,$employeeID);
+            echo "Success";
+        }
+    }
 }
