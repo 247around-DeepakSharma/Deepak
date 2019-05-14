@@ -651,7 +651,7 @@ class Service_centers extends CI_Controller {
         $array = array();
         if(!empty($model_number)){
             foreach ($model_number as $unit_id => $value) {
-                
+               $return = true;
                $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                        . ' appliance_brand, price_tags, around_paid_basic_charges, appliance_category, customer_net_payable, partner_net_payable');
                $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value, 
@@ -676,13 +676,19 @@ class Service_centers extends CI_Controller {
                     }
                    
                     if(!empty($result1)){
-                        if(($result1[0]['customer_net_payable'] == $unit[0]['customer_net_payable']) && $result1[0]['partner_net_payable'] == $unit[0]['partner_net_payable'] ){
-                           
-                           
+                        // Free from Paid
+                        if($result1[0]['customer_net_payable'] == 0){
+                            if($unit[0]['customer_net_payable'] > 0){
+                                $return =  false;
+                            }
+                        } else if($result1[0]['customer_net_payable'] > 0){
+                            if($unit[0]['customer_net_payable'] == 0){
+                                $return =  false;
+                            }
                         } else {
-                            
-                             $array[$unit_id] = $result1[0];
+                            $array[$unit_id] = $result1[0];
                         }
+                        
                     } else {
                         return FALSE;
                     }
