@@ -63,8 +63,8 @@ define('DEFAULT_SEARCH_PAGE', 'employee/user');
 //define('_247AROUND2',247002);
 //define('_247AROUND3',247003);
 //define('_247AROUND99',247999);
-define('_247AROUND_DEFAULT_AGENT', $db->default_agent_id);
-define('_247AROUND_DEFAULT_AGENT_NAME', $db->crm_title);
+define('_247AROUND_DEFAULT_AGENT',1);
+define('_247AROUND_DEFAULT_AGENT_NAME','ABC');
 
 //constant to define Pending state
 define('_247AROUND_PENDING','Pending');
