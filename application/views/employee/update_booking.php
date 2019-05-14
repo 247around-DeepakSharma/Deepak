@@ -1,5 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
-<script src="<?php echo base_url();?>js/custom_js.js"></script>
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style>
     #dealer_list{
         float:left;
@@ -858,6 +858,9 @@
 <script>
     check_pincode();
     $("#booking_request_symptom").select2();
+    $(".select-model").select2({
+        width:"239px"
+    });
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
@@ -907,6 +910,7 @@
     
     
      $(document).ready(function () {
+         $('.select-model').next(".select2-container").hide();
       final_price();
     });
     

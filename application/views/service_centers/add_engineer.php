@@ -88,8 +88,9 @@
                                                 }?>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php echo isset($data)?(in_array($values->id,$list))?"selected":'':(set_value('service_id') == $values->id)?"selected":'';  ?> value=<?php echo $values->id; ?>>
-                                                <?php echo $values->services; }    ?>
+                                                <?php echo $values->services;   ?>
                                             </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                      <?php echo form_error('service_id'); ?>

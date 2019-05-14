@@ -297,7 +297,7 @@ class Booking extends CI_Controller {
                             if(count($booking_symptom)>0)
                             {
                                 $bookingSymptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
-                                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
                             }
                             else {
                                 $bookingSymptom['booking_id'] = $booking_id;
@@ -531,6 +531,10 @@ class Booking extends CI_Controller {
                 
                     $status = $this->booking_model->addbooking($booking);
                     $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if(!$symptomStatus)
+                        return false;
+
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
                         if ($booking['is_send_sms'] == 1) {
@@ -548,9 +552,6 @@ class Booking extends CI_Controller {
                         return false;
                     }
                     
-                    if(!$symptomStatus)
-                        return false;
-
                     break;
 
                 default :
@@ -933,20 +934,20 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
-        
-        if(count($data['technical_problem']) <= 0) {
-            $data['technical_problem'][0] = array('id' => 0, 'symptom' => 'Default');
-        }
-        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
-        
-        $data['technical_defect'] = array();
+        $data['technical_problem'] = $data['technical_defect'] = array();
         
         $symptom_id = "";
         if(count($data['booking_symptom'])>0) {
             $symptom_id = ((!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $data['booking_symptom'][0]['symptom_id_booking_completion_time'] : $data['booking_symptom'][0]['symptom_id_booking_creation_time']);
         }
+
+        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
+
+        if((count($data['technical_problem']) <= 0) || ($symptom_id == 0)) {
+            $data['technical_problem'][] = array('id' => 0, 'symptom' => 'Default');
+        }
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
         if($symptom_id !== "") {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
@@ -2138,7 +2139,11 @@ class Booking extends CI_Controller {
         $technical_symptom = $this->input->post('closing_symptom');
         $technical_defect = $this->input->post('closing_defect');
         $technical_solution = $this->input->post('technical_solution');
-
+        
+        $booking_symptom['solution_id'] = $technical_solution;
+        $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+        $booking_symptom['defect_id_completion'] = $technical_defect; 
+        
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -2151,9 +2156,6 @@ class Booking extends CI_Controller {
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
-            $booking_symptom['solution_id'] = $technical_solution;
-            $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
-            $booking_symptom['defect_id_completion'] = $technical_defect;
             if (isset($serial_number[$unit_id])) {
                 $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                 $data['serial_number'] =  $trimSno;
@@ -2313,10 +2315,17 @@ class Booking extends CI_Controller {
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
-                $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             }
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
+        }
+        $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+        if(!$rowsStatus)
+        {
+            $booking_symptom['booking_id'] = $booking_id;
+            $booking_symptom['symptom_id_booking_creation_time'] = 0;
+            $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->addBookingSymptom($booking_symptom);
         }
         
         if($spare_parts_required == 1){

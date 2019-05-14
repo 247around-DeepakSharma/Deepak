@@ -560,7 +560,7 @@ class Notify {
                     if($query1[0]['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
-                    }else{
+                    }else{ 
                         $booking_id=$query1[0]['booking_id'];
                         $jobcard="BookingJobCard-".$booking_id.".pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
@@ -579,20 +579,20 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         $cc_number = ""; 
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
-                            $cc_number = $this->get_vediocon_state_whatsapp_number($query1[0]['state']);
+                            $cc_number = "with capital city STD code 39404040";
                         }
                         else{
                             $cc_number = _247AROUND_CALLCENTER_NUMBER;
                         }
+                        $sms['smsData']['cc_number'] = $cc_number;
                         
                         if($query1[0]['is_upcountry'] == 1){
                             $sms['tag'] = "upcountry_add_new_booking";
                         } else {
                             $sms['tag'] = "add_new_booking";
-                            $sms['smsData']['cc_number'] = $cc_number;
                         }
                         
                         log_message('info', __METHOD__. " ". print_r($sms, true));
