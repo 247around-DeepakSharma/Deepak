@@ -1,5 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
-<script src="<?php echo base_url();?>js/custom_js.js"></script>
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style>
     #dealer_list{
         float:left;

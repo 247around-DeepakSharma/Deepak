@@ -950,10 +950,12 @@ function getModelForServiceCategoryCapacity(div_id) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
                 $(".select-model#model_number_" + div_no[2]).html(obj.msg);
