@@ -36,6 +36,7 @@ class Upload_buyback_process extends CI_Controller {
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('invoice_lib');
+        $this->load->library('booking_utilities');
         $this->load->model("partner_model");
         $this->load->model('reporting_utils');
         $this->load->model('invoices_model');
@@ -51,14 +52,16 @@ class Upload_buyback_process extends CI_Controller {
 
     function index() {
 
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/order_details_file_upload');
         $this->load->view('dashboard/dashboard_footer');
     }
     
      function price_sheet_upload() {
 
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/price_sheet_upload');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -726,7 +729,8 @@ class Upload_buyback_process extends CI_Controller {
      */
     function highest_quote_price_sheet_upload() {
 
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/highest_quote_price_sheet_upload');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -951,7 +955,8 @@ class Upload_buyback_process extends CI_Controller {
      * @return void
      */
     function upload_reimbursement_file() {
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/reimbursement_file_upload_form');
         $this->load->view('dashboard/dashboard_footer');
     }

@@ -1,5 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
-<script src="<?php echo base_url();?>js/custom_js.js"></script>
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style>
     #dealer_list{
         float:left;
@@ -343,6 +343,7 @@
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]">
+                                                    <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
                                                     <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
@@ -858,6 +859,9 @@
 <script>
     check_pincode();
     $("#booking_request_symptom").select2();
+    $(".select-model").select2({
+        width:"239px"
+    });
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
@@ -907,6 +911,9 @@
     
     
      $(document).ready(function () {
+        if($('.select-model').css("display") == "none") {
+            $('.select-model').next(".select2-container").hide();
+        }
       final_price();
     });
     

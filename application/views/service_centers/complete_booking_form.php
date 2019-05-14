@@ -481,6 +481,7 @@
 </div>
 </div>
 <script>
+    $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();

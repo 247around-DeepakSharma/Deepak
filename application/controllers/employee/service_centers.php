@@ -449,6 +449,7 @@ class Service_centers extends CI_Controller {
         if (($this->form_validation->run() == FALSE) || ($booking_id == "") || (is_null($booking_id))) {
             $this->complete_booking_form(urlencode(base64_encode($booking_id)));
         } else {
+
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
 
@@ -489,6 +490,10 @@ class Service_centers extends CI_Controller {
                     $technical_solution = $this->input->post('technical_solution');
                     $purchase_date = $this->input->post('appliance_dop');
 
+                    $booking_symptom['solution_id'] = $technical_solution;
+                    $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+                    $booking_symptom['defect_id_completion'] = $technical_defect;
+
                     //$internal_status = "Cancelled";
                     $getremarks = $this->booking_model->getbooking_charges($booking_id);
                     $approval = $this->input->post("approval");
@@ -500,9 +505,6 @@ class Service_centers extends CI_Controller {
                         // variable $unit_id  is existing id in booking unit details table of given booking id 
                         $data = array();
                         $data['unit_details_id'] = $unit_id;
-                        $booking_symptom['solution_id'] = $technical_solution;
-                        $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
-                        $booking_symptom['defect_id_completion'] = $technical_defect;
                         $data['closed_date'] = date('Y-m-d H:i:s');
                         $data['is_broken'] = $broken[$unit_id];
                         $data['mismatch_pincode'] = $mismatch_pincode;
@@ -559,8 +561,15 @@ class Service_centers extends CI_Controller {
                         $data['sf_purchase_date'] = $purchase_date[$unit_id];
                         $i++;
                         $this->vendor_model->update_service_center_action($booking_id, $data);
-                        $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                     }
+                    $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+                    if (!$rowsStatus) {
+                        $booking_symptom['booking_id'] = $booking_id;
+                        $booking_symptom['symptom_id_booking_creation_time'] = 0;
+                        $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                        $this->booking_model->addBookingSymptom($booking_symptom);
+                    }
+
                     //Send Push Notification to account group
                     $clouserAccountArray = array();
                     $getClouserAccountHolderID = $this->reusable_model->get_search_result_data("employee", "id", array("groups" => "accountmanager"), NULL, NULL, NULL, NULL, NULL, array());
@@ -629,6 +638,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+
     /**
      * @desc This function is used to change appliance category, capacity and also change prices according to it
      * @return boolean
@@ -5289,16 +5299,20 @@ class Service_centers extends CI_Controller {
     function download_shippment_address($booking_address) {
         $this->check_WH_UserSession();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+       
         $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $main_company_public_name = $main_partner['main_company_public_name'];
+            $main_company_logo = $main_partner['main_company_logo'];
+        }
+        else{
+            $main_company_public_name = "";
+            $main_company_logo = "";
+        }
            
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
-            if(!empty($main_partner)){
-                $booking_history['details'][$key]['main_company_public_name'] = $main_partner['main_company_public_name'];
-                $booking_history['details'][$key]['main_company_logo'] = $main_partner['main_company_logo'];
-            }
-            
             $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                     . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                     . "warehouse_details.warehouse_pincode as pincode,"
@@ -5336,6 +5350,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $booking_history['details'][$key]['partner'] = $wh_sf_details;
             }
+            
+            $booking_history['details'][$key]['main_company_public_name'] = $main_company_public_name;
+            $booking_history['details'][$key]['main_company_logo'] = $main_company_logo;
         }
 
         $this->load->view('partner/print_address', $booking_history);

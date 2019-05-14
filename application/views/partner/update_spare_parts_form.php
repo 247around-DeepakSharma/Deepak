@@ -125,13 +125,13 @@
                                     
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Code</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "requestedpartscode_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_code]" readonly="readonly"><?php echo $value->part_number; ?></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
                                         </div>
                                     </div>
@@ -139,7 +139,7 @@
                                     <div class="form-group <?php
                                         if (form_error('incoming_invoice')) { echo 'has-error';} ?>">
                                         <label for="incoming_invoice" class="col-md-4">Spare Invoice (PDF)*</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <input type="file" name="incoming_invoice" id="<?php echo "incominginvoice_".$key; ?>" class="form-control" required />
                                             <input type="hidden"  name="part[<?php echo $key;?>][purchase_price]" value="<?php echo $value->purchase_price; ?>" id="<?php echo "purchase_price".$key; ?>" class="form-control purchase_price"  />
                                             <?php echo form_error('incoming_invoice'); ?>
@@ -149,7 +149,7 @@
                                     <div class="form-group">
                                         <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key1 => $value1) { ?> 
@@ -168,7 +168,7 @@
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <input required="" type="hidden" id="<?php echo "shippedmodelnumberid_".$key;?>" class="shipped_model_number_id" name="part[<?php echo $key; ?>][shipped_model_number_id]">
                                             <input type="text" class="form-control spare_parts" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]" value = "<?php echo $value->model_number;?>" placeholder="Shipped Model Number">
                                         </div>
@@ -177,13 +177,13 @@
                                     <div class="form-group">
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <select required="" class="form-control spare_parts shipped_parts_name" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]">
                                             </select>
                                             <span id="spinner" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <input required="" type="text" class="form-control spare_parts" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
                                         </div>
                                         <?php } ?>
@@ -193,14 +193,14 @@
                                 <div class="col-md-5">
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Type</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" required><?php echo $value->parts_requested_type; ?></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group <?php
                                         if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
                                         <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "remarks_".$key; ?>" name="part[<?php echo $key;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
                                             <?php echo form_error('remarks_by_partner'); ?>
                                         </div>
@@ -209,7 +209,7 @@
                                     <div class="form-group <?php
                                         if (form_error('invoice_amount')) { echo 'has-error'; } ?>">
                                         <label for="invoice_amount" class="col-md-4">Invoice Amount (including tax)</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <input type="number" class="form-control" id="<?php echo "invoiceamount_". $key; ?>" name="part[<?php echo $key; ?>][invoice_amount]" value = "" placeholder="Please Enter Invoice Amount"  required>
                                             <?php echo form_error('invoice_amount'); ?>
                                         </div>
@@ -218,14 +218,14 @@
                                     <div class="form-group">
                                         <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <select required="" class="form-control shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                             <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">                                            
+                                        <div class="col-md-7">                                            
                                             <select required="" class="form-control spare_parts_type" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
@@ -307,14 +307,14 @@
                                     <div class="form-group">
                                         <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <select class="form-control spare_parts" id="shippedparttype" >
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                             <span id="spinner" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
-                                        <div class="col-md-6">                                            
+                                        <div class="col-md-7">                                            
                                             <select required="" class="form-control spare_parts_type" id="shippedparttype"  value = "">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
@@ -326,7 +326,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="remarks_by_partner" class="col-md-4">Remarks*</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <textarea class="form-control" id="remarks" placeholder="Please Enter Remarks"  required></textarea>
                                            
                                         </div>
@@ -520,6 +520,13 @@
        
     }
     
+    function ucword(str){
+        str = str.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g, function(replace_latter) { 
+            return replace_latter.toUpperCase();
+        });  
+        return str;  
+    }
+    
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
     $('.shipped_model_number_id').select2();
@@ -560,14 +567,7 @@
             alert("Please Select Model Number");
         }
     }
-    
-    function ucword(str){
-        str = str.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g, function(replace_latter) { 
-            return replace_latter.toUpperCase();
-        });  
-        return str;  
-    }
-    
+        
     function change_shipped_part_type(key){
         var model_number_id = $('#shippedmodelnumberid_' + key).val();
         var part_type = $('#shippedparttype_'+ key).val();
@@ -709,6 +709,38 @@
         }
         
 </script>
+<?php if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
+<script>
+    function change_shipped_model(key){
+
+            var model_number_id = $('#shippedmodelnumberid_' + key).val();
+            var model_number = $("#shippedmodelnumberid_" + key + " option:selected").text();
+            $('#spinner_' + key).addClass('fa fa-spinner').show();
+            if(model_number){
+                $('#shippedmodelnumber_' + key).val(model_number);
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
+                    data: {model_number_id:model_number_id },
+                    success:function(data){
+                        console.log(data);
+                        $('#shippedparttype_' +key ).val('val', "");
+                        $('#shippedparttype_' + key).val('Select Part Type').change();
+                        $('#shippedparttype_' + key).select2().html(data);
+                        $('#spinner_' + key).removeClass('fa fa-spinner').hide();                    
+                        var part_type = $("#requestedpartstype_"+key).val();
+                        request_part_type = ucword(part_type);
+                        if(request_part_type){
+                            $('#shippedparttype_' +key).val(request_part_type).change(); 
+                        }
+                    }
+                });
+            }else{
+                alert("Please Select Model Number");
+            }
+        }
+</script>
+<?php } ?>
 
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php foreach($spare_parts as $ssKey => $sp) { ?>
