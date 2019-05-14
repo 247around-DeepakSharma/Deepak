@@ -343,6 +343,7 @@
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]">
+                                                    <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
                                                     <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
