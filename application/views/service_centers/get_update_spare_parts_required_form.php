@@ -238,6 +238,7 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
+$('#model_number_id').select2();
 $(document).ready(function(){    
     
         $('#model_number_id').on('change', function() {        
