@@ -910,7 +910,9 @@
     
     
      $(document).ready(function () {
-         $('.select-model').next(".select2-container").hide();
+        if($('.select-model').css("display") == "none") {
+            $('.select-model').next(".select2-container").hide();
+        }
       final_price();
     });
     

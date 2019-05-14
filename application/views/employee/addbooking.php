@@ -457,7 +457,9 @@
     $("button.remove").on("click", remove);
     
      $(document).ready(function () {
-        $('.select-model').next(".select2-container").hide();
+        if($('.select-model').css("display") == "none") {
+            $('.select-model').next(".select2-container").hide();
+        }
     
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
