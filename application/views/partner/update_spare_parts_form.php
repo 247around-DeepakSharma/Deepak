@@ -520,6 +520,13 @@
        
     }
     
+    function ucword(str){
+        str = str.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g, function(replace_latter) { 
+            return replace_latter.toUpperCase();
+        });  
+        return str;  
+    }
+    
     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
 
     $('.shipped_model_number_id').select2();
@@ -560,14 +567,7 @@
             alert("Please Select Model Number");
         }
     }
-    
-    function ucword(str){
-        str = str.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g, function(replace_latter) { 
-            return replace_latter.toUpperCase();
-        });  
-        return str;  
-    }
-    
+        
     function change_shipped_part_type(key){
         var model_number_id = $('#shippedmodelnumberid_' + key).val();
         var part_type = $('#shippedparttype_'+ key).val();
