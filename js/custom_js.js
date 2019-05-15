@@ -944,16 +944,19 @@ function getModelForServiceCategoryCapacity(div_id) {
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
     postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
-
+    $('#model_number_1').val('');
+    $('#select2-model_number_1-container').empty();
     if (postData['category']) {
         sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
                 $(".select-model#model_number_" + div_no[2]).html(obj.msg);

@@ -20,6 +20,7 @@ class Collection_partner extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('bb_model');
         $this->load->library('buyback');
+        $this->load->library('booking_utilities');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -31,7 +32,8 @@ class Collection_partner extends CI_Controller {
     }
     
     function get_cp_shop_address(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/get_cp_partner');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -200,7 +202,8 @@ class Collection_partner extends CI_Controller {
 
     function add_cp_shop_address(){
        
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/add_cp_shop_address');
         $this->load->view('dashboard/dashboard_footer');
     }

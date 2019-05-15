@@ -399,6 +399,9 @@
 
 <script>
     $("#booking_request_symptom").select2();
+    $(".select-model").select2({
+        width:"239px"
+    });
     $(".booking_source").select2();
     $("#service_id").select2();
     $("#booking_city").select2({
@@ -454,7 +457,10 @@
     $("button.remove").on("click", remove);
     
      $(document).ready(function () {
-  
+        if($('.select-model').css("display") == "none") {
+            $('.select-model').next(".select2-container").hide();
+        }
+    
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything

@@ -222,7 +222,9 @@
                                                                                 
                                                                 <?php }?>
                                                             </select>
+                                                            <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
+                                                             <input type="hidden" name="is_model_dropdown" value="0" />
                                                             <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
@@ -479,6 +481,7 @@
 </div>
 </div>
 <script>
+    $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();

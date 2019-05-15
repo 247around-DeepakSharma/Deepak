@@ -185,25 +185,38 @@ class Partner extends CI_Controller {
             
         }
         
-        $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
+        $data['symptom'] =  $data['completion_symptom'] = $data['technical_defect'] = $data['technical_solution'] = array();
         
         if(count($data['booking_symptom'])>0) {
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-
+                
+                if(count($data['symptom'])<=0) {
+                    $data['symptom'][0] = array("symptom" => "Default");
+                }
+        
             } 
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
                 $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-
+                
+                if(count($data['completion_symptom'])<=0) {
+                    $data['completion_symptom'][0] = array("symptom" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
                 $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
                 $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-
+                
+                if(count($data['technical_defect'])<=0) {
+                    $data['technical_defect'][0] = array("defect" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['solution_id'])){
                 $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-
+                
+                if(count($data['technical_solution'])<=0) {
+                    $data['technical_solution'][0] = array("technical_solution" => "Default");
+                }
             }
         }
         
@@ -1810,7 +1823,7 @@ class Partner extends CI_Controller {
             if(count($booking_symptom)>0)
             {
                 $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
-                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
             }
             else {
                 $bookingSymptom['booking_id'] = $booking_id;

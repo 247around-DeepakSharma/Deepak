@@ -2585,6 +2585,7 @@ class Booking_model extends CI_Model {
     function update_symptom_defect_details($booking_id, $booking_symptom) {
         $this->db->where('booking_id', $booking_id);
         $this->db->update('booking_symptom_defect_details', $booking_symptom);
+        return $this->db->affected_rows();
     }
     /**
      * @Desc: This function is used to get booking symptoms 
