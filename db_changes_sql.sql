@@ -10907,3 +10907,10 @@ UPDATE `employee` SET `department` = 'Operations' WHERE groups in ('regionalmana
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call %s for Support. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. For Support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "upcountry_add_new_booking";
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+
+--Kalyani 15-May-2019
+UPDATE `sms_template` SET `template` = 'Your booking is assigned to 247around service center. Engineer will visit in the time slot. Queries? Call %s.' WHERE `sms_template`.`tag` = "service_centre_assigned";
+UPDATE `sms_template` SET `template` = 'Request of your free %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_in_warranty_spare_parts_customer_tag";
+UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_oow_spare_parts_customer_tag";
+UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
+UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
