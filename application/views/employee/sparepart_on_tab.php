@@ -600,7 +600,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[12, "desc"]], //Initial no order.
+            order: [], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50', '100', '500', 'All' ]],
