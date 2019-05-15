@@ -940,10 +940,11 @@ class Booking extends CI_Controller {
         if(count($data['booking_symptom'])>0) {
             $symptom_id = ((!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $data['booking_symptom'][0]['symptom_id_booking_completion_time'] : $data['booking_symptom'][0]['symptom_id_booking_creation_time']);
         }
-
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
-
+        
+        if(!empty($unit_price_tags)) {
+            $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                    array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
+        }
         if((count($data['technical_problem']) <= 0) || ($symptom_id == 0)) {
             $data['technical_problem'][] = array('id' => 0, 'symptom' => 'Default');
         }
