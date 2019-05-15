@@ -3342,8 +3342,13 @@ class Partner extends CI_Controller {
                     $sms['booking_id'] = $booking_id;
                     $sms['type'] = "user";
                     $sms['type_id'] = $data[0]['user_id'];
-                    $sms['smsData'] = "";
-
+                    if($data[0]['partner_id'] == VIDEOCON_ID){
+                        $sms['smsData']['cc_number'] = "with capital city STD code 39404040";
+                    }
+                    else{
+                       $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                    }
+                    
                     $this->notify->send_sms_msg91($sms);
                     log_message('info', "Send SMS to customer: " . $booking_id);
 
@@ -7468,6 +7473,11 @@ class Partner extends CI_Controller {
         }
         
         echo json_encode($res);
+    }
+    
+    function test(){
+        $k = $this->miscelleneous->send_spare_requested_sms_to_customer("test part type", "PB-16565919051532", SPARE_ON_IN_WARRANTY_SMS_TAG);
+        echo $k; die();
     }
             
 }

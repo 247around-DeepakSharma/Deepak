@@ -4068,6 +4068,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
@@ -4106,6 +4112,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
