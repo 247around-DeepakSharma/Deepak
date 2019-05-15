@@ -67,7 +67,6 @@
                             <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Requested</a></li>
                             <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Given</a></li>
                             <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
-                             <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)</a></li>
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
                             <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
                             <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
@@ -235,7 +234,7 @@
                     alert("Approved Successfully");
                     spare_parts_requested_table.ajax.reload( function ( json ) { 
                       $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    },false );
+                    } );
                     
                 } else {
                     alert("Spare Parts Cancellation Failed!");
@@ -298,8 +297,6 @@
           //defective_part_shipped_by_SF_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_approved_table'){
           defective_part_shipped_by_SF_approved_table.ajax.reload(null, false);  
-        }else if(table_type=='spare_parts_requested_table_approved'){
-          spare_parts_requested_table_approved.ajax.reload(null, false);  
         }
         
     }
