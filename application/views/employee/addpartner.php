@@ -440,7 +440,6 @@
                             </div>
                         </div>
                     </div>
-                    <?php if(!$saas_flag) { ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>UpCountry Details</b></div>
@@ -512,7 +511,6 @@
                             </div>
                         </div>
                     </div>
-                    <?php } ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Spare Parts</b></div>

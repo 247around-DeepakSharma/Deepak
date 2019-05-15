@@ -1624,7 +1624,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             //getting received incomming calls data
            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
                                FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
-                               LIKE concat('%' , employee.phone ) 
+                               = concat('0' , employee.phone ) 
                                WHERE callType = 'completed' AND employee. phone !='' AND employee.id='" . $value['id'] . "' $where3";
             
             //getting agent rating data
