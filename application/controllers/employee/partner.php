@@ -7475,9 +7475,4 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     
-    function test(){
-        $k = $this->miscelleneous->send_spare_requested_sms_to_customer("test part type", "PB-16565919051532", SPARE_ON_IN_WARRANTY_SMS_TAG);
-        echo $k; die();
-    }
-            
 }
