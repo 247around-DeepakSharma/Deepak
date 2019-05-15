@@ -12,6 +12,7 @@
                         <th>Spare Part Name</th>
                         <th>Spare Part Number</th>
                         <th>Quantity</th>
+                        <th>Status</th>
                         <th>Booking Id</th>
                         <th>Invoice Id</th>
                         <th>Date</th>
@@ -26,6 +27,7 @@
                         <td><?php echo $value['part_name'];?></td>
                         <td><?php echo $value['part_number'];?></td>
                         <td><?php echo $value['quantity'];?></td>
+                        <td><?php  echo ($value['is_wh_ack']==1)  ? "Acknowledged" : "Not Acknowledged"; ?></td>
                         <td>
                             <a href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($value['booking_id'])) ; ?>">
                                 <?php echo $value['booking_id'];?>

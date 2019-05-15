@@ -16,6 +16,7 @@
                                     <th>Receiver Name</th>
                                     <th>Spare Part Name</th>
                                     <th>Quantity</th>
+                                    <th>Status</th>
                                     <th>Booking Id</th>
                                     <th>Date</th>
                                 </tr>
@@ -28,6 +29,7 @@
                                         <td><?php echo $value['receiver'];?></td>
                                         <td><?php echo $value['part_name'];?></td>
                                         <td><?php echo $value['quantity'];?></td>
+                                        <td><?php  echo ($value['is_wh_ack']==1)  ? "Acknowledged" : "Not Acknowledged"; ?></td>
                                         <td>
                                             <a href="<?php echo base_url(); ?>partner/booking_details/<?php echo $value['booking_id']; ?>">
                                                 <?php echo $value['booking_id']; ?>
