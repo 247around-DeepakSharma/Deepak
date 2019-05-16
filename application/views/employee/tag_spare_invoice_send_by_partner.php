@@ -704,9 +704,9 @@
         var partner_id = $('#partner_id').val();
         if(partner_id){
             $.ajax({
-                type: 'GET',
-                url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
-                data:{is_option_selected:true,partner_id:partner_id},
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/service_centre_charges/get_partner_data',
+                data:{partner:partner_id},
                 success: function (response) {
                     if(response){
                         $('#serviceId_'+index).html(response);
