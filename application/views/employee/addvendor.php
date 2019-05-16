@@ -439,9 +439,11 @@
                                 <label class="checkbox-inline col-md-3">
                                     <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
+                                  <?php if(!$saas_module){ ?>
                                 <label class="checkbox-inline col-md-4">
                                     <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
                                 </label>
+                                  <?php } ?>
                             </div>
                         </div>
                 </div>
