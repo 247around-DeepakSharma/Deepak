@@ -112,7 +112,7 @@ class Service_centers extends CI_Controller {
         }else{  
             $data['inventory_details'] = array();
         }
-        
+        $data['saas_flag']=$this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($this->session->userdata('employee_id')){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model',$data);
