@@ -378,7 +378,7 @@
                 <div class="modal-content">
                     <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
                         <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
-                        <h4 class="modal-title"style="color:white;text-align: center;">Partners Contacts</h4>
+                        <h4 class="modal-title"style="color:white;text-align: center;">Partners Toll-Free Numbers</h4>
                     </div>
                     <div class="modal-body">
                     </div>
@@ -426,16 +426,14 @@
                             for(var element in result){
                                 if(result[element].contact){
                                     data = data +  "<tr><td>"+result[element].partner+"</td>";
-                                    data +=  "<td>"+result[element].name+"</td>";
-                                    data +=  "<td>"+result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
-                                <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>";
+                                    data +=  "<td>"+((result[element].contact !== null && $.trim(result[element].contact) !== "") ? (result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
+                                <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>") : "");
                                 }
                             }
                             var tb="<table class='table  table-bordered table-condensed ' id='partner_toll_free_table'>";
                             tb+='<thead>';
                             tb+='<tr>';
                             tb+='<th>Partner</th>';
-                            tb+='<th>Name</th>';
                             tb+='<th>No.</th>';
                             tb+='</tr>';
                             tb+='</thead>';
