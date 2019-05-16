@@ -52,7 +52,13 @@ class Dashboard extends CI_Controller {
         }
         else{
             $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
+            if (!file_exists(APPPATH."views/dashboard/header/" . $this->session->userdata('user_group') . ".php")) {
+                //Redirect to Default Search Page if logged in user's dashboard view does not exist.
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            }
+            else {
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
+            }
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
