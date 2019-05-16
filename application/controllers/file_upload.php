@@ -50,7 +50,8 @@ class File_upload extends CI_Controller {
 
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
-
+                
+               
                 $data['post_data'] = $this->input->post();
 
                 if (!empty($data['post_data']['partner_id'])) {
@@ -901,6 +902,10 @@ class File_upload extends CI_Controller {
         $response = array();
         $partner_id = trim($this->input->post('partner_id'));
         
+         $header_column_need_to_be_present = array('part_code', 'alt_part_code');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+        if ($check_header['status']) {
         if ($partner_id) {
             //get file data to process
             $table_flag = false;
@@ -941,10 +946,10 @@ class File_upload extends CI_Controller {
                 }
             }
             if(!empty($table_flag)){
-                $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                $not_exist_data_msg .= "<br> Below part number does not exists in our database: <br>";
                 $not_exist_data_msg .= $this->table->generate();    
             }
-                     
+                                      
             if(!empty($this->dataToInsert)){
                  $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
                  
@@ -987,7 +992,7 @@ class File_upload extends CI_Controller {
                  }
                  
             }
-            if ($insert_data) {
+            if (!empty($this->dataToInsert)) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
                 $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
@@ -1001,7 +1006,9 @@ class File_upload extends CI_Controller {
             $response['status'] = FALSE;
             $response['message'] = 'Please select correct partner';
         }
+        
         return $response;
+        }
     }
 
     /**
