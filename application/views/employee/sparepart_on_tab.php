@@ -27,7 +27,7 @@
                                     <th class="text-center" data-orderable="false">Parts Number</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
-                                    <th class="text-center" data-orderable="true">Part Status</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
