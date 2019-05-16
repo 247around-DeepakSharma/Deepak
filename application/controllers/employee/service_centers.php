@@ -2392,7 +2392,7 @@ class Service_centers extends CI_Controller {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
         foreach($data as $value){
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], '', FALSE);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['id'], $value['partner_id'], TRUE, FALSE);
         }
     }
     
