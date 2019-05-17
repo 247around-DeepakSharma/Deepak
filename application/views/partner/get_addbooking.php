@@ -1251,9 +1251,11 @@
           $('#submitform').prop("disabled", true);
           $('#submitform').attr("type", "button");
           $('#submitform').removeClass("btn-primary");
+          $("#submitform").removeAttr("onclick");
      }else{
           $('#submitform').attr("type", "submit");  
           $('#submitform').addClass("btn-primary");
+          $('#submitform').attr('onclick',"return check_validation()");
      }
    }); 
      
