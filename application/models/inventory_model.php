@@ -472,6 +472,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_inventory_master_list_data($select, $where = array(), $where_in = array()){
+        $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
