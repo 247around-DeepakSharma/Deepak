@@ -555,6 +555,7 @@ class Partner extends CI_Controller {
 
         $results['services'] = $this->vendor_model->selectservice();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $partner_code = $this->partner_model->get_availiable_partner_code();
         foreach ($partner_code as $row) {
             $code[] = $row['code']; // add each partner code to the array
@@ -568,7 +569,7 @@ class Partner extends CI_Controller {
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list));
+        $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list,'saas_flag' => $saas_flag));
     }
 
     /**
@@ -1017,6 +1018,7 @@ class Partner extends CI_Controller {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         //Getting Login Details for this partner
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
         $partner_code = $this->partner_model->get_availiable_partner_code();
@@ -1024,7 +1026,8 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1059,7 +1062,6 @@ class Partner extends CI_Controller {
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
-       $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
        $this->miscelleneous->load_nav_header();
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
            'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
@@ -3342,8 +3344,13 @@ class Partner extends CI_Controller {
                     $sms['booking_id'] = $booking_id;
                     $sms['type'] = "user";
                     $sms['type_id'] = $data[0]['user_id'];
-                    $sms['smsData'] = "";
-
+                    if($data[0]['partner_id'] == VIDEOCON_ID){
+                        $sms['smsData']['cc_number'] = "with capital city STD code 39404040";
+                    }
+                    else{
+                       $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                    }
+                    
                     $this->notify->send_sms_msg91($sms);
                     log_message('info', "Send SMS to customer: " . $booking_id);
 
@@ -7470,5 +7477,5 @@ class Partner extends CI_Controller {
         
         echo json_encode($res);
     }
-            
+    
 }

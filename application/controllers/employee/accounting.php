@@ -1079,7 +1079,7 @@ class Accounting extends CI_Controller {
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
-        $post['search_value'] = trim($search['value']);
+        $post['search_value'] = preg_replace("([\",'])", "", trim($search['value']));
         
         $post['order'] = $this->input->post('order');
         $post['draw'] = $this->input->post('draw');

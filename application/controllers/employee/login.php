@@ -25,6 +25,7 @@ class Login extends CI_Controller {
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library("push_notification_lib");
+        $this->load->library('booking_utilities');
         $this->load->driver('cache');
     }
 
@@ -743,10 +744,10 @@ function user_role_management(){
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
         $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_role","role as groups",array("entity_type"=>'partner'),NULL,NULL,NULL,NULL,NULL,array());
-
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         //Get Header 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group'],'entity_type_data'=>$data['entity_type_data']));
+        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group'],'entity_type_data'=>$data['entity_type_data'],'saas_flag'=>$data['saas_flag']));
     }
 /*
  * This Function Called From Ajax use to update Groups For Navigation 

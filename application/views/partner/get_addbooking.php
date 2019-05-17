@@ -1241,4 +1241,29 @@
         }
 
     }
+    
+ 
+ <?php  
+ if($this->session->userdata('partner_id')==VIDEOCON_ID){ ?>
+    $("#booking_city").change(function(){
+      var cities = ["Mumbai","Thane"];
+      var city = $(this).val();
+      if(jQuery.inArray(city, cities)!='-1'){
+          alert("This PINCODE is not in your Serviceable Area associated with us!");
+          $('#submitform').prop("disabled", true);
+          $('#submitform').attr("type", "button");
+          $('#submitform').removeClass("btn-primary");
+          $("#submitform").removeAttr("onclick");
+     }else{
+          $('#submitform').attr("type", "submit");  
+          $('#submitform').addClass("btn-primary");
+          $('#submitform').attr('onclick',"return check_validation()");
+     }
+   }); 
+     
+ <?php }
+ ?>   
+ 
+    
 </script>
+ 

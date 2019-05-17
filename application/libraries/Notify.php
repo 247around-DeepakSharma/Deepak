@@ -1056,7 +1056,7 @@ class Notify {
             return $videocon_states_number[$state];
         }
         else{
-            return _247AROUND_WHATSAPP_NUMBER;
+            return "9810594247";
         }
         
     }

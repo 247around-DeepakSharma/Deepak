@@ -934,4 +934,11 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->insert('courier_company_invoice_details',$data);
         return $this->db->insert_id();
     }
+    /**
+     * @desc This function is used to insert category and capacity updated by DF
+     */
+    function insert_update_applaince_by_sf($data){
+        $this->db->insert('appliance_updated_by_sf',$data);
+        return $this->db->insert_id();
+    }
 }
