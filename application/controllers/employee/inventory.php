@@ -2285,6 +2285,10 @@ class Inventory extends CI_Controller {
         $entity_type = trim($this->input->post('entity_type'));
         $entity_id = trim($this->input->post('entity_id'));
         $service_id = trim($this->input->post('service_id'));
+        $request_type = false;
+        if(!empty($this->input->post('request_type'))){
+            $request_type = $this->input->post('request_type');
+        }
 
         if (!empty($inventory_id)) {
             $group_inventory_id = $this->inventory_model->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id,alternate_inventory_set.group_id', $inventory_id);
@@ -2307,7 +2311,7 @@ class Inventory extends CI_Controller {
             $no = $post['start'];
             foreach ($list as $stock_list) {
                 $no++;
-                $row = $this->get_alternate_inventory_master_list_table($stock_list, $no, $partners);
+                $row = $this->get_alternate_inventory_master_list_table($stock_list, $no, $partners, $request_type);
                 $data[] = $row;
             }
         }
@@ -2319,7 +2323,7 @@ class Inventory extends CI_Controller {
         );
     }
 
-    function get_alternate_inventory_master_list_table($stock_list, $no, $partners) {
+    function get_alternate_inventory_master_list_table($stock_list, $no, $partners,$request_type) {
         $row = array();
         if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
             $stock_list->entity_public_name = $partners[$stock_list->entity_id];
@@ -2331,6 +2335,9 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->type;
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        if(!empty($request_type)){
+          $row[] = "<span style='word-break: break-all;'>" . $stock_list->model_number . "</span>";  
+        }        
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->description . "</span>";
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
