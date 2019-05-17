@@ -320,7 +320,7 @@
                                             </select>
                                         </div>
                                         <?php } ?>
-                                        <div class="col-md-2">
+                                        <div class="col-md-1">
                                             <button type="button" class="btn btn-default pull-right removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
                                     </div>

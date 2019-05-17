@@ -472,6 +472,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_inventory_master_list_data($select, $where = array(), $where_in = array()){
+        $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where);
@@ -783,6 +784,8 @@ class Inventory_model extends CI_Model {
         $this->db->from('inventory_master_list');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->join('alternate_inventory_set', 'inventory_master_list.inventory_id = alternate_inventory_set.inventory_id','left');
+        $this->db->join('inventory_model_mapping', 'inventory_master_list.inventory_id = inventory_model_mapping.inventory_id','left');
+        $this->db->join('appliance_model_details', 'inventory_model_mapping.model_number_id = appliance_model_details.id','left');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }

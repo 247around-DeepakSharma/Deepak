@@ -712,12 +712,12 @@ class Invoice_lib {
                 $tmp_arr['booking_id'] = $value['booking_id'];
                 $tmp_arr['spare_desc'] = $value['parts_shipped'];
                 $tmp_arr['part_number'] = $value['part_number'];
-                $tmp_arr['qty'] = 1;
+                $tmp_arr['qty'] = $value['quantity'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
         }
-
+        
         if ($sf_details[0]['is_gst_doc'] == 1) {
             $template = 'delivery_challan_template';
             $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];

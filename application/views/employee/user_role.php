@@ -1,6 +1,6 @@
 <style>
     #navigation_table_filter{
-        display:none;
+        float:right;
     }
 </style>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
@@ -13,7 +13,7 @@
                 <div class="col-md-4">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
-                            <select class="form-control filter_table" id="entity_type_data">
+                            <select class="form-control filter_table" id="entity_type_data" style='margin-top:8%;'>
                                 <option value="" selected="selected" disabled="">Select Entity Type</option>
                                 <option value="All">All</option>
                                 <?php foreach($entity_type_data as $val){ ?>
@@ -125,19 +125,19 @@
         <div class="modal-body">
             <form class="form-horizontal" action="<?php echo base_url() ?>employee/login/add_new_nav_heading" method="post">
     <div class="form-group">
-        <label for="title" class="control-label col-xs-2">Title</label>
+        <label for="title" class="control-label col-xs-2">Title *</label>
         <div class="col-xs-10">
             <input type="text" class="form-control" id="title" name="title" placeholder="Add Title">
         </div>
     </div>
                  <div class="form-group">
-        <label for="level" class="control-label col-xs-2">Title Icon</label>
+        <label for="title_icon" class="control-label col-xs-2">Title Icon</label>
         <div class="col-xs-10">
             <input type="text" class="form-control" id="title_icon" name="title_icon" placeholder="title_icon">
         </div>
     </div>
                 <div class="form-group">
-        <label for="level" class="control-label col-xs-2">Level</label>
+        <label for="level" class="control-label col-xs-2">Level *</label>
         <div class="col-xs-10">
             <input type="text" class="form-control" id="level" name="level" placeholder="Level">
         </div>
@@ -149,13 +149,13 @@
         </div>
     </div>
                 <div class="form-group">
-        <label for="link" class="control-label col-xs-2">Nav Type</label>
+        <label for="link" class="control-label col-xs-2">Nav&nbsp;Type&nbsp;*</label>
         <div class="col-xs-10">
             <input type="text" class="form-control" id="nav_type" name="nav_type" placeholder="Add Nav Type">
         </div>
     </div>
-      <div class="form-group ">
-        <label for="parent" class="control-label col-xs-2">Entity</label>
+    <div class="form-group " <?php if($saas_flag){ ?> style="display: none;" <?php } ?> >
+        <label for="parent" class="control-label col-xs-2">Entity *</label>
         <div class="col-xs-10">
             <select class="form-control roles_group_add_new" id="entity_type" name="entity_type" onchange="get_parent_roles(this.value)">
                 <option value="" >NULL</option>
@@ -165,7 +165,7 @@
         </div>
     </div>
     <div class="form-group ">
-        <label for="parent" class="control-label col-xs-2">Parent</label>
+        <label for="parent" class="control-label col-xs-2">Parent *</label>
         <div class="col-xs-10" id="parent_select" >
             <select class="form-control roles_group_add_new" id="add_parents" name="add_parents" disabled="">
                 
@@ -174,7 +174,7 @@
         </div>
     </div>
      <div class="form-group">
-        <label for="parent" class="control-label col-xs-2">Roles</label>
+        <label for="parent" class="control-label col-xs-2">Roles *</label>
         <div class="col-xs-10" >
             <select class="form-control roles_group_add_new" name="roleGroups[]" multiple="" id="group_select" disabled="">
                 
@@ -182,15 +182,11 @@
         </div>
     </div>
     
-    <div class="form-group">
-        <div class="col-xs-offset-2 col-xs-10">
-            <button type="submit" class="btn btn-primary" onclick="return validate_submit()">Submit</button>
-        </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" onclick="return validate_submit()">Submit</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     </div>
 </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
       
@@ -199,9 +195,15 @@
 <script>
      $(".roles_group").select2();
     $(".roles_group_add_new").select2();
+    var saas_flag = "<?=((isset($saas_flag) && $saas_flag) ? $saas_flag : 0) ?>";
+    if(saas_flag == 1) {
+        $("#entity_type ").val("247Around");
+        get_parent_roles("247Around");
+    }
    // var table = $('#navigation_table').DataTable();
   var table=  $('#navigation_table').DataTable({
-
+                    "pageLength": 50,
+                    "lengthMenu": [[10, 25, 50,100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                     drawCallback: function() {
                        $('.roles_group').select2();
                     }
@@ -264,7 +266,7 @@
         var add_parents = $("#add_parents").val();
         var level = $("#level").val();
         if(!(title || nav_type ||add_parents ||level)){
-            alert("all fields are mendatry except link");
+            alert("All fields are mandatry except link");
             return false;
         }
         else{

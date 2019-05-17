@@ -46,8 +46,10 @@
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
                                     <th>Vendor Margin</th>
-                                    <th>Around Margin</th>
-                                     <th>Customer Price</th>
+                                    <?php if(!$saas_flag){?>
+                                    <th>Around Margin</th> 
+                                   <?php  } ?>
+                                    <th>Customer Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,8 +65,9 @@
                                     <td><?php echo $value['gst_rate']; ?></td>
                                     <td><?php echo number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', ''); ?></td>
                                     <td><?php echo $value['oow_vendor_margin']; ?>%</td>
+                                    <?php if(!$saas_flag){?>
                                     <td><?php echo $value['oow_around_margin']; ?>%</td>
-
+                                    <?php  } ?>
 
                     <?php    
                     $customertot = number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', '');

@@ -74,7 +74,8 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
-                                    <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
+                                   <!-- <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>-->
+                                    <th class="text-center"> Generate Challan<input type="checkbox" id="selectall_challan" ></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -120,7 +121,11 @@ if ($this->uri->segment(3)) {
                                         </td>
 
                                         <td>
+                                            <?php if(!empty($row['partner_challan_number'])){ ?>
                                             <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                            <?php }else{ ?>
+                                            <a href="javascrip:void(0);" class="btn btn-sm btn-primary" title="Please generate challan." style="background-color:#2C9D9C; border-color: #2C9D9C;" disabled="disabled"><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                            <?php } ?>
                                         </td>
                                         <td>
                                             <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
@@ -137,13 +142,17 @@ if ($this->uri->segment(3)) {
                                             <?php } ?>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control concern_detail" onclick="remove_select_all_couriers_declaration()" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
+                                            <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
                                         </td>
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
-                                        <td>
+<!--                                        <td>
                                             <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
+                                        </td>-->
+                                        
+                                        <td>
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
 
                                     </tr>
@@ -235,23 +244,29 @@ if ($this->uri->segment(3)) {
     $("#selectall_address").change(function () {
         var d_m = $('input[name="download_courier_manifest[]"]:checked');
         var d_m_d = $('.concern_detail:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
+        var d_m_c = $('.checkbox_challan:checked');
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_c.length > 0 ) {
             $('.checkbox_manifest').prop('checked', false);
             $('#selectall_manifest').prop('checked', false);
             $('.concern_detail').prop('checked', false);
             $('#selectall_concern_detail').prop('checked', false);
+            $('.checkbox_challan').prop('checked', false);
+            $('#selectall_challan').prop('checked', false);
         }
         $(".checkbox_address").prop('checked', $(this).prop("checked"));
     });
     $("#selectall_manifest").change(function () {
         var d_m = $('input[name="download_address[]"]:checked');
         var d_m_d = $('.concern_detail:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
+        var d_m_c = $('.checkbox_challan:checked');
+        
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_c.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('#selectall_address').prop('checked', false);
             $('.concern_detail').prop('checked', false);
             $('#selectall_concern_detail').prop('checked', false);
-            
+            $('.checkbox_challan').prop('checked', false);
+            $('#selectall_challan').prop('checked', false);
         }
         $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
     });
@@ -260,50 +275,111 @@ if ($this->uri->segment(3)) {
     $("#selectall_concern_detail").change(function () {
        var d_m = $('.checkbox_address:checked');
        var d_m_d = $('.checkbox_challan:checked');
-       if (d_m.length > 0 || d_m_d.length > 0) {
-           $('.checkbox_challan').prop('checked', false);
+       var cb_m = $('.checkbox_manifest:checked');
+        
+       if (d_m.length > 0 || d_m_d.length > 0 ||cb_m.length > 0 ) {
            $('#selectall_challan_file').prop('checked', false);
            $('.checkbox_address').prop('checked', false);
            $('#selectall_address').prop('checked', false);
+           $('.checkbox_manifest').prop('checked', false);
+           $('.checkbox_challan').prop('checked', false);
+           $('#selectall_challan').prop('checked', false);
+           
        }
        $(".concern_detail").prop('checked', $(this).prop("checked"));
     });
+    
+    
+    $("#selectall_challan").change(function () {
+       var d_m = $('.checkbox_address:checked');
+       var d_m_d = $('.checkbox_challan:checked');
+       var cb_m = $('.checkbox_manifest:checked');
+       
+       if (d_m.length > 0 || d_m_d.length > 0 || cb_m.length > 0) {
+           $('#selectall_challan_file').prop('checked', false);
+           $('.checkbox_address').prop('checked', false);
+           $('#selectall_address').prop('checked', false);
+           $('.checkbox_manifest').prop('checked', false);
+           $('#selectall_manifest').prop('checked', false);
+           $('.checkbox_challan').prop('checked', false);           
+       }
+       $(".checkbox_challan").prop('checked', $(this).prop("checked"));
+       
+    
+       var sf_id = $("#generate_challan_0").data("service_center_id");
+       var flag = false;
+       $('.checkbox_challan:checked').each(function(i) {
+          var service_center_id = $(this).data("service_center_id");
+          if(service_center_id != sf_id){
+              flag = true;
+          }
+        });
+        
+        if(flag){
+            $('.checkbox_challan').prop('checked', false);
+            $('#selectall_challan').prop('checked', false);
+            alert("Not allow to select all option.");
+        }
+        
+        
+    });
 
-    function remove_select_all_couriers_declaration(){
-     $('#selectall_concern_detail').prop('checked', false); 
-     var d_m = $('.checkbox_manifest:checked');
-     var d_m_add = $('.checkbox_address:checked');
-     if (d_m.length > 0 || d_m_add.length > 0) {
-         $('.checkbox_address').prop('checked', false);
-         $('#selectall_address').prop('checked', false);
-         $('.checkbox_manifest').prop('checked', false);
-         $('#selectall_manifest').prop('checked', false);
-     }
-
-    }
 
     function check_checkbox(number) {
         
-
-        if (number === 1) {
-            var d_m = $('input[name="download_courier_manifest[]"]:checked');
-            var d_m_d = $('.concern_detail:checked');
-            if (d_m.length > 0 || d_m_d.length > 0) {
-                $('.checkbox_manifest').prop('checked', false);
-                $('#selectall_manifest').prop('checked', false);
-                $('.concern_detail').prop('checked', false);
-                $('#selectall_concern_detail').prop('checked', false);
-            }
-
-        } else if (number === 0) {
+        if (number === 0) {
             var d_m = $('input[name="download_address[]"]:checked');
+            var d_m_c = $('input[name="generate_challan[]"]:checked');
             var d_m_d = $('.concern_detail:checked');
-            if (d_m.length > 0 || d_m_d.length > 0) {
+            if (d_m.length > 0 || d_m_d.length > 0 || d_m_c.length > 0 ) {
                 $('.checkbox_address').prop('checked', false);
                 $('#selectall_address').prop('checked', false);
                 $('.concern_detail').prop('checked', false);
                 $('#selectall_concern_detail').prop('checked', false);
+                $('.checkbox_challan').prop('checked', false);
+                $('#selectall_challan').prop('checked', false);
             }
+        }else if (number === 1) {
+            var d_m = $('input[name="download_courier_manifest[]"]:checked');
+            var d_m_d = $('.concern_detail:checked');
+             var d_m_c = $('input[name="generate_challan[]"]:checked');
+            if (d_m.length > 0 || d_m_d.length > 0 || d_m_c.length > 0) {
+                $('.checkbox_manifest').prop('checked', false);
+                $('#selectall_manifest').prop('checked', false);
+                $('.concern_detail').prop('checked', false);
+                $('#selectall_concern_detail').prop('checked', false);
+                $('.checkbox_challan').prop('checked', false);
+                $('#selectall_challan').prop('checked', false);
+            }
+
+        }else if(number === 2){
+            var d_m = $('input[name="download_courier_manifest[]"]:checked');
+            var d_m_d = $('.concern_detail:checked');
+            var d_m_a = $('input[name="download_address[]"]:checked');
+            if (d_m.length > 0 || d_m_d.length > 0 || d_m_a.length > 0 ) {
+                $('.checkbox_manifest').prop('checked', false);
+                $('#selectall_manifest').prop('checked', false);
+                $('.concern_detail').prop('checked', false);
+                $('#selectall_concern_detail').prop('checked', false);
+                $('.checkbox_address').prop('checked', false);
+                $('#selectall_address').prop('checked', false);
+            }
+            
+        }else if(number === 3){
+            $('#selectall_concern_detail').prop('checked', false); 
+            var d_m = $('.checkbox_manifest:checked');
+            var d_m_add = $('.checkbox_address:checked');
+            var d_m_c = $('input[name="generate_challan[]"]:checked');
+            if (d_m.length > 0 || d_m_add.length > 0 || d_m_c.length > 0) {
+                $('.checkbox_address').prop('checked', false);
+                $('#selectall_address').prop('checked', false);
+                $('.checkbox_manifest').prop('checked', false);
+                $('#selectall_manifest').prop('checked', false);
+                $('.checkbox_challan').prop('checked', false);
+                $('#selectall_challan').prop('checked', false);
+
+            }
+            
         }
 
     }
@@ -364,8 +440,9 @@ if ($this->uri->segment(3)) {
         var address = $('.checkbox_address:checkbox:checked');
         var manifest = $('.checkbox_manifest:checkbox:checked');
         var courier_declaration = $('.concern_detail:checkbox:checked');
+        var checkbox_challan = $('.checkbox_challan:checkbox:checked');
                 
-        if(address.length != 0 || manifest.length !=0 || courier_declaration.length !=0){
+        if(address.length != 0 || manifest.length !=0 || courier_declaration.length !=0 || checkbox_challan.length !=0){
             return true;
         }
         else{
@@ -373,6 +450,25 @@ if ($this->uri->segment(3)) {
             return false;
         }
    }
+   $(document).on("click", ".checkbox_challan", function (i) {
+        var service_center_id_arr = [];
+        generate_challan_id = $(this).attr('id');
+        $('.checkbox_challan:checked').each(function(i) {
+           var service_center_id = $(this).data("service_center_id");
+            
+            if(i === 0){
+                 service_center_id_arr.push(service_center_id);
+            } else {
+                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
+                  service_center_id_arr.push(service_center_id);
+              } else {                  
+                  $("#"+generate_challan_id).prop('checked', false);
+                  alert("Do not allow to tick different vendor booking");
+                  return false;
+              }
+            }
+        });
+   });
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
