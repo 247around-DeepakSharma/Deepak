@@ -159,6 +159,8 @@
             return false;
         }
         
+
+        
         alternate_inventory_master_list_table.ajax.reload(function(data) {
             $("#inventory_set_id").val(data.set_id)
         });
@@ -205,7 +207,9 @@
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
                     d.inventory_id = entity_details.inventory_id,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.part_type = entity_details.part_type
+                    
                 }
             },
             "deferRender": true       
@@ -218,7 +222,8 @@
             'entity_id': $('#partner_id').val(),
             'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'inventory_id': $("#spare_parts_inventory_id").find('option:selected').attr("data-inventory"),
-            'service_id': $('#inventory_service_id').val()
+            'service_id': $('#inventory_service_id').val(),
+            'part_type': $('#spare_parts_type').val()
         };
         
         return data;
