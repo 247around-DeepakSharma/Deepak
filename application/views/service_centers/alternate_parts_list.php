@@ -195,8 +195,8 @@
                 style: 'multi'
             },
             "order": [], 
-            "pageLength": 5,
-            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "pageLength": 50,
+            "lengthMenu": [[50,100, -1], [50, 100,"All"]],
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_partner_wise_alternate_inventory_list",

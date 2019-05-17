@@ -41,6 +41,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
+                                    <th>Description</th>
                                     <th>HSN</th>
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
@@ -60,6 +61,7 @@
                                     <td><?php echo $value['type']; ?></td>
                                     <td><?php echo $value['part_name']; ?></td>
                                     <td><?php echo $value['part_number']; ?></td>
+                                    <td><?php echo $value['description']; ?></td>
                                     <td><?php echo $value['hsn_code']; ?></td>
                                     <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['gst_rate']; ?></td>
