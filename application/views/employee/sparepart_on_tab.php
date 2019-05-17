@@ -658,7 +658,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'

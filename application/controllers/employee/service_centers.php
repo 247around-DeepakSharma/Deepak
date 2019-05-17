@@ -3052,6 +3052,59 @@ class Service_centers extends CI_Controller {
        }
     }
     
+     /**
+     * @desc: It's used to generate SF Challan
+     * @param String $generate_challan
+     */
+    
+    function generate_sf_challan($generate_challan) {
+
+        if (!empty($generate_challan)) {
+            $post = array();
+            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan);
+            $post['is_inventory'] = true;
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
+
+            if (!empty($part_details)) {
+                $spare_details = array();
+                foreach ($part_details as $value) {
+                    $spare_parts = array();
+                    if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $spare_parts['spare_id'] = $value['id'];
+                        $spare_parts['booking_id'] = $value['booking_id'];
+                        $spare_parts['parts_shipped'] = $value['parts_shipped'];
+                        $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
+                        $spare_parts['part_number'] = $value['part_number'];
+                        $spare_parts['quantity'] = $value['quantity'];
+                    }
+                    $spare_details[] = $spare_parts;
+                }
+                $assigned_vendor_id = $part_details[0]['assigned_vendor_id'];
+                $service_center_id = $part_details[0]['service_center_id'];
+            }
+
+            $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
+            $data = array();
+            if (!empty($sf_details)) {
+                $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+            }
+
+            if (!empty($spare_details)) {
+                $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $spare_details);
+                if(!empty($data['partner_challan_file'])){
+                    if(!empty($spare_details)){
+                        foreach ($spare_details as $val){
+                            $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                        }
+                    }
+                }
+                
+            }
+        }
+    }
+
     /**
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
@@ -4784,7 +4837,7 @@ class Service_centers extends CI_Controller {
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
                 . " AND wh_ack_received_part != 0 ";
         
-        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
@@ -4969,8 +5022,7 @@ class Service_centers extends CI_Controller {
                             $data['challan_approx_value'] = $part_details['approx_value'];
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
 
-                            /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
-
+                            /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty 
                             if ($part_details['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                 $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $sf_id));
@@ -4984,7 +5036,7 @@ class Service_centers extends CI_Controller {
 
                                 $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $assigned_sf_details, $data['partner_challan_number'], $spare_details);
                             }
-
+                           */
                        
                             if ($part_details['spare_id'] == "new") {
                        
@@ -5297,17 +5349,21 @@ class Service_centers extends CI_Controller {
         $booking_address = $this->input->post('download_address');
         $booking_manifest = $this->input->post('download_courier_manifest');
         $declaration_detail = $this->input->post('coueriers_declaration');
-        
+        $generate_challan = $this->input->post('generate_challan');
+                
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
         } else if (!empty($booking_manifest)) {
 
             $this->download_mainfest($booking_manifest);
-        } else if (empty($booking_address) && empty($booking_manifest) && empty ($declaration_detail)) {
-            echo "Please Select Any Checkbox";
+        } else if (!empty($generate_challan)) {
+
+            $this->generate_sf_challan($generate_challan);
         }else if(!empty ($declaration_detail)){
             $this->print_declaration_detail();
+        } else if (empty($booking_address) && empty($booking_manifest) && empty ($declaration_detail)) {
+            echo "Please Select Any Checkbox";
         }
     }
     
