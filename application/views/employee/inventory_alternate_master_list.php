@@ -1,44 +1,4 @@
 <style>
-    .select2.select2-container.select2-container--default{
-        width: 100%!important;
-    }
-    .spinner {
-        margin: 0px auto;
-        width: 50px;
-        height: 50px;
-        text-align: center;
-        font-size: 10px;
-    }
-
-    .spinner > div {
-        height: 100%;
-        width: 6px;
-        display: inline-block;
-
-        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
-        animation: sk-stretchdelay 1.2s infinite ease-in-out;
-    }
-
-    .spinner .rect2 {
-        -webkit-animation-delay: -1.1s;
-        animation-delay: -1.1s;
-    }
-
-    .spinner .rect3 {
-        -webkit-animation-delay: -1.0s;
-        animation-delay: -1.0s;
-    }
-
-    .spinner .rect4 {
-        -webkit-animation-delay: -0.9s;
-        animation-delay: -0.9s;
-    }
-
-    .spinner .rect5 {
-        -webkit-animation-delay: -0.8s;
-        animation-delay: -0.8s;
-    }
-
     @-webkit-keyframes sk-stretchdelay {
         0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
         20% { -webkit-transform: scaleY(1.0) }
@@ -53,22 +13,7 @@
             -webkit-transform: scaleY(1.0);
         }
     }
-    
-    #inventory_stock_table_processing{
-            position: absolute;
-            z-index: 999999;
-            width: 100%;
-            background: rgba(0,0,0,0.5);
-            height: 100%;
-            top: 10px;
-            left:6%;
-    }
-    .dataTables_length{
-     width: 15%;   
-    }
-    .dataTables_filter{
-        float: right;
-    }
+   
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -88,6 +33,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Parts Number</th>
+                                    <th>Model Number</th>   
                                     <th>Description</th>
                                     <th>Size</th>
                                     <th>HSN</th>
@@ -158,6 +104,7 @@
                     d.entity_type = '<?php echo _247AROUND_PARTNER_STRING; ?>',
                     d.inventory_id = '<?php echo $inventory_id; ?>',
                     d.service_id = '<?php echo $service_id; ?>'
+                    d.request_type = '1'
                 }
             },
             "deferRender": true       

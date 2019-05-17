@@ -96,6 +96,7 @@
                         <th>Type</th>
                         <th>Name</th>
                         <th>Parts Number</th>
+                        <th>Model Number</th>                        
                         <th>Description</th>
                         <th>Size</th>
                         <th>HSN</th>
@@ -200,7 +201,8 @@
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
                     d.inventory_id = entity_details.inventory_id,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.request_type = '1'
                 }
             },
             "deferRender": true       
@@ -242,7 +244,6 @@
                 url:'<?php echo base_url(); ?>employee/inventory/partner_wise_inventory_spare_parts_list',
                 data:{ entity_id : partner_id, entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id },
                 success:function(data){   
-                    console.log(data);
                     $("#spare_parts_inventory_id").html(data);
                 }
             });
