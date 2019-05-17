@@ -1160,8 +1160,12 @@ class Booking extends CI_Controller {
             // Partner Call back
             $this->partner_cb->partner_callback($booking_id);
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
-
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+             if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+                redirect(base_url() . 'partner/dashboard');
+            }
+            else{
+               redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            }
         }
     }
 
