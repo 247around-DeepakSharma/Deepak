@@ -47,6 +47,7 @@
                                     <th> Type</th>
                                     <th>  Part Name</th>
                                     <th>  Part Number</th>
+                                    <th>Description</th>
                                     <th>  Stock</th>
                                     <th> SF Basic Price</th>
                                     <th>  GST Rate</th>
