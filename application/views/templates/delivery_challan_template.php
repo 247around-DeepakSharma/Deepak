@@ -79,8 +79,8 @@
             <td style="text-align: center"><b>S No</b></td>
             <td colspan="3" style="text-align: center"><b>Description</b></td>
             <td colspan="2" style="text-align: center"><b>Part Number</b></td>
-            <td colspan="2" style="text-align: center"><b>Qty</b></td>
-            <td colspan="3" style="text-align: center"><b>Booking ID</b></td>
+            <td colspan="2" style="text-align: center; width: 50px;"><b>Qty</b></td>
+            <td colspan="3" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="3" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
@@ -102,8 +102,8 @@
         <tr  style="font-weight: bold;">
             <td ></td>
             <td colspan="5" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
-            <td colspan="2" style="text-align: center"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="2" style="text-align: center"><b>Total Amt</b></td>
+            <td colspan="2" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
+            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
             <td colspan="4" style="text-align: center"><b><?php echo $total_value; ?></b></td>
         </tr>
         <tr>
