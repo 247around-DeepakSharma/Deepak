@@ -130,9 +130,9 @@
                             else{
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Basic Details</span></a></li>
-                        <li><a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>> <a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
                         <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Operation Region</span></a></li>
-                        <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>

@@ -653,11 +653,21 @@ class Miscelleneous {
                     if (!empty($unit_details)) {
                         log_message('info', __FUNCTION__ . " Booking Unit details exist");
                         foreach ($unit_details as $value) {
-                            $sc_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
-                            if (empty($sc_data)) {
-                                $sc_data['current_status'] = "Pending";
+                            $sc_ba_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id,current_status,internal_status", array('booking_id' => $booking_id));
+                            $alreadyExist = false;
+                            $sc_current_status = 'Pending';
+                            $sc_internal_status = 'Pending';
+                            foreach($sc_ba_data as $sc_values){
+                                if($sc_values['unit_details_id'] ==  $value['id']){
+                                    $alreadyExist  = true;
+                                }
+                                $sc_current_status = $sc_values['current_status'];
+                                $sc_internal_status = $sc_values['internal_status'];
+                            }
+                            if (!$alreadyExist) {
+                                $sc_data['current_status'] = $sc_current_status;
                                 $sc_data['update_date'] = date('Y-m-d H:i:s');
-                                $sc_data['internal_status'] = "Pending";
+                                $sc_data['internal_status'] = $sc_internal_status;
                                 $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
                                 $sc_data['booking_id'] = $booking_id;
                                 $sc_data['unit_details_id'] = $value['id'];
