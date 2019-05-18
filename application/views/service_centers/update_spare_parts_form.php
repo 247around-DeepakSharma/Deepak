@@ -329,7 +329,7 @@
                                 if (form_error('courier_image')) { echo 'has-error';} ?>">
                                 <label for="courier_image" class="col-md-4">Courier Image *</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" required>
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" >
                                     <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
                                     <?php echo form_error('courier_image'); ?>
                                 </div>

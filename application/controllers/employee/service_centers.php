@@ -4927,8 +4927,8 @@ function update_defective_parts($sp_id) {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-
-            if ($courier_image['status']) {
+            //$courier_image['status']
+            if (1) {
 
                 $part = $this->input->post("part");                
                 $sf_id = $this->session->userdata('service_center_id');
@@ -4947,7 +4947,7 @@ function update_defective_parts($sp_id) {
                             $status = SPARE_PARTS_SHIPPED;
 
                             $data = array();
-                            $data['courier_pic_by_partner'] = $courier_image['message'];
+                            $data['courier_pic_by_partner'] = (!isset($courier_image['message']))?$courier_image['message']: NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
