@@ -2168,7 +2168,90 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
+    
+    
+    
+    /**
+     *  @desc : This function is used to show serviceable BOM list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_serviceable_bom_details() {
+        $data = $this->get_serviceable_bom_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_serviceable_bom_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_serviceable_bom_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
 
+    function get_serviceable_bom_list_data() {
+        $post = $this->get_post_data();
+
+        $entity_type = _247AROUND_PARTNER_STRING;
+        $entity_id = trim($this->input->post('partner_id'));
+        $service_id = trim($this->input->post('service_id'));
+        $model_number_id = trim($this->input->post('model_number_id'));
+
+        $data = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name', 'part_number', 'services.services', 'type');
+
+        if (!empty($model_number_id)) {
+
+            if (!empty($entity_id) && !empty($service_id) && !empty($model_number_id)) {
+                $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id";
+            }
+            if (!empty($model_number_id)) {
+                $post['where'] = "inventory_model_mapping.model_number_id = $model_number_id ";
+            }
+
+            $select = "inventory_master_list.*,appliance_model_details.model_number,services.services";
+            $list = $this->inventory_model->get_serviceable_bom_master_list($post, $select);
+            $no = $post['start'];
+            foreach ($list as $stock_list) {
+                $no++;
+                $row = $this->get_serviceable_bom_list_table($stock_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     function get_serviceable_bom_list_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->type;
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        //$row[] = $stock_list->hsn_code;
+        //$row[] = "<i class ='fa fa-inr'></i> " . number_format((float)$stock_list->price+($stock_list->price*($stock_list->oow_around_margin)/100), 2, '.', '');
+        //$row[] = $stock_list->gst_rate . "%";
+        $total = number_format((float) ($stock_list->price + ($stock_list->price * ($stock_list->gst_rate / 100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> " . $total;
+        $row[] = $stock_list->oow_vendor_margin . " %";
+        $customertot = number_format((float)($stock_list->price + ($stock_list->price * ($stock_list->gst_rate /100))), 2, '.', '');
+        $customertot = number_format((float)$customertot+($customertot*($stock_list->oow_vendor_margin+$stock_list->oow_around_margin)/100), 2, '.', '');
+        $row[] = $customertot;
+        return $row;
+    }
+    
     /**
      *  @desc : This function is used to show alternate inventory master list data
      *  @param : void
