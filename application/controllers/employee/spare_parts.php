@@ -22,6 +22,7 @@ class Spare_parts extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('S3');
         $this->load->library('PHPReport');
+        $this->load->library('booking_utilities');
 
         $this->load->library('table');
 
@@ -1615,8 +1616,7 @@ class Spare_parts extends CI_Controller {
      */
 
     function spare_part_on_approval($spare_id, $booking_id) {
-        log_message('info', json_encode($this->input->post(), true));
-
+        log_message('info', __METHOD__. json_encode($this->input->post(), true));
         $part_warranty_status = $this->input->post('part_warranty_status');
         $reason = $this->input->post('remarks');    
         $data_to_insert = array();
@@ -1756,13 +1756,9 @@ class Spare_parts extends CI_Controller {
                         $requested_inventory_id = $spare_data['requested_inventory_id'];
                     } 
                     
-                    $auto_estimate_approve = 0;
-                    
-                    if($entity_type == _247AROUND_SF_STRING){
-                        
-                        $auto_estimate_approve = 1;
-                        
-                    } else {
+                    $auto_estimate_approve = 1;
+                    $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                    if($saas_module){
                         $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id, 
             'permission_type' => AUTO_PICK_OOW_PART_ESTIMATE, 'is_on' => 1));
                         if(!empty($access)){
