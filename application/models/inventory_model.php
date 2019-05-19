@@ -2186,7 +2186,7 @@ class Inventory_model extends CI_Model {
         }
         
         return array(
-            'oow_est_margin' => $repair_oow_vendor_percentage,
+            'oow_est_margin' => $spare_oow_est_margin,
             'oow_vendor_margin' => $repair_oow_vendor_percentage,
             'oow_around_margin' => $repair_oow_around_percentage,
             'gst_rate' => !(empty($gst_rate))? $gst_rate: ""
