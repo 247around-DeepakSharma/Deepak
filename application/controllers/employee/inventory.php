@@ -1112,7 +1112,8 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-
+                    $sc_data['admin_remarks'] = $remarks;
+                    
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
@@ -2168,7 +2169,86 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
+    
+    
+    
+    /**
+     *  @desc : This function is used to show serviceable BOM list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_serviceable_bom_details() {
+        $data = $this->get_serviceable_bom_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_serviceable_bom_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_serviceable_bom_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
 
+    function get_serviceable_bom_list_data() {
+        $post = $this->get_post_data();
+
+        $entity_type = _247AROUND_PARTNER_STRING;
+        $entity_id = trim($this->input->post('partner_id'));
+        $service_id = trim($this->input->post('service_id'));
+        $model_number_id = trim($this->input->post('model_number_id'));
+
+        $data = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name', 'part_number', 'services.services', 'type');
+
+        if (!empty($model_number_id)) {
+
+            if (!empty($entity_id) && !empty($service_id) && !empty($model_number_id)) {
+                $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id";
+            }
+            if (!empty($model_number_id)) {
+                $post['where'] = "inventory_model_mapping.model_number_id = $model_number_id ";
+            }
+
+            $select = "inventory_master_list.*,appliance_model_details.model_number,services.services";
+            $list = $this->inventory_model->get_serviceable_bom_master_list($post, $select);
+            $no = $post['start'];
+            foreach ($list as $stock_list) {
+                $no++;
+                $row = $this->get_serviceable_bom_list_table($stock_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     function get_serviceable_bom_list_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->type;
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->oow_around_margin)/100), 2, '.', '');
+        $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->gst_rate / 100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> " . $total;
+        $row[] = $stock_list->oow_vendor_margin . " %";
+        $row[] = number_format((float)$total+($total*($stock_list->oow_vendor_margin)/100), 2, '.', '');
+        return $row;
+    }
+    
     /**
      *  @desc : This function is used to show alternate inventory master list data
      *  @param : void
@@ -2201,10 +2281,14 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
 
         $inventory_id = $this->input->post('inventory_id');
-
+        $part_type = trim($this->input->post('part_type'));
         $entity_type = trim($this->input->post('entity_type'));
         $entity_id = trim($this->input->post('entity_id'));
         $service_id = trim($this->input->post('service_id'));
+        $request_type = false;
+        if(!empty($this->input->post('request_type'))){
+            $request_type = $this->input->post('request_type');
+        }
 
         if (!empty($inventory_id)) {
             $group_inventory_id = $this->inventory_model->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id,alternate_inventory_set.group_id', $inventory_id);
@@ -2220,14 +2304,14 @@ class Inventory extends CI_Controller {
             $post['column_order'] = array();
             $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id');
             $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)";
-            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status";
+            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.model_number";
             $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
             $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
             $data = array();
             $no = $post['start'];
             foreach ($list as $stock_list) {
                 $no++;
-                $row = $this->get_alternate_inventory_master_list_table($stock_list, $no, $partners);
+                $row = $this->get_alternate_inventory_master_list_table($stock_list, $no, $partners, $request_type);
                 $data[] = $row;
             }
         }
@@ -2239,7 +2323,7 @@ class Inventory extends CI_Controller {
         );
     }
 
-    function get_alternate_inventory_master_list_table($stock_list, $no, $partners) {
+    function get_alternate_inventory_master_list_table($stock_list, $no, $partners,$request_type) {
         $row = array();
         if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
             $stock_list->entity_public_name = $partners[$stock_list->entity_id];
@@ -2251,6 +2335,9 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->type;
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        if(!empty($request_type)){
+          $row[] = "<span style='word-break: break-all;'>" . $stock_list->model_number . "</span>";  
+        }        
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->description . "</span>";
         $row[] = $stock_list->size;
         $row[] = $stock_list->hsn_code;
@@ -2323,8 +2410,13 @@ class Inventory extends CI_Controller {
             if (!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type'])) {
 
                 if (!empty($data['price']) && !empty($data['hsn_code']) && !empty($data['gst_rate'])) {
-                    $where = array('inventory_master_list.part_number' => $this->input->post('part_number'));
-                    $exist_inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number', $where, array());
+                    
+                    $exist_inventory_details = array();
+                    if ($submit_type == 'add') {
+                        $where = array('inventory_master_list.part_number' => $this->input->post('part_number'));
+                        $exist_inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number', $where, array());
+                    }
+
                     if (empty($exist_inventory_details)) {
                         switch (strtolower($submit_type)) {
                             case 'add':
@@ -2497,7 +2589,7 @@ class Inventory extends CI_Controller {
         if (($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))) {
             $post[''] = array();
             $post['column_order'] = array();
-            $post['column_search'] = array('part_name', 'part_number', 'type');
+            $post['column_search'] = array('part_name', 'part_number', 'type','services.services');
             $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
 
             if ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
@@ -2608,6 +2700,7 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
         $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
+        $row[] = $inventory_list->description;
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
@@ -3701,6 +3794,7 @@ class Inventory extends CI_Controller {
         $row[] = $inventory_list->part_name;
         $row[] = "<span style='word-break: break-all;'>" . $inventory_list->part_number . "</span>";
         $row[] = $inventory_list->quantity;
+        $row[] = $inventory_list->description;
         $row[] = $inventory_list->courier_name;
         //$row[] = "<a href='#' onclick='get_msl_awb_details('".$inventory_list->courier_name."','".$inventory_list->AWB_no."','".$inventory_list->status."','msl_awb_loader_'".$inventory_list->AWB_no."')'>".$inventory_list->AWB_no."</a> <span id='msl_awb_loader_$inventory_list->AWB_no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>"; 
         $a = "<a href='javascript:void(0);' onclick='";
@@ -5916,6 +6010,34 @@ class Inventory extends CI_Controller {
             foreach ($master_list as $value) {
                 $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'>";
                 $option .= $value['part_name'] . "</option>";
+            }
+        }
+        echo $option;
+    }
+    
+    
+        /**
+     *  @desc : This function is used to get Partner Wise Spare Parts List
+     *  @param : $inventory_id, 
+     *  @return : $res array
+     */
+    function partner_wise_inventory_spare_parts_list_type() {
+
+        if (!empty($this->input->post("entity_id"))) {
+            $where = array(
+                'inventory_master_list.entity_id' => $this->input->post("entity_id"),
+                'inventory_master_list.entity_type' => $this->input->post("entity_type"),
+                'inventory_master_list.service_id' => $this->input->post("service_id")
+            );
+            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.type', $where);
+        }
+
+        $option = '<option selected disabled>Select Part Type</option>';
+
+        if (!empty($master_list)) {
+            foreach ($master_list as $value) {
+                $option .= "<option data-inventorytype='" . $value['type'] . "' value='" . $value['type'] . "'>";
+                $option .= $value['type'] . "</option>";
             }
         }
         echo $option;

@@ -36,6 +36,7 @@
                 <h1 class="page-header">
                     <b> Upload Inventory Model Mapping File</b>
                 </h1>
+                 <a class="btn btn-primary btn-sm" style="float:right" target='_blank'  href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/Part_model_mapping_sample.xlsx'>Download Sample File</a>
                 <section>
                     <div class="col-md-6">
                         <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
