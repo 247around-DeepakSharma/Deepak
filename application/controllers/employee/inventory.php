@@ -1112,7 +1112,8 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-
+                    $sc_data['admin_remarks'] = $remarks;
+                    
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
