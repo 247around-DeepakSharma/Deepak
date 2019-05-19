@@ -4507,8 +4507,8 @@ class Partner extends CI_Controller {
 //            if (strpos($type, 'mp4') === false) {
 //                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
 //                return false;
-//            }         
-            if($file['size']>100000000){
+//            }
+            if($file['size']>"104857600" ){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
             }
@@ -4518,13 +4518,13 @@ class Partner extends CI_Controller {
 //                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
 //                return false;
 //            }
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
                 return false;
             }
         }
        else if (strpos($type, 'pdf') !== false) {
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
                 return false;
             }
