@@ -4950,7 +4950,7 @@ function update_defective_parts($sp_id) {
                             $status = SPARE_PARTS_SHIPPED;
 
                             $data = array();
-                            $data['courier_pic_by_partner'] = (!isset($courier_image['message']))?$courier_image['message']: NULL;
+                            $data['courier_pic_by_partner'] = (isset($courier_image['message']))?$courier_image['message']: NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
