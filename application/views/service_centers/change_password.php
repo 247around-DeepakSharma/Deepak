@@ -38,14 +38,14 @@
                         </div>                    
                         <div class="col-md-3">
                             <div  class="form-group">
-                                <label for="retype_new_password">Retype New Password</label>
+                                <label for="retype_new_password">Reenter New Password</label>
                                 <input  type="text" class="form-control" id="retype_new_password" name="retype_new_password" placeholder="" disabled="">
                             </div>
                         </div>                    
-                        <div class="col-md-3">
-                            <div  class="form-group" style="margin-top: 14%;">
+                        <div class="col-md-1">
+                            <div  class="form-group">
                                 <label for="retype_new_password"></label>
-                                <input type="submit" name="change" value="Change" class="btn btn-primary" disabled="" id="changePassword">
+                                <input type="submit" name="change" value="Change" class="btn btn-primary form-control" disabled="" id="changePassword">
                             </div>
                         </div>                    
                 </div>
@@ -55,8 +55,14 @@
 </div>
 <?php echo form_close(); ?>
 <style>
-    .row, .col-md-3 {
+    .row, .col-md-3, .col-md-1 {
         margin-left: 1%;
+    }
+    
+    label {
+        display: inline-block;
+        max-width: 100%;
+        margin-bottom: 0px !important; 
     }
 </style>
 <?php 
@@ -107,7 +113,7 @@
                 return '1';
             } else {
                 $('#changePassword').attr('disabled','disabled');
-                alert('Retype password must be same sa password.');
+                alert('Reenter password must be same as password.');
                 return '0';
             }
         }
