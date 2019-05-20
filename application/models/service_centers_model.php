@@ -975,7 +975,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             . " bd.request_type, "
             . " bd.internal_status, bd.current_status,"
             . " bd.booking_remarks, bd.service_id,"
-            . " services,"
+            . " services, ed.name as eng_name,"
             . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
             . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
              . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -999,13 +999,14 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                     WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
             . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-            . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s "
+            . " FROM service_center_booking_action as sc "
+            . " JOIN booking_details as bd on bd.booking_id =  sc.booking_id " 
+            . " JOIN users on bd.user_id = users.user_id " 
+            . " JOIN services on bd.service_id = services.id " 
+            . " JOIN service_centres AS s on s.id = bd.assigned_vendor_id "
+            . " LEFT JOIN engineer_details As ed on ed.id = bd.assigned_engineer_id"
             . " WHERE sc.service_center_id = '$service_center_id' "
             . " AND bd.assigned_vendor_id = '$service_center_id' "
-            . " AND bd.booking_id =  sc.booking_id "
-            . " AND bd.user_id = users.user_id "
-            . " AND s.id = bd.assigned_vendor_id "
-            . " AND bd.service_id = services.id "
             . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
             . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
 
