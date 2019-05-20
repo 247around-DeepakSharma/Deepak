@@ -941,4 +941,79 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->insert('appliance_updated_by_sf',$data);
         return $this->db->insert_id();
     }
+    
+    /**
+     * @desc: this is used to get pending booking specific service center id
+     * @param: service center id
+     * @return: Pending booking
+     */
+    function pending_bookings_sf_excel($service_center_id){
+               
+        $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
+            . " bd.booking_primary_contact_no, "
+            . " users.name as customername,  "
+            . " bd.booking_date,"
+            . " bd.partner_id,"
+            . " bd.booking_jobcard_filename,"
+            . " bd.assigned_engineer_id,"
+            . " bd.booking_timeslot, "
+            . " bd.current_status, "
+            . " bd.amount_due, "
+            . " bd.flat_upcountry, "
+            . " bd.request_type, "
+            . " bd.count_escalation, "
+            . " bd.is_upcountry, "
+            . " bd.count_reschedule, "
+            . " bd.upcountry_paid_by_customer, "
+            . " bd.is_penalty, "
+            . " bd.booking_address, "
+            . " bd.booking_pincode, "
+            . " bd.create_date, "
+            . " bd.order_id, "
+            . " bd.booking_address, "
+            . " bd.booking_alternate_contact_no, "
+            . " bd.request_type, "
+            . " bd.internal_status, bd.current_status,"
+            . " bd.booking_remarks, bd.service_id,"
+            . " services, ed.name as eng_name,"
+            . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
+            . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
+             . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
+                . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
+
+             . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
+             . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
+             . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
+             . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
+             . " AND b.sub_vendor_id IS NOT NULL "
+             . " AND b.upcountry_paid_by_customer = 0 "
+             . " AND b.sf_upcountry_rate = bd.sf_upcountry_rate"
+             . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
+             . " AND b.assigned_vendor_id = '$service_center_id' ) "
+             . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
+             . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
+             . " ELSE 0 END AS upcountry_price, "
+
+            . " (SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
+                    FROM booking_unit_details AS u
+                    WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
+"
+            . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
+            . " FROM service_center_booking_action as sc "
+            . " JOIN booking_details as bd on bd.booking_id =  sc.booking_id " 
+            . " JOIN users on bd.user_id = users.user_id " 
+            . " JOIN services on bd.service_id = services.id " 
+            . " JOIN service_centres AS s on s.id = bd.assigned_vendor_id "
+            . " LEFT JOIN engineer_details As ed on ed.id = bd.assigned_engineer_id"
+            . " WHERE sc.service_center_id = '$service_center_id' "
+            . " AND bd.assigned_vendor_id = '$service_center_id' "
+            . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
+            . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+
+        $query1 = $this->db->query($sql);
+
+        $result = $query1->result();
+
+        return $result;
+    }
 }
