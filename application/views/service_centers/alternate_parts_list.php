@@ -146,6 +146,7 @@
         var service_id = $('#inventory_service_id').val();
         var spare_parts_inventory_id = $('#spare_parts_inventory_id').val();
         var spare_parts_type = $('#spare_parts_type').val();
+        var spare_parts_type = $('#spare_parts_type').val();
       
         if(partner_id == '' || partner_id == null){
             alert("Please Select Partner"); 
@@ -154,6 +155,16 @@
         
         if(service_id == '' || service_id == null){
             alert("Please Select Appliance"); 
+            return false;
+        }
+        
+        if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
+            alert("Please Select Spare Part"); 
+            return false;
+        }
+
+        if(spare_parts_type == '' || spare_parts_type == null){
+            alert("Please Select Spare Part Type"); 
             return false;
         }
         
