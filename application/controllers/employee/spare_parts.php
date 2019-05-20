@@ -1008,6 +1008,12 @@ class Spare_parts extends CI_Controller {
             $new_state = REQUESTED_SPARED_REMAP;
             $data['remarks'] = "Spare Transfer to Partner";
         } 
+        if ($entity_type == _247AROUND_SF_STRING) {
+            $new_state = REQUESTED_SPARED_REMAP;
+            $data['remarks'] = "Spare Transfer to Vendor";
+
+        }
+        
         
         if (!empty($row)) {
             $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND);
