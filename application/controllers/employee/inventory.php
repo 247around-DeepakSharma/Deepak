@@ -6021,7 +6021,8 @@ class Inventory extends CI_Controller {
             $where = array(
                 'inventory_master_list.entity_id' => $this->input->post("entity_id"),
                 'inventory_master_list.entity_type' => $this->input->post("entity_type"),
-                'inventory_master_list.service_id' => $this->input->post("service_id")
+                'inventory_master_list.service_id' => $this->input->post("service_id"),
+                'inventory_master_list.type' => $this->input->post("type")
             );
             $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_name', $where);
         }
