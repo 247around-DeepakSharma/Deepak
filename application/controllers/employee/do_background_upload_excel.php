@@ -981,52 +981,58 @@ class Do_background_upload_excel extends CI_Controller {
                 $data['valid_data'][$key]['appliance'] = $service_appliance_data[0]['services'];
             } else {
                 log_message('info', __FUNCTION__ . "=> Dsecription not found");
-                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                    $data['valid_data'][$key]['appliance'] = 'Washing Machine';
-                }
-                if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
-                    $data['valid_data'][$key]['appliance'] = 'Television';
-                }
-                //remove AC beacuse when description contain active then it mapped other appliance booking into ac
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
-                }
-                if (stristr($prod, "Refrigerator")) {
-                    $data['valid_data'][$key]['appliance'] = 'Refrigerator';
-                }
-                if (stristr($prod, "Microwave")) {
-                    $data['valid_data'][$key]['appliance'] = 'Microwave';
-                }
-                if (stristr($prod, "Purifier")) {
-                    $data['valid_data'][$key]['appliance'] = 'Water Purifier';
-                }
-                if (stristr($prod, "Chimney")) {
-                    $data['valid_data'][$key]['appliance'] = 'Chimney';
-                }
-                if (stristr($prod, "Geyser")) {
-                    $data['valid_data'][$key]['appliance'] = 'Geyser';
-                }
-                if (stristr($prod, "Smart Speaker")) {
-                    $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
-                }
-                if (stristr($prod, "Cooler")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Cooler';
-                }
-                if (stristr($prod, "Air Purifier")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Purifier';
-                }
-                if (stristr($prod, "Stove")) {
-                    $data['valid_data'][$key]['appliance'] = 'Gas Stove';
-                }
-                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Mixer-Grinder") || stristr($prod, "SHA") 
-                        || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
-                        || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") 
-                        || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") 
-                        || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") 
-                        || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") 
-                        || stristr($prod, "Vaccum Cleaner")) {
+                $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                if(!$saas_flag){
+                    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                        $data['valid_data'][$key]['appliance'] = 'Washing Machine';
+                    }
+                    if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
+                        $data['valid_data'][$key]['appliance'] = 'Television';
+                    }
+                    //remove AC beacuse when description contain active then it mapped other appliance booking into ac
+                    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+                    }
+                    if (stristr($prod, "Refrigerator")) {
+                        $data['valid_data'][$key]['appliance'] = 'Refrigerator';
+                    }
+                    if (stristr($prod, "Microwave")) {
+                        $data['valid_data'][$key]['appliance'] = 'Microwave';
+                    }
+                    if (stristr($prod, "Purifier")) {
+                        $data['valid_data'][$key]['appliance'] = 'Water Purifier';
+                    }
+                    if (stristr($prod, "Chimney")) {
+                        $data['valid_data'][$key]['appliance'] = 'Chimney';
+                    }
+                    if (stristr($prod, "Geyser")) {
+                        $data['valid_data'][$key]['appliance'] = 'Geyser';
+                    }
+                    if (stristr($prod, "Smart Speaker")) {
+                        $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
+                    }
+                    if (stristr($prod, "Cooler")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Cooler';
+                    }
+                    if (stristr($prod, "Air Purifier")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Purifier';
+                    }
+                    if (stristr($prod, "Stove")) {
+                        $data['valid_data'][$key]['appliance'] = 'Gas Stove';
+                    }
+                    if (stristr($prod, "Mixer Grinder") || stristr($prod, "Mixer-Grinder") || stristr($prod, "SHA") 
+                            || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                            || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") 
+                            || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") 
+                            || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") 
+                            || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") 
+                            || stristr($prod, "Vaccum Cleaner")) {
 
-                    $data['valid_data'][$key]['appliance'] = 'SHA';
+                        $data['valid_data'][$key]['appliance'] = 'SHA';
+                    }
+                }
+                else{
+                     $data['valid_data'][$key]['appliance'] = $prod;
                 }
 
                 // Block Microvare cooking. If its exist in the Excel file
