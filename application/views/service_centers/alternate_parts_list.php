@@ -155,10 +155,6 @@
             return false;
         }
         
-        if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
-            alert("Please Select Spare Part"); 
-            return false;
-        }
         
 
         

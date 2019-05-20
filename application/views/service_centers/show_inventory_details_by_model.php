@@ -61,7 +61,11 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
+                                    <th>Description</th>
 <!--                                  <th>HSN</th>
+
+                               
+
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>-->
                                     <th>SF Price(including GST)</th>
