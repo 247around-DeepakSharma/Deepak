@@ -264,7 +264,7 @@
                 url:'<?php echo base_url(); ?>employee/inventory/partner_wise_inventory_spare_parts_list',
                 data:{ entity_id : partner_id, entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id,type : type },
                 success:function(data){   
-                   console.log(data);
+                   //console.log(data);
                     $("#spare_parts_inventory_id").html(data);
                 }
             });
