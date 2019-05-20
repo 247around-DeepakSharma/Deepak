@@ -464,5 +464,39 @@ class User extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_holiday_list',$data);
     }
+    
+    /**
+     * @desc function change password of admin.
+     * @author Ankit Rajvanshi.
+     * @since 17-May-2019.
+     */
+    function change_password() {
+        
+        if($_POST) :
+            // declaring variables.
+            $id = $this->session->userdata['id'];
+            $employee_id = $this->session->userdata['employee_id'];
+            $old_password = md5($_POST['old_password']);
+            // fetch record.
+            $employee = $this->reusable_model->get_search_result_data('employee', '*', ['id' => $id, 'employee_password' => $old_password],null,null,null,null,null,[]);
+        endif;
+        
+        if($this->input->is_ajax_request()) : // verify old password.
+            if(!empty($employee)) :
+                echo '1';exit;
+            else :
+                echo'0';exit;
+            endif;
+        elseif($_POST) :
+            // Update password.
+            $affected_rows = $this->reusable_model->update_table('employee', ['employee_password' => md5($_POST['new_password']), 'clear_password'=> $_POST['new_password']], ['id' => $id]);
+            // setting feedback message for user.
+            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
+            redirect(base_url() . "employee/user/change_password");
+        endif;
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/change_password');
+    }
      
 }

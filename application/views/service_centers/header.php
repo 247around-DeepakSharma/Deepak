@@ -371,6 +371,11 @@
                                     <i ></i> Profile <i class="fa fa-caret-down"></i>
                                     </a>
                                 </li>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" href="<?php echo base_url()?>employee/service_centers/change_password">
+                                    <i ></i> Change Password
+                                    </a>
+                                </li>                                
                             </ul>
                         </li>
 <!--                        <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
