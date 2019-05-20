@@ -156,16 +156,18 @@
             alert("Please Select Appliance"); 
             return false;
         }
+
+        if(spare_parts_type == '' || spare_parts_type == null){
+            alert("Please Select Spare Part Type"); 
+            return false;
+        }
         
         if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
             alert("Please Select Spare Part"); 
             return false;
         }
 
-        if(spare_parts_type == '' || spare_parts_type == null){
-            alert("Please Select Spare Part Type"); 
-            return false;
-        }
+
         
         
 
