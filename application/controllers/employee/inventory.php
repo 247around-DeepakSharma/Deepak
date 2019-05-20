@@ -1112,7 +1112,8 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-
+                    $sc_data['admin_remarks'] = $remarks;
+                    
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
@@ -2168,7 +2169,86 @@ class Inventory extends CI_Controller {
 
         return $row;
     }
+    
+    
+    
+    /**
+     *  @desc : This function is used to show serviceable BOM list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_serviceable_bom_details() {
+        $data = $this->get_serviceable_bom_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_serviceable_bom_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_serviceable_bom_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
 
+    function get_serviceable_bom_list_data() {
+        $post = $this->get_post_data();
+
+        $entity_type = _247AROUND_PARTNER_STRING;
+        $entity_id = trim($this->input->post('partner_id'));
+        $service_id = trim($this->input->post('service_id'));
+        $model_number_id = trim($this->input->post('model_number_id'));
+
+        $data = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('part_name', 'part_number', 'services.services', 'type');
+
+        if (!empty($model_number_id)) {
+
+            if (!empty($entity_id) && !empty($service_id) && !empty($model_number_id)) {
+                $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id";
+            }
+            if (!empty($model_number_id)) {
+                $post['where'] = "inventory_model_mapping.model_number_id = $model_number_id ";
+            }
+
+            $select = "inventory_master_list.*,appliance_model_details.model_number,services.services";
+            $list = $this->inventory_model->get_serviceable_bom_master_list($post, $select);
+            $no = $post['start'];
+            foreach ($list as $stock_list) {
+                $no++;
+                $row = $this->get_serviceable_bom_list_table($stock_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     function get_serviceable_bom_list_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list->services;
+        $row[] = $stock_list->type;
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->oow_around_margin)/100), 2, '.', '');
+        $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->gst_rate / 100))), 2, '.', '');
+        $row[] = "<i class ='fa fa-inr'></i> " . $total;
+        $row[] = $stock_list->oow_vendor_margin . " %";
+        $row[] = number_format((float)$total+($total*($stock_list->oow_vendor_margin)/100), 2, '.', '');
+        return $row;
+    }
+    
     /**
      *  @desc : This function is used to show alternate inventory master list data
      *  @param : void
@@ -2326,30 +2406,19 @@ class Inventory extends CI_Controller {
                 'oow_around_margin' => $this->input->post('oow_around_margin')
             );
 
-
+           
             if (!empty($data['service_id']) && !empty($data['part_name']) && !empty($data['part_number']) && !empty($data['type']) && !empty($data['entity_id']) && !empty($data['entity_type'])) {
 
                 if (!empty($data['price']) && !empty($data['hsn_code']) && !empty($data['gst_rate'])) {
-                    
-                    $exist_inventory_details = array();
-                    if ($submit_type == 'add') {
-                        $where = array('inventory_master_list.part_number' => $this->input->post('part_number'));
-                        $exist_inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number', $where, array());
-                    }
 
-                    if (empty($exist_inventory_details)) {
-                        switch (strtolower($submit_type)) {
-                            case 'add':
-                                $data['create_date'] = date('Y-m-d H:i:s');
-                                $response = $this->add_inventoy_master_list_data($data);
-                                break;
-                            case 'edit':
-                                $response = $this->edit_inventoy_master_list_data($data);
-                                break;
-                        }
-                    } else {
-                        $response['response'] = 'error';
-                        $response['msg'] = 'Part Number is already exist in our database.';
+                    switch (strtolower($submit_type)) {
+                        case 'add':
+                            $data['create_date'] = date('Y-m-d H:i:s');
+                            $response = $this->add_inventoy_master_list_data($data);
+                            break;
+                        case 'edit':
+                            $response = $this->edit_inventoy_master_list_data($data);
+                            break;
                     }
                 } else {
                     $response['response'] = 'error';
@@ -2377,8 +2446,6 @@ class Inventory extends CI_Controller {
     function add_inventoy_master_list_data($data) {
 
 
-
-
         if (!empty($data['part_number'])) {
 
             $where = array(
@@ -2388,8 +2455,9 @@ class Inventory extends CI_Controller {
             );
 
             $part_number_detail = $this->inventory_model->get_generic_table_details('inventory_master_list', 'inventory_master_list.part_number', $where, array());
-
             if (empty($part_number_detail)) {
+                $this->validate_part_picture_upload_file();
+                $data['part_image']= $this->input->post('part_pic');
                 $response = $this->inventory_model->insert_inventory_master_list_data($data);
                 if ($response) {
                     log_message("info", __METHOD__ . ' Inventory added successfully');
@@ -2399,6 +2467,7 @@ class Inventory extends CI_Controller {
                         $mapping_data['inventory_id'] = $response;
                         $mapping_data['model_number_id'] = trim($this->input->post('model_number_id'));
                         $insert_mapping = $this->inventory_model->insert_inventory_model_mapping($mapping_data);
+                       
                         if ($insert_mapping) {
                             log_message("info", __METHOD__ . ' Inventory and mapping created successfully');
                             $res['response'] = 'success';
@@ -2418,7 +2487,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $res['response'] = 'error';
-                $res['msg'] = 'Inventory part code already exists in database';
+                $res['msg'] = 'Part Number is already exist in our database.';
             }
         } else {
             $res['response'] = 'error';
@@ -2427,6 +2496,37 @@ class Inventory extends CI_Controller {
 
         return $res;
     }
+    
+    
+    /**
+     * @desc: This function is used to validate uploaded Part Picture
+     * @params: void
+     * @return: boolean
+     */
+    function validate_part_picture_upload_file() {
+        $part_pic_exist = $this->input->post('part_pic_exist');
+        if (!empty($_FILES['part_picture']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $random_number =  rand(0, 9);
+            $part_image_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["part_picture"], 
+                    "part_pic", $allowedExts, $random_number, "misc-images", "part_pic");
+            if($part_image_receipt){
+                
+               return true;
+            } else {
+                $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Serial Number, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+            
+        } else if(!empty($part_pic_exist)){
+            $_POST['part_pic'] = $part_pic_exist;
+            return true;
+        } else {
+            $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Please Upload Serial Number Image');
+                return FALSE;
+        }
+    }
 
     /**
      *  @desc : This function is used to perform edit action on the partner_file_upload_header_mapping table
@@ -2434,8 +2534,10 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function edit_inventoy_master_list_data($data) {
-        $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')), $data);
 
+        $this->validate_part_picture_upload_file();
+        $data['part_image'] = $this->input->post('part_pic');
+        $response = $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $this->input->post('inventory_id')), $data);
         if (!empty($response)) {
             $res['response'] = 'success';
             $res['msg'] = 'Details has been updated successfully';

@@ -104,6 +104,7 @@ $route['service_center/inventory/inventory_list'] = 'employee/service_centers/in
 $route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/service_centers/alternate_inventory_stock_list/$1/$2/$3';
 $route['service_center/inventory/alternate_parts_inventory_list'] = 'employee/service_centers/alternate_parts_inventory_list';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
+$route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1/$2';
 
 
 

@@ -835,6 +835,100 @@ class Inventory_model extends CI_Model {
             return $query->result();
         }
     }
+       
+     /**
+     * @Desc: This function is used to get data from serviceable BOM details
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_serviceable_bom_master_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('inventory_model_mapping');
+        $this->db->join('appliance_model_details','inventory_model_mapping.model_number_id = appliance_model_details.id');
+        $this->db->join('inventory_master_list','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('services','services.id = inventory_master_list.service_id');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('inventory_master_list.service_id','DESC');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get serviceable BOM list
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_serviceable_bom_master_list($post, $select = "",$is_array = false) {
+        $this->_get_serviceable_bom_master_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    
+    
+     /**
+     *  @desc : This function is used to get Serviceable BOM list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_serviceable_bom_list($post) {
+        $this->_get_serviceable_bom_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    
+    /**
+     *  @desc : This function is used to get total filtered alternate inventory master list
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_serviceable_bom_list($post){
+        $this->_get_serviceable_bom_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
     
     /**
      *  @desc : This function is used to get total alternate inventory master list
@@ -2186,7 +2280,7 @@ class Inventory_model extends CI_Model {
         }
         
         return array(
-            'oow_est_margin' => $repair_oow_vendor_percentage,
+            'oow_est_margin' => $spare_oow_est_margin,
             'oow_vendor_margin' => $repair_oow_vendor_percentage,
             'oow_around_margin' => $repair_oow_around_percentage,
             'gst_rate' => !(empty($gst_rate))? $gst_rate: ""

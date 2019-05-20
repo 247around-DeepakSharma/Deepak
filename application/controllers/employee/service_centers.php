@@ -105,34 +105,36 @@ class Service_centers extends CI_Controller {
 
 
 
-        function get_inventory_by_model($model_number_id){
-        if($model_number_id){
+        function get_inventory_by_model($model_number_id = '', $service_id = '') {
+
+        if (!empty($model_number_id) && empty($service_id)) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services',array('inventory_model_mapping.model_number_id' => $model_number_id));
-        }else{  
+            $sf_data['model_number_id'] = $model_number_id;
+            $sf_data['partner_id'] = '';
+            $sf_data['service_id'] = '';
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id));
+        } else {
             $data['inventory_details'] = array();
+            $sf_data['model_number_id'] ='';
+            $sf_data['partner_id'] = urldecode($model_number_id);
+            $sf_data['service_id'] = $service_id;
         }
-        $data['saas_flag']=$this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if($this->session->userdata('employee_id')){
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if ($this->session->userdata('employee_id')) {
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/show_inventory_details_by_model',$data);
-        }else if($this->session->userdata('partner_id')){
+            $this->load->view('employee/show_inventory_details_by_model', $data);
+        } else if ($this->session->userdata('partner_id')) {
             $this->miscelleneous->load_partner_nav_header();
-            $this->load->view('employee/show_inventory_details_by_model',$data);
+            $this->load->view('employee/show_inventory_details_by_model', $data);
             $this->load->view('partner/partner_footer');
-        }else if($this->session->userdata('userType') == 'service_center'){
+        } else if ($this->session->userdata('userType') == 'service_center') {
 
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/show_inventory_details_by_model',$data);
-            $this->load->view('partner/partner_footer');
+            $this->load->view('service_centers/show_inventory_details_by_model', $sf_data);
         }
-        
     }
 
-
-
-
-        function get_service_id_by_partner(){
+    function get_service_id_by_partner(){
         $partner_id = $this->input->get('partner_id');
         if($partner_id){
             $appliance_list = $this->service_centers_model->get_service_brands_for_partner($partner_id);
@@ -2453,8 +2455,9 @@ class Service_centers extends CI_Controller {
         //Getting Logged SF details
         $service_center_id = $this->session->userdata('service_center_id');
         //Getting Pending bookings for service center id
-        $bookings = $this->service_centers_model->pending_booking($service_center_id, "");
-        $booking_details = json_decode(json_encode($bookings[1]),true);
+        //$bookings = $this->service_centers_model->pending_booking($service_center_id, "");
+        $bookings = $this->service_centers_model->pending_bookings_sf_excel($service_center_id);
+        $booking_details = json_decode(json_encode($bookings),true);
         $template = 'SF-Pending-Bookings-List-Template.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -4984,8 +4987,8 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-
-            if ($courier_image['status']) {
+            //$courier_image['status']
+            if (1) {
 
                 $part = $this->input->post("part");                
                 $sf_id = $this->session->userdata('service_center_id');
@@ -5004,7 +5007,7 @@ class Service_centers extends CI_Controller {
                             $status = SPARE_PARTS_SHIPPED;
 
                             $data = array();
-                            $data['courier_pic_by_partner'] = $courier_image['message'];
+                            $data['courier_pic_by_partner'] = (isset($courier_image['message']))?$courier_image['message']: NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
