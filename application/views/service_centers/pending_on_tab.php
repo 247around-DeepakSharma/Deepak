@@ -857,6 +857,7 @@
                             $("#"+id).select2();
                         }
                         else{
+                            $("#"+id).parent().find("a").remove();
                             $("#"+id).parent().append(response.html);
                             $("#"+id).css("display", "none");
                         }
