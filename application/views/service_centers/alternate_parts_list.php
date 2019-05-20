@@ -71,15 +71,17 @@
             </div>
             <div class="form-group">
                 <div class="form-group col-md-3">
-                    <select class="form-control" id="spare_parts_inventory_id">
-                        <option value="" selected="" disabled="">Select Spare Part</option>
-                    </select>
-                </div>
-               <div class="form-group col-md-3">
                     <select class="form-control" id="spare_parts_type">
                         <option value="" selected="" disabled="">Select Spare Part Type</option>
                     </select>
                 </div>
+
+                <div class="form-group col-md-3">
+                    <select class="form-control" id="spare_parts_inventory_id">
+                        <option value="" selected="" disabled="">Select Spare Part</option>
+                    </select>
+                </div>
+
                 <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
             </div>
 
@@ -250,18 +252,19 @@
         });
     }
     
-    $('#inventory_service_id').on('change',function(){
+    $('#spare_parts_type').on('change',function(){
         var partner_id = $('#partner_id').val();
         var service_id = $('#inventory_service_id').val();
+        var type = $("#spare_parts_type").val();
         if(service_id == '' || service_id == null){
             alert('Please Select Appliance');
         }else{       
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/partner_wise_inventory_spare_parts_list',
-                data:{ entity_id : partner_id, entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id },
+                data:{ entity_id : partner_id, entity_type : '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id : service_id,type : type },
                 success:function(data){   
-                  //  console.log(data);
+                   console.log(data);
                     $("#spare_parts_inventory_id").html(data);
                 }
             });
@@ -270,7 +273,7 @@
         }
     });
     
-        $('#spare_parts_inventory_id').on('change',function(){
+        $('#inventory_service_id').on('change',function(){
         var partner_id = $('#partner_id').val();
         var inventory = $(this).val();
         var service_id = $('#inventory_service_id').val();
