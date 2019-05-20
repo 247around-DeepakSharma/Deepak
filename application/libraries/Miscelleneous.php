@@ -4167,4 +4167,18 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     
+    /**
+     * @desc: This is method return index key, if service caregory matches with given price tags
+     * @param: Price tag and Array
+     * @return: key
+     */
+    function search_for_pice_tag_key($price_tag, $array) {
+        foreach ($array as $key => $val) {
+            if ($val['service_category'] === $price_tag) {
+                return $key;
+            }
+        }
+        return null;
+    }
+    
 }
