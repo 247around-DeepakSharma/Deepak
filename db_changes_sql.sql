@@ -10916,3 +10916,8 @@ UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is pla
 UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
 UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
+
+
+--Ankit 20-May-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');

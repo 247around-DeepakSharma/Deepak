@@ -137,7 +137,7 @@
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit" id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
                     <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
-                    <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
+                    <?php $k_count = 0; $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
@@ -214,10 +214,10 @@
                                                             ?>
                                                     <tr>
                                                         <td>
-                                                            <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
-                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
+                                                            <?php if(isset($model_data) && !empty($model_data) ){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  >
                                                                 <option value="" selected desa>Please Select Model Number</option>
-                                                                <?php foreach ($price['model_data'] as $m) { ?>
+                                                                <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
                                                                                 
                                                                 <?php }?>
@@ -330,9 +330,106 @@
                                                             $serial_number_pic = $price['en_serial_number_pic'];
                                                         }}
                                                          $count++;
-                                                          
+                                                          $k_count++;
                     } }
                                                           ?>
+                                                    
+                                                    <?php foreach ($prices[$key1] as $index => $value) { ?> 
+                                                    <tr style="background-color:   #bce8f1; color: #222222;">
+                                                        <td style="border-color: #eeee;">
+                                                            <?php if(isset($model_data) && !empty($model_data)){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  >
+                                                                <option value="" selected desa>Please Select Model Number</option>
+                                                                <?php foreach ($model_data as $m) { ?>
+                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
+                                                                                
+                                                                <?php }?>
+                                                            </select>
+
+                                                           <?php } else { ?>
+
+                                                            <input type="text" name="<?php echo "model_number[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                          <?php } ?>
+                                                            <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" 
+                                                            class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
+                                                        </td>
+                                                        <td style="border-color: #eeee;"> <?php if ($value['pod'] == "1") { ?>
+                                                            <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
+                                                            <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value=""   />
+                                                            <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
+                   
+                                                            <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "new" . $value['id']. "]" ?>" value="<?php echo $price['pod']; ?>"   />
+                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="0"   />
+                                                            <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>" value="0"   />
+                                                            <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"/>
+                                                            
+                                                            <br/>
+                                                            <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
+                                                    <?php } ?>
+                                                        </td>
+                                               
+                                                            <td style="border-color: #eeee;" id="<?php echo "price_tags".$count; ?>"><?php echo $value['service_category']; ?></td>
+                                                            <td style="border-color: #eeee;" id="<?php echo "amount_due".$count; ?>"><?php echo $value['customer_net_payable']; ?></td>
+                                                            <td style="border-color: #eeee;">  
+                                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $value['service_category'];?>">
+                                                                <?php if($value['product_or_services'] != "Product"){  ?>
+                                                                <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($value['product_or_services'] == "Service" 
+                                                                    && $value['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
+                                                                    class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0">
+                                                                <?php } ?>
+                                                        </td>
+                                                        <td style="border-color: #eeee;">  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($value['product_or_services'] == "Product") { 
+                                                            echo "hidden";} else { echo "text";} ?>" class="form-control cost"  
+                                                            name="<?php echo "additional_charge[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>"  
+                                                            value = "0">
+                                                        </td>
+                                                        <td style="border-color: #eeee;">  
+                                                           
+                                                            <?php  ; if($value['product_or_services'] != "Service"){  ?>
+                                                            <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($value['product_or_services'] == "Product"
+                                                                && $value['customer_net_payable'] > 0){ echo "text"; } 
+                                                                else { echo "hidden";}?>" class="form-control cost" 
+                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                            <?php } ?>
+                                                            <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($value['product_or_services'] != "Service"){ 
+                                                                if ($value['product_or_services'] == "Product" && $value['customer_net_payable'] == 0) { 
+                                                                    echo "text";} else { echo "hidden";} } else { echo "text";}?>" 
+                                                                class="form-control cost" 
+                                                                name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0" >
+                                                            <input type="hidden" name="<?php echo "appliance_broken[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" 
+                                                            class="<?php echo "is_broken_".$count;?>" value="" />
+                                                        </td>
+                                                        <td style="border-color: #eeee;">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group ">
+                                                                        <div class="col-md-12">
+                                                                            <div class="radio">
+                                                                                <label><input  class="<?php echo "completed_".$count."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id']. "]" ?>"  value="Completed"  id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>"  ><?php
+                                                                                    if ($value['product_or_services'] == "Product") {
+                                                                                    echo " Delivered";
+                                                                                    } else {
+                                                                                    echo " Completed";
+                                                                                    }
+                                                                                    ?><br/>
+                                                                                <input  class="<?php echo "cancelled_".$count."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id']. "]" ?>"  value="Cancelled"  ><?php
+                                                                                    if ($value['product_or_services'] == "Product") {
+                                                                                       echo " Not Delivered";
+                                                                                    } else {
+                                                                                       echo " Not Completed";
+                                                                                    }
+                                                                                    ?>
+                                                                                </label>
+                                                                                
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <?php  $count++; }?>
                                                 </tbody>
                                             </table>
                                             <span class="error_msg" style="color: red"></span>
@@ -467,7 +564,7 @@
                          </center>
                         <?php } else { ?>
                             <center style="margin-top:60px;">
-                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                             </center>
                         <?php }?>
@@ -567,11 +664,12 @@
     }
     
     function onsubmit_form(upcountry_flag, number_of_div, appliance_count) {
-    
+
         var flag = 0;
         var div_count = 0;
         var is_completed_checkbox = [];
         var serial_number_tmp = [];
+        var delivered_price_tags = [];
        
         for(m= 0; m< Number(appliance_count); m++){
             var isbroken = $("#broken_"+ m).val();
@@ -593,7 +691,7 @@
         var prediv = -1;
         $(':radio:checked').each(function(i) {
             div_count = div_count + 1;
-        
+       
             //console.log($(this).val());
             var div_no = this.id.split('_');
             is_completed_checkbox[i] = div_no[0];
@@ -601,7 +699,6 @@
                 
                 //if POD is also 1, only then check for serial number.
                 if (div_no[1] === "1") {
-                   
                     var completedRadioButton = document.getElementById(this.id);
                     
                     var className = completedRadioButton.className;
@@ -659,12 +756,12 @@
                     }
                     //var requiredPic = $('#sno_required'+ div_no[2]).val();
                    // if(requiredPic === '1'){
-                        if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
+                     if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
                             return false;
-                        }
+                        }  
                   //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
                     if(duplicateSerialNo === '1'){
@@ -677,9 +774,12 @@
                
                 var amount_due = $("#amount_due" + div_no[2]).text();
                 var price_tags = $("#price_tags" + div_no[2]).text();
+               
                 var basic_charge = $("#basic_charge" + div_no[2]).val();
                 var additional_charge = $("#extra_charge" + div_no[2]).val();
                 var parts_cost = $("#parts_cost" + div_no[2]).val();
+                delivered_price_tags.push(price_tags);
+                
                 if (Number(amount_due) > 0) {
                    
                     var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
@@ -711,8 +811,14 @@
                 }
             }
         });
- 
-        if (Number(number_of_div) !== Number(div_count)) {
+        
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr=== false){
+            alert('Not Allow to complete multiple type of Service category');
+            flag = 1;
+        }
+
+        if (Number(number_of_div) > Number(div_count)) {
             alert('Please Select All Services Delivered Or Not Delivered.');
             flag = 1;
             return false;
@@ -736,7 +842,6 @@
                 return false;
             }
         });
-    
         var is_sp_required = $("#spare_parts_required").val();
         
         if (Number(is_sp_required) === 1) {
@@ -805,7 +910,7 @@
                 return false;
             }
         }
-        
+
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
             return true;
@@ -814,6 +919,56 @@
     
             return false;
         }
+    }
+    
+    function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+
+        if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Extended Warranty') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_flag = true;
+            
+         } 
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                }
+                
+         if(repair_flag === true && installation_flag === true && pdi === true){
+             return false;
+         } else if(repair_flag === true && installation_flag === true){
+             return false;
+         } else if(pdi === true && installation_flag === true){
+              return false;
+         } else if(pdi === true && repair_flag === true){
+              return false;
+         } else {
+             return true;
+         }
+    }
+    
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
     }
 </script>
 <style type="text/css">
