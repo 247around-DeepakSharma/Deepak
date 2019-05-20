@@ -167,7 +167,7 @@
                 </div>
                 <div class="modal-body">
                    
-                    <form class="form-horizontal" id="master_list_details">
+                    <form class="form-horizontal" id="master_list_details" method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -216,7 +216,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="part_number">Part Number*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control" id="part_number" name="part_number">
+                                        <input type="text" class="form-control" id="part_number" readonly="" name="part_number">
                                     </div>
                                 </div>
                             </div>
@@ -236,13 +236,27 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="control-label col-md-4" for="description"> Part Picture</label>
+                                    <div class="col-md-7 col-md-offset-1">
+                                        <input type="file" name="part_picture" id="part_picture" style="width: 185px; display: inline-block;"/>
+                                        <input type="hidden" class="form-control spare_parts" id="part_pic_exist" name="part_pic_exist" value="">
+                                        <img src="" id="pre_uploaded_part_picture" width="35px" height="35px" style="border:1px solid black; display: inline;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="control-label col-md-4" for="description">Description</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <textarea class="form-control" id="description" name="description"></textarea>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                           
+                        </div>
+                        
+                        <div class="row">
+                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="price">Price*</label>
                                     <div class="col-md-7 col-md-offset-1">
@@ -250,9 +264,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="size">Size</label>
@@ -261,6 +272,9 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                        </div>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
@@ -269,9 +283,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
@@ -280,6 +291,9 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                        </div>                        
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="serial_number">Vendor Margin</label>
@@ -288,8 +302,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                        
-                        <div class="row">
 <!--                        <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="serial_number">Serial Number</label>
@@ -298,7 +310,7 @@
                                     </div>
                                 </div>
                             </div>-->
-                            <div class="col-md-6" id="model_number_div">
+                            <div class="col-md-6" >
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="model_number_id">Around Margin*</label>
                                     <div class="col-md-7 col-md-offset-1">
@@ -311,7 +323,8 @@
                         <div class="modal-footer">
                             <input type="hidden"  id="entity_type" name='entity_type' value="partner">                            
                             <input type="hidden"  id="inventory_id" name='inventory_id' value="">
-                            <button type="submit" class="btn btn-success" id="master_list_submit_btn" name='submit_type' value="Submit">Submit</button>
+                            <input type="hidden"  id="submit_type" name='submit_type' value="Add">
+                            <button type="submit" class="btn btn-success" id="master_list_submit_btn" value="Submit">Submit</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <p class="pull-left text-danger">* These fields are required</p>
                         </div>
@@ -489,7 +502,9 @@
     }
     
     $('#add_master_list').click(function(){
-        $('#model_number_div').show();
+        $('#model_number_div').css('display','block');
+        $("#model_number_id").html('<option value="" selected="" disabled="">Please Select Model</option>');
+        
         get_partner('entity_id');
         $('#service_id').val(null).trigger('change');
         $('#service_id').select2({
@@ -497,6 +512,9 @@
         });
         $("#master_list_details")[0].reset();
         $('#master_list_submit_btn').val('Add');
+        $("#part_number").removeAttr("readonly"); 
+        $("#pre_uploaded_part_picture").css('display','none');
+        $('#error_id').html('');
         $('#modal_title_action').html("Add New Inventory");
         $('#inventory_master_list_data').modal('toggle');
     });
@@ -512,7 +530,6 @@
                 url:'<?php echo base_url(); ?>employee/inventory/get_appliance_model_number',
                 data:{partner_id:entity_id,entity_type: '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id:service_id},
                 success:function(data){   
-                    console.log(data);
                     $("#model_number_id").html(data);
                 }
             });
@@ -521,9 +538,7 @@
         
     });
     
-    function update_master_details(){
     
-    }
     
     function get_part_type(service_id,part_type_div){
          if(service_id!==''){
@@ -540,8 +555,21 @@
     }
     
     $(document).on("click", "#edit_master_details", function () {
-        $('#model_number_div').hide();
+        $('#model_number_div').css('display','none');
+        $("#part_number").attr("readonly","readonly"); 
+        $("#pre_uploaded_part_picture").css('display','inline-block');
+        $('#error_id').html('');
         var form_data = $(this).data('id');
+        var options = "<option value='default' selected>default</option>";
+        $("#model_number_id").html(options);
+        $("#part_pic_exist").val(form_data.part_image);
+        $("#submit_type").val('Edit');
+        if(form_data.part_image ==null || form_data.part_image ==''){
+            $('#pre_uploaded_part_picture').css('display','none');
+        }else{
+            $('#pre_uploaded_part_picture').attr("src",'<?php echo S3_WEBSITE_URL; ?>misc-images/'+form_data.part_image);
+        }
+                
         if(form_data.entity_id){
             var entity_id_options = "<option value='"+form_data.entity_id+"' selected='' >"+form_data.entity_public_name+"</option>";
             $('#entity_id').html(entity_id_options);
@@ -593,56 +621,63 @@
          
     });
     
-    $("#master_list_submit_btn").click(function(){
-        event.preventDefault();
-        var arr = {};
-        var form_data = $("#master_list_details").serializeArray();
-        if(!$('#service_id').val()){
-            alert('Please Select Appliance');
-        }else if(!$('#entity_id').val()){
-            alert("Please Select Partner");
-        }else if($('#part_name').val().trim() === "" || $('#part_name').val().trim() === " "){
-            alert("Please Enter Part Name");
-        }else if($('#part_number').val().trim() === "" || $('#part_number').val().trim() === " "){
-            alert("Please Enter Part Number");
-        }else if($('#part_type').val().trim() === "" || $('#part_type').val().trim() === " "){
-            alert("Please Enter Part Type");
-        }else if($('#price').val().trim() === "" || $('#price').val().trim() === " " || $('#price').val().trim() === '0'){
-            alert("Please Enter Valid Price");
-        }else if($('#hsn_code').val().trim() === "" || $('#hsn_code').val().trim() === " " || $('#hsn_code').val().trim() === '0'){
-            alert("Please Enter Valid Hsn Code");
-        }else if($('#gst_rate').val().trim() === "" || $('#gst_rate').val().trim() === " "){
-            alert("Please Enter Valid Gst Rate");
-        }else{
-            $('#master_list_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
-            arr.name = 'submit_type';
-            arr.value = $('#master_list_submit_btn').val();
-            form_data.push(arr);
-            $.ajax({
-                type:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/process_inventoy_master_list_data',
-                data : form_data,
-                success:function(response){
-                    
-                    var data = JSON.parse(response);
-                    if(data.response === 'success'){
-                        $('#inventory_master_list_data').modal('toggle');
-                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                        $('#success_msg').html(data.msg);
-                        inventory_master_list_table.ajax.reload();
-                    }else if(data.response === 'error'){
-                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                        $('#error_msg').html(data.msg);
-                        $('#error_id').html(data.msg).css('color','red');
-                        inventory_master_list_table.ajax.reload();
-                    }
-                    $('#master_list_submit_btn').attr('disabled',false).html('Submit');
-                }
-            });
-        }
 
-    });
-    
+    function submitForm(){
+       event.preventDefault();
+       var form_data = new FormData(document.getElementById("master_list_details"));
+
+            if(!$('#service_id').val()){
+                alert('Please Select Appliance');
+                return false;
+            }else if(!$('#entity_id').val()){
+                alert("Please Select Partner");
+                return false;
+            }else if($('#part_name').val().trim() === "" || $('#part_name').val().trim() === " "){
+                alert("Please Enter Part Name");
+                return false;
+            }else if($('#part_number').val().trim() === "" || $('#part_number').val().trim() === " "){
+                alert("Please Enter Part Number");
+                return false;
+            }else if($('#part_type').val() === "" || $('#part_type').val() === null){
+                alert("Please Enter Part Type");
+                return false;
+            }else if($('#price').val() === "" || $('#price').val() === '0'){
+                alert("Please Enter Valid Price");
+                return false;
+            }else if($('#hsn_code').val() === "" || $('#hsn_code').val() === null || $('#hsn_code').val()=== '0'){
+                alert("Please Enter Valid Hsn Code");
+                return false;
+            }else if($('#gst_rate').val() === "" || $('#gst_rate').val() === null){
+                alert("Please Enter Valid Gst Rate");
+                return false;
+            }else{
+               $('#master_list_submit_btn').attr('disabled',true).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...");
+               $.ajax({
+                   url: "<?php echo base_url()?>employee/inventory/process_inventoy_master_list_data",
+                   type: "POST",
+                   data: form_data,
+                   processData: false,  // tell jQuery not to process the data
+                   contentType: false   // tell jQuery not to set contentType
+                   }).done(function(response) {
+                        var data = JSON.parse(response);
+                        if(data.response === 'success'){
+                            $('#inventory_master_list_data').modal('toggle');
+                            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                            $('#success_msg').html(data.msg);
+                            inventory_master_list_table.ajax.reload();
+                        }else if(data.response === 'error'){
+                            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                            $('#error_msg').html(data.msg);
+                            $('#error_id').html(data.msg).css('color','red');
+                            inventory_master_list_table.ajax.reload();
+                        }
+                        $('#master_list_submit_btn').attr('disabled',false).html('Submit');
+
+               });
+
+          }
+    }
+        
     var oldExportAction = function (self, e, inventory_master_list_table, button, config) {
         if (button[0].className.indexOf('buttons-excel') >= 0) {
             if ($.fn.dataTable.ext.buttons.excelHtml5.available(inventory_master_list_table, config)) {
