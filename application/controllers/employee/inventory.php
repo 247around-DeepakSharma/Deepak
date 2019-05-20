@@ -2305,7 +2305,7 @@ class Inventory extends CI_Controller {
             $post['column_order'] = array();
             $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id');
             $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids) AND inventory_master_list.type='".$part_type . "'";
-            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status";
+            $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.model_number";
             $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
             $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
             $data = array();
