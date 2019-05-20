@@ -177,7 +177,7 @@
         if(partner_id){
             $.ajax({
                 type: 'GET',
-                url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
+                url: '<?php echo base_url() ?>employee/partner/get_partner_specific_appliance',
                 data:{is_option_selected:true,partner_id:partner_id},
                 success: function (response) {
                     if(response){

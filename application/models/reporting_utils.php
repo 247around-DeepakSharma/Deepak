@@ -48,10 +48,13 @@ class Reporting_utils extends CI_Model {
                 service_centres.name AS sc_name,
                 service_centres.id AS sc_id,
                 service_centres.primary_contact_name AS sc_contact,
-                service_centres.primary_contact_phone_1 AS sc_phone
+                service_centres.primary_contact_phone_1 AS sc_phone,
+                employee.full_name as RM
                 FROM (booking_details)
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+                JOIN employee_relation ON FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)
+                JOIN employee ON employee.id = employee_relation.agent_id
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
                 LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` = `booking_details`.`booking_id`
                 WHERE " . $where . "
@@ -1624,7 +1627,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             //getting received incomming calls data
            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
                                FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
-                               LIKE concat('%' , employee.phone ) 
+                               = concat('0' , employee.phone ) 
                                WHERE callType = 'completed' AND employee. phone !='' AND employee.id='" . $value['id'] . "' $where3";
             
             //getting agent rating data
@@ -1792,7 +1795,7 @@ function get_booking_by_service_center_query_data($where,$groupBY){
     function get_uploaded_file_history($post_data=NULL)
     {
       
-        $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date,p.result, p.id, p.revert_file_name FROM file_uploads AS p  left JOIN employee AS e ON p.agent_id = e.id";
+        $sql = "SELECT e.full_name as agent_name,p.file_name,p.create_date AS upload_date,p.result, p.id, p.revert_file_name FROM file_uploads AS p  left JOIN employee AS e ON p.agent_id = e.id ";
         
         if(!empty($post_data['file_type'])){
             $sql .=  " WHERE file_type = '".trim($post_data['file_type'])."'";
@@ -1828,7 +1831,8 @@ function get_booking_by_service_center_query_data($where,$groupBY){
             $sql .=" LIMIT ".$post_data['start'].",".$post_data['length'];
         }
         
-        
+ 
+
         
         $query = $this->db->query($sql);
         return $query->result();

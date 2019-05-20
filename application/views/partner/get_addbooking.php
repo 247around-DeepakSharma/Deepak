@@ -136,7 +136,7 @@
                         <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                             <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                             <span id="model_number_2">
-                                <select class="form-control"  name="model_number" id="model_number_1" >
+                                <select class="form-control select-model"  name="model_number" id="model_number_1" >
                                     <option selected disabled>Select Model</option>
                                 </select>
                             </span>
@@ -156,9 +156,10 @@
                             <label for="partner_source">Seller Channel* <span id="error_seller" style="color: red;"></label>
                             <select class="form-control"  id="partner_source" name="partner_source" required>
                                 <option value="" selected disabled>Please select seller channel</option>
-                                <?php foreach ($channel as $key => $value) { ?>
+                                <?php if(isset($channel)) {
+                                    foreach ($channel as $key => $value) { ?>
                                 <option><?php echo $value['channel_name'];  ?></option>
-                                <?php } ?>
+                                <?php } } ?>
                             </select>
                             <?php echo form_error('partner_source'); ?>
                         </div>
@@ -239,7 +240,7 @@
                     echo 'has-error';
                     } ?>">
                     <label for="serial_number">Serial Number <span id="error_serial_number" style="color:red"></span></label>
-                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
+                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" >
                 </div>
             </div>
             <div class="col-md-3 ">
@@ -267,7 +268,7 @@
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                 <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "">
+                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                 <?php echo form_error('purchase_date'); ?>
                             </div>
                         </div>
@@ -280,9 +281,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <label for="booking_request_symptom">Symptom * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                 <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
-                                    <option disabled selected>Select Identified Problem</option>
+                                    <option disabled selected>Please Select Any Symptom</option>
                                 </select>
                                 <?php echo form_error('booking_request_symptom'); ?>
                             </div>
@@ -360,11 +361,12 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
-                        <?php if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
-                        <input type="hidden" name="product_type" value="Shipped"/>
-                        <?php } else { ?>
                         <input type="hidden" name="product_type" value="Delivered"/>
-                        <?php  }//if(!empty($this->session->userdata('status'))) {?>
+                        <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+<!--                        <input type="hidden" name="product_type" value="Shipped"/>-->
+                        <?php// } else { ?>
+<!--                        <input type="hidden" name="product_type" value="Delivered"/>-->
+                        <?php // }//if(!empty($this->session->userdata('status'))) {?>
                         <div class="row">
                             <div class="form-group  col-md-12" >
                                 <center>
@@ -413,6 +415,7 @@
         var dealer_phone_number = $("#dealer_phone_number").val();
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
+        var symptom = $('#booking_request_symptom option:selected').text();
         //var model_value = $("#model_number_1").val();
         var user_regex = /^([a-zA-Z\s]*)$/;
         if(!mobile_number.match(exp1)){
@@ -519,6 +522,10 @@
         } else {
            display_message("purchase_date","error_purchase_date","green",""); 
         }
+        if(symptom === "" || symptom === "Please Select Any Symptom"){
+            alert("Please Enter Symptom");
+            return false;
+        }
         
         if(not_visible === 0){
              display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
@@ -597,6 +604,8 @@
     $("#booking_city").select2({
          tags: true
     });
+    $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     $("#price_tag").select2();
     $("#service_name").select2();
     $("#appliance_brand_1").select2();
@@ -765,11 +774,14 @@
                 if($.trim(data) === "Data Not Found"){  
                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                     $("#model_number_2").html(input).change();
+                    $('.select-model').next(".select2-container").hide();
                 } else {
                     //First Resetting Options values present if any
-                    var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                    var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                     $("#model_number_2").html(input_text).change();
                     $("#model_number_1").append(data).change();
+                    $("#model_number_1").select2();
+                    $('.select-model').next(".select2-container").show();
                     
                 }
             }
@@ -1210,17 +1222,18 @@
 
         });
         if(array.length > 0){
+            postData['partner_id'] = '<?php echo $this->session->userdata('partner_id')?>';
             postData['request_type'] = array;
             postData['service_id'] = $("#service_name").val();
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
-                console.log(data);
+                $('#booking_request_symptom').html("<option disabled selected>Please Select Any Symptom</option>");
                 if(data === "Error"){
-                    $('#booking_request_symptom').html("").change();
+                    $('#booking_request_symptom').append("").change();
                     $("#booking_request_symptom").removeAttr('required');
                 } else {
-                    $('#booking_request_symptom').html(data).change();
+                    $('#booking_request_symptom').append(data).change();
                     $("#booking_request_symptom").attr('required', 'required');
 
                 }
@@ -1228,4 +1241,29 @@
         }
 
     }
+    
+ 
+ <?php  
+ if($this->session->userdata('partner_id')==VIDEOCON_ID){ ?>
+    $("#booking_city").change(function(){
+      var cities = ["Mumbai","Thane"];
+      var city = $(this).val();
+      if(jQuery.inArray(city, cities)!='-1'){
+          alert("This PINCODE is not in your Serviceable Area associated with us!");
+          $('#submitform').prop("disabled", true);
+          $('#submitform').attr("type", "button");
+          $('#submitform').removeClass("btn-primary");
+          $("#submitform").removeAttr("onclick");
+     }else{
+          $('#submitform').attr("type", "submit");  
+          $('#submitform').addClass("btn-primary");
+          $('#submitform').attr('onclick',"return check_validation()");
+     }
+   }); 
+     
+ <?php }
+ ?>   
+ 
+    
 </script>
+ 

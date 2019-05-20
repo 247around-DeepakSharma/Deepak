@@ -62,7 +62,7 @@
                         <option value="0" selected>No</option>
                         <option value="1">Yes</option>
                     </select>
-                    <input type="hidden" id="product_or_services" name="product_or_services" />
+                    
                 </div>
             </div>
         </div>
@@ -490,8 +490,8 @@
        var service_category = $("#request_type").val();
        var free_customer_total = $("#free_customer_total").val();
        var paid_customer_total = $("#paid_customer_total").val();
-     //  var free_vendor_total = $("#free_vendor_total").val();
-       //var paid_vendor_total = $("#paid_vendor_total").val();
+       var free_vendor_total = $("#free_vendor_total").val();
+       var paid_vendor_total = $("#paid_vendor_total").val();
       
        var paid_upcountry = Number($("input[name='paid_upcountry']:checked"). val());
        var free_upcountry = Number($("input[name='free_upcountry']:checked"). val());
@@ -553,6 +553,16 @@
                     return false;
                 }
             }
+            
+            if(free_customer_total < 1){
+                alert('Please add customer total');
+                return false;
+            }
+            
+            if(free_vendor_total < 1){
+                 alert('Please add vendor total');
+                return false;
+            }
            
        }
        
@@ -574,6 +584,16 @@
                     alert("Please add Upcountry Venodor Payout");
                     return false;
                 }
+            }
+            
+            if(paid_customer_total < 1){
+                alert('Please add customer total');
+                return false;
+            }
+            
+            if(paid_vendor_total < 1){
+                 alert('Please add vendor total');
+                return false;
             }
             
             

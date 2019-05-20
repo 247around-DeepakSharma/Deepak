@@ -153,7 +153,7 @@
    <thead>
       <tr>
          <th class="text-center">Id</th>
-         <th class="text-center">Services</th>
+         <th class="text-center">Appliance</th>
          <th class="text-center"> Part Type </th>
          <th class="text-center"> HSN Code </th>         
          <th class="text-center">Action</th>

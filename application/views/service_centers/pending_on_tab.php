@@ -24,8 +24,12 @@
                                         <?php } ?> 
                                         <th class="text-center" data-orderable="false">Brands</th>
                                         <th  class="text-center" >Escalation</th>
+                                        <?php if($is_engineer_app){ ?>
+                                        <th  class="text-center" >Assign Engineer</th>
+                                        <?php } ?>
                                        <th class="text-center" data-orderable="false">Send Email</th> 
-                                      <th class="text-center" data-orderable="false">Contacts</th> 
+                                       <th class="text-center" data-orderable="false">Contacts</th> 
+                                       <th class="text-center" data-orderable="false">Serviceable BOM</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -42,7 +46,7 @@
                                 <tbody>
                                     
                                     <?php $sn_no = 1; ?>
-                                    <?php foreach($bookings[1] as $key =>$row){?>
+                                    <?php foreach($bookings[1] as $key =>$row){ ?>
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
@@ -132,15 +136,21 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                        <?php if($is_engineer_app){ ?>
+                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select></td>
+                                        <?php } ?>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -151,9 +161,9 @@
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
-                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                        
                                      <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
                         <td>
@@ -203,8 +213,12 @@
                                         <?php } ?> 
                                         <th  class="text-center">Brands</th>
                                         <th  class="text-center">Escalation</th>
+                                        <?php if($is_engineer_app){ ?>
+                                        <th  class="text-center">Assign Engineer</th>
+                                        <?php } ?>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
+                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -300,15 +314,23 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
+                                         <?php if($is_engineer_app){ ?>
+                                        <td style="vertical-align: middle;">
+                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                        </td>
+                                         <?php } ?>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -320,9 +342,9 @@
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
-                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                        <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
                         <td>
                                           <!--     <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
@@ -372,6 +394,7 @@
                                         <th  class="text-center" >Escalation</th>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
+                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -472,7 +495,10 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -578,7 +604,7 @@
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo$row['booking_id'];?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1)"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
+                                            <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Contacts" id ="<?php echo $row['booking_id'];?>"  onclick="show_contacts(this.id,1,'<?php echo $row['partner_id']; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
                                         <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
@@ -722,14 +748,14 @@
 
 <?php } ?>
 <script>
-     function show_contacts(bookingID,create_booking_contacts_flag){
+     function show_contacts(bookingID,create_booking_contacts_flag,partner_id){
                     $.ajax({
                         type: 'post',
                         url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
                         data: {},
                         success: function (response) {
                             if(create_booking_contacts_flag){
-                              create_booking_contacts(response);
+                              create_booking_contacts(response,partner_id);
                             }
                             else{
                                 var result = JSON.parse(response);
@@ -747,7 +773,7 @@
                     $("#email_title").html("Send Email For Booking "+booking_id);
                     $("#send_email_form").modal("show");
                     $("#internal_email_booking_id").val(booking_id);
-                    show_contacts(booking_id,create_booking_contacts_flag);
+                    show_contacts(booking_id,create_booking_contacts_flag,'');
                 }
                 function send_booking_internal_conversation_email(){ 
                     var to = $("#internal_email_booking_to").val();
@@ -779,11 +805,19 @@
                         return false;
                     }
                 }
-                function create_booking_contacts(response){
+    function create_booking_contacts(response,partner_id){
         var data="";
         var result = JSON.parse(response);
-        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        if(partner_id == '<?php echo VIDEOCON_ID ?>'){
+            data =data +  "<tr><td>1) </td><td>247around Account Manager <br>(Gujarat, Rest of maharashtra)</td><td> Adil Akhtar</td><td>9205732247</td></tr>";
+            data =data +  "<tr><td>2) </td><td>247around Account Manager <br>(Tamil Nadu, Andhra Pradesh, Uttar Pradesh, Uttarakhand, Kerala, Orissa, West Bengal, Jharkhand)</td><td> Amit Tyagi</td><td>7303653247</td></tr>";
+            data =data +  "<tr><td>3) </td><td>247around Account Manager <br>(Delhi, Haryana, Punjab, J&K, Madhya Pradesh, Karnataka)</td><td> Sakshi</td><td>9810948247</td></tr>";
+            data =data +  "<tr><td>4) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }
+        else{
+            data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
+            data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }
         var tb="<table class='table  table-bordered table-condensed ' >";
         tb+='<thead>';
         tb+='<tr>';
@@ -803,4 +837,56 @@
         $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
         $("#relevant_content_modal").modal("show");
     }
+    
+    function getBookingEngineers(){
+        $(".engineer_select").each(function(){  
+            var service_id = $(this).attr("service-id");
+            var engineer_id = $(this).attr("engineer-id");
+            var id = $(this).attr("id");
+            if(service_id){
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
+                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        if(response.status){
+                            $("#"+id).html(response.html);
+                            $("#"+id).css("display", "inline");
+                            $("#"+id).parent().find("a").css("display", "none");
+                            $("#"+id).select2();
+                        }
+                        else{
+                            $("#"+id).parent().find("a").remove();
+                            $("#"+id).parent().append(response.html);
+                            $("#"+id).css("display", "none");
+                        }
+                   }
+                });
+            }
+        });
+    }
+    
+    $(document).ready(function(){
+        getBookingEngineers();
+    });
+    
+    $(".engineer_select").change(function(){
+        var booking_id = $(this).attr("booking-id");
+        if (confirm('Are you sure to assign this engineer for Booking Id '+booking_id)) {
+            var engineer = {};
+            engineer[booking_id] = $(this).val();
+            $.ajax({
+                type: 'post',
+                url: '<?php echo base_url()  ?>employee/service_centers/assigned_engineers',
+                data: {engineer:engineer},
+                success: function (response) {
+                    //console.log(response);
+                    location.reload();
+               }
+            });
+        } 
+    });
+    
+    setInterval(function(){ getBookingEngineers(); }, 30000);
     </script>

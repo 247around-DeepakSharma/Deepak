@@ -67,6 +67,7 @@ class Validate_serial_no {
         $logic[WYBOR_ID] = 'wybor_serialNoValidation';
         $logic[BURLY_ID]='burly_serialNoValidation';
         $logic[VIDEOCON_ID]='videocon_serialNoValidation';
+        $logic[KENSTAR_ID]='kenstar_serialNoValidation';
 
         
 	if (isset($logic[$partnerID])) {
@@ -298,17 +299,18 @@ class Validate_serial_no {
                         
                             if($price_tags == $value['price_tags']){
                           
-                                $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                                $msg = " You already used in Booking ID - ".$value['booking_id'];
                                 $isDuplicate = TRUE;
                                 break;
                             }
                         } else {
-                            $msg = " You already used in this Booking ID - ".$value['booking_id'];
+                            $msg = " You already used in Booking ID - ".$value['booking_id'];
                             $isDuplicate = TRUE;
                             break;
                         }
                     }
                } else {
+                   $msg = " You already used in Booking ID - ".$value['booking_id'];
                    $isDuplicate = TRUE;
                    break;
                }
@@ -828,6 +830,15 @@ class Validate_serial_no {
              return false;
          }
          return true;
+    }
+    function kenstar_serialNoValidation($partnerID,$serialNo){
+        $stringLength = strlen($serialNo);
+         if($stringLength == 18){
+              return array('code' => SUCCESS_CODE);
+         }
+         else{
+             return array('code' => FAILURE_CODE, "message" => "Serial Number Length should be 18");
+         }
     }
 }
 

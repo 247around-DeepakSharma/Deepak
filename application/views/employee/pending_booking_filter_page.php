@@ -86,22 +86,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="item form-group">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <select class="form-control filter_table" onchange="filter_changes()" id="actor" onchange="get_internal_status_and_request_type(this.value)">
-                        <option value="" selected="selected" disabled="">Select Actor</option>
-                        <option value="247Around">247Around</option>
-                        <option value="Partner">Partner</option>
-                        <option value="Vendor" selected="">Vendor</option>
-                        <option value="not_define">not_define</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row" style="margin-top: 12px;">
-        <div class="col-md-4">
+                <div class="col-md-4">
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <select class="form-control filter_table" onchange="filter_changes()" id="rm_id" style="padding-left: 3px;">
@@ -113,6 +98,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row" style="margin-top: 12px;">
         <div class="col-md-4">
             <div class="item form-group">
                 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -120,6 +107,31 @@
                         <option value="" selected="selected" disabled="">Select Upcountry Details</option>
                         <option value="yes">Upcountry</option>
                         <option value="no">Non Upcountry</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+          <div class="col-md-4">
+            <div class="item form-group">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <select class="form-control filter_table" onchange="filter_changes()" id="state">
+                        <option value="" selected="selected" disabled="">Select State</option>
+                        <?php foreach($state as $val){ ?>
+                        <option value="<?php echo $val['state']?>"><?php echo $val['state']?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" <?php if($saas_module){ ?> style="display: none;" <?php } ?>>
+            <div class="item form-group">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <select class="form-control filter_table" onchange="filter_changes()" id="actor" onchange="get_internal_status_and_request_type(this.value)">
+                        <option value="" selected="selected" disabled="">Select Actor</option>
+                        <option value="247Around">247Around</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Vendor" <?php if(!$saas_module){ ?> selected="" <?php } ?>>Vendor</option>
+                        <option value="not_define">not_define</option>
                     </select>
                 </div>
             </div>
@@ -147,6 +159,11 @@
             placeholder: "Select City",
             allowClear: true
         });
+        $('#state').select2({
+            placeholder: "Select State",
+            allowClear: true
+        });
+        
           $('#internal_status').select2({
             placeholder: "Select Partner Internal Status",
             allowClear: true

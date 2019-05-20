@@ -671,8 +671,9 @@ class partner_sd_cb {
     
     function addNewAkaiBooking($data){
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
+        $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($data['booking_id']);
         $this->requestUrl = __METHOD__;
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && ($data['internal_status'] == "Pending" && $data['internal_status'] == "Scheduled")) {
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING ) {
             log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);
@@ -713,8 +714,8 @@ class partner_sd_cb {
                 $warranty_status = 0;
             }
             
-            if(!empty($data['booking_request_symptom'])){
-                $symptom_text = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_request_symptom']));
+            if(!empty($booking_symptom[0]['symptom_id_booking_creation_time'])){
+                $symptom_text = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_symptom[0]['symptom_id_booking_creation_time']));
                 if(!empty($symptom_text)){
                     $symptom = $symptom_text[0]['symptom'];
                 }

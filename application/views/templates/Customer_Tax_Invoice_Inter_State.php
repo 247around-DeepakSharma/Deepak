@@ -15,7 +15,9 @@
                 <td style="text-align: center;border-bottom: hidden; " colspan="8" ><h1 style="margin-bottom: 0px;"><?php echo $meta['company_name']; ?></h1></td>
             </tr>
             <tr style="">
-                <td  colspan="1" align="left" style="border-right: hidden;"><img style="padding: 2px;" src="https://aroundhomzapp.com/images/logo.jpg"></td>
+                <?php if($meta['main_company_logo']){ ?>
+                <td  colspan="1" align="left" style="border-right: hidden;"><img style="padding: 2px;  height: 110px; width: 110px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>"></td>
+                <?php } ?>
                 <td colspan="4" align="center" style="border:hidden; padding-right: 5%"><?php echo $meta['company_address']; ?> <br> Phone: <?php echo $meta['owner_phone_1']; ?><br><br><b>GSTIN :  <?php echo $meta['gst_number']; ?></td>
                 <td colspan="3" style="text-align: center; border-left: hidden;"><b>(<?php echo $meta['recipient_type'];?>)</td>
             </tr>
@@ -126,7 +128,7 @@
         </table>
     </td>
 </tr>
-<p style="text-align: center; margin: auto;width: 960px" >Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - <b>9555000247</b> / On Website -<b> www.247around.com</b>
+<p style="text-align: center; margin: auto;width: 960px" ><?php echo $meta['main_company_description']; ?></b>
 <p style="text-align: center; margin-top: 0px"><small>This is a computer generated invoice, no signature is required.</small>
 
 </body>

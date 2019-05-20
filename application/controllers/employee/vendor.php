@@ -49,6 +49,9 @@ class vendor extends CI_Controller {
        $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
         $this->load->model('push_notification_model');
+        $this->load->model('indiapincode_model');
+        
+        
     }
 
     /**
@@ -104,7 +107,7 @@ class vendor extends CI_Controller {
                 );
                 $this->vendor_model->insert_log_action_on_entity($log);
                 //Send SF Update email
-                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                 redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
@@ -113,6 +116,27 @@ class vendor extends CI_Controller {
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
+                if(!empty($sc_id)){
+                    $data = array(
+                        'partner_id' => _247AROUND,
+                        'state' => $vendor_data['state'],
+                        'micro_warehouse_charges' => '0',
+                        'vendor_id' => $sc_id
+                    );
+                   
+                    $wh_on_of_data = array(
+                        'partner_id' => _247AROUND,
+                        'agent_id' => $this->session->userdata('id'),
+                        'vendor_id' => $sc_id,
+                        'active' => 1
+                    );
+                    
+                    $create_auto_micro = $this->booking_utilities->check_feature_enable_or_not(CREATE_AUTO_MICRO_WAREHOUSE);
+                    if(!empty($create_auto_micro)){
+                      $this->miscelleneous->create_micro_warehouse($data,$wh_on_of_data);  
+                    }
+                    
+                }
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 $log = array(
@@ -149,7 +173,7 @@ class vendor extends CI_Controller {
                    $engineer['name'] = "Default Engineer";
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -359,8 +383,12 @@ class vendor extends CI_Controller {
             
             return $vendor_data;
     }
-    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details){
+    function send_update_or_add_sf_basic_details_email($sf_id,$rm_email,$updated_vendor_details, $rm_id=''){
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+        
+        if(!empty($rm_id)) {
+            $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+        }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
@@ -368,9 +396,15 @@ class vendor extends CI_Controller {
             
             //send mail to brand on new sf addition
             $template = $this->booking_model->get_booking_email_template(SF_ADDITION_MAIL_TO_BRAND);
+            
             if (!empty($template)) {
                 $to = $template[1];
                 $cc = $template[3];
+
+                if(!empty($managerData)) {
+                    $cc .= ",".$managerData[0]['official_email'];
+                }
+                
                 $subject = $template[4];
                 $emailBody = $template[0];
                 $this->notify->sendEmail($template[2], $to, $cc, "", $subject, $emailBody, "", SF_ADDITION_MAIL_TO_BRAND);
@@ -407,6 +441,11 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        
+        if(!empty($managerData)) {
+            $to .= ",".$managerData[0]['official_email'];
+        }
+        
         //Cleaning Email Variables
         $this->email->clear(TRUE);
         //Send report via email
@@ -694,9 +733,10 @@ class vendor extends CI_Controller {
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
+        $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
+        $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days,'saas_module' => $saas_module));
     }
 
     /**
@@ -730,9 +770,10 @@ class vendor extends CI_Controller {
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
         $this->miscelleneous->load_nav_header();
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
+            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $data['saas_module']));
         } else{
             echo "Vendor Not Exist";
         }
@@ -767,8 +808,11 @@ class vendor extends CI_Controller {
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $pushNotification = $this->push_notification_model->get_push_notification_subscribers_by_entity(_247AROUND_SF_STRING);
+        $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
+            'c2c' => $c2c,'saas_module' => $saas_module));
     }
     
     function get_filterd_sf_cp_data(){
@@ -804,7 +848,8 @@ class vendor extends CI_Controller {
             }
             $query = $this->vendor_model->viewvendor('', $active, $sf_list,$is_cp,$is_wh,$state,$city);
             if(!empty($query)){
-                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true));
+                $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+                $response = $this->load->view('employee/viewvendor', array('query' => $query,'is_ajax'=>true, 'c2c' => $c2c));
             }else{
                 $response = "No Data Found";
             }
@@ -1044,7 +1089,7 @@ class vendor extends CI_Controller {
 //            }
             //Assign service centre and engineer
             $assigned_data = array('assigned_vendor_id' => $service_center_id,
-                'assigned_engineer_id' => DEFAULT_ENGINEER,
+                'assigned_engineer_id' => NULL,
                 'is_upcountry' => 0,
                 'upcountry_pincode' => NULL,
                 'sub_vendor_id' => NULL,
@@ -1179,8 +1224,9 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/broadcastemailtovendor');
+         $this->miscelleneous->load_nav_header();
+         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS); 
+         $this->load->view('employee/broadcastemailtovendor',$data);
     }
 
     /**
@@ -1782,6 +1828,7 @@ class vendor extends CI_Controller {
         if(!empty($id)){
             $data['data'] = $this->vendor_model->get_engg_by_id($id); 
         }
+        $data['data'][0]['appliance_id'] = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$id, "is_active"=>1), "service_id");
         if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -1799,7 +1846,6 @@ class vendor extends CI_Controller {
      */
     function process_add_engineer() {
         $engineer_form_validation = $this->engineer_form_validation();
-
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
@@ -1808,8 +1854,18 @@ class vendor extends CI_Controller {
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
-                if($this->input->post('identity_file')){
-                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                
+                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                    //Making process for file upload
+                    $tmpFile = $_FILES['file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+
+                    //Upload files to AWS   
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "engineer-id-proofs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $data['identity_proof_pic'] = $pan_file;
                 }
                 
                  //$data['address'] = $this->input->post('address');
@@ -1830,18 +1886,24 @@ class vendor extends CI_Controller {
 
                 //applicable services for an engineer come as array in service_id field.
                 $service_id = $this->input->post('service_id');
-                $services = array();
-                foreach ($service_id as $id) {
-                    array_push($services, array('service_id' => $id));
-                }
-
-                $data['appliance_id'] = json_encode($services);
+                
                 $data['active'] = "1";
                 $data['create_date'] = date("Y-m-d H:i:s");
 
                 $engineer_id = $this->vendor_model->insert_engineer($data);
 
                 if ($engineer_id) {
+                    //insert engineer appliance detail in engineer_appliance_mapping table
+                    $eng_services_data = array();
+                    foreach ($service_id as $id) {
+                        $eng_services['engineer_id'] = $engineer_id;
+                        $eng_services['service_id'] = $id;
+                        $eng_services['is_active'] = 1;
+                        array_push($eng_services_data, $eng_services);
+                    }
+
+                    $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
+                    
                     log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
                     $login["entity"] = "engineer";
                     $login["entity_name"] = $data['name'];
@@ -1878,10 +1940,10 @@ class vendor extends CI_Controller {
                 $output = "Engineer Phone Number Already Exist.";
                 $userSession = array('error' => $output);
                 $this->session->set_userdata($userSession);
-                $this->add_engineer();
+                redirect(base_url() . "employee/vendor/add_engineer");
             }
         } else { //form validation failed
-            $this->add_engineer();
+            redirect(base_url() . "employee/vendor/add_engineer");
         }
     }
 
@@ -1890,7 +1952,7 @@ class vendor extends CI_Controller {
      * params: Post data array
      * 
      */
-    function process_edit_engineer() {
+    function process_edit_engineer() { 
         $engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
         if ($engineer_form_validation) {
@@ -1901,10 +1963,22 @@ class vendor extends CI_Controller {
                 $data['alternate_phone'] = $this->input->post('alternate_phone');             
                 $data['identity_proof'] = $this->input->post('identity_proof');
                 $data['identity_proof_number'] = $this->input->post('identity_id_number');
-                if($this->input->post('identity_file')){
-                    $data['identity_proof_pic'] = $this->input->post('identity_file');
+                
+                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                    //Making process for file upload
+                    $tmpFile = $_FILES['file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+
+                    //Upload files to AWS   
+                     $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "engineer-id-proofs/" . $pan_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $data['identity_proof_pic'] = $pan_file;
                 }
-                //$data['phone_type'] = $this->input->post('phone_type');
+               
+               
+//          $data['phone_type'] = $this->input->post('phone_type');
 //	    $data['bank_name'] = $this->input->post('bank_name');
 //	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 //	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
@@ -1922,16 +1996,16 @@ class vendor extends CI_Controller {
 
                 //applicable services for an engineer come as array in service_id field.
                 $service_id = $this->input->post('service_id');
-                $services = array();
-                foreach ($service_id as $id) {
-                    array_push($services, array('service_id' => $id));
-                }
-
-                $data['appliance_id'] = json_encode($services);
+                
                 $data['update_date'] = date("Y-m-d H:i:s");
 
                 $where = array('id' => $engineer_id);
-                $engineer_id = $this->vendor_model->update_engineer($where, $data);
+                $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
+                
+                if($engineer_id){
+                    
+                    $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                }
 
                 log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
@@ -1984,7 +2058,7 @@ class vendor extends CI_Controller {
            $select = "service_centres.name, service_centres.id";
            $service_center = $this->vendor_model->getVendorDetails($select, $where);
            $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = json_decode($value['appliance_id'],true);
+           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value['id'], "is_active"=>1), "service_id");
            $appliances = array();
            if(!empty($service_id)){
                 foreach ($service_id as  $values) {
@@ -1994,9 +2068,11 @@ class vendor extends CI_Controller {
                      }
                 }
            }
+           
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
        }
+       $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -2058,8 +2134,8 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'trim');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'trim');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric');
-	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
-        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
+//	$this->form_validation->set_rules('service_id', 'Appliance ', 'trim');
+    //    $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 //        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim');
 //        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim');
 //        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim');
@@ -3984,7 +4060,7 @@ class vendor extends CI_Controller {
         
         $is_wh = $this->input->post('is_wh');
         if(!empty($is_wh)){
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1,'active' => 1);
             $option = '<option selected="" disabled="">Select Warehouse</option>';
         }else{
@@ -4001,6 +4077,7 @@ class vendor extends CI_Controller {
             $whereIN = NULL;
         }
         $data= $this->reusable_model->get_search_result_data("service_centres",$select,$where,NULL,NULL,NULL,$whereIN,NULL,array());
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         
         foreach ($data as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -4008,7 +4085,12 @@ class vendor extends CI_Controller {
             
             if(!empty($is_wh)){
                 $option .= " data-warehose='1' > ";
-                $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                if($saas){
+                    $option .=  $value['name'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                } else {
+                    $option .=  _247AROUND_EMPLOYEE_STRING." ".$value['district'] ." ( <strong>". $value['state']. " </strong>)"."</option>";
+                }
+                
             }else{
                 $option .= " > ";
                 $option .= $value['name'] . "</option>";
@@ -4025,15 +4107,16 @@ class vendor extends CI_Controller {
      * 
      */
     function get_service_center_with_micro_wh() {
-        log_message('info', __METHOD__ . print_r($this->input->post('partner_id')));
+        log_message('info', __METHOD__ . print_r($this->input->post('partner_id'), true));
 
         $partner_id = $this->input->post('partner_id');
 
         $partner_data = $this->partner_model->getpartner($partner_id);
+        $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
         if ($partner_data[0]['is_wh'] == 1) {
-            $select = "service_centres.district, service_centres.id,service_centres.state";
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1);
 
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
@@ -4041,13 +4124,15 @@ class vendor extends CI_Controller {
             foreach ($data as $value) {
                 $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
                 $option .= " > ";
-
-                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                if($saas){
+                    $option .=  $value['name'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                } else {
+                    $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                }
             }
         }
         if ($partner_data[0]['is_micro_wh'] == 1) {
              $micro_wh_state_mapp_data_list = $this->inventory_model->get_micro_wh_state_mapping_partner_id($partner_id);
-
 
             if (!empty($micro_wh_state_mapp_data_list)) {
                 foreach ($micro_wh_state_mapp_data_list as $value) {
@@ -4140,8 +4225,16 @@ class vendor extends CI_Controller {
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
         $R->render('excel', $output_file_excel);
+         if(file_exists($output_file_excel)){
 
-        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            } 
+
+       // echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_name));
     }
 
     /*
@@ -4633,8 +4726,15 @@ class vendor extends CI_Controller {
                 $data['bank_details'][$key]['rm_email'] = !empty($rm) ? $rm[0]['official_email'] : '';
             }
         }else{
-            $data['bank_details'] = arrya();
+            $data['bank_details'] = array();
         }
+
+
+
+        
+
+
+        //exit;
         
         //output data
         if($data['is_ajax']){
@@ -4773,6 +4873,7 @@ class vendor extends CI_Controller {
              * This function used to update multiple pincode data in india pincode table
              */
         function add_multiple_pincode(){
+            $finalArray = [];
             $pincodeCount = $this->input->post('pincode_count');
             for($i=0;$i<$pincodeCount;$i++){
                 $cityArray = $this->input->post('city_'.$i);
@@ -5435,4 +5536,106 @@ class vendor extends CI_Controller {
         $api_response = $this->invoice_lib->validate_bank_ifsc_code($ifsc_code, $entity_type, $entity_id);
         echo $api_response;
     }
+    
+    
+    function view_pincodes(){
+         $this->miscelleneous->load_nav_header();
+         $this->load->view("employee/show_indiapincode");
+        
+    }
+    
+        function getIndiaPincodes(){
+        $data = $this->get_indiapincode_master_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->indiapincode_model->count_all_indiapincode_master_list($post),
+            "recordsFiltered" =>  $this->indiapincode_model->count_filtered_indiapincode_master_list($post),
+            "data" => $data['data'],
+        );
+        
+        echo json_encode($output);
+    }
+    
+    
+    
+        function get_indiapincode_master_list_data(){
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('pincode','district','state','taluk','region','division','area');
+        $select = "*";
+        $list = $this->indiapincode_model->get_indiapincode_master_list($post,$select); 
+       // $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name",array('partners.is_active' => 1,'partners.is_wh' => 1)), 'public_name','id');
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_indiapincode_master_list_table($stock_list, $no);
+            $data[] = $row;
+        }       
+        return array(
+            'data' => $data,
+            'post' => $post
+            
+        );
+    }
+    
+    
+    
+        function get_indiapincode_master_list_table($stock_list, $no){
+        $row = array();           
+        $json_data = json_encode($stock_list);      
+        $row[] = $no;
+        $row[] = $stock_list->pincode;
+        $row[] = $stock_list->division;
+        $row[] = $stock_list->area;
+        $row[] = $stock_list->region;
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->taluk ."</span>";
+        $row[] = "<span style='word-break: break-all;'>". $stock_list->district ."</span>";
+        $row[] = $stock_list->state;                 
+        $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";           
+        return $row;
+    }
+    
+    
+        private function get_post_data(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+    
+    function process_updateIndiaPincode(){
+         $id =trim($this->input->post('id'));
+         $data=array(
+            'area'=>trim($this->input->post('area')),
+            'region'=>trim($this->input->post('region')),
+            'pincode'=>trim($this->input->post('pincode')),
+            'division'=>trim($this->input->post('division')),
+            'taluk'=>trim($this->input->post('taluk')),
+            'district'=>trim($this->input->post('district')),
+            'state'=>trim($this->input->post('state'))
+        );
+        
+        
+        $check= $this->indiapincode_model->checkDuplicatePincode($data);
+        if(!empty($check)){ 
+            echo json_encode(array('response' =>247));
+        }else{     
+             $update=$this->indiapincode_model->updateIndiaPincode($data,$id);
+             if($update){
+                 echo json_encode(array('response' =>'success'));
+             }else{
+                 echo json_encode(array('response' =>'error'));
+             }
+        }
+        
+        
+    }
+    
+    
 }

@@ -1,3 +1,8 @@
+<style>
+    .fa-passwd-reset > .fa-key {
+        font-size: 1.15rem;
+      }
+</style>
 <script>
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
@@ -43,6 +48,14 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <strong>' . $this->session->userdata('success') . '</strong>
+                    </div>';
+                    }
+                    else if($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('error') . '</strong>
                     </div>';
                     }
                 ?>
@@ -115,6 +128,7 @@
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Personal Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Group</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">Manager</th>
                         
                         <?php if($session_data['user_group'] == _247AROUND_ADMIN){?>
                            <th class="jumbotron" style="padding:1px;text-align: center">CRM Login</th>
@@ -150,8 +164,9 @@
                             </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
                             <td style="text-align: center;"><?php echo $value['phone']?>
-                                <?php if(!empty($value['phone'])){
+                                <?php if(!empty($value['phone']) && !empty($c2c)){
                                     ?>
+                                
                             <button type="button" onclick="outbound_call(<?php echo $value['phone'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></td>
                                 <?php } ?>
                             <td style="text-align: center;"><?php echo $value['exotel_phone']?></td>
@@ -159,11 +174,13 @@
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
                            
                             <td  <?php echo $style?>><b><?php echo $value['groups']?></b></td>
+                            <td  style="text-align: center;"><b><?php echo ((isset($value['manager'][0]['full_name']))?$value['manager'][0]['full_name']:'');?></b></td>
                             <?php if($session_data['user_group'] == _247AROUND_ADMIN) {?>
                             <td style="text-align: center;"><a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_employee(<?php echo $value['id']?>)'  <?php echo ($value['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($value['id']) . " / " . strtolower($value['employee_id']);  ?>">Login</a></td>
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                                 <a href="<?php base_url()?>deactive_employee/<?php echo $value['id']; ?>" class="btn btn-sm btn-warning" title="Deactive Employee" > <i class="fa fa-check-square" aria-hidden="true"></i></a>
+                                <a href="<?php base_url()?>reset_password/<?php echo $value['id']; ?>" class="btn btn-sm" title="Reset Password" style="background-color: #D9EDF7" ><span class="fa-passwd-reset fa-stack"><i class="fa fa-undo fa-stack-2x"></i><i class="fa fa-key fa-stack-1x"></i></span></a>
                             </td>
                             <?php }?>
                                 
@@ -177,4 +194,4 @@
         </div>
     </div>
 </div>
-<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');}?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');}else if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

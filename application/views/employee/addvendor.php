@@ -424,7 +424,6 @@
                             </div>
                         </div>
                 </div>
-
                 <div class="panel panel-info">
                         <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type*</b></div>
                         <div class="panel-body">
@@ -432,19 +431,22 @@
                                 <label class="checkbox-inline col-md-3">
                                     <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
                                 </label>
+                                                <?php if(!$saas_module){ ?>
                                 <label class="checkbox-inline col-md-3">
                                     <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
                                 </label>
+                                                <?php }?>
                                 <label class="checkbox-inline col-md-3">
                                     <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
+                                  <?php if(!$saas_module){ ?>
                                 <label class="checkbox-inline col-md-4">
                                     <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
                                 </label>
+                                  <?php } ?>
                             </div>
                         </div>
                 </div>
-                
                 <div  class = "panel panel-info">
                         <div class="panel-heading"  style="background-color:#ECF0F1"><b>Non Working Days</b></div>
                         <div class="panel-body">
@@ -1259,7 +1261,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (!isset($query[0]['bank_name'])) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (strtolower($this->session->userdata('user_group')) !== 'admin')) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1811,8 +1813,10 @@ function manageAccountNameField(value){
                     url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
                     data: {ifsc_code:ifsc_code, entity_type:"vendor", entity_id:$("#vendor_id").val()},
                     success: function (response) {
+                        response = response.trim();
                         if(response=='"Not Found"'){
                             $("#ifsc_validation").val("");
+                            $("#info_div").css("display", "none");
                             alert("Incorrect IFSC Code");
                         }
                         else{
@@ -1820,7 +1824,7 @@ function manageAccountNameField(value){
                                 var bank_data = JSON.parse(response);
                                 $("#ifsc_validation").val(JSON.stringify(bank_data));
                                 $("#info_div").css("display", "block");
-                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK.toLowerCase()+" <br/> Branch = "+bank_data.BRANCH.toLowerCase()+" <br/> City = "+bank_data.CITY.toLowerCase()+" <br/> State = "+bank_data.STATE.toLowerCase()+" <br/> Address = "+bank_data.ADDRESS.toLowerCase());
                             }
                             else{
                                 $("#ifsc_validation").val("");

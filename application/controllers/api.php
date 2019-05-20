@@ -50,11 +50,18 @@ class Api extends CI_Controller {
      */
     public function index() {
         log_message('info', "Entering: " . __METHOD__. json_encode($_POST, true));
-       // echo json_encode($_POST, true); exit();
+        // echo json_encode($_POST, true); exit();
         
-      // $str = '{"request":"{\"deviceId\":\"ODY2NDYyMDM1NDQxMjI0LTE4OGViZmMwMjUyZjY5ZDItMDI6MDA6MDA6MDA6MDA6MDAtMDI6MDA6MDA6MDA6MDA6MDA\\u003d\",\"requestUrl\":\"cancelBookingByEngineer\",\"requestId\":\"20d9c6de-20b8-4964-ac88-d5255fc93d22\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1MTUxMzI3NzIsImlhdCI6MTUxNTEzMjU5MiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wiY2FuY2VsbGF0aW9uUmVhc29uXCI6XCJDdXN0b21lciBwcm9ibGVtIGlzIHNvbHZlZC5cIixcImFwcF92ZXJzaW9uXCI6XCI3LjBcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiZGV2aWNlSW5mb1wiOlwie1xcXCJwbGF0Zm9ybVZlcnNpb25cXFwiOlxcXCI3LjBcXFwiLFxcXCJtb2RlbFZlcnNpb25cXFwiOlxcXCJtaWRvXFxcIixcXFwiaXNSb290ZWRcXFwiOlxcXCJmYWxzZVxcXCIsXFxcImlzRW11bGF0b3JcXFwiOlxcXCJmYWxzZVxcXCIsXFxcIm9zXFxcIjpcXFwiMy4xOC4zMS1wZXJmLWc1ZDEzOTRiOFxcXCIsXFxcIm1vZGVsXFxcIjpcXFwiWGlhb21pXFxcIn1cIixcImFwaVBhdGhcIjpcImFwaVwiLFwiYm9va2luZ0lEXCI6XCJTUC0xNDgxODYxNzEwMjAxXCJ9In0\\u003d.MWZiZDI5ZTBkZWE5Yzk2MjdkNGI5ZmU3ZjIxYTlhMDMxNjcwMzIzY2Q5YTUzMDcyODBjMjY4ZjVjMTk2OWEwNg\\u003d\\u003d\"}"}';
-     //  $_POST = json_decode($str, true);
-//print_r($_POST); exit();
+        ob_end_clean();
+        //$input_d = file_get_contents('php://input');
+        //$_POST = json_decode($input_d, true);
+        
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"tommorowBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+
+        //$_POST = json_decode($str, true);
+            
+        //print_r($_POST); exit();
         $this->debug = true;
         $this->jsonResponseString = null;
         $this->user = "";
@@ -258,8 +265,7 @@ class Api extends CI_Controller {
      */
     function processRequest() {
         log_message('info', "Entering: " . __METHOD__ . ", Request type UPDATED: " . $this->requestUrl);
-
-
+        
         switch ($this->requestUrl) {
             case 'signup':
                 $this->processSignupRequest();
@@ -458,9 +464,22 @@ class Api extends CI_Controller {
             case 'getCustomerQrCode':
                 $this->getCustomerQrCode();
                 break;
+            
+            case 'engineerHomeScreen':
+                $this->getEngineerHomeScreen();
+                break;
+            
+            case 'missedBookings':
+                $this->getMissedBookings();
+                break;
+            
+            case 'tommorowBookings':
+                $this->getTommorowBookings();
+                break;
                 
             default:
                 break;
+            
         }
     }
 
@@ -2951,11 +2970,12 @@ class Api extends CI_Controller {
         $this->sendJsonResponse(array('0000', 'success'));
     }
     
-    function processEngineerLogin(){
+    function processEngineerLogin(){ 
          $requestData = json_decode($this->jsonRequestData['qsh'], true);
+         
          $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
-        if(!empty($data)){
+        if(!empty($data)){ 
             $engineer  = $this->engineer_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
             if(!empty($engineer)){
                 $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
@@ -3191,8 +3211,9 @@ class Api extends CI_Controller {
             $this->sendJsonResponse(array('0020', 'Booking ID Not Found'));
         }
     }
-
-    function adjust_zero_pricing($old_pricing) {
+    
+    
+                function adjust_zero_pricing($old_pricing) {
         //log_message ('info', "Entering: " . __METHOD__);
         //$new_pricing = '{"service":[],"price":[]}' ;
         $new_pricing = '{"service":["No service pricing found !!!"],"price":[]}';
@@ -4093,6 +4114,7 @@ class Api extends CI_Controller {
      * @output: Echoes response which gets returned to the Client (Android App) through the REST API
      */
     function sendJsonResponse($code) {
+              
         $this->jsonResponseString['code'] = $code[0];
         $this->jsonResponseString['result'] = $code[1];
 
@@ -4528,5 +4550,123 @@ class Api extends CI_Controller {
             log_message('info', __METHOD__.'Error In Adding Call Details');
         }
         $this->output->set_header("HTTP/1.1 200 OK");
+    }
+    
+    function getEngineerHomeScreen(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
+            $select = "count(booking_details.booking_id) as bookings";
+            $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,'
+                    . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, '._247AROUND_CALLCENTER_NUMBER.' as tech_support_number';
+            $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
+            
+            $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
+            $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
+            $response['todayMorningBooking'] = $morning_slot_bookings;
+            $response['todayAfternoonBooking'] = $noon_slot_bookings;
+            $response['todayEveningBooking'] = $evening_slot_bookings;
+            
+            log_message("info", __METHOD__ . "Booking Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
+            $this->sendJsonResponse(array('0022', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getMissedBookingList($select, $service_center_id, $engineer_id){
+            $missed_where = array(
+                        "assigned_vendor_id" => $service_center_id,
+                        "assigned_engineer_id" => $engineer_id,
+                        "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
+                    );
+            $missed_slots = $this->apis->getMissedBookingSlots();
+            if($missed_slots){
+                if(count($missed_slots) == "1"){
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND booking_timeslot = '".$missed_slots[0]."')"] = NULL;
+                }
+                if(count($missed_slots) == "2"){
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND (booking_timeslot = '".$missed_slots[0]."' OR booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
+                }
+            }
+            else{
+                $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0)"] = NULL;
+            }
+            
+            $missed_bookings = $this->booking_model->get_booking_details($select, $missed_where, true, true, true, false, false);
+            
+            return $missed_bookings;
+    }
+    
+    function getTommorowBookingList($select, $service_center_id, $engineer_id){
+        log_message("info", __METHOD__. " Entering..");
+        $where = array(
+                    "assigned_vendor_id" => $service_center_id,
+                    "assigned_engineer_id" => $engineer_id,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = -1)" => NULL,
+                    "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
+                );
+        $tommorow_bookings = $this->booking_model->get_booking_details($select, $where, true, true, true, false, false);
+        return $tommorow_bookings;
+    }
+    
+    function getTodaysSlotBookingList($select, $slot, $service_center_id, $engineer_id){
+        log_message("info", __METHOD__. " Entering..");
+        $where = array(
+                    "assigned_vendor_id" => $service_center_id,
+                    "assigned_engineer_id" => $engineer_id,
+                    "booking_timeslot" => $slot,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0)" => NULL,
+                    "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
+                );
+        $bookings = $this->booking_model->get_booking_details($select, $where, true, true, true, false, false);
+        return $bookings;
+    }
+    
+    function getMissedBookings(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
+            $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, "._247AROUND_CALLCENTER_NUMBER." as tech_support_number";
+            $response['missedBooking'] = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
+            $this->sendJsonResponse(array('0023', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getTommorowBookings(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
+            $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, "._247AROUND_CALLCENTER_NUMBER." as tech_support_number";
+            $response['tomorrowBooking'] = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
+            $this->sendJsonResponse(array('0024', 'Booking ID Not Found'));
+        }
     }
 }

@@ -46,27 +46,13 @@
                         <tr>
                             <th>S.No.</th>
                             <th>Partner</th>
-                            <th>Referred Date and Time</th>
-                            <th>Sub Order Id</th>
-                            <th>Brand</th>
-                            <th>Model</th>
-                            <th>Product</th>
-                            <th>Product Type</th>
-                            <th>Customer Name</th>
-                            <th>Customer Address</th>
-                            <th>Pincode</th>
-                            <th>CITY</th>
-                            <th>Phone</th>
-                            <th>Email ID</th>
-                            <th>Order Item Id</th>
-                            <th>Service Promise Date</th>
-                            <th>Delivery Date</th>
+                            <th>Email Host</th>
                             <th>Agent Name</th>
                             <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody>
-                    </tbody>
+                    </tbody>   
                 </table>
             </div>
         </div>
@@ -104,12 +90,30 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="sub_order_id">Sub Order ID*</label>
+                                <label class="control-label col-sm-4" for="sub_order_id">Order ID*</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Sub Order ID" required="">
+                                    <input type="text" class="form-control" id="sub_order_id" name="sub_order_id" placeholder="Order ID" required="">
                                 </div>
                             </div>
                         </div>
+
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="request_type">Request Type</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="request_type" name="request_type" placeholder="Request Type">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="brand">Brand</label>
@@ -118,9 +122,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
+
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="model">Model</label>
@@ -129,26 +133,55 @@
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row">
+
+
+
+
                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="category">Category</label>
+                                <div class="col-sm-8"> 
+                                    <input type="text" class="form-control" id="category" name="category" placeholder="Category ">
+                                </div>
+                            </div>
+                        </div>
+
+
+                     <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="product">Product</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="product" name="product" placeholder="Product">
                                 </div>
-                            </div>
+                            </div>   
+
                         </div>
+
+
+
+
+ 
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
-                        <div class="col-md-6">
+
+
+
+                                                <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="product_type">Product Type*</label>
+                                <label class="control-label col-sm-4" for="product_type">Product Description*</label>
                                 <div class="col-sm-8"> 
-                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Type" required="">
+                                    <input type="text" class="form-control" id="product_type" name="product_type" placeholder="Product Description" required="">
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+
+                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="customer_name">Customer Name*</label>
                                 <div class="col-sm-8"> 
@@ -156,10 +189,18 @@
                                 </div>
                             </div>
                         </div>
+
+
+
+
+
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
-                        <div class="col-md-6">
+
+
+
+                                                <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="customer_address">Customer Address*</label>
                                 <div class="col-sm-8">
@@ -167,7 +208,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+
+                      <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="pincode">Pincode*</label>
                                 <div class="col-sm-8"> 
@@ -175,17 +218,26 @@
                                 </div>
                             </div>
                         </div>
+
+
+
+
+
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
-                        <div class="col-md-6">
+
+
+                                                <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="city">CITY</label>
+                                <label class="control-label col-sm-4" for="city">City</label>
                                 <div class="col-sm-8"> 
                                     <input type="text" class="form-control" id="city" name="city" placeholder="City">
                                 </div>
                             </div>
                         </div>
+
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="phone">Phone*</label>
@@ -194,10 +246,17 @@
                                 </div>
                             </div>
                         </div>
+
+
+
+
+
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
-                        <div class="col-md-6">
+
+
+                                                <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="email_id">Email ID</label>
                                 <div class="col-sm-8"> 
@@ -205,7 +264,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+
+                      <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="delivery_date">Delivery Date</label>
                                 <div class="col-sm-8"> 
@@ -213,10 +274,18 @@
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
-                    <div class="clearfix"></div>
-                    <div class="row">
-                        <div class="col-md-6">
+
+
+
+
+                        <div class="row">
+
+
+
+                                                    <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="order_item_id">Order Item Id</label>
                                 <div class="col-sm-8"> 
@@ -224,7 +293,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+
+                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="control-label col-sm-4" for="spd">Service Before Date</label>
                                 <div class="col-sm-8"> 
@@ -232,7 +302,62 @@
                                 </div>
                             </div>
                         </div>
+
+
+                  
                     </div>
+
+
+<hr><hr>
+                       <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="host">Email Host *</label>
+                                <div class="col-sm-8"> 
+                                    <input type="email" class="form-control" id="host" name="host" placeholder="Email Host">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="spd">File Type</label>
+                                <div class="col-sm-8"> 
+                                     <select class="form-control" id="filetype" name="filetype" >
+                                         <option value="Delivered">Delivered</option>
+                                          <option value="Shipped">Shipped</option>
+                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="host">Send File back</label>
+                                <div class="col-sm-8"> 
+                                    <select class="form-control" id="sendback" name="sendback" >
+                                         
+                                          <option value="0">No</option>
+                                          <option value="1">Yes</option>
+                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4" for="revertemail">Revert File Back Email </label>
+                                <div class="col-sm-8"> 
+                                     <input type="email" class="form-control" id="revertemail" name="revertemail" placeholder="Revert File Back Email">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="email_map_id" name="email_map_id"   value="" >
+
                     <div class="modal-footer">
                         <input type="hidden" class="btn btn-success" id="file_upload_header_mapping_id" name='file_upload_header_mapping_id' value="">
                         <input type="submit" class="btn btn-success" id="mapping_details_submit_btn" name='submit_type' value="Submit">
@@ -252,6 +377,7 @@
         table = $('#header_mapping_table_data').DataTable({
             processing: true,
             serverSide: true,
+            "lengthMenu": [[ 25, 50,100, -1], [ 25, 50, 100,"All"]],
             ordering: false,
             pageLength: 25,
             ajax: {
@@ -283,9 +409,12 @@
     
     $(document).on("click", "#edit_mapping_details", function () {
         var form_data = $(this).data('id');
+        $("#email_map_id").val(form_data.email_map_id)
         var options = "<option value='"+form_data.partner_id+"' selected='' readonly=''>"+form_data.public_name+"</option>";
         $('#partner_id').html(options);
         $('#r_d_a_t').val(form_data.referred_date_and_time);
+        $("#request_type").val(form_data.request_type);
+        $("#category").val(form_data.category);
         $('#sub_order_id').val(form_data.sub_order_id);
         $('#brand').val(form_data.brand);
         $('#model').val(form_data.model);
@@ -300,8 +429,27 @@
         $('#delivery_date').val(form_data.delivery_date);
         $('#order_item_id').val(form_data.order_item_id);
         $('#spd').val(form_data.spd);
+        $('#host').val(form_data.email_host);
+
+       var ty = form_data.file_type;
+       if (form_data.file_type!=null) {
+      var filetype = ty.split("-")
+      if (filetype[1]=='Delivered') {
+      $('#filetype').val("Delivered");
+      }else{
+      $('#filetype').val("Shipped");   
+       }
+      }
+
+      if (form_data.send_file_back==1) {
+        $('#sendback').html('<option value="1" selected>Yes</option><option value="0">No</option>');
+            // $('#sendback').text("Yes");
+      }else{
+        $('#sendback').html('<option value="1">Yes</option><option value="0" selected >No</option>');
+        }
+        $('#revertemail').val(form_data.revert_file_to_email);
         $('#file_upload_header_mapping_id').val(form_data.id);
-        $('#mapping_details_submit_btn').val('Edit');
+        $('#mapping_details_submit_btn').val('Save');
         $('#modal_title_action').html("Edit Details");
         $('#file_upload_header_mapping').modal('toggle');
            
@@ -311,13 +459,35 @@
         event.preventDefault();
         var arr = {};
 
+  
+  function isValidEmailAddress(emailAddress) {
+        var pattern = new RegExp(/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/);
+        return pattern.test(emailAddress);
+ };
+
+        var sendbackhost =$('#host').val(); 
+       // var domain =  sendbackhost.split('.');
+
+     //   alert(domain.length);
+        
+       // var regx = new RegExp(/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/);
+
+
+// mystring = sendbackhost;
+// yourstring = "bad & string";
+
+ 
+//alert(sendbackhost.includes("."));
+//alert(yourstring.match(validRegEx))
+
+
         var form_data = $("#mapping_details").serializeArray();
         if($('#partner_id').val() === "" || $('#partner_id').val() === undefined || $('#partner_id').val() === null){
             alert("Please select Partner");
         }else if($('#sub_order_id').val() === ""){
-            alert("Please Fill Sub Order ID Field");
+            alert("Please Fill  Order ID Field");
         }else if($('#product_type').val() === ""){
-            alert("Please Fill Product Type Field");
+            alert("Please Fill Product Description Field");
         }else if($('#customer_name').val() === ""){
             alert("Please Fill Customer Name Field");
         }else if($('#customer_address').val() === ""){
@@ -326,20 +496,33 @@
             alert("Please Fill Pincode Field");
         }else if($('#phone').val() === ""){
             alert("Please Fill Phone Field");
-        }else{
+        }else if($('#host').val() === ""){
+            alert("Please Fill Email Host Field");
+        }else if($('#filetype').val() === "" ){
+            alert("Please Fill FileType Field");
+        }else if($('#sendback').val() ==1 && $('#revertemail').val() ===""){
+            alert("Please Fill Revert Back Email Field");
+        }else if(sendbackhost.includes(".")===false){
+            alert("Please enter valid domain");
+        }
+        else{
             arr.name = 'submit_type'
             arr.value = $('#mapping_details_submit_btn').val();
             form_data.push(arr);
+        //    alert(form_data);
             $.ajax({
                 type:'POST',
                 url:'<?php echo base_url();?>employee/bookings_excel/process_file_upload_header_mapping',
                 data : form_data,
                 success:function(response){
+
+
                     $('#file_upload_header_mapping').modal('toggle');
                     var data = JSON.parse(response);
                     if(data.response === 'success'){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(500);});   
                         $('#success_msg').html(data.msg);
+                        location.reload();
                         table.ajax.reload();
                     }else if(data.response === 'error'){
                         $('.error_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(500);});

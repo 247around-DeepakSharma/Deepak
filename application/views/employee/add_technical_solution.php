@@ -32,7 +32,7 @@
                     ?>
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    <b> Add Completion Technical Problem</b>
+                    <b> Add Solution</b>
                 </h1>
                 <form class="form-horizontal"  id="fileinfo" action="<?php echo base_url();?>employee/booking_request/process_add_new_completion_technical_problem" name="fileinfo"  method="POST" enctype="multipart/form-data">
                     <div class="form-group <?php if( form_error('service_id') ) { echo 'has-error';} ?>" >

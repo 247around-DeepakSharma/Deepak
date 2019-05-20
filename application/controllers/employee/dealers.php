@@ -263,7 +263,7 @@ class Dealers extends CI_Controller {
                      $html .= " disabled ";
   
                 }
-		$html .= "  onclick='final_price(),set_upcountry()'" .
+		$html .= "  onclick='final_price(),get_symptom(),set_upcountry()'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".intval($prices['partner_net_payable'])."_".$i . " ></td><tr>";
 
 		$i++;
@@ -394,6 +394,7 @@ class Dealers extends CI_Controller {
         $post['dealer_phone_number'] = $this->session->userdata('dealer_phone_number');
         $post['dealer_id'] = $this->session->userdata('dealer_id');
         $post['appliance_unit'] = $this->input->post("appliance_unit");
+        $post['booking_request_symptom'] = $this->input->post('booking_request_symptom');
         
         return $post;
     }

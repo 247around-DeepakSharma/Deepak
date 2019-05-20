@@ -571,4 +571,16 @@ class DatabaseTesting extends CI_Controller {
             }
         }
     }
+    
+    function engineer_old_date_appliances_mapping(){
+        $engineers = $this->engineer_model->get_engineers_details(array(), '*');
+        foreach ($engineers as $key => $value) {
+            $appliances = json_decode($value['appliance_id']);
+            if(!empty($appliances)){
+                foreach ($appliances as $akey => $avalue) {
+                    echo "insert into engineer_appliance_mapping (`engineer_id`, `service_id`, `is_active`) values ('".$value['id']."', '".$avalue->service_id."', '1');"."</br>";
+                }
+            }
+        }
+    }
 }

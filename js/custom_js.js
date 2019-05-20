@@ -273,6 +273,7 @@ function addBookingDialog(chanel = '') {
     var repeat_reason = $('#repeat_reason').val();
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
+    var symptom = $('#booking_request_symptom option:selected').text();
    // var customer_paid = $("#grand_total_price").val()
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
@@ -413,6 +414,11 @@ function addBookingDialog(chanel = '') {
     
     if(dealer_phone_number !=="" && dealer_name === ""){
         alert("Please Enter Dealer Name");
+        return false;
+    }
+    
+    if(symptom === "" || symptom === "Please Select Any Symptom"){
+        alert("Please Enter Symptom");
         return false;
     }
 //    if(customer_paid == 0  && type === "Booking"){
@@ -938,16 +944,19 @@ function getModelForServiceCategoryCapacity(div_id) {
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
     postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
-
+    $('#model_number_1').val('');
+    $('#select2-model_number_1-container').empty();
     if (postData['category']) {
         sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
                 $(".select-model#model_number_" + div_no[2]).html(obj.msg);
@@ -977,16 +986,18 @@ function get_symptom(symptom_id = ""){
     });
     
     if(array.length > 0){
+        postData['partner_id'] = $("#source_code option:selected").attr('data-id');
         postData['request_type'] = array;
         postData['service_id'] = $("#service_id").val();
         postData['booking_request_symptom'] = symptom_id;
         var url = baseUrl + '/employee/booking_request/get_booking_request_dropdown';
         sendAjaxRequest(postData, url).done(function (data) {
+            $('#booking_request_symptom').html("<option disabled selected>Please Select Any Symptom</option>");
             if(data === "Error"){
-                $('#booking_request_symptom').html("").change();
+                $('#booking_request_symptom').append("").change();
                 $("#booking_request_symptom").removeAttr('required');
             } else {
-                $('#booking_request_symptom').html(data).change();
+                $('#booking_request_symptom').append(data).change();
                 $("#booking_request_symptom").attr('required', 'required');
                 
             }

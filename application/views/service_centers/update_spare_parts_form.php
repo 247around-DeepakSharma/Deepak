@@ -138,12 +138,6 @@
                                             <textarea class="form-control" id="<?php echo "partstype_".$skey;?>" name="part[<?php echo $skey;?>][parts_type]" readonly="readonly" required><?php echo $sp->parts_requested_type; ?></textarea>
                                         </div>
                                     </div>
-                                    <div class="form-group ">
-                                        <label for="parts_type" class="col-md-4">Symptom</label>
-                                        <div class="col-md-6">
-                                            <input class="form-control" id="<?php echo "symptom_".$skey;?>" value="<?php echo $sp->spare_request_symptom; ?>" name="part[<?php echo $skey;?>][spare_request_symptom]" readonly="readonly" >
-                                        </div>
-                                    </div>
                                     
                                     <div class="form-group <?php
                                         if (form_error('shipped_model_number')) {
@@ -169,7 +163,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
                                             <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="">
-                                                <!--                                        <option selected disabled >Select Parts Name</option>-->
+                                                <!--                                        <option selected disabled >Select Part Name</option>-->
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
                                             <?php echo form_error('shipped_parts_name'); ?>
@@ -197,7 +191,7 @@
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Part Warranty Status</label>
                                         <div class="col-md-6">
-                                            <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if($sp->spare_request_symptom == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
+                                            <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
                                         </div>
                                     </div>
                                     <div class="form-group <?php
@@ -335,7 +329,7 @@
                                 if (form_error('courier_image')) { echo 'has-error';} ?>">
                                 <label for="courier_image" class="col-md-4">Courier Image *</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" required>
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" >
                                     <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
                                     <?php echo form_error('courier_image'); ?>
                                 </div>

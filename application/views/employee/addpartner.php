@@ -87,6 +87,7 @@
     <div class="row">
         <div class="clear"></div>
         <div class="panel panel-info">
+            <?php if(!$saas_flag) {?>
             <div class="panel-heading" style="padding: 6px 7px 0px 10px;">
                 <b><?php if (isset($query[0]['id'])) {
                     echo "EDIT PARTNER";
@@ -102,6 +103,7 @@
                 </div>
                 <div class="clear"></div>
             </div>
+            <?php } ?>
             <div id="tabs" style="border:0px solid #fff;float:left;">
                 <div class="col-md-12" style="">
                     <ul>
@@ -128,9 +130,9 @@
                             else{
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Basic Details</span></a></li>
-                        <li><a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>> <a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
                         <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Operation Region</span></a></li>
-                        <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
@@ -379,7 +381,7 @@
                                         } ?>">
                                         <label  for="account_manager" class="col-md-4">Account Managers </label>
                                         <div class="col-md-8">
-                                            <select name="account_manager_id" class="form-control" id="account_manager">
+                                            <select name="account_manager_id" class="form-control" id="account_manager" <?php echo ((strtolower($this->session->userdata('user_group')) !== 'admin')? 'disabled' :''); ?> >
                                                 <option selected disabled>Select Account Managers</option>
                                                 <?php foreach($employee_list as $employee){ ?>
                                                 <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
@@ -723,6 +725,7 @@
                             </div>
                         </div>
                     </div>
+                    <?php if(!$saas_flag) { ?>
                     <div class="col-md-12">
                         <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
@@ -788,6 +791,7 @@
                             </div>
                         </div>
                     </div>
+ 
                     <div class="col-md-12">
                         <div class="col-md-12" style="padding: 0px;">
                             <div class="panel panel-default">
@@ -851,6 +855,7 @@
                             </div>
                         </div>
                     </div>
+                                      
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Central Warehouse</b></div>
@@ -895,6 +900,7 @@
                             </div>
                         </div>
                     </div>
+                                        <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="Submit" value="<?php if (isset($query[0]['id'])) {
@@ -2519,6 +2525,7 @@
                                     </div>
                                 </div>
                                 <div class="row"> 
+                                    <?php if(!$saas_flag){ ?> 
                                     <div class="col-md-6">
                                          <label for="defective_parts_pic">Around Margin</label>
                                         <div class="form-group" style="padding: 10px;">
@@ -2527,6 +2534,7 @@
                                         </div>
                                           
                                     </div>
+                                    <?php } ?>
                                     <div class="col-md-6">
                                         <label for="defective_parts_pic">Vendor Margin</label>
                                         <div class="form-group" style="padding: 10px;">
@@ -2543,7 +2551,7 @@
                         </div>
                         <div id="cloned"></div>
                         <div class="clear clear_bottom">   
-                            <input type="hidden" name="partner_id" value="<?php echo $query[0]['id']; ?>">
+                            <input type="hidden" name="partner_id" value="<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>">
                             <center><input type="Submit" value="Save" class="btn btn-primary" id="submit_spare_parts"></center>
                         </div>
                     </div>
@@ -2837,7 +2845,7 @@
                                     <label for="service_name" class="col-md-4 vertical-align">Correspondence Address</label>
                                     <div class="col-md-6">
                                         <textarea  type="text" rows="2" class="form-control input-model"  name="contact_person_c_address" id="contact_person_c_address" value = "" placeholder="Enter Address"></textarea>
-                                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                                        <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  ((isset($query[0]['id']))?$query[0]['id']:'')?> >
                                         <input type="hidden" id="agentid" name="agentid" value="">
                                     </div>
                                 </div>
@@ -3149,7 +3157,7 @@
                          <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity*</label>
+                                    <label class="control-label col-md-4" for="edit_mapping_capacity">Capacity</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <select class="form-control" id="edit_mapping_capacity" name="edit_mapping_capacity">
                                         </select>
@@ -4024,7 +4032,7 @@
        $("#bank_name, #account_type, #account_number, #ifsc_code, #beneficiary_name, #BD_action").val(null);
        $("#bank_cancelled_check_img_update").css("display", "none");
        $("#bank_cancelled_check_img").show();
-       $("#BD_submit").val("Save Bank Deatil");
+       $("#BD_submit").val("Save Bank Detail");
        $('#bank_detail_form').hide();
     });
     
@@ -4276,7 +4284,7 @@
        $("#bank_cancelled_check_img_update").css("display", "inline");
        $("#bank_cancelled_check_img").hide();
        $("#BD_action").val(id);
-       $("#BD_submit").val("Update Bank Deatil");
+       $("#BD_submit").val("Update Bank Detail");
     }
     
     $("#is_micro_wh").on('click',function(){
@@ -4761,14 +4769,14 @@
         tags: true
     });
             
-    get_services('<?php echo $query[0]['id']; ?>');
+    get_services('<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>');
     
     function get_services(partner_id){
         $.ajax({
-            type:'GET',
+            type:'POST',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
+            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
+            data:{partner:partner_id},
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
@@ -4894,7 +4902,7 @@
             "pageLength": 10,
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/inventory/get_appliance_model_details",
+                "url": "<?php echo base_url(); ?>employee/inventory/get_partner_model_details",
                 "type": "POST",
                 data: function(d){ 
                     d.entity_id = $("#partner_id").val();
@@ -4962,7 +4970,7 @@
                         alert("Model Number Updated Successfully");
                         model_number_datatable.ajax.reload();
                     }else if(data.response === 'error'){
-                        alert("No Updation has been Done");
+                        alert("Model Number Already Exist");
                     }
                 }
             });
@@ -5070,6 +5078,7 @@
                 response = "<option  value='' disabled selected>Select Category</option>"+response;
                 $('#'+action+'mapping_category').html(response);
                 $('#'+action+'mapping_category').select2();
+                $('#'+action+'mapping_category').change();
             }
         });
         
@@ -5100,12 +5109,12 @@
     }
     
     function model_number_mapping(){
-        if(!$("#mapping_model_number").val()){
-            alert("Please Select Model Number");
+        if(!$("#mapping_service").val()){
+            alert("Please Select Appliance");
             return false;
         }
-        else if(!$("#mapping_service").val()){
-            alert("Please Select Service");
+        else if(!$("#mapping_model_number").val()){
+            alert("Please Select Model Number");
             return false;
         }
         else if(!$("#mapping_brand").val()){
@@ -5125,11 +5134,16 @@
                     response = JSON.parse(response);
                     console.log(response);
                     if(response.status == true){
+                        $("#mapping_service").prop('selectedIndex',0).change();
+                        $("#mapping_model_number").prop('selectedIndex',0).change();
+                        $("#mapping_brand").prop('selectedIndex',0).change();
+                        $("#mapping_category").prop('selectedIndex',0).change();
+                        $("#mapping_capacity").prop('selectedIndex',0).change();
                         alert("Model Mapped Successfully");
                         model_mapping_datatable.ajax.reload();
                     }
                     else{
-                       alert("Error");
+                       alert(response.message);
                     }
                     
                 }
@@ -5179,6 +5193,7 @@
                     response = JSON.parse(response);
                     alert(response.message);
                     model_mapping_datatable.ajax.reload();
+                    $('#map_appliance_model').modal('toggle');
                 }
             });
         }
@@ -5203,7 +5218,7 @@
             var first4char =  ifsc_code.substring(0, 4);
             var first5char =  ifsc_code.substring(4, 5);
             if(!first4char.match(/^[A-Za-z]+$/)){
-                alert("In IFSC code first four digit should be Charecter");
+                alert("In IFSC code first four digit should be Character");
                 return false;
             }
             else if(first5char != "0"){
@@ -5216,8 +5231,10 @@
                     url: '<?php echo base_url(); ?>employee/vendor/validate_ifsc_code',
                     data: {ifsc_code:ifsc_code, entity_type:"partner", entity_id:$("#partner_id").val()},
                     success: function (response) {
+                        response = response.trim();
                         if(response=='"Not Found"'){
                             $("#ifsc_validation").val("");
+                            $("#info_div").css("display", "none");
                             alert("Incorrect IFSC Code");
                         }
                         else{
@@ -5225,7 +5242,7 @@
                                 var bank_data = JSON.parse(response);
                                 $("#ifsc_validation").val(JSON.stringify(bank_data));
                                 $("#info_div").css("display", "block");
-                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK+" <br/> Branch = "+bank_data.BRANCH+" <br/> City = "+bank_data.CITY+" <br/> State = "+bank_data.STATE+" <br/> Address = "+bank_data.ADDRESS);
+                                $("#info_msg").html("You have entered valid IFSC code  - <br/> Bank Name = "+bank_data.BANK.toLowerCase()+" <br/> Branch = "+bank_data.BRANCH.toLowerCase()+" <br/> City = "+bank_data.CITY.toLowerCase()+" <br/> State = "+bank_data.STATE.toLowerCase()+" <br/> Address = "+bank_data.ADDRESS.toLowerCase());
                             }
                             else{
                                 $("#ifsc_validation").val("");

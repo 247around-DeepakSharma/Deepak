@@ -237,23 +237,24 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation, $file_type, $partner_id, $emailTag) {
-        if (empty($this->email_send_to)) {
-            if (empty($this->session->userdata('official_email'))) {
-                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
-                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                    $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
-                } else {
-                    $file_upload_agent_email = _247AROUND_SALES_EMAIL;
-                }
-            } else {
-                $file_upload_agent_email = $this->session->userdata('official_email');
-            }
-
-            $this->email_send_to = $file_upload_agent_email;
+       
+       
+        $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+        if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+            $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
         } else {
-            $file_upload_agent_email = $this->email_send_to;
+            $file_upload_agent_email = _247AROUND_SALES_EMAIL;
+        }
+        
+        if (!empty($this->session->userdata('official_email'))) {
+            if($this->session->userdata('official_email') != $file_upload_agent_email){
+                $file_upload_agent_email = $file_upload_agent_email. ", ". $this->session->userdata('official_email');
+            }
+            
         }
 
+        $this->email_send_to = $file_upload_agent_email;
+       
 
         $to = ANUJ_EMAIL_ID . "," . $file_upload_agent_email;
         $from = "noreply@247around.com";
@@ -631,7 +632,17 @@ class Do_background_upload_excel extends CI_Controller {
                         $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
                         $row_data['error'][$key]['invalid_data'] = $value;
                     }
-
+                    
+                    //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                    if($booking['partner_id'] == VIDEOCON_ID){
+                        if((stripos($booking['request_type'], 'In Warranty') !== false) || stripos($booking['request_type'], 'Extended Warranty') !== false){
+                            $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                            $send1['booking_id'] = $booking['booking_id'];
+                            $send1['state'] = "SendWhatsAppNo";
+                            $this->asynchronous_lib->do_background_process($url1, $send1);
+                        }
+                    }
+                    
                     if (empty($booking['state'])) {
                         log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " .
                                 $booking['booking_id']);
@@ -970,46 +981,58 @@ class Do_background_upload_excel extends CI_Controller {
                 $data['valid_data'][$key]['appliance'] = $service_appliance_data[0]['services'];
             } else {
                 log_message('info', __FUNCTION__ . "=> Dsecription not found");
-                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                    $data['valid_data'][$key]['appliance'] = 'Washing Machine';
-                }
-                if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
-                    $data['valid_data'][$key]['appliance'] = 'Television';
-                }
-                //remove AC beacuse when description contain active then it mapped other appliance booking into ac
-                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
-                }
-                if (stristr($prod, "Refrigerator")) {
-                    $data['valid_data'][$key]['appliance'] = 'Refrigerator';
-                }
-                if (stristr($prod, "Microwave")) {
-                    $data['valid_data'][$key]['appliance'] = 'Microwave';
-                }
-                if (stristr($prod, "Purifier")) {
-                    $data['valid_data'][$key]['appliance'] = 'Water Purifier';
-                }
-                if (stristr($prod, "Chimney")) {
-                    $data['valid_data'][$key]['appliance'] = 'Chimney';
-                }
-                if (stristr($prod, "Geyser")) {
-                    $data['valid_data'][$key]['appliance'] = 'Geyser';
-                }
-                if (stristr($prod, "Smart Speaker")) {
-                    $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
-                }
-                if (stristr($prod, "Cooler")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Cooler';
-                }
-                if (stristr($prod, "Air Purifier")) {
-                    $data['valid_data'][$key]['appliance'] = 'Air Purifier';
-                }
-                if (stristr($prod, "Stove")) {
-                    $data['valid_data'][$key]['appliance'] = 'Gas Stove';
-                }
-                if (stristr($prod, "Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") || stristr($prod, "Vaccum Cleaner")) {
+                $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                if(!$saas_flag){
+                    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                        $data['valid_data'][$key]['appliance'] = 'Washing Machine';
+                    }
+                    if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
+                        $data['valid_data'][$key]['appliance'] = 'Television';
+                    }
+                    //remove AC beacuse when description contain active then it mapped other appliance booking into ac
+                    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+                    }
+                    if (stristr($prod, "Refrigerator")) {
+                        $data['valid_data'][$key]['appliance'] = 'Refrigerator';
+                    }
+                    if (stristr($prod, "Microwave")) {
+                        $data['valid_data'][$key]['appliance'] = 'Microwave';
+                    }
+                    if (stristr($prod, "Purifier")) {
+                        $data['valid_data'][$key]['appliance'] = 'Water Purifier';
+                    }
+                    if (stristr($prod, "Chimney")) {
+                        $data['valid_data'][$key]['appliance'] = 'Chimney';
+                    }
+                    if (stristr($prod, "Geyser")) {
+                        $data['valid_data'][$key]['appliance'] = 'Geyser';
+                    }
+                    if (stristr($prod, "Smart Speaker")) {
+                        $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
+                    }
+                    if (stristr($prod, "Cooler")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Cooler';
+                    }
+                    if (stristr($prod, "Air Purifier")) {
+                        $data['valid_data'][$key]['appliance'] = 'Air Purifier';
+                    }
+                    if (stristr($prod, "Stove")) {
+                        $data['valid_data'][$key]['appliance'] = 'Gas Stove';
+                    }
+                    if (stristr($prod, "Mixer Grinder") || stristr($prod, "Mixer-Grinder") || stristr($prod, "SHA") 
+                            || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
+                            || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") 
+                            || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") 
+                            || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") 
+                            || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") 
+                            || stristr($prod, "Vaccum Cleaner")) {
 
-                    $data['valid_data'][$key]['appliance'] = 'SHA';
+                        $data['valid_data'][$key]['appliance'] = 'SHA';
+                    }
+                }
+                else{
+                     $data['valid_data'][$key]['appliance'] = $prod;
                 }
 
                 // Block Microvare cooking. If its exist in the Excel file
@@ -1030,16 +1053,21 @@ class Do_background_upload_excel extends CI_Controller {
                     unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
                 }
+                
+                if(isset($data['valid_data'][$key]['appliance'])){
+                    if ($flag == 0) {
+                        $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
+                        if ($service_id) {
 
-                if ($flag == 0) {
-                    $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
-                    if ($service_id) {
-
-                        $data['valid_data'][$key]['service_id'] = $service_id;
-                    } else {
-                        unset($data['valid_data'][$key]);
-                        array_push($invalid_data, $value);
+                            $data['valid_data'][$key]['service_id'] = $service_id;
+                        } else {
+                            unset($data['valid_data'][$key]);
+                            array_push($invalid_data, $value);
+                        }
                     }
+                } else {
+                    unset($data['valid_data'][$key]);
+                    array_push($invalid_data, $value);
                 }
             }
         }
@@ -1443,6 +1471,8 @@ class Do_background_upload_excel extends CI_Controller {
      * @param void
      */
     function process_upload_file() {
+
+        
         log_message("info", __METHOD__ . " File Upload: Beginning processing...");
 
         //check file type
@@ -1748,12 +1778,12 @@ class Do_background_upload_excel extends CI_Controller {
         $tmpArr['call_type_installation_table_top_installationdemo_service'] = '';
         $tmpArr['partner_source'] = $data['partner_source'];
 
-
-        if (isset($data[$header_data['spd']]) && !empty($data[trim($header_data['spd'])])) {
+        if (isset($data[$header_data['spd']]) && !empty($header_data['spd'])) {
             $tmpArr['service_promise_date'] = $data['promise_before_date'];
         } else {
             $tmpArr['service_promise_date'] = '';
         }
+
         if ($file_type) {
             if (strpos($file_type, 'shipped') !== false) {
                 if ($data['shipped_date']) {
@@ -1951,7 +1981,7 @@ class Do_background_upload_excel extends CI_Controller {
         $letter = chr(65 + $numeric);
         $num2 = intval($num / 26);
         if ($num2 > 0) {
-            return getNameFromNumber($num2 - 1) . $letter;
+            return $this->getNameFromNumber($num2 - 1) . $letter;
         } else {
             return $letter;
         }

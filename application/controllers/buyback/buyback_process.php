@@ -29,6 +29,7 @@ class Buyback_process extends CI_Controller {
         $this->load->model("service_centre_charges_model");
         $this->load->library('PHPReport');
         $this->load->library('push_notification_lib');
+        $this->load->library('booking_utilities');
         $this->load->dbutil();
         $this->load->helper('file');
 
@@ -44,7 +45,8 @@ class Buyback_process extends CI_Controller {
      */
     function view_bb_order_details() {
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/get_order_details');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -668,7 +670,8 @@ class Buyback_process extends CI_Controller {
      */
     function bb_order_review($days = NULL){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/bb_order_review',array('days'=>$days));
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -772,7 +775,8 @@ class Buyback_process extends CI_Controller {
         $select = "image_name";
         $where = array("partner_order_id" => $partner_order_id, "cp_id" => $cp_id);
         $data['image_list'] = $this->bb_model->get_bb_order_images($where, $select);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/bb_order_image_review',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -949,7 +953,8 @@ class Buyback_process extends CI_Controller {
     function view_order_details($partner_order_id){
         log_message("info",__METHOD__);
         $data['partner_order_id'] = $partner_order_id;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/view_bb_order_details',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1008,14 +1013,16 @@ class Buyback_process extends CI_Controller {
     
     function disputed_auto_settel(){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/get_disputed_auto_settle');
         $this->load->view('dashboard/dashboard_footer');
     }
     
     function disputed_30_days_breech(){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/get_disputed_30_days_breech');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1073,7 +1080,8 @@ class Buyback_process extends CI_Controller {
     }
     function search_for_buyback(){
         log_message("info",__METHOD__);
-        $search_data =  preg_replace('/[^A-Za-z0-9-]/', '', trim($this->input->post('search')));
+        $search_data =   $this->input->post('search');
+        //$search_data =  preg_replace('/[^A-Za-z0-9-]/', '', $this->input->post('search'));
         if(strpos($search_data,',')){
             $search_value = explode(',', $search_data);
         }else{
@@ -1243,7 +1251,8 @@ class Buyback_process extends CI_Controller {
         
     function bb_order_search(){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/advanced_search');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1292,7 +1301,8 @@ class Buyback_process extends CI_Controller {
     
     function vendor_rejected(){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/get_vendor_rejected');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1312,7 +1322,8 @@ class Buyback_process extends CI_Controller {
         $data['current_status'] = rawurldecode($current_status);
         $data['products'] = $this->booking_model->selectservice();
         $data['cp_basic_charge'] = $this->bb_model->get_bb_order_appliance_details(array('partner_order_id'=> $data['order_id']),'cp_basic_charge');
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/update_bb_order_details',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1706,7 +1717,8 @@ class Buyback_process extends CI_Controller {
         $select .= " ) as cp_name";
         $data['cp_list'] = $this->bb_model->get_cp_shop_address_details(array(), $select, "name");
         //echo "<pre>";        print_r($data);exit();
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/filter_bb_price_list',$data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1861,7 +1873,8 @@ class Buyback_process extends CI_Controller {
      * @return void()
      */
     function tag_untag_bb_orders(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/tag_untag_bb_orders');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2053,7 +2066,8 @@ class Buyback_process extends CI_Controller {
      */
     
     function bb_claimed_raised_order_data(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/bb_claimed_raised_order_data');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2197,7 +2211,8 @@ class Buyback_process extends CI_Controller {
     
     function upload_tracking_file(){
         log_message("info",__METHOD__);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/upload_tracking_file');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2280,7 +2295,8 @@ class Buyback_process extends CI_Controller {
 //        }
 //    }
         function buyback_full_balance(){
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             $this->load->view('buyback/balance_full_view');
             $this->load->view('dashboard/dashboard_footer');
         }
@@ -2391,7 +2407,8 @@ class Buyback_process extends CI_Controller {
         else{
             $data['list'] = $this->bb_model->get_orders_without_invoices($select,NULL,$where,1);
         }
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('buyback/bb_without_invoice_orders', $data);
         $this->load->view('dashboard/dashboard_footer');
     }

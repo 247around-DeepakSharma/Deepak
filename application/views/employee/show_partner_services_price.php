@@ -186,17 +186,30 @@
     <?php }
 } ?> 
 <script>
-    $(document).ready(function(){
-        
+    $(document).ready(function(){  
         $('#partner_price_data').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
+            "dom": 'Bfrtip',
+         
+           "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+             
+                "buttons": [
                 {
                     extend: 'excel',
-                    text: 'Export',
-                    title: 'price'
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Model List', 
+                    exportOptions: { 
+                       columns: [0,1,2,3,4,5,6,7,8,9,10],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
                 }
-            ]
+            ],
         });
         
         $("#partner_price_data_filter").css("float", "right");

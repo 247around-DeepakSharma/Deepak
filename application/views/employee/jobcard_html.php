@@ -32,8 +32,12 @@ p{
    </td>
         </tr>
         <tr style="border-top:none;">
-      <td colspan="1" id="top_row"><img style='padding: 0px 0px 0px 12px;width:80px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
-      <td colspan="4" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 22px;line-height: 30px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
+      <td colspan="1" id="top_row">
+          <?php if($meta['main_company_logo']){ ?>
+          <img style='padding: 0px 0px 0px 12px;width:80px;' src='<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>'>
+          <?php } ?>     
+      </td>
+      <td colspan="4" id="top_row" style="text-align: center;"><p style='font-family: sans-serif;font-size: 22px;line-height: 30px; text-transform: uppercase;'><b><?php echo $meta['main_company_public_name']; ?> SERVICE JOB CARD</b></p></td>
  <td colspan="1" id="top_row" style="text-align: right;"><p><img style='padding: 0px 10px;width: 80px;' src=<?php echo $qr?>></p>
    </td>
    </tr>
@@ -42,8 +46,12 @@ p{
     else{
         ?>
  <tr>
-      <td colspan="2" id="top_row" style="width: 12%;"><img style='padding: 5px;' src='https://aroundhomzapp.com/images/logo.jpg'></td>
-      <td colspan="4" id="top_row" style="text-align: left;"><p style='font-family: sans-serif;font-size: 22px;line-height: 24px;'><b>247AROUND SERVICE JOB CARD</b></p></td>
+      <td colspan="2" id="top_row" style="width: 12%;">
+          <?php if($meta['main_company_logo']){ ?>
+          <img style='padding: 5px; width:100px;' src='<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>'>
+          <?php } ?> 
+      </td>
+      <td colspan="4" id="top_row" style="text-align: left;"><p style='font-family: sans-serif;font-size: 22px;line-height: 24px; text-transform: uppercase;'><b><?php echo $meta['main_company_public_name']; ?> SERVICE JOB CARD</b></p></td>
       </tr>
   <?php
     }
@@ -127,7 +135,7 @@ foreach($booking_unit_details as $data){
     </td>
   </tr>
   <tr>
-    <td><p><b>Technical Issue</b></p></td>
+    <td><p><b>Symptom</b></p></td>
     <td colspan="5">
         <p><?php echo $symptom;?></p>
     </td>
@@ -193,9 +201,8 @@ foreach($booking_unit_details as $data){
     <td colspan="2"><p></p></td>
   </tr>
    <tr>
-       <td colspan="6"><p style="font-size: 13px;"><b>Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On
-Website - www.247around.com</b></p>
-    <p style="font-size: 14px;"><b>Blackmelon Advance Technology Co. Pvt. Ltd.</b></p></td>
+       <td colspan="6"><p style="font-size: 13px;"><b><?php echo $meta['main_company_description']; ?></b></p>
+    <p style="font-size: 14px;"><b><?php echo $meta['main_company_name']; ?></b></p></td>
   </tr>
 </table>
  

@@ -1,5 +1,6 @@
 ﻿<!-- Kalyani 23-07-2018  --->
 
+
 ALTER TABLE `courier_details` ADD COLUMN `notification_email1`  VARCHAR(255) AFTER `contact_person_id`;
 ALTER TABLE `courier_details` ADD COLUMN `is_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `partner_invoice_id`;
 
@@ -1578,9 +1579,6 @@ ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
 
 
--- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
-
-
 -- Belal 5 Jan
 
 ALTER TABLE `partners` ADD `owner_alternate_email` VARCHAR(50) NOT NULL AFTER `owner_email`;
@@ -2802,7 +2800,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
   
 Greetings from 247around!
 
-As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
+As you are aware, the introduction of Goods and Services Tax (“GST�?) will be implemented on 1st July 2017.
 
 Government has already initiated the migration process for registration under GST and you would have received a GSTIN / Provisional GSTIN from GSTN portal.
  
@@ -9320,7 +9318,7 @@ ALTER TABLE `warehouse_on_of_status` ADD `agent_id` INT(11) NOT NULL AFTER `acti
 ALTER TABLE `partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
 ALTER TABLE `service_centres` ADD `is_micro_wh` TINYINT NOT NULL AFTER `is_buyback_gst_invoice`;
 ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
-ALTER TABLE `trigger_partners` ADD `is_defective_part_return_wh` TINYINT NOT NULL AFTER `is_micro_wh`;
+
 
 ALTER TABLE `partners` ADD `is_micro_wh` TINYINT NOT NULL;
 ALTER TABLE `trigger_partners` ADD `is_micro_wh` TINYINT NOT NULL;
@@ -9373,6 +9371,9 @@ ALTER TABLE `file_uploads` ADD `revert_file_cc` VARCHAR(255) NULL DEFAULT NULL A
 
 --Abhay 
 ALTER TABLE `spare_parts_details` ADD `is_micro_wh` INT(1) NULL DEFAULT '0' COMMENT '0 means normal spare, 1 means micro spare, 2 means whareoue' AFTER `received_defective_part_date_from_wh`;
+
+--Kalyani 26-Nov-2018
+ALTER TABLE `file_uploads` ADD `revert_file_name` VARCHAR(255) NOT NULL AFTER `email_message_id`, ADD `revert_file_subject` VARCHAR(255) NOT NULL AFTER `revert_file_type`, ADD `revert_file_from` VARCHAR(255) NOT NULL AFTER `revert_file_subject`, ADD `revert_file_to` VARCHAR(255) NOT NULL AFTER `revert_file_from`;
 
 --Kalyani 27-Nov-2018
 ALTER TABLE `courier_company_invoice_details` ADD `is_reject` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_exist`;
@@ -9503,24 +9504,29 @@ INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accou
 (38, 'Buyback', 'Liquidation', 'Debit Note', 1, 'DN issued by 247around to CP'),
 (39, 'Service', 'Installation & Repair', 'Customer Payment', 0, 'custome payment on behalf of sf'),
 (40, 'Service', 'Advance', 'Pre-paid(PG)', 0, 'Advance given by Pre-paid via paytm gateway');
-
 --Released 04 Dec - Branch 59
 
 -- Kalyani 11-Dec-2018 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'resend_dn_cn_invoice', '247around - Credit Note for period: %s to %s', 'Dear Partner <br/><br/> Please find attached Credit Note for jobs completed between %s and %s.<br/><br/> Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/> Hope to have a long lasting working relationship with you. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice. <br/><br/>With Regards,<br/>247around Team', 'billing@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
+
+
+
+
 --Gorakh 11-12-2018 
 ALTER TABLE `courier_details` ADD `status` VARCHAR(100) NOT NULL AFTER `ewaybill_generated_date`;
+
+--Abhay 18-12-2018
+ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
+
+ALTER TABLE `trigger_service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
+
+ALTER TABLE `trigger_partners` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`
+
 
 --Kalyani 18-dec-2018
 ALTER TABLE `email_sent` ADD `booking_id` VARCHAR(255) NOT NULL DEFAULT NULL AFTER `email_tag`;
 
---Abhay 18-12-2018
-ALTER TABLE `service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
-ALTER TABLE `trigger_service_centres` ADD `minimum_guarantee_charge` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_micro_wh`;
-
---Kalyani 19-Dec-2018
-ALTER TABLE `bank_details` ADD `is_active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `bank_name`;
 
 --Chhavi 17-12-2018
 INSERT INTO `email_template`(`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL,"resend_partner_login_details","Partner ERP URL and Login - 247around",'Dear Partner,<br><br>
@@ -9531,6 +9537,9 @@ Please use the ERP panel for your closures going forward. In case of any issues,
 Regards,<br> 247around Team',"noreply@247around.com","","nits@247around.com,priyar@247around.com","chhavid@247around.com","1","2018-12-17 16:41:14");
 
 
+--Kalyani 19-Dec-2018
+ALTER TABLE `bank_details` ADD `is_active` TINYINT(1) NOT NULL DEFAULT '1' AFTER `bank_name`;
+
 --Abhay 21-Dec-2018
 
 ALTER TABLE `partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `grace_period_date`;
@@ -9538,7 +9547,6 @@ ALTER TABLE `trigger_partners` ADD `upcountry_bill_to_partner` INT(1) NOT NULL D
 ALTER TABLE `booking_details` ADD `upcountry_bill_to_partner` INT(1) NOT NULL DEFAULT '1' AFTER `is_upcountry`;
 
 --Gorakh 22-12-2018--
-
 CREATE TABLE `ewaybill_details` (
   `id` int(11) NOT NULL primary key auto_increment,
   `courier_details_id` int(11) DEFAULT NULL,
@@ -9560,6 +9568,9 @@ CREATE TABLE `inventory_parts_type` (
   `part_type` varchar(156) NOT NULL,
   `hsn_code_details_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--Kalyani 27-Dec-2018
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+
 --Gorakh 02-Jan-2019
 ALTER TABLE courier_services MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT;
 
@@ -9574,7 +9585,6 @@ INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('airwings-india', '	Airwings Courier Express India', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('parcel', 'Pitney Bowes', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
 -- Kalyani 27-Dec-2018
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare', 'Part Lost', '1', '0', NULL, NULL, CURRENT_TIMESTAMP), (NULL, 'bill_defective_spare', 'Repair OOW Part', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 
@@ -9603,15 +9613,19 @@ COMMIT;
 
 --Abhay 03-01-2019
 ALTER TABLE `inventory_ledger` ADD `is_wh_micro` INT NOT NULL DEFAULT '0' AFTER `is_partner_ack`;
-
 --Abhay 04-01-2019
-
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 (NULL, 'minimum_guarantee_mail_template', 'Minimum guarantee to be paid', 'Hi,<br/>\nMinimum guarantee to be paid as below<br/>\nSF Name - %s,<br/> MG amount - Rs. %s, <br/> Invoice Amount - %s.<br/>\nPro data amount to be paid depend on number of days. he has works with previous Month %s.', 'noreply@247around.com', 'accounts@247around.com, anuj@247around.com', 'abhaya@247around.com', '', '1', '2018-12-17 18:30:00');
 
 
 --Gorakh 08-01-2019
 INSERT INTO `courier_services` (`courier_name`, `courier_code`, `create_date`, `update_date`) VALUES ('Shree Anjani', 'ShreeAnjani', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--Abhay 04-01-2019
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+(NULL, 'minimum_guarantee_mail_template', 'Minimum guarantee to be paid', 'Hi,<br/>\nMinimum guarantee to be paid as below<br/>\nSF Name - %s,<br/> MG amount - Rs. %s, <br/> Invoice Amount - %s.<br/>\nPro data amount to be paid depend on number of days. he has works with previous Month %s.', 'noreply@247around.com', 'accounts@247around.com, anuj@247around.com', 'abhaya@247around.com', '', '1', '2018-12-17 18:30:00');
+
 --Kalyani 08-Jan-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'defective_spare_sale_invoice', 'Defective Spare Invoice', 'Dear Partner, <br/> <br/> Please find the attachment. ', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'defective_spare_sold_notification', 'Defective Spare Sold', 'Dear Partner\r\nDefective Sapre %s sold to Service Center %s', 'noreply@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
@@ -9621,11 +9635,17 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_wh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'sachins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', CURRENT_TIMESTAMP);
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_partner', 'New Spare shipped by %s to %s', 'Dear Partner,<br><br> <b>%s</b> shipped below New spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', '', '', 'achins@247around.com, anuj@247around.com,Chandans@247around.com', '', '1', '2019-01-11 14:10:31');
 
+
+--Kalyani 12-Jan-2019
+ALTER TABLE `booking_debit_credit_details` ADD `invoice_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `invoice_tax_amount` INT NOT NULL AFTER `invoice_basic_amount`;
+ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255) NOT NULL AFTER `partner_refuse_to_pay`;
+
 --Kalyani 12-Jan-2019
 ALTER TABLE `booking_debit_credit_details` ADD `booking_basic_amount` INT NOT NULL AFTER `reference_invoice_id`, ADD `booking_tax_amount` INT NOT NULL AFTER `booking_basic_amount`;
 
 --Kalyani 15-Jan-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_partner_onboard_notification', 'New partner added - %s', 'Dear All<br><br>We are glad to announce that we have partnered with one more brand<br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
 
 ----Gorakh 15-01-2019
 ALTER TABLE `spare_parts_details` ADD `spare_lost` TINYINT NULL DEFAULT NULL AFTER `is_micro_wh`;
@@ -9636,23 +9656,24 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, 
 spare_parts_rejected_email','Spare parts Not Received By Warehouse', 'Dear Team,<br><br> Spare parts Not Received By Warehouse.<br><br> <b>Please Find Details Below </b><br><br> %s', '', '', '', '', '1', CURRENT_TIMESTAMP);
 
 
---Kalyani 18-01-2018
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
-
-
---Rajshree 22 Jan 2019
-ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
-
----Abhay 22 Jan
--- ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
--- ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
-
 --Kalyani 18-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
 ---Gorakh 16-01-2019
 ALTER TABLE `spare_parts_details` ADD `part_warranty_status` TINYINT NULL DEFAULT NULL COMMENT '1 means part in warranty,2 means part out-warranty' AFTER `spare_lost`;
 ALTER TABLE `spare_parts_details` ADD `part_requested_on_approval` TINYINT NULL DEFAULT NULL COMMENT '0 means default,1 means approved' AFTER `part_warranty_status`;
+
+
+--Kalyani 18-01-2018
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_summary', '%s Penalty Summary ', 'Dear All<br>Below is the penalty summary of the month %s <br> %s <br><br>Best Regard!<br>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+
+---Abhay 22 Jan
+-- ALTER TABLE `inventory_parts_type` ADD `oow_vendor_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`;
+-- ALTER TABLE `inventory_parts_type` ADD `oow_around_percentage` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `hsn_code_details_id`
+
+--Rajshree 22 Jan 2019
+ALTER TABLE `service_center_booking_action` ADD `is_sn_correct` INT(1) NOT NULL DEFAULT '0' AFTER `is_broken`;
 
 --Rajshree 24 Jan 2019
 CREATE TABLE `partner_sample_no_picture` (
@@ -9674,12 +9695,17 @@ ALTER TABLE `booking_unit_details` ADD `partner_royalty_invoice_id` VARCHAR(255)
 ALTER TABLE `booking_details` ADD `repeat_reason` TEXT NULL DEFAULT NULL AFTER `cancellation_reason`;
 
 
+--Chhavi 25-01-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_api_fail_for_address', 'Google Api Fail to get Missing Pincode', 'Pincode - %s <br>\r\nResponse - %s', 'noreply@247around.com', '', '', '', '1', '2019-01-25 16:41:14');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'missing_pincode_details', 'Missing Pincode overview', 'Please Find the Details of missing pincodes in your area <br>\r\n%s', 'noreply@247around.com', '', '', 'chhavid@247around.com', '1', '2019-01-25 16:41:14');
+
 --Abhay
 ALTER TABLE `booking_details` ADD `booking_request_symptom` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `booking_details` ADD `completion_symptom` INT(11) NULL DEFAULT NULL AFTER booking_request_symptom;
 ALTER TABLE `booking_details` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER completion_symptom;
 ALTER TABLE `spare_parts_details` ADD `spare_request_symptom` INT(11) NULL DEFAULT NULL AFTER `part_requested_on_approval`;
 ALTER TABLE `service_center_booking_action` ADD `technical_solution` INT(11) NULL DEFAULT NULL AFTER `is_broken`, ADD `technical_problem` INT(11) NULL DEFAULT NULL AFTER `technical_solution`;
+
 
 --Chhavi 25-01-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'google_api_fail_for_address', 'Google Api Fail to get Missing Pincode', 'Pincode - %s <br>\r\nResponse - %s', 'noreply@247around.com', '', '', '', '1', '2019-01-25 16:41:14');
@@ -9825,15 +9851,28 @@ ALTER TABLE `symptom_spare_request`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --Kalyani 30-jan-2019
+
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, 'Partner', 'Servicable BOM', 'partner/inventory/appliance_model_mapping', 'partner/inventory/appliance_model_mapping', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);
 --Kalyani 31-jan-2019
 ALTER TABLE `vendor_partner_variable_charges` ADD `status` TINYINT(1) NOT NULL DEFAULT '1' AFTER `validity_in_month`;
+
 
 ALTER TABLE `bb_unit_details` ADD `partner_discount` INT(10) NOT NULL DEFAULT '0' AFTER `cp_claimed_price`;
 ALTER TABLE `bb_unit_details` ADD `partner_reimbursement_invoice` TEXT NULL DEFAULT NULL AFTER `partner_discount`;
 ALTER TABLE `bb_order_details` ADD `auto_acknowledge_date` DATE NULL DEFAULT NULL AFTER `acknowledge_date`;
 
+
+
+--Kalyani 31-jan-2019
+ALTER TABLE `vendor_partner_variable_charges` ADD `status` TINYINT(1) NOT NULL DEFAULT '1' AFTER `validity_in_month`;
+
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
+
+
+ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'auto_acknowledge_alert_to_cp', 'Auto Acknowledge Orders', 'Dear Partner, <br>\r\nFollowing orders will be auto acknowledge soon <br><br>\r\n%s', 'noreply@247around.com', '', 'sunilk@247around.com', '', '1', '2019-02-01 16:41:14');
+
 
 ALTER TABLE `bb_unit_details` ADD `cp_discount` INT(10) NOT NULL DEFAULT '0' AFTER `partner_reimbursement_invoice`, ADD `cp_credit_note_invoice` TEXT NULL AFTER `cp_discount`;
 
@@ -9877,7 +9916,7 @@ ALTER TABLE `set_oow_part_type_margin`
 --
 ALTER TABLE `set_oow_part_type_margin`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
 
@@ -9891,7 +9930,6 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 --Rajshree 05 feb 2019
 
 CREATE TABLE `sf_dashboard` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `date` DATE NOT NULL , `cache_count` INT(11) NOT NULL , `db_count` INT(11) NOT NULL , `update_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
-
 
 --Chhavi 4rth Feb
 UPDATE `query_report` SET `query1` = 'SELECT round(AVG((partner_basic_charge+partner_tax_charge)-partner_discount)) as count FROM bb_unit_details JOIN bb_order_details ON bb_unit_details.partner_order_id = bb_order_details.partner_order_id WHERE current_status IN (\'Delivered\', \'In-Transit\',\'New Item In-transit\', \'Completed\');' WHERE `query_report`.`main_description` = 'avg_buying_price' AND active =1;
@@ -9953,6 +9991,11 @@ ALTER TABLE `dashboard_notifications`
 --
 ALTER TABLE `dashboard_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--Gorakh 11-02-2019-----
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Partners Managed By Account Manager ', '', 'employee/accounting/partners_managed_by_account_manager', '2', '24', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+
 
 --Kalyani 21-Feb-2019
 
@@ -10045,12 +10088,11 @@ ALTER TABLE `dashboard_notification_type`
 --
 ALTER TABLE `dashboard_notification_type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+COMMIT;
 
 
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
-
-
 
 --Chhavi
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'amazon_expected_balance', '', '', ' SELECT round(SUM(CASE WHEN partner_reimbursement_invoice IS NULL THEN partner_discount ELSE 0 END)) as count FROM bb_unit_details', '', 'admin', '1', 'buyback', '1', NULL, '2019-02-14 11:31:42');
@@ -10069,7 +10111,7 @@ ALTER TABLE `partner_file_upload_header_mapping` ADD `category` VARCHAR(128) NUL
 ALTER TABLE `partners` ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;
 ALTER TABLE trigger_partners ADD `oot_spare_to_be_shipped` INT(11) NOT NULL DEFAULT '60' AFTER `is_defective_part_return_wh`;
 
---- Gorakh 26-02-2019---
+-- Gorakh 26-02-2019---
 INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES
 ('sms_oow_spare_parts_customer_tag', 'Request of your payable  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:05'),
 ('sms_in_warranty_spare_parts_customer_tag', 'Request of your free  %s for  %s is placed. You will get an SMS on delivery. Thanks, 247around, 9555000247.', '', '1', 0, '2019-02-26 09:17:16');
@@ -10123,9 +10165,18 @@ ALTER TABLE `dashboard_notification_type`
 COMMIT;
 
 
+
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`,`create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is  %s.', 'when booking completed/cancelled and booking related to dealer,inform dealer about booking.', '1',0, CURRENT_TIMESTAMP);
+
+
+--Rajshree 02 March
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
+DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
+>>>>>>> CRM_Release_1.62.0.0
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
 
@@ -10139,7 +10190,7 @@ UPDATE `partner_summary_report_mapping` SET `index_in_report` = '39' WHERE `part
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '41' WHERE `partner_summary_report_mapping`.`id` = 32;
 UPDATE `partner_summary_report_mapping` SET `index_in_report` = '42' WHERE `partner_summary_report_mapping`.`id` = 33;
 
---Gorakh 15-03-2019
+
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('courier_pickup_schedule', 'Pickup Schedule Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', 'gorakhn@247around.com', '1', '2019-03-14 07:11:00'),
 ('courier_pickup_request', 'Pickup Request Details :- %s.', 'Dear %s Team, <br/> <br/> Please arrange the pickup as soon as possible .<br/><br/> %s', 'gorakhn@247around.com', 'gorakhn@247around.com', 'ccn@247around.com', '', '1', '2019-03-11 10:21:48');
@@ -10204,6 +10255,7 @@ ALTER TABLE `vendor_partner_proforma_invoices`
 COMMIT;
 
 --Kalyani 26-March-2019
+
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear customer,
 Please send us your %s %s invoice/bill copy on our Whatsapp number %s. 
 247around, %s Partner.', NULL, 1, '0', CURRENT_TIMESTAMP);
@@ -10213,9 +10265,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 ALTER TABLE `account_holders_bank_details` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
 ALTER TABLE `account_holders_bank_details_trigger` ADD `ifsc_code_api_response` TEXT NULL AFTER `beneficiary_name`;
-----Gorakh 29-03-2019
-CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
---Kalyani 29-March-2019
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear Customer\r\nPlease send appliance(%s) purchase invoice to our whatsapp number - %s,247around Team', NULL, '', '0', CURRENT_TIMESTAMP);
 
 
@@ -10225,9 +10274,13 @@ ALTER TABLE `service_centre_charges` ADD `upcountry_customer_price` DECIMAL(10,2
 ALTER TABLE trigger_service_charges ADD `upcountry_customer_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `is_upcountry`, ADD `upcountry_vendor_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_customer_price`, ADD `upcountry_partner_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_vendor_price`;
 
 
+----Gorakh 29-03-2019
+CREATE TABLE `awb_spare_parts_details` ( `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, `awb_no` varchar(255) NOT NULL, `defective_parts_shipped_boxes_count` varchar(255) NOT NULL, `defective_parts_shipped_weight` varchar(11) NOT NULL, `courier_invoice_file` varchar(255) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 --Kalyani 29-March-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_reimburese_po_uploaded', 'Buyback reimburesement po uploaded successfully', 'Buyback reimburesement po uploaded successfully\r\n\r\nplease find the attached invoice.', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
 
+UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
+<br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
 ----Gorakh 01-04-2019
 CREATE TABLE `inventory_alternate_spare_parts_mapping` (
   `id` int(11) NOT NULL,
@@ -10240,6 +10293,7 @@ CREATE TABLE `inventory_alternate_spare_parts_mapping` (
 ALTER TABLE `inventory_alternate_spare_parts_mapping`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `inventory_id` (`inventory_id`,`alt_inventory_id`);
+
 --Kalyani 29-March-2019
 UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br/><br/> %s for Rs. %s is generated against invoice %s. The same is available on CRM.<br/><br/><br/><strong>Reply All</strong> for raising any query or concern regarding the same.
 <br/><br/>Thanks,<br/>247around Team" WHERE tag = "resend_dn_cn_invoice";
@@ -10247,52 +10301,21 @@ UPDATE email_template SET subject="247around %s", template="Dear Partner<br/><br
 --Kajal 05-April-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('247Around', 'Download Upcountry Details', NULL, 'employee/partner/download_upcountry_report/1', '2', '80', 'admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
-<<<<<<< HEAD
-CREATE TABLE `symptom_defect_solution_mapping` (
-  `id` int(11) NOT NULL,
-  `entity_id` int(11) NOT NULL,
-  `entity_mapping_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `request_id` int(11) NOT NULL,
-  `symptom_id` int(11) NOT NULL,
-  `defect_id` int(11) NOT NULL,
-  `solution_id` int(11) NOT NULL,
-  `is_active` int(11) NOT NULL,
-  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `symptom_defect_solution_mapping`
---
-ALTER TABLE `symptom_defect_solution_mapping`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
---
-ALTER TABLE `symptom_defect_solution_mapping`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
-
---Chhavi 9th April
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
 
 --Abhay 29 March 2019
 ALTER TABLE `service_centre_charges` ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`;
 ALTER TABLE trigger_service_charges ADD `flat_upcountry` INT(11) NOT NULL DEFAULT '0' AFTER `agent_id`
 ALTER TABLE `booking_details` ADD `flat_upcountry` INT NOT NULL DEFAULT '0' AFTER `upcountry_update_date`, ADD `partner_upcountry_charges` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `flat_upcountry`, ADD `upcountry_sf_payout` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_paid_by_partner`;
+
+
 ALTER TABLE `booking_details` CHANGE `upcountry_paid_by_partner` `partner_upcountry_charges` DECIMAL(10,0) NOT NULL DEFAULT '0';
 ALTER TABLE `booking_details` ADD `upcountry_to_be_paid_by_customer` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_sf_payout`;
 
 --Kajal 09-April-2019  Starting ---
+
+--
+-- Table structure for table `defect`
+--
 
 CREATE TABLE `defect` (
   `id` int(11) NOT NULL,
@@ -10320,10 +10343,85 @@ ALTER TABLE `defect`
 --
 -- AUTO_INCREMENT for table `defect`
 --
+
 ALTER TABLE `defect`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- Table structure for table `symptom_defect_solution_mapping`
+--
+
+CREATE TABLE `symptom_defect_solution_mapping` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_mapping_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `symptom_id` int(11) NOT NULL,
+  `defect_id` int(11) NOT NULL,
+  `solution_id` int(11) NOT NULL,
+  `is_active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
   
+-- Change table name from `symptom_completion_request` to `symptom` 
+  
+RENAME TABLE symptom_completion_request TO symptom;
+  
+-- Change column name for `symptom` table 
+  
+ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+--
+-- Table structure for table `booking_symptom_defect_details`
+--
+
+CREATE TABLE `booking_symptom_defect_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `symptom_id_booking_creation_time` int(11) DEFAULT NULL,
+  `symptom_id_spare_request_time` int(11) DEFAULT NULL,
+  `symptom_id_booking_completion_time` int(11) DEFAULT NULL,
+  `defect_id_spare_request` int(11) DEFAULT NULL,
+  `defect_id_completion` int(11) DEFAULT NULL,
+  `solution_id` int(11) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_actve` int(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_symptom_defect_details`
+--
+ALTER TABLE `booking_symptom_defect_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `symptom_defect_solution_mapping`
+--
+ALTER TABLE `symptom_defect_solution_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
   
 -- Change table name from `symptom_completion_request` to `symptom` 
   
@@ -10333,4 +10431,488 @@ RENAME TABLE symptom_completion_request TO symptom;
   
 ALTER TABLE `symptom` CHANGE `completion_request_symptom` `symptom` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 
+
 --Kajal 09-April-2019  Ending ---
+
+--Chhavi 9th April
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'buyback_disputed_orders_summary', 'Buyback Disputed Orders Summary', '%s', 'noreply@247around.com', 'nits@247around.com', 'anuj@247around.com,sunilk@247around.com', 'chhavid@247around.com', '1', '2019-04-09 15:04:55');
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear Customer\r\nPlease send appliance(%s) purchase invoice to our whatsapp number - %s,247around Team', NULL, '', '0', CURRENT_TIMESTAMP);
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_whatsapp_number_tag', 'Dear customer,
+Please send us your %s %s invoice/bill copy on our Whatsapp number %s. 
+247around, %s Partner.', NULL, '', '0', CURRENT_TIMESTAMP);
+
+--Kalyani 27-March-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'razorpay_ifsc_code_api_fail', 'Razorpay bank IFSC code API fail', 'Dear Team<br>Razorpay bank IFSC code API fail<br/><p>%s</p><p>%s</p>', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '1', CURRENT_TIMESTAMP);
+
+
+
+
+----Gorakh 09-04-2019
+CREATE TABLE `alternate_inventory_set` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `alternate_inventory_set`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_id` (`group_id`,`inventory_id`);
+
+ALTER TABLE `alternate_inventory_set`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
+
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
+
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
+---------Gorakh 18-04-2019
+ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_addition_mail_to_brand', 'need to change', 'need to change', 'noreply@247around.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', 'kalyanit@gmail.com', '1', CURRENT_TIMESTAMP);
+
+-- Kalyani 18-April-2019 --
+
+--
+-- Table structure for table `engineer_appliance_mapping`
+--
+
+CREATE TABLE `engineer_appliance_mapping` (
+  `id` int(11) NOT NULL,
+  `engineer_id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `brand` varchar(225) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `update_date` datetime DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `engineer_appliance_mapping`
+--
+ALTER TABLE `engineer_appliance_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `engineer_appliance_mapping`
+--
+ALTER TABLE `engineer_appliance_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+----Gorakh 09-04-2019
+CREATE TABLE `alternate_inventory_set` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `alternate_inventory_set`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_id` (`group_id`,`inventory_id`);
+
+ALTER TABLE `alternate_inventory_set`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1001;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'sms_to_dealer_on_booking_completed_cancelled', 'Request of %s for %s with booking_id %s is %s.', NULL, '1', '2019-04-16 00:29:32');
+
+---------Gorakh 18-04-2019
+ALTER TABLE `spare_parts_details` ADD `around_pickup_courier` VARCHAR(50) NOT NULL AFTER `around_pickup_from_service_center`;
+
+-- Release 63 -23/04/01
+--Abhay 23/04/01
+ALTER TABLE `db_config` ADD `default_agent_id` INT NOT NULL AFTER `title`;
+
+--Abhay 24/04/19
+
+CREATE TABLE `db_config` (
+  `id` int(11) NOT NULL,
+  `domain` varchar(64) NOT NULL,
+  `db_name` varchar(64) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `login_function` varchar(128) NOT NULL,
+  `title` varchar(28) NOT NULL,
+  `default_agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `db_config`
+--
+ALTER TABLE `db_config`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `db_config`
+--
+ALTER TABLE `db_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `partner_permission` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `permission_type` varchar(64) NOT NULL,
+  `description` varchar(128) DEFAULT NULL,
+  `role` int(11) DEFAULT NULL,
+  `is_on` int(11) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `partner_permission`
+--
+
+INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`, `update_date`) VALUES
+(1, 247073, 'auto_approve_requested_spare', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:02'),
+(2, 247073, 'auto_approve_oow_charges_on_behalf_customer', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:05'),
+(3, 247073, 'auto_pick_oow_part_estimate', NULL, NULL, 1, '2019-04-16 12:20:42', '2019-04-19 09:17:06');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_permission`
+--
+ALTER TABLE `partner_permission`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_permission`
+--
+ALTER TABLE `partner_permission`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+
+
+
+--
+-- Table structure for table `third_party_api_credentials`
+--
+
+CREATE TABLE `third_party_api_credentials` (
+  `id` int(11) NOT NULL,
+  `company_name` varchar(128) NOT NULL,
+  `secret_key` varchar(256) NOT NULL,
+  `constant_tag` varchar(64) NOT NULL,
+  `active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `third_party_api_credentials`
+--
+
+INSERT INTO `third_party_api_credentials` (`id`, `company_name`, `secret_key`, `constant_tag`, `active`, `create_date`, `update_date`) VALUES
+(1, 'Sendgrid Mail Server', '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', 'SENDGRID_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:16:26'),
+(2, 'Paytm Gateway MID', '247PAR00642934549295', 'MID', 1, '2019-04-23 11:16:26', '2019-04-23 11:17:42'),
+(3, 'Paytm Merchant Key', 'GLmqfJkuK0UsEX&Z', 'PAYTM_MERCHANT_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:17:42'),
+(4, 'Paytm Merchant Guid', 'd0fb852e-7a86-4235-9044-4c17910eaff0', 'MERCHANT_GUID', 1, '2019-04-23 11:16:26', '2019-04-23 11:24:12'),
+(5, 'Push Notification API', '5e80dc70981389335ae38d969ca075be', 'PUSH_NOTIFICATION_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(6, 'Google Analytics', 'UA-115612033-1', '_247AROUND_CRM_GGL_ANALYTICS_TAG_ID', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(7, 'Google Url Shortner Key', 'AIzaSyAx1favE357DJusgkTXhFItRwfOIMvaD9w', 'GOOGLE_URL_SHORTNER_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(8, 'Tracking More Courier API', '06ec4a31-6125-4b01-9da9-bf8d420767df', 'TRACKINGMORE_PROD_API_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(9, 'SMS- Message91 Key', '141750AFjh6p9j58a80789', 'MSG91_AUTH_KEY', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03'),
+(10, 'SMS- Message91 Sender Name', 'AROUND', 'MSG91_SENDER_NAME', 1, '2019-04-23 11:16:26', '2019-04-23 11:40:03');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `third_party_api_credentials`
+--
+ALTER TABLE `third_party_api_credentials`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `third_party_api_credentials`
+--
+ALTER TABLE `third_party_api_credentials`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+
+ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(255) NULL DEFAULT NULL AFTER `booking_id`;
+
+
+
+
+
+ ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `defective_parts_shipped_boxes_count` INT(11) NOT NULL DEFAULT '0';
+
+
+ALTER TABLE `courier_company_invoice_details` ADD `created_by` INT(11) NOT NULL DEFAULT '1' AFTER `courier_invoice_file`;
+
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `actual_weight`;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `invoice_id` `invoice_id` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
+
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+
+
+ALTER TABLE `courier_company_invoice_details` ADD `remark` VARCHAR(255) NULL DEFAULT NULL AFTER `courier_invoice_file`;
+
+ALTER TABLE `email_attachment_parser` CHANGE `email_map_id` `email_map_id` INT(11) NOT NULL COMMENT 'id from main templets table';
+
+
+--Kajal 25-April-2019  Starting ---
+ALTER TABLE `symptom` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `defect` CHANGE `request_type` `service_id` INT(28) NOT NULL;
+ALTER TABLE `symptom_completion_solution` CHANGE `request_type` `service_id` INT(11) NOT NULL;
+
+ALTER TABLE `defect` ADD `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `active`, 
+ADD `update_date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `create_date`, 
+ADD `partner_id` INT(11) NULL DEFAULT '247001' AFTER `update_date`, 
+ADD `partner_defect_id` INT(11) NULL DEFAULT NULL AFTER `partner_id`, 
+ADD `partner_defect_code` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_symptom_id`;
+
+
+ALTER TABLE `symptom` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `partner_id` `partner_id` INT(11) NULL DEFAULT '247001';
+ALTER TABLE `symptom_completion_solution` CHANGE `active` `active` INT(1) NOT NULL DEFAULT '1';
+
+UPDATE `header_navigation` SET `title` = 'Solution' WHERE `header_navigation`.`title` = 'Technical Solution';
+UPDATE `header_navigation` SET `title` = 'Symptom' WHERE `header_navigation`.`title` = 'Symptom List';
+UPDATE `header_navigation` SET `title` = 'Defect' WHERE `header_navigation`.`title` = 'Technical Problem List';
+UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`title` = 'Spare Symptom List';
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'Symptom Defect Solution Mapping', NULL, 'employee/booking_request/symptom_defect_solution_mapping', '2', '202', 'admin,developer,accountmanager,callcenter,closure', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Kajal 25-April-2019  Ending ---
+--- Abhishek --
+ 
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL; 
+ 
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_parts_shipped_boxes_count` `box_count` INT(11) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `defective_part_shipped_date` `shippment_date` DATE NULL DEFAULT NULL;
+
+ 
+--Abhishek end---
+
+--------Gorakh 19-04-2019
+ALTER TABLE `spare_parts_details` ADD `original_inventory_id` INT NULL DEFAULT NULL AFTER `requested_inventory_id`;
+-----Gorakh 25 -04 -2019
+ALTER TABLE `alternate_inventory_set` ADD `status` TINYINT NULL DEFAULT 1 AFTER `update_date`;
+
+
+--Kajal 26-April-2019  Starting ---
+
+--
+-- Table structure for table `employee_hierarchy_mapping`
+--
+
+CREATE TABLE `employee_hierarchy_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `employee_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `manager_id` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `employee_hierarchy_mapping`
+--
+ALTER TABLE `employee_hierarchy_mapping`
+  ADD UNIQUE KEY `employee_hierarchy` (`employee_id`,`manager_id`) USING BTREE,
+  ADD KEY `employee_id` (`employee_id`);
+
+ALTER TABLE `employee` ADD `department` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `groups`;
+
+INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
+('employee', 'employee_login_details', '247Around Login Details', 'Dear %s,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `247around_email_template` (`entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
+('employee', 'employee_reset_password', '247Around Login Details', 'Dear %s,<br><br> Your password has been reset.<br><br> URL: <a href="https://www.aroundhomzapp.com/employee/login">https://www.aroundhomzapp.com/employee/login</a><br><br> <b>Username: </b>%s<br><b>Password: </b>%s<br><br> In case of any issues, write to us or call us.<br><br> Regards,<br> 247around Team', 'noreply@247around.com', '', '', '', 'employee.full_name.id,employee.employee_id.id,employee.clear_password.id', '', '1', CURRENT_TIMESTAMP);
+
+insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values
+('247Around','Admin','admin',1,CURRENT_TIMESTAMP),
+('247Around','Admin','developer',1,CURRENT_TIMESTAMP),
+('247Around','Admin','closure',1,CURRENT_TIMESTAMP),
+('247Around','Management','regionalmanager',1,CURRENT_TIMESTAMP),
+('247Around','Management','inventory_manager',1,CURRENT_TIMESTAMP),
+('247Around','Calling','callcenter',1,CURRENT_TIMESTAMP);
+
+INSERT INTO `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) values
+(247001,'partner_on_saas',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+--Kajal 26-April-2019  Ending ---
+
+--Kalyani 29-April-2019  Ending ---
+
+CREATE TABLE `partner_invoice_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `seal` varchar(255) DEFAULT NULL,
+  `signature` varchar(255) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `partner_invoice_details`
+--
+ALTER TABLE `partner_invoice_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `partner_invoice_details`
+--
+ALTER TABLE `partner_invoice_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Kalyani 03-May-2019
+
+CREATE TABLE `partner_additional_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `whatsapp_number` varchar(255) DEFAULT NULL,
+  `is_whatsapp` tinyint(4) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `partner_additional_details` (`id`, `partner_id`, `whatsapp_number`, `is_whatsapp`) VALUES
+(1, 247130, '8130070247', 1);
+
+ALTER TABLE `partner_additional_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `partner_additional_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+COMMIT;
+
+ALTER TABLE `partner_additional_details` ADD `customer_care_number` INT NULL AFTER `is_whatsapp`, ADD `is_customer_care` BOOLEAN NOT NULL DEFAULT FALSE AFTER `customer_care_number`;
+UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm booking please Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around %s Service Partner.' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_not_picked_sms', 'Dear Customer, We were unable to contact you for %s request. To confirm booking Whatsapp on %s %s %s Bill, Name, mobile, address, pincode. 247around, %s Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'videocon_cancelled_booking_sms', 'Sorry! Your %s booking is cancelled. For support call with capital city STD code %s, 247around %s Service Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
+UPDATE `partner_additional_details` SET `customer_care_number` = '39404040' WHERE `partner_additional_details`.`partner_id` = '247130';
+UPDATE `partner_additional_details` SET `is_customer_care` = '1' WHERE `partner_additional_details`.`partner_id` = '247130';
+
+--Kalyani 06-05-2019
+UPDATE `sms_template` SET `template` = 'Dear Customer, We were unable to contact you. To confirm booking Whatsapp your %s %s bill on %s. 247around, %s Partner.' WHERE `sms_template`.`tag` = 'videocon_not_picked_sms';
+UPDATE `sms_template` SET `template` = 'Dear Customer, To confirm your repair booking please Whatsapp %s %s Bill on %s. 247around %s Service Partner' WHERE `sms_template`.`tag` = 'send_whatsapp_number_tag';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'missed_call_initial_prod_desc_not_found';
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s %s %s. %s Charges %s. Installation by 247around, %s Partner' WHERE `sms_template`.`tag` = 'partner_missed_call_for_installation';
+
+--Gorakh 07-05-2019
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload Alternate Parts  List', NULL, 'upload_alternate_spare_parts_file', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-05-07 13:24:48');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Alternate part Inventory  List', NULL, 'employee/inventory/alternate_parts_inventory_list', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:28:47');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
+--Kajal 07-05-2019 starting--
+insert into symptom values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into defect values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_completion_solution values(0,28,'Default',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'247001',NULL,NULL);
+insert into symptom_defect_solution_mapping(entity_id,entity_mapping_id,product_id,request_id,symptom_id,defect_id,solution_id,is_active,create_date) values(1,1,1,1,0,0,0,1,CURRENT_TIMESTAMP);
+
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/symptom_list' WHERE `header_navigation`.`title` = 'Symptom';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/defect_list' WHERE `header_navigation`.`title` = 'Defect';
+UPDATE `header_navigation` SET `link` = 'employee/booking_request/solution_list' WHERE `header_navigation`.`title` = 'Solution';
+--Kajal 07-05-2019 ending--
+
+--Gorakh 07-05-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload Alternate Parts  List', NULL, 'upload_alternate_spare_parts_file', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-05-07 13:24:48');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Alternate part Inventory  List', NULL, 'employee/inventory/alternate_parts_inventory_list', 0, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:28:47');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', '247around warehouse Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
+--Kalyani 08-05-2019
+INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
+
+
+---Abhishek 08-05-2019
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(11,3) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(11,3) NOT NULL;
+
+
+--Kajal 09-05-2019 starting ---
+INSERT INTO `sms_template` (`tag`, `template`, `active`, `create_date`) VALUES
+('booking_details_to_sf', 'Booking - %s, %s, %s, %s/%s, %s, %s. 247around', '1', CURRENT_TIMESTAMP);
+
+UPDATE `entity_role` SET `department` = 'Developers' WHERE `entity_role`.`id` = 9;
+UPDATE `entity_role` SET `department` = 'Operations' WHERE `entity_role`.`id` in (10,11,12);
+UPDATE `entity_role` SET `department` = 'Call Center' WHERE `entity_role`.`id` = 13;
+insert into entity_role(entity_type,department,role,is_filter_applicable,create_date) values ('247Around','Operations','accountmanager',1,CURRENT_TIMESTAMP);
+
+UPDATE `employee` SET `department` = 'Developers' WHERE groups in ('developer');
+UPDATE `employee` SET `department` = 'Admin' WHERE groups in ('admin');
+UPDATE `employee` SET `department` = 'Call Center' WHERE groups in ('callcenter');
+UPDATE `employee` SET `department` = 'Operations' WHERE groups in ('regionalmanager','accountmanager','inventory_manager','closure');
+
+--Kajal 09-05-2019 ending ---
+--Kalyani 13-May-2019
+UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call %s for Support. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. For Support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "upcountry_add_new_booking";
+UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+
+--Kalyani 15-May-2019
+UPDATE `sms_template` SET `template` = 'Your booking is assigned to 247around service center. Engineer will visit in the time slot. Queries? Call %s.' WHERE `sms_template`.`tag` = "service_centre_assigned";
+UPDATE `sms_template` SET `template` = 'Request of your free %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_in_warranty_spare_parts_customer_tag";
+UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_oow_spare_parts_customer_tag";
+UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
+UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
+UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 

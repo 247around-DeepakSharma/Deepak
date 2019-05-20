@@ -83,7 +83,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="mapping_service_id">Appliance*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="mapping_service_id" name="mapping_service_id" onchange="get_mapping_category()">
+                                        <select class="form-control" id="mapping_service_id" name="mapping_service_id" onchange="get_mapping_model_number(); get_mapping_brands(); get_mapping_category()">
                                             <option selected disabled>Select Appliance</option>
                                         </select>
                                     </div>
@@ -189,20 +189,47 @@
     function get_services(){ 
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/partner/get_service_id',
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id: $("#partner_id").val()},
             success:function(response){
-                $('#mapping_service_id').html(response);
+                if(response){
+                   $('#mapping_service_id').html(response); 
+                }
             }
         });
     }
     
     $('#map_model').click(function(){
         $("#model_action").val("add");
+        $("#mapping_service_id").prop('selectedIndex',0).change();
+        $("#mapping_model_number").empty();
+        $("#mapping_brand").empty();
+        $("#mapping_category").empty();
+        $("#mapping_capacity").empty();
         $('#map_appliance_model').modal('toggle');
     });
     
-    function get_mapping_category(){ 
+    function get_mapping_model_number(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
+            data:{partner_id:$('#partner_id').val(), service_id:$('#mapping_service_id').val()},
+            success:function(response){
+                    if(response){
+                        $('#mapping_model_number').html(response);
+                        $('#mapping_model_number').select2();
+                    }
+                    else{
+                        response = "<option disabled selected>Select Model Number</option>";
+                        $('#mapping_model_number').html(response);
+                        $('#mapping_model_number').select2();
+                    }
+                    
+            }
+        });
+    }
+    
+    function get_mapping_brands(){
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_brands_from_service',
@@ -214,7 +241,10 @@
                 $("#mapping_service_id").select2();
             }
         });
-        
+    }
+    
+    
+    function get_mapping_category(){ 
         $.ajax({
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_category_from_service',
@@ -223,18 +253,7 @@
                 response = "<option disabled selected>Select Category</option>"+response;
                 $('#mapping_category').html(response);
                 $('#mapping_category').select2();
-            }
-        });
-        
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/inventory/get_appliance_model_number',
-            data:{partner_id:$('#partner_id').val(), service_id:$('#mapping_service_id').val()},
-            success:function(response){
-                if(response){
-                    $('#mapping_model_number').html(response);
-                    $('#mapping_model_number').select2();
-                }
+                get_mapping_capacity();
             }
         });
     }
@@ -305,16 +324,21 @@
     
     function edit_mapped_model(btn){
         var data = JSON.parse($(btn).attr("data"));
+        console.log(data);
         $("#model_mapping_id").val(data.map_id);
         $("#model_action").val("update");
         $("#mapping_service_id").val(data.service);
         $("#mapping_service_id").trigger("change");
         $('#map_appliance_model').modal('toggle');
         setTimeout(function(){ 
+            $("#mapping_model_number").val(data.model).trigger("change");
             $("#mapping_brand").val(data.brand).trigger("change");
             $("#mapping_category").val(data.category).trigger("change");
-            $("#mapping_model_number").val(data.model).trigger("change");
         }, 2000);
-        
+        setTimeout(function(){
+            if(data.capacity){
+                $("#mapping_capacity").val(data.capacity).trigger("change");
+            }
+        }, 3000);
     }
 </script>

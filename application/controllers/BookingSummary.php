@@ -1243,7 +1243,8 @@ EOD;
                 $not_assigned_vendors .= $val['id'] . ',';
             }
         }
-        $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
+        if(!empty($not_assigned_vendors))
+            $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
 
         $not_assigned_old_crimes = 0;
         $not_assigned_update = 0;
@@ -1607,7 +1608,7 @@ EOD;
         $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
         $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
         $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"vinesh.poojari@flipkart.com,manish.agarwal@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"bsdflipkart@jeeves.co.in, radha.c@jeeves.co.in, naveen.n@jeeves.co.in, manish.agarwal@flipkart.com, vinesh.poojari@flipkart.com, sathis.s@mnw.co.in, dilipkumar.ms@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
                 $subject, $email_body,
                 $csv,"partner_summary_report_percentage_format");
         unlink($csv);

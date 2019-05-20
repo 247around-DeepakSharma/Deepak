@@ -9,11 +9,12 @@
         </div>
         <?php }?>
                  <?php if ($this->session->userdata('failed')) { ?>
-             <div class="alert alert-success alert-dismissible" role="alert">
+             <div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong><?php echo $this->session->userdata('failed') ?></strong>
+                        <center><strong><?php echo $this->session->userdata('failed') ?></strong></center>
+                        
                     </div>
              <?php } ?>
         
@@ -23,7 +24,8 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong><?php echo $this->session->userdata('success') ?></strong>
+                        <center><strong><?php echo $this->session->userdata('success') ?></strong></center>
+                        
                     </div>
              <?php } ?>
         
@@ -34,18 +36,18 @@
 //            
              ?>
         
-<div class="panel panel-info" >
+<div class="panel  " >
     <div 
-        class="panel-heading">
-        Service Category List
+        class=" ">
+       <h1> Service Category List</h1>
         <button type="button" class="btn btn-primary" id="submit_btn" onClick="window.location.href = '<?php echo base_url();?>employee/service_centre_charges/add_service_category';return false;" style="float:right"   value="Add"  >Add</button><!--
         
 -->        </div>
     </div>
-    <div class="panel-body">
+    <div class="panel-body"  >
         <div class="row">
             <div class="col-md-12">
-                <table class="table  table-striped table-bordered">
+                <table class="table  table-striped table-bordered" id="datatableservicecate">
                     <thead>
                         <tr>
                             <th>Appliance</th>
@@ -153,6 +155,79 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+    
+
+
+
+
+$('#datatableservicecate').DataTable({
+"processing": true, 
+"serverSide": false,  
+ "dom": 'lBfrtip',
+                "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Service Category List', 
+                    exportOptions: { 
+                       columns: [0,1,2,3],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+            "language":{ 
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>"
+            },
+            "order": [], 
+            "pageLength": 25,
+            "ordering": false,
+           "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "deferRender": true   
+
+
+});
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     <script>
        function loadupdatemodel(key){
@@ -183,3 +258,19 @@
        
     
     </script>
+
+    <style>
+        
+        @media (min-width: 1200px){
+.container {
+    width: 100% !important;
+}
+
+.dataTables_filter{
+
+
+    float: right !important;
+    margin-top: -30px !important;
+}
+
+    </style>

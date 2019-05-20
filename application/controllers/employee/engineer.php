@@ -152,5 +152,41 @@ class Engineer extends CI_Controller {
         $this->load->view('employee/review_engineer_action', array("data" => $data));
 
     }
+    
+    function get_service_based_engineer(){
+        $response = array();
+        $service_id = $this->input->post("service_id");
+        $service_center_id = $this->input->post("service_center_id");
+        $where = array(
+            "engineer_details.service_center_id" => $service_center_id,
+            "engineer_appliance_mapping.service_id" => $service_id,
+        );
+        if($service_id && $service_center_id){
+            $engineer = $this->engineer_model->get_service_based_engineer($where, "engineer_details.id, name");
+            $html = "<option disabled selected>Select Engineer</option>";
+            if(!empty($engineer)){
+                foreach ($engineer as $key => $value) {
+                    $html .= "<option value='".$value['id']."'";
+                    if($this->input->post("engineer_id") == $value['id']){
+                        $html .= "selected";
+                    }
+                    $html .= ">".$value['name']."</option>";
+                }
+                $response['status'] = true;
+                $response['html'] = $html;
+                echo json_encode($response);
+            }
+            else{
+                $response['status'] = false;
+                $response['html'] = "<a href='".base_url()."service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>";
+                echo json_encode($response);
+            }
+        }
+        else {
+            $response['status'] = false;
+            $response['html'] = "<a href='".base_url()."service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user-plus' aria-hidden='true'></i></a>";
+            echo json_encode($response);
+        }
+    }
 
 }

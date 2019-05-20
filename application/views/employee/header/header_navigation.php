@@ -120,7 +120,7 @@
                     else{
                     ?>
                  <li class="dropdown "><a class="dropdown-toggle" data-toggle="dropdown" href="<?php echo $link?>"><?php echo $main_nav['navData']["id_".$p_id]['title']?> <i class="fa fa-caret-down"></i></a>
-                     <ul class="dropdown-menu">
+                     <ul class="dropdown-menu" style="z-index:1003;">
                          <?php
                          $t=0;
                      foreach($main_nav['navFlow']["id_".$p_id] as $childID){
@@ -316,6 +316,28 @@
                     });
                 });
             })(jQuery);
+            
+            function checkSpcialChar(event){
+                var valid = ((event.which > 64 && event.which < 91) || (event.which > 96 && event.which < 123) || (event.which > 47 && event.which < 58) || event.which == 45 || event.which == 8 || event.which == 13);
+                if (!valid) {
+                    event.preventDefault();
+                    return false;
+                }
+                else {
+                    var initVal = $("#search_in").val();
+                    var re = /[`~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]/gi;
+                    var isSplChar = re.test(initVal);
+                    if(isSplChar)
+                    {
+                        alert("Special characters are not allowed!!");
+                        $("#search_in").focus();
+                        return false;
+                    }
+                    else
+                        return true;
+                }
+            }
+            
         </script>
         <style type="text/css">
             
@@ -399,11 +421,13 @@
 
         <div class="main_search">
             <form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/finduser" method="GET">
-                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; ">
+                <input type="search" id="search_in" class="search_in "name="search_value" placeholder="Booking ID/Phone Number" style="position: absolute; padding-left:10px; " onkeypress="return checkSpcialChar(event)">
             </form>
             <label class="search_fab " for="search_in"> <i class="fa fa-search" aria-hidden="true" ></i> </label>
+            <?php if(!$saas_module) { ?>
                     <button type="button" class="search_fab"  id="partner_tollfree" data-toggle="modal" style="margin-left:90%;border: none;background-color: #1a8a2dd4">
     <i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i> </button>
+            <?php } ?>
         </div>
         <!-- Modal -->
          <div id="partner_tollfree_no_modal" class="modal fade" role="dialog">
@@ -413,7 +437,7 @@
                  <div class="modal-content">
                      <div class="modal-header well"  style="background-color: #2C9D9C;border-color: #2C9D9C;">
                          <button type="button" class="close btn-primary well" data-dismiss="modal"style="color:white;">&times;</button>
-                         <h4 class="modal-title"style="color:white;text-align: center;">Partners Contacts</h4>
+                         <h4 class="modal-title"style="color:white;text-align: center;">Partners Toll-Free Numbers</h4>
                      </div>
                      <div class="modal-body">
 
@@ -573,15 +597,13 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
                                 <i class='fa fa-user fa-lg' aria-hidden='true'></i></button>";
                                     }
                                     data = data +  "<tr><td>"+result[element].partner+temp+"</td>";
-                                    data +=  "<td>"+result[element].name+"</td>";
-                                    data +=  "<td>"+result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
-                                <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>";
+                                    data +=  "<td>"+((result[element].contact !== null && $.trim(result[element].contact) !== "") ? (result[element].contact+"<button style ='margin-left: 10px;height: 25px;padding: 2px 7px;float: right;' type='button' class='btn btn-sm btn-color' onclick='outbound_call("+result[element].contact+")'>\n\
+                                <i class='fa fa-phone fa-lg' aria-hidden='true'></i></button></td></tr>") : '');
                             }
                             var tb="<table class='table  table-bordered table-condensed ' id='partner_toll_free_table'>";
                             tb+='<thead>';
                             tb+='<tr>';
                             tb+='<th>Partner</th>';
-                            tb+='<th>Name</th>';
                             tb+='<th>No.</th>';
                             tb+='</tr>';
                             tb+='</thead>';

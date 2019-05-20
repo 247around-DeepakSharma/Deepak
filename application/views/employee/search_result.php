@@ -167,8 +167,11 @@
                         <th width="100px;">City</th>
                         <th width="100px;">Vendor Status</th>
                         <th width="250px;">Query Remarks</th>
-                        <th width="60px;">Call</th>
-                        <th width="60px;">SMS</th>
+                        <?php if($c2c) { ?>
+                              <th width="60px;">Call</th>
+                              <th width="60px;">SMS</th>
+                        <?php } ?>
+                        
                         <th width="60px;">View</th>
                         <th width="60px;">Update</th>
                         <th width="60px;">Cancel</th>
@@ -181,7 +184,9 @@
                                         'booking_id'=>$row->booking_id, 
                                         'user_id' => $row->user_id,
                                         'service' => $row->services,
-                                        'request_type' => $row->request_type
+                                        'request_type' => $row->request_type,
+                                        'partner_id' => $row->partner_id,
+                                        'booking_state' => $row->state
                                     ));
                 ?>
                  <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
@@ -211,9 +216,12 @@
                          
                     </td>
                     <td><?= $row->query_remarks; ?></td>
+                    <?php if($c2c) { ?>
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
                     <td><button type="button" json-data='<?php echo $sms_json; ?>' onclick="send_whtasapp_number(this)" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
+                    <?php } ?>
+                    
                     <td>
                         <?php echo "<a class='btn btn-sm btn-color' "
                             . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -261,7 +269,9 @@
                             <th>Status</th>
                             <th>Service Center</th>
                             <th>Contacts</th>
-                            <th>Call</th>
+                            <?php if($c2c) { ?>
+                                 <th>Call</th>
+                            <?php } ?>
                             <th>View</th>
                             <th>Reschedule</th>
                             <th>Cancel</th>
@@ -298,7 +308,9 @@
                         <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
                         <td><button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ='<?php echo $row->booking_id ?>' onclick="show_contacts(this.id,1)">
                 <span class="glyphicon glyphicon-user"></span></button></td>
+                        <?php if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
+                        <?php } ?>
                         <td>
                             <?php echo "<a class='btn btn-sm btn-color' "
                                 . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -443,7 +455,9 @@
                             <th width="170px;">Service Centre</th>
                             <th width="150px;">Service Centre City</th>
                             <th width="125px;">Completion Date</th>
+                            <?php if($c2c) { ?>
                             <th width="60px;">Call</th>
+                            <?php } ?>
                             <th width="60px;">Edit</th>
                             <th width="60px;">Cancel</th>
                             <th width="60px;">Open</th>
@@ -466,8 +480,10 @@
                         <td><?php if(isset($row->service_centre_name)){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; } ?></a></td>
                         <td><?=$row->city; ?></td>
                         <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
+                        <?php if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>
+                        <?php } ?>
                         <td>
                             <?php
                                 echo "<a id='edit' class='btn btn-sm btn-color' "
@@ -577,7 +593,9 @@
                             <th width="110px;">Service Centre</th>
                             <th width="150px;">Service Centre City</th>
                             <th width="110px;">Completion Date</th>
+                            <?php if($c2c) { ?>
                             <th width="60px;">Call</th>
+                            <?php } ?>
                             <th width="60px;">Complete</th>
                             <th width="60px;">Open</th>
                             <th width="60px;">View</th>
@@ -601,8 +619,10 @@
                         </td>
                         <td><?=$row->city; ?></td>
                         <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
+                        <?php if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>
+                        <?php } ?>
                         <td>
                             <?php if (substr($row->booking_id, 0, 2) != 'Q-') { ?>
                             <?php
@@ -843,7 +863,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/'+true,
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, service:json.service, partner_id:json.partner_id, booking_state:json.booking_state},
                 success: function(response) {
                     //console.log(response);
                 }

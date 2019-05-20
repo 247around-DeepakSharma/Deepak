@@ -1680,12 +1680,14 @@ class vendor_model extends CI_Model {
     }
     
     function insert_india_pincode_in_batch($rows) {
-        $query = $this->db->insert_batch('india_pincode', $rows);
-        if($this->db->affected_rows() > 0){
-            return $this->db->affected_rows() ;
-        }
-        else{
-            return false;
+        if(!empty($rows)){
+            $query = $this->db->insert_batch('india_pincode', $rows);
+            if($this->db->affected_rows() > 0){
+                return $this->db->affected_rows() ;
+            }
+            else{
+                return false;
+            }
         }
     }
     
@@ -2035,5 +2037,5 @@ class vendor_model extends CI_Model {
         }
         return $return;
     }
-          
+             
 }

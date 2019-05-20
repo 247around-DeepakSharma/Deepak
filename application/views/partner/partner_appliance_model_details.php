@@ -131,8 +131,14 @@
                             <thead>
                                 <tr>
                                     <th>S.No</th>
+                                   
+                                   
                                     <th>Appliance</th>
                                     <th>Model Number</th>
+                                       <th>Brand</th>
+                        <th>Category</th>
+                        
+                        <th>Capacity</th>
                                     <th>Edit</th>
                                     <th>Get Part Details</th>
                                 </tr>
@@ -217,17 +223,25 @@
         appliance_model_details_table = $('#appliance_model_details').DataTable({
             "processing": true, 
             "serverSide": true,
+            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "dom": 'lBfrtip',
-            "buttons": [
+                "buttons": [
                 {
                     extend: 'excel',
-                    text: 'Export',
-                    exportOptions: {
-                        columns: [ 0, 1, 2 ]
-                    },
-                    title: 'appliance_model_details'+time,
-                    action: newExportAction
-                },
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'Model List', 
+                    exportOptions: { 
+                       columns: [0,1,2,3,4,5],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
             ],
             "language":{ 
                 "processing": "<div class='spinner'>\n\
@@ -248,7 +262,8 @@
                     var entity_details = get_entity_details();
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.partner_id = <?php echo $this->session->userdata('partner_id') ?>
                 }
             },
             "deferRender": true       
@@ -268,7 +283,7 @@
     function get_services(div_to_update){
         $.ajax({
             type:'GET',
-            url:'<?php echo base_url();?>employee/partner/get_service_id',
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id: '<?php echo $this->session->userdata('partner_id')?>'},
             success:function(response){
                 $('#'+div_to_update).html(response);
@@ -401,3 +416,22 @@
         appliance_model_details_table.ajax.reload();
     };
 </script>
+<style type="text/css">
+    
+    .dataTables_length {
+    width: 12% !important;
+}
+
+
+        @media (min-width: 1200px){
+.container {
+    width: 100% !important;
+}
+
+.dataTables_filter{
+
+
+    float: right !important;
+    margin-top: -30px !important;
+}
+</style>

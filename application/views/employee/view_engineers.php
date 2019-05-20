@@ -60,17 +60,20 @@
             <td><a href="<?php echo base_url()?>employee/vendor/get_edit_engineer_form/<?php echo $row['id']?>"><?php echo $row['name'];?></a></td>
             <td><?php echo $row['appliance_name']; ?></td>
             <td>
-                <?php echo $row['phone'];?>
+                <?php echo $row['phone']; if(!empty($row['phone']) && !empty($c2c)) { ?>
                 <button type="button" onclick="outbound_call(<?php echo $row['phone']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                <?php } ?>
             </td>
             <td><?php echo $row['alternate_phone']; ?>
+              <?php if(!empty($row['alternate_phone']) && !empty($c2c)) {?>
              <button type="button" onclick="outbound_call(<?php echo $row['alternate_phone']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+              <?php } ?>
 
             </td>
           	<td><?php echo $row['identity_proof'];?></td>

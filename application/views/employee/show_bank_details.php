@@ -67,7 +67,11 @@
                                     <span class="label label-danger">No</span>
                                     <?php }?>
                                 </td>
-                                <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php if(!empty($value['is_verified'])){ echo "disabled";}?>>Approve</button></td>
+
+
+                                <td><button class="btn btn-success" id="approve_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','approve')" <?php if(!empty($value['is_verified'])){ echo "disabled";}?> >Approve <?php  //echo $value['is_verified']; ?></button></td>
+
+
                                 <td><button class="btn btn-danger"  id="reject_<?php echo $value['entity_id'];?>" onclick="verify_bank_details('<?php echo $value['entity_id']; ?>','reject', '<?php echo $value['rm_email']; ?>', '<?php echo $value['primary_contact_email']; ?>', '<?php echo $value['owner_email']; ?>','<?php echo $value['name']; ?>')">Reject</button></td>
                             </tr>
                             <?php $sn++;}?>
@@ -80,13 +84,47 @@
             </div>
             <?php } ?>
 
+
+
+
+    <link href="https://connect.amperecomputing.com/css/sweetalert.css" rel="stylesheet">
+ 
+    <script src="https://connect.amperecomputing.com/js/sweetalert.min.js"></script>
+
+
+
+
             <script>
                 function verify_bank_details(id,action,rm_email,poc_email,owner_email,sf_name){
                     if(action === 'approve'){
-                        $('#approve_'+id).html("<div>Processing...</div>");
+                      //  $('#approve_'+id).html("<div>Processing...</div>");
                     }else if(action === 'reject'){
-                        $('#reject_'+id).html("<div>Processing...</div>");
+                       // $('#reject_'+id).html("<div>Processing...</div>");
                     }
+                    /////////////// START AJAX ////////////////
+
+if (action === 'approve') {
+var verify = "Verified";
+var color = "#5cb85c";
+}else{
+var verify = "Rejected";
+var color ="#3DD6B55";
+}
+swal({
+  title: "Are you sure?",
+  text: "SF bank details will be  "+verify,
+  type: "info",
+  showCancelButton: true,
+  confirmButtonColor: color,
+   cancelButtonColor: "#DD6B55", 
+  confirmButtonClass: "btn-danger",
+  confirmButtonText: "Yes, "+verify+" it!",
+  cancelButtonText: "No, cancel please!",
+  closeOnConfirm: false,
+  closeOnCancel: false
+},
+function(isConfirm) {
+  if (isConfirm) {
 
                     $.ajax({
                         type:'POST',
@@ -100,14 +138,63 @@
                             }  
 
                             if(response === 'success'){
-                                alert("Details has been updated successfully");
+                             //   alert("Details has been updated successfully");
+
+                                 swal({title: verify, text: "SF Bank Details are  "+verify, type: "success"},
+                                 function(){ 
+                                 location.reload();
+                                 }
+                                 );
                                 $('#'+id+'_details').hide();
                             }else if(response === 'fail'){
-                                alert("Error in updating details");
+                               swal("Error", "Error in updating Bank Details", "error");
                             }
                         }
 
                     });
+      // $.ajax({url: "deletedoctype/"+row['id'], success: function(result){
+      // }});
+//     swal({title: "Approved", text: "SF Bank Details are verified ", type: "success"},
+//     function(){ 
+//        location.reload();
+//    }
+// );
+
+  } else {
+    swal("Cancelled", "SF Bank Details are not "+verify, "error");
+  }
+});
+
+
+
+
+
+                    // $.ajax({
+                    //     type:'POST',
+                    //     data:{id:id,type:'SF',action:action,rm_email:rm_email,poc_email:poc_email,owner_email:owner_email,sf_name:sf_name},
+                    //     url:"<?php //echo base_url(); ?>employee/vendor/verify_bank_details",
+                    //     success:function(response){
+                    //         if(action === 'approve'){
+                    //             $('#approve_'+id).html("<div>Approve</div>");
+                    //         }else if(action === 'reject'){
+                    //             $('#reject_'+id).html("<div>Reject</div>");
+                    //         }  
+
+                    //         if(response === 'success'){
+                    //             alert("Details has been updated successfully");
+                    //             $('#'+id+'_details').hide();
+                    //         }else if(response === 'fail'){
+                    //             alert("Error in updating details");
+                    //         }
+                    //     }
+
+                    // });
+
+
+
+
+
+                    ////////END AJAX ///////////////
                 }
 
                 $('#sf_type').change(function(){

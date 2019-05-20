@@ -26,7 +26,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Spare Part Details For Model Number <span id="model_name"><strong><?php echo array_unique(array_column($inventory_details, 'model_number'))[0] ;?></strong></span></h3>
-                    <hr>
+                    
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -45,6 +45,9 @@
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>Vendor Margin</th>
+                                    <th>Around Margin</th>
+                                     <th>Customer Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,6 +62,18 @@
                                     <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['gst_rate']; ?></td>
                                     <td><?php echo number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', ''); ?></td>
+                                    <td><?php echo $value['oow_vendor_margin']; ?>%</td>
+                                    <td><?php echo $value['oow_around_margin']; ?>%</td>
+
+
+                    <?php    
+                    $customertot = number_format((float)($value['price'] + ($value['price'] * ($value['gst_rate']/100))), 2, '.', '');
+                    $customertot = number_format((float)$customertot+($customertot*($value['oow_vendor_margin']+$value['oow_around_margin'])/100), 2, '.', '');
+
+                                      ?>
+
+
+                                    <td><?php echo $customertot; ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>
@@ -95,6 +110,7 @@
     var model_name = $('#model_name').text();
     $('#inventory_part_and_model_mapping_table').DataTable({
         "dom": 'lBfrtip',
+        "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
         "buttons": [
                 {
                     extend: 'excel',
@@ -102,7 +118,16 @@
                     exportOptions: {
                         columns: [ 0,1,2,3,4,5,6,7,8]
                     },
-                    title: 'parts_used_in_model_'+model_name+time
+                    title: 'parts_used_in_model_'+model_name+time,
+                         exportOptions: { 
+                         columns: [0,1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
                 },
             ],
     });

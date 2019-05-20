@@ -87,7 +87,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Select Invoice Date" type="text" class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
+                                            <input placeholder="Select Invoice Date" type="text" readonly=""   onkeydown="return false;"  class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
                                         </div>
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
@@ -125,7 +125,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                            <input placeholder="Select Courier Shipment Date" readonly=""   onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                         </div>
                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
@@ -276,7 +276,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Select Invoice Date" type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
+                                            <input placeholder="Select Invoice Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
                                         </div>
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
@@ -314,7 +314,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
+                                            <input placeholder="Select Courier Shipment Date"   readonly=""   onkeydown="return false;"   type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
                                         </div>
                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
@@ -726,7 +726,7 @@
     function get_appliance(index){
         $.ajax({
             type: 'GET',
-            url: '<?php echo base_url() ?>employee/partner/get_service_id',
+            url: '<?php echo base_url() ?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id:'<?php echo $this->session->userdata('partner_id');?>'},
             success: function (response) {
                 $('#serviceId_'+index).html(response);

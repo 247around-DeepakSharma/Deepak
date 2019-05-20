@@ -99,6 +99,11 @@
             });
         });
 </script>
+<style>
+    #datatable_upload_pincode_filter{
+            float: right;
+    }
+    </style>
 <?php if($this->session->userdata('file_error')){$this->session->unset_userdata('file_error');} ?>
 <?php if($this->session->userdata('success_msg')){$this->session->unset_userdata('success_msg');} ?>
 <?php if($this->session->userdata('final_msg')){$this->session->unset_userdata('final_msg');} ?>

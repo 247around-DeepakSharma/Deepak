@@ -69,7 +69,7 @@
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="partner_id" id="partner_id" required=""></select>
                                             </div>
-                                            <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
+                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around<?php }?> Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="wh_id" id="wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
@@ -80,7 +80,7 @@
                                                                                         
                                             <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <input placeholder="Select Date" type="text" class="form-control" name="dated" id="dated" autocomplete="off"/>
+                                                <input placeholder="Select Date" type="text" class="form-control"  readonly=""  onkeydown="return false;"  name="dated" id="dated" autocomplete="off"/>
                                                 <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                             </div>
                                              <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
@@ -121,7 +121,7 @@
                                            
                                             <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                                <input placeholder="Select Courier Shipment Date" readonly=""  onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                             </div>
                                             <label class="col-xs-2 control-label">Courier File</label>
                                             <div class="col-xs-4">
@@ -264,7 +264,7 @@
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="partner_id" class="partner_id" id="on_partner_id" required=""></select>
                                             </div>
-                                            <label class="col-xs-4 col-sm-2 control-label">247around Warehouses *</label>
+                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around <?php } ?>Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id">
                                                     <option value="" disabled="">Select Warehouse</option>
@@ -276,7 +276,7 @@
                                                                                     
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Select Invoice Date" type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
+                                            <input placeholder="Select Invoice Date" type="text" readonly=""  onkeydown="return false;" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
                                         </div>
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
@@ -320,7 +320,7 @@
                                         
                                          <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Select Courier Shipment Date" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
+                                            <input placeholder="Select Courier Shipment Date" readonly=""  onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
                                         </div>
                                          <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
@@ -704,9 +704,9 @@
         var partner_id = $('#partner_id').val();
         if(partner_id){
             $.ajax({
-                type: 'GET',
-                url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
-                data:{is_option_selected:true,partner_id:partner_id},
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/service_centre_charges/get_partner_data',
+                data:{partner:partner_id},
                 success: function (response) {
                     if(response){
                         $('#serviceId_'+index).html(response);

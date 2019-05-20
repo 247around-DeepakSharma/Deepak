@@ -65,11 +65,11 @@
                                     <th>Appliance</th>
                                     <th>Invoice ID</th>
                                     <th>Spare Type</th>
-                                    <th>Spare Part Name</th>
-                                    <th>Spare Part Number</th>
-                                    <th>Spare Quantity</th>
+                                    <th>Parts Name</th>
+                                    <th>Parts Number</th>
+                                    <th>Quantity</th>
                                     <th>Courier Name</th>
-                                    <th>Courier AWB Number</th>
+                                    <th> AWB </th>
                                     <th>
                                         Acknowledge
                                         <input type="checkbox" id="ack_all">

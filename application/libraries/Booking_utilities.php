@@ -170,16 +170,30 @@ class Booking_utilities {
         unlink($output_file_excel);
     }
 
-    public function lib_prepare_job_card_using_booking_id($booking_id) {
+    public function lib_prepare_job_card_using_booking_id($booking_id) { 
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
+        $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($booking_id);
         if (!empty($booking_details)) {
-            $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
-            $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            $saas_flag = $this->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if($saas_flag){
+               $qr = false; 
+            }
+            else{
+                $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
+                $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
+                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            }
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
+            $partner_on_saas = $this->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->My_CI->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_public_name'] = $main_partner['main_company_public_name'];
+            $meta['main_company_description'] = $main_partner['main_company_description'];
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            
             $meta['upcountry_charges'] = 0;
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
                 if($booking_details[0]['flat_upcountry']  == 1){
@@ -226,8 +240,8 @@ class Booking_utilities {
                 }
             }
             $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
-            if(!empty($booking_details[0]['booking_request_symptom'])){
-                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_details[0]['booking_request_symptom']));
+            if(!empty($booking_symptom[0]['symptom_id_booking_creation_time'])){
+                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_symptom[0]['symptom_id_booking_creation_time']));
                  if(!empty($symptom1)){
                      $symptom =  $symptom1[0]['symptom'];
                  } else {
@@ -242,6 +256,7 @@ class Booking_utilities {
             //convert html into pdf
            $json_result = $this->My_CI->miscelleneous->convert_html_to_pdf($html,$booking_details[0]['booking_id'],$output_file_pdf,"jobcards-pdf");
             $pdf_response = json_decode($json_result,TRUE);
+            
             if($pdf_response['response'] === 'Success'){ 
                 //Update JOb Card Booking
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
@@ -358,11 +373,22 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
             }
             //Send SMS to vendor
-            $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($getbooking[0]['primary_contact_phone_1'], $smsBody,SMS_WITHOUT_TAG);
             
-            //For saving SMS to the database on sucess
-            $this->My_CI->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
-                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf", $status['content']);            
+            $sms = array();
+            $sms['status'] = "";
+            $sms['tag']="booking_details_to_sf";
+            $sms['phone_no'] = $getbooking[0]['primary_contact_phone_1'];
+            $sms['booking_id'] = $getbooking[0]['booking_id'];
+            $sms['type_id'] = $getbooking[0]['user_id'];
+            $sms['type'] = "vendor";
+            $sms['smsData']['booking_id'] = substr($getbooking[0]['name'], 0, 20);
+            $sms['smsData']['primary_contact'] = $getbooking[0]['booking_primary_contact_no'];
+            $sms['smsData']['service'] = $getbooking[0]['services'];
+            $sms['smsData']['bookingdate'] = $bookingdate;
+            $sms['smsData']['booking_timeslot'] = $getbooking[0]['booking_timeslot'];
+            $sms['smsData']['booking_address'] = substr($getbooking[0]['booking_address'], 0, 60);
+            $sms['smsData']['booking_pincode'] = $getbooking[0]['booking_pincode'];
+            $this->My_CI->notify->send_sms_msg91($sms);
         } else {
             echo "Booking does not exist.";
         }
@@ -894,6 +920,17 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         } else {
             throw new Exception($error . $response, $httpcode);
         }
+    }
+    
+    function check_feature_enable_or_not($fetaure){
+        $c2c_enable = TRUE;
+        $permission = json_decode(PERMISSION_CONSTANT, TRUE);
+        if(!empty($permission) && isset($permission[$fetaure])){
+            $c2c_enable =  $permission[$fetaure]['is_on'];
+
+        } 
+        return $c2c_enable;
+        
     }
 
 }

@@ -75,7 +75,7 @@
                     <div class="form-group <?php if( form_error('phone_number') ) { echo 'has-error';} ?>">
                         <label for="phone_number" class="col-md-2">Phone Number</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="phone_number" value="<?php echo set_value('phone_number'); ?>" placeholder="Enter Phone No.">
+                            <input type="text" class="form-control" name="phone_number" value="<?php echo set_value('phone_number'); ?>" placeholder="Enter Phone No." onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                             <?php echo form_error('phone_number'); ?>
                         </div>
 
@@ -88,7 +88,7 @@
                     <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
                         <label for="booking_id" class="col-md-2">Booking Id</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="booking_id" value="<?php echo set_value('booking_id'); ?>" placeholder="Enter Booking ID">
+                            <input type="text" class="form-control" name="booking_id" value="<?php echo set_value('booking_id'); ?>" placeholder="Enter Booking ID" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
                             <?php echo form_error('booking_id'); ?>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                     <div class="form-group">
                         <label for="booking_id" class="col-md-2">User Name</label>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="userName" placeholder="Enter User Name">
+                            <input type="text" class="form-control" name="userName" placeholder="Enter User Name" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 32 || event.charCode == 13">
                         </div>
 
                     </div>
@@ -125,7 +125,7 @@
                     <div class="form-group">
                         <label for="order id" class="col-md-2">Order ID</label>
                         <div class="col-md-4">
-                        <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID">
+                        <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                         </div>
 
                     </div>

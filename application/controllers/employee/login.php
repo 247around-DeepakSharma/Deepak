@@ -25,6 +25,7 @@ class Login extends CI_Controller {
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library("push_notification_lib");
+        $this->load->library('booking_utilities');
         $this->load->driver('cache');
     }
 
@@ -90,12 +91,32 @@ class Login extends CI_Controller {
                 redirect(base_url() . "employee/login");
             }
         } else {
-            $select = "partner_logo,alt_text";
-            $where = array('partner_logo IS NOT NULL' => NULL);
-            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
-            $this->load->view('employee/login',$data);
+
+           $select = "partner_logo,alt_text";
+           $where = array('partner_logo IS NOT NULL' => NULL);
+           $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+           $this->load->view('employee/login',$data);
+           
         }
     }
+    
+    function around_login(){
+        $data['crm_tile'] = $this->db->crm_title;
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $this->load->view('employee/login',$data);
+    }
+    
+    function wybor_login(){
+        $data['crm_tile'] = $this->db->crm_title;
+        $select = "partner_logo,alt_text";
+        $where = array('partner_logo IS NOT NULL' => NULL);
+        $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
+        $this->load->view('employee/login',$data);
+    }
+
+
 
     /**
      *  @desc : This funtion load index page
@@ -127,7 +148,8 @@ class Login extends CI_Controller {
      */
     function setSession($employee_id, $id, $phone,$official_email,$emp_name,$is_am) {
         // Getting values for Groups of particular employee
-        $groups = $this->employeelogin->get_employee_group_name($employee_id);
+        if(!empty($id))
+        $groups = $this->employeelogin->get_employee_group_name($id);
         if($groups){
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
@@ -142,6 +164,10 @@ class Login extends CI_Controller {
             'emp_name' => $emp_name,
             'is_am' => $is_am
         );
+        
+//        if($this->db->login_partner_id){
+//            $userSession['login_partner_id'] = $this->db->login_partner_id;
+//        }
         }
         else{
             //Logging Message 
@@ -718,10 +744,10 @@ function user_role_management(){
         // Get All roles group 
         $data['roles_group'] = $this->reusable_model->get_search_result_data("employee","DISTINCT groups",NULL,NULL,NULL,NULL,NULL,NULL,array("groups"));
         $data['partners_roles_group'] = $this->reusable_model->get_search_result_data("entity_role","role as groups",array("entity_type"=>'partner'),NULL,NULL,NULL,NULL,NULL,array());
-
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         //Get Header 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group'],'entity_type_data'=>$data['entity_type_data']));
+        $this->load->view('employee/user_role',array("header_navigation"=>$data['header_navigation'],'roles_group'=>$data['roles_group'],'partners_roles_group'=>$data['partners_roles_group'],'entity_type_data'=>$data['entity_type_data'],'saas_flag'=>$data['saas_flag']));
     }
 /*
  * This Function Called From Ajax use to update Groups For Navigation 

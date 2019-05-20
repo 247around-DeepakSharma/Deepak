@@ -305,10 +305,10 @@ class Miscelleneous {
                     } else {
                         
                         $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                        $booking['flat_upcountry'] =0;
-                        $booking['upcountry_sf_payout'] = 0;
+                        $booking['flat_upcountry'] = 0;
+                        $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                         $booking['partner_upcountry_charges'] = 0;
-                        $booking['upcountry_to_be_paid_by_customer'] =  0;
+                        $booking['upcountry_to_be_paid_by_customer'] =  $cust_price;
                     }
                     
 
@@ -330,20 +330,19 @@ class Miscelleneous {
                         
                          if(!empty($is_not_upcountry) && in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
                         
-                                $cust_price = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                                $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
-                                $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                                $cust_price = $is_not_upcountry[0]['upcountry_customer_price'];
+                                $booking['flat_upcountry'] = $is_not_upcountry[0]['flat_upcountry'];
+                                $booking['upcountry_sf_payout'] = $is_not_upcountry[0]['upcountry_vendor_price'];
+                                $booking['partner_upcountry_charges'] = $is_not_upcountry[0]['upcountry_partner_price'];
+                                $booking['upcountry_to_be_paid_by_customer'] = $is_not_upcountry[0]['upcountry_customer_price'];
                             } else {
 
                                 $cust_price = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['flat_upcountry'] = 0;
-                                $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
+                                $booking['upcountry_sf_payout'] = ($booking['sf_upcountry_rate'] * $booking['upcountry_distance']);
                                 $booking['partner_upcountry_charges'] = 0;
                                 $booking['upcountry_to_be_paid_by_customer'] = $cust_price;
-                                $booking['upcountry_to_be_paid_by_customer'] =  0;
+                               
                             }
 
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
@@ -380,11 +379,11 @@ class Miscelleneous {
                             $data['message'] = UPCOUNTRY_BOOKING;
                         }
                     }
-                    if(in_array(1, array_column($is_not_upcountry, 'flat_upcountry')) !== FALSE ){
-                        $booking['flat_upcountry'] = $c_upcountry[0]['flat_upcountry'];
-                        $booking['upcountry_sf_payout'] = $c_upcountry[0]['upcountry_vendor_price'];
-                        $booking['partner_upcountry_charges'] = $c_upcountry[0]['upcountry_partner_price'];
-                        $booking['upcountry_to_be_paid_by_customer'] = $c_upcountry[0]['upcountry_customer_price'];
+                    if(in_array(1, array_column($is_upcountry, 'flat_upcountry')) !== FALSE ){
+                        $booking['flat_upcountry'] = $is_upcountry[0]['flat_upcountry'];
+                        $booking['upcountry_sf_payout'] = $is_upcountry[0]['upcountry_vendor_price'];
+                        $booking['partner_upcountry_charges'] = $is_upcountry[0]['upcountry_partner_price'];
+                        $booking['upcountry_to_be_paid_by_customer'] = $is_upcountry[0]['upcountry_customer_price'];
                     }
                    
                     if ($data['message'] !== UPCOUNTRY_LIMIT_EXCEED) {
@@ -654,11 +653,21 @@ class Miscelleneous {
                     if (!empty($unit_details)) {
                         log_message('info', __FUNCTION__ . " Booking Unit details exist");
                         foreach ($unit_details as $value) {
-                            $sc_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
-                            if (empty($sc_data)) {
-                                $sc_data['current_status'] = "Pending";
+                            $sc_ba_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id,current_status,internal_status", array('booking_id' => $booking_id));
+                            $alreadyExist = false;
+                            $sc_current_status = 'Pending';
+                            $sc_internal_status = 'Pending';
+                            foreach($sc_ba_data as $sc_values){
+                                if($sc_values['unit_details_id'] ==  $value['id']){
+                                    $alreadyExist  = true;
+                                }
+                                $sc_current_status = $sc_values['current_status'];
+                                $sc_internal_status = $sc_values['internal_status'];
+                            }
+                            if (!$alreadyExist) {
+                                $sc_data['current_status'] = $sc_current_status;
                                 $sc_data['update_date'] = date('Y-m-d H:i:s');
-                                $sc_data['internal_status'] = "Pending";
+                                $sc_data['internal_status'] = $sc_internal_status;
                                 $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
                                 $sc_data['booking_id'] = $booking_id;
                                 $sc_data['unit_details_id'] = $value['id'];
@@ -778,6 +787,16 @@ class Miscelleneous {
     function check_upcountry($booking, $appliance, $is_price, $file_type, $appliance_brand = false) {
         log_message('info', __FUNCTION__ . ' booking_data: ' . print_r($booking, true) . ' appliance: ' . print_r($appliance, true) . ' file_type: ' . $file_type);
         $partner_data = $this->My_CI->initialized_variable->get_partner_data();
+        $booking_request = "";
+        if(isset($booking['request_type'])){
+            if ((stripos($booking['request_type'], 'Installation') !== false) || stripos($booking['request_type'], 'Repair') !== false) {
+                $request_type = explode(" ", $booking['request_type']);
+                $booking_request = $request_type[0];
+            } else {
+                $booking_request = $booking['request_type'];
+            }
+            
+        }
         $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$partner_data[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
         if($partner_type == OEM){
             if(!empty($appliance_brand)){
@@ -894,10 +913,10 @@ class Miscelleneous {
                     return FALSE;
             }
 
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, $charges);
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, $charges, $booking_request);
             return true;
         } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, "");
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $smsPartner, "", $booking_request);
             return true;
         }
     }
@@ -913,19 +932,21 @@ class Miscelleneous {
      * @param String $price
      * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner, $price) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $partner, $price, $request_type) {
         log_message('info', __FUNCTION__ . ' phone_number: ' . $phone_number . ' user_id: ' . $user_id . ' booking_id: ' . $booking_id . ' partner: ' . $partner . ' appliance: ' . $appliance . ' price: ' . $price);
 
         $sms['tag'] = "partner_missed_call_for_installation";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
         $sms['smsData']['service'] = $appliance;
+        $sms['smsData']['request_type'] = $request_type;
         $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-
+        
         /* If price exist then send sms according to that otherwise
          *  send sms by checking function get_product_free_not
          */
         if (!empty($price)) {
+            $sms['smsData']['request_type_charge'] = $request_type;
             $sms['smsData']['message'] = $price;
         } else {
             //Price does not go in this SMS template
@@ -938,8 +959,9 @@ class Miscelleneous {
         $sms['booking_id'] = $booking_id;
         $sms['type'] = "user";
         $sms['type_id'] = $user_id;
-
+                
         $this->My_CI->notify->send_sms_msg91($sms);
+       
     }
 
     function allot_partner_id_for_brand($service_id, $state, $brand) {
@@ -1506,9 +1528,19 @@ class Miscelleneous {
      * This Functiotn is used to send sf not found email to associated rm
      */
 
-    function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner) {
+    function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner, $rm_id='') {
+        
         $cc = "";
         $booking['service'] = NULL;
+        
+        if(!empty($rm_id)) {
+            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+            
+            if(!empty($managerData)) {
+                $cc .= $managerData[0]['official_email'];
+            }
+        }
+        
         $tempPartner = $this->My_CI->reusable_model->get_search_result_data("partners", "public_name", array('id' => $booking['partner_id']), NULL, NULL, NULL, NULL, NULL);
         if(!empty($booking['service_id'])){
             $booking['service'] = $this->My_CI->reusable_model->get_search_result_data("services", "services", array('id' => $booking['service_id']), NULL, NULL, NULL, NULL, NULL)[0]['services'];
@@ -1554,16 +1586,19 @@ class Miscelleneous {
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $pincode =  $booking['booking_pincode'];
         $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
+        
         if (!empty($result)) {
             $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
             $notFoundSfArray['state'] = $result[0]['state_id'];
+            
             $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
             $rm_email = $query->result_array();
             if (empty($rm_email)) {
                 $rm_email[0]['official_email'] = NULL;
             }
+            
             $subject = "SF Not Exist in the Pincode " . $pincode;
-            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE);
+            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE, $result[0]['rm_id']);
         }else{
             $pincodeJsonData = $this->google_map_address_api($pincode);
             $pincodeArray = json_decode($pincodeJsonData,true);
@@ -1574,7 +1609,8 @@ class Miscelleneous {
                 if($country == 'India'){
                         $state = $pincodeArray['results']['0']['address_components'][$addressCompLength-2]['long_name'];
                         $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
-                        $this->process_if_pincode_valid($pincode,$state,$city);
+                        if(!is_null($pincode) && !is_null($state) && !is_null($city))
+                            $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
                         //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
@@ -2336,6 +2372,7 @@ class Miscelleneous {
            $this->My_CI->cache->file->save('navigationHeader_partner_'.$this->My_CI->session->userdata('user_group').'_'.$this->My_CI->session->userdata('agent_id'), $msg, 36000);
         }
         else{
+            $data['saas_module'] = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
             $msg = $this->My_CI->load->view('employee/header/header_navigation',$data,TRUE);
             $this->My_CI->cache->file->save('navigationHeader_'.$this->My_CI->session->userdata('id'), $msg, 36000);
         }
@@ -3048,7 +3085,7 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         if($bookingID){
-            $select = "booking_details.*,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
+            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
@@ -3058,22 +3095,32 @@ function generate_image($base64, $image_name,$directory){
             $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+            if(!empty($bookingData[0]['emp_id'])) {
+                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups' => 'regionalmanager'));
+            }
+            
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
             $to = $template[1];  
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
+            
+            if(!empty($managerData)) {
+                $cc .= ",".$managerData[0]['official_email'];
+            }
+            
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
             log_message('info', __FUNCTION__ . " END  ".$bookingID.$number);
         }
     }
-    function update_serial_number_in_appliance_details($unitTableID){
-       $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
+    function update_appliance_details($unitTableID){
+       $applianceData = $this->My_CI->reusable_model->get_search_result_data("booking_unit_details","appliance_id,serial_number,purchase_date",array("id"=>$unitTableID),NULL,NULL,NULL,NULL,NULL,array());
        if (!empty($applianceData)) {
             $applianceID = $applianceData[0]['appliance_id'];
             $data['sf_serial_number'] = $applianceData[0]['serial_number'];
+            $data['sf_purchase_date'] = $applianceData[0]['purchase_date'];
             $this->My_CI->booking_model->update_appliances($applianceID, $data);
        }
     }
@@ -3172,13 +3219,13 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
                     $bcc = $login_template[5];
-                    if($accountManagerData){
+                    if(!empty($accountManagerData)){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
-                    $login_email['password'] = "***********";
+                   // $login_email['password'] = "***********";
                     $login_emailBody247 = vsprintf($login_template[0], $login_email);
                     //Send Login Details to partner
                     $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
@@ -3264,12 +3311,16 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
-        $is_partner_wh = $partner_details[0]['is_wh'];
-        $is_micro_wh = $partner_details[0]['is_micro_wh'];
+        $is_partner_wh = '';
+        $is_micro_wh = '';
+        if(!empty($partner_details)){
+          $is_partner_wh = $partner_details[0]['is_wh'];
+          $is_micro_wh = $partner_details[0]['is_micro_wh'];  
+        }
+      
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {
@@ -3279,8 +3330,14 @@ function generate_image($base64, $image_name,$directory){
                     //Defective Parts Return To
                     if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
-                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                        if(!empty($wh_address_details)){
+                            $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                            $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                        } else {
+                            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                            $response['defective_return_to_entity_id'] = $partner_id;     
+                        }
+                       
                     } else {
                         $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $response['defective_return_to_entity_id'] = $partner_id;                        
@@ -3317,7 +3374,8 @@ function generate_image($base64, $image_name,$directory){
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
             $response['inventory_id'] = $inventory_id;
-            $response['is_micro_wh'] = 0;
+            $response['is_micro_wh'] = 0;    //
+            $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
             $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
             $response['defective_return_to_entity_id'] = $partner_id;
 //            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
@@ -3342,7 +3400,7 @@ function generate_image($base64, $image_name,$directory){
     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
-        
+               
         $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
         if (!empty($service_center_id)) {
             $post['where']['inventory_stocks.entity_id'] = $service_center_id;
@@ -3352,6 +3410,21 @@ function generate_image($base64, $image_name,$directory){
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
+        
+        if (empty($inventory_stock_details)) {
+            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
+           
+            if (!empty($alternate_inventory_stock_details)) {
+                if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
+                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
+                            . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
+
+                    $inventory_stock_details = $alternate_inventory_stock_details;
+                }
+            }
+            
+        }
+                
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 $response = array();
@@ -3983,7 +4056,7 @@ function generate_image($base64, $image_name,$directory){
     }
     function google_map_address_api($pincode){
         log_message('info', __METHOD__ . "=>Start"."Pincode =".$pincode);
-        $request = "https://maps.google.com/maps/api/geocode/json?address=".$pincode."&sensor=false&region=India&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $request = "https://maps.google.com/maps/api/geocode/json?address=".$pincode."&sensor=false&region=India&key=".GOOGLE_MAPS_API_KEY;
         $ch = curl_init();
         curl_setopt_array(
         $ch, array(
@@ -4008,6 +4081,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
@@ -4046,6 +4125,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
@@ -4069,4 +4154,20 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
+    
+    /**
+     * @desc This function is used to Create new micro-warehouse
+     * @param array $data
+     * @param array $wh_on_of_data
+     */
+    function create_micro_warehouse($data,$wh_on_of_data){
+        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id']), '*');
+        if (empty($micro_wh_mapping_list)) {
+            $this->My_CI->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
+            $this->My_CI->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
+            $service_center = array('is_micro_wh' => 1);
+            $this->My_CI->vendor_model->edit_vendor($service_center, $data['vendor_id']);
+        }
+    }
+    
 }

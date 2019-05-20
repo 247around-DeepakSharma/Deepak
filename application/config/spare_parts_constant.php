@@ -58,10 +58,8 @@ define('PARTNER_SPARE_OOT_DAYS','30');
 define('SF_SPARE_OOT_DAYS','7');
 
 //for now default warehouse id is 10 (sf = manish ji)
-define('DEFAULT_WAREHOUSE_ID',10);
+define('DEFAULT_WAREHOUSE_ID',15);
 
-//tracking more production api key
-define('TRACKINGMORE_PROD_API_KEY','06ec4a31-6125-4b01-9da9-bf8d420767df');
 define('DELIVERY_CONFIRMED_WITH_COURIER','Delivery Confirmed With Courier Company');
 
 define('DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION','Defective Part Received By Partner API Conformation');
@@ -117,11 +115,12 @@ define('DEFECTIVE_PART_SHIPPED_OOT_DAYS', 15);
 //show message when partner escalate booiking but it is pending on partner to ship new part
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_PENDING', 'You cannot escalate booking because it is pending to ship new part');
 define('NOT_ESCALATE_BOOKING_DUE_SPARE_NOT_DELIVERED', 'You cannot escalate booking because it is pending to ship new part');
+// Courier in pickup request 
+define("COURIER_PICKUP_REQUEST", 2);
+//Courier in pickup schedule
+define("COURIER_PICKUP_SCHEDULE", 3);
 //Auto spare delivered to sf after 14 days 
 define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
 define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
-// Courier in pickup request 
-define("COURIER_PICKUP_REQUEST", 2);
-//Courier in pickup schedule 
-define("COURIER_PICKUP_SCHEDULE", 3);
-
+//Pre Sale Repair Tag
+define('PRESALE_REPAIR_TAG', 'Presale Repair');

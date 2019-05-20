@@ -81,15 +81,16 @@
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
                                              <?php $list = [];
                                              if(isset($data)){
-                                                    $appliance_id = json_decode($data[0]['appliance_id'], TRUE);
+                                                    $appliance_id = $data[0]['appliance_id'];
                                                     foreach($appliance_id as $key =>$value){
                                                         $list[] = $value['service_id'];
                                                     }
                                                 }?>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php echo isset($data)?(in_array($values->id,$list))?"selected":'':(set_value('service_id') == $values->id)?"selected":'';  ?> value=<?php echo $values->id; ?>>
-                                                <?php echo $values->services; }    ?>
+                                                <?php echo $values->services;   ?>
                                             </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                      <?php echo form_error('service_id'); ?>
@@ -118,7 +119,7 @@
                                 <div class="form-group <?php if( form_error('identity_proof') ) { echo 'has-error';} ?>">
                                     <label for="identity proof" class="col-md-4">ID Proof * </label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="identity_proof" name="identity_proof"  >
+                                        <select type="text" class="form-control"  id="identity_proof" name="identity_proof"  required>
                                             <option disabled selected>Select ID Proof</option>
                                             <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Aadhar Card' )?"selected":(set_value('identity_proof') == 'Aadhar Card')?"selected":'';   ?> value="Aadhar Card">Aadhar Card</option>
                                             <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Driving License' )?"selected":(set_value('identity_proof') == 'Driving License')?"selected":'';   ?> value="Driving License">Driving License</option>
@@ -213,7 +214,7 @@
                                             <?php //}?>
                                     </div>
                                     
-                                    <?php echo form_error('bank_proof_pic'); ?>
+                                    <?php //echo form_error('bank_proof_pic'); ?>
                                 </div>
 
                                 
@@ -304,43 +305,14 @@
                         number: true,
                         regx: /^[6-9]{1}[0-9]{9}$/
                     },
-//                alternate_phone:{
-//                    
-//                    minlength: 10,
-//                    number: true,
-//                    regx: /^[6-9]{1}[0-9]{9}$/
-//                    },
-                
-//                bank_ifsc_code: {
-//                       // required: true,
-//                        rangelength: [11, 11]
-//                    },
-//                bank_name:{
-//                       // required: true,
-//                        minlength: 3
-//                    },
-//                bank_holder_name:{
-//                       // required: true,
-//                        minlength: 3
-//                    },
                 service_id: "required",
-//                bank_account_no: {
-//                    digits: true,
-//                   // required:true,
-//                    minlength:5
-//                        
-//                    }
+                identity_id_number : "required",
                 },
                 messages: {
                 name: "Please Enter Name",
                 phone: "Please Enter Valid Mobile Number",
-                
-//                bank_name: "Please Bank Name",
-//                bank_ifsc_code:"Please Enter IFSC CODE",
-//                bank_holder_name: "Please Enter Account Holder Name",
-//                bank_account_no: "Please Enter Bank Account Number",
-                service_id:"Please Select Appliances"
-
+                service_id:"Please Select Appliances",
+                identity_id_number:"Please Enter Identity Number",
                 },
                 submitHandler: function (form) {
                  form.submit();

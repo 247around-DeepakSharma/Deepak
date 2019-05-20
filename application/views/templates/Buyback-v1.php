@@ -27,7 +27,7 @@
             <tr>
                 <td style="text-align: center;border-bottom: hidden; border-right: 1px solid;" colspan="6" ><h1 style="margin: 0px;">Blackmelon Advance Technology Co. Pvt. Ltd.</h1></td></tr>
             <tr style="">
-                <td colspan="5" align="center" style="padding-left: 20%">A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051<br>Phone:  9555000247</td>
+                <td colspan="5" align="center" style="padding-left: 20%">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Phone:  9555000247</td>
                 <td colspan="1" style="text-align: center; width: 20%; border-left: hidden; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
 <!--            <tr style="font-weight: bold;"><td colspan="6" style="text-align: center;">Phone:  <?php //echo "$owner_phone_1"; ?></td></tr>-->

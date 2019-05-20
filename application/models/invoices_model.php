@@ -957,15 +957,29 @@ class invoices_model extends CI_Model {
     
     function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
+            //get company detail who generated invoice
+            
             $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            
             $parts_count = 0;
             $service_count = 0;
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
+            if($meta["invoice_template"] == "247around_Tax_Invoice_Intra_State.xlsx" || $meta["invoice_template"] == "247around_Tax_Invoice_Inter_State.xlsx"){
+                $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
+                $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
+                $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
+            }
+            else{
+                $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
+            }
+            
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
@@ -1132,7 +1146,24 @@ class invoices_model extends CI_Model {
         if ($query->num_rows > 0) {
             $result1 = $query->result_array();
             $meta = $result1[0];
-
+            
+            //get main partner detail
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_address'] = $main_partner['main_company_address'];
+            $meta['main_company_state'] = $main_partner['main_company_state'];
+            $meta['main_company_pincode'] = $main_partner['main_company_pincode'];
+            $meta['main_company_email'] = $main_partner['main_company_email'];
+            $meta['main_company_gst_number'] = $main_partner['main_company_gst_number'];
+            $meta['main_company_bank_name'] = $main_partner['main_company_bank_name'];
+            $meta['main_company_bank_account'] = $main_partner['main_company_bank_account'];
+            $meta['main_company_ifsc_code'] = $main_partner['main_company_ifsc_code'];
+            $meta['main_company_seal'] = $main_partner['main_company_seal'];
+            $meta['main_company_signature'] = $main_partner['main_company_signature'];
+            
+            
             $c_s_gst = $this->check_gst_tax_type($meta['state']);
             $meta['total_qty'] = $meta['total_rate'] = $meta['total_taxable_value'] = $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] = $meta['igst_total_tax_amount'] = $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] = $meta['total_parts_tax'] = $meta['total_inst_tax'] = 0;
@@ -1794,6 +1825,10 @@ class invoices_model extends CI_Model {
         if (!empty($data)) {
             $commission_charge = array();
             $meta = $data[0];
+            //get company detail who generated invoice
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            
             $commission_charge[0]['description'] = "Commission Charge";
             $total_amount_invoice = (array_sum(array_column($data, 'total_amount')));
             if ($total_amount_invoice > 0) {
@@ -1944,6 +1979,22 @@ class invoices_model extends CI_Model {
             $meta['primary_contact_email'] = $commission_charge[0]['primary_contact_email'];
             $meta['owner_phone_1'] = $commission_charge[0]['owner_phone_1'];
             
+            //get main partner detail
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            $meta['main_company_name'] = $main_partner['main_company_name'];
+            $meta['main_company_logo'] = $main_partner['main_company_logo'];
+            $meta['main_company_address'] = $main_partner['main_company_address'];
+            $meta['main_company_state'] = $main_partner['main_company_state'];
+            $meta['main_company_pincode'] = $main_partner['main_company_pincode'];
+            $meta['main_company_email'] = $main_partner['main_company_email'];
+            $meta['main_company_gst_number'] = $main_partner['main_company_gst_number'];
+            $meta['main_company_bank_name'] = $main_partner['main_company_bank_name'];
+            $meta['main_company_bank_account'] = $main_partner['main_company_bank_account'];
+            $meta['main_company_ifsc_code'] = $main_partner['main_company_ifsc_code'];
+            $meta['main_company_seal'] = $main_partner['main_company_seal'];
+            $meta['main_company_signature'] = $main_partner['main_company_signature'];
+            
             $data1['meta'] = $meta;
             $data1['booking'] = $commission_charge;
             $data1['annexure_data'] = $annexure_data;
@@ -2074,31 +2125,34 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
-      
         
         $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
-                awb_by_sf as awb, 
+                awb_by_sf as awb, box_count, count(bd.booking_id) as count_of_booking,
                 SUM(sp.courier_charges_by_sf) as courier_charges_by_sf, bd.city,
+                CASE WHEN (billable_weight > 0 ) THEN 
+                (concat(billable_weight, ' KG'))
+                ELSE '' END AS billable_weight,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
-                FROM  booking_details as bd, booking_unit_details as ud,
-                spare_parts_details as sp
-                WHERE 
+                FROM  booking_details as bd 
+                JOIN booking_unit_details as ud ON bd.booking_id = ud.booking_id 
+                JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
+                LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
+                WHERE
                 ud.booking_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
-                AND sp.booking_id = bd.booking_id
-                AND bd.booking_id = ud.booking_id
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
-                GROUP BY awb HAVING courier_charges_by_sf > 0 ";
-
+                GROUP BY awb HAVING courier_charges_by_sf > 0 
+                
+                ";
+     
         $query = $this->db->query($sql);
-        
         return $query->result_array();
     }
     /**
@@ -2112,12 +2166,16 @@ class invoices_model extends CI_Model {
         $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
                 awb_by_partner as awb, 
                 SUM(sp.courier_price_by_partner) as courier_charges_by_sf, bd.city,
+                CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, ' KG')) ELSE '' END AS billable_weight,
+                box_count, count(bd.booking_id) as count_of_booking,
                 '' AS courier_receipt_link
-                FROM  booking_details as bd, booking_unit_details as ud,
-                spare_parts_details as sp
-                WHERE 
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
-                AND bd.partner_id = '$partner_id'
+                FROM  booking_details as bd 
+                JOIN  booking_unit_details as ud ON bd.booking_id = ud.booking_id 
+                JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
+                LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
+                WHERE
+                 ud.booking_status =  '"._247AROUND_COMPLETED."'
+                     AND bd.partner_id = '$partner_id'
                 AND ud.partner_id = '$partner_id'
                 AND sp.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
@@ -2128,8 +2186,8 @@ class invoices_model extends CI_Model {
                 AND `around_pickup_from_partner` = 1
                 AND partner_warehouse_courier_invoice_id IS NULL
                 AND awb_by_partner IS NOT NULL
-                GROUP BY awb HAVING courier_charges_by_sf > 0 ";
-
+                GROUP BY awb HAVING courier_charges_by_sf > 0 
+                ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2346,12 +2404,16 @@ class invoices_model extends CI_Model {
         log_message('info', __METHOD__. " Enterring..");
         $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
                 . ' awb_by_partner,'
-                .' awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf,'
-                .' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
-                .'THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
-                . ' FROM spare_parts_details as sp, booking_details as bd '
-                . ' WHERE bd.booking_id = sp.booking_id '
-                . ' AND entity_type = "'._247AROUND_SF_STRING.'" '
+                . ' awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf, '
+                . ' CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, " KG")) ELSE "" END AS billable_weight,'
+                . ' box_count, count(bd.booking_id) as count_of_booking,'
+                . ' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
+                . ' THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
+                . ' FROM spare_parts_details as sp '
+                . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
+                . ' LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner '
+                . ' WHERE '
+                . ' entity_type = "'._247AROUND_SF_STRING.'" '
                 . ' AND bd.partner_id = "'.$partner_id.'" '
                 . ' AND awb_by_partner IS NOT NULL '
                 . ' AND sp.shipped_date >= "'.$from_date.'" '
@@ -2359,15 +2421,17 @@ class invoices_model extends CI_Model {
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_courier_invoice_id IS NULL'
                 . ' GROUP BY awb_by_partner ';
-        
+                
+       
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
     function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, '
-                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb, '
+        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, "" AS billable_weight, '
+                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb,  count(booking_id) as count_of_booking, '
+                . ' "" AS box_count, '
                 . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
                 .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
                 . ' FROM `courier_details` '

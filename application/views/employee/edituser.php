@@ -87,7 +87,7 @@ function outbound_call(phone_number){
                     <input type="text" class="form-control"  name="phone_number" value = "<?php echo $user[0]['phone_number']; ?>">
                     <?php echo form_error('phone_number'); ?>
                 </div>
-                <label for="phone_icon" class="col-md-2"><button type="button" onclick="outbound_call(<?php echo $user[0]['phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></label>
+                <label for="phone_icon" class="col-md-2"><?php if($c2c){ ?><button type="button" onclick="outbound_call(<?php echo $user[0]['phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button><?php } ?></label>
             </div>
             <div class="form-group <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                 <label for="alternate_phone_number" class="col-md-2">Alternate Phone Number</label>
@@ -98,7 +98,7 @@ function outbound_call(phone_number){
                 <?php
                 if(!empty($user[0]['alternate_phone_number'])){
                 ?>
-                <label for="phone_icon" class="col-md-2"><button type="button" onclick="outbound_call(<?php echo $user[0]['alternate_phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button></label>
+                <label for="phone_icon" class="col-md-2"><?php if ($c2c){ ?><button type="button" onclick="outbound_call(<?php echo $user[0]['alternate_phone_number']  ?>)" class="btn btn-sm btn-info"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button><?php } ?></label>
                 <?php } ?>
             </div>
             <div class="form-group <?php if( form_error('home_address') ) { echo 'has-error';} ?>">

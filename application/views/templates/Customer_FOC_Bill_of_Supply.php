@@ -23,7 +23,9 @@
                 <td style="text-align: center;border-bottom: hidden; padding-bottom: 0px;" colspan="6" ><h1 style="margin:0px"><?php echo $meta['company_name']; ?></h1></td>
             </tr>
             <tr>
-                <td  width="20%" align="left" style="border-right: hidden; padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><img style="padding: 5px;" src="<?php echo base_url(); ?>images/logo.jpg"></td>
+                <?php if($meta['main_company_logo']){ ?>
+                <td  width="20%" align="left" style="border-right: hidden; padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><img style="padding: 5px;  height: 110px; width: 110px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>"></td>
+                <?php } ?>
                 <td colspan="4" width="75%" align="center" style="border:hidden; padding-left: 5%; padding-bottom: 0px;"><?php echo $meta['company_address']; ?><br></br><b>GSTIN :  <?php echo $meta["gst_number"]; ?></b></td>
                 <td  colspan="1" style="text-align: center; width: 20%; border-left: hidden;padding-bottom: 0px;"><b>(<?php echo $meta["recipient_type"]; ?>)</td>
             </tr>
@@ -105,7 +107,7 @@
         </table>
     </td>
 </tr>
-<p style="text-align: center; margin: auto;width: 960px" >Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - <b>9555000247</b> / On Website -<b> www.247around.com</b><br>Blackmelon Advance Technology Co. Pvt. Ltd.
+<p style="text-align: center; margin: auto;width: 960px" ><?php echo $meta['main_company_description']; ?>
 <p style="text-align: center; margin-top: 0px"><small>This is a computer generated invoice, no signature is required.</small>
 
 </body>

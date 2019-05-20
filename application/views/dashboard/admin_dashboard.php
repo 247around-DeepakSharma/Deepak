@@ -131,7 +131,7 @@
                         <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href  onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.leg_1[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
                                    {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
@@ -267,9 +267,8 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                            <option value="247Around" selected="selected">247Around</option>
-                                            <option value="Partner">Partner</option>
-                                            <option value="Vendor" selected="selected">Vendor</option>
+                                            <option value="247Around:Partner">Admin</option>
+                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
                                         </select>
                     </div>
                     <div class="form-group col-md-3">
@@ -366,7 +365,7 @@
         </div>
     </div>
     
-    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Partner Booking Status -->
        <div class="row" style="margin-bottom: 10px;">
         <div class="col-md-12 col-sm-12 col-xs-12 dashboard_graph" style="">
@@ -744,7 +743,7 @@
             </div>
         </div>
     </div>  
-
+    <?php } ?>
     <!-- Booking Report End-->
     <!-- Missing Pincode Section -->
     <div class="row">
@@ -759,7 +758,9 @@
                 <div class="x_title">
                     <h2>Pincode Call Missed Report</h2>
                     <span class="collape_icon" href="#pincode_table_data_div" data-toggle="collapse" onclick="get_missing_pincodes()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
                     <a id="download_pin_code" class="btn btn-success btn-xs" href="<?php echo base_url(); ?>employee/vendor/insert_pincode_form" style="float:right">Add New Pincode</a>
+                    <?php } ?>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content collapse" id="pincode_table_data_div">
@@ -770,6 +771,7 @@
             </div>
         </div>
     </div>
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get rm missing pincode ajax request-->
      <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -861,6 +863,7 @@
             </div>
         </div>
     </div>
+    <?php } ?>
     <!-- End Missing Pincode Section -->
     
 <!--     SF Brackets snapshot Section 
@@ -924,7 +927,7 @@
         </div>
     </div>
      SF Brackets Snapshot Section -->
-
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
      <div class="row">
         <!-- Partner Spare Parts Details -->
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -944,7 +947,7 @@
         </div>
         <!-- End  Partner Spare Parts Details -->
     </div>
-    
+    <?php } ?>
     
     <!-- Escalation Start-->
     <div class="row">
@@ -1044,9 +1047,12 @@
             </div>
         </div>
         <!-- RM wise booking status -->
-
+    </div>
+    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
+    <div class="row" style="margin-top:10px;">
         <!-- Logged In Users -->
-        <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding-right:0px !important">
+        <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="x_panel">
                     <div class="x_title">
@@ -1058,12 +1064,12 @@
                         <center><img id="loggedin_loader" src="<?php echo base_url(); ?>images/loadring.gif"></center>
                         <div class="table-responsive" id="loggedin_table_data">
                             <i class="fa fa-refresh" aria-hidden="true" id='refresh_icon' onclick='get_loggedin_users(this.id)' style="float:right;cursor:pointer;"></i><br>
-                            <table class="table table-striped table-bordered jambo_table bulk_action" border="1">
+                            <table class="table table-striped table-bordered jambo_table bulk_action" border="1" style="text-align:center;">
                                 <thead>
                                     <tr>
-                                        <th>Vendor</th>
-                                        <th>Partner</th>
-                                        <th>Admin</th>
+                                        <th style="text-align:center;">Vendor</th>
+                                        <th style="text-align:center;">Partner</th>
+                                        <th style="text-align:center;">Admin</th>
                                     </tr>
                                 </thead>
                                 <tbody id='tbody_loggedin_user'>
@@ -1158,7 +1164,7 @@
         </center>
     </div>
     <!-- End show more button -->
-    
+    <?php } ?>
     <!-- Modal -->
     <div id="modalDiv" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -1576,7 +1582,7 @@
                 {
                     alert(response['data']);
                 }
-                var str = "<td align='right'>"+response['data']['service_center']+"&nbsp;</td><td align='right'>"+response['data']['partner']+"&nbsp;</td><td align='right'>"+response['data']['employee']+"&nbsp;</td>";
+                var str = "<td><b>"+response['data']['service_center']+"</b></td><td><b>"+response['data']['partner']+"</b></td><td><b>"+response['data']['employee']+"</b></td>";
 
                 $('#loggedin_loader').hide();
                 $("#tbody_loggedin_user").html(str);

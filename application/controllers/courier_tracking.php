@@ -444,16 +444,19 @@ class Courier_tracking extends CI_Controller {
                          $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                          $sc_data['update_date'] = date("Y-m-d H:i:s");
                          $this->vendor_model->update_service_center_action($parts_details[2], $sc_data);
-                         $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
-                         $pcb = array();
-                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
-
+                         if($parts_details[2]){
+                            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
+                            $pcb = array();
+                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                         }
                          $res = TRUE;
                     } else {
                         $this->notify->insert_state_change($parts_details[2], SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, $actor, $next_action, _247AROUND);
-                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
-                        $pcb = array();
-                        $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        if($parts_details[2]){
+                            $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $parts_details[2];
+                            $pcb = array();
+                            $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+                        }
                         $res = TRUE;
 
                     }

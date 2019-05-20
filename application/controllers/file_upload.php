@@ -789,101 +789,108 @@ class File_upload extends CI_Controller {
      */
     function process_partner_bom_file_upload($data) {
         log_message("info", __METHOD__);
-       
+
         $response = array();
         $partner_id = trim($this->input->post('partner_id'));
         $flag = false;
-        if($partner_id){
-            $model = $this->inventory_model->get_appliance_model_details('id,model_number',array('entity_id' => trim($this->input->post('partner_id')),'entity_type' => _247AROUND_PARTNER_STRING));
-            $part_number = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));            
-            if(!empty($model) && !empty($part_number)){
+        if ($partner_id) {
+            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING));
+            $part_number_details = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
 
-                $model_arr = array_column($model,'id','model_number');
-                $part_number_arr = array_column($part_number,'inventory_id','part_number');
-                                
+            $model = array();
+            foreach ($model_details as $value) {
+                $trim_data = array_map('trim', $value);
+                $model[] = array_map('strtolower', $value);
+            }
+
+            $part_number = array();
+            foreach ($part_number_details as $value) {
+                $trim_data = array_map('trim', $value);
+                $part_number[] = array_map('strtolower', $value);
+            }
+
+            if (!empty($model) && !empty($part_number)) {
+                $model_arr = array_column($model, 'id', 'model_number');
+                $part_number_arr = array_column($part_number, 'inventory_id', 'part_number');
+
                 //get file data to process
                 for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                     $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                    $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                    $sanitizes_row_data = array_map('strtolower', array_map('trim', $rowData_array[0]));
                     //check if model number exist in our database
                     if (!empty(array_filter($sanitizes_row_data))) {
-                        
-                        if(array_key_exists($sanitizes_row_data[0], $model_arr)){
+
+                        if (array_key_exists($sanitizes_row_data[0], $model_arr)) {
                             //check part exist in our database
                             $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data);
-                        }else{                          
+                        } else {
                             array_push($this->not_exists_model, $sanitizes_row_data[0]);
                             $flag = true;
                             break;
                         }
                     }
                 }
-                           
-                  $not_exist_data_msg = '';
 
-                  $template = array(
-                  'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                  );
+                $not_exist_data_msg = '';
 
-                  $this->table->set_template($template);
-                  //generate not exists model table to send in email
-                  if (!empty($this->not_exists_model)) {
-                  $this->table->set_heading(array('Model Number'));
-                  foreach (array_unique($this->not_exists_model) as $value) {
-                  $this->table->add_row($value);
-                  }
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                );
 
-                  $not_exist_data_msg .= " Below models does not exists in our record: <br>";
-                  $not_exist_data_msg .= $this->table->generate();
-                  }
-                  //generate not exists parts table to send in email
-                  if (!empty($this->not_exists_parts)) {
-                  $this->table->set_heading(array('Part Number'));
-                  foreach (array_unique($this->not_exists_parts) as $value) {
-                  $this->table->add_row($value);
-                  }
-                  $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
-                  $not_exist_data_msg .= $this->table->generate();
-                  }
-                 
-                  if(!empty($this->dataToInsert)){
-                  $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
-                  if ($insert_data) {
-                  log_message("info", __METHOD__ . count($this->dataToInsert). " mapping created succcessfully");
-                  $response['status'] = TRUE;
-                  $message = "<b>".count($this->dataToInsert)."</b> mapping created successfully.";
-                  $response['message'] = $message.' '.$not_exist_data_msg;
-                  } else {
-                  log_message("info", __METHOD__ . " error in creating mapping.");
-                  $response['status'] = FALSE;
-                  $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
-                  }
-                  }else{                      
-                  $response['status'] = True;
-                  $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
-                  }
-                 
-                
-            }else{
+                $this->table->set_template($template);
+                //generate not exists model table to send in email
+                if (!empty($this->not_exists_model)) {
+                    $this->table->set_heading(array('Model Number'));
+                    foreach (array_unique($this->not_exists_model) as $value) {
+                        $this->table->add_row($value);
+                    }
+
+                    $not_exist_data_msg .= " Below models does not exists in our record: <br>";
+                    $not_exist_data_msg .= $this->table->generate();
+                }
+                //generate not exists parts table to send in email
+                if (!empty($this->not_exists_parts)) {
+                    $this->table->set_heading(array('Part Number'));
+                    foreach (array_unique($this->not_exists_parts) as $value) {
+                        $this->table->add_row($value);
+                    }
+                    $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                    $not_exist_data_msg .= $this->table->generate();
+                }
+
+                if (!empty($this->dataToInsert)) {
+                    $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
+                    if ($insert_data) {
+                        log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
+                        $response['status'] = TRUE;
+                        $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
+                        $response['message'] = $message . ' ' . $not_exist_data_msg;
+                    } else {
+                        log_message("info", __METHOD__ . " error in creating mapping.");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                    }
+                } else {
+                    $response['status'] = True;
+                    $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
+                }
+            } else {
                 $response['status'] = FALSE;
                 $response['message'] = 'Model and Parts details not found for the selected partner.';
             }
-        }else{
+        } else {
             $response['status'] = FALSE;
             $response['message'] = 'Please select correct partner';
         }
-        
+
         if (!empty($flag)) {
             $response['status'] = FALSE;
-            $response['message'] = "Models number does not exists in our record. $not_exist_data_msg";            
+            $response['message'] = "Models number does not exists in our record. $not_exist_data_msg";
         }
-        
+
         return $response;
-        
     }
-    
-    
-    
+
     /**
      * @desc: This function is used to do the inventory and model mapping from file upload
      * @param $data array() 
@@ -893,9 +900,11 @@ class File_upload extends CI_Controller {
         log_message("info", __METHOD__);
         $response = array();
         $partner_id = trim($this->input->post('partner_id'));
-
+        
         if ($partner_id) {
             //get file data to process
+            $table_flag = false;
+            $not_exist_data_msg ='';
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -903,15 +912,15 @@ class File_upload extends CI_Controller {
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                 }
-
+              
                 if ($rowData['part_code'] != $rowData['alt_part_code']) {
 
                     $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING);
-                    $where_in = array($rowData['part_code'], $rowData['alt_part_code']);
+                    $where_in = array(trim($rowData['part_code']), trim($rowData['alt_part_code']));
                     $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
                     $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
-
-                    if (!empty($inventory_id_details)) {
+                                        
+                    if (!empty($inventory_id_details) && count($inventory_id_details) >1) {
                         $tmp_arr = array();
                         $tmp_arr['inventory_id'] = $inventory_id_details[0]['inventory_id'];
                         $tmp_arr['alt_inventory_id'] = $inventory_id_details[1]['inventory_id'];
@@ -921,10 +930,9 @@ class File_upload extends CI_Controller {
                             'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                         );
                         $this->table->set_template($template);
-                        $this->table->set_heading(array('Part Name', 'Part Code', 'Alt Part Code'));
-                        $this->table->add_row($rowData['part_name'], $rowData['part_code'], $rowData['alt_part_code']);
-                        $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
-                        $not_exist_data_msg .= $this->table->generate();
+                        $this->table->set_heading(array('Part Code', 'Alt Part Code'));
+                        $this->table->add_row($rowData['part_code'], $rowData['alt_part_code']);                        
+                        $table_flag = true;
                     }
                 } else {
                     log_message("info", __METHOD__ . " error in creating mapping.");
@@ -932,22 +940,64 @@ class File_upload extends CI_Controller {
                     $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
                 }
             }
-
-            if (!empty($this->dataToInsert)) {
-                $insert_data = $this->inventory_model->insert_alternate_spare_parts(array_unique($this->dataToInsert));
-                if ($insert_data) {
-                    log_message("info", __METHOD__ . count(array_unique($this->dataToInsert)) . " mapping created succcessfully");
-                    $response['status'] = TRUE;
-                    $message = "<b>" . count(array_unique($this->dataToInsert)) . "</b> mapping created successfully.";
-                    $response['message'] = $message . ' ' . $not_exist_data_msg;
-                } else {
-                    log_message("info", __METHOD__ . " error in creating mapping.");
-                    $response['status'] = FALSE;
-                    $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
-                }
+            
+            if(!empty($table_flag)){
+                $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                $not_exist_data_msg .= $this->table->generate();    
+            }
+                     
+            if(!empty($this->dataToInsert)){
+                 $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
+                 
+                 foreach ($this->dataToInsert as $val){  
+                                           
+                      $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
+                     
+                      if(!empty($inventory_group_id_list)){
+                          
+                          if(count($inventory_group_id_list) > 1){
+                             $min_group_id = min(array_column($inventory_group_id_list, 'group_id'));
+                             $max_group_id = max(array_column($inventory_group_id_list, 'group_id'));
+                             if($max_group_id !== $min_group_id){
+                                 foreach ($inventory_group_id_list as  $value) {
+                                    if ($value['group_id'] === $max_group_id) {
+                                        $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
+                                    }
+                                }
+                            }
+                                          
+                          } else if(count($inventory_group_id_list) == 1){
+                               $inventory_id = $inventory_group_id_list[0]['inventory_id'];
+                                if($val['inventory_id'] != $inventory_id ){
+                                   $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['inventory_id']); 
+                                }elseif ($val['alt_inventory_id'] != $inventory_id ) {
+                                   $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id']);
+                            }
+                                 $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
+                            }
+                      }else{
+                        $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set','MAX(alternate_inventory_set.group_id) as max_group_id', array(), array()); 
+                        $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
+                        $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id']);  
+                        $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                        $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id']);  
+                        $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
+                        
+                      }
+                      
+                 }
+                 
+            }
+                        
+            if ($insert_data) {
+                log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
+                $response['status'] = TRUE;
+                $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
+                $response['message'] = $message . ' ' . $not_exist_data_msg;
             } else {
+                log_message("info", __METHOD__ . " error in creating mapping.");
                 $response['status'] = FALSE;
-                $response['message'] = "File has been uploaded successfully. No New Mapping Created. $not_exist_data_msg";
+                $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
             }
         } else {
             $response['status'] = FALSE;
@@ -965,7 +1015,7 @@ class File_upload extends CI_Controller {
      */
     function process_bom_mapping($model_number_id,$part_number_arr,$uploaded_file_parts){
         //get only parts details from the uploaded file array. remove model number from first index of the array.
-        //here we assume that first index of the file is always model number
+        //here we assume that first index of the file is always model number       
         unset($uploaded_file_parts[0]);
         foreach ($uploaded_file_parts as $value){
             //check if uploaded part exists in our database

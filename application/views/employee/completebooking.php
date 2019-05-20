@@ -24,7 +24,7 @@
                 } 
                 ?>
         <?php $required_sp_id = array(); $can_sp_id = array(); ?>
-        <?php $isModelMandatory =0 ; $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php $isModelMandatory =0 ; $dop_mendatory=0; $required_sp_id = array(); $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -178,9 +178,11 @@
                                             }
                                             ?>" readonly="readonly">
                                     </div>
+                                    <?php if($c2c){ ?>
                                     <div class="col-md-2">
                                         <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                                     </div>
+                                    <?php }?>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Pincode</label>
@@ -222,6 +224,11 @@
                             </div>
                         </div>
                     </div>
+                    <?php
+                            $paid_basic_charges = 0;
+                            $paid_additional_charges = 0;
+                            $paid_parts_cost = 0;
+                    ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
@@ -253,6 +260,12 @@
                                         </div>
                                     </div>
                                     <?php } ?>
+                                     <div class="form-group">
+                                         <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                        <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
+                                         </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-9">
                                     <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -267,23 +280,26 @@
                                         </tr>
                                         <tbody>
                                             <?php
-                                                $paid_basic_charges = 0;
-                                                $paid_additional_charges = 0;
-                                                $paid_parts_cost = 0;
                                                 
-                                                foreach ($unit_details['quantity'] as $key => $price) {
-                                                    //print_r($price);
-                                                    ?>
+                                                foreach ($unit_details['quantity'] as $key => $price) { ?>
+                                                    <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
+                                                                                                        <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
                                                     <?php if ($price['pod'] == "1") { ?>
+                                                    <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
+                                                                   $dop_mendatory = 1; 
+                                                            }
+                                                            ?>
                                                     <div class="form-group">
                                                         <div class="col-md-12 ">
-                                                            <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
+                                                            <input type="text" style="text-transform: uppercase;" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if($price['is_sn_correct'] == IS_SN_CORRECT){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+
                                                             <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -408,7 +424,7 @@
                                             <?php foreach ($prices[$keys] as $index => $value) { ?>
                                             <tr style="background-color:   #bce8f1; color: #222222;">
                                                 <td> <?php if ($value['pod'] == "1") { ?>
-                                                    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" />
+                                                    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
                                                     <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value="<?php echo $unit_details['model_number']; ?>"   />
                                                     <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
@@ -452,36 +468,18 @@
                     <?php } ?>
                     <div class="row">
                         <div class ="col-md-12">
-                            <?php if($booking_history[0]['is_upcountry'] == '1' 
-                                && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
-                            <div class="form-group col-md-offset-1">
-                                <label for="type" class="col-sm-2">Paid Upcountry Charges</label>
-                                <div class="col-md-4">
+                            <div class="form-group col-md-6">
+                                <label for="type" class="col-md-4" style="padding:0;">Total Customer Paid</label>
+                                <div class="col-md-8">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo floatval($paid_basic_charges) + floatval($paid_additional_charges) + floatval($paid_parts_cost) +floatval($upcountry_charges); ?>" placeholder="Total Price" readonly>
                                     </div>
                                 </div>
                             </div>
-                            <?php } else { ?>
-                            <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
-                            <?php } ?>
-                            <div class="form-group col-md-offset-1">
-                                <label for="type" class="col-sm-2">Total Customer Paid</label>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost +$upcountry_charges;; ?>" placeholder="Total Price" readonly>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="rating_star" class="col-md-2">Star Rating</label>
-                                <div class="col-md-4">
+                            <div class="form-group col-md-6">
+                                <label for="rating_star" class="col-md-4" style="padding-left:10%;">Star Rating</label>
+                                <div class="col-md-8">
                                     <Select type="text" class="form-control"  name="rating_stars" value="">
                                         <option value="">Select</option>
                                         <option <?php
@@ -512,6 +510,70 @@
                                     </Select>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding:0;">Symptom *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Symptom</option>
+                                        <?php if(isset($technical_problem)) {
+                                            foreach ($technical_problem as $value) { 
+                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time']))) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                            <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                         
+                                        <?php } } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding-left:10%;">Defect *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
+                                        <option value="" selected="" disabled="">Please Select Defect</option>
+                                        <?php foreach ($technical_defect as $value) { 
+                                            $selected=((($value['defect_id'] == 0) || (!empty($booking_symptom) && ($value['defect_id'] == $booking_symptom[0]['defect_id_completion']))) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding:0;">Solution *</label>
+                                <div class="col-md-8" >
+                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
+                                        <option value="" selected="" disabled="">Please Select Solution</option>
+                                        <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
+                                        <option value="0" selected>Default</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php 
+                            if($booking_history[0]['is_upcountry'] == '1' 
+                                && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
+                            <div class="form-group col-md-6">
+                                <label for="type" class="col-md-4" style="padding-left:10%;">Paid Upcountry Charges</label>
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">Rs.</div>
+                                        <input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+                                    </div>
+                                </div>
+                            </div>
+                            <?php } else { ?>
+                            <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <div class="col-md-4">
                                     <textarea class="form-control" rows="5" name="rating_comments" placeholder ="Rating Comment"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
@@ -552,6 +614,9 @@
 </div>
 </div>
 <script>
+    $("#technical_problem").select2();
+    $('#technical_defect').select2();
+    $('#technical_solution').select2();
     $(".booking_source").select2();
     $(".model_number").select2();
 </script>
@@ -562,7 +627,7 @@
     var categoryForServiceUrl = '<?php echo base_url();?>/employee/booking/getCategoryForService/';
     var CapacityForCategoryUrl = '<?php echo base_url();?>/employee/booking/getCapacityForCategory/';
     
-    
+    var solution_id = "";
     $(document).ready(function () {
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
@@ -573,6 +638,15 @@
     return false;
      }
     });
+    
+    solution_id = "<?php echo ((!empty($booking_symptom) && ($technical_problem[count($technical_problem)-1]['id'] != 0))?$booking_symptom[0]['solution_id']:"");?>";
+    if((solution_id !== "") && (solution_id != 0)) {
+        update_solution();
+    }
+    
+    if($('#technical_solution').val() == 0) {
+        $('#technical_solution').removeAttr('disabled');
+    }
     });
     
     
@@ -587,6 +661,66 @@
     
     $("#grand_total_price").val(price);
     });
+    
+    function update_defect(){
+        var technical_problem = $("#technical_problem").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_defect_on_symptom',
+            data:{technical_problem:technical_problem},
+            success: function (response) {
+                $('#technical_solution').attr('disabled',true);
+                $('#select2-technical_defect-container').empty();
+                $('#select2-technical_solution-container').empty();
+                $('#technical_defect').empty();
+                $('#technical_solution').empty();
+                response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Defect</option>";
+                if(response.length>0)
+                {
+                    for(var i=0;i<response.length;i++)
+                    {
+                        str+="<option value="+response[i]['defect_id']+" >"+response[i]['defect']+"</option>";
+                    }
+                }
+                $('#technical_defect').append(str);
+            }
+        });
+    }
+    
+    function update_solution(){
+        var technical_symptom = $("#technical_problem").val();
+        var technical_defect = $("#technical_defect").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_solution_on_symptom_defect',
+            data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
+            async: false,
+            success: function (response) {
+                $('#technical_solution').removeAttr('disabled');
+                $('#select2-technical_solution-container').empty();
+                $('#technical_solution').empty();
+                response=JSON.parse(response);
+                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
+                
+                var selected;
+                if(response.length>0)
+                {
+                    for(var i=0;i<response.length;i++)
+                    {
+                        selected="";
+                        if(response[i]['solution_id'] === solution_id)
+                        {
+                            selected = "selected";
+                            $('#select2-technical_solution-container').text(response[i]['technical_solution']);
+                        }
+                        str+="<option value="+response[i]['solution_id']+" "+selected+" >"+response[i]['technical_solution']+"</option>";
+                    }
+                }
+                $('#technical_solution').append(str);
+            }
+        });
+    }
     
     function onsubmit_form(upcountry_flag, number_of_div) { 
     
@@ -668,6 +802,13 @@
                     <?php
                 }
                 ?>
+       <?php if($dop_mendatory ==1){ ?>
+        var dop = $("#dop").val();
+        if(dop === ""){
+                alert("Please Select Date of Purchase");
+                return false; 
+              }  
+        <?php } ?>
             var amount_due = $("#amount_due" + div_no[2]).text();
             var basic_charge = $("#basic_charge" + div_no[2]).val();
             var additional_charge = $("#extra_charge" + div_no[2]).val();
@@ -762,6 +903,37 @@
         } else if (Number(upcountry_charges) > 0) {
             flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
+        }
+    }
+    <?php if(!empty($technical_problem)){ ?>
+        var technical_problem = $("#technical_problem").val();
+
+        if(technical_problem === null){
+            alert('Please Select Symptom');
+            document.getElementById('technical_problem').style.borderColor = "red";
+            flag = 1;
+            return false;
+        }
+    <?php } ?>
+
+    <?php if(!empty($technical_defect)){ ?>
+        var technical_defect = $("#technical_defect").val();
+
+        if(technical_defect === null){
+            alert('Please Select Defect');
+            document.getElementById('technical_defect').style.borderColor = "red";
+            flag = 1;
+            return false;
+        }
+    <?php } ?>
+    if($("#technical_solution").val() != '') {
+        var technical_solution = $("#technical_solution").val();
+
+        if(technical_solution === null){
+            alert('Please Select Solution');
+            document.getElementById('technical_solution').style.borderColor = "red";
+            flag = 1;
+            return false;
         }
     }
     var closing_remarks = $("#closing_remarks").val();
@@ -986,5 +1158,19 @@
     
     
     }
-    
+    function update_dop_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var dopValue = $("#dop_"+div).val();
+            for(i = 0; i < Number(div_item_count); i++ ){
+                $(".unit_dop_"+div+"_"+i).val(dopValue);
+         }
+    }
+      function dop_calendar(id){
+         $("#"+id).datepicker({
+             dateFormat: 'yy-mm-dd', 
+             changeMonth: true,
+             changeYear: true,
+             maxDate:0
+         }).datepicker('show');
+    }
 </script>

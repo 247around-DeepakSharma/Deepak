@@ -24,6 +24,8 @@ class User extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('miscelleneous');
+        $this->load->library('notify');
+        $this->load->library('booking_utilities');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
@@ -147,6 +149,7 @@ class User extends CI_Controller {
      */
     function load_search_view($data,$view){
         $this->miscelleneous->load_nav_header();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->load->view($view, $data);
     }
 
@@ -249,6 +252,7 @@ class User extends CI_Controller {
 
         $data['user'] = $this->user_model->search_user($phone_number);
         $data['state'] = $this->vendor_model->getall_state();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/edituser', $data);
     }
@@ -368,10 +372,13 @@ class User extends CI_Controller {
      * 
      */
     function add_employee(){
-        $data['employee_groups'] = $this->employee_model->get_employee_groups();
+        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
+        $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);//$this->employee_model->get_employee_groups();
+        $data['employee_list'] = $this->employee_model->get_employee();
+        $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit', $data);
-}
+    }
     
     /**
      * @Desc: This function is used to process employee add form
@@ -381,10 +388,62 @@ class User extends CI_Controller {
      */
     function process_add_employee(){
         $data = $this->input->post();
-        $data['employee_password'] = md5($this->input->post('employee_password'));
-        $data['clear_password'] = $this->input->post('employee_password');
-        $data['create_date'] = date('Y-m-d H:i:s');
-        $id = $this->employee_model->insertData($data);
+        
+        $removeKeys = array('manager', 'subordinate');
+        $data1=array_diff_key($data, array_flip($removeKeys));
+        
+        if($data == $data1)
+            exit("Please add manager or subordinate!");
+        
+        $data1['groups']= str_replace(' ', '', $data1['groups']);
+        
+        $data1['clear_password'] = $this->randomPassword();
+        $data1['employee_password'] = md5($data1['clear_password']);
+        $data1['create_date'] = date('Y-m-d H:i:s');
+        
+        $maxid = 0;
+        $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
+        if ($row) {
+            $maxid = $row->maxid; 
+        }
+
+        $maxid=10000+$maxid;
+
+        do {
+            ++$maxid;
+            $row = $this->db->query('SELECT * FROM employee where employee_id='.$maxid)->result_array();
+        }while (count($row)>0);
+        $data1['employee_id'] = $maxid;
+        
+        $id = $this->employee_model->insertData($data1);
+        $data2 = array();
+        
+        if(isset($data['manager'])) {
+            $manager=$this->input->post('manager');
+            
+            $data2[]=array("id" => $id, "manager" => $manager);
+            
+        }
+        
+        if(isset($data['subordinate'])) {
+            $subordinate=$this->input->post('subordinate');
+            
+            foreach($subordinate as $key=>$val) {
+                $data2[]=array("id" => $val, "manager" => $id);
+            }
+        }
+        
+        if(count($data2) > 0)
+            $this->employee_model->insertManagerData($data2);
+        $tag='employee_login_details';
+        if(!$this->process_mail_to_employee($tag,$id,$manager)) {
+            //Logging error if there is some error in sending mail
+            log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
+            $error = ' Sending Mail Error..  ';
+            $this->session->set_flashdata('error', $error);
+            redirect(base_url() . "employee/user/add_employee");
+        }
+        
         $this->session->set_userdata('success','Employee Added Sucessfully.');
         
         redirect(base_url() . "employee/user/show_employee_list");
@@ -398,7 +457,12 @@ class User extends CI_Controller {
      */
     function show_employee_list(){
         $data['data'] = $this->employee_model->get_employee();
+        foreach($data['data'] as $key => $value) {
+            $data['data'][$key]['manager'] = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $value['id']));
+        }
+        
         $data['session_data'] = $this->session->all_userdata();
+        $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_list',$data);
     }
@@ -412,11 +476,29 @@ class User extends CI_Controller {
     function update_employee($id = ""){   
         $data['id'] = $this->session->userdata('id');
         $data['user_group'] = $this->session->userdata('user_group');
-        if(!$id)
-        $data['query'] = $this->employee_model->getemployeefromid($data['id']);
-        else
-            $data['query'] = $this->employee_model->getemployeefromid($id);
-        $data['employee_groups'] = $this->employee_model->get_employee_groups();
+        
+        $id = ((!$id) ? $data['id'] : $id);
+                
+        $data['query'] = $this->employee_model->getemployeefromid($id);
+        $employee_list = $this->employee_model->get_employee($id);
+        $data['employee_list']=array_filter($employee_list, function($v) use($id) {return $v['id'] != $id;});
+        
+        $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
+        $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);
+        if(!empty($data['employee_dept'])) {
+            $cond= array('where' => array('entity_type'=>'247Around', 'department' => $data['query'][0]['department']), 'order_by' => 'role');
+            $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
+        }
+        
+        $manager=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $id));
+        $subordinate=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $id));
+        
+        if(!empty($manager))
+        $data['manager']=$manager[0]['manager_id'];
+        if(!empty($subordinate))
+        $data['subordinate']=$subordinate;
+        
+        $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit',$data);
     }
@@ -429,11 +511,48 @@ class User extends CI_Controller {
      */
     function process_edit_employee(){
         $data = $this->input->post();
-        if(!empty($this->input->post('employee_password'))){
-            $data['employee_password'] = md5($this->input->post('employee_password'));
-            $data['clear_password'] = $this->input->post('employee_password');
+        $removeKeys = array('manager', 'subordinate');
+        $data1=array_diff_key($data, array_flip($removeKeys));
+        
+        $data1['groups']= str_replace(' ', '', $data1['groups']);
+        
+        $this->employee_model->update($data1['id'],$data1);
+        
+        $data2 = array();
+        if(isset($data['manager'])) {
+            $manager=$this->input->post('manager');
+            
+            $data2[]=array("id" => $data1['id'], "manager" => $manager);
+            
         }
-        $this->employee_model->update($data['id'],$data);
+        
+        if(count($data2) > 0) {
+            $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $data1['id']));
+
+            if(count($data3) <= 0)
+                $this->employee_model->insertManagerData($data2);
+            else
+                $this->employee_model->updateManager($data2);
+        }
+        
+        
+        $data2 = array();
+        
+        if(isset($data['subordinate'])) {
+            $subordinate=$this->input->post('subordinate');
+            
+            foreach($subordinate as $key=>$val) {
+                $data2[]=array("id" => $val, "manager" => $data1['id']);
+            }
+        }
+        
+        $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $data1['id']));
+        
+        if(count($data3) > 0)
+            $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
+        if(count($data2) > 0) {
+            $this->employee_model->insertManagerData($data2);
+        }
         
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
         
@@ -453,6 +572,31 @@ class User extends CI_Controller {
         redirect(base_url() . "employee/user/show_employee_list");
     }
     
+    /**
+     * 
+     * @Desc: This function is used to reset employee password
+     * @params: employee id
+     * @return: view
+     */
+    function reset_password($id){
+        $data['clear_password'] = $this->randomPassword();
+        $data['employee_password'] = md5($data['clear_password']);
+        $this->employee_model->update($id,$data);
+        $manager=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $id));
+        if(!empty($manager))
+            $manager = $manager[0]['manager_id'];
+        $tag='employee_reset_password';
+        if(!$this->process_mail_to_employee($tag,$id,$manager)) {
+            //Logging error if there is some error in sending mail
+            log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
+            $error = ' Sending Mail Error..  ';
+            $this->session->set_userdata('error', $error);
+            redirect(base_url() . "employee/user/show_employee_list");
+        }
+        
+        $this->session->set_userdata('success','Password Reset Sucessfully.');
+        redirect(base_url() . "employee/user/show_employee_list");
+    }
     /**
      *@Desc: This function is used to show holiday list to employees
      * @params: void
@@ -497,6 +641,118 @@ class User extends CI_Controller {
         
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/change_password');
+    }
+     /*@Desc: This function is used to get random password of length 8 
+     * @params: void
+     * @return: void 
+     * 
+     */
+    function randomPassword() {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 8; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
+    }
+    /**
+     * @desc: This function is used to send mail to newly created employee or if password is reset
+     * params: employee id
+     * return: void
+     * 
+     */
+    function process_mail_to_employee($tag,$id,$manager_id) {
+        //Setting flag as TRUE ->Success and FALSE -> Failure
+        $flag = TRUE;
+        $attachment = "";
+        //Get email template values for employee
+        $email = array();
+        $email['where'] = array(
+            'entity' => 'employee',
+            'template' => $tag
+        );
+        $email['select'] = '*';
+        $email_template = $this->vendor_model->get_247around_email_template($email);
+        
+        if (!empty($email_template)) {
+            $template_value = $email_template[0]['template_values'];
+            //Making array for template values 
+            $template_array = explode(',', $template_value);
+            
+            //Getting value in array from template_values column
+            foreach ($template_array as $val) {
+                $table['table_name'] = explode('.', $val)[0];
+                $table['column_name'] = explode('.', $val)[1];
+                $table['primary_key'] = explode('.', $val)[2];
+                $template[] = $table;
+            }
+            
+
+            $employee_details = $this->employee_model->getemployeefromid($id);
+            
+            //Setting TO for Email
+            $to = (($employee_details[0]['official_email'] != '')?$employee_details[0]['official_email']:'');
+            
+            if(!empty($manager_id)) {
+                $manager_details = $this->employee_model->getemployeefromid($manager_id);
+                $to .= (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
+            }
+            
+            $to = trim($to,',');
+            
+            if($to == '') {
+                //Logging error if there is some error in sending mail
+                log_message('info', __FUNCTION__ . " No Sender for email.  ");
+                return FALSE;
+            }
+            
+            $temp=array();
+            foreach ($template as $value) {
+                $value['id'] = $id;
+                //Getting employee details
+                $employee_data = $this->vendor_model->get_data($value);
+
+                if ($employee_data) {
+                    $temp[] = $employee_data[0][$value['column_name']];
+                } else {
+                    //Logging error when values not found
+                    log_message('info', __FUNCTION__ . ' Mail send Error. No data found to the following employee ID ' . $employee_details[0]['id']);
+                    log_message('info', __FUNCTION__ . ' Template values are - ' . print_r($value, TRUE));
+                    //Set Flag to check success or error of AJAX call
+                    $flag = FALSE;
+                }
+            }
+            //Sending Mail to the employee
+            if (isset($temp)) {
+                $emailBody = vsprintf($email_template[0]['body'], $temp);
+                //Sending Mail
+                $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
+                //Login send mail details
+                log_message('info', __FUNCTION__ . ' Mail send to the following employee ID ' . $employee_details[0]['id']);
+                //Set Flag to check success or error
+                $flag = TRUE;
+            }
+        }
+        return $flag;
+    }
+    /**
+     * @Desc: This function is used to get role based on department
+     * @params: void
+     * @return: view
+     * 
+     */
+    function get_role_on_department(){
+        $department = $this->input->post('department');
+        
+        $data = array();
+        if(!empty($department))
+        {
+            $cond= array('where' => array('entity_type'=>'247Around', 'department' => $department), 'order_by' => 'role');
+            $data = $this->employee_model->get_entity_role('role',$cond);
+        }
+        echo json_encode($data);
     }
      
 }

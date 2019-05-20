@@ -89,18 +89,38 @@
                     </div>
                 </div>
             </div>
+            <?php if($status == _247AROUND_COMPLETED){ ?>
             <div class="col-md-4">
                 <div class="item form-group">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <select class="form-control" id="completed_booking">
-                            <option value="" selected="selected" disabled="">Select Completed Booking Type</option>
-                             <option value="a">All</option>
+                            <option value="" disabled="">Select Completed Type</option>
+                            <option value="a" selected="selected">All</option>
                             <option value="b">Completed by Service Center (In Review)</option>
-                            <option value="c">Completed</option>
+                            <option value="c">Reviewed By 247around (Fully Completed)</option>
                         </select>
                     </div>
                 </div>
             </div>
+            <?php
+            }
+            else{
+                ?>
+            <div class="col-md-4">
+                <div class="item form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <select class="form-control" id="completed_booking">
+                            <option value="" disabled="">Select Cancelled Type</option>
+                            <option value="a" selected="selected">All</option>
+                            <option value="b">Cancelled by Service Center (In Review)</option>
+                            <option value="c">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <?php
+            }
+            ?>
         </div>
         <div class="col-md-12">
         <div class="col-md-3">

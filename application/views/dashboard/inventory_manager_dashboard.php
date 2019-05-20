@@ -23,7 +23,7 @@
     </div>
     <!-- /top tiles -->
     <hr>
-    
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <div class="row" style="margin-top:10px;">
         <!-- Partner Spare Parts Details -->
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -42,7 +42,7 @@
         </div>
         <!-- End  Partner Spare Parts Details -->
     </div>
-    
+    <?php } ?>
     
     <div class="row" style="margin-top:10px;">
         <!-- SF Spare Parts Details -->
@@ -77,6 +77,7 @@
         <!-- End SF Spare Parts Details-->
     </div>
     
+    <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- SF Brackets snapshot Section -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -123,6 +124,8 @@
         </div>
     </div>
     <!-- SF Brackets Snapshot Section -->
+    <?php } ?>
+    
     <div id ='admin_dashboard_app_rm'>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -357,7 +360,7 @@
     
     //this function is used to get the brackets data of sf
     function sf_brackets_details(){
-        url =  '<?php echo base_url(); ?>/employee/inventory/get_inventory_snapshot';
+        url =  '<?php echo base_url(); ?>employee/inventory/get_inventory_snapshot';
         data = {is_show_all:false};
         sendAjaxRequest(data,url,post_request).done(function(response){
             create_sf_brackets_table(response);

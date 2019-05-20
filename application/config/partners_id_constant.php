@@ -1,6 +1,6 @@
 <?php
 //247Around ID
-define('_247AROUND',247001);
+define('_247AROUND', $db->login_partner_id);
 //Jeeves ID
 define("JEEVES_ID", 247030);
 //Wybor ID
@@ -43,4 +43,5 @@ define('QWIKCILVER_PARTNER_ID','247025');
 define("BURLY_ID",247123);
 //Videocon partner id
 define("VIDEOCON_ID",247130);
-
+//Kenstar partner id
+define("KENSTAR_ID",2470001);

@@ -169,6 +169,20 @@ class service_centre_charges_model extends CI_Model {
      * @return: array
      * 
      */
+
+
+        function get_service_brands_for_partner($partner_id){
+        $sql = "Select Distinct partner_appliance_details.brand, services.services,services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+
+
+
+    
     
     function get_appliance_from_partner($partner_id){
         $this->db->distinct();

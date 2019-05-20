@@ -74,6 +74,9 @@ $route['service_center/update_defective_parts/(:any)'] = 'employee/service_cente
 $route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
 $route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
 $route['service_center/get_approved_defective_parts_booking/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking/$1';
+
+$route['service_center/defective_part_shipped_by_sf'] = 'employee/service_centers/defective_part_shipped_by_sf';
+
 $route['service_center/pending_booking_upcountry_price/(:any)'] = 'employee/service_centers/pending_booking_upcountry_price/$1';
 $route['service_center/gst_details'] = 'employee/service_centers/gst_update_form/';
 $route['service_center/gst_update_form'] = 'employee/service_centers/gst_update_form/';
@@ -95,7 +98,17 @@ $route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee
 $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
+
+
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
+$route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/service_centers/alternate_inventory_stock_list/$1/$2/$3';
+$route['service_center/inventory/alternate_parts_inventory_list'] = 'employee/service_centers/alternate_parts_inventory_list';
+$route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
+$route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1/$2';
+
+
+
+
 $route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
 $route['service_center/spare_parts/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
@@ -113,6 +126,18 @@ $route['service_center/download_sf_declaration/(:any)'] = 'employee/service_cent
 $route['service_center/acknowledge_spares_send_by_partner'] = 'employee/service_centers/acknowledge_spares_send_by_partner';
 $route['service_center/acknowledge_spares_send_by_vendor'] = 'employee/service_centers/acknowledge_spares_send_by_vendor';
 $route['service_center/dashboard'] = 'employee/service_centers/sf_dashboard';
+
+    
+
+$route['service_center/inventory/appliance_model_list'] = 'employee/service_centers/appliance_model_list';
+$route['service_center/booking_spare_list'] = 'employee/service_centers/booking_spare_list';
+$route['service_center/spare_transfer'] = 'employee/service_centers/spare_transfer';
+$route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_transfer';
+//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
+
+
+
+
 
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
@@ -175,6 +200,8 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 $route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+$route['partner/inventory/alternate_parts_list'] = 'employee/partner/alternate_parts_list';
+$route['partner/inventory/alternate_inventory_list/(:any)'] = 'employee/partner/alternate_inventory_stock_list/$1/$2/$3';
 $route['partner/reports'] = 'employee/partner/get_reports';
 $route['partner/contracts'] = 'employee/partner/get_contracts';
 $route['partner/contact_us'] = 'employee/partner/get_contact_us_page';
@@ -193,6 +220,19 @@ $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_revi
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
+
+
+
+
+
+//$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
+
+
+// $route['inventory/appliance_model_list']='employee/inventory/appliance_model_list';
+
+
+
+
 
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';

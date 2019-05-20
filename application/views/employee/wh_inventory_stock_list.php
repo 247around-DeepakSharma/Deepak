@@ -50,7 +50,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">Show All</label>
+                                        <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">With Out of Stock</label>
                                     </div>
                                     <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
                                 </div>
@@ -67,11 +67,12 @@
                                     <th>Appliance</th>
                                     <th>Type</th>
                                     <th>Name</th>
-                                    <th>Number</th>
+                                    <th>Parts Number</th>
                                     <th>Stock</th>
-                                    <th>Basic Price</th>
+                                    <th> SF Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
+                                    <th>  Customer  Total</th>
                                     <?php if($this->session->userdata('userType') == "employee") { ?>
                                         <th>Return Qty</th>
                                         <th>Add</th>
@@ -336,9 +337,9 @@
     
     function get_appliance(partner_id){
         $.ajax({
-            type: 'GET',
-            url: '<?php echo base_url() ?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centre_charges/get_partner_data',
+            data:{partner:partner_id},
             success: function (response) {
                 $('#service_id').html(response);
             }

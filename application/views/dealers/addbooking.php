@@ -1,4 +1,4 @@
-
+<script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
     /* example styles for validation form demo */
     .err {
@@ -155,7 +155,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                     <label for="Model Number">Model Number  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
-                                    <select class="form-control"  name="model_number" id="model_number_1" >
+                                    <select class="form-control select-model"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
                                     </select>
                                     </span>
@@ -173,8 +173,8 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 " id="purchase_d">
                                     <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
-                                <div class="input-group input-append date">
-                                    <input id="purchase_date" class="form-control"  name="purchase_date" type="date" value = "">
+                                <div class="input-group date">
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -252,7 +252,7 @@
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12  <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
                                     <label for="serial NUmber">Serial Number   <span id="error_serial_number" style="color:red"></span></label>
-                                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
+                                    <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" >
                                     
                                 </div>
                             </div>
@@ -268,9 +268,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('booking_request_symptom') ) { echo 'has-error';} ?>">
-                                <label for="booking_request_symptom">Technical Problem * <span id="error_booking_request_symptom" style="color: red;"></span></label>
+                                <label for="booking_request_symptom">Symptom * <span id="error_booking_request_symptom" style="color: red;"></span></label>
                                 <select class="form-control" name="booking_request_symptom" id="booking_request_symptom">
-                                    <option disabled selected>Select Identified Problem</option>
+                                    <option disabled selected>Please Select Any Symptom</option>
                                 </select>
                                 <?php echo form_error('booking_request_symptom'); ?>
                             </div>
@@ -441,6 +441,8 @@
     $("#booking_city").select2({
          tags: true
     });
+    $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     $("#price_tag").select2();
     $("#service_name").select2();
     $("#appliance_brand_1").select2();
@@ -448,7 +450,7 @@
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', 
-        minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>'
+        minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
         maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     
     
@@ -577,15 +579,18 @@
 
                 success: function (data) {
                   console.log(data);
-                        if(data === "Data Not Found"){
+                        if($.trim(data) === "Data Not Found"){
 
                             var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                             $("#model_number_2").html(input).change();
+                            $('.select-model').next(".select2-container").hide();
                         } else {
                             //First Resetting Options values present if any
-                             var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                             var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                             $("#model_number_2").html(input_text).change();
                             $("#model_number_1").append(data).change();
+                            $("#model_number_1").select2();
+                            $('.select-model').next(".select2-container").show();
                            // getPrice();
                         }
                     }
@@ -931,6 +936,13 @@
     }
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
   
+  $('.purchase_date').each(function () {
+    if ($(this).hasClass('hasDatepicker')) {
+        $(this).removeClass('hasDatepicker');
+    } 
+    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+  });
+  
   function get_symptom(symptom_id = ""){
         var array = [];
         var postData = {};
@@ -940,17 +952,18 @@
 
         });
         if(array.length > 0){
+            postData['partner_id'] = $("#appliance_brand_1 option:selected").attr('data-id');
             postData['request_type'] = array;
             postData['service_id'] = $("#service_name").val();
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {
-                console.log(data);
+                $('#booking_request_symptom').html("<option disabled selected>Please Select Any Symptom</option>");
                 if(data === "Error"){
-                    $('#booking_request_symptom').html("").change();
+                    $('#booking_request_symptom').append("").change();
                     $("#booking_request_symptom").removeAttr('required');
                 } else {
-                    $('#booking_request_symptom').html(data).change();
+                    $('#booking_request_symptom').append(data).change();
                     $("#booking_request_symptom").attr('required', 'required');
 
                 }

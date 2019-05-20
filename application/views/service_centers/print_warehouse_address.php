@@ -2,9 +2,11 @@
 <?php foreach ($details as  $value) { ?>
 <div style="display:inline; height: 360px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
     <div style="border: 1px solid #ccc;padding:8px; width: 300px;">
-        <img style='vertical-align:middle;width:50px;' src="<?php echo base_url(); ?>images/logo.png">
+        <?php if($meta['main_company_logo']){ ?>
+        <img style='vertical-align:middle;width:50px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">
+        <?php } ?>
         <div style='vertical-align:middle; display:inline;font-weight:bold; font-size: 20px;margin-left:10px;'>
-            247Around Service Center
+          <?php echo $meta['main_company_public_name']." Service Center"; ?>
         </div>
     </div>
     <div style="margin-left: 8px;">

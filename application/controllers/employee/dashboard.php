@@ -29,6 +29,7 @@ class Dashboard extends CI_Controller {
         $this->load->model('bb_model');
         $this->load->model('cp_model');
         $this->load->library("miscelleneous");
+        $this->load->library('booking_utilities');
 
         $this->load->library('table');
 
@@ -50,7 +51,14 @@ class Dashboard extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
         else{
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if (!file_exists(APPPATH."views/dashboard/header/" . $this->session->userdata('user_group') . ".php")) {
+                //Redirect to Default Search Page if logged in user's dashboard view does not exist.
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            }
+            else {
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
+            }
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
@@ -68,7 +76,8 @@ class Dashboard extends CI_Controller {
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
-            $this->load->view('employee/header/push_notification');
+            if(isset($data['saas_flag']) && (!$data['saas_flag']))
+                $this->load->view('employee/header/push_notification');
         }
     }
     
@@ -194,7 +203,8 @@ class Dashboard extends CI_Controller {
         $data['paid'] = $count[0]['Paid'];
         $data['startDate'] = $startDate;
         $data['endDate'] = $endDate;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/partner_specific_dashboard', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -313,6 +323,9 @@ class Dashboard extends CI_Controller {
         $partner_id = "";
         if ($this->input->post('partner_id')) {
             $partner_id = $this->input->post('partner_id');
+        }
+       if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
         }
         if ($is_repeat_ajax) {
             $sDate = $this->input->post('sDate');
@@ -465,8 +478,10 @@ class Dashboard extends CI_Controller {
             array_push($year, $value['year']);
             array_push($completed_booking, $value['completed_booking']);
         }
-        array_shift($month);
-        array_shift($completed_booking);
+        if(count($month)>1)
+            array_shift($month);
+        if(count($completed_booking)>1)
+            array_shift($completed_booking);
         $json_data['month'] = implode(",", $month);
         $json_data['completed_booking'] = implode(",", $completed_booking);
         echo json_encode($json_data);
@@ -499,7 +514,8 @@ class Dashboard extends CI_Controller {
     }
     
     function buyback_dashboard(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/buyback_dashboard');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -703,7 +719,8 @@ class Dashboard extends CI_Controller {
      * This function use to create a dashboard for RM
      */
     function rm_dashboard(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/rm_dashboard');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -711,7 +728,8 @@ class Dashboard extends CI_Controller {
      * This function use to create full view of missing pincode table
      */
     function missing_pincode_full_view($agentID = NULL){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
 //       $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
 //        if($agentID){
 //          $where['sf.rm_id'] = $agentID;  
@@ -1301,7 +1319,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      */
     function pending_full_view_by_sf($rm_id){
         $data['rm']=$rm_id;
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/pending_booking_full_view_by_sf',$data);
         $this->load->view('dashboard/dashboard_footer');        
     }
@@ -1314,7 +1333,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     
     function brackets_snapshot_full_view(){
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/brackets_snapshot_view');
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -1494,14 +1514,20 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $totalTempArray['TAT_5'] = $totalTempArray['TAT_4'] + count($values['TAT_5']);
             $totalTempArray['TAT_8'] = $totalTempArray['TAT_5'] + count($values['TAT_8']);
             $totalTempArray['TAT_16'] = $totalTempArray['TAT_8'] + count($values['TAT_16']);
-            $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
-            $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+            if($totalTempArray['TAT_16']){
+                $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
+                $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+            }
+            else{
+                $totalTempArray['TAT_0_per'] = $totalTempArray['TAT_1_per'] = $totalTempArray['TAT_2_per'] = $totalTempArray['TAT_3_per'] = $totalTempArray['TAT_4_per'] = $totalTempArray['TAT_5_per']
+                       = $totalTempArray['TAT_8_per'] = $totalTempArray['TAT_16_per'] = 0;
+            }
             $totalTempArray["entity"] =  $values['entity_name'];
             $totalTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $totalTempArray;
@@ -1514,14 +1540,19 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $totalTempArray['TAT_5'] = $tat_5_total + $totalTempArray['TAT_4'];
         $totalTempArray['TAT_8'] = $tat_8_total + $totalTempArray['TAT_5'];
         $totalTempArray['TAT_16'] = $tat_16_total + $totalTempArray['TAT_8'];
-        $totalTempArray['TAT_0_per'] = sprintf("%01.2f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_1_per'] = sprintf("%01.2f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_2_per'] = sprintf("%01.2f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_3_per'] = sprintf("%01.2f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_4_per'] = sprintf("%01.2f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_5_per'] = sprintf("%01.2f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_8_per'] = sprintf("%01.2f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
-        $totalTempArray['TAT_16_per'] = sprintf("%01.2f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+        if($totalTempArray['TAT_16'] != 0){
+            $totalTempArray['TAT_0_per'] = sprintf("%01.2f",(($totalTempArray['TAT_0']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_1_per'] = sprintf("%01.2f",(($totalTempArray['TAT_1']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_2_per'] = sprintf("%01.2f",(($totalTempArray['TAT_2']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_3_per'] = sprintf("%01.2f",(($totalTempArray['TAT_3']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_4_per'] = sprintf("%01.2f",(($totalTempArray['TAT_4']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_5_per'] = sprintf("%01.2f",(($totalTempArray['TAT_5']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_8_per'] = sprintf("%01.2f",(($totalTempArray['TAT_8']*100)/$totalTempArray['TAT_16']));
+            $totalTempArray['TAT_16_per'] = sprintf("%01.2f",(($totalTempArray['TAT_16']*100)/$totalTempArray['TAT_16']));
+        }
+        else{
+            $totalTempArray['TAT_0_per'] = $totalTempArray['TAT_1_per']  = $totalTempArray['TAT_2_per'] = $totalTempArray['TAT_3_per'] = $totalTempArray['TAT_4_per'] = $totalTempArray['TAT_5_per'] = $totalTempArray['TAT_8_per'] = $totalTempArray['TAT_16_per'] = 0;
+        }
         $totalTempArray['entity'] =  "Total";
         $totalTempArray['id'] =  "00";
         $totalArray[] = $totalTempArray;
@@ -1835,7 +1866,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
@@ -2018,7 +2049,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         else{
-            $status = '247around:Vendor';
+            $status = '247around:Vendor:not_set';
         }
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -2074,9 +2105,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $serviceWhere['isBookingActive'] =1;
         $partners = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
+         $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if(!$is_ajax){
             if($this->session->userdata('userType') == 'employee'){
-                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             }
             else if($this->session->userdata('userType') == 'partner'){
                 $this->miscelleneous->load_partner_nav_header();
@@ -2101,7 +2133,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
-           echo  json_encode($sfData);
+            if($is_pending){
+                echo  json_encode($sfData);
+            }
+            else{
+                if(array_key_exists('TAT', $data)){
+                    echo  json_encode($sfData['TAT']);
+                }
+                else{
+                    echo  json_encode($sfData);
+                }
+            }
         }
     }
     
@@ -2226,7 +2268,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
         $data['partner_name'] = urldecode($partner_name);
         $data['partner_id'] = urldecode($partner_id);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/partner_specific_spare_parts_dashboard', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2302,7 +2345,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         
         $data['partner_id'] = urldecode($partner_id);
         $data['partner_name'] = urldecode($partner_name);
-        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         $this->load->view('dashboard/sf_oot_spare_full_view', $data);
         $this->load->view('dashboard/dashboard_footer');
     }
@@ -2536,7 +2580,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $data['state_data'] = $this->get_servicability_missing_data_district("state_id",$rm_id);
                 $data['services'] = $this->vendor_model->get_active_services();
                 $data['rm_id'] = $rm_id;
-                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+                $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
                 $this->load->view('dashboard/rm_state_wise_pincode_view',$data);
                 $this->load->view('dashboard/dashboard_footer');
            }
@@ -2741,7 +2786,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         unset($data['seen']);
         $data['marquee'] = 1;
         $return['marquee_msg'] = $this->dashboard_model->get_dashboard_notification("dashboard_notifications.id, message", $data);
-        log_message('info', __METHOD__ . "=>query".$this->db->last_query());
+        //log_message('info', __METHOD__ . "=>query".$this->db->last_query());
         echo json_encode($return);
     }
     
@@ -2805,13 +2850,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $stateCodeArray = $rm_arr['rm_'.$rmID]['state_code'];
         }
         $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state($stateCodeArray);
-        foreach($vendor_mapping_data as $pincodeVendorArray){ 
+        foreach($vendor_mapping_data as $pincodeVendorArray){
             if(array_key_exists('state_'.$pincodeVendorArray['id'], $india_pincode)){
+                $india_pincode['state_'.$pincodeVendorArray['id']] = intval($india_pincode['state_'.$pincodeVendorArray['id']]);
                 $missingPincode = $india_pincode['state_'.$pincodeVendorArray['id']] - $pincodeVendorArray['total_pincode'];
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode'] = $missingPincode;
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['servicable_pincode'] = $pincodeVendorArray['total_pincode'];
                 $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['total_pincode'] = $india_pincode['state_'.$pincodeVendorArray['id']];
-                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode_per'] = round($missingPincode/$india_pincode['state_'.$pincodeVendorArray['id']],0);
+                $vendorStructuredArray['state_'.$pincodeVendorArray['id']]['appliance_'.$pincodeVendorArray['Appliance_ID']]['missing_pincode_per'] = ((isset($india_pincode['state_'.$pincodeVendorArray['id']]) && ($india_pincode['state_'.$pincodeVendorArray['id']] !== 0))?round($missingPincode/$india_pincode['state_'.$pincodeVendorArray['id']],0):0);
             }
         }
         $missing_pincode_rm=array(

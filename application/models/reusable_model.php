@@ -91,9 +91,14 @@ class reusable_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    function insert_batch($table,$data){
-        $this->db->insert_batch($table, $data); 
-        return $this->db->affected_rows();
+     function insert_batch($table,$data){
+        if($data){
+            $this->db->insert_batch($table, $data); 
+            return $this->db->affected_rows();
+        }
+        else{
+            return 0;
+        }
     }
     
      function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){

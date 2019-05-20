@@ -189,8 +189,11 @@
                                 <th>Vendor Status</th>
                             <?php } 
                         } ?>
-                        <th>Call</th>
-                        <th>SMS</th>
+                        <?php if($c2c) { ?>
+                            <th>Call</th>
+                            <th>SMS</th>
+                        <?php } ?>
+                        
                         <th>View</th>
                         <?php if($query_status != _247AROUND_CANCELLED){?>
                             <th>Update</th>
@@ -296,6 +299,7 @@
                     d.appliance =  $('#appliance').val();
                     d.pincode_status = pincode_status;
                     d.city =  $('#city').val();
+                    d.c2c = '<?php echo $c2c;?>';
                  }
             },
             "deferRender": true,
@@ -397,7 +401,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/send_whatsapp_number/',
-                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service},
+                data:{phone_no:json.phone_number, booking_id:json.booking_id, user_id:json.user_id, appliance_brand:json.appliance_brand, service:json.service, partner_id:json.partner_id, booking_state:json.booking_state},
                 success: function(response) {
                     //console.log(response);
                 }

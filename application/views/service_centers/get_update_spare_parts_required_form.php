@@ -50,7 +50,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" >
+                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8">
                                         </div>
                                     </div>
                                 </div>
@@ -101,9 +101,9 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Part In Warranty*</label>
+                                            <label for="part_warranty" class="col-md-4">Part In Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control" id="part_warranty_status_0" name="part_warranty_status" onchange="get_symptom(0)">
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
                                                     <option selected="" disabled="">Select warranty status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
                                                     <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
@@ -111,7 +111,7 @@
                                             </div>                                            
                                         </div>
                                     </div>
-                                    <div class = 'col-md-6'>
+                                    <!--<div class = 'col-md-6'>
                                         <div class="form-group">
                                             <label for="Technical Issue" class="col-md-4">Technical Problem *</label>                                             
                                             <div class="col-md-6">
@@ -120,10 +120,10 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <div class = 'col-md-6'>
                                         <div class="form-group">
-                                            <label for="parts_type" class="col-md-4">Parts Type *</label>
+                                            <label for="parts_type" class="col-md-4">Part Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control parts_type spare_parts" id="parts_type"  name="part[0][parts_type]">
@@ -133,17 +133,19 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">                                                
-                                                <select class="form-control spare_parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
+                                                <select class="form-control parts_type spare_parts" id="parts_type" name="part[0][parts_type]" value = "<?php echo set_value('parts_type'); ?>">
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
                                             <?php } ?>
-                                            
+                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>                              
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="parts_name" class="col-md-4">Parts Name *</label>
+                                            <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
@@ -153,10 +155,9 @@
                                             </div>
                                             <?php } else { ?> 
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" value = "<?php echo $spare_parts_details['parts_requested']; ?>" placeholder="Parts Name" >
+                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name" name="part[0][parts_name]" value = "<?php echo $spare_parts_details['parts_requested']; ?>" placeholder="Part Name" >
                                             </div>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>
                                         
                                     </div>
@@ -171,7 +172,9 @@
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" id="display_defective_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                            <?php } ?>
                                         </div>
-                                    </div>                                    
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -200,14 +203,12 @@
                         <div class="text-warning"> <span class="badge badge-info"><i class="fa fa-info"></i></span> * These fields are required</div>
                     </div>                                        
                     <div class="col-md-6 col-md-offset-2">
-                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">
-                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['booking_partner_id']; ?>">                        
+                        <input type="hidden" name="partner_id" value="<?php echo $spare_parts_details['partner_id']; ?>">  
                         <input type="hidden" name="entity_type" value="<?php echo $spare_parts_details['entity_type']; ?>">
                         <input type="hidden" name="spare_id" value="<?php echo $spare_parts_details['id']; ?>">
                         <input type="hidden" name="booking_id" value="<?php echo $spare_parts_details['booking_id']; ?>">
                         <input type="hidden" name="previous_inventory_id" value="<?php echo $spare_parts_details['requested_inventory_id']; ?>"> 
                         <input type="hidden" name="current_inventory_id" id="current_inventory_id" value="">
-                        
                         <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
                 </form>
@@ -216,8 +217,7 @@
     </div>
 </div>
 </div>
-
-<?php if(empty($spare_parts_details['requested_inventory_id'])){ ?>
+<?php if(empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){ 
     defults_inventory_part_type();  
@@ -227,8 +227,8 @@ $(document).ready(function(){
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
                 data: { service_id:<?php echo $spare_parts_details['service_id']; ?>},
                 success:function(data){                       
-                    $('#parts_type').html(data);
-                    $('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                    $('.parts_type').html(data);
+                    $('.parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
                     
                 }
             });
@@ -238,6 +238,7 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
+$('#model_number_id').select2();
 $(document).ready(function(){    
     
         $('#model_number_id').on('change', function() {        
@@ -249,7 +250,7 @@ $(document).ready(function(){
             load_parts_type(part_type);           
         });
         
-        $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+        $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0});
         
         $("#serial_number_pic").on('change',function(){
             var serial_number_pic = $("#serial_number_pic").val();
@@ -313,7 +314,6 @@ $(document).ready(function(){
                     url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
                     data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
                     success:function(data){
-                        console.log(data);                       
                         $('#parts_name').html(data);  
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
                         $("#current_inventory_id").val(inventory_id);
@@ -346,10 +346,10 @@ function get_inventory_id(id){
             postData['request_type'] = array;
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
-        get_technical_problem(postData,'0');
+        //get_technical_problem(postData,'0');
     });
 
-   function get_symptom(key){      
+   /*function get_symptom(key){      
         var array = [];
         var postData = {};
         var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
@@ -359,9 +359,9 @@ function get_inventory_id(id){
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
         get_technical_problem(postData,key);
-    }
+    }*/
     
-    function get_technical_problem(postData,key) {
+    /*function get_technical_problem(postData,key) {
         var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
          $.ajax({
              method:'POST',
@@ -377,19 +377,106 @@ function get_inventory_id(id){
                  }                  
              }
          });
+    }*/
+    
+    
+    function dop_calendar(){
+        $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0}).datepicker('show');
     }
     
-    $(document).ready(function(){
-        var service_id = "<?php echo $spare_parts_details['service_id']; ?>";
-        $.ajax({
-            method:'POST',
-            url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-            data: { service_id:service_id},
-            success:function(data){                       
-                $('.spare_parts_type').html(data);                  
+    function submitForm(){
+        var checkbox_value = 1;
+        var model_number = $('#model_number').val();
+        var serial_number = $("#serial_number").val();
+        var prob_des = $("#prob_desc").val();
+        var dop = $("#dop").val();
+        var serial_number_pic = $('#serial_number_pic').val();
+        var old_serial_number_pic = $('#old_serial_number_pic').val();
+        var defective_parts_pic = $("#defective_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        var defective_parts_pic = $("#defective_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        var defective_back_parts_pic = $("#defective_back_parts_pic").val();
+        var old_defective_back_parts_pic = $("#old_defective_back_parts_pic").val();
+        
+        if(model_number ==="" || model_number === null){
+            alert("Please enter model number");
+            return false;
+        }
+
+        if(dop === ""){
+          alert("Please Select Date of Purchase");
+          checkbox_value = 0; 
+          return false;
+
+        }
+
+        if(serial_number === "" || serial_number === null){
+          alert("Please Enter serial number");
+          return false;
+        }
+
+        if(serial_number_pic.length === 0 && old_serial_number_pic.length === 0){
+          alert("Please Upload Serial Number Image");
+          return false;
+        }
+        
+        if(defective_parts_pic.length === 0 && old_defective_back_parts_pic.length === 0){
+          alert('Please Upload Defective Front Part Image');
+          return false;
+        }
+        
+        if(defective_back_parts_pic.length === 0 && old_defective_back_parts_pic.length === 0){
+          alert('Please Upload Defective Back Part Image');
+          return false;
+        }
+        
+        $('.parts_name').each(function() {
+            var id = $(this).attr('id');
+            if(id === "parts_name"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Enter Part Name');
+                    checkbox_value = 0;
+                    return false;
+
+                }
+              }
+
+        });
+
+        $('.parts_type').each(function() {
+            var id = $(this).attr('id');
+            if(id === "parts_type"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Enter Part Type');
+                    checkbox_value = 0;
+                    return false;
+                }
             }
         });
-    });
+
+        $('.part_in_warranty_status').each(function() {
+            var id = $(this).attr('id');
+            if(id !== "part_in_warranty_status"){
+                if(!$(this).val() || $(this).val() === "undefined" ||  $(this).val() === null){
+                    alert('Please Select Part Warranty Status');  
+                    checkbox_value = 0;
+                    return false;
+                }
+            }
+        });
+        
+        if(prob_des === "" || prob_des === null){
+            alert("Please Enter problem description");
+            return false;
+        } 
+        if(checkbox_value === 0){
+            return false;
+        }
+        else
+            return true;
+    }
+    
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}

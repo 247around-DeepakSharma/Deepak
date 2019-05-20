@@ -67,10 +67,12 @@
                             <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Requested</a></li>
                             <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Given</a></li>
                             <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
+                             <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)</a></li>
+                            <li role="presentation" ><a href="#spare_parts_requested_rejected" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Rejected)</a></li>
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
-                            <li role="presentation"><a href="#shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
-                            <li role="presentation"><a href="#delivered" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
-                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" role="tab" data-toggle="tab">Defective Part Pending</a></li>
+                            <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
+                            <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
+                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Pending</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective Part Shipped By SF</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
@@ -86,6 +88,7 @@
            
        </div>
    </div>
+    <input type="hidden" id="reload_table_id" value="spare_parts_requested_table">
 <!--     <div class="custom_pagination" style="margin-left: 16px;" > <?php //if(isset($links)){ echo $links;} ?></div>-->    
 </div>
 <!-- Pickup Request Modal --->
@@ -149,6 +152,12 @@
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
         var keys = $(this).data('keys'); 
+        var split_url = url.split('/');
+        if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
+            button_txt = 'Move To Required';
+        }else{
+            button_txt = 'Move To Not Required';
+        }
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
              $("#reject_btn").attr("onclick","approve_spare_part()");
@@ -164,7 +173,7 @@
             var HTML = ''; 
             HTML = '<select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value=""></select>';
             $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'}); 
-            $("#reject_btn").html("Reject");             
+            $("#reject_btn").html("Cancel");             
             $("#reject_btn").attr("onclick","reject_parts()");            
                 $.ajax({
                     type: 'POST',
@@ -175,7 +184,7 @@
                     }
                 });
         }else{
-            $("#reject_btn").html("Move To Required");  
+            $("#reject_btn").html(button_txt);  
             $("#status_label").css({'display':'none'});
             $("#reject_btn").attr("onclick","reject_parts()");                     
             $("#part_warranty_option").css({'display':'none'});
@@ -227,7 +236,7 @@
                     alert("Approved Successfully");
                     spare_parts_requested_table.ajax.reload( function ( json ) { 
                       $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    } );
+                    },false );
                     
                 } else {
                     alert("Spare Parts Cancellation Failed!");
@@ -242,7 +251,9 @@
       var remarks =  $('#textarea').val();
       //var booking_id = $('#modal-title').text();
       var courier_charge = $('#charges').val();
-      var reason = $('#spare_cancel_reason').val();      
+      var reason = $('#spare_cancel_reason').val();     
+      var table_type = $("#reload_table_id").val();
+      
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();
@@ -256,8 +267,7 @@
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
-                    defective_part_shipped_by_sf_table.ajax.reload(null, false);
-                    //location.reload();
+                    load_table(table_type);
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
@@ -266,6 +276,35 @@
       } else {
           alert("Please Enter Remarks");
       }
+    }
+    
+    function load_table(table_type){
+        if(table_type=='estimate_cost_requested_table'){
+          estimate_cost_requested_table.ajax.reload(null, false);  
+        }else if(table_type=='estimate_cost_given_table'){
+          estimate_cost_given_table.ajax.reload(null, false);  
+        }else if(table_type=='spare_parts_requested_table'){
+          spare_parts_requested_table.ajax.reload(null, false);  
+        }else if(table_type=='oow_part_shipped_table'){
+          oow_part_shipped_table.ajax.reload(null, false);  
+        }else if(table_type=='partner_shipped_part_table'){
+          partner_shipped_part_table.ajax.reload(null, false);  
+        }else if(table_type=='sf_received_part_table'){
+          sf_received_part_table.ajax.reload(null, false);  
+        }else if(table_type=='defective_part_pending_table'){
+          defective_part_pending_table.ajax.reload(null, false);  
+        }else if(table_type=='defective_part_rejected_by_partner_table'){
+          defective_part_rejected_by_partner_table.ajax.reload(null, false);  
+        }else if(table_type=='defective_part_shipped_by_SF_table'){
+          //defective_part_shipped_by_SF_table.ajax.reload(null, false);  
+        }else if(table_type=='defective_part_shipped_by_SF_approved_table'){
+          defective_part_shipped_by_SF_approved_table.ajax.reload(null, false);  
+        }else if(table_type=='spare_parts_requested_table_approved'){
+          spare_parts_requested_table_approved.ajax.reload(null, false);  
+        }else if(table_type=='spare_parts_requested_table_reject'){
+           spare_parts_requested_table_reject.ajax.reload(null, false);  
+        }
+        
     }
     
     $('#download_spare_list').click(function(){
@@ -314,6 +353,8 @@
              $("#modal_title").html('Pickup Schedule'); 
              $("#spare_pick_up").html("Schedule");
              $("#request_type").val('3');
+              var pickup_courier = $(".pickup_schedule:checkbox:checked").attr("pickup_courier");
+              $('#courier_name option[value="'+pickup_courier+'"]').attr("selected", "selected");
           }
           
             $("#spare_parts_ids").val(spare_ids_arr);
@@ -338,7 +379,7 @@
         var courier_name = $("#courier_name").val();
         var courier_email = $("#courier_to_email").val();
         var cc_email = $("#courier_cc_email").val();
-                        
+                               
         var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;  
         if(courier_name =='' || courier_name == null){
             $("#courier_name_err").html('Please Select Courier Name.').css({color:'red'});
@@ -370,7 +411,7 @@
                 cache: false,
                 data: $('#spare_parts_pick_up').serialize(),
                 success: function(data) {                    
-                   if(data=='success'){
+                   if(data){
                        $('#pickup_modal').modal('hide');
                        defective_part_pending_table.ajax.reload(null, false);
                    } 
@@ -380,6 +421,11 @@
         
     });
     
+    $(".spare_parts_tabs").on('click',function(){
+         var href = $(this).attr('href');
+             table_id  = href.replace('#','');
+             $("#reload_table_id").val(table_id+'_table');
+      });
     
     function get_partner_list(){
         $.ajax({

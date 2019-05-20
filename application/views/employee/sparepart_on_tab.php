@@ -17,12 +17,14 @@
                                 <tr>
                                     <th class="text-center" >No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
                                     <th class="text-center" data-orderable="false">User</th>
                                     <th class="text-center" data-orderable="false">Mobile</th>
                                     <th class="text-center" data-orderable="false">Service Center</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="true">Part Status</th>
@@ -51,12 +53,13 @@
                             <thead >
                                 <th class="text-center" >No</th>
                                 <th class="text-center" data-orderable="false">Booking Id</th>
+                                <th class="text-center" data-orderable="false">Spare Pending On</th>
                                 <th class="text-center" data-orderable="false">User</th>
                                 <th class="text-center" data-orderable="false">Mobile</th>
                                 <th class="text-center" data-orderable="false">Service Center</th>
                                 <th class="text-center" data-orderable="false">Partner</th>
                                 <th class="text-center" data-orderable="false">Requested Part</th>
-                                <th class="text-center" data-orderable="false">Part Code</th>
+                                <th class="text-center" data-orderable="false">Parts Number</th>
                                 <th class="text-center" data-orderable="false">Part Type</th>
                                 <th class="text-center" data-orderable="false">Shipped Part</th>
                                 <th class="text-center" data-orderable="false">Booking Type</th>
@@ -71,7 +74,7 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <div class="col-md-12 col-md-offset-6">
+                        <div class="col-md-12  ">
                             <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary">Create Purchase Invoice</button>
                         </div>
                     </div>
@@ -91,12 +94,14 @@
                                 <tr>
                                     <th class="text-center" >No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
                                     <th class="text-center" data-orderable="false">User</th>
                                     <th class="text-center" data-orderable="false">Mobile</th>
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -125,12 +130,14 @@
                                 <tr>
                                     <th class="text-center" >No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
                                     <th class="text-center" data-orderable="false">User</th>
                                     <th class="text-center" data-orderable="false">Mobile</th>
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Part Code</th>   
+                                    <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -138,8 +145,10 @@
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
+                                    <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
                                     <?php } ?>
+                                    
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
@@ -152,6 +161,88 @@
         </div>
     </div>
 </div>
+
+
+
+
+<div role="tabpanel" class="tab-pane " id="spare_parts_requested_approved">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <table id="spare_parts_requested_table_approved" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <thead >
+                                <tr>
+                                    <th class="text-center" >No</th>
+                                    <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                    <th class="text-center" data-orderable="false">User</th>
+                                    <th class="text-center" data-orderable="false">Mobile</th>
+                                    <th class="text-center" data-orderable="false">Service Center</th>
+                                    <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
+                                    <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>   
+                                    <th class="text-center" data-orderable="false">Part Type</th>
+                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                    <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
+                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Cancel Part</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div role="tabpanel" class="tab-pane " id="spare_parts_requested_rejected">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <table id="spare_parts_requested_table_reject" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <thead >
+                                <tr>
+                                    <th class="text-center" >No</th>
+                                    <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                    <th class="text-center" data-orderable="false">User</th>
+                                    <th class="text-center" data-orderable="false">Mobile</th>
+                                    <th class="text-center" data-orderable="false">Service Center</th>
+                                    <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
+                                    <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>   
+                                    <th class="text-center" data-orderable="false">Part Type</th>
+                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                    <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
+                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Cancel Part</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="myModal2" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -187,12 +278,13 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">User</th>
                                         <th class="text-center" data-orderable="false">Mobile</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
@@ -222,10 +314,11 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
-                                         <th class="text-center" data-orderable="false">Part Code</th>
+                                         <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Shipped Date</th>
                                         <th class="text-center" data-orderable="false">Courier Name</th>
                                         <th class="text-center" data-orderable="false">AWB</th>
@@ -259,11 +352,12 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
-                                        <th class="text-center" data-orderable="false">User</th>                                        
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false"> Part Code</th>
+                                        <th class="text-center" data-orderable="false"> Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -297,12 +391,13 @@
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">User</th>
                                         <th class="text-center" data-orderable="false">Mobile</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
@@ -322,24 +417,25 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="shipped">
+<div role="tabpanel" class="tab-pane" id="partner_shipped_part">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="partner_shipped_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="partner_shipped_part_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
-                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>                                        
                                         <th class="text-center" data-orderable="false">Mobile</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -359,24 +455,25 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="delivered">
+<div role="tabpanel" class="tab-pane" id="sf_received_part">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
-                            <table id="sf_received_part" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <table id="sf_received_part_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
                                     <tr>
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
                                         <th class="text-center" data-orderable="false">User</th>
                                         <th class="text-center" data-orderable="false">Mobile</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Part Code</th>
+                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -462,20 +559,23 @@
 
 <script>
     var spare_parts_requested_table;
-    var partner_shipped_part;
-    var sf_received_part;
+     var spare_parts_requested_table_approved;
+    var partner_shipped_part_table;
+    var sf_received_part_table;
     var defective_part_pending_table;
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
     var estimate_cost_given_table;
     var oow_part_shipped_table;
+    var defective_part_shipped_by_SF_table;
+    
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 12, "desc" ]],//Initial no order.
+            order: [[ 13, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -484,7 +584,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13 ]
                     },
                     title: 'partner_shipped_oow_part'
                 }
@@ -513,7 +613,7 @@
      estimate_cost_given_table = $('#estimate_cost_given_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 11, "desc" ]], //Initial no order.
+            order: [[ 13, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -522,7 +622,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
                     },
                     title: 'spare_cost_given'
                 }
@@ -536,7 +636,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,9,10], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10,11], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -550,7 +650,7 @@
     estimate_cost_requested_table = $('#estimate_cost_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 11, "desc" ]], //Initial no order.
+            order: [[ 13, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -559,7 +659,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
                     },
                     title: 'cost_requested'
                 }
@@ -573,7 +673,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -588,7 +688,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: false, //Initial no order.
+            order:[],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50', '100', '500', 'All' ]],
@@ -597,7 +697,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -610,12 +710,12 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_PARTS_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '0', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -626,10 +726,94 @@
         });
     
     
-    partner_shipped_part = $('#partner_shipped_part').DataTable({
+    spare_parts_requested_table.draw(false);
+         //datatables    
+    spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 11, "desc" ]],//Initial no order.
+            order:[],
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50', '100', '500', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                         modifier : {
+                            // DataTables core
+                            page : 'All',      // 'all',     'current'
+                        }
+                    },
+                    title: 'spare_parts_requested_approved'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '0', status: '<?php echo SPARE_PARTS_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
+        });
+    
+  //spare_parts_requested_rejected  
+        spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order:[],
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                         modifier : {
+                            // DataTables core
+                            page : 'All',      // 'all',     'current'
+                        }
+                    },
+                    title: 'spare_parts_requested_rejected'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '0', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
+        });
+    
+    
+    partner_shipped_part_table = $('#partner_shipped_part_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[ 12, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -662,10 +846,10 @@
             }
         });
         
-        sf_received_part = $('#sf_received_part').DataTable({
+        sf_received_part_table = $('#sf_received_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[14, "desc"]], //Initial no order.
+            order: [[15, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -688,7 +872,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,8], //first column / numbering column
+                    "targets": [1,5,9], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -706,7 +890,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[13, "desc"]], 
+            order: [[14, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -729,11 +913,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,7,13], //first column / numbering column
+                    "targets": [1,5,8,14], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,12,14,15], //first column / numbering column
+                    "targets": [0,12,15,16], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -746,7 +930,7 @@
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[10, "desc"]], //Initial no order.
+            order: [[11, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -769,7 +953,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -805,7 +989,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,5], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -819,7 +1003,7 @@
         defective_part_shipped_by_SF_approved_table = $('#defective_part_shipped_by_SF_approved_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[12, "desc"]], //Initial no order.
+            order: [[13, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 50, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -842,11 +1026,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 },
                 {
-                    "targets": [12], //first column / numbering column
+                    "targets": [13], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],
@@ -1025,7 +1209,7 @@
                 success:function(res){                    
                     var obj = JSON.parse(res);
                     if(obj.status === true){
-                        partner_shipped_part.ajax.reload(null, false);
+                        partner_shipped_part_table.ajax.reload(null, false);
                         $("#courier_lost").hide();
                     }
                 }

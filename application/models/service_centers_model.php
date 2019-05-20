@@ -76,6 +76,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_primary_contact_no, "
                 . " users.name as customername,  "
                 . " bd.booking_date,"
+                . " bd.partner_id,"
                 . " bd.booking_jobcard_filename,"
                 . " bd.assigned_engineer_id,"
                 . " bd.booking_timeslot, "
@@ -96,7 +97,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_alternate_contact_no, "
                 . " bd.request_type, "
                 . " bd.internal_status, "
-                . " bd.booking_remarks, "
+                . " bd.booking_remarks, bd.service_id,"
                 . " services,"
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
@@ -141,6 +142,24 @@ class Service_centers_model extends CI_Model {
         return $result;
         
     }
+
+
+
+
+            function get_service_brands_for_partner($partner_id){
+        $sql = "Select Distinct partner_appliance_details.brand, services.services,services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+
+
+
+
+
+
 
     /**
      * @desc: this method return completed and cancelled booking according to request status
@@ -202,7 +221,11 @@ class Service_centers_model extends CI_Model {
         }
         else if($status == "Completed"){
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+            
+        } else if($status == "All"){
+             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status IN ('Completed', 'Cancelled') LIMIT 1) ";
         }
+        
         if ($booking_id != "") {
             $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
@@ -336,6 +359,8 @@ class Service_centers_model extends CI_Model {
      * @param Array $data
      * @return boolean
      */
+
+
     function update_spare_parts($where, $data) {
         $this->db->where($where);
         $this->db->update('spare_parts_details', $data);
@@ -850,6 +875,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from("spare_parts_details");
         $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('services', " services.id = booking_details.service_id");
         if($sf_id){
             $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
         }
@@ -905,7 +931,89 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: id
      */
     function insert_into_awb_details($data){
-        $this->db->insert('awb_spare_parts_details',$data);
-        $return_id=$this->db->insert_id();
+        $this->db->insert('courier_company_invoice_details',$data);
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc This function is used to insert category and capacity updated by DF
+     */
+    function insert_update_applaince_by_sf($data){
+        $this->db->insert('appliance_updated_by_sf',$data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: this is used to get pending booking specific service center id
+     * @param: service center id
+     * @return: Pending booking
+     */
+    function pending_bookings_sf_excel($service_center_id){
+               
+        $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
+            . " bd.booking_primary_contact_no, "
+            . " users.name as customername,  "
+            . " bd.booking_date,"
+            . " bd.partner_id,"
+            . " bd.booking_jobcard_filename,"
+            . " bd.assigned_engineer_id,"
+            . " bd.booking_timeslot, "
+            . " bd.current_status, "
+            . " bd.amount_due, "
+            . " bd.flat_upcountry, "
+            . " bd.request_type, "
+            . " bd.count_escalation, "
+            . " bd.is_upcountry, "
+            . " bd.count_reschedule, "
+            . " bd.upcountry_paid_by_customer, "
+            . " bd.is_penalty, "
+            . " bd.booking_address, "
+            . " bd.booking_pincode, "
+            . " bd.create_date, "
+            . " bd.order_id, "
+            . " bd.booking_address, "
+            . " bd.booking_alternate_contact_no, "
+            . " bd.request_type, "
+            . " bd.internal_status, bd.current_status,"
+            . " bd.booking_remarks, bd.service_id,"
+            . " services, ed.name as eng_name,"
+            . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
+            . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
+             . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
+                . "AND price_tags = 'Wall Mount Stand' AND bu1.service_id = 46 ) THEN (1) ELSE 0 END as is_bracket, " 
+
+             . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
+             . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
+             . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
+             . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
+             . " AND b.sub_vendor_id IS NOT NULL "
+             . " AND b.upcountry_paid_by_customer = 0 "
+             . " AND b.sf_upcountry_rate = bd.sf_upcountry_rate"
+             . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
+             . " AND b.assigned_vendor_id = '$service_center_id' ) "
+             . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
+             . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
+             . " ELSE 0 END AS upcountry_price, "
+
+            . " (SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
+                    FROM booking_unit_details AS u
+                    WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
+"
+            . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
+            . " FROM service_center_booking_action as sc "
+            . " JOIN booking_details as bd on bd.booking_id =  sc.booking_id " 
+            . " JOIN users on bd.user_id = users.user_id " 
+            . " JOIN services on bd.service_id = services.id " 
+            . " JOIN service_centres AS s on s.id = bd.assigned_vendor_id "
+            . " LEFT JOIN engineer_details As ed on ed.id = bd.assigned_engineer_id"
+            . " WHERE sc.service_center_id = '$service_center_id' "
+            . " AND bd.assigned_vendor_id = '$service_center_id' "
+            . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
+            . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+
+        $query1 = $this->db->query($sql);
+
+        $result = $query1->result();
+
+        return $result;
     }
 }

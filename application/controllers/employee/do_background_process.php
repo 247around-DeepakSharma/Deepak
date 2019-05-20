@@ -229,6 +229,7 @@ class Do_background_process extends CI_Controller {
                         $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
                         $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
                         $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
+                        $unit_details['purchase_date'] = $value['sf_purchase_date'];
 
         //            if (is_null($value['closed_date'])) {
         //                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
@@ -260,7 +261,7 @@ class Do_background_process extends CI_Controller {
                         log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
                         // update price in the booking unit details page
                         $this->booking_model->update_unit_details($unit_details);
-                        $this->miscelleneous->update_serial_number_in_appliance_details($unit_details['id']);
+                        $this->miscelleneous->update_appliance_details($unit_details['id']);
                     }
 
                     $booking['closed_date'] = date("Y-m-d H:i:s");

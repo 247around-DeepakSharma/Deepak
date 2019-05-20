@@ -135,14 +135,20 @@
                         <th>Service Centre</th>
                         <th>Service Centre City</th>
                         <th>Completion Date</th>
+                        <?php if($c2c) {?>
                         <th>Call</th>
+                        <?php } ?>
+                        <?php if(!$saas_module){?>
                         <?php if($booking_status === _247AROUND_COMPLETED) { ?> 
                         <th>Edit</th>
                         <th>Cancel</th>
                         <?php } else if ($booking_status === _247AROUND_CANCELLED) { ?> 
                         <th>Complete</th>
                         <?php } ?>
+                        <?php } ?>
+                        <?php if(!$saas_module){?>
                         <th>Open</th>
+                        <?php } ?>
                         <th>View</th>
                         <?php if($booking_status === _247AROUND_COMPLETED){ ?> 
                         <th>Rate</th>
@@ -238,6 +244,7 @@
                 "data": function(d){
                     d.booking_status =  booking_status;
                     d.booking_id =  '<?php echo $booking_id;?>';
+                    d.c2c = '<?php echo $c2c; ?>';
                     if ($('#partner_id').length){    d.partner_id   =  $('#partner_id').val();}else{ d.partner_id = ""; }
                     if ($('#sf_id').length){         d.sf_id        =  $('#sf_id').val();}else{ d.sf_id = ""; }
                     if ($('#closed_date').length){  d.booking_date_range =  $('#closed_date').val();}else{ d.booking_date_range = ""; }

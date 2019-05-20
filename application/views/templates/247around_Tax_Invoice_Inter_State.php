@@ -25,12 +25,16 @@
         <table  style="border:solid 1px; border-collapse: collapse; width: 960px;height: 75%;font-family: sans-serif;margin: auto;">
             <tr>
                 <td style="text-align: center; border-bottom: hidden;" colspan="8" >
-                    <h1 style="margin: 0px;">Blackmelon Advance Technology Co. Pvt. Ltd.</h1>
+                    <h1 style="margin: 0px;"><?php echo $meta['main_company_name']; ?></h1>
                 </td>
             </tr>
             <tr style="">
-                <td align="left" style="border-right: hidden;"><img style="padding: 5px;" src="<?php echo base_url();?>images/logo.jpg"></td>
-                <td colspan="5" align="center" style="border:hidden;">A-1/7a, A BLOCK, KRISHNA NAGAR, DELHI 110051<br>Email: seller@247around.com<br><br><b>GSTIN: 07AAFCB1281J1ZQ</b></td>
+                <td align="left" style="border-right: hidden;">
+                    <?php if($meta['main_company_logo']){ ?>
+                    <img style="padding: 5px; height: 110px; width: 101px;" src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo']; ?>">
+                    <?php } ?>
+                </td>
+                <td colspan="5" align="center" style="border:hidden;"><?php echo $meta['main_company_address'].", ".$meta['main_company_state'].", ".$meta['main_company_pincode']; ?><br>Email: <?php echo $meta['main_company_email']; ?><br><br><b>GSTIN: <?php echo $meta['main_company_gst_number']; ?></b></td>
                 <td colspan="2" style="text-align: right;  border-left: hidden;"><b>(<?php echo $meta['recipient_type'];?>)</td>
             </tr>
 <!--            <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">
@@ -120,20 +124,28 @@
             </tr>
             <tr>
                 <td align="center" style="background-color: rgb(211,211,211); width:30px;"><b>Bank Details</td>
-                <td rowspan="6" colspan="3" align="center"><img  src="<?php echo base_url()."images/247aroundstamp.jpg"; ?>" style="width: 160px;"></td>
+                <td rowspan="6" colspan="3" align="center">
+                    <?php if($meta['main_company_seal']){ ?>
+                    <img  src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal']; ?>" style="width: 160px;">
+                    <?php } ?>
+                </td>
                 <td align="left" colspan="3"><b>GST on Reverse Charge</td>
                 <td align="left" colspan="1">0</td>
             </tr>
             <tr>
-                <td width="30%">Bank Name: ICICI Bank</td>
-                <td rowspan="2" colspan="4" style=" background-color: rgb(211,211,211);" align="center"><b>For Blackmelon Advance <br>Technology Co. Pvt. Ltd.</td>
+                <td width="30%">Bank Name: <?php echo $meta['main_company_bank_name']; ?></td>
+                <td rowspan="2" colspan="4" style=" background-color: rgb(211,211,211);" align="center"><b>For <?php echo $meta['main_company_name']; ?></td>
             </tr>
             <tr>
-                <td width="30%">Acc No: 102405500277</td>
+                <td width="30%">Acc No: <?php echo $meta['main_company_bank_account']; ?></td>
             </tr>
             <tr>
-                <td width="30%">IFSC: ICIC0001024</td>
-                <td rowspan="2" colspan="4" align="center"><img src="<?php echo base_url()."images/anujsign.jpg"; ?>" style="width: 170px;"></td>
+                <td width="30%">IFSC: <?php echo $meta['main_company_ifsc_code']; ?></td>
+                <td rowspan="2" colspan="4" align="center">
+                    <?php if($meta['main_company_signature']){ ?>
+                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature']; ?>" style="width: 170px;">
+                    <?php } ?>
+                </td>
             </tr>
             <tr>
                 <td style="border-bottom: hidden;">	</td>

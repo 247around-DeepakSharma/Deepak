@@ -44,6 +44,7 @@ function load_data(){
     postData['date_range'] = date_range;
     $.ajax({
         type: 'POST',
+        timeout:3600000,
         beforeSend: function(){
             $("#load_data").html('<div class="text-center"><img src= "<?php echo base_url(); ?>images/loadring.gif" /></div>');
         },

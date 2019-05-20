@@ -237,7 +237,7 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->limit($limit, $start);
         }
         $this->db->_protect_identifiers = FALSE;
-        $this->db->select('request_type,booking_details.booking_id, booking_details.closed_date, users.name as customername, '
+        $this->db->select('request_type,booking_details.booking_id, booking_details.flat_upcountry, booking_details.closed_date, users.name as customername, '
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
@@ -1443,21 +1443,36 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false, $post= array()){
+       
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
+        //$this->db->where('status',)
         $this->db->from('spare_parts_details');
-        $this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
+        //$this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
         if($sf_details){
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
         }
+        
+        if(!empty($post['is_inventory'])){
+            $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+        }
+        
         if($group_by){
             
             $this->db->group_by($group_by);
         }
+                
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
         $query = $this->db->get();
         return $query->result_array();
         
@@ -1541,10 +1556,15 @@ function get_data_for_partner_callback($booking_id) {
     function get_file_upload_header_mapping_data($post,$select){
         
         $this->db->distinct();
-        $this->db->select($select);
+        $this->db->select($select); 
+   
+
         $this->db->from('partner_file_upload_header_mapping');
         $this->db->join('partners', 'partner_file_upload_header_mapping.partner_id  = partners.id');
         $this->db->join('employee', 'partner_file_upload_header_mapping.agent_id  = employee.id');
+        $this->db->join('email_attachment_parser','email_attachment_parser.email_map_id  = partner_file_upload_header_mapping.id', 'left');
+
+
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -1567,13 +1587,15 @@ function get_data_for_partner_callback($booking_id) {
         if (!empty($post['order'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
-            $this->db->order_by('partner_id','DESC');
+            $this->db->order_by('partner_file_upload_header_mapping.partner_id','DESC');
         }
         
         if ($post['length'] != -1) {
-            $this->db->limit($post['length'], $post['start']);
+             $this->db->limit($post['length'], $post['start']);
         }
         $query = $this->db->get();
+
+        //echo $this->db->last_query();
         return $query->result();
     }
     
@@ -1596,6 +1618,12 @@ function get_data_for_partner_callback($booking_id) {
     function update_partner_file_upload_header_mapping($where, $data){
         $this->db->where($where);
         $this->db->update('partner_file_upload_header_mapping',$data);
+
+
+       // echo $this->db->last_query();
+
+
+
         if($this->db->affected_rows() > 0 ){
             return TRUE;
         }else{
@@ -1885,21 +1913,22 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
-    function get_brand_collateral_data($partner_id,$limitArray,$order_by_column,$sorting_type)
+    function get_brand_collateral_data($condition,$order_by_column,$sorting_type)
     {
 
-        $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
+        $group_by=array('`collateral_type`.`collateral_type`','`collateral`.`model`','`collateral`.`category`','`collateral`.`capacity`','`collateral`.`file`','`collateral`.`document_description`','`collateral`.`start_date`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
         $this->db->from("collateral");
-        $this->db->where('entity_id',$partner_id);
         $this->db->where('entity_type','partner');
         $this->db->where('is_valid',1);
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
         $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
         $this->db->join('services','services.id=collateral.appliance_id','left');
-        $this->db->limit($limitArray['length'],$limitArray['start']);
         $this->db->group_by($group_by);
         $this->db->order_by($order_by_column,$sorting_type);
+        
+        $this->conditions($condition);
+        
         $return=$this->db->get()->result_array();
         return $return;
     }
@@ -2092,6 +2121,152 @@ function get_data_for_partner_callback($booking_id) {
              . "SELECT is_active as status,update_date as date from partners where id=".$partner_id." and is_active<>'' order by date";
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    
+    /**
+     * @desc This function is used to get permission for the partner
+     */
+    function get_partner_permission($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_permission');
+        return $query->result_array();
+    }
+    
+    function get_third_party_credentials($where = array()){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
+        $query = $this->db->get('third_party_api_credentials');
+        return $query->result_array();
+    }
+    
+    /*
+     * @desc: This is used to get partner's invoicing details
+     */
+    function get_partner_invoice_details($select="*", $partner_id) {
+        if ($partner_id != "") {
+            $this->db->where('partners.id', $partner_id);
+        }
+        $this->db->select($select);
+        $this->db->join("account_holders_bank_details", "account_holders_bank_details.entity_id = partners.id AND account_holders_bank_details.entity_type='partner' AND account_holders_bank_details.is_active = 1", "left"); 
+        $this->db->join("partner_invoice_details", "partner_invoice_details.partner_id = partners.id", "left");
+        $this->db->join("partner_brand_logo", "partner_brand_logo.partner_id=partners.id", "left");
+        $query = $this->db->get('partners');
+        return $query->result_array();
+    }
+    
+    function get_main_partner_invoice_detail($partner_on_saas = false){
+        $meta = array(); 
+        if($partner_on_saas){
+            $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
+                        . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
+
+            if(!empty($main_partner)){
+                $meta['main_company_name'] = $main_partner[0]['company_name'];
+                $meta['main_company_public_name'] = $main_partner[0]['public_name'];
+                $meta['main_company_address'] = $main_partner[0]['address'];
+                $meta['main_company_state'] = $main_partner[0]['state'];
+                $meta['main_company_pincode'] = $main_partner[0]['pincode'];
+                $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
+                $meta['main_company_phone'] = $main_partner[0]['primary_contact_phone_1'];
+                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                $meta['main_company_bank_name'] = $main_partner[0]['bank_name'];
+                $meta['main_company_bank_account'] = $main_partner[0]['bank_account'];
+                $meta['main_company_ifsc_code'] = $main_partner[0]['ifsc_code'];
+                $meta['main_company_seal'] = $main_partner[0]['seal'];
+                $meta['main_company_signature'] = $main_partner[0]['signature'];
+                $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
+                $meta['main_company_description'] = "";
+            }
+        }
+        else{
+            $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
+            $meta['main_company_public_name'] = "247Around";
+            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR";
+            $meta['main_company_state'] = "DELHI";
+            $meta['main_company_pincode'] = "110051";
+            $meta['main_company_email'] = "seller@247around.com";
+            $meta['main_company_phone'] = "";
+            $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
+            $meta['main_company_bank_name'] = "ICICI Bank";
+            $meta['main_company_bank_account'] = "102405500277";
+            $meta['main_company_ifsc_code'] = "ICIC0001024";
+            $meta['main_company_seal'] = "247aroundstamp.jpg";
+            $meta['main_company_signature'] = "anujsign.jpg";
+            $meta['main_company_logo'] = "logo.png";
+            $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
+        }
+        return $meta;
+    }
+    
+    /*
+     * @desc: This is used to get partner's invoicing details
+     */
+    function get_partner_additional_details($select="*", $where=array()) {
+        $this->db->select($select);
+        if(!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get('partner_additional_details');
+        return $query->result_array();
+    }
+    
+    function conditions($condition) {
+        if(!empty($condition['join'])){
+            foreach($condition['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
+        
+        if(!empty($condition['where'])){
+            $this->db->where($condition['where']);
+        }
+        
+        if (isset($condition['where_in'])) {
+            foreach ($condition['where_in'] as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
+        if (!empty($condition['search'])) {
+            $key = 0;
+            $like = "";
+            foreach ($condition['search'] as $index => $item) {
+                if ($key === 0) { // first loop
+                   // $this->db->like($index, $item);
+                    $like .= "( ".$index." LIKE '%".$item."%' ";
+                } else {
+                    $like .= " OR ".$index." LIKE '%".$item."%' ";
+                }
+                $key++;
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        
+        if (!empty($condition['search_value'])) {
+            $like = "";
+            foreach ($condition['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $condition['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+        if(isset($condition['length'])){
+            if ($condition['length'] != -1) {
+                $this->db->limit($condition['length'], $condition['start']);
+            }
+        }
     }
 }
 

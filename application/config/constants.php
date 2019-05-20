@@ -1,4 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+include('instance_load.php');
+include('third_party_credentials.php');
 include('email_template_constant.php');
 include('spare_parts_constant.php');
 include('push_notifications_constant.php');
@@ -15,6 +17,7 @@ include('taxpro_api_constant.php');
 include('invoice_constant.php');
 include('buyback_constant.php');
 include('sms_constant.php');
+include('partner_permission_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -55,13 +58,13 @@ define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer n
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
 //Agent ID used when Partner inserts a Booking by calling our API
-define('DEFAULT_PARTNER_AGENT', 978978);
+//define('DEFAULT_PARTNER_AGENT', 978978);
 
 //define('_247AROUND2',247002);
 //define('_247AROUND3',247003);
 //define('_247AROUND99',247999);
-define('_247AROUND_DEFAULT_AGENT',1);
-define('_247AROUND_DEFAULT_AGENT_NAME',"247Around");
+define('_247AROUND_DEFAULT_AGENT', $db->default_agent_id);
+define('_247AROUND_DEFAULT_AGENT_NAME', $db->crm_title);
 
 //constant to define Pending state
 define('_247AROUND_PENDING','Pending');
@@ -250,6 +253,9 @@ define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');
 
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
 define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
+
+define('REPAIR_STRING', 'Repair');
+define('IN_WARRANTY_STRING', 'In');
 
 define("CAP_ON_PENALTY_AMOUNT", "100");
 define("PAYTM", "3");
@@ -516,6 +522,7 @@ define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in t
 define("_247Around_Rejected_SF_Update", "247Around Rejected SF Update");
 
 define('SF_BOOKING_COMPLETE_STATUS', 'InProcess_Completed');
+define('SF_BOOKING_CANCELLED_STATUS', 'InProcess_Cancelled');
 
 define('JEEVES_CUSTOMER_RESCHEDULED', 'Customer rescheduled');
 define('JEEVES_CUSTOMER_NO_RESPONSE','Customer No Response above 2 Days');
@@ -620,6 +627,11 @@ define("CRM_SETUP_PROFORMA_INVOICE_DESCRIPTION", "Annual Setup Charges");
 //Define constant for razorpay api for bank ifsc code varification
 define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
 
+define('INVENTORY_USER_GROUP', 'inventory_manager');
 
+define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On Website - www.247around.com');
+define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B2');
+define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
+define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'N27');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

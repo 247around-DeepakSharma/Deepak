@@ -38,6 +38,7 @@
       // document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
        $('#download_pin_code').attr('data-vendor_id', id);
        document.getElementById("upload_pin_code").href ="upload_pin_code_vendor/"+id;
+       document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
        document.getElementById("v_name").innerHTML = name;
     }
 </script>
@@ -103,6 +104,7 @@
                                 <option value="">Select City</option>
                             </select> 
                     </div>
+                    <?php if(!$saas_module){ ?>
                     <div class="col-sm-3 col-lg-3 col-md-3">
                         <select id="sf_cp" onchange="get_sf_cp();" class="form-control">
                                 <option value="sf">Service Center</option>
@@ -110,6 +112,7 @@
                                 <option value="wh">Warehouse</option>
                         </select>
                     </div> 
+                    <?php } ?>
             </div>
 <!--                </div>-->
                 <div class="row">
@@ -160,10 +163,12 @@
             <td><a href="mailto:<?php echo $row['primary_contact_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"><?=$row['primary_contact_name'];?></a></td>
           	<td>
           	    <?=$row['primary_contact_phone_1'];?>
+                    <?php if($c2c) { ?>
                 <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                    <?php } ?>
                 <button type="button" onclick="model_for_sms('<?php echo $row['primary_contact_phone_1']; ?>', '<?php echo $row['id']?>')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc">
                         <i class = 'fa fa-envelope' aria-hidden = 'true'></i>
                </button>
@@ -171,10 +176,12 @@
                 <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
           	<td>
           	    <?=$row['owner_phone_1'];?>
+                    <?php if($c2c) { ?>
                 <button type="button" onclick="outbound_call(<?php echo $row['owner_phone_1']; ?>)" 
                     class="btn btn-sm btn-info">
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
+                    <?php } ?>
           	</td>
                 <td>
                        <?php echo (!empty($row['district'])?$row['district']:'').'  /  ' .(!empty($row['state'])?$row['state']:''); ?>
@@ -307,7 +314,7 @@
         <h4 class="modal-title" id="v_name" align="center"></h4>
       </div>
       <div class="modal-body" align="center">
-          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()">Download Pin code</a>
+          <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()" href="<?php echo base_url();?>employee/vendor/download_vendor_pin_code/">Download Pin code</a>
           <a id='upload_pin_code' class='btn btn-info' href="<?php echo base_url();?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
       </div>
       <div class="modal-footer">

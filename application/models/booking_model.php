@@ -395,12 +395,8 @@ class Booking_model extends CI_Model {
      *  @return : array (booking)
      */
 
-    function addbooking($booking,$booking_symptom){
-	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
-        
-        log_message ('info', __METHOD__ . "=> booking Symptom Defect Details  SQL ". $this->db->last_query());
-        
-        $this->db->insert('booking_details', $booking);
+    function addbooking($booking){
+	$this->db->insert('booking_details', $booking);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         
@@ -713,7 +709,7 @@ class Booking_model extends CI_Model {
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, "
                     . "service_centres.primary_contact_email,service_centres.owner_phone_1, "
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
-	    $service_centre = ", service_centres ";
+	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
             $partner_name = ", partners.public_name  ";
             $partner = ", partners  ";
@@ -729,14 +725,11 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         $result = $query->result_array();
    
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, symptom_spare_request.spare_request_symptom', array('booking_id' => $booking_id));
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('booking_id' => $booking_id));//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
-           
             $result['spare_parts'] = $result1;
-           
         }
-        
         return $result;
     }
 
@@ -750,7 +743,7 @@ class Booking_model extends CI_Model {
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
-            
+                         
             log_message('info', __METHOD__ . $this->db->last_query());
             return $data;
 
@@ -1389,7 +1382,7 @@ class Booking_model extends CI_Model {
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
-                . 'booking_details.partner_id');
+                . 'booking_details.partner_id, booking_details.flat_upcountry');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -2572,5 +2565,62 @@ class Booking_model extends CI_Model {
         
          $query = $this->db->query($sql);
          return $query->result_array();
+    }
+    /** @description:* add symptom at the time of add booking
+     *  @param : booking symptom array
+     *  @return : void
+     */
+
+    function addBookingSymptom($booking_symptom){
+	$this->db->insert('booking_symptom_defect_details', $booking_symptom);
+        log_message ('info', __METHOD__ . "=> Booking Symptom Defect Details  SQL ". $this->db->last_query());
+        
+        return $this->db->insert_id();
+    }
+    /** @description:* Update symptom at the time of completing booking
+     *  @param : booking_id,booking symptom array
+     *  @return : void
+     */
+
+    function update_symptom_defect_details($booking_id, $booking_symptom) {
+        $this->db->where('booking_id', $booking_id);
+        $this->db->update('booking_symptom_defect_details', $booking_symptom);
+        return $this->db->affected_rows();
+    }
+    /**
+     * @Desc: This function is used to get booking symptoms 
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function getBookingSymptom($booking_id){
+        $this->db->select('*');
+        $this->db->from('booking_symptom_defect_details');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    function get_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
+        $this->db->select($select, false);
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        if($is_service){
+            $this->db->join("services", "services.id = booking_details.service_id");
+        }
+        if($is_user){
+            $this->db->join('users',' users.user_id = booking_details.user_id');
+        }
+        if($is_unit){
+            $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+        }
+        if($is_partner){
+            $this->db->join('partners', 'booking_details.partner_id = partners.id'); 
+        }
+        if($is_vendor){
+            $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
+        }
+        $query = $this->db->get();
+        return $query->result_array();
     }
    }

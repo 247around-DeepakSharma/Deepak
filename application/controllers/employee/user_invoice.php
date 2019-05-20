@@ -541,6 +541,7 @@ class User_invoice extends CI_Controller {
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("Around");
         foreach ($postData as $key=>$value){
+            if($value->spare_detail_ids){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('spare_parts_details.id' => $value->spare_detail_ids);
                 $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, service_id', $where, true);
@@ -589,6 +590,7 @@ class User_invoice extends CI_Controller {
                         $booking_state_remarks = $remarks." Part Id - ".$value->spare_detail_ids;
                         $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
                 }
+            }
         }
         if(!empty($data)){
             $invoice_type = "Tax Invoice";
