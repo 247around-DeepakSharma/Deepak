@@ -969,12 +969,9 @@ class Booking extends CI_Controller {
      * @return: key
      */
     function search_for_key($price_tag, $array) {
-        foreach ($array as $key => $val) {
-            if ($val['service_category'] === $price_tag) {
-                return $key;
-            }
-        }
-        return null;
+        
+        $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
+        
     }
 
     /**

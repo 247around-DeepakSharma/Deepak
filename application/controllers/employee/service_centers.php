@@ -355,8 +355,39 @@ class Service_centers extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
+        $partner_id = $data['booking_history'][0]['partner_id'];
+        //Define Blank Price array
+        $data['prices'] = array();
+        $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
+        //Add source name in booking_history array
+        $data['booking_history'][0]['source_name'] = $source[0]['source'];
+        
+        $where = array(
+                "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
+                'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                'partner_appliance_details.brand' => $bookng_unit_details[0]['brand'], 
+                'appliance_model_details.active'=> 1, 
+                "NULLIF(model, '') IS NOT NULL" => NULL);
+        
+        $data['model_data'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
+
+        
         $price_tags = array();
         foreach ($bookng_unit_details as $key1 => $b) {
+            
+            if ($source[0]['partner_type'] == OEM) {
+                $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $data['booking_history'][0]['partner_id'], $b['brand']);
+            } 
+            //If partner type is not OEM then check is brand white list for partner if brand is white listed then use brands if not then 
+            else {
+                $isWbrand = "";
+                $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['booking_history'][0]['partner_id'], "brand" => $b['brand'],"service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
+                if(!empty($whiteListBrand)){
+                    $isWbrand = $value['brand'];
+                }
+                $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $partner_id, $isWbrand);
+            }
+            
             $broken = 0;
             foreach ($b['quantity'] as $key2 => $u) {
                 $price_tags1 = str_replace('(Free)', '', $u['price_tags']);
@@ -377,22 +408,12 @@ class Service_centers extends CI_Controller {
                         }
                     }
                 }
-                
-                if($u['pod'] == 1){
-                    $where = array(
-                        "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
-                        'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
-                        'partner_appliance_details.brand' => $b['brand'], 
-                        'appliance_model_details.active'=> 1, 
-                        "NULLIF(model, '') IS NOT NULL" => NULL);
-
-                    $m =$this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
-                    if(!empty($m)){
-                        $bookng_unit_details[$key1]['quantity'][$key2]['model_data'] = $m;
-                    }
-                }
+                $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
+                // remove array key, if price tag exist into price array
+                unset($prices[$pid]);
 
             }
+            array_push($data['prices'], $prices);
             $bookng_unit_details[$key1]['is_broken'] = $broken;
             $bookng_unit_details[$key1]['dop'] = $broken;
         }
@@ -432,6 +453,7 @@ class Service_centers extends CI_Controller {
         if(count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
+        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -444,7 +466,6 @@ class Service_centers extends CI_Controller {
     function process_complete_booking($booking_id) {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id . " Json data " . json_encode($this->input->post(), true));
         $this->checkUserSession();
-
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
         $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
         $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
@@ -465,7 +486,6 @@ class Service_centers extends CI_Controller {
                 if ($is_model_drop_down == 1) {
                     $model_change = $this->appliance_modify_by_model_number($booking_id);
                 }
-
                 if ($model_change) {
                     // customer paid basic charge is comming in array
                     // Array ( [100] =>  500 , [102] =>  300 )  
@@ -503,16 +523,24 @@ class Service_centers extends CI_Controller {
                     $getremarks = $this->booking_model->getbooking_charges($booking_id);
                     $approval = $this->input->post("approval");
                     $i = 0;
-
                     foreach ($customer_basic_charge as $unit_id => $value) {
+                        
                         //Check unit id exist in the sc action table.
-                        $this->check_unit_exist_action_table($booking_id, $unit_id);
-                        // variable $unit_id  is existing id in booking unit details table of given booking id 
-                        $data = array();
-                        $data['unit_details_id'] = $unit_id;
-                        $data['closed_date'] = date('Y-m-d H:i:s');
-                        $data['is_broken'] = $broken[$unit_id];
-                        $data['mismatch_pincode'] = $mismatch_pincode;
+                        if (isset($booking_status[$unit_id])) {
+                            if ($booking_status[$unit_id] == _247AROUND_CANCELLED 
+                                    || $booking_status[$unit_id] == _247AROUND_COMPLETED) {
+
+                            $unit_temp_id = $this->check_unit_exist_action_table($booking_id, $unit_id);
+
+                            // variable $unit_id  is existing id in booking unit details table of given booking id 
+                            $data = array();
+                            if($unit_temp_id != $unit_id){
+                                 $data['added_by_sf'] = 1;
+                            }
+                            $data['unit_details_id'] = $unit_temp_id;
+                            $data['closed_date'] = date('Y-m-d H:i:s');
+                            $data['is_broken'] = $broken[$unit_id];
+                            $data['mismatch_pincode'] = $mismatch_pincode;
 
 //                 if(!empty($approval)){
 //                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
@@ -522,51 +550,55 @@ class Service_centers extends CI_Controller {
 //                    //$data['closed_date'] = $en[0]->closed_date;
 //                    
 //                 }
-                        if (isset($model_number[$unit_id])) {
-                            $data['model_number'] = $model_number[$unit_id];
-                        }
-                        $data['service_charge'] = $value;
-                        $data['additional_service_charge'] = $additional_charge[$unit_id];
-                        $data['parts_cost'] = $parts_cost[$unit_id];
-                        if ($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1) {
-                            if ($this->session->userdata('is_engineer_app') == 1) {
-                                $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                                $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), $unitWhere1);
-                            }
-                            $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
-                            $is_update_spare_parts = TRUE;
-                        } else {
-                            $data['internal_status'] = $booking_status[$unit_id];
-                            if ($this->session->userdata('is_engineer_app') == 1) {
-                                $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                                $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
-                            }
-                        }
-                        $data['current_status'] = "InProcess";
-                        $data['booking_id'] = $booking_id;
-                        $data['amount_paid'] = $total_amount_paid;
-                        $data['update_date'] = date("Y-m-d H:i:s");
-                        if ($i == 0) {
-                            $data['upcountry_charges'] = $upcountry_charges;
-                        }
-                        if (isset($serial_number[$unit_id])) {
-                            $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                            $data['serial_number'] = $trimSno;
-                            $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
-                            $data['is_sn_correct'] = $is_sn_correct[$unit_id];
-                        }
-                        if (!empty($getremarks[0]['service_center_remarks'])) {
+                                if (isset($model_number[$unit_id])) {
+                                    $data['model_number'] = $model_number[$unit_id];
+                                }
+                                $data['service_charge'] = $value;
+                                $data['additional_service_charge'] = $additional_charge[$unit_id];
+                                $data['parts_cost'] = $parts_cost[$unit_id];
+                                if ($booking_status[$unit_id] == _247AROUND_COMPLETED && $spare_parts_required == 1) {
+                                    if ($this->session->userdata('is_engineer_app') == 1) {
+                                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                                        $this->engineer_model->update_engineer_table(array("current_status" => _247AROUND_COMPLETED, "internal_status" => _247AROUND_COMPLETED), $unitWhere1);
+                                    }
+                                    $data['internal_status'] = DEFECTIVE_PARTS_PENDING;
+                                    $is_update_spare_parts = TRUE;
+                                } else {
+                                    $data['internal_status'] = $booking_status[$unit_id];
+                                    if ($this->session->userdata('is_engineer_app') == 1) {
+                                        $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                                        $this->engineer_model->update_engineer_table(array("current_status" => $booking_status[$unit_id], "internal_status" => $booking_status[$unit_id]), $unitWhere1);
+                                    }
+                                }
+                                $data['current_status'] = "InProcess";
+                                $data['booking_id'] = $booking_id;
+                                $data['amount_paid'] = $total_amount_paid;
+                                $data['update_date'] = date("Y-m-d H:i:s");
+                                if ($i == 0) {
+                                    $data['upcountry_charges'] = $upcountry_charges;
+                                }
+                                if (isset($serial_number[$unit_id])) {
+                                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                                    $data['serial_number'] = $trimSno;
+                                    $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
+                                    $data['is_sn_correct'] = $is_sn_correct[$unit_id];
+                                }
+                                if (!empty($getremarks[0]['service_center_remarks'])) {
 
-                            $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks . " " . $getremarks[0]['service_center_remarks'];
-                        } else {
-                            if (!empty($closing_remarks)) {
-                                $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+                                    $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks . " " . $getremarks[0]['service_center_remarks'];
+                                } else {
+                                    if (!empty($closing_remarks)) {
+                                        $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+                                    }
+                                }
+                                $data['sf_purchase_date'] = $purchase_date[$unit_id];
+                                $i++;
+                                print_r($data);
+                                $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
                         }
-                        $data['sf_purchase_date'] = $purchase_date[$unit_id];
-                        $i++;
-                        $this->vendor_model->update_service_center_action($booking_id, $data);
                     }
+
                     $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                     if (!$rowsStatus) {
                         $booking_symptom['booking_id'] = $booking_id;
@@ -648,70 +680,67 @@ class Service_centers extends CI_Controller {
      * @desc This function is used to change appliance category, capacity and also change prices according to it
      * @return boolean
      */
-    function appliance_modify_by_model_number($booking_id){
-       
+    function appliance_modify_by_model_number($booking_id) {
         $model_number = $this->input->post('model_number');
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('appliance_id');
         $array = array();
-        if(!empty($model_number)){
+        if (!empty($model_number)) {
             foreach ($model_number as $unit_id => $value) {
-               $return = true;
-               $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
-                       . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
-               $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value, 
-                   'appliance_model_details.entity_id' => $partner_id));
-             
-               $sc_change = false;
-               if(($unit[0]['appliance_category'] == $model_details[0]['category']) 
-                       &&  ($unit[0]['appliance_capacity'] == $model_details[0]['capacity']) ){
-                   $sc_change = false;
-               } else {
-                   $sc_change = true;
-               }
-             
-               if($sc_change){
-                   $partner_data = $this->partner_model->get_partner_code($partner_id);
-                   $partner_type = $partner_data[0]['partner_type'];
-            
-                   if ($partner_type == OEM) {
-                        $result1 = $this->partner_model->getPrices($service_id, $model_details[0]['category'], $model_details[0]['capacity'], $partner_id, $unit[0]['price_tags'], $unit[0]['appliance_brand'],TRUE);
+                if (strpos($unit_id, 'new') === false && !empty($value)) {
+                    $return = true;
+                    $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
+                            . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
+                    $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
+                        'appliance_model_details.entity_id' => $partner_id));
+                    $sc_change = false;
+                    if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
+                        $sc_change = false;
                     } else {
-                        $result1 = $this->partner_model->getPrices($service_id, $model_details[0]['category'], $model_details[0]['capacity'], $partner_id, $unit[0]['price_tags'], "",TRUE);
+                        $sc_change = true;
                     }
 
-                    if(!empty($result1)){
-                        // Free from Paid
-                        if($result1[0]['customer_net_payable'] == 0){
-                            if($unit[0]['customer_net_payable'] > 0){
-                                $return =  false;
-                            } else {
-                                $array[$unit_id] = $result1[0];
-                            }
-                        } else if($result1[0]['customer_net_payable'] > 0){
-                            if($unit[0]['customer_net_payable'] == 0){
-                                $return =  false;
+                    if ($sc_change) {
+                        $partner_data = $this->partner_model->get_partner_code($partner_id);
+                        $partner_type = $partner_data[0]['partner_type'];
+
+                        if ($partner_type == OEM) {
+                            $result1 = $this->partner_model->getPrices($service_id, $model_details[0]['category'], $model_details[0]['capacity'], $partner_id, $unit[0]['price_tags'], $unit[0]['appliance_brand'], TRUE);
+                        } else {
+                            $result1 = $this->partner_model->getPrices($service_id, $model_details[0]['category'], $model_details[0]['capacity'], $partner_id, $unit[0]['price_tags'], "", TRUE);
+                        }
+
+                        if (!empty($result1)) {
+                            // Free from Paid
+                            if ($result1[0]['customer_net_payable'] == 0) {
+                                if ($unit[0]['customer_net_payable'] > 0) {
+                                    $return = false;
+                                } else {
+                                    $array[$unit_id] = $result1[0];
+                                }
+                            } else if ($result1[0]['customer_net_payable'] > 0) {
+                                if ($unit[0]['customer_net_payable'] == 0) {
+                                    $return = false;
+                                } else {
+                                    $array[$unit_id] = $result1[0];
+                                }
                             } else {
                                 $array[$unit_id] = $result1[0];
                             }
                         } else {
-                            $array[$unit_id] = $result1[0];
+                            return FALSE;
                         }
-                        
-                    } else {
-                        return FALSE;
                     }
-               }
+                }
             }
-
-            if(!empty($array)){
-                foreach($array as $k => $v){
+            if (!empty($array)) {
+                foreach ($array as $k => $v) {
                     $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
-                    if(!empty($data)){
+                    if (!empty($data)) {
                         $result = $data[0];
-                        
-                        if($data[0]['price_tags']  == REPAIR_OOW_PARTS_PRICE_TAGS){
-                            if(!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS){
+
+                        if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                            if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
                                 $result['customer_total'] = $unit[0]['customer_total'];
                                 $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
                             }
@@ -721,44 +750,44 @@ class Service_centers extends CI_Controller {
                         $result['appliance_capacity'] = $model_details[0]['capacity'];
                         $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
                         $result['around_paid_basic_charges'] = $unit[0]['around_net_payable'];
-                        
+
                         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-                        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+                        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
 
 
-                        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+                        $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
                         $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
                         $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
-                        $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
-                        $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
+                        $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
+                        $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
 
                         $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
                         $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
-                        
+
                         $a = $this->booking_model->update_booking_unit_details_by_any(array('id' => $k), $result);
-                        
+
                         $array1 = array('booking_id' => $booking_id,
                             'category' => $model_details[0]['category'],
                             'capacity' => $model_details[0]['capacity'],
                             'unit_details_id' => $k);
-                        
-                        $this->service_centers_model->insert_update_applaince_by_sf($array1);
 
+                        $this->service_centers_model->insert_update_applaince_by_sf($array1);
                     } else {
                         return FALSE;
                     }
-                    
                 }
-                
+
                 return true;
             } else {
+
                 return TRUE;
             }
         } else {
             return true;
         }
     }
+
     /**
      * @desc This is used to cancel spare who has not shipped by partner. Also inform to partner.
      * @param String $partner_id
@@ -817,10 +846,10 @@ class Service_centers extends CI_Controller {
         //log_message('info', __METHOD__. " ". json_encode($this->input->post()));
         $serial_number = $this->input->post('serial_number');
         $upload_serial_number_pic = array();
-        if(isset($_FILES['upload_serial_number_pic'])){
+        if (isset($_FILES['upload_serial_number_pic'])) {
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
         }
-        
+
         $pod = $this->input->post('pod');
         $booking_status = $this->input->post('booking_status');
         $partner_id = $this->input->post('partner_id');
@@ -831,52 +860,52 @@ class Service_centers extends CI_Controller {
         $return_status = true;
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
-                if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                    $price_tag = $price_tags_array[$unit_id];
-                    
-                    switch ($value) {
-                        case '1':
-                            if($partner_id == AKAI_ID){
-                                log_message('info', " Akai partner");
-                                if (empty($trimSno) || !ctype_alnum($trimSno)){
-                                    log_message('info', " Serial No with special character ".$trimSno);
-                                    $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number Without any Special Character');
+                if (isset($booking_status[$unit_id])) {
+                    if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
+                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                        $price_tag = $price_tags_array[$unit_id];
+
+                        switch ($value) {
+                            case '1':
+                                if ($partner_id == AKAI_ID) {
+                                    log_message('info', " Akai partner");
+                                    if (empty($trimSno) || !ctype_alnum($trimSno)) {
+                                        log_message('info', " Serial No with special character " . $trimSno);
+                                        $this->form_validation->set_message('validate_serial_no', 'Please Enter Serial Number Without any Special Character');
+                                        $return_status = false;
+                                        break;
+                                    }
+                                }
+                                if (isset($upload_serial_number_pic['name'][$unit_id])) {
+                                    $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                    if (empty($s)) {
+                                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                                                . 'Maximum file size is 5 MB.');
+                                        $return_status = false;
+                                    }
+                                } else {
                                     $return_status = false;
-                                    break;
+                                    $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
                                 }
-                            }
-                            if(isset($upload_serial_number_pic['name'][$unit_id])){
-                                $s =  $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
-                                   if(empty($s)){
-                                             $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
-                        . 'Maximum file size is 5 MB.');
-                                            $return_status = false;
-                                        }
-                             }
-                             else{
-                                  $return_status = false;
-                                  $s = $this->form_validation->set_message('validate_serial_no', "Please upload serial number image");
-                             }
-                            $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id,$appliance_id);
-                            if (!empty($status)) {
-                                if ($status['code'] == SUCCESS_CODE) {
-                                    log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
-                                } else  if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                $status = $this->validate_serial_no->validateSerialNo($partner_id, $trimSno, $price_tag, $user_id, $booking_id, $appliance_id);
+                                if (!empty($status)) {
+                                    if ($status['code'] == SUCCESS_CODE) {
+                                        log_message('info', " Serial No validation success  for serial no " . trim($serial_number[$unit_id]));
+                                    } else if ($status['code'] == DUPLICATE_SERIAL_NO_CODE) {
+                                        $return_status = false;
+                                        $this->form_validation->set_message('validate_serial_no', $status['message']);
+                                    } else {
+                                        log_message('info', " Serial No validation failed  for serial no " . trim($serial_number[$unit_id]));
+                                    }
+                                } else if ($value == 1 && empty($trimSno)) {
                                     $return_status = false;
-                                    $this->form_validation->set_message('validate_serial_no', $status['message']); 
+                                    $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
+                                } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
+                                    $return_status = false;
+                                    $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
                                 }
-                                else{
-                                    log_message('info', " Serial No validation failed  for serial no " . trim($serial_number[$unit_id]));
-                                }
-                            } else if ($value == 1 && empty($trimSno)) {
-                                $return_status = false;
-                                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
-                            } else if ($value == 1 && is_numeric($serial_number[$unit_id]) && $serial_number[$unit_id] == 0) {
-                                $return_status = false;
-                                $this->form_validation->set_message('validate_serial_no', 'Please Enter Valid Serial Number');
-                            } 
-                            break;
+                                break;
+                        }
                     }
                 }
             }
@@ -890,6 +919,7 @@ class Service_centers extends CI_Controller {
             return TRUE;
         }
     }
+
     /**
      * @desc This is used to validate serial no image and insert serial no into DB
      * @param Array $upload_serial_number_pic
@@ -6139,22 +6169,44 @@ class Service_centers extends CI_Controller {
      * @param String $booking_id
      * @param Strng $unit_id
      */
-    function check_unit_exist_action_table($booking_id, $unit_id){
-        log_message("info", __METHOD__. " Booking ID ". $booking_id. " Unit ID ". $unit_id);
-        $data = $this->service_centers_model->get_service_center_action_details("*", array('unit_details_id' =>$unit_id,"booking_id" => $booking_id));
-        if(empty($data)){
-            log_message("info", __METHOD__. " Unit is not exist for booking id ". $booking_id. " Unit ID ". $unit_id);
+    function check_unit_exist_action_table($booking_id, $unit_id) {
+        log_message("info", __METHOD__ . " Booking ID " . $booking_id . " Unit ID " . $unit_id);
+        if (strpos($unit_id, 'new') !== false) {
+            $remove_string_new = explode('new', $unit_id);
+            $unit_tmp_id = $remove_string_new[0];
+            $service_charges_id = $remove_string_new[1];
+            $data['booking_id'] = $booking_id;
+            $data['booking_status'] = _247AROUND_PENDING;
+            $data['customer_paid_parts'] = 0;
+            $data['customer_paid_basic_charges'] = 0;
+            $data['customer_paid_extra_charges'] = 0;
+            $data['added_by_sf'] = 1;
+            log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
+                    . " Service charges id: "
+                    . print_r($service_charges_id, true)
+                    . " Data: " . print_r($data, true));
+            $unit_id = $this->booking_model->insert_new_unit_item($unit_tmp_id, $service_charges_id, $data, "");
+        }
+
+        $data = $this->service_centers_model->get_service_center_action_details("*", array('unit_details_id' => $unit_id, "booking_id" => $booking_id));
+        if (empty($data)) {
+            log_message("info", __METHOD__ . " Unit is not exist for booking id " . $booking_id . " Unit ID " . $unit_id);
             $data1 = $this->service_centers_model->get_service_center_action_details("*", array("booking_id" => $booking_id));
-            if(!empty($data1)){
+            if (!empty($data1)) {
                 $a = $data1[0];
                 $a['id'] = NULL;
                 $a['create_date'] = date("Y-m-d H:i:s");
                 $a['unit_details_id'] = $unit_id;
-                log_message("info", __METHOD__. " data unit Insert ". print_r($a, true));
+                log_message("info", __METHOD__ . " data unit Insert " . print_r($a, true));
                 $this->vendor_model->insert_service_center_action($a);
             }
-        } 
+        }
+
+
+
+        return $unit_id;
     }
+
     /**
      * @desc This function is used to check same part already requested or not.
      * DO Not allow to sf to request part if same part already requested
