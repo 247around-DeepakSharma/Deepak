@@ -2432,17 +2432,16 @@ class Spare_parts extends CI_Controller {
        );
        $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state";
        $post['where_in']= array('spare_parts_details.booking_id' => $bookingids);
-     //$is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '",  "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
        $bookings_spare =$this->partner_model->get_spare_parts_by_any($select,$where,TRUE,FALSE,false, $post );
        foreach ($bookings_spare as $booking){
            $spareid=$booking['id'];
            $wherebooking=array('booking_id'=>$booking['booking_id']);
            $state = $booking['state'];
-           $data = $this->inventory_model->get_warehouse_details("*",array('state'=>$state));
+           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('state'=>$state),true,false,true);
            $warehouseid=0;
            if(!empty($data)){
-                $warehouseid = $data[0]['warehouse_id'];
-                $dataupdate=array(
+                $warehouseid = $data[0]['id'];
+                $dataupdate  = array(
                'is_micro_wh'=>2,
                'entity_type'=>_247AROUND_SF_STRING,
                'defective_return_to_entity_id'=>$warehouseid,
