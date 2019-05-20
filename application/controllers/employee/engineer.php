@@ -154,6 +154,7 @@ class Engineer extends CI_Controller {
     }
     
     function get_service_based_engineer(){
+        $response = array();
         $service_id = $this->input->post("service_id");
         $service_center_id = $this->input->post("service_center_id");
         $where = array(
@@ -171,11 +172,20 @@ class Engineer extends CI_Controller {
                     }
                     $html .= ">".$value['name']."</option>";
                 }
+                $response['status'] = true;
+                $response['html'] = $html;
+                echo json_encode($response);
             }
-            echo  $html;
+            else{
+                $response['status'] = false;
+                $response['html'] = "<a href='".base_url()."service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>";
+                echo json_encode($response);
+            }
         }
         else {
-            echo false;
+            $response['status'] = false;
+            $response['html'] = "<a href='".base_url()."service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user-plus' aria-hidden='true'></i></a>";
+            echo json_encode($response);
         }
     }
 

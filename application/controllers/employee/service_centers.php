@@ -131,7 +131,6 @@ class Service_centers extends CI_Controller {
 
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/show_inventory_details_by_model', $sf_data);
-            $this->load->view('partner/partner_footer');
         }
     }
 
@@ -2486,8 +2485,9 @@ class Service_centers extends CI_Controller {
         //Getting Logged SF details
         $service_center_id = $this->session->userdata('service_center_id');
         //Getting Pending bookings for service center id
-        $bookings = $this->service_centers_model->pending_booking($service_center_id, "");
-        $booking_details = json_decode(json_encode($bookings[1]),true);
+        //$bookings = $this->service_centers_model->pending_booking($service_center_id, "");
+        $bookings = $this->service_centers_model->pending_bookings_sf_excel($service_center_id);
+        $booking_details = json_decode(json_encode($bookings),true);
         $template = 'SF-Pending-Bookings-List-Template.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -6406,6 +6406,39 @@ class Service_centers extends CI_Controller {
         echo json_encode($data);
     }
     
+    /**
+     * @desc function change password of service center entity.
+     * @author Ankit Rajvanshi
+     * @since 17-May-2019
+     */
+    function change_password() {
+        
+        if($_POST) :
+            // declaring variables.
+            $service_center_id = $this->session->userdata['service_center_id'];
+            $old_password = md5($_POST['old_password']);
+            // fetch record.
+            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
+        endif;
+        
+        if($this->input->is_ajax_request()) : // verify old password.
+            if(!empty($service_center_login)) :
+                echo '1';exit;
+            else :
+                echo'0';exit;
+            endif;
+        elseif($_POST) :
+            // Update password.
+            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+            // setting feedback message for user.
+            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
+            redirect(base_url() . "employee/service_centers/change_password");
+        endif;
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/change_password');
+    }
+    
     /*
       This function is for search booking to transfer  
      */
@@ -6535,7 +6568,5 @@ class Service_centers extends CI_Controller {
            $this->load->view('service_centers/header');
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
-    
-    
     
 }

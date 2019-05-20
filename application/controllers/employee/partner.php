@@ -3247,7 +3247,22 @@ class Partner extends CI_Controller {
             'vendor_pincode_mapping.Pincode' => $pincode,
             'vendor_pincode_mapping.Appliance_ID' => $service_id);
         $city = $this->vendor_model->get_vendor_mapping_data($where, $select);
-        if (!empty($city)) {
+        if(empty($city)){
+            $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if($saas_flag){
+                $select = 'india_pincode.district as district,india_pincode.state as state';
+                $post_city = $this->input->post('city');
+                $where = array('india_pincode.pincode' => $pincode);
+                $city = $this->reusable_model->get_search_result_data('india_pincode',$select,$where,NULL,NULL,NULL,NULL,NULL,array());
+            }
+            else{
+               echo 'ERROR';
+            }
+            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
+            'order_id'=>'Not_Received');
+            $this->miscelleneous->sf_not_exist_for_pincode($booking);
+        }
+        if(!empty($city)) {
             $stateWhere['service_id'] = $service_id;
             $stateWhere['state'] = $city[0]['state'];
             $stateWhere['partner_id'] = $this->session->userdata('partner_id');
@@ -3273,12 +3288,7 @@ class Partner extends CI_Controller {
             else{
                 echo "Not_Serve";
             }
-        } else {
-            $booking = array('booking_id' => 'Not_Generated', 'booking_pincode' => $pincode,'service_id' => $service_id, 'partner_id' => $this->session->userdata('partner_id'),'city'=>'Not_Received',
-                'order_id'=>'Not_Received');
-            $this->miscelleneous->sf_not_exist_for_pincode($booking);
-            echo 'ERROR';
-        }
+        } 
     }
 
     /**
@@ -4507,8 +4517,8 @@ class Partner extends CI_Controller {
 //            if (strpos($type, 'mp4') === false) {
 //                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
 //                return false;
-//            }         
-            if($file['size']>100000000){
+//            }
+            if($file['size']>"104857600" ){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
             }
@@ -4518,13 +4528,13 @@ class Partner extends CI_Controller {
 //                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
 //                return false;
 //            }
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
                 return false;
             }
         }
        else if (strpos($type, 'pdf') !== false) {
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
                 return false;
             }

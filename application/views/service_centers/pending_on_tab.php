@@ -145,8 +145,8 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-                                        <td>
-                                            <a class="btn btn-sm btn-primary" style="margin-top: 45px;" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>">View</a>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -325,8 +325,8 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-                                        <td>
-                                            <a class="btn btn-sm btn-primary" style="margin-top: 45px;" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>">View</a>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -497,8 +497,8 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-                                        <td>
-                                            <a class="btn btn-sm btn-primary" style="margin-top: 45px;" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>">View</a>
+                                        <td style="vertical-align: middle;">
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -838,7 +838,7 @@
         $("#relevant_content_modal").modal("show");
     }
     
-    $(document).ready(function(){
+    function getBookingEngineers(){
         $(".engineer_select").each(function(){  
             var service_id = $(this).attr("service-id");
             var engineer_id = $(this).attr("engineer-id");
@@ -849,17 +849,31 @@
                     url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
                     data: {'service_id':service_id, 'engineer_id':engineer_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
                     success: function (response) {
-                        $("#"+id).html(response);
-                        $("#"+id).select2();
+                        response = JSON.parse(response);
+                        if(response.status){
+                            $("#"+id).html(response.html);
+                            $("#"+id).css("display", "inline");
+                            $("#"+id).parent().find("a").css("display", "none");
+                            $("#"+id).select2();
+                        }
+                        else{
+                            $("#"+id).parent().find("a").remove();
+                            $("#"+id).parent().append(response.html);
+                            $("#"+id).css("display", "none");
+                        }
                    }
                 });
             }
         });
+    }
+    
+    $(document).ready(function(){
+        getBookingEngineers();
     });
     
     $(".engineer_select").change(function(){
         var booking_id = $(this).attr("booking-id");
-        if (confirm('Are you sure to assign this engineer for Booking Id'+booking_id)) {
+        if (confirm('Are you sure to assign this engineer for Booking Id '+booking_id)) {
             var engineer = {};
             engineer[booking_id] = $(this).val();
             $.ajax({
@@ -873,4 +887,6 @@
             });
         } 
     });
+    
+    setInterval(function(){ getBookingEngineers(); }, 30000);
     </script>
