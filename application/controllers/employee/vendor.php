@@ -2047,42 +2047,15 @@ class vendor extends CI_Controller {
      */
 
     function get_engineers(){
-        $service_center_id = "";
-        if($this->session->userdata('userType') == 'service_center'){
-
-            $service_center_id = $this->session->userdata('service_center_id');
-            log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
-        }
-
-       $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
-       foreach ($data['engineers'] as $key => $value) {
-           $where = array('id' => $value['service_center_id'] );
-           $select = "service_centres.name, service_centres.id";
-           $service_center = $this->vendor_model->getVendorDetails($select, $where);
-           $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value['id'], "is_active"=>1), "service_id");
-           $appliances = array();
-           if(!empty($service_id)){
-                foreach ($service_id as  $values) {
-                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                     if(!empty($service_name)){
-                        array_push($appliances, $service_name[0]['services']); 
-                     }
-                }
-           }
-           
-
-           $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
-       }
-       $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/view_engineers', $data);
+            $this->load->view('service_centers/view_engineers');
 
        } else {
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/view_engineers', $data);
+            $this->load->view('employee/view_engineers');
        }
 
     }

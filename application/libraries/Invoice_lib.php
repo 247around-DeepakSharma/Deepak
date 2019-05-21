@@ -753,7 +753,7 @@ class Invoice_lib {
                 if (file_exists(TMP_FOLDER . $output_pdf_file_name)) {
                     $res1 = 0;
                     system(" chmod 777 " . TMP_FOLDER . $output_pdf_file_name, $res1);
-                    unlink(TMP_FOLDER . $output_pdf_file_name);
+                    
                 }
             } else {
                 log_message('info', $pdf_response['response_msg'] . ' Error in generating pdf');
