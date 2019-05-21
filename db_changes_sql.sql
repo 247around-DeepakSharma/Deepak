@@ -11018,3 +11018,86 @@ UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is pla
 UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
 
+--Kajal 21-05-2019 starting ---
+
+--
+-- Table structure for table `file_type`
+--
+
+CREATE TABLE `file_type` (
+  `id` int(11) NOT NULL,
+  `file_type` varchar(128) DEFAULT NULL,
+  `max_allowed_size` int(50) DEFAULT NULL,
+  `allowed_type` varchar(30) DEFAULT NULL,
+  `is_active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `file_type`
+--
+
+INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES
+(1, 'Purchase Invoice', NULL, NULL, 1, '2019-05-16 13:01:27'),
+(2, 'Extended Warranty Invoice', NULL, NULL, 1, '2019-05-16 13:01:27');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `file_type`
+--
+ALTER TABLE `file_type`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `file_type` (`file_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `file_type`
+--
+ALTER TABLE `file_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+
+--
+-- Table structure for table `booking_files`
+--
+
+CREATE TABLE `booking_files` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(64) NOT NULL,
+  `file_description_id` int(11) DEFAULT NULL,
+  `file_name` varchar(512) NOT NULL,
+  `file_type` varchar(30) DEFAULT NULL,
+  `size` int(50) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_files`
+--
+ALTER TABLE `booking_files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_file_type` (`booking_id`,`file_description_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_files`
+--
+ALTER TABLE `booking_files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
+
+--Kajal 21-05-2019 ending ---

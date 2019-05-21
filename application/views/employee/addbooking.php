@@ -170,12 +170,12 @@
                                     </div>
                                 </div>
                                 
-                                <div class="form-group">
+                                <!--<div class="form-group">
                                     <label for="support_file" class="col-md-4">Upload Support file</label>
                                     <div class="col-md-6">
                                         <input type="file" class="form-control" id="support_file" name="support_file">
                                     </div>
-                                </div>
+                                </div>-->
                                 <div class="form-group ">
                                      <label for="dealer name" class="col-md-4">Dealer Name </label>
                                       <div class="col-md-6">
@@ -188,6 +188,40 @@
                         </div>
                     </div>
                     <!-- row End  -->
+                    <!-- Upload Support File div Start -->
+                    <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
+                        <div class="panel-heading">
+                             <p style="color: #000;"><b>Add Support file</b></p>
+                             <div style="float:right;margin-top: -31px;">
+                                <button class="clone1 btn btn-sm btn-info">Add</button>
+                                <button class="remove1 btn btn-sm btn-info">Remove</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class='form-group'>
+                                        <div class="col-md-4">
+                                            <select class="form-control" id="file_description_1"  name="file_description[]" >
+                                                <option selected disabled>Select File Type</option>
+                                                <?php if(!empty($file_type)) {
+                                                    foreach($file_type as $val) { ?>
+                                                <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
+                                                <?php  }
+                                                } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" >
+                                        </div>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cloned1"></div>
+                            
+                    <!-- Upload Support File div End -->
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -445,14 +479,47 @@
        return false;
     }
     function remove(){
-       $(this).parents(".clonedInput").remove();
-       final_price();
-       return false;
+        if($('div.clonedInput').length > 1) {
+             $(this).parents(".clonedInput").remove();
+        }
+        final_price();
+        return false;
     }
     $("button.clone").on("click", clone);
 
     $("button.remove").on("click", remove);
     
+    var cloneIndexSample = $(".clonedInputSample").length +1;
+    
+    function clone1(){
+       $(this).parents(".clonedInputSample").clone()
+            .appendTo(".cloned1")
+            .attr("id", "cat" +  cloneIndexSample)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndexSample);
+               }
+           })
+            .on('click', 'button.clone1', clone1)
+            .on('click', 'button.remove1', remove1);
+          $("#support_file_"+cloneIndexSample).val('');
+       cloneIndexSample++;
+       return false;
+    }  
+    function remove1(){
+        if($('div.clonedInputSample').length > 1) {
+            $(this).parents(".clonedInputSample").remove();
+        }
+       
+        return false;
+    }
+    $("button.clone1").on("click", clone1);
+    
+    $("button.remove1").on("click", remove1);
      $(document).ready(function () {
   
   //called when key is pressed in textbox
