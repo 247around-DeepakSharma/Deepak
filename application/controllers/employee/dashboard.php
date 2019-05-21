@@ -1768,24 +1768,39 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
-                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;                        
+                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
-                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;
+                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
-                        $where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"'] = NULL;
+                        $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
-                    unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
-                    unset($where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")']);
-                    //unset($join['spare_parts_details']);
-                    //unset($joinType['spare_parts_details']);
+                if(array_key_exists('(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")', $where) 
+                        && array_key_exists('(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")', $where)){
+                    unset($where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")']);
+                    unset( $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")']);
+//                    unset($join['spare_parts_details']);
+//                    unset($joinType['spare_parts_details']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
