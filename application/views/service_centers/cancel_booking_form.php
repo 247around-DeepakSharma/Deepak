@@ -23,7 +23,7 @@
       <div class="row">
          <div class="col-lg-12">
             <h1 class="page-header">
-               Cancel Booking
+               Cancel Booking 
             </h1>
             <form class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php echo $user_and_booking_details[0]['booking_id']; ?>" method="POST">
                <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
@@ -41,10 +41,16 @@
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                        <input type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                            <input class="inputradio  <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==_247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
+                      <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){ ?>
+                      <label id="correctpin" class="hide" >
+                        Enter  Correct Pincode <input class="form-control" type="text" minlength="6"  maxlength="6"     name="correct_pincode" /> 
+                      </label>
+                     <?php } 
+                      ?> 
                      <?php } ?>
                   </div>
                   <?php echo form_error('cancellation_reason'); ?>
@@ -56,6 +62,11 @@
                   </div>
                </div>
                 <input type="hidden" name="partner_id" value="<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>">
+                <input type="hidden" name="city" value="<?php if (isset($user_and_booking_details[0]['city'])) {echo $user_and_booking_details[0]['city']; } ?>">
+                <input type="hidden" name="booking_pincode" value="<?php if (isset($user_and_booking_details[0]['booking_pincode'])) {echo $user_and_booking_details[0]['booking_pincode']; } ?>">
+                
+                  <input type="hidden" name="service_id" value="<?php if (isset($user_and_booking_details[0]['service_id'])) {echo $user_and_booking_details[0]['service_id']; } ?>">
+                
                <div>
                 <div class="col-md-6 col-md-offset-3">
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
@@ -94,3 +105,19 @@
       </div>
    </div>
 </div>
+<script>
+    
+// $(".wrong_pincode").click(function(){
+//    $("#correctpin").removeClass('hide');
+// });   
+ 
+ $(".inputradio").click(function(){
+     if($(this).hasClass('wrong_pincode')){
+          $("#correctpin").removeClass('hide'); 
+     }else{
+       $("#correctpin").addClass('hide');  
+     }
+     
+ });
+    
+</script>

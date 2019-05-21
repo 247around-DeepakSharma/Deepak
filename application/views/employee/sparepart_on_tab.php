@@ -147,6 +147,7 @@
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
                                     
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
@@ -185,7 +186,6 @@
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
-                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -224,7 +224,6 @@
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
-                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -715,7 +714,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,16], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

@@ -393,12 +393,12 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."misc-images/', file_name)) END as support_file,
+                    CASE WHEN (support_file = '' OR support_file IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."misc-images/', support_file)) END as support_file,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
 
-              From booking_details LEFT JOIN booking_files on `booking_details`.booking_id = `booking_files`.booking_id , booking_unit_details, services, partners, users
+              From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
                   AND `services`.id = `booking_details`.service_id 
                   AND booking_details.partner_id = '$partner_id'
@@ -411,7 +411,7 @@ class invoices_model extends CI_Model {
                             AND booking_unit_details.booking_status = 'Completed'
                             AND booking_unit_details.ud_closed_date >= '$from_date'
                             AND booking_unit_details.ud_closed_date < '$to_date'
-                        )
+                        ) $s
                     )
                ";
 

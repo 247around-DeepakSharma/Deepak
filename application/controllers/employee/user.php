@@ -589,13 +589,11 @@ class User extends CI_Controller {
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
             log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
-            $error = ' Sending Mail Error..  ';
-            $this->session->set_userdata('error', $error);
-            redirect(base_url() . "employee/user/show_employee_list");
+            echo json_encode(array('status' => "error", "message" => " Sending Mail Error..  "));
         }
-        
-        $this->session->set_userdata('success','Password Reset Sucessfully.');
-        redirect(base_url() . "employee/user/show_employee_list");
+        else {
+            echo json_encode(array('status' => "success", "message" => "Password Reset Sucessfully."));
+        }
     }
     /**
      *@Desc: This function is used to show holiday list to employees
@@ -649,7 +647,9 @@ class User extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/change_password');
     }
-     /*@Desc: This function is used to get random password of length 8 
+    
+     /**
+     *@Desc: This function is used to get random password of length 8 
      * @params: void
      * @return: void 
      * 
