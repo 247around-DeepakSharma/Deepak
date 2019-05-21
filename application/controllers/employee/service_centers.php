@@ -1659,10 +1659,9 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update spare parts details
      * @$_POST form data 
      */
-    function update_spare_parts_details() {
+    function update_spare_parts_details() {           
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
-        $this->checkUserSession();
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -1776,16 +1775,31 @@ class Service_centers extends CI_Controller {
 //        }
 
         $where = array('id' => $this->input->post('spare_id'));
-        $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-        if ($affected_row == TRUE) {
-            $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "",  $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
-            $userSession = array('success' => 'Spare Parts Updated');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/pending_booking");
+        if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager'){
+            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($affected_row == TRUE) {
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, $partner_id, NULL);
+                $userSession = array('success' => 'Spare Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/get_spare_parts");
+            } else {
+                $userSession = array('error' => 'Spare Parts Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/get_spare_parts");
+            }
         } else {
-            $userSession = array('error' => 'Spare Parts Not Updated');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/pending_booking");
+            $this->checkUserSession();
+            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($affected_row == TRUE) {
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
+                $userSession = array('success' => 'Spare Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            } else {
+                $userSession = array('error' => 'Spare Parts Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            }
         }
     }
 

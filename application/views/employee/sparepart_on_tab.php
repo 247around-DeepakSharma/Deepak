@@ -148,6 +148,7 @@
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
                                     
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
@@ -712,7 +713,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,16], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
