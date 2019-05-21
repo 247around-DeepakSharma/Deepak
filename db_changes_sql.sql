@@ -11018,8 +11018,28 @@ UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is pla
 UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
 
+UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
+
+
+--Ankit 20-May-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+ 
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40'); 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> pincode is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+ 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter','Customer Enter Incorrect Pincode %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+
+
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Wrong Pincode Entered', 'vendor', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
+
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
+
 --Kajal 21-05-2019 starting ---
 
+ 
 --
 -- Table structure for table `file_type`
 --
@@ -11101,3 +11121,15 @@ ALTER TABLE `booking_files`
 insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
 
 --Kajal 21-05-2019 ending ---
+ 
+--Ankit 20-May-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40'); 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> pincode is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+ 
+
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Wrong Pincode Entered', 'vendor', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
+ 
