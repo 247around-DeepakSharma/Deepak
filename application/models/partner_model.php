@@ -512,7 +512,9 @@ function get_data_for_partner_callback($booking_id) {
 
             foreach ($current_month_booking as $value) {
 
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
