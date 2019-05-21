@@ -10176,7 +10176,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
->>>>>>> CRM_Release_1.62.0.0
+ 
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
 
@@ -11014,4 +11014,4 @@ ALTER TABLE `booking_files`
 
 insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
 
-
+ 
