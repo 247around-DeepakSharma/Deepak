@@ -537,6 +537,7 @@
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
                                         <th>Move To Vendor</th>
+                                        <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <th>Copy Booking Id</th>
                                         <?php  } ?>
@@ -577,6 +578,25 @@
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
+
+
+                                     <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
+                                            <td>
+                                                <form id="move_to_update_spare_parts">
+                                                    <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
+                                                    <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
+                                                    <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
+                                                    <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
+                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                 </form>
+                                            </td>
+                                        <?php } else {?> 
+                                           <td></td>   
+                                         <?php } } ?>
+
+
+
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
@@ -585,7 +605,7 @@
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
-                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
                                                  </form>
                                             </td>
                                         <?php } else {?> 

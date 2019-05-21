@@ -2241,6 +2241,7 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->type;
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_name . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
+        $row[] = $stock_list->description;
         $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->oow_around_margin)/100), 2, '.', '');
         $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->gst_rate / 100))), 2, '.', '');
         $row[] = "<i class ='fa fa-inr'></i> " . $total;
@@ -6021,7 +6022,8 @@ class Inventory extends CI_Controller {
             $where = array(
                 'inventory_master_list.entity_id' => $this->input->post("entity_id"),
                 'inventory_master_list.entity_type' => $this->input->post("entity_type"),
-                'inventory_master_list.service_id' => $this->input->post("service_id")
+                'inventory_master_list.service_id' => $this->input->post("service_id"),
+                'inventory_master_list.type' => $this->input->post("type")
             );
             $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_name', $where);
         }

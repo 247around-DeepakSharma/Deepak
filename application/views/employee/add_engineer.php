@@ -135,9 +135,9 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group <?php if( form_error('identity_proof') ) { echo 'has-error';} ?>">
-                                    <label for="identity proof" class="col-md-4">ID Proof* </label>
+                                    <label for="identity proof" class="col-md-4">ID Proof </label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="identity_proof" name="identity_proof"  required>
+                                        <select type="text" class="form-control"  id="identity_proof" name="identity_proof">
                                             <option disabled selected>Select ID Proof</option>
                                             <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Aadhar Card' )?"selected":(set_value('identity_proof') == 'Aadhar Card')?"selected":'';   ?> value="Aadhar Card">Aadhar Card</option>
                                             <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Driving License' )?"selected":(set_value('identity_proof') == 'Driving License')?"selected":'';   ?> value="Driving License">Driving License</option>
@@ -179,7 +179,7 @@
                             <!-- end -->
                             <div class="col-md-6 <?php if( form_error('identity_id_number') ) { echo 'has-error';} ?>">
                              <div class="form-group">
-                                    <label for="Identity ID Number" class="col-md-4">ID Number*</label>
+                                    <label for="Identity ID Number" class="col-md-4">ID Number</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="identity_id_number" name="identity_id_number" value = "<?php echo isset($data[0]['identity_proof_number'])?$data[0]['identity_proof_number']:set_value('identity_proof_number');  ?>" placeholder="Enter ID Number" >
                                     </div>
@@ -333,7 +333,7 @@
 //                    number: true
 //                    },
                 service_center_id:"required",
-                identity_id_number : "required",
+                //identity_id_number : "required",
                 //file : "required",
 //                bank_ifsc_code: {
 //                        required: true,
@@ -364,7 +364,7 @@
 //                bank_holder_name: "Please Enter Account Holder Name",
 //                bank_account_no: "Please Enter Account Number",
                 service_id:"Please Select Appliances",
-                identity_id_number:"Please Enter Identity Number",
+                //identity_id_number:"Please Enter Identity Number",
                 //file : "Plesae Select ID Photo"
                 },
                 submitHandler: function (form) {

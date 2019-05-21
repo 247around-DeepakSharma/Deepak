@@ -201,8 +201,10 @@
                                 <li><a href="<?php echo base_url();?>service_center/search_docket_number">Search Docket Number</a></li>
                                 <li role="separator" class="divider"></li>
                                 <?php  
-                                    if ($this->session->userdata('is_wh') == 1) { ?> 
+                                if ($this->session->userdata('is_wh') == 1) { ?> 
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li>
+                                <li class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion">Bulk Spare Transfer</a></li> 
                                 <li class="divider"></li>
                                 <?php   }
                                     ?>
@@ -342,6 +344,11 @@
                                     <i ></i> Profile <i class="fa fa-caret-down"></i>
                                     </a>
                                 </li>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" href="<?php echo base_url()?>employee/service_centers/change_password">
+                                    <i ></i> Change Password
+                                    </a>
+                                </li>                                
                             </ul>
                         </li>
                         <!--                        <li><div class="dropdown" style="float:right;margin: 15px 14px 0px 0px;">
