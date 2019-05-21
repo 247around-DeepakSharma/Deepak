@@ -2619,4 +2619,77 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    /**
+     * @Desc: This function is used to get support file types for Booking
+     * @params: void
+     * @return: array
+     * 
+     */
+    function get_file_type(){
+        $this->db->select('*');
+        $this->db->from('file_type');
+        $this->db->where('is_active', 1);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc: This function is used to insert supporting files for booking.
+     * @params: array $data
+     * @return: string $insert_id
+     */
+    function insert_booking_file($data){
+        $this->db->insert('booking_files', $data);
+        log_message ('info', __METHOD__ . "=> Insert Booking Supporting File  SQL ". $this->db->last_query());
+        return $this->db->insert_id();
+    }
+    /**
+     *  @desc : Function to update supporting files for booking.
+     *  @param : array $data and array $where
+     *  @return : no. of affected rows
+     */
+    
+    function update_booking_file($data, $where = array()) {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $result =  $this->db->update("booking_files", $data);
+
+        log_message ('info', __METHOD__ . "=> Update Booking Supporting File  SQL ". $this->db->last_query());
+
+        return $result;
+        
+    }
+    /**
+     *  @desc : Function to delete supporting files for booking.
+     *  @param : array $where
+     *  @return : no. of affected rows
+     */
+    
+    function delete_booking_file($where = array()) {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $result =  $this->db->delete('booking_files');
+
+        log_message ('info', __METHOD__ . "=> Delete Booking Supporting File  SQL ". $this->db->last_query());
+
+        return $result;
+        
+    }
+    /**
+     * @Desc: This function is used to get support files for Booking
+     * @params: array $where
+     * @return: array
+     * 
+     */
+    function get_booking_files($where = array()){
+        $this->db->select('booking_files.*,file_type.file_type as file_description');
+        $this->db->from('booking_files');
+        $this->db->join('file_type', 'file_type.id = booking_files.file_description_id');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
    }

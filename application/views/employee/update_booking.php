@@ -166,12 +166,6 @@
                                             <div id="dealer_phone_suggesstion_box"></div>
                                       </div>
                                  </div>
-                                <div class="form-group ">
-                                     <label for="dealer_phone_number" class="col-md-4">Parent Booking </label>
-                                      <div class="col-md-6">
-                                          <input  class="form-control" type="text" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id" readonly="readonly">
-                                      </div>
-                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
@@ -221,6 +215,12 @@
                                     </div>
                                 </div>
                                 <div class="form-group ">
+                                    <label for="dealer_phone_number" class="col-md-4">Parent Booking </label>
+                                    <div class="col-md-6">
+                                        <input  class="form-control" type="text" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id" readonly="readonly">
+                                    </div>
+                                </div>
+                                <!--<div class="form-group ">
                                     <label  class="col-md-4">Support File</label>
                                     <div class="col-md-6">
                                         <div class="col-md-10">
@@ -241,7 +241,7 @@
                                       
                                         </div>
                                         </div>
-                                </div>
+                                </div>-->
                                
                                 <div class="form-group ">
                                      <label for="dealer name" class="col-md-4">Dealer Name </label>
@@ -280,6 +280,100 @@
                     </div>
                     <!-- row End  -->
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
+                    <!-- Upload Support File div Start -->
+                    <?php if(isset($booking_files) && !empty($booking_files)) { ?>
+                    <div class="InputSample panel panel-info " id="InputSample" >                      
+                        <div class="panel-heading">
+                             <p style="color: #000;"><b>Support file</b></p>
+                            <div style="float:right;margin-top: -31px;">
+                                <button type="button" class="btn btn-sm btn-info" id="btn_addSupportFile">Add Support File</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                    <?php foreach($booking_files as $key=>$files) {
+                        if($key % 2 == 0) { ?>
+                            <div class="row uploaded_support_file" style="margin-bottom:3%;">
+                        <?php } ?>
+                                <div class="col-md-6" style='margin-top:10px;'>
+                                    <!--<div class='form-group'>-->
+                                        <div class="col-md-6">
+                                            <select class="form-control" id="file_desc_<?=$key?>" >
+                                                <option selected disabled>Select File Type</option>
+                                                <?php if(!empty($file_type)) {
+                                                    foreach($file_type as $val) {
+                                                        $selected=(($val['id'] == $files['file_description_id']) ? 'selected' :''); ?>
+                                                <option value="<?=$val['id']?>" <?=$selected?> ><?=$val['file_type']?></option>
+                                                <?php  }
+                                                } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="col-md-2" style="width:22%;">
+                                                <input type="file" id="supportfileLoader_<?=$key?>" onchange="uploadsupportingfile(<?=$key?>,'<?=$files['id']?>')" style="display:none" />
+                                                <?php $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($files['file_name']) && !empty($files['file_name'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                                <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;" /></a>
+                                            </div>
+                                            <div class="col-md-2" style="width:23%;">
+                                                <button type="button" class="btn btn-sm btn-info fa fa-pencil fa-lg" title="Update File" id="update_supporting_file_<?=$key?>" onclick="upload_supporting_file('supportfileLoader_<?=$key?>');" style="width:35px;height:35px;"></button>
+                                            </div>
+                                            <div class="col-md-2" style="width:22%;">
+                                                <button type="button" class="btn btn-sm btn-info fa fa-times fa-lg" title="Delete File" id="delete_supporting_file_<?=$key?>" onclick="delete_supporting_file('<?=$files['id']?>');" style="width:35px;height:35px;"></button>
+                                            </div>
+                                            <div class="col-md-2" style="width:27%;">
+                                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%;height: 35px;">0%</div>
+                                            </div>
+                                        </div>
+                                     <!--</div>-->
+                                </div>
+                    <?php if(($key % 2 != 0) && ($key != (count($booking_files)-1) )) { ?>
+                            </div>
+                    <?php } } ?>
+                            </div>
+                    <?php } ?>
+                                <div class="clonedInputSample panel panel-default " id="clonedInputSample1">                      
+                                    <div class="panel-heading">
+                                         <p style="color: #000;"><b>Add Support file</b></p>
+                                         <div style="float:right;margin-top: -31px;">
+                                            <button class="clone1 btn btn-sm btn-info">Add</button>
+                                            <button class="remove1 btn btn-sm btn-info">Remove</button>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class='form-group'>
+                                                    <div class="col-md-4">
+                                                        <select class="form-control" id="file_description_1"  name="file_description[]" >
+                                                            <option selected disabled>Select File Type</option>
+                                                            <?php if(!empty($file_type)) {
+                                                                foreach($file_type as $val) { ?>
+                                                            <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
+                                                            <?php  }
+                                                            } ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="file" class="form-control support_file" id="support_file_1"  name="support_file[]" >
+                                                    </div>
+                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cloned1"></div>
+                    <?php if(isset($booking_files) && !empty($booking_files)) { ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+                            
+                    <!-- Upload Support File div End -->
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -307,10 +401,12 @@
                                                 <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
                                                     name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                     <option selected disabled>Select Brand</option>
-                                                    <?php foreach ($brand[0] as  $appliance_brand) { ?>
+                                                    <?php 
+                                                        if(!empty($brand[0])) {
+                                                            foreach ($brand[0] as  $appliance_brand) { ?>
                                                     <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} else{  if($is_repeat){ echo "disabled"; }} }  ?>
                                                         ><?php echo $appliance_brand['brand_name']; ?></option >
-                                                    <?php } ?>
+                                                    <?php } } ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -909,12 +1005,52 @@
     
     $("button.remove").on("click", remove);
     
+    var cloneIndexSample = $(".clonedInputSample").length +1;
+    
+    function clone1(){
+       $(this).parents(".clonedInputSample").clone()
+            .appendTo(".cloned1")
+            .attr("id", "cat" +  cloneIndexSample)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndexSample);
+               }
+           })
+            .on('click', 'button.clone1', clone1)
+            .on('click', 'button.remove1', remove1);
+          $("#support_file_"+cloneIndexSample).val('');
+          $("#a_support_file_"+cloneIndexSample).attr("href","<?php echo base_url() . 'images/no_image.png'; ?>");
+          $("#img_support_file_"+cloneIndexSample).attr("src","<?php echo base_url() . 'images/no_image.png'; ?>");
+       cloneIndexSample++;
+       return false;
+    }  
+    function remove1(){
+        if($('div.clonedInputSample').length > 1) {
+            $(this).parents(".clonedInputSample").remove();
+        }
+       
+        return false;
+    }
+    $("button.clone1").on("click", clone1);
+    
+    $("button.remove1").on("click", remove1);
+    
+    $("#btn_addSupportFile").click(function() {
+        $('div.clonedInputSample').toggle();
+    });
     
      $(document).ready(function () {
         if($('.select-model').css("display") == "none") {
             $('.select-model').next(".select2-container").hide();
         }
       final_price();
+    if($('div.uploaded_support_file').length == 1) {
+        $("#btn_addSupportFile").click();
+    }
     });
     
     function outbound_call(phone_number){
@@ -990,6 +1126,75 @@
         objs.prepend('<div class="disabled-select"></div>');
     else
         $(".disabled-select", objs).remove();
+}
+
+function upload_supporting_file(supportfileLoader){
+    $("#"+supportfileLoader).click();
+}
+
+function uploadsupportingfile(key, id){
+     var file = $("#supportfileLoader_"+key).val();
+     if (file === '') {
+        alert('Please select file');
+        return;
+    } else {
+        var formData = new FormData();
+        formData.append('support_file', $("#supportfileLoader_"+key)[0].files[0]);
+        formData.append('id', id);
+        formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
+        
+        $.ajax({
+                url: '<?php echo base_url();?>employee/booking/upload_order_supporting_file',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                // this part is progress bar
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            console.log(percentComplete);
+                            $('#myprogress_supproting_file_'+key).text(percentComplete + '%');
+                            $('#myprogress_supproting_file_'+key).css('width', percentComplete + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (response) {
+                    $('#myprogress_supproting_file_'+key).css('width', '0%');
+                    obj = JSON.parse(response);
+                    
+                    if(obj.code === "success"){
+                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                    } else {
+                        alert(obj.message);
+                    }
+                }
+            });
+    }
+}
+function delete_supporting_file(id){
+    var cnfrm = confirm("Are you sure, you want to delete this file ?");
+    if(!cnfrm){
+        return false;
+    }
+    
+    $.ajax({
+        url: '<?php echo base_url();?>employee/booking/delete_order_supporting_file',
+        data: {id: id},
+        type: 'POST',
+        success: function (response) {
+            obj = JSON.parse(response);
+            alert(obj.message);
+            if(obj.status === "success") {
+                location.reload();
+            }
+        }
+    });
 }
 function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
         if(isChecked){
