@@ -609,7 +609,7 @@ class User extends CI_Controller {
         $this->load->view('employee/show_holiday_list',$data);
     }
     
-    /**
+ /**
      * @desc function change password of admin.
      * @author Ankit Rajvanshi.
      * @since 17-May-2019.
@@ -634,6 +634,13 @@ class User extends CI_Controller {
         elseif($_POST) :
             // Update password.
             $affected_rows = $this->reusable_model->update_table('employee', ['employee_password' => md5($_POST['new_password']), 'clear_password'=> $_POST['new_password']], ['id' => $id]);
+            // send change password mail.
+            $to = (!empty($employee[0]['official_email']) ? $employee[0]['official_email'] : (!empty($employee[0]['personal_email']) ? $employee[0]['personal_email'] : NULL));
+            if(!empty($to)) :
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Password Changed", "Password has been changed successfully.", "", CHANGE_PASSWORD);
+                log_message('info', __FUNCTION__ . 'Change password mail sent.');
+            endif;            
+            
             // setting feedback message for user.
             $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
             redirect(base_url() . "employee/user/change_password");
