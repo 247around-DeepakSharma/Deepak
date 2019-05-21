@@ -3132,6 +3132,28 @@ class Service_centers extends CI_Controller {
                             $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                         }
                     }
+                    
+                    $challan_file = 'challan_file' . date('dmYHis');
+                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                        unlink(TMP_FOLDER . $challan_file . '.zip');
+                    }
+
+                    $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+                    $zip .= TMP_FOLDER . $data['partner_challan_file'] . " ";
+                    $challan_file_zip = $challan_file . ".zip";
+                    $res = 0;
+                    system($zip, $res);
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+
+                    $res2 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+                    readfile(TMP_FOLDER . $challan_file . '.zip');
+                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                        unlink(TMP_FOLDER . $challan_file . '.zip');
+                         unlink(TMP_FOLDER . $data['partner_challan_file'] );
+                    }
                 }
                 
             }
