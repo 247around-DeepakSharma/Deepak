@@ -293,7 +293,26 @@ function addBookingDialog(chanel = '') {
         alert("Please Select Booking Source");
 
         return false;
-    } 
+    }
+    
+    if($('.support_file').length > 1) {
+        var i=1;
+        var count=0;
+        $('.support_file').each(function () {
+            var file = $("#"+this.id).val();
+            if (file === '') {
+               $('div.clonedInputSample').show();
+               alert('Please Select file or Remove Add Support File Panel '+i+" !! ");
+               $("#"+this.id).focus();
+               ++count;
+               return false;
+            }
+            ++i;
+        });
+        if(count > 0) {
+            return false;
+        }
+    }
 
     if (service === null || service === "" || service === "Select Service") {
 
