@@ -430,7 +430,7 @@
                                                     <?php } ?>
                                                 </td>
                                                 <td> <?php echo $value['service_category']; ?> </td>
-                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
+                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                 <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
                                                 <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
                                                 <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">

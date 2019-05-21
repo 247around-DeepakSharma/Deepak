@@ -2437,13 +2437,13 @@ class Spare_parts extends CI_Controller {
           'spare_parts_details.requested_inventory_id IS NOT NULL '=> NULL
        );
        $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state";
-       $post['where_in']= array('spare_parts_details.booking_id' => $bookingids);
+       $post['where_in']= array('spare_parts_details.booking_id' => $bookigs);
        $bookings_spare =$this->partner_model->get_spare_parts_by_any($select,$where,TRUE,FALSE,false, $post );
        foreach ($bookings_spare as $booking){
            $spareid=$booking['id'];
            $wherebooking=array('booking_id'=>$booking['booking_id']);
            $state = $booking['state'];
-           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('state'=>$state),true,false,true);
+           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('warehouse_state_relationship.state'=>$state),true,false,true);
            $warehouseid=0;
            if(!empty($data)){
                 $warehouseid = $data[0]['id'];
