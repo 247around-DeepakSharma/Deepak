@@ -6438,6 +6438,7 @@ class Service_centers extends CI_Controller {
         if($_POST) :
             // declaring variables.
             $service_center_id = $this->session->userdata['service_center_id'];
+            $service_center_name = $this->session->userdata['service_center_name'];
             $old_password = md5($_POST['old_password']);
             // fetch record.
             $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
@@ -6450,8 +6451,32 @@ class Service_centers extends CI_Controller {
                 echo'0';exit;
             endif;
         elseif($_POST) :
+            
             // Update password.
             $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+            // Send mail.
+            $vendor = $this->vendor_model->getVendorContact($service_center_id);
+            // set To.
+            //$to_email = (!empty($service_center[0]['email']) ? $service_center[0]['email'] : NULL);
+            $to = (!empty($vendor[0]['primary_contact_email']) ? $vendor[0]['primary_contact_email'] : NULL); //POC
+            // set CC.
+            $cc = [];
+            // owner
+            if(!empty($vendor[0]['owner_email'])) : 
+                $cc[] =  $vendor[0]['owner_email'];
+            endif;
+            // RM
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id); 
+            if(!empty($rm[0]['official_email'])) :
+                $cc[] =  $rm[0]['official_email'];
+            endif;
+            // subject
+            $subject = "Password changed for : {$service_center_name}";
+            if(!empty($to)) :
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, "Password has been changed successfully.", "", CHANGE_PASSWORD);
+                log_message('info', __FUNCTION__ . 'Change password mail sent.');
+            endif;            
+        
             // setting feedback message for user.
             $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
             redirect(base_url() . "employee/service_centers/change_password");
