@@ -10176,7 +10176,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 --Rajshree 02 March
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
->>>>>>> CRM_Release_1.62.0.0
+
 ------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
 
@@ -10878,6 +10878,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', '247around warehouse Alternate Parts Inventory', NULL, 'partner/inventory/alternate_parts_list', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
+
 --Kalyani 08-05-2019
 INSERT INTO `partner_brand_logo` (`id`, `partner_id`, `partner_logo`, `alt_text`, `logo_priority`) VALUES (NULL, '247001', 'logo.jpg', '247around_logo', NULL);
 
@@ -10905,8 +10906,10 @@ UPDATE `employee` SET `department` = 'Operations' WHERE groups in ('regionalmana
 --Kajal 09-05-2019 ending ---
 --Kalyani 13-May-2019
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Call %s for Support. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. For Support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "upcountry_add_new_booking";
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
+
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
 
 --Kalyani 15-May-2019
@@ -10921,3 +10924,11 @@ UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) t
 --Ankit 20-May-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
+
+
+ALTER TABLE `courier_company_invoice_details` CHANGE `actual_weight` `actual_weight` DECIMAL(10,3) NOT NULL;
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` DECIMAL(10,3) NOT NULL;
+
+--Abhay 08-04-2018
+INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`, `update_date`) VALUES (NULL, '247001', 'auto_approve_defective_parts_courier_charges', NULL, NULL, '0', '2019-05-08 12:54:01', '2019-05-08 12:54:01');
+
