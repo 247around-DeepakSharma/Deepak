@@ -813,8 +813,8 @@
         });
         
         var pr = checkPriceTagValidation(delivered_price_tags);
-        if(pr=== false){
-            alert('Not Allow to complete multiple type of Service category');
+        if(pr === false){
+            alert('Not Allow to Complete/Delivered multiple type of Service category');
             flag = 1;
         }
 
@@ -923,23 +923,37 @@
     
     function checkPriceTagValidation(delivered_price_tags){
         var repair_flag = false;
+        var repair_out_flag = false;
         var installation_flag = false;
         var pdi = false;
+        var extended_warranty = false;
+        var array =[];
 
-        if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
-                || findInArray(delivered_price_tags, 'Extended Warranty') > -1 
-                || findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
                 || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
             
-            repair_flag = true;
-            
-         } 
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
                 || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
-                   installation_flag = true
+                   installation_flag = true;
+                   array.push(installation_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
@@ -947,19 +961,26 @@
                 || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
                 || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
                     pdi = true;
+                    array.push(pdi);
                 }
                 
-         if(repair_flag === true && installation_flag === true && pdi === true){
+         if(array.length > 1){
              return false;
-         } else if(repair_flag === true && installation_flag === true){
-             return false;
-         } else if(pdi === true && installation_flag === true){
-              return false;
-         } else if(pdi === true && repair_flag === true){
-              return false;
          } else {
              return true;
          }
+//                
+//         if(repair_flag === true && installation_flag === true && pdi === true && repair_out_flag == true && extended_warranty == true){
+//             return false;
+//         } else if(repair_flag === true && installation_flag === true){
+//             return false;
+//         } else if(pdi === true && installation_flag === true){
+//              return false;
+//         } else if(pdi === true && repair_flag === true){
+//              return false;
+//         } else {
+//             return true;
+//         }
     }
     
     function findInArray(ar, val) {
