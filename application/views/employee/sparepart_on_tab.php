@@ -143,6 +143,7 @@
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Approval</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
@@ -177,7 +178,6 @@
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
-                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -216,7 +216,6 @@
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
-                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
@@ -696,6 +695,49 @@
                         }
                     },
                     title: 'spare_parts_requested'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '0', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4,11,12,13,16], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+            $(".dataTables_filter").addClass("pull-right");
+          }
+        });
+    
+    
+    spare_parts_requested_table.draw(false);
+         //datatables    
+    spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order:[],
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 50, -1 ],[ '50', '100', '500', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                         modifier : {
+                            // DataTables core
+                            page : 'All',      // 'all',     'current'
+                        }
+                    },
+                    title: 'spare_parts_requested_approved'
                 }
             ],
             // Load data for the table's content from an Ajax source
