@@ -591,8 +591,9 @@ class User extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sending Mail Error..  ");
             echo json_encode(array('status' => "error", "message" => " Sending Mail Error..  "));
         }
-        
-        echo json_encode(array('status' => "success", "message" => "Password Reset Sucessfully."));
+        else {
+            echo json_encode(array('status' => "success", "message" => "Password Reset Sucessfully."));
+        }
     }
     /**
      *@Desc: This function is used to show holiday list to employees
@@ -646,7 +647,9 @@ class User extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/change_password');
     }
-     /*@Desc: This function is used to get random password of length 8 
+    
+     /**
+     *@Desc: This function is used to get random password of length 8 
      * @params: void
      * @return: void 
      * 
