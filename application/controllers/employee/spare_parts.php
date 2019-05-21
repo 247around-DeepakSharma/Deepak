@@ -2443,7 +2443,7 @@ class Spare_parts extends CI_Controller {
            $spareid=$booking['id'];
            $wherebooking=array('booking_id'=>$booking['booking_id']);
            $state = $booking['state'];
-           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('state'=>$state),true,false,true);
+           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('service_centres.state'=>$state),true,false,true);
            $warehouseid=0;
            if(!empty($data)){
                 $warehouseid = $data[0]['id'];
