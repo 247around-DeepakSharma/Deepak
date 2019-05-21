@@ -411,7 +411,7 @@ class invoices_model extends CI_Model {
                             AND booking_unit_details.booking_status = 'Completed'
                             AND booking_unit_details.ud_closed_date >= '$from_date'
                             AND booking_unit_details.ud_closed_date < '$to_date'
-                        )
+                        ) $s
                     )
                ";
 
