@@ -346,7 +346,7 @@ class Dashboard extends CI_Controller {
      * @param void
      * @return json
      */
-    function get_completed_booking_by_closure() {
+    function get_completed_cancelled_booking_by_closure($status) {
         if($this->input->post('sDate') && $this->input->post('eDate')){
             $sDate = $this->input->post('sDate');
             $eDate = $this->input->post('eDate');
@@ -358,67 +358,77 @@ class Dashboard extends CI_Controller {
             $endDate = date('Y-m-d 00:00:00', $timestamp);
             $startDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('-7 days'))));
         }
-        $this->completed_booking_by_closure_graph_data($startDate, $endDate);
+        $this->completed_booking_by_closure_graph_data($startDate, $endDate, $status);
     }
     /**
      * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
      * @param $startDate, $endDate
      * @return json
      */
-    function completed_booking_by_closure_graph_data($startDate, $endDate){
+    function completed_booking_by_closure_graph_data($startDate, $endDate, $status){
+        $graph_data = array();
         $rejectCompleted = [];
         $approveComplted = [];
         $editCompleted = [];
         $totalCompleted = [];
         $closureName = [];
-        
-        $graph_data = $this->dashboard_model->get_completed_booking_graph_data($startDate, $endDate);
-        foreach ($graph_data[0] as $key => $value) {
-            switch ($key) {
-                case 'full_name':
-                    if (!empty($value)) {
-                        array_push($closureName, $value);
-                    } else {
-                        array_push($closureName, '0');
-                    }
-                    break;
-                case 'completed_rejected':
-                    if (!empty($value)) {
-                        array_push($rejectCompleted, $value);
-                    } else {
-                        array_push($rejectCompleted, '0');
-                    }
-                    break;
-                case 'completed_approved':
-                    if (!empty($value)) {
-                        array_push($approveComplted, $value);
-                    } else {
-                        array_push($approveComplted, '0');
-                    }
-                    break;
-                case 'edit_completed':
-                    if (!empty($value)) {
-                        array_push($editCompleted, $value);
-                    } else {
-                        array_push($editCompleted, '0');
-                    }
-                    break;
-                case 'total_completed':
-                    if (!empty($value)) {
-                        array_push($totalCompleted, $value);
-                    } else {
-                        array_push($totalCompleted, '0');
-                    }
-                    break;
-            }
-            
+        if($status == "Completed"){
+            $graph_data = $this->dashboard_model->get_completed_booking_graph_data($startDate, $endDate);
         }
-        $json_data['closures'] = implode(",", $closureName);
-        $json_data['reject'] = implode(",", $rejectCompleted);
-        $json_data['approved'] = implode(",", $approveComplted);
-        $json_data['edit_complete'] = implode(",", $editCompleted);
-        $json_data['total_bookings'] = implode(",", $totalCompleted);
-        echo json_encode($json_data);
+        else if($status == "Cancelled"){
+            $graph_data = $this->dashboard_model->get_cancelled_booking_graph_data($startDate, $endDate);
+        }
+        if(!empty($graph_data)){
+            foreach ($graph_data[0] as $key => $value) {
+                switch ($key) {
+                    case 'full_name':
+                        if (!empty($value)) {
+                            array_push($closureName, $value);
+                        } else {
+                            array_push($closureName, '0');
+                        }
+                        break;
+                    case 'completed_rejected':
+                        if (!empty($value)) {
+                            array_push($rejectCompleted, $value);
+                        } else {
+                            array_push($rejectCompleted, '0');
+                        }
+                        break;
+                    case 'completed_approved':
+                        if (!empty($value)) {
+                            array_push($approveComplted, $value);
+                        } else {
+                            array_push($approveComplted, '0');
+                        }
+                        break;
+                    case 'edit_completed':
+                        if (!empty($value)) {
+                            array_push($editCompleted, $value);
+                        } else {
+                            array_push($editCompleted, '0');
+                        }
+                        break;
+                    case 'total_completed':
+                        if (!empty($value)) {
+                            array_push($totalCompleted, $value);
+                        } else {
+                            array_push($totalCompleted, '0');
+                        }
+                        break;
+                }
+            
+            }
+            $json_data['closures'] = implode(",", $closureName);
+            $json_data['reject'] = implode(",", $rejectCompleted);
+            $json_data['approved'] = implode(",", $approveComplted);
+            $json_data['edit_complete'] = implode(",", $editCompleted);
+            $json_data['total_bookings'] = implode(",", $totalCompleted);
+            echo json_encode($json_data);
+        }
+        else{
+            echo false;
+        }
     }
     
     /**
