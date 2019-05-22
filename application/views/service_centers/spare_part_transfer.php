@@ -81,16 +81,16 @@
     }
 </style>
 <div id="page-wrapper">
-    <div class="row">
+    <div class="row" style="border: 1px solid #e6e6e6; padding: 20px;" >
         <div class="title">
             <div class="row">
-                <div class="col-md-6">
-                    <h3>Search Bookings for Spare Part Transfer </h3>
+                <div class="col-md-12">
+                    <h3>Search Bookings for Spare Part Transfer From One Booking To Another </h3><hr>
                 </div>
 
             </div>
         </div>
-
+        <br><br>
         <?php if ($this->session->flashdata('error_msg') != '') { ?>
             <div class="error_msg_div" style=" ">
                 <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
@@ -99,7 +99,7 @@
                     </button>
                     <strong>Error ! <?php echo $this->session->flashdata('error_msg'); ?></</strong>
                 </div>
-            </div><br  
+            </div><br > 
         <?php }
         ?>
 
@@ -112,12 +112,12 @@
                     </button>
                     <strong>Success ! <?php echo $this->session->flashdata('success'); ?></</strong>
                 </div>
-            </div><br  
+            </div><br>  
         <?php }
         ?>
 
 
-            <div  >
+            <div   >
 
             <form action="<?php echo base_url(); ?>service_center/booking_spare_list" method="POST" >
                 <div class="row">
@@ -125,7 +125,7 @@
                         <div class="form-group">
                             <label class="control-label col-md-4" for="frombooking">From Booking*</label>
                             <div class="col-md-7  ">
-                                <input type="text" class="form-control"   value="<?php
+                                <input type="text" class="form-control" required=""  value="<?php
                                 if (!empty($frombooking)) {
                                     echo $frombooking;
                                 }
@@ -137,7 +137,7 @@
                         <div class="form-group">
                             <label class="control-label col-md-4" for="tobooking">To Booking*</label> 
                             <div class="col-md-7  ">                                        
-                                <input type="text" class="form-control" id="tobooking"   value="<?php
+                                <input type="text" class="form-control" required="" id="tobooking"   value="<?php
                                 if (!empty($tobooking)) {
                                     echo $tobooking;
                                 }

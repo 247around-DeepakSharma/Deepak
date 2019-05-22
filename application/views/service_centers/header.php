@@ -286,10 +286,11 @@
                                 <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
-                                <li class="divider"></li>
+                                
                                 <?php }?>  
                                 <?php  
                                 if ($this->session->userdata('is_wh') == 1) { ?> 
+                                <li class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer</strong></a></li> 
                                 <li class="divider"></li>
                                 <?php   }
