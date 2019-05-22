@@ -177,7 +177,7 @@
                                         <div class="form-group">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> <!--  onchange="get_symptom(0)" -->
+                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> 
                                                     <option selected disabled>Select Part Warranty Status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
                                                     <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
@@ -528,7 +528,7 @@ function alpha(e) {
     });
     
     function submitForm(){
-              
+                                     
      var checkbox_value = 0;
      $("input[type=radio]:checked").each(function(i) {
          checkbox_value = 1;
@@ -645,6 +645,7 @@ function alpha(e) {
                 }
             });
     
+        var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
@@ -652,6 +653,9 @@ function alpha(e) {
                         alert('Please Select Part Warranty Status');    
                         checkbox_value = 0;
                        return false;
+                    }else if($(this).val() == 1 &&(invoice_pic =='' || invoice_pic == null)){
+                        alert('Please Upload Invoice Picture.');    
+                        checkbox_value = 0;
                     }
                 }
             });
@@ -699,7 +703,7 @@ function alpha(e) {
           }
 
       }
-    
+         
       if(checkbox_value === 0){
           $('#submitform').val("Update Booking");
           return false;
@@ -848,34 +852,7 @@ function alpha(e) {
             }
         });
     });
-    
-    
-    /*function get_symptom(key){
-        var array = [];
-        var postData = {};
-        var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
-        
-        array.push(price_tags);
-        if(array.length > 0){
-            postData['request_type'] = array;
-            postData['service_id'] = '<?php echo $bookinghistory[0]['service_id'];?>';
-            var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
-            $.ajax({
-                method:'POST',
-                url: url,
-                data: postData,
-                success:function(data){ 
-                    console.log(data);
-                    if(data === "Error"){
-                        $('#spare_request_symptom_' + key).html("").change();
-                    } else {
-                        $('#spare_request_symptom_' + key).html(data).change();
-    
-                    }                  
-                }
-            });
-        }
-    }*/
+     
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
