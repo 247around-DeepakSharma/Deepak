@@ -188,7 +188,7 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="false">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel</th>
@@ -226,7 +226,7 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="false">Age Of Rejection</th>
+                                    <th class="text-center" data-orderable="true">Age Of Rejection</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                 </tr>
                             </thead>
@@ -685,7 +685,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            "order": [[ 13, "asc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -728,7 +728,7 @@
     spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            "order": [[ 13, "asc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -768,8 +768,8 @@
   //spare_parts_requested_rejected  
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
-            serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            serverSide: true, //Feature control DataTables' server-side processing mode
+           "order": [[ 13, "asc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
