@@ -9,7 +9,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" >
             
             <div class="container"  style="border: 1px solid #e6e6e6; padding: 20px;" >
-                <h2 style="padding-bottom: 32px;">Bulk Spare Transfer From Partner To Vendor</h2><hr>
+                <h2 style="padding-bottom: 32px;">Bulk Spare Transfer From  To Warehouse</h2><hr>
             <?php if(!empty($this->session->flashdata('success'))){ ?>
            <div class="alert alert-success">
             <strong>Success!</strong>  <?php echo $this->session->flashdata('success');  ?>
