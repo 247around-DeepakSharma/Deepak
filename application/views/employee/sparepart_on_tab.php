@@ -191,6 +191,7 @@
                                     <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Cancel</th>
                                 </tr>
                             </thead>
                             <tbody>
