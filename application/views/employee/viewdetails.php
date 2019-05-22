@@ -1943,6 +1943,7 @@ background-color: #f5f5f5;
                     if (data != '') {               
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
                         $("#move_to_vendor").hide();
+                        location.reload();
                     }
                 },
                 error: function () {
