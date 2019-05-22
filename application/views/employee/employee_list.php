@@ -38,6 +38,23 @@
             return false;
         }
     }
+    
+    function reset_password(employee_id){
+        var c = confirm("Are you sure, you want to reset password ?");
+        if(c){
+            $.ajax({
+                url:'<?php echo base_url()."employee/user/reset_password/" ?>'+employee_id,
+                success: function (data) {
+                    obj=JSON.parse(data);
+                    alert(obj.message);
+                    location.reload();
+                }
+            });
+            
+        }else{
+            return false;
+        }
+    }
     </script>
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
@@ -180,7 +197,7 @@
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                                 <a href="<?php base_url()?>deactive_employee/<?php echo $value['id']; ?>" class="btn btn-sm btn-warning" title="Deactive Employee" > <i class="fa fa-check-square" aria-hidden="true"></i></a>
-                                <a href="<?php base_url()?>reset_password/<?php echo $value['id']; ?>" class="btn btn-sm" title="Reset Password" style="background-color: #D9EDF7" ><span class="fa-passwd-reset fa-stack"><i class="fa fa-undo fa-stack-2x"></i><i class="fa fa-key fa-stack-1x"></i></span></a>
+                                <a href="javascript:void(0)" class="btn btn-sm" title="Reset Password" onclick="return reset_password(<?php echo $value['id']; ?>)" style="background-color: #D9EDF7" ><span class="fa-passwd-reset fa-stack"><i class="fa fa-undo fa-stack-2x"></i><i class="fa fa-key fa-stack-1x"></i></span></a>
                             </td>
                             <?php }?>
                                 

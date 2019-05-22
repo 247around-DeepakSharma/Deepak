@@ -121,11 +121,7 @@ if ($this->uri->segment(3)) {
                                         </td>
 
                                         <td>
-                                            <?php if(!empty($row['partner_challan_number'])){ ?>
                                             <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
-                                            <?php }else{ ?>
-                                            <a href="javascrip:void(0);" class="btn btn-sm btn-primary" title="Please generate challan." style="background-color:#2C9D9C; border-color: #2C9D9C;" disabled="disabled"><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
-                                            <?php } ?>
                                         </td>
                                         <td>
                                             <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>

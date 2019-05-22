@@ -1046,10 +1046,14 @@ class Service_centers extends CI_Controller {
             $this->cancel_booking_form(urlencode(base64_encode($booking_id)));
         } else {
            
-            $cancellation_reason = $this->input->post('cancellation_reason');
+            $cancellation_reason = trim($this->input->post('cancellation_reason'));
             $cancellation_text = $this->input->post('cancellation_reason_text');
+            $correctpin=$this->input->post('correct_pincode'); 
             $can_state_change = $cancellation_reason;
             $partner_id = $this->input->post('partner_id');
+            $city = $this->input->post('city');
+            $booking_pincode = $this->input->post('booking_pincode');
+            
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
             }
@@ -1062,10 +1066,29 @@ class Service_centers extends CI_Controller {
                     
                     break;
                 default :
-                    
-                    if($cancellation_reason == CANCELLATION_REASON_WRONG_AREA){
+                    if($cancellation_reason == _247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){  
+                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_CALL_AREA_TEMPLATE);
+                    }
 
-                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id);
+                    if(isset($correctpin) && !empty($correctpin) && $cancellation_reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){
+                         $pinupdate=array(
+                        'booking_pincode'=>$correctpin
+                         );
+                         $this->booking_model->update_booking($booking_id,$pinupdate);            
+                         $this->initialized_variable->fetch_partner_data($partner_id);
+                         $partner_data = $this->initialized_variable->get_partner_data();
+                         $booking['service_id']=$this->input->post('service_id');
+                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false);
+                         if (!empty($response)  && !isset($response['vendor_not_found'])) {
+                         $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
+                         $async_data['service'] = $response['vendor_id'];
+                         $async_data['booking_id'] =$booking_id;
+                         $async_data['remarks'] ="Booking Reassigned While Cancellation by Sf";
+                         $this->asynchronous_lib->do_background_process($url, $async_data);
+                         }
+                           $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_PINCODE_TEMPLATE,$correctpin);
+                         redirect(base_url() . "service_center/pending_booking");
+                         break;
                     }
 
                     $data['current_status'] = "InProcess";
@@ -1078,10 +1101,10 @@ class Service_centers extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                    //Update Service Center Closed Date in booking Details Table, 
-            //if current date time is before 12PM then take completion date before a day, 
-            //if day is monday and  time is before 12PM then take completion date as saturday
-            //Check if new completion date is equal to or greater then booking_date
-            date_default_timezone_set('Asia/Kolkata');
+                  //if current date time is before 12PM then take completion date before a day, 
+                 //if day is monday and  time is before 12PM then take completion date as saturday
+                //Check if new completion date is equal to or greater then booking_date
+                    date_default_timezone_set('Asia/Kolkata');
                     // get booking_date
                     $booking_date = $this->reusable_model->get_search_result_data("booking_details",'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date',array('booking_id'=>$booking_id),
                             NULL,NULL,NULL,NULL,NULL,array())[0]['booking_date'];
@@ -1113,14 +1136,12 @@ class Service_centers extends CI_Controller {
         }
     }
     /**
-     * @desc This function is used to send email to RM or AM when sf cancelled booking with wrong call area status
+     * @desc This function is used to send email to RM for Booking Not available in your area
      * @param String $booking_id
      * @param int $partner_id
      */
-    function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id) {
-       
-        $email_template = $this->booking_model->get_booking_email_template(WRONG_CALL_AREA_TEMPLATE);
-       
+    function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city="",$pincode="",$templet="",$correctpin="") {
+         $email_template = $this->booking_model->get_booking_email_template($templet);
         if (!empty($email_template)) {
 
             $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
@@ -1134,8 +1155,8 @@ class Service_centers extends CI_Controller {
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
-            $emailBody = vsprintf($email_template[0], $booking_id);
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WRONG_CALL_AREA_TEMPLATE, "", $booking_id);
+            $emailBody = vsprintf($email_template[0], array($booking_id,$city,$pincode,$correctpin));
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$email_template, "", $booking_id);
         }
     }
 
@@ -1639,10 +1660,9 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update spare parts details
      * @$_POST form data 
      */
-    function update_spare_parts_details() {
+    function update_spare_parts_details() {           
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
-        $this->checkUserSession();
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -1755,16 +1775,31 @@ class Service_centers extends CI_Controller {
 //        }
 
         $where = array('id' => $this->input->post('spare_id'));
-        $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-        if ($affected_row == TRUE) {
-            $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "",  $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
-            $userSession = array('success' => 'Spare Parts Updated');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/pending_booking");
+        if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager'){
+            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($affected_row == TRUE) {
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, $partner_id, NULL);
+                $userSession = array('success' => 'Spare Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/get_spare_parts");
+            } else {
+                $userSession = array('error' => 'Spare Parts Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/inventory/get_spare_parts");
+            }
         } else {
-            $userSession = array('error' => 'Spare Parts Not Updated');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/pending_booking");
+            $this->checkUserSession();
+            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+            if ($affected_row == TRUE) {
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
+                $userSession = array('success' => 'Spare Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            } else {
+                $userSession = array('error' => 'Spare Parts Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            }
         }
     }
 
@@ -3131,6 +3166,28 @@ class Service_centers extends CI_Controller {
                         foreach ($spare_details as $val){
                             $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                         }
+                    }
+                    
+                    $challan_file = 'challan_file' . date('dmYHis');
+                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                        unlink(TMP_FOLDER . $challan_file . '.zip');
+                    }
+
+                    $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+                    $zip .= TMP_FOLDER . $data['partner_challan_file'] . " ";
+                    $challan_file_zip = $challan_file . ".zip";
+                    $res = 0;
+                    system($zip, $res);
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+
+                    $res2 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+                    readfile(TMP_FOLDER . $challan_file . '.zip');
+                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                        unlink(TMP_FOLDER . $challan_file . '.zip');
+                         unlink(TMP_FOLDER . $data['partner_challan_file'] );
                     }
                 }
                 
@@ -6416,6 +6473,7 @@ class Service_centers extends CI_Controller {
         if($_POST) :
             // declaring variables.
             $service_center_id = $this->session->userdata['service_center_id'];
+            $service_center_name = $this->session->userdata['service_center_name'];
             $old_password = md5($_POST['old_password']);
             // fetch record.
             $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
@@ -6428,8 +6486,32 @@ class Service_centers extends CI_Controller {
                 echo'0';exit;
             endif;
         elseif($_POST) :
+            
             // Update password.
             $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+            // Send mail.
+            $vendor = $this->vendor_model->getVendorContact($service_center_id);
+            // set To.
+            //$to_email = (!empty($service_center[0]['email']) ? $service_center[0]['email'] : NULL);
+            $to = (!empty($vendor[0]['primary_contact_email']) ? $vendor[0]['primary_contact_email'] : NULL); //POC
+            // set CC.
+            $cc = [];
+            // owner
+            if(!empty($vendor[0]['owner_email'])) : 
+                $cc[] =  $vendor[0]['owner_email'];
+            endif;
+            // RM
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id); 
+            if(!empty($rm[0]['official_email'])) :
+                $cc[] =  $rm[0]['official_email'];
+            endif;
+            // subject
+            $subject = "Password changed for : {$service_center_name}";
+            if(!empty($to)) :
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, "Password has been changed successfully.", "", CHANGE_PASSWORD);
+                log_message('info', __FUNCTION__ . 'Change password mail sent.');
+            endif;            
+        
             // setting feedback message for user.
             $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
             redirect(base_url() . "employee/service_centers/change_password");
