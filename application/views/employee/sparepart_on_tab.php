@@ -29,8 +29,8 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,8 +106,9 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Cancel Part</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -187,10 +188,9 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,10 +225,8 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Rejection</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -708,7 +706,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '10', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -792,7 +790,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '11', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
