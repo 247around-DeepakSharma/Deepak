@@ -63,18 +63,19 @@ class Upcountry extends CI_Controller {
         $flag = 1;
         foreach ($state as $key => $value) {
             $flag = 1;
-            $where = array("pincode" => $pincode[$key], 'service_center_id' => $service_center_id);
+            $where = array("pincode" => $pincode[$key], 'service_center_id' => $service_center_id, 'district' => $district[$key]);
             $exist_hq_office = $this->upcountry_model->get_sub_service_center_details($where);
             if (!empty($exist_hq_office)) {
-                if ($district[$key] == $exist_hq_office[0]['district']) {
-                    $flag = 0;
-                    $userSession = array('error' => 'Same District ' . $exist_hq_office[0]['district'] .
-                        " Same Pincode " . $pincode[$key] . " Already Added. Please check & Try Again");
-                    $this->session->set_userdata($userSession);
-                    log_message('info', __FUNCTION__ . 'District ' . $exist_hq_office[0]['district'] .
-                            " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again" . print_r($data, true));
-                   break;
-                }
+                $this->upcountry_model->update_sub_service_center_upcountry_details(array('active' => 1), $exist_hq_office[0]['id']);
+
+                $flag = 0;
+                $userSession = array('error' => 'Same District ' . $exist_hq_office[0]['district'] .
+                    " Same Pincode " . $pincode[$key] . " Already Added. Please check & Try Again");
+                $this->session->set_userdata($userSession);
+                log_message('info', __FUNCTION__ . 'District ' . $exist_hq_office[0]['district'] .
+                        " Already Added in the Pincode " . $pincode[$key] . " Please check District & Try Again" . print_r($data, true));
+               break;
+
             }
             if ($flag == 1) {
                 $data[$key]['state'] = $value;
