@@ -41,7 +41,7 @@
                                         <label for="purchase_date" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="purchase_date" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
+                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" onclick="purchase_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -129,7 +129,6 @@
                                                 </select>
                                             </div>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>                              
                                     </div>
                                 </div>
