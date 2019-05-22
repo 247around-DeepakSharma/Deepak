@@ -115,7 +115,14 @@ class Spare_parts extends CI_Controller {
                 break;
             case 9:
                 $this->get_defective_parts_pending($post);
-                break;            
+                break; 
+            case 10:
+                $this->get_approval_pending($post);
+                break;
+            case 11:
+                $this->get_spare_rejected($post);
+                break;
+
         }
     }
     /**
@@ -364,6 +371,99 @@ class Spare_parts extends CI_Controller {
         echo json_encode($output);
         
     }
+
+
+
+
+           /**
+     * @desc Used to create tab in which we are showing
+     * Parts rejected
+     * @param Array $post
+     */
+    function get_spare_rejected($post){
+        log_message('info', __METHOD__);       
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.spare_cancelled_date,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_cancelled_date',NULL, NULL);
+        $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
+            'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
+        $post['where_in']=array('booking_details.current_status'=>array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];  
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->spare_parts_rejected_table_data($spare_list, $no, $post['request_type']);
+            $data[] = $row;
+        }
+        
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => _247AROUND_CANCELLED, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
+        if (!empty($spare_parts_list)) {
+            $total = count($spare_parts_list);
+        } else {
+            $total = 0;
+        }
+
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "unapproved" => $total,
+            "data" => $data,
+            
+        );
+        
+        echo json_encode($output);
+        
+    }
+
+
+
+        /**
+     * @desc Used to create tab in which we are showing
+     * Parts requested by Sf and pending fro approval
+     * @param Array $post
+     */
+    function get_approval_pending($post){
+        log_message('info', __METHOD__);       
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, NULL);
+        $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
+            'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type']);
+            $data[] = $row;
+        }
+        
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => SPARE_PART_ON_APPROVAL, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
+        if (!empty($spare_parts_list)) {
+            $total = count($spare_parts_list);
+        } else {
+            $total = 0;
+        }
+
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "unapproved" => $total,
+            "data" => $data,
+            
+        );
+        
+        echo json_encode($output);
+        
+    }
+
+
+
     
     /**
      * @desc Used to create tab in which we are showing
@@ -833,8 +933,8 @@ class Spare_parts extends CI_Controller {
         return $row;
         
     }
-     /**
-     * @desc this function is used to create table row data for the spare parts rejected
+      /**
+     * @desc this function is used to create table row data for the spare parts requested tab
      * @param Array $spare_list
      * @param int $no
      * @return Array
@@ -926,6 +1026,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->parts_requested ."</span>";
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</spare>";
+         $row[] = $spare_list->quantity;
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text; 
