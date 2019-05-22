@@ -1003,7 +1003,7 @@ class Spare_parts extends CI_Controller {
         // $data['defective_return_to_entity_id'] = $partner_id;
         // $data['is_micro_wh'] = 0;
         
-        $row = $this->service_centers_model->update_spare_parts($where, $data);
+       // $row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($entity_type == _247AROUND_PARTNER_STRING) {
             $new_state = REQUESTED_SPARED_REMAP;
             $data['entity_type'] = $entity_type;
