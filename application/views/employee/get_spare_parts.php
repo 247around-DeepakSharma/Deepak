@@ -32,6 +32,27 @@
    <div class="row" style="margin-top: 40px;">
        <div class="row">
            <div class="col-md-12">
+               <?php
+                    if ($this->session->userdata('error')) {
+                            echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert" style="margin-left: 50px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>' . $this->session->userdata('error') . '</strong>
+                            </div>';
+                    }
+                    
+                     if ($this->session->userdata('success')) {
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-left: 50px; margin-right: 120px;">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->userdata('success') . '</strong>
+                    </div>';
+                    }
+                ?>
+               
+               
                </br>
                <div class="pull-right">
                    <a class="btn btn-success" id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
@@ -443,3 +464,11 @@
            placeholder:'Select Partner'
        });
 </script>
+<?php 
+    if ($this->session->userdata('error')) {
+        $this->session->unset_userdata('error');
+    }
+    if ($this->session->userdata('success')) {
+        $this->session->unset_userdata('success');
+    }
+?>

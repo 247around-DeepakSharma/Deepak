@@ -10,16 +10,7 @@
                     <?php echo validation_errors(); ?>
                 </div>
                 <?php } ?>
-                <?php
-            if ($this->session->userdata('error')) {
-                echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <strong>' . $this->session->userdata('error') . '</strong>
-            </div>';
-            }
-            ?>
+                
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/update_spare_parts_details" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <div class="panel panel-default col-md-offset-2">
                         <div class="panel-body" >
@@ -47,11 +38,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group" >
-                                        <label for="dop" class="col-md-4">Date of Purchase *</label>
+                                        <label for="purchase_date" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
-                                                <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
+                                                <span class="input-group-addon add-on" onclick="purchase_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -216,6 +207,7 @@
     </div>
 </div>
 </div>
+
 <?php if(empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){ 
@@ -249,7 +241,7 @@ $(document).ready(function(){
             load_parts_type(part_type);           
         });
         
-        $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0});
+        $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0});
         
         $("#serial_number_pic").on('change',function(){
             var serial_number_pic = $("#serial_number_pic").val();
@@ -345,50 +337,16 @@ function get_inventory_id(id){
             postData['request_type'] = array;
             postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
         }
-        //get_technical_problem(postData,'0');
+        
     });
 
-   /*function get_symptom(key){      
-        var array = [];
-        var postData = {};
-        var price_tags = $("#part_warranty_status_" + key).find(':selected').attr('data-request_type');
-        array.push(price_tags);
-        if(array.length > 0){
-            postData['request_type'] = array;
-            postData['service_id'] = '<?php echo $spare_parts_details['service_id'];?>';
-        }
-        get_technical_problem(postData,key);
-    }*/
-    
-    /*function get_technical_problem(postData,key) {
-        var url =  '<?php echo base_url();?>employee/booking_request/get_spare_request_dropdown';
-         $.ajax({
-             method:'POST',
-             url: url,
-             data: postData,
-             success:function(data){ 
-                 console.log(data);
-                 if(data === "Error"){
-                     $('#spare_request_symptom_' + key).html("").change();
-                 } else {
-                     $('#spare_request_symptom_' + key).html(data).change();
-
-                 }                  
-             }
-         });
-    }*/
-    
-    
-    function dop_calendar(){
-        $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0}).datepicker('show');
-    }
-    
+        
     function submitForm(){
         var checkbox_value = 1;
         var model_number = $('#model_number').val();
         var serial_number = $("#serial_number").val();
         var prob_des = $("#prob_desc").val();
-        var dop = $("#dop").val();
+        var purchase_date = $("#purchase_date").val();
         var serial_number_pic = $('#serial_number_pic').val();
         var old_serial_number_pic = $('#old_serial_number_pic').val();
         var defective_parts_pic = $("#defective_parts_pic").val();
@@ -403,7 +361,7 @@ function get_inventory_id(id){
             return false;
         }
 
-        if(dop === ""){
+        if(purchase_date === ""){
           alert("Please Select Date of Purchase");
           checkbox_value = 0; 
           return false;
@@ -489,4 +447,4 @@ function get_inventory_id(id){
         border-bottom: 1px solid #eee;
     }
 </style>
-<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+

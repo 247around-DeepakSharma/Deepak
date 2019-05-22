@@ -10177,7 +10177,6 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_cancelled";
 DELETE FROM `sms_template` WHERE `sms_template`.`tag` = "sms_to_dealer_on_booking_completion";
 
-------Gorakh  09-03-2019----
 ALTER TABLE `booking_comments` ADD `comment_type` TINYINT NOT NULL COMMENT '1 means booking comments, 2 means spare parts comments' AFTER `isActive`;
 
 --Kalyani 13-March-2019
@@ -10923,6 +10922,7 @@ UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) t
 
 --Ankit 20-May-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+
 ('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
 
 
@@ -10931,4 +10931,99 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable
 
 --Abhay 08-04-2018
 INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`, `update_date`) VALUES (NULL, '247001', 'auto_approve_defective_parts_courier_charges', NULL, NULL, '0', '2019-05-08 12:54:01', '2019-05-08 12:54:01');
+ 
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40'); 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> pincode is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+ 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter','Customer Enter Incorrect Pincode %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
+
+
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Wrong Pincode Entered', 'vendor', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
+
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
+
+--Kajal 21-05-2019 starting ---
+
+--
+-- Table structure for table `file_type`
+--
+
+CREATE TABLE `file_type` (
+  `id` int(11) NOT NULL,
+  `file_type` varchar(128) DEFAULT NULL,
+  `max_allowed_size` int(50) DEFAULT NULL,
+  `allowed_type` varchar(30) DEFAULT NULL,
+  `is_active` int(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `file_type`
+--
+
+INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES
+(1, 'Purchase Invoice', NULL, NULL, 1, '2019-05-16 13:01:27'),
+(2, 'Extended Warranty Invoice', NULL, NULL, 1, '2019-05-16 13:01:27');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `file_type`
+--
+ALTER TABLE `file_type`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `file_type` (`file_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `file_type`
+--
+ALTER TABLE `file_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+
+--
+-- Table structure for table `booking_files`
+--
+
+CREATE TABLE `booking_files` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(64) NOT NULL,
+  `file_description_id` int(11) DEFAULT NULL,
+  `file_name` varchar(512) NOT NULL,
+  `file_type` varchar(30) DEFAULT NULL,
+  `size` int(50) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_files`
+--
+ALTER TABLE `booking_files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_file_type` (`booking_id`,`file_description_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_files`
+--
+ALTER TABLE `booking_files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
 

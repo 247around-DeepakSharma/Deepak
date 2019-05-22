@@ -461,10 +461,27 @@ class Booking extends CI_Controller {
         if($this->input->post('repeat_reason') && $booking['parent_booking'] ){
             $booking['repeat_reason'] = $this->input->post('repeat_reason');
         }
-        //add support file for order id if it is uploaded
-        $support_file = $this->upload_orderId_support_file($booking['booking_id']);
-        if ($support_file) {
-            $booking['support_file'] = $support_file;
+        $file_description_arr = $this->input->post('file_description');
+        //add support file for booking id if it is uploaded
+        for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+            if(!empty($_FILES['support_file']['tmp_name'][$i])) {
+                $booking_files = array();
+                $support_file = $this->upload_orderId_support_file($booking['booking_id'], $_FILES['support_file']['tmp_name'][$i], $_FILES['support_file']['error'][$i], $_FILES['support_file']['name'][$i]);
+                if ($support_file) {
+                    $booking_files['booking_id'] = $booking['booking_id'];
+                    $booking_files['file_description_id'] = $file_description_arr[$i];
+                    $booking_files['file_name'] = $support_file;
+                    $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
+                    $booking_files['size'] = $_FILES['support_file']['size'][$i];
+                    $booking_files['create_date'] = date("Y-m-d H:i:s");
+                    $Status = $this->booking_model->insert_booking_file($booking_files);
+                    if(!$Status)
+                        return false;
+                }
+                else{
+                    log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
+                }
+            }
         }
         
         
@@ -781,6 +798,7 @@ class Booking extends CI_Controller {
         $data['phone_number'] = $phone_number;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        $data['file_type'] = $this->booking_model->get_file_type();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addbooking', $data);
     }
@@ -1525,6 +1543,7 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
             $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
@@ -1850,6 +1869,8 @@ class Booking extends CI_Controller {
                 }
             }
             $booking['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+            $booking['file_type'] = $this->booking_model->get_file_type();
+            $booking['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         
             $booking['symptom'] = array();
             if(!empty($service_category)) {
@@ -1994,6 +2015,13 @@ class Booking extends CI_Controller {
         $whereIN['current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
+            if($this->input->post("internal_booking_status") == _247AROUND_COMPLETED){
+                $reject_remarks = "Booking rejected by 247around";
+                $actor = ACTOR_REJECT_FROM_REVIEW;
+                $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
+                $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_COMPLETED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            }
+           
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);
@@ -2010,14 +2038,27 @@ class Booking extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function checked_complete_review_booking() {
+    function checked_complete_review_booking() { 
         $requested_bookings = $this->input->post('approved_booking');
+        
         if($requested_bookings){
+            $state_change_bookings = array();
             $where['is_in_process'] = 0;
             $whereIN['booking_id'] = $requested_bookings; 
             $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
             foreach($tempArray as $values){
                 $approved_booking[] = $values['booking_id'];
+                /* If bookings came from completion approval than we add extra state change in booking state change for closure team peformane graph*/
+                $booking_status = $this->booking_model->getbooking_charges($values['booking_id']);
+                if(!empty($booking_status)){
+                    if($booking_status[0]['internal_status'] == _247AROUND_COMPLETED){
+                       $new_state = _247AROUND_COMPLETED_APPROVED;
+                       $closing_remarks = "Booking approved by 247around";
+                       $actor = $next_action = 'NULL';
+                       $this->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,$this->input->post('approved_by'));
+                    }
+                }
+                /*end*/
             }
             $inProcessBookings = array_diff($requested_bookings,$approved_booking);
             $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
@@ -3149,17 +3190,23 @@ class Booking extends CI_Controller {
      *  @return : boolean
      */
     function validate_upload_orderId_support_file() {
-        if (!empty($_FILES['support_file']['tmp_name'])) {
-            $MB = 1048576;
-            if ($_FILES['support_file']['size'] < 5 * $MB) {
-                return true;
-            } else {
-                $this->form_validation->set_message('validate_upload_orderId_suppoart_file', 'Uploaded File Size Must be Less than 5MB');
+        for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+            if (!empty($_FILES['support_file']['tmp_name'][$i])) {
+                $MB = 1048576;
+                if ($_FILES['support_file']['size'][$i] < 5 * $MB) {
+                    //return true;
+                    continue;
+                } else {
+                    $this->form_validation->set_message('validate_upload_orderId_support_file', 'Uploaded File Size Must be Less than 5MB');
+                    return false;
+                }
+            } else if(count($_FILES['support_file']['tmp_name']) > 1) {
+                //return true;
+                $this->form_validation->set_message('validate_upload_orderId_support_file', 'No File Selected!! ');
                 return false;
             }
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**
@@ -3167,14 +3214,14 @@ class Booking extends CI_Controller {
      *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
-    function upload_orderId_support_file($booking_id) {
+    function upload_orderId_support_file($booking_id, $tmp_name, $error, $name) {
 
         $support_file_name = false;
 
-        if (($_FILES['support_file']['error'] != 4) && !empty($_FILES['support_file']['tmp_name'])) {
+        if (($error != 4) && !empty($tmp_name)) {
 
-            $tmpFile = $_FILES['support_file']['tmp_name'];
-            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['support_file']['name'])[1];
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
@@ -5098,16 +5145,38 @@ class Booking extends CI_Controller {
      */
     function upload_order_supporting_file(){
         $booking_id = $this->input->post('booking_id');
+        $id = $this->input->post('id');
+        $booking_files = array();
         if(!empty($booking_id)){
-            $support_file = $this->upload_orderId_support_file($booking_id);
+            $support_file = $this->upload_orderId_support_file($booking_id, $_FILES['support_file']['tmp_name'], $_FILES['support_file']['error'], $_FILES['support_file']['name']);
             if(!empty($support_file)){
-                $this->booking_model->update_booking($booking_id, array('support_file' => $support_file));
+                $booking_files['file_name'] = $support_file;
+                $booking_files['file_type'] = $_FILES['support_file']['type'];
+                $booking_files['size'] = $_FILES['support_file']['size'];
+                $this->booking_model->update_booking_file($booking_files, array('booking_id' => $booking_id, 'id' => $id));
                 echo json_encode(array('code' => "success", "name" => $support_file));
             } else {
                 echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
             }
         }
         
+    }
+    /**
+     * @desc This is used to delete support file from update booking page
+     */
+    function delete_order_supporting_file() {
+        $id = $this->input->post('id');
+        if(!empty($id)){
+            $affectedRows = $this->booking_model->delete_booking_file(array('id' => $id));
+            if($affectedRows > 0) {
+                echo json_encode(array('status' => "success", "message" => "File Deleted Successfully!!"));
+            } else {
+                echo json_encode(array('status' => "error", "message" => "No File Deleted!!"));
+            }
+        }
+        else {
+            echo json_encode(array('status' => "error", "message" => "Error Ocurred While Deleting File!!"));
+        }
     }
     function update_old_spare_booking_tat(){
       $spareData =   $this->reusable_model->get_search_result_data("spare_parts_details","id,booking_id",array("date(date_of_request)>'2018-03-31'"=>NULL),NULL,NULL,array("spare_parts_details.date_of_request"=>"ASC"),NULL,NULL,array());

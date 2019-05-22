@@ -324,7 +324,7 @@ class Dashboard extends CI_Controller {
         if ($this->input->post('partner_id')) {
             $partner_id = $this->input->post('partner_id');
         }
-       if($this->session->userdata('partner_id')){
+        if($this->session->userdata('partner_id')){
             $partner_id = $this->session->userdata('partner_id');
         }
         if ($is_repeat_ajax) {
@@ -339,6 +339,86 @@ class Dashboard extends CI_Controller {
             $endDate = date('Y-m-d 23:59:59', $timestamp);
             $this->make_rm_final_bookings_data($startDate, $endDate,$partner_id);
         }
+    }
+    
+     /**
+     * @desc: This function is used to get review completed booking data for graph
+     * @param void
+     * @return json
+     */
+    function get_completed_booking_by_closure() {
+        if($this->input->post('sDate') && $this->input->post('eDate')){
+            $sDate = $this->input->post('sDate');
+            $eDate = $this->input->post('eDate');
+            $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+            $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        }
+        else{ 
+            $timestamp = strtotime(date("Y-m-d"));
+            $endDate = date('Y-m-d 00:00:00', $timestamp);
+            $startDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('-7 days'))));
+        }
+        $this->completed_booking_by_closure_graph_data($startDate, $endDate);
+    }
+    /**
+     * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
+     * @param $startDate, $endDate
+     * @return json
+     */
+    function completed_booking_by_closure_graph_data($startDate, $endDate){
+        $rejectCompleted = [];
+        $approveComplted = [];
+        $editCompleted = [];
+        $totalCompleted = [];
+        $closureName = [];
+        
+        $graph_data = $this->dashboard_model->get_completed_booking_graph_data($startDate, $endDate);
+        foreach ($graph_data[0] as $key => $value) {
+            switch ($key) {
+                case 'full_name':
+                    if (!empty($value)) {
+                        array_push($closureName, $value);
+                    } else {
+                        array_push($closureName, '0');
+                    }
+                    break;
+                case 'completed_rejected':
+                    if (!empty($value)) {
+                        array_push($rejectCompleted, $value);
+                    } else {
+                        array_push($rejectCompleted, '0');
+                    }
+                    break;
+                case 'completed_approved':
+                    if (!empty($value)) {
+                        array_push($approveComplted, $value);
+                    } else {
+                        array_push($approveComplted, '0');
+                    }
+                    break;
+                case 'edit_completed':
+                    if (!empty($value)) {
+                        array_push($editCompleted, $value);
+                    } else {
+                        array_push($editCompleted, '0');
+                    }
+                    break;
+                case 'total_completed':
+                    if (!empty($value)) {
+                        array_push($totalCompleted, $value);
+                    } else {
+                        array_push($totalCompleted, '0');
+                    }
+                    break;
+            }
+            
+        }
+        $json_data['closures'] = implode(",", $closureName);
+        $json_data['reject'] = implode(",", $rejectCompleted);
+        $json_data['approved'] = implode(",", $approveComplted);
+        $json_data['edit_complete'] = implode(",", $editCompleted);
+        $json_data['total_bookings'] = implode(",", $totalCompleted);
+        echo json_encode($json_data);
     }
     
     /**
@@ -1776,22 +1856,37 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
-                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;                        
+                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
-                        $where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")'] = NULL;
+                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
-                        $where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"'] = NULL;
+                        $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);
-                if(array_key_exists('booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"', $where) && array_key_exists('(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")', $where)){
-                    unset($where['booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%"']);
-                    unset($where['(booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")']);
+                if(array_key_exists('(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")', $where) 
+                        && array_key_exists('(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")', $where)){
+                    unset($where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
+                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")']);
+                    unset( $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
+                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")']);
 //                    unset($join['spare_parts_details']);
 //                    unset($joinType['spare_parts_details']);
                 }
