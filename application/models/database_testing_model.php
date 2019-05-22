@@ -1,6 +1,6 @@
 <?php
 
-define("DATE_FROM", "2016-09-01");
+define("DATE_FROM", "2019-02-01");
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -150,7 +150,7 @@ class Database_testing_model extends CI_Model {
     function check_booking_exist_in_service_center() {
 	$sql = "SELECT  `booking_details`.`booking_id` "
 	    . " FROM (`booking_details`) WHERE booking_details.`assigned_vendor_id` IS NOT NULL  "
-	    . " AND  `booking_details`.`create_date` >=  '2016-11-01'";
+	    . " AND  `booking_details`.`create_date` >=  '2019-02-01'";
 
 	$query = $this->db->query($sql);
 	log_message('info', $this->db->last_query());
@@ -217,7 +217,7 @@ class Database_testing_model extends CI_Model {
     function check_pending_booking_in_action_table() {
 	$this->db->select('booking_id, create_date');
 	$this->db->where_in('booking_details.current_status', array('Pending', 'Rescheduled'));
-	$this->db->where('booking_details.create_date >=', "2016-11-01");
+	$this->db->where('booking_details.create_date >=', "2019-02-01");
 	$query = $this->db->get('booking_details');
 	//log_message('info', $this->db->last_query());
         
@@ -440,7 +440,7 @@ class Database_testing_model extends CI_Model {
                 FROM booking_unit_details
                 WHERE b1.booking_id = booking_unit_details.booking_id
                 )
-                AND create_date >=  '2016-09-01'
+                AND create_date >=  '2019-02-01'
                 AND b1.current_status != 'Cancelled'";
         
          $query = $this->db->query($sql);
@@ -458,7 +458,7 @@ class Database_testing_model extends CI_Model {
         $sql = "SELECT booking_details.booking_id, booking_details.create_date
                 FROM booking_unit_details, booking_details
                 WHERE customer_total =0
-                AND booking_details.create_date >=  '2016-10-01'
+                AND booking_details.create_date >=  '2019-02-01'
                 AND booking_details.booking_id = booking_unit_details.booking_id
                 AND booking_details.current_status
                 IN (
