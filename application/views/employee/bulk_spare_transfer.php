@@ -18,7 +18,7 @@
             <?php }  ?> 
                 <form method="POST" id="idForm" action="<?php echo base_url();?>employee/spare_parts/bulkConversion_process">
                     <div class="form-group">
-                        <textarea class="form-control" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
+                        <textarea class="form-control"  required="" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
                     </div>
 
                     <div class="form-group">
