@@ -1994,10 +1994,16 @@ class Booking extends CI_Controller {
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
             if($this->input->post("internal_booking_status") == _247AROUND_COMPLETED){
-                $reject_remarks = "Booking rejected by 247around";
+                $reject_remarks = "Booking completion rejected by 247around";
                 $actor = ACTOR_REJECT_FROM_REVIEW;
                 $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
                 $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_COMPLETED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            }
+            else if($this->input->post("internal_booking_status") == _247AROUND_CANCELLED){
+                $reject_remarks = "Booking cancellation rejected by 247around";
+                $actor = ACTOR_REJECT_FROM_REVIEW;
+                $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
+                $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_CANCELED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
             }
            
             echo "Booking Updated Successfully";
@@ -2016,7 +2022,7 @@ class Booking extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function checked_complete_review_booking() { 
+    function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
         
         if($requested_bookings){
@@ -2029,11 +2035,16 @@ class Booking extends CI_Controller {
                 /* If bookings came from completion approval than we add extra state change in booking state change for closure team peformane graph*/
                 $booking_status = $this->booking_model->getbooking_charges($values['booking_id']);
                 if(!empty($booking_status)){
+                    $actor = $next_action = 'NULL';
                     if($booking_status[0]['internal_status'] == _247AROUND_COMPLETED){
                        $new_state = _247AROUND_COMPLETED_APPROVED;
-                       $closing_remarks = "Booking approved by 247around";
-                       $actor = $next_action = 'NULL';
+                       $closing_remarks = "Booking completed approved by 247around";
                        $this->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,$this->input->post('approved_by'));
+                    }
+                    else{
+                        $new_state = _247AROUND_CANCELED_APPROVED;
+                        $closing_remarks = "Booking cancelled approved by 247around";
+                        $this->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,$this->input->post('approved_by'));
                     }
                 }
                 /*end*/
