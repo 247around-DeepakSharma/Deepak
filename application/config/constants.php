@@ -634,8 +634,8 @@ define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B2');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
 define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'N27');
 
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'Wrong Pincode Entered');
-define('_247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON', 'Not Servicable in Your Area');
+define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

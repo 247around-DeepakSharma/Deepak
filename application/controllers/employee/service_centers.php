@@ -1063,7 +1063,7 @@ class Service_centers extends CI_Controller {
                     
                     break;
                 default :
-                    if($cancellation_reason == _247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){  
+                    if($cancellation_reason ==CANCELLATION_REASON_WRONG_AREA){  
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_CALL_AREA_TEMPLATE);
                     }
 
