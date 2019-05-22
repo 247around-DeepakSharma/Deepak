@@ -77,7 +77,7 @@
         </tr>
         <tr  style="text-align: center;width:100%;">
             <td style="text-align: center"><b>S No</b></td>
-            <td colspan="3" style="text-align: center"><b>Description</b></td>
+            <td colspan="3" style="text-align: center"><b>Part Name</b></td>
             <td colspan="2" style="text-align: center"><b>Part Number</b></td>
             <td colspan="2" style="text-align: center; width: 50px;"><b>Qty</b></td>
             <td colspan="3" style="text-align: center;"><b>Booking ID</b></td>
