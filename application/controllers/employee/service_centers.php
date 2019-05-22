@@ -3131,7 +3131,7 @@ class Service_centers extends CI_Controller {
             $post = array();
             $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan);
             $post['is_inventory'] = true;
-            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
             if (!empty($part_details)) {
@@ -3141,7 +3141,7 @@ class Service_centers extends CI_Controller {
                     if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $spare_parts['spare_id'] = $value['id'];
                         $spare_parts['booking_id'] = $value['booking_id'];
-                        $spare_parts['parts_shipped'] = $value['parts_shipped'];
+                        $spare_parts['parts_shipped'] = $value['parts_requested'];
                         $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                         $spare_parts['part_number'] = $value['part_number'];
                         $spare_parts['quantity'] = $value['quantity'];
