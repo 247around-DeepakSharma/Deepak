@@ -354,8 +354,7 @@ class Dashboard extends CI_Controller {
             $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
         }
         else{ 
-            $timestamp = strtotime(date("Y-m-d"));
-            $endDate = date('Y-m-d 00:00:00', $timestamp);
+            $endDate = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime('+1 days'))));
             $startDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('-7 days'))));
         }
         $this->completed_booking_by_closure_graph_data($startDate, $endDate, $status);
@@ -409,7 +408,7 @@ class Dashboard extends CI_Controller {
                             array_push($editCompleted, '0');
                         }
                         break;
-                    case 'total_completed':
+                    case 'total_bookings':
                         if (!empty($value)) {
                             array_push($totalCompleted, $value);
                         } else {
