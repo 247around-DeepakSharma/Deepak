@@ -1153,7 +1153,7 @@ class Service_centers extends CI_Controller {
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
             $emailBody = vsprintf($email_template[0], array($booking_id,$city,$pincode,$correctpin));
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$email_template, "", $booking_id);
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$templet, "", $booking_id);
         }
     }
 
