@@ -135,14 +135,16 @@
                                 <?php if(isset($booking_files) && !empty($booking_files)) { ?>
                                 <table class="table  table-striped table-bordered" >
                                     <tr>
-                                        <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
+                                        <th colspan="2" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 50%;">File Type </th>
+                                        <th style="width: 50%;">File</th>
                                     </tr>
                                     <?php foreach($booking_files as $key => $files) { ?>
                                     <tr>
-                                        <th style="width: 25%;">File Type </th>
-                                        <td style="width: 23%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
-                                        <th style="width: 21%;">File</th>
-                                        <td>
+                                        <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
+                                        <td style="width: 50%;">
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
                                             if (isset($files['file_name']) && !empty($files['file_name'])) {
