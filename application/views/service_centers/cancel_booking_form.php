@@ -41,7 +41,7 @@
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                            <input class="inputradio  <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==_247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                            <input class="inputradio  <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==CANCELLATION_REASON_WRONG_AREA){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
