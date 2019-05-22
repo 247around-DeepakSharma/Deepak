@@ -704,7 +704,7 @@ class Invoice extends CI_Controller {
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
         } else {
-
+           
             $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_pdf_file_name);
         }
 
@@ -740,6 +740,7 @@ class Invoice extends CI_Controller {
             readfile(TMP_FOLDER . $invoice_id. '.zip');
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
+            exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
         }                                              
