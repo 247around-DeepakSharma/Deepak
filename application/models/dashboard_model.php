@@ -208,12 +208,28 @@ class dashboard_model extends CI_Model {
      * @return array
      */
     function get_completed_booking_graph_data($startDate, $endDate){
-        $sql = "SELECT employee.full_name, employee.id, SUM(IF (new_state = 'Completed_Rejected' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0)) as completed_rejected,
-                    SUM(IF (new_state = 'Completed_Approved' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0)) as completed_approved,
-                    SUM(IF (new_state = 'Completed' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0)) as total_completed,
-                    (SUM(IF (new_state = 'Completed' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0)) - SUM(IF (new_state = 'Completed_Approved' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0))) as edit_completed,
-                    (SUM(IF (new_state = 'Completed_Rejected' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0)) + SUM(IF (new_state = 'Completed' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate', 1, 0))) as total_bookings
-                    FROM booking_state_change as bsc, employee WHERE employee.groups ='closure' AND agent_id = employee.id AND partner_id='"._247AROUND."' group by employee_id";
+        $sql = "SELECT employee.full_name, employee.id, SUM(IF (new_state = 'Completed_Rejected', 1, 0)) as completed_rejected,
+                    SUM(IF (new_state = 'Completed_Approved', 1, 0)) as completed_approved,
+                    SUM(IF (new_state = 'Completed', 1, 0)) as total_completed,
+                    (SUM(IF (new_state = 'Completed', 1, 0)) - SUM(IF (new_state = 'Completed_Approved', 1, 0))) as edit_completed,
+                    (SUM(IF (new_state = 'Completed_Rejected', 1, 0)) + SUM(IF (new_state = 'Completed', 1, 0))) as total_bookings
+                    FROM booking_state_change as bsc, employee WHERE employee.groups ='closure' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate' AND agent_id = employee.id AND partner_id='"._247AROUND."' group by employee_id";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to get graph data for review canceled bookings by closure team
+     * @param $startDate, $endDate
+     * @return array
+     */
+    function get_cancelled_booking_graph_data($startDate, $endDate){
+        $sql = "SELECT employee.full_name, employee.id, SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) as completed_rejected,
+                    SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) as completed_approved,
+                    SUM(IF (new_state = 'Cancelled', 1, 0)) as total_completed,
+                    (SUM(IF (new_state = 'Cancelled', 1, 0)) - SUM(IF (new_state = 'Cancelled_Approved', 1, 0))) as edit_completed,
+                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled', 1, 0))) as total_bookings
+                    FROM booking_state_change as bsc, employee WHERE employee.groups ='closure' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate' AND agent_id = employee.id AND partner_id='"._247AROUND."' group by employee_id";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
