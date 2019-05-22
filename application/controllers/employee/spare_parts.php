@@ -1005,21 +1005,36 @@ class Spare_parts extends CI_Controller {
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
         $where = array('id' => $spare_parts_id);
-        $data['entity_type'] = $entity_type;
-        $data['partner_id'] = $partner_id;
-        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-        $data['defective_return_to_entity_id'] = $partner_id;
-        $data['is_micro_wh'] = 0;
+        // $data['entity_type'] = $entity_type;
+        // $data['partner_id'] = $partner_id;
+        // $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+        // $data['defective_return_to_entity_id'] = $partner_id;
+        // $data['is_micro_wh'] = 0;
         
         $row = $this->service_centers_model->update_spare_parts($where, $data);
         if ($entity_type == _247AROUND_PARTNER_STRING) {
             $new_state = REQUESTED_SPARED_REMAP;
+            $data['entity_type'] = $entity_type;
+            $data['partner_id'] = $partner_id;
+            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+            $data['defective_return_to_entity_id'] = $partner_id;
+            $data['is_micro_wh'] = 0;
             $data['remarks'] = "Spare Transfer to Partner";
+            $row = $this->service_centers_model->update_spare_parts($where, $data);
         } 
 
         if ($entity_type == _247AROUND_SF_STRING) {
+            $state = $this->input->post('state');
+            $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('warehouse_state_relationship.state'=>$state),true,false,true);
+            $warehouseid = $data[0]['id'];
             $new_state = REQUESTED_SPARED_REMAP;
+            $data['entity_type'] = $entity_type;
+            $data['partner_id'] = $warehouseid;
+            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+            $data['defective_return_to_entity_id'] = $warehouseid;
+            $data['is_micro_wh'] = 2;
             $data['remarks'] = "Spare Transfer to Vendor";
+            $row = $this->service_centers_model->update_spare_parts($where, $data);
 
         }
         
