@@ -196,6 +196,7 @@
             </div>
             <input type="hidden" id="id_no">
             <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id">
+            <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status">
             <div class="modal-footer">
                <button type="button" class="btn btn-success" onclick="send_remarks()">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
