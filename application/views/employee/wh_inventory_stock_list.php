@@ -68,6 +68,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Parts Number</th>
+                                    <th>Description</th>
                                     <th>Stock</th>
                                     <th> SF Basic Price</th>
                                     <th>GST Rate</th>
