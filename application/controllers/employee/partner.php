@@ -2547,6 +2547,7 @@ class Partner extends CI_Controller {
         $rejection_reason = base64_decode(urldecode($status));
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
+            'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         if ($response) {
            
@@ -3807,6 +3808,7 @@ class Partner extends CI_Controller {
             $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
                 'spare_parts_details.defective_part_required' => 1 ,
+                'spare_parts_details.defective_part_rejected_by_partner'=>0,
                 'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
                 'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
                 "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
