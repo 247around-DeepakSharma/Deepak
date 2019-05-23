@@ -29,7 +29,7 @@
                                         <?php } ?>
                                        <th class="text-center" data-orderable="false">Send Email</th> 
                                        <th class="text-center" data-orderable="false">Contacts</th> 
-                                       <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                       <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -218,7 +218,7 @@
                                         <?php } ?>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
-                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -394,7 +394,7 @@
                                         <th  class="text-center" >Escalation</th>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
-                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
