@@ -947,7 +947,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_alternate_inventory_master_list($post){
-        $this->_get_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
