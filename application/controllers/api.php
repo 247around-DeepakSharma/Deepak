@@ -476,6 +476,10 @@ class Api extends CI_Controller {
             case 'tommorowBookings':
                 $this->getTommorowBookings();
                 break;
+            
+            case 'techSupport':
+                $this->getTechSupport();
+                break;
                 
             default:
                 break;
@@ -4667,6 +4671,23 @@ class Api extends CI_Controller {
         else{
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
             $this->sendJsonResponse(array('0024', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getTechSupport(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("booking_id" => "PB-16565919051532");
+        if (!empty($requestData["booking_id"])) {
+            $response['suppot_numbers'] = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
+            log_message("info", __METHOD__ . "Tech Support Numbers Founded Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
+            $this->sendJsonResponse(array('0025', 'Service Center id or Booking id not found'));
         }
     }
 }
