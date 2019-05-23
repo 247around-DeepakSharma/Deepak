@@ -208,7 +208,7 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array()){
         $limit = "";
         $where_in = "";
         $userSelect = $join = $groupBy = "";
@@ -238,6 +238,11 @@ class Service_centers_model extends CI_Model {
                      $where_sc =$where_sc. " AND ".$fieldName;
              }
          }
+         if (!empty($join_arr)) {
+            foreach($join_arr as $key=>$values){
+                $join = $join." JOIN ".$key." ON ".$values;
+            }
+        }
 
          if($userInfo){
              $join = "JOIN users ON booking_details.user_id = users.user_id";

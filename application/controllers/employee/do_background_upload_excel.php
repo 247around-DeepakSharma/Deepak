@@ -238,10 +238,12 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function send_mail_column($subject, $message, $validation, $file_type, $partner_id, $emailTag) {
        
-       
-        $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+        //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+        $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
         if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-            $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+            //$file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+            $file_upload_agent_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
         } else {
             $file_upload_agent_email = _247AROUND_SALES_EMAIL;
         }
@@ -1300,12 +1302,15 @@ class Do_background_upload_excel extends CI_Controller {
 
         if (empty($this->email_send_to)) {
             if (empty($this->session->userdata('official_email'))) {
-                $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
+                $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                    array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
                 if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                    $file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                    $file_upload_agent_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 } else {
                     $file_upload_agent_email = _247AROUND_SALES_EMAIL;
                 }
+                
             } else {
                 $file_upload_agent_email = $this->session->userdata('official_email');
             }
@@ -1535,11 +1540,14 @@ class Do_background_upload_excel extends CI_Controller {
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER . $header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
 
                     //get email details 
-                    $get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
+                    //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
+                    $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                    
                     if (empty($this->email_send_to)) {
                         if (empty($this->session->userdata('official_email'))) {
                             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                                $to = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                                $to = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                             } else {
                                 $to = _247AROUND_SALES_EMAIL;
                             }
@@ -1914,7 +1922,8 @@ class Do_background_upload_excel extends CI_Controller {
                 $template = $this->booking_model->get_booking_email_template("revert_upload_file_to_partner");
 
                 //get partner am email
-                $get_partner_am_id = $this->partner_model->getpartner_details('official_email', array('partners.id' => $this->input->post('partner_id')), "", TRUE);
+                //$get_partner_am_id = $this->partner_model->getpartner_details('official_email', array('partners.id' => $this->input->post('partner_id')), "", TRUE);
+                $get_partner_am_id = $this->miscelleneous->get_am_data($this->input->post('partner_id'));
                 if (!empty($get_partner_am_id)) {
                     $from = $get_partner_am_id[0]['official_email'];
                 } else {

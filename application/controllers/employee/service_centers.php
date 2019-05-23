@@ -628,12 +628,19 @@ class Service_centers extends CI_Controller {
                     $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
                 }
             }
+            $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+            $JoinTypeTableArray['service_centres'] = 'left';
+            $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
             
-            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+            //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,0,1,"partners.id");
+            
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
 
-                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
 //        $sid = $this->session->userdata('service_center_id');
 //        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($sid);
@@ -968,11 +975,20 @@ class Service_centers extends CI_Controller {
          $email_template = $this->booking_model->get_booking_email_template($templet);
         if (!empty($email_template)) {
             $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
-            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
+            $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+            $JoinTypeTableArray['service_centres'] = 'left';
+            $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+
+            //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+
+                //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
+            
             $to = $rm_email.",".$am_email;
             $cc = $email_template[3];
             $bcc = $email_template[5];
@@ -2125,11 +2141,18 @@ class Service_centers extends CI_Controller {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
             if (!empty($email_template)) {
+                $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+                $JoinTypeTableArray['service_centres'] = 'left';
+                $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $data['booking_id']),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
 
-                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $this->input->post('partner_id'), 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                
                 $am_email = "";
                 if (!empty($get_partner_details[0]['account_manager_id'])) {
-                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 }
 
                 $this->load->library('table');

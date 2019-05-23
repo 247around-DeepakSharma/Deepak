@@ -15,6 +15,7 @@
                             <th>No</th>
                              <th>Account Manager Name</th>
                              <th>Public Name</th>
+                             <th>Account Manager State</th>
                         </tr>
                     </thead>
                 </table>
@@ -48,7 +49,7 @@
                     pageSize: 'LEGAL',
                     title: 'Partners_manage_by_account_manager',
                     exportOptions: {
-                       columns: [1,2],
+                       columns: [1,2,3],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -65,7 +66,7 @@
                 type: "POST",
                 data: function(d){
                        d.request_type = "partners_managed_by_account_manager",
-                       d.group_by = "partners.account_manager_id,partners.id";
+                       d.group_by = "agent_filters.agent_id,partners.id";
                  }
 
             },
@@ -77,7 +78,7 @@
                     orderable: false //set not orderable
                 },
                 {
-                    targets: [1,2], //first column / numbering column
+                    targets: [1,2,3], //first column / numbering column
                     orderable: true //set not orderable
                 }
             ],

@@ -19,13 +19,15 @@ class Initialized_variable {
      * @param Int $partner_id
      */
     function fetch_partner_data($partner_id){
-        $where_get_partner = array('bookings_sources.partner_id' => $partner_id);
+        $where_get_partner = array('bookings_sources.partner_id' => $partner_id, 'agent_filters.entity_type' => "247around");
         $select = "partners.id, bookings_sources.partner_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
                                 . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
                                 . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
                                 . " upcountry_rate1, upcountry_rate, partners.is_upcountry, public_name, partners.auth_token, "
-                                . "upcountry_approval_email,partners.account_manager_id, upcountry_bill_to_partner";
-        $this->PartnerData = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner);
+                                . "upcountry_approval_email,group_concat(distinct agent_filters.agent_id) as account_manager_id, upcountry_bill_to_partner";
+                                //. "upcountry_approval_email,partners.account_manager_id, upcountry_bill_to_partner";
+        //$this->PartnerData = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner);
+        $this->PartnerData = $this->My_CI->partner_model->getpartner_data($select, $where_get_partner,"",0,1,1,"partners.id");
     }
     /**
      * Get Partner details. First Call fetch_partner_data then call this method

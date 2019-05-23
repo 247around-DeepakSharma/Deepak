@@ -35,18 +35,25 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <?php  if($this->session->userdata('partner_id') != VIDEOCON_ID) { ?>
-                    <div class="col-md-4 col-sm-4 col-xs-12 profile_details">
-                        <div class="well profile_view">
-                                <?php if (isset($account_manager_details) && !empty($account_manager_details)) { ?> 
-                                    <div class="left col-xs-12">
-                                        <h2><b><?php echo $account_manager_details[0]['full_name'] ?></b></h2>
-                                        <ul class="list-unstyled">
-                                            <li><i class="fa fa-phone"></i> Phone: <?php echo $account_manager_details[0]['phone'] ?></li>
-                                            <li><i class="fa fa-envelope"></i> Email: <?php echo $account_manager_details[0]['official_email'] ?></li>
-                                        </ul>
-                                    </div>
-                                <?php } else { ?> 
+                    <?php  if($this->session->userdata('partner_id') != VIDEOCON_ID) { 
+                            if (isset($account_manager_details) && !empty($account_manager_details)) {
+                                   foreach ($account_manager_details as $am) { ?>                  
+                                       <div class="col-md-4 col-sm-4 col-xs-12">
+                                           <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
+                                                   <div class="left col-xs-12">
+                                                       <h2><b><?php echo $am['full_name'] ?></b></h2>
+                                                       <ul class="list-unstyled">
+                                                           <li><i class="fa fa-road"></i> State: <?php echo $am['state'] ?></li>
+                                                           <li><i class="fa fa-phone"></i> Phone: <?php echo $am['phone'] ?></li>
+                                                           <li><i class="fa fa-envelope"></i> Email: <?php echo $am['official_email'] ?></li>
+                                                       </ul>
+                                                   </div>
+                                           </div>
+                                       </div>
+                                <?php } ?>
+                            <?php } else { ?>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
                                     <div class="left col-xs-12">
                                         <h2><b>Mr. Vikas Singh</b></h2>
                                         <ul class="list-unstyled">
@@ -54,9 +61,9 @@
                                             <li><i class="fa fa-envelope"></i> Email: escalations@247around.com</li>
                                         </ul>
                                     </div>
-                                <?php } ?>
-                        </div>
-                    </div>
+                                </div>
+                            </div>
+                            <?php } ?>
                     <?php } 
                     else{
                         ?>

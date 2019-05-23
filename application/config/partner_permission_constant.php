@@ -18,3 +18,4 @@ define('CALLING_FEATURE_IS_ENABLE','c2c_option_enable');
 define('PARTNER_ON_SAAS','partner_on_saas');
 define('CREATE_AUTO_MICRO_WAREHOUSE','create_auto_micro_warehouse');
 define('AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES','auto_approve_defective_parts_courier_charges');
+define('PARTNER_ON_STATE_APPLIANCE','partner_on_state_appliance');
