@@ -146,7 +146,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -326,7 +326,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -498,7 +498,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
