@@ -215,7 +215,7 @@ class Booking_model extends CI_Model {
      *  @return : array()
      */
     function get_missed_call_rating_not_taken_booking_data(){
-        $sql = "SELECT DISTINCT  u.name,rp.from_number,
+         $sql = "SELECT DISTINCT  u.name,rp.from_number,rp.create_date,
                  CASE rp.To WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'good_rating' WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'bad_rating' ELSE NULL END as "
@@ -229,8 +229,9 @@ class Booking_model extends CI_Model {
                 . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
                 . " AND rp.from_number = bd.booking_primary_contact_no "
                 . " AND u.user_id = bd.user_id "
-                . " AND rp.create_date >= bd.closed_date AND rating_unreachable_count < 3";
-        
+                . " AND rp.create_date >= bd.closed_date "
+                . "AND rating_unreachable_count < 3 "
+                 . "AND rp.To IN ('".GOOD_MISSED_CALL_RATING_NUMBER."','".POOR_MISSED_CALL_RATING_NUMBER."')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
