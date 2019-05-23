@@ -90,7 +90,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Model List</h2>
+                    <h2>Serviceable BOM</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model"><i class="fa fa-plus"></i></a>
                     </ul>
@@ -207,13 +207,13 @@
     });
     $(document).ready(function(){
         get_services('model_service_id');
-        get_appliance_model_list();
+     //   get_appliance_model_list();
     });
     
     $('#get_appliance_model_data').on('click',function(){
         var model_service_id = $('#model_service_id').val();
         if(model_service_id){
-            appliance_model_details_table.ajax.reload();
+            get_appliance_model_list();
         }else{
             alert("Please Select Partner");
         }
@@ -222,8 +222,9 @@
     function get_appliance_model_list(){
         appliance_model_details_table = $('#appliance_model_details').DataTable({
             "processing": true, 
+             destroy: true,
             "serverSide": true,
-            "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+            "lengthMenu": [[ 50,100, -1], [ 50, 100,"All"]],
             "dom": 'lBfrtip',
                 "buttons": [
                 {
@@ -252,7 +253,7 @@
                                 </div>"
             },
             "order": [], 
-            "pageLength": 25,
+            "pageLength": 50,
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_appliance_model_details",
