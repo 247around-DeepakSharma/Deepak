@@ -17,10 +17,20 @@
         <div class="clearfix"></div>
                 <?php
                 if($is_am == 1){
-                     $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1"; 
+                    if($is_pending){
+                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1/pending"; 
+                    }
+                    else{
+                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1"; 
+                    }
                 }
                 else{
-                    $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID; 
+                     if($is_pending){
+                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/0/pending"; 
+                     }
+                     else{
+                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID; 
+                     }
                 }
                 ?>
         <form action="<?php echo $url?>" method="post">
@@ -30,8 +40,9 @@
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 145px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="" style="color:#fff">Partners</label>
                             <select class="form-control filter_table" id="partner_id" name="partner_id">
-                                <option value="" selected="selected" disabled="">Select Partner</option>
+                                <option value="not_set" <?php if(isset($filters['partner_id'])){if($filters['partner_id'] == 'not_set'){echo 'selected="selected"';}} ?>>All</option>
                                 <?php foreach($partners as $val){ ?>
                                 <option value="<?php echo $val['id']?>" <?php if(isset($filters['partner_id'])){if($filters['partner_id'] == $val['id']){echo 'selected="selected"';}} ?>><?php echo $val['public_name']?></option>
                                 <?php } ?>
@@ -43,8 +54,9 @@
                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 145px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="" style="color:#fff">Appliance</label>
                             <select class="form-control filter_table" id="service_id" name="services">
-                                    <option value="" selected="selected" disabled="">Select Service</option>
+                                    <option value="not_set" <?php if(isset($filters['services'])){if($filters['services'] == 'not_set'){echo 'selected="selected"';}} ?>>All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>" <?php if(isset($filters['services'])){if($filters['services'] == $val['id']){echo 'selected="selected"';}} ?>><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -55,7 +67,9 @@
                  <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 188px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="" style="color:#fff">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
+                                 <option value="not_set" <?php if(isset($filters['request_type'])){if(in_array("not_set", $filters['request_type'])){echo 'selected="selected"';}} ?>>All</option>
                                 <option value="Installation" <?php if(isset($filters['request_type'])){if(in_array("Installation", $filters['request_type'])){echo 'selected="selected"';}} ?>>Installations</option>
                                 <option value="Repair_with_part" <?php if(isset($filters['request_type'])){if(in_array("Repair_with_part", $filters['request_type'])){echo 'selected="selected"';}} ?>>Repair With Spare</option>  
                                 <option value="Repair_without_part" <?php if(isset($filters['request_type'])){if(in_array("Repair_without_part", $filters['request_type'])){echo 'selected="selected"';}} ?>>Repair Without Spare</option>  
@@ -66,8 +80,9 @@
                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 156px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
+                             <label for="" style="color:#fff">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected" disabled="">Is Free</option>
+                                <option value="not_set" <?php if(isset($filters['free_paid'])){if($filters['free_paid']=='not_set'){echo 'selected="selected"';}} ?>>All</option>
                                 <option value="Yes" <?php if(isset($filters['free_paid'])){if($filters['free_paid']=='Yes'){echo 'selected="selected"';}} ?>>Yes (In Warranty)</option>
                                 <option value="No" <?php if(isset($filters['free_paid'])){if($filters['free_paid']=='No'){echo 'selected="selected"';}} ?>>No (Out Of Warranty)</option>  
                             </select>
@@ -77,8 +92,9 @@
                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 156px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="" style="color:#fff">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="" selected="selected" disabled="">Is Upcountry</option>
+                                <option value="not_set" <?php if(isset($filters['upcountry'])){if($filters['upcountry']=='not_set'){echo 'selected="selected"';}} ?>>All</option>
                                 <option value="Yes" <?php if(isset($filters['upcountry'])){if($filters['upcountry']=='Yes'){echo 'selected="selected"';}} ?>>Yes</option>
                                  <option value="No" <?php if(isset($filters['upcountry'])){if($filters['upcountry']=='No'){echo 'selected="selected"';}}?>>No</option>
                             </select>
@@ -91,18 +107,21 @@
                             <?php
                             $datrangeInitialValue =  date('Y-m-d', strtotime('-31 days'))." - ".date("Y-m-d");
                             ?>
+                            <label for="" style="color:#fff">Booking Initial date range</label>
                             <input type="text" class="form-control" name="daterange_completed_bookings" id="completed_daterange_id" style="width: 190px; height: 38px;border-radius: 4px;" 
                                    value="<?php if(isset($filters['daterange_completed_bookings'])){echo $filters['daterange_completed_bookings'];} else{ echo $datrangeInitialValue;}?>">
                         </div>
                     </div>
                 </div>
                <?php
-               if($is_pending){ ?>
+               if($is_pending){?>
                    <div class="form-group col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
+                       <label for="" style="color:#fff">Dependency</label>
                        <select class="form-control"  ng-model="status" id="status" name="status[]" multiple="">
-                                                  <option value="247Around" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>247Around</option>
+                                <option value="not_set" <?php if(!empty($filters['status'])){if(in_array("not_set", $filters['status'])){echo 'selected="selected"';}} ?>>All</option>
+                                <option value="247Around" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>247Around</option>
                                 <option value="Partner" <?php if(!empty($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
-                                <option value="Vendor" <?php if(!empty($filters['status'])){if(in_array("Vendor", $filters['status'])){echo 'selected="selected"';}} ?>>Vendor</option>  
+                                <option value="Vendor:not_define" <?php if(!empty($filters['status'])){if(in_array("Vendor:not_define", $filters['status'])){echo 'selected="selected"';}} ?>>Vendor</option>  
                                         </select>
                     </div>
                <?php } else {
@@ -110,8 +129,9 @@
                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="" style="color:#fff">Status</label>
                             <select class="form-control filter_table" id="status" name="status">
-                                <option value="" selected="selected" disabled="">Select Status</option>
+                                <option value="not_set" <?php if(isset($filters['status'])){if($filters['status']=='not_set'){echo 'selected="selected"';}} ?>>All</option>
                                 <option value="Completed" <?php if(isset($filters['status'])){if($filters['status']=='Completed'){echo 'selected="selected"';}} ?>>Completed</option>
                                  <option value="Cancelled" <?php if(isset($filters['status'])){if($filters['status']=='Cancelled'){echo 'selected="selected"';}}?>>Cancelled</option>
                             </select>
@@ -119,7 +139,7 @@
                     </div>
                 </div>
                <?php } ?>
-                <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 100px;">
+                <div class="col-md-3" style="margin-top: 21px;padding: 0px 1px;width: 100px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <input class="btn btn-success" type="submit" value="Apply Filters" style="background: #405467;padding: 8px;">
@@ -540,27 +560,21 @@
       });
     });
     $('#request_type').select2({
-        placeholder: "Request Type",
         allowClear: true
     });
     $('#service_id').select2({
-        placeholder: "Select Appliance",
         allowClear: true
     });
      $('#partner_id').select2({
-        placeholder: "Select Partner",
         allowClear: true
     });
     $('#free_paid').select2({
-        placeholder: "Is Free",
         allowClear: true
     });
     $('#upcountry').select2({
-        placeholder: "Is Upcountry",
         allowClear: true
     });
     $('#status').select2({
-        placeholder: "Select Status",
         allowClear: true
     });
 $(function() {
