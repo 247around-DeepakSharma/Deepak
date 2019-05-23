@@ -1066,7 +1066,7 @@ class Service_centers extends CI_Controller {
                     
                     break;
                 default :
-                    if($cancellation_reason == _247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){  
+                    if($cancellation_reason ==CANCELLATION_REASON_WRONG_AREA){  
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_CALL_AREA_TEMPLATE);
                     }
 
@@ -1156,7 +1156,7 @@ class Service_centers extends CI_Controller {
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
             $emailBody = vsprintf($email_template[0], array($booking_id,$city,$pincode,$correctpin));
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$email_template, "", $booking_id);
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$templet, "", $booking_id);
         }
     }
 
@@ -3131,7 +3131,7 @@ class Service_centers extends CI_Controller {
             $post = array();
             $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan);
             $post['is_inventory'] = true;
-            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
             if (!empty($part_details)) {
@@ -3141,7 +3141,7 @@ class Service_centers extends CI_Controller {
                     if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $spare_parts['spare_id'] = $value['id'];
                         $spare_parts['booking_id'] = $value['booking_id'];
-                        $spare_parts['parts_shipped'] = $value['parts_shipped'];
+                        $spare_parts['parts_shipped'] = $value['parts_requested'];
                         $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                         $spare_parts['part_number'] = $value['part_number'];
                         $spare_parts['quantity'] = $value['quantity'];
@@ -3153,7 +3153,7 @@ class Service_centers extends CI_Controller {
             }
 
             $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
-            $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
+            $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,state,district,pincode,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
             $data = array();
             if (!empty($sf_details)) {
                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);

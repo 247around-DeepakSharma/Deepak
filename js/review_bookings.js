@@ -113,6 +113,7 @@ function send_remarks() {
     postData['booking_id'] = $('#modal-title').text();
     postData['admin_remarks'] = $('#textarea').val();
     postData['rejected_by'] = $('#admin_id').val();
+    postData['internal_booking_status'] = $("#internal_boking_status").val();
     sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
         alert(data);
         document.getElementById("row_"+bookingID).style.background = "#89d4a7";
