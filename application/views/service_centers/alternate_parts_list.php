@@ -218,6 +218,7 @@
                     d.entity_type = entity_details.entity_type,
                     d.inventory_id = entity_details.inventory_id,
                     d.service_id = entity_details.service_id,
+                    d.part_type = entity_details.part_type
                     d.request_type = '1'
                 }
             },
