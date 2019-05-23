@@ -14,7 +14,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Serviceable BOM List</h3>
+                    <h3>Spare Parts Price List</h3>
                     <div class="clearfix"></div>
                 </div>
                 <br>
@@ -132,9 +132,9 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span>   Export',
                     pageSize: 'LEGAL',
-                    title: 'Inventory List',
+                    title: 'Spare Parts Price List',
                     exportOptions: {
-                       columns: [0,1,2,3,4,5,6,7,8,9],
+                       columns: [0,1,2,3,4,5,6,7,8],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -199,7 +199,7 @@
         $.ajax({
             type:'GET',
             async: false,
-            url:'<?php echo base_url();?>employee/service_centers/get_service_id_by_partner',
+            url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
