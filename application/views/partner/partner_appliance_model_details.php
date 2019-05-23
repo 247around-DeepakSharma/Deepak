@@ -231,7 +231,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span>  Export',
                     pageSize: 'LEGAL',
-                    title: 'Model List', 
+                    title: 'Serviceable BOM', 
                     exportOptions: { 
                        columns: [0,1,2,3,4,5],
                         modifier : {
