@@ -21,7 +21,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Model Mapping List</h2>
+                    <h2>Model List</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                         <a class="btn btn-success pull-right" style="margin-top: 10px;" id="map_model" title="Add New Model"><i class="fa fa-plus"></i></a>
