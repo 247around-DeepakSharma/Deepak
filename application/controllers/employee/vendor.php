@@ -2292,7 +2292,7 @@ class vendor extends CI_Controller {
                             log_message('info', __FUNCTION__ . ' Error in adding vendor to pincode in vendor_pincode_mapping table ' . print_r($value, TRUE));
                         }
                     } else {
-                        log_message('info', __FUNCTION__ . 'Vendor already assigned to ' . $value['Appliance']);
+                        log_message('info', __FUNCTION__ . 'Vendor already assigned to ' . $value['Appliance_ID']);
                         $displayMsgArray['already_exist'][] = $value;
                     }
                 }
