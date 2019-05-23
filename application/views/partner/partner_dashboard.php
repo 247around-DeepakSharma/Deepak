@@ -43,7 +43,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Appliance</label>
                             <select class="form-control filter_table" id="service_id" name="services">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -56,7 +56,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Service Type</label><br>
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -67,10 +67,10 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 170px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+                            <label for="">In Warranty <button type="button"class="btn btn-default" style="float: right;margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="left"title="Free For Customer">?</button></label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -82,7 +82,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -97,7 +97,7 @@
                     <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
                                          <select class="form-control"  ng-model="status" id="completed_status" name="status">
-                                            <option value="">All</option>
+                                            <option value="not_set">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
@@ -194,13 +194,13 @@
                 </div>
                 <div id="RM_TAT_Reporting_pending">
                 <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerRM" ng-cloak="">
-                    <form action="" method="post" target="_blank" id="rm_pending_booking_form" style="float: left;width: 804px;">
+                    <form action="" method="post" target="_blank" id="rm_pending_booking_form" style="float: left;width: 988px;">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                         <div class="item form-group">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <label for="">Services</label>
                                 <select class="form-control filter_table" id="service_id_rm_pending" name="services">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($services as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                     <?php } ?>
@@ -213,6 +213,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
+                                <option value="not_set">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -223,9 +224,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_rm_pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -237,14 +238,25 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                        <input type="hidden" id="pending_dependency" value="">
+                        <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 197px;">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                             <label for="">Dependency</label>
+                                         <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
+                                             <option value="247Around" selected="selected">Admin</option>
+                                            <option value="Partner" selected="selected">Partner</option>
+                                            <option value="Vendor:not_define" selected="selected">SF</option>
+                                        </select>
+                        </div>
+                    </div>
+                </div>
                     <div class="form-group col-md-3" style="width:200px;">
                                 <label for="">Initial Booking Date</label>
                                 <input type="text" class="form-control" name="daterange_completed_bookings" id="pending_daterange_id_rm" ng-change="ShowRMPendingBookingBYDateRange()" ng-model="dates">
@@ -431,6 +443,7 @@
 <script>
     $('#request_type').select2();
     $('#request_type_rm_pending').select2();
+     $('#pending_dependency').select2();
     function getMultipleSelectedValues(fieldName){
     fieldObj = document.getElementById(fieldName);
     var values = [];
