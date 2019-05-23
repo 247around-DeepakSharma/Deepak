@@ -287,4 +287,16 @@ class Employee_model extends CI_Model{
    	$query = $this->db->get();
         return $query->result_array();
    }
+   /**
+   * @desc : This funtion is used to get employee official email id
+   * @param : employes id one or more comma separated
+   * @return : official email id 
+   */
+
+
+   function getemployeeMailFromID($id){
+   	$query =  "SELECT GROUP_CONCAT(official_email) official_email FROM (`employee`) WHERE `id` IN (".$id.") ";
+        $result=$this->db->query($query)->result_array();
+        return $result;
+   }
 }

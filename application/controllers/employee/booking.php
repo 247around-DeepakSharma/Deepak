@@ -262,6 +262,7 @@ class Booking extends CI_Controller {
                 }
                 $price_tag = array();
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
+                if (!empty($pricesWithId[$brand_id][$key + 1])) { 
                 foreach ($pricesWithId[$brand_id][$key + 1] as $b_key => $values) {
 
                     $prices = explode("_", $values);  // split string..
@@ -307,6 +308,7 @@ class Booking extends CI_Controller {
                             }
                             break;
                     }
+                }
                 }
             }
             if (!empty($updated_unit_id)) {
@@ -2068,13 +2070,20 @@ class Booking extends CI_Controller {
      * @return : array of charges to view
      */
     function review_bookings($booking_id = "") {
-        $whereIN = array();
+        $whereIN = $where = $join = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
-            $serviceCenters = $sf_list[0]['service_centres_id'];
-            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+            if (!empty($sf_list)) {
+                $serviceCenters = $sf_list[0]['service_centres_id'];
+                $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+            }
         }
-        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>'247around');
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+        }
+        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
         
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/admin_booking_review', $data);
@@ -3301,12 +3310,18 @@ class Booking extends CI_Controller {
      */
     function get_booking_filter_view($status){
         log_message('info', __METHOD__);
-        $partnerWhere['is_active'] = 1;
+        $partnerWhere['partners.is_active'] = 1;
         $vendorJoin = NULL;
         $vendorWhere['service_centres.active'] = 1;
+        $is_am=0;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerWhere['account_manager_id'] = $am_id;
+            $partnerWhere = array('agent_filters.agent_id' => $am_id, 'agent_filters.entity_type' => "247around");
+            $is_am=1;
+            $data['state'] = $this->partner_model->getpartner_data('distinct agent_filters.state',$partnerWhere,"",null,1,$is_am);
+        }
+        else {
+            $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         }
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $rm_id = $this->session->userdata('id');
@@ -3315,11 +3330,10 @@ class Booking extends CI_Controller {
         }
         $request_type=array('Repair','Installation');
         $data['request_type']=$request_type;
-        $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+        $data['partners'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
         $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",$vendorWhere,$vendorJoin,NULL,array("name"=>"ASC"),NULL,array());
         $data['services'] = $this->booking_model->selectservice();
         $data['cities'] = $this->booking_model->get_advance_search_result_data("cities","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
-        $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         $data['status'] = $status;
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
@@ -3352,10 +3366,9 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerIDArray= $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
-            foreach($partnerIDArray as $partner_ID){
-                $partnerArray[] = $partner_ID['id']; 
-            }
+            $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>'247around');
+            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
+            
         }
         $data = $this->get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray);
         $post = $data['post'];
@@ -3374,7 +3387,7 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status,$sfIDArray,$partnerArray) {
+    private function get_bookings_data_by_status($booking_status,$sfIDArray) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
@@ -3385,7 +3398,7 @@ class Booking extends CI_Controller {
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray,0,'Spare');
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
@@ -3394,7 +3407,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,$partnerArray);
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
          }
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -3445,6 +3458,9 @@ class Booking extends CI_Controller {
         $is_upcountry = $this->input->post('is_upcountry');
         $completed_booking=$this->input->post('completed_booking');
         $bulk_booking_id = NULL;
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+        }
         if($this->input->post('bulk_booking_id')){
             $bulk_booking_id = $this->input->post('bulk_booking_id');
         }
@@ -3523,6 +3539,11 @@ class Booking extends CI_Controller {
         if(!empty($rm_id)){
              $post['where']['employee_relation.agent_id'] =  $rm_id;
              $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
+        }
+        if(!empty($am_id)){
+             $post['where'] = array("agent_filters.agent_id" => $am_id, "agent_filters.is_active" => 1, "agent_filters.entity_type" => '247around');
+             $post['where_not_in']['booking_details.internal_status'] =  array('InProcess_Cancelled','InProcess_Completed');
+             $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
         }
         if(!empty($request_type)){
             $post['where_in']['booking_details.request_type'] =  explode(",",$request_type);
@@ -5067,10 +5088,13 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerIDArray=  $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
+            //$partnerIDArray=  $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
+            $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>'247around');
+            $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
+            /*$partnerIDArray= $this->reusable_model->get_search_result_data("partners", "distinct partners.id", $where, $join, NULL, NULL, NULL, NULL);
             foreach($partnerIDArray as $partner_ID){
                 $partnerArray[] = $partner_ID['id'];
-            }
+            }*/
         }
         
         $post['length'] = -1;
@@ -5086,7 +5110,7 @@ class Booking extends CI_Controller {
              service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
              booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
             
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray,1); 
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1); 
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('current_status' => $booking_status,'type' => 'Booking'); 
@@ -5099,7 +5123,7 @@ class Booking extends CI_Controller {
                        STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
                        STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
             
-            $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,$partnerArray, 2); 
+            $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
         }
         
         $newCSVFileName = $booking_status."_booking_".date('j-M-Y-H-i-s') . ".csv";
@@ -5179,7 +5203,12 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
-        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN);
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>'247around');
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+        }
+        $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         if($is_tab == 0){
          $this->miscelleneous->load_nav_header();
@@ -5188,13 +5217,20 @@ class Booking extends CI_Controller {
     }
     function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL){
         $this->checkUserSession();
-        $whereIN = array();
+        $whereIN = $where = $join = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where['agent_filters.agent_id ='.$am_id] = NULL;
+            $where['partners.is_active =1'] = NULL;
+            $where['agent_filters.entity_type = "247around"'] = NULL;
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
+        }
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;

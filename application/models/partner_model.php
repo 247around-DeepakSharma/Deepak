@@ -793,7 +793,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $is_reporting_mail (O or 1)
      * @return Array
      */
-    function getpartner_details($select, $where = "", $is_reporting_mail="",$is_am_details = null) {
+    function getpartner_details($select, $where = "", $is_reporting_mail="") {//,$is_am_details = null
         $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
@@ -803,9 +803,9 @@ function get_data_for_partner_callback($booking_id) {
 	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
 	}
         $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
-        if(!empty($is_am_details)){
+        /*if(!empty($is_am_details)){
             $this->db->join('employee','partners.account_manager_id = employee.id','left');
-        }
+        }*/
         $this->db->order_by('partners.public_name', "ASC");
 	$query = $this->db->get();
         return $query->result_array();
@@ -1415,7 +1415,11 @@ function get_data_for_partner_callback($booking_id) {
                 $where_in = $partnerType;
             }
             if($ac != 'All'){
-                $where['partners.account_manager_id']  = $ac;
+                //$where['partners.account_manager_id']  = $ac;
+                $this->db->join('agent_filters','partners.id=agent_filters.entity_id');
+                $where['agent_filters.agent_id']  = $ac;
+                $where['agent_filters.entity_type']  = "247around";
+                $this->db->group_by("partners.id");
             }
         }
         if($partner_not_like){
@@ -1734,8 +1738,12 @@ function get_data_for_partner_callback($booking_id) {
     function select_POC_and_AM_email($id) {
         $this->db->select('p.primary_contact_email, e.official_email');
         $this->db->from('partners p');
-        $this->db->join('employee e', 'e.id = p.account_manager_id'); 
-        $this->db->where('p.id', $id);  
+        //$this->db->join('employee e', 'e.id = p.account_manager_id');
+        $this->db->join('agent_filters', 'agent_filters.entity_id = p.id');
+        $this->db->join('employee e', 'agent_filters.agent_id = e.id');
+        $this->db->where('p.id', $id);
+        $this->db->where('agent_filters.entity_type', "247around");
+        $this->db->group_by("e.id");
         $query = $this->db->get();
         return $query->result();
     }
@@ -1975,7 +1983,10 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->from('partners');
         $this->db->select($select, FALSE);
         
-        $this->db->join('employee', 'employee.id = partners.account_manager_id');
+        //$this->db->join('employee', 'employee.id = partners.account_manager_id');
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id');
+        $this->db->join('employee', 'agent_filters.agent_id = employee.id');
+        $this->db->where('agent_filters.entity_type', "247around");
         
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
@@ -2032,7 +2043,11 @@ function get_data_for_partner_callback($booking_id) {
     public function _count_all_parters($post) {
         $this->db->from('partners');
        
-        $this->db->join('employee', 'employee.id = partners.account_manager_id', "LEFT");
+        //$this->db->join('employee', 'employee.id = partners.account_manager_id', "LEFT");
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id');
+        $this->db->join('employee', 'agent_filters.agent_id = employee.id');
+        $this->db->where('agent_filters.entity_type', "247around");
+        $this->db->group_by("partners.id");
         if(isset($post['where'])){
             $this->db->where($post['where']);
         }
@@ -2081,18 +2096,23 @@ function get_data_for_partner_callback($booking_id) {
     }
     function get_am_partner($am_id=array())
     {
-        $this->db->select('group_concat(partners.id) as partnerId,employee.id as account_manager_id,employee.full_name');
+        $this->db->select('group_concat(distinct partners.id) as partnerId,employee.id as account_manager_id,employee.full_name');
         $this->db->from('partners');
-        $this->db->join('employee','partners.account_manager_id=employee.id','left');
+        //$this->db->join('employee','partners.account_manager_id=employee.id','left');
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id');
+        $this->db->join('employee', 'agent_filters.agent_id = employee.id');
+        $this->db->where('agent_filters.entity_type', "247around");
         $this->db->where('groups','accountmanager');
         $this->db->where('partners.is_active','1');
         $this->db->where('employee.active','1');
         if(!empty($am_id))
         {
-            $this->db->where_in('partners.account_manager_id',$am_id);
+            //$this->db->where_in('partners.account_manager_id',$am_id);
+            $this->db->where_in('agent_filters.agent_id',$am_id);
         }
         $this->db->order_by('employee.full_name');
-        $this->db->group_by('partners.account_manager_id');
+        //$this->db->group_by('partners.account_manager_id');
+        $this->db->group_by('agent_filters.agent_id');
         $result=$this->db->get()->result_array();
         return $result;
     }
@@ -2267,6 +2287,59 @@ function get_data_for_partner_callback($booking_id) {
                 $this->db->limit($condition['length'], $condition['start']);
             }
         }
+    }
+    /**
+     * @Desc: This function is used to get am data
+     * @params: array $where
+     * @return: array
+     * 
+     */
+    function get_am_data($select="*", $where=array(), $order_by = "" , $group_by = "", $is_am_details = 0){
+        $this->db->select($select);
+        $this->db->where($where);
+        if(!empty($group_by)){
+            $this->db->group_by($group_by);
+        }
+        if(!empty($order_by)){
+            $this->db->order_by($order_by,false);
+        }
+        if($is_am_details){
+            $this->db->join('employee','agent_filters.agent_id = employee.id');
+        }
+        $query = $this->db->get('agent_filters');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get partner am mapped data
+     * @param $select, Array $where, String $is_reporting_mail (O or 1), $is_am_details  (TRUE or FALSE), $is_booking_source (O or 1)
+     * @return Array
+     * 
+     */
+    function getpartner_data($select, $where = "", $is_reporting_mail="",$is_am_details = null,$is_booking_source = 0,$is_am = 0, $group_by = "") {
+        $this->db->select($select, false);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('partners');
+        if ($is_reporting_mail != "") {
+            $this->db->where_in('is_reporting_mail', $is_reporting_mail);
+        }
+        if ($is_am) {
+            $this->db->join('agent_filters','agent_filters.entity_id = partners.id');
+        }
+        if ($is_booking_source) {
+            $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
+        }
+        if(!empty($is_am_details)){
+            $this->db->join('employee','agent_filters.agent_id = employee.id','left');
+        }
+        if(!empty($group_by)){
+            $this->db->group_by($group_by);
+        }
+        $this->db->order_by('partners.public_name', "ASC");
+        $query = $this->db->get();
+        return $query->result_array();
     }
 }
 
