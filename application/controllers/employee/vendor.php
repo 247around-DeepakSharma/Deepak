@@ -1068,12 +1068,14 @@ class vendor extends CI_Controller {
      * @param: void
      * @return : void
      */
-    function process_reassign_vendor_form() {
-        log_message('info',__FUNCTION__);
-        $this->checkUserSession();
-        $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
-        $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
-        $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
+    function process_reassign_vendor_form($cron = 1) {
+        log_message('info',__FUNCTION__."In asynchronously ". $cron);
+        if($cron){
+            $this->checkUserSession();
+        }
+         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
+         $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
+         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
@@ -2290,9 +2292,7 @@ class vendor extends CI_Controller {
                             log_message('info', __FUNCTION__ . ' Error in adding vendor to pincode in vendor_pincode_mapping table ' . print_r($value, TRUE));
                         }
                     } else {
-                        if (!empty($value['Appliance_ID'])) {
-                            log_message('info', __FUNCTION__ . 'Vendor already assigned to Appliance ID ' . $value['Appliance_ID']);
-                        }
+                        log_message('info', __FUNCTION__ . 'Vendor already assigned to ' . $value['Appliance_ID']);
                         $displayMsgArray['already_exist'][] = $value;
                     }
                 }

@@ -4182,8 +4182,9 @@ function generate_image($base64, $image_name,$directory){
      * @param array $data
      * @param array $wh_on_of_data
      */
-    function create_micro_warehouse($data,$wh_on_of_data){
-        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id']), '*');
+    function create_micro_warehouse($data, $wh_on_of_data) {
+        $select = 'partners.id,micro_warehouse_state_mapping.state, micro_warehouse_state_mapping.micro_warehouse_charges';
+        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id'], 'partners.id' => $data['partner_id']), $select);
         if (empty($micro_wh_mapping_list)) {
             $this->My_CI->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
             $this->My_CI->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
@@ -4191,7 +4192,7 @@ function generate_image($base64, $image_name,$directory){
             $this->My_CI->vendor_model->edit_vendor($service_center, $data['vendor_id']);
         }
     }
-    
+
     /**
      * @desc: This is method return index key, if service caregory matches with given price tags
      * @param: Price tag and Array

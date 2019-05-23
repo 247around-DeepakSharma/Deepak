@@ -105,6 +105,7 @@
                                     <th>Spare Type</th>
                                     <th>Spare Part Name</th>
                                     <th>Spare Part Number</th>
+                                    <th>Description</th>
                                     <th>Spare Stock</th>
                                     <th>Spare Basic Price</th>
                                     <th>Spare GST Rate</th>

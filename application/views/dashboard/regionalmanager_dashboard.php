@@ -48,7 +48,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -61,7 +61,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id" name="services">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -74,7 +74,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -85,9 +85,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -99,7 +99,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -113,7 +113,7 @@
                     <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
                                          <select class="form-control"  ng-model="status" id="completed_status" name="status">
-                                            <option value="">All</option>
+                                            <option value="not_set">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
@@ -218,7 +218,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_rm_pending" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -231,7 +231,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <label for="">Services</label>
                                 <select class="form-control filter_table" id="service_id_rm_pending" name="services">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($services as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                     <?php } ?>
@@ -244,7 +244,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Installation">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -255,9 +255,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_rm_pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -269,7 +269,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry" multiple="">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No">No</option>
                             </select>
@@ -279,7 +279,9 @@
                     <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                            <option value="247Around:Partner">Admin</option>
+                                             <option value="not_set">All</option>
+                                             <option value="247Around" selected="selected">Admin</option>
+                                            <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">Vendor</option>
                                         </select>
                     </div>
@@ -409,7 +411,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_am" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -436,8 +438,8 @@
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am" name="request_type[]" multiple="">
                                 <option value="">Request Type</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
-                                <option value="Repair">Repair</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
                             </select>
@@ -447,9 +449,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_am" name="free_paid">
-                                <option value="" selected="selected">Is Free</option>
+                                <option value="" selected="selected">In Warranty</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -475,7 +477,7 @@
                     <div class="form-group col-md-3">
                                          <label for="">Booking Status</label>
                                          <select class="form-control"  ng-model="status" id="completed_status_am" name="status">
-                                            <option value="">All</option>
+                                            <option value="not_set">All</option>
                                             <option value="Completed" ng-selected="true">Completed</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
@@ -578,7 +580,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_am_pending" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -591,7 +593,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id_am_pending" name="services">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -604,7 +606,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am_pending" name="request_type[]" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Installation" >Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -615,9 +617,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_am_pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -629,7 +631,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No">No</option>
                             </select>
@@ -638,10 +640,11 @@
                 </div>
                     <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
-                                         <select class="form-control" id="pending_dependency_am" name="status" multiple="">
+                                         <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
+                                             <option value="not_set" selected="selected">All</option>
                                             <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor" selected="selected">Vendor</option>
+                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:186px;">

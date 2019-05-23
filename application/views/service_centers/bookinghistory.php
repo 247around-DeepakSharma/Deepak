@@ -38,8 +38,8 @@
                   <td><?= $row['booking_date']." / ". $row['booking_timeslot']; ?></td>
                   <td><?php echo $row['internal_status']; ?></td>
                   <td>
-                     <a href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])) ?>"
-                        target='_blank'title='view' class='btn btn-sm btn-primary' <?php  if($this->session->userdata('is_update') == 1){ if(is_null($row['assigned_engineer_id'])){ echo "disabled"; } }?>><i class='fa fa-eye' aria-hidden='true'></i></a>
+                    <a href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])) ?>"
+                        target='_blank'title='view' class='btn btn-sm btn-primary'><i class='fa fa-eye' aria-hidden='true'></i></a>
                   </td> 
 
                   <td>

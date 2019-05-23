@@ -1599,10 +1599,38 @@ class vendor_model extends CI_Model {
      * @return: boolean
      */
     function add_rm_to_sf_relation($agent_id, $sf_id){
+        
+        // get state code of sf.
+        $sf = $this->getVendorContact($sf_id);
+        $state_code = $this->db->get_where('state_code', array('state' => $sf[0]['state']))->result_array()[0]['state_code'];
+        
+        // fetch rm by state code
+        $rm = $this->get_rm_sf_relation_by_state_code($state_code);        
+        if(empty($rm)) :
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, "247around_dev@247around.com", "", "", "RM is not mapped with state code", "RM is not mapped with state code {$state_code}. Please check.", "", NULL);
+            return true;
+        endif;            
+        
+        $agent_id = $rm[0]['id'];
+        
         $this->db->where('agent_id', $agent_id);
         $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
         $this->db->update('employee_relation');
-        if($this->db->affected_rows() > 0){
+
+        if($this->db->affected_rows() > 0) {
+            // get manager of rm.
+            $rm_manager = $this->db->get_where('employee_hierarchy_mapping', array('employee_id' => $agent_id))->result_array();
+            if(!empty($rm_manager)) :
+                $rm_manager_id = $rm_manager[0]['manager_id'];
+                // check is manager also rm.
+                $is_manager_rm = $this->db->get_where('employee', array('id' => $rm_manager_id, 'groups' => 'regionalmanager'))->result_array();
+                if(!empty($is_manager_rm)) :
+                    $this->db->where('agent_id', $is_manager_rm[0]['id']);
+                    $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
+                    $this->db->update('employee_relation');
+                endif;
+            endif;
+            
             return true;
         }else{
             return false;
@@ -1636,10 +1664,17 @@ class vendor_model extends CI_Model {
      * @return: boolean
      * 
      */
-    function update_rm_to_sf_relation($agent_id,$sf_id){
+    function update_rm_to_sf_relation($agent_id,$sf_id) {
+        
+        // get state code of sf.
+        $sf = $this->getVendorContact($sf_id);
+        $state_code = $this->db->get_where('state_code', array('state' => $sf[0]['state']))->result_array()[0]['state_code'];
+        
         //Getting values of SF RM relation if present
-        $query_result = $this->get_rm_sf_relation_by_sf_id($sf_id);
-        if(!empty($query_result)){
+//        $query_result = $this->get_rm_sf_relation_by_sf_id($sf_id);
+        $query_result = $this->get_rm_sf_relation_by_state_code($state_code);        
+        if(!empty($query_result)){ 
+            $agent_id = $query_result[0]['id'];
             //Delete values from this currently assigned RM String
             $arr = explode(",",$query_result[0]['service_centres_id']);
             unset($arr[array_search($sf_id, $arr)]);
@@ -2037,5 +2072,25 @@ class vendor_model extends CI_Model {
         }
         return $return;
     }
-             
+
+     /**
+     * @Desc: This function is used to get relation of RM SF is present by using State Code
+     *          We are not getting Row for Admin group present for relation
+     * @params: sf_id
+     * @return: Array
+     * 
+     */
+    function get_rm_sf_relation_by_state_code($state_code){
+        if(!empty($state_code)){
+            $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
+                . "where FIND_IN_SET($state_code,employee_relation.state_code) "
+                . "AND employee.groups != '"._247AROUND_ADMIN."' "
+                . "AND employee_relation.agent_id = employee.id ORDER BY employee_relation.agent_id DESC";
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+        
+        return $response;
+    }
 }

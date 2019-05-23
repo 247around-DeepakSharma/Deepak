@@ -324,7 +324,7 @@ class Dashboard extends CI_Controller {
         if ($this->input->post('partner_id')) {
             $partner_id = $this->input->post('partner_id');
         }
-       if($this->session->userdata('partner_id')){
+        if($this->session->userdata('partner_id')){
             $partner_id = $this->session->userdata('partner_id');
         }
         if ($is_repeat_ajax) {
@@ -338,6 +338,95 @@ class Dashboard extends CI_Controller {
             $startDate = date('Y-m-01 00:00:00', $timestamp);
             $endDate = date('Y-m-d 23:59:59', $timestamp);
             $this->make_rm_final_bookings_data($startDate, $endDate,$partner_id);
+        }
+    }
+    
+     /**
+     * @desc: This function is used to get review completed booking data for graph
+     * @param void
+     * @return json
+     */
+    function get_completed_cancelled_booking_by_closure($status) {
+        if($this->input->post('sDate') && $this->input->post('eDate')){
+            $sDate = $this->input->post('sDate');
+            $eDate = $this->input->post('eDate');
+            $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
+            $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
+        }
+        else{ 
+            $endDate = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime('+1 days'))));
+            $startDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('-7 days'))));
+        }
+        $this->completed_booking_by_closure_graph_data($startDate, $endDate, $status);
+    }
+    /**
+     * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
+     * @param $startDate, $endDate
+     * @return json
+     */
+    function completed_booking_by_closure_graph_data($startDate, $endDate, $status){
+        $graph_data = array();
+        $rejectCompleted = [];
+        $approveComplted = [];
+        $editCompleted = [];
+        $totalCompleted = [];
+        $closureName = [];
+        if($status == "Completed"){
+            $graph_data = $this->dashboard_model->get_completed_booking_graph_data($startDate, $endDate);
+        }
+        else if($status == "Cancelled"){
+            $graph_data = $this->dashboard_model->get_cancelled_booking_graph_data($startDate, $endDate);
+        }
+        if(!empty($graph_data)){
+            foreach ($graph_data[0] as $key => $value) {
+                switch ($key) {
+                    case 'full_name':
+                        if (!empty($value)) {
+                            array_push($closureName, $value);
+                        } else {
+                            array_push($closureName, '0');
+                        }
+                        break;
+                    case 'completed_rejected':
+                        if (!empty($value)) {
+                            array_push($rejectCompleted, $value);
+                        } else {
+                            array_push($rejectCompleted, '0');
+                        }
+                        break;
+                    case 'completed_approved':
+                        if (!empty($value)) {
+                            array_push($approveComplted, $value);
+                        } else {
+                            array_push($approveComplted, '0');
+                        }
+                        break;
+                    case 'edit_completed':
+                        if (!empty($value)) {
+                            array_push($editCompleted, $value);
+                        } else {
+                            array_push($editCompleted, '0');
+                        }
+                        break;
+                    case 'total_bookings':
+                        if (!empty($value)) {
+                            array_push($totalCompleted, $value);
+                        } else {
+                            array_push($totalCompleted, '0');
+                        }
+                        break;
+                }
+            
+            }
+            $json_data['closures'] = implode(",", $closureName);
+            $json_data['reject'] = implode(",", $rejectCompleted);
+            $json_data['approved'] = implode(",", $approveComplted);
+            $json_data['edit_complete'] = implode(",", $editCompleted);
+            $json_data['total_bookings'] = implode(",", $totalCompleted);
+            echo json_encode($json_data);
+        }
+        else{
+            echo false;
         }
     }
     
@@ -1841,8 +1930,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
             }
             //Filter on partner ID
-            if($this->input->post('partner_id')){
-                $where['booking_details.partner_id'] = $this->input->post('partner_id');
+            if($this->input->post('partner_id') ){
+                if($this->input->post('partner_id') != "not_set"){
+                    $where['booking_details.partner_id'] = $this->input->post('partner_id');
+                }
             }
             if($partner_id != "not_set"){
                 $where['booking_details.partner_id'] = $partner_id;
@@ -1850,6 +1941,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($this->session->userdata('partner_id')){
                $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
             }
+            $conditionsArray['where']['partners.is_active'] = 1;
             return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
@@ -1910,7 +2002,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
             $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
-            $conditionsArray['where']['partners.is_active'] = 1;
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type){
@@ -2006,6 +2097,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
             $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
         }
+        if($this->session->userdata('userType') == 'service_center'){
+            $conditionsArray['where']["service_centres.id"] = $this->session->userdata('service_center_id');
+        }
         $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending,$request_type);
@@ -2055,16 +2149,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE){
         $endDate = date("Y-m-d");
         $startDate =  date('Y-m-d', strtotime('-30 days'));
-        $partner_id = $status = $service_id  = $free_paid = "not_set";
-        $request_type = 'Installation';
-        $upcountry = 'not_set';
+        $partner_id = $status = $service_id  = $free_paid = $request_type = $upcountry = "not_set";
         if(!$is_pending){
            if($this->input->post('status')){
              $status = 'Completed';
             }
-        }
-        else{
-            $status = '247around:Vendor:not_set';
         }
         if($this->input->post('daterange_completed_bookings')){
             $dateArray = explode(" - ",$this->input->post('daterange_completed_bookings')); 
@@ -2141,7 +2230,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
                 $_POST['service_id'] = $service_id;
                 $_POST['upcountry'] = $upcountry;
-                $_POST['request_type'][] = $request_type;
+               
+            }
+            if(!array_key_exists('request_type', $_POST)){
+                 $_POST['request_type'][] = $request_type;
             }
             $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services,
                 "is_am"=>$is_am,'sf_state'=>$sfStateArray,"is_pending" => $is_pending));
@@ -2152,7 +2244,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 echo  json_encode($sfData);
             }
             else{
-                if(array_key_exists('TAT', $data)){
+                if(array_key_exists('TAT', $sfData)){
                     echo  json_encode($sfData['TAT']);
                 }
                 else{

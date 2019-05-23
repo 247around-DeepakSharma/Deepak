@@ -1053,10 +1053,14 @@ class Service_centers extends CI_Controller {
             $this->cancel_booking_form(urlencode(base64_encode($booking_id)));
         } else {
            
-            $cancellation_reason = $this->input->post('cancellation_reason');
+            $cancellation_reason = trim($this->input->post('cancellation_reason'));
             $cancellation_text = $this->input->post('cancellation_reason_text');
+            $correctpin=$this->input->post('correct_pincode'); 
             $can_state_change = $cancellation_reason;
             $partner_id = $this->input->post('partner_id');
+            $city = $this->input->post('city');
+            $booking_pincode = $this->input->post('booking_pincode');
+            
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
             }
@@ -1069,10 +1073,29 @@ class Service_centers extends CI_Controller {
                     
                     break;
                 default :
-                    
-                    if($cancellation_reason == CANCELLATION_REASON_WRONG_AREA){
+                    if($cancellation_reason ==CANCELLATION_REASON_WRONG_AREA){  
+                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_CALL_AREA_TEMPLATE);
+                    }
 
-                        $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id);
+                    if(isset($correctpin) && !empty($correctpin) && $cancellation_reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){
+                         $pinupdate=array(
+                        'booking_pincode'=>$correctpin
+                         );
+                         $this->booking_model->update_booking($booking_id,$pinupdate);            
+                         $this->initialized_variable->fetch_partner_data($partner_id);
+                         $partner_data = $this->initialized_variable->get_partner_data();
+                         $booking['service_id']=$this->input->post('service_id');
+                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false);
+                         if (!empty($response)  && !isset($response['vendor_not_found'])) {
+                         $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
+                         $async_data['service'] = $response['vendor_id'];
+                         $async_data['booking_id'] =$booking_id;
+                         $async_data['remarks'] ="Booking Reassigned While Cancellation by Sf";
+                         $this->asynchronous_lib->do_background_process($url, $async_data);
+                         }
+                           $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_PINCODE_TEMPLATE,$correctpin);
+                         redirect(base_url() . "service_center/pending_booking");
+                         break;
                     }
 
                     $data['current_status'] = "InProcess";
@@ -1085,10 +1108,10 @@ class Service_centers extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                    //Update Service Center Closed Date in booking Details Table, 
-            //if current date time is before 12PM then take completion date before a day, 
-            //if day is monday and  time is before 12PM then take completion date as saturday
-            //Check if new completion date is equal to or greater then booking_date
-            date_default_timezone_set('Asia/Kolkata');
+                  //if current date time is before 12PM then take completion date before a day, 
+                 //if day is monday and  time is before 12PM then take completion date as saturday
+                //Check if new completion date is equal to or greater then booking_date
+                    date_default_timezone_set('Asia/Kolkata');
                     // get booking_date
                     $booking_date = $this->reusable_model->get_search_result_data("booking_details",'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date',array('booking_id'=>$booking_id),
                             NULL,NULL,NULL,NULL,NULL,array())[0]['booking_date'];
@@ -1120,14 +1143,12 @@ class Service_centers extends CI_Controller {
         }
     }
     /**
-     * @desc This function is used to send email to RM or AM when sf cancelled booking with wrong call area status
+     * @desc This function is used to send email to RM for Booking Not available in your area
      * @param String $booking_id
      * @param int $partner_id
      */
-    function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id) {
-       
-        $email_template = $this->booking_model->get_booking_email_template(WRONG_CALL_AREA_TEMPLATE);
-       
+    function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city="",$pincode="",$templet="",$correctpin="") {
+         $email_template = $this->booking_model->get_booking_email_template($templet);
         if (!empty($email_template)) {
 
             $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
@@ -1149,8 +1170,8 @@ class Service_centers extends CI_Controller {
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
-            $emailBody = vsprintf($email_template[0], $booking_id);
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WRONG_CALL_AREA_TEMPLATE, "", $booking_id);
+            $emailBody = vsprintf($email_template[0], array($booking_id,$city,$pincode,$correctpin));
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",$templet, "", $booking_id);
         }
     }
 
@@ -1702,8 +1723,9 @@ class Service_centers extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $entity_type = $this->input->post('entity_type');
+        $booking_partner_id = $this->input->post('booking_partner_id');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
-        $current_inventory_id = $this->input->post('current_inventory_id');
+        $data['requested_inventory_id']= $current_inventory_id = $this->input->post('current_inventory_id');
         $booking_id = $this->input->post('booking_id');     
         
         $change_inventory_id = '';
@@ -2096,7 +2118,9 @@ class Service_centers extends CI_Controller {
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['challan_approx_value'] = $warehouse_details['estimate_cost'];
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
-                            $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                            }
                             if (!empty($warehouse_details['inventory_id'])) {
                                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             }
@@ -3132,7 +3156,7 @@ class Service_centers extends CI_Controller {
             $post = array();
             $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan);
             $post['is_inventory'] = true;
-            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
             if (!empty($part_details)) {
@@ -3142,7 +3166,7 @@ class Service_centers extends CI_Controller {
                     if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $spare_parts['spare_id'] = $value['id'];
                         $spare_parts['booking_id'] = $value['booking_id'];
-                        $spare_parts['parts_shipped'] = $value['parts_shipped'];
+                        $spare_parts['parts_shipped'] = $value['parts_requested'];
                         $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                         $spare_parts['part_number'] = $value['part_number'];
                         $spare_parts['quantity'] = $value['quantity'];
@@ -3154,7 +3178,7 @@ class Service_centers extends CI_Controller {
             }
 
             $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
-            $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
+            $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,state,district,pincode,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
             $data = array();
             if (!empty($sf_details)) {
                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
@@ -4668,6 +4692,7 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post("partner_id");      
             if(!empty($sp_data)){
                 $flag = TRUE;
+                $next_action = '';
                 foreach ($sp_data as $key => $value){
                     if ($value->entity_type == _247AROUND_SF_STRING) {
                         $select = "(stock - pending_request_count) as actual_stock";                      

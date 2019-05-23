@@ -552,6 +552,22 @@
              alert("Please Contact 247Around Team To Update This Booking");
              return false;
         <?php }?>
+            
+        var delivered_price_tags = [];
+        $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
+
+        });
+            
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr === false){
+            alert('Not Allow to select multiple different type of service category');
+            $("#selected_service").css("color","red");
+            return false;
+        } else {
+            $("#selected_service").css("color","black");
+        }
         
        
     }
@@ -999,9 +1015,13 @@
         var price_array ;
         ch =0;
         var appliance_unit =$("#appliance_unit").val();
+        var delivered_price_tags = [];
         
          $("input[type=checkbox]:checked").each(function(i) {
             price_array = $(this).val().split('_');
+            
+             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
             //console.log(price_array);
            price += (Number(price_array[1]) -Number(price_array[2]) );
             if(price_array[0] !== "upcountry"){
@@ -1018,7 +1038,79 @@
             $("#grand_total").val(final_price.toFixed(2));
         }
         
+        var pr = checkPriceTagValidation(delivered_price_tags);
+
+        if(pr === false){
+             alert('Not Allow to select multiple different type of service category');
+             $("#selected_service").css("color","red");
+             $(".price_checkbox:checked").prop("checked", false);
+             document.getElementById("checkbox_upcountry").checked = false;
+             $("#grand_total").val("0.00");
+             final_price();
+
+        } else {
+            $("#selected_service").css("color","black");
+        }
+        
     
+    }
+    
+    function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var repair_out_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+        var extended_warranty = false;
+        var array =[];
+
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+                }
+                
+         if(array.length > 1){
+             return false;
+         } else {
+             return true;
+         }
+    }
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
     }
     
     $(document).ready(function(){

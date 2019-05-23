@@ -36,7 +36,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -49,7 +49,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <label for="">Services</label>
                                 <select class="form-control filter_table" id="service_id" name="services">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($services as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                     <?php } ?>
@@ -62,7 +62,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type" name="request_type[]" multiple="">
-                                 <option value="" >All</option>
+                                 <option value="not_set" >All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -73,9 +73,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -87,7 +87,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry" name="upcountry">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -206,7 +206,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_rm_pending" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -219,7 +219,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <label for="">Services</label>
                                 <select class="form-control filter_table" id="service_id_rm_pending" name="services">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($services as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                     <?php } ?>
@@ -232,7 +232,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_rm_pending" name="request_type[]" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Installation">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -243,9 +243,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_rm_pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -257,7 +257,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_rm_pending" name="upcountry" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No">No</option>
                             </select>
@@ -267,8 +267,9 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                            <option value="247Around:Partner">Admin</option>
-                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
+                                             <option value="247Around">Admin</option>
+                                            <option value="Partner">Partner</option>
+                                            <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
                     </div>
                     <div class="form-group col-md-3">
@@ -412,7 +413,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_am" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -425,7 +426,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id_am" name="services">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -438,7 +439,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am" name="request_type[]" multiple="">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Installation" selected="selected">Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -449,9 +450,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_am" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -463,7 +464,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am" name="upcountry">
-                                <option value="">All</option>
+                                <option value="not_set">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No" selected="selected">No</option>
                             </select>
@@ -584,7 +585,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
                                 <label for="">Partners</label>
                                 <select class="form-control filter_table" id="partner_id_am_pending" name="partner_id">
-                                    <option value="" selected="selected">All</option>
+                                    <option value="not_set" selected="selected">All</option>
                                     <?php foreach($partners as $val){ ?>
                                     <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
                                     <?php } ?>
@@ -597,7 +598,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Services</label>
                             <select class="form-control filter_table" id="service_id_am_pending" name="services">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <?php foreach($services as $val){ ?>
                                 <option value="<?php echo $val['id']?>"><?php echo $val['services']?></option>
                                 <?php } ?>
@@ -610,7 +611,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Request Type</label>
                             <select class="form-control filter_table" id="request_type_am_pending" name="request_type[]" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Installation" >Installations</option>
                                 <option value="Repair_with_part">Repair With Spare</option>  
                                 <option value="Repair_without_part">Repair Without Spare</option>  
@@ -621,9 +622,9 @@
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">  
-                            <label for="">Is Free</label>
+                            <label for="">In Warranty</label>
                             <select class="form-control filter_table" id="free_paid_am_pending" name="free_paid">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes (In Warranty)</option>
                                 <option value="No">No (Out Of Warranty)</option>  
                             </select>
@@ -635,7 +636,7 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
                             <select class="form-control filter_table" id="upcountry_am_pending" name="upcountry" multiple="">
-                                <option value="" selected="selected">All</option>
+                                <option value="not_set" selected="selected">All</option>
                                 <option value="Yes">Yes</option>
                                  <option value="No">No</option>
                             </select>
@@ -644,10 +645,10 @@
                 </div>
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
-                                         <select class="form-control" id="pending_dependency_am" name="status" multiple="">
+                                         <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
                                             <option value="247Around" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor" selected="selected">Vendor</option>
+                                            <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
                     </div>
                     <div class="form-group col-md-3">
@@ -1115,6 +1116,61 @@
     </div>
     <!-- Agent Graph -->
     
+    <!-- Closure Team Graph -->
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important; padding-left: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-5"><h2>Review Completed Booking Status<small></small></h2></div>
+                    <div class="col-md-6">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#completed_booking_closure_chart_div" data-toggle="collapse" onclick="get_completed_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif7" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="completed_booking_closure_chart_div">
+                    <div id="completed_booking_closure_chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-5"><h2>Review Cancelled Booking Status<small></small></h2></div>
+                    <div class="col-md-6">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange6" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#cancelled_booking_closure_chart_div" data-toggle="collapse" onclick="get_cancelled_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif8" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="cancelled_booking_closure_chart_div">
+                    <div id="cancelled_booking_closure_chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Closure Team Graph -->
+    
     <!-- show more content -->
     <div class="row"  style="margin-top:20px;">
         <div id="show_more" style="display:none;"> 
@@ -1336,7 +1392,26 @@
         $('#reportrange4').daterangepicker(options, cb);
 
         cb(start, end);
+    });
+    
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange5 span').html(moment().subtract(6, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+        }
 
+        $('#reportrange5').daterangepicker(options, cb);
+
+        cb(moment().subtract(6, 'days'), moment());
+    });
+    
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange6 span').html(moment().subtract(6, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange6').daterangepicker(options, cb);
+
+        cb(moment().subtract(6, 'days'), moment());
     });
     
     $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
@@ -1371,6 +1446,41 @@
         partner_unit_chart(startDate, endDate);
     });
     
+     $('#reportrange5').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif7').show();
+        $('#completed_booking_closure_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/employee/dashboard/get_completed_cancelled_booking_by_closure/Completed';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            if(response){
+                create_chart_closure_completed_booking(response);
+            }
+            else{
+                alert("Graph Data Not Found");
+            }
+        });
+    });
+    
+    $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif8').show();
+        $('#completed_booking_closure_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            if(response){
+                create_chart_closure_cancelled_booking(response);
+            }
+            else{
+                alert("Graph Data Not Found");
+            }
+        });
+    });
     
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover({
@@ -2110,6 +2220,163 @@ function initiate_escalation_data(){
       final_url = url+entity_id+'/0/'+is_am+'/'+is_pending;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
+    }
+    
+    function get_completed_bookings_data(){
+        $('#loader_gif7').fadeIn();
+        $('#completed_booking_closure_chart').fadeOut();
+        var data = {};
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Completed';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            if(response){
+                create_chart_closure_completed_booking(response);   
+            }
+            else{
+                alert("Graph Data Not Found");
+            }
+        });
+    }
+    
+    function create_chart_closure_completed_booking(response) {
+        var data = JSON.parse(response);
+        var closures = data.closures.split(',');
+        var reject = JSON.parse("[" + data.reject + "]");
+        var approved = JSON.parse("[" + data.approved + "]");
+        var edit_complete = JSON.parse("[" + data.edit_complete + "]");
+        var total_bookings = JSON.parse("[" + data.total_bookings + "]");
+        $('#loader_gif7').hide();
+        $('#completed_booking_closure_chart').fadeIn();
+        rm_based_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'completed_booking_closure_chart',
+                type: 'column',
+                events: {
+                    load: Highcharts.drawTable
+                }
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: closures
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Reject Bookings',
+                    data: reject
+                }, {
+                    name: 'Approved Bookings',
+                    data: approved
+                },
+                {
+                    name: 'Complete With Edit Bookings',
+                    data: edit_complete
+                }, {
+                    name: 'Total Completed Bookings',
+                    data: total_bookings
+                }]
+        });
+    
+    }
+    
+    function get_cancelled_bookings_data(){
+        $('#loader_gif8').fadeIn();
+        $('#cancelled_booking_closure_chart').fadeOut();
+        var data = {};
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            //console.log(response);
+            if(response){
+                create_chart_closure_cancelled_booking(response);
+            }
+            else{
+                alert("Graph Data Not Found");
+            }
+        });
+    }
+    
+    function create_chart_closure_cancelled_booking(response) {
+        var data = JSON.parse(response);
+        var closures = data.closures.split(',');
+        var reject = JSON.parse("[" + data.reject + "]");
+        var approved = JSON.parse("[" + data.approved + "]");
+        var edit_complete = JSON.parse("[" + data.edit_complete + "]");
+        var total_bookings = JSON.parse("[" + data.total_bookings + "]");
+        $('#loader_gif8').hide();
+        $('#cancelled_booking_closure_chart').fadeIn();
+        rm_based_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'cancelled_booking_closure_chart',
+                type: 'column',
+                events: {
+                    load: Highcharts.drawTable
+                }
+            },
+            title: {
+                text: '',
+                x: -20 //center
+            },
+            xAxis: {
+                categories: closures
+            },
+            yAxis: {
+                title: {
+                    text: 'Count'
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'none'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Reject Bookings',
+                    data: reject
+                }, {
+                    name: 'Approved Bookings',
+                    data: approved
+                },
+                {
+                    name: 'Cancelled With Edit Bookings',
+                    data: edit_complete
+                }, {
+                    name: 'Total Cancelled Bookings',
+                    data: total_bookings
+                }]
+        });
+    
     }
 </script>
 <style>
