@@ -1530,8 +1530,9 @@ class Service_centers extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $entity_type = $this->input->post('entity_type');
+        $booking_partner_id = $this->input->post('booking_partner_id');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
-        $current_inventory_id = $this->input->post('current_inventory_id');
+        $data['requested_inventory_id']= $current_inventory_id = $this->input->post('current_inventory_id');
         $booking_id = $this->input->post('booking_id');     
         
         $change_inventory_id = '';
@@ -1924,7 +1925,9 @@ class Service_centers extends CI_Controller {
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['challan_approx_value'] = $warehouse_details['estimate_cost'];
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
-                            $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                            }
                             if (!empty($warehouse_details['inventory_id'])) {
                                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             }
@@ -4475,6 +4478,7 @@ function update_defective_parts($sp_id) {
             $partner_id = $this->input->post("partner_id");      
             if(!empty($sp_data)){
                 $flag = TRUE;
+                $next_action = '';
                 foreach ($sp_data as $key => $value){
                     if ($value->entity_type == _247AROUND_SF_STRING) {
                         $select = "(stock - pending_request_count) as actual_stock";                      
