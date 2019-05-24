@@ -2218,7 +2218,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_ifsc_code'] = "ICIC0001024";
             $meta['main_company_seal'] = "247aroundstamp.jpg";
             $meta['main_company_signature'] = "anujsign.jpg";
-            $meta['main_company_logo'] = "logo.png";
+            $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
         }
         return $meta;

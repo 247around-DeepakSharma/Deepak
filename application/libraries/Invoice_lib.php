@@ -127,10 +127,10 @@ class Invoice_lib {
         $sign_path = false;
         $imagePath = array();
         
-        if(isset($meta['main_company_logo_cell'])){
-          if($meta['main_company_logo']){
+        if(isset($meta['main_company_logo_cell'])){ 
+          if($meta['main_company_logo']){ 
             $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
-            if(file_exists($main_logo_path)){
+            if($this->remote_file_exists($main_logo_path)){ 
                 $logo_cell = $meta['main_company_logo_cell'];
                 copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
                 $logo_path = TMP_FOLDER . $meta['main_company_logo'];
@@ -139,11 +139,11 @@ class Invoice_lib {
             }
           }
         }
-        
+       
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
             $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
-            if(file_exists($main_seal_path)){
+            if($this->remote_file_exists($main_seal_path)){
                 $seal_cell = $meta['main_company_seal_cell'];
                 copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
                 $seal_path = TMP_FOLDER . $meta['main_company_seal'];
@@ -156,7 +156,7 @@ class Invoice_lib {
         if(isset($meta['main_company_sign_cell'])){
             if($meta['main_company_seal']){
                 $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
-                if(file_exists($main_sign_path)){
+                if($this->remote_file_exists($main_sign_path)){
                     $sign_cell = $meta['main_company_sign_cell'];
                     copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
                     $sign_path = TMP_FOLDER . $meta['main_company_signature'];
@@ -165,7 +165,6 @@ class Invoice_lib {
                 }
             }
         }
-        
         
         $R->render('excel', $output_file_excel,$cell, $imagePath);
         
@@ -1374,4 +1373,14 @@ class Invoice_lib {
         json_decode($str);
         return (json_last_error()===JSON_ERROR_NONE);
     }
+    
+    /**
+     * @desc this function is used to check file in $url is exist or not
+     * @param $url
+     * @return boolean
+     */
+    function remote_file_exists($url){
+        $header_response = get_headers($url, 1);
+        return(bool)preg_match('~HTTP/1\.\d\s+200\s+OK~', $header_response[0]);
+    }  
 }
