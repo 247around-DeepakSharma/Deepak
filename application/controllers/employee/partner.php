@@ -641,7 +641,12 @@ class Partner extends CI_Controller {
                 //Adding details in Booking State Change
                 //$this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                
-                $am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
+                //$am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
+                $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
+                if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                    $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                }
                 if(!empty($am_email)){
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Updated :</p><ul>";
@@ -724,26 +729,6 @@ class Partner extends CI_Controller {
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "", NEW_PARTNER_ADDED_EMAIL_TAG);
                     
-                    // Send new brand onboard notification email to all employee
-                    $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
-                    if(!empty($email_template)){
-                        $account_manager_name = $this->employee_model->getemployeefromid($this->input->post('account_manager_id'))[0]['full_name'];
-                        $template = array(
-                            'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
-                        );
-                        $this->table->set_template($template);
-                        $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager'));
-                        $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type'), $account_manager_name));
-                        $html_table = $this->table->generate();
-                        
-                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-
-                        $cc = $email_template[3];
-                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
-                        $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
-                    }
-                    
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
@@ -795,7 +780,7 @@ class Partner extends CI_Controller {
         $return_data['invoice_courier_phone_number'] = trim($this->input->post('invoice_courier_phone_number'));
         $return_data['is_def_spare_required'] = $this->input->post('is_def_spare_required');
         $partner_code = $this->input->post('partner_code');
-        $return_data['account_manager_id'] = $this->input->post('account_manager_id');
+        //$return_data['account_manager_id'] = $this->input->post('account_manager_id');
         $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
         $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
         $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
@@ -926,10 +911,13 @@ class Partner extends CI_Controller {
      */
     function activate($id) {
 
-        $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
-            $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
         
         $data = array('is_active' => 1,
@@ -970,10 +958,13 @@ class Partner extends CI_Controller {
      */
     function deactivate($id) {
 
-        $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
+        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
-            $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
         $data = array('is_active' => 0,
                        'agent_id' => $this->session->userdata('id'),
@@ -1020,6 +1011,7 @@ class Partner extends CI_Controller {
         $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         $results['services'] = $this->vendor_model->selectservice();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $partner_am_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_STATE_APPLIANCE);
         //Getting Login Details for this partner
         $results['partner_code'] = $this->partner_model->get_partner_code($id);
         $partner_code = $this->partner_model->get_availiable_partner_code();
@@ -1063,6 +1055,7 @@ class Partner extends CI_Controller {
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
+       $results['partner_am_mapping'] = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups", array("partners.id" => $id, "agent_filters.entity_type" => "247around"),"",TRUE,0,1);
        $this->miscelleneous->load_nav_header();
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
            'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
@@ -4027,7 +4020,9 @@ class Partner extends CI_Controller {
 
     public function get_contact_us_page() {
         $partner_id = $this->session->userdata('partner_id');
-        $data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
+        //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
+        $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state) as state", 
+                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",1,1,1,"employee.id");
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
@@ -4284,7 +4279,9 @@ class Partner extends CI_Controller {
 
     function process_partner_contracts() {
         $partner_id = $this->input->post('partner_id');
-        $p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        //$p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
+        $p = $this->partner_model->getpartner_data("partners.public_name, group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');
@@ -4322,7 +4319,10 @@ class Partner extends CI_Controller {
                     $html .= "<li><b>" . $key . '</b> =>';
                     $html .= " " . $value . '</li>';
                 }
-                $logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager_id']);
+                //$logged_user_name = $this->employee_model->getemployeefromid($p[0]['account_manager_id']);
+                if (!empty($p[0]['account_manager_id'])) {
+                    $logged_user_name = $this->employee_model->getemployeeMailFromID($p[0]['account_manager_id']);
+                }
                 
                 if(!empty($logged_user_name)){
                     $to = $logged_user_name[0]['official_email']. ",". $this->session->userdata('official_email');
@@ -4681,7 +4681,7 @@ class Partner extends CI_Controller {
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period";
         $where = array('is_active' => 1);
        
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"");//,TRUE
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {
@@ -5399,6 +5399,114 @@ class Partner extends CI_Controller {
        else{
             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
        }
+    }
+    /*
+     * This function is used to add partner am mapping
+     */
+    function process_partner_am_mapping(){
+        if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id');
+            $get_partner_details = $this->partner_model->getpartner_data("company_name, public_name, partner_type", 
+                    array('partners.id' => $partnerID),"",0,1);
+            $company_name = $get_partner_details[0]['company_name'];
+            $public_name = $get_partner_details[0]['public_name'];
+            $partner_type = $get_partner_details[0]['partner_type'];
+            $data = array();
+            foreach($this->input->post('am') as $index=>$am){
+                $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $this->input->post('am_state')[$index]);
+                $id = $this->reusable_model->insert_into_table("agent_filters",$data);
+            }
+            if($id){
+                $msg =  "Partner AM Mapping has been Added successfully ";
+            }
+            else{
+                $msg =  "Something went Wrong Please try again or contact to admin";
+            }
+
+            // Send new brand onboard notification email to all employee
+            $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+
+            if(!empty($email_template)){
+                $template = array(
+                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                );
+                $this->table->set_template($template);
+                $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager', 'State'));
+                foreach($this->input->post('am') as $index=>$am){
+                    $account_manager_name = $this->employee_model->getemployeefromid($am)[0]['full_name'];
+                    $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name, $this->input->post('am_state')[$index]));
+                }
+                $html_table = $this->table->generate();
+
+                $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+
+                $cc = $email_template[3];
+                $subject = vsprintf($email_template[4], array($public_name));
+                $message = vsprintf($email_template[0], array($html_table));
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+        $this->session->set_userdata('success', $msg);
+        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+    }
+    /*
+     * This function is used to edit partner am mapping
+     */
+    function edit_partner_am_mapping(){
+       if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id');
+            $id = $this->input->post('mapping_id');
+            $data['state'] = $this->input->post('state1');
+            $data['agent_id'] = $this->input->post('am1');
+            $where = array('id' => $id);
+            $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
+            if($update_data){
+                $msg =  "Partner AM Mapping has been Updated successfully ";
+            }
+            else{
+                $msg =  "No update done";
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+        }
+        $this->session->set_userdata('success', $msg);
+        redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
+    }
+    /*
+     * This function is used to activate / deactivate partner am mapping
+     */
+    function activate_deactivate_mapping($id,$action){
+        if($id){
+            $data['is_active'] = $action;
+            $where = array('id' => $id);
+            $affected_rows =  $this->reusable_model->update_table("agent_filters",$data,$where);
+            if($affected_rows){
+                $v = "Deactivated";
+                if($action){
+                    $v = "Activated";
+                }
+                /*if($this->session->userdata('userType') == 'employee'){
+                    $agent = $this->session->userdata('id');
+                    $agentName = $this->session->userdata('emp_name');
+                    $partner_id = _247AROUND;
+                }
+                else{
+                    $agent = $this->session->userdata('agent_id');
+                    $agentName = $this->session->userdata('partner_name');
+                    $partner_id = $this->session->userdata('partner_id');
+                }
+                $this->notify->insert_state_change($id, "Contact Person - ".$v,"Contact Person", $id." has been ".$v, $agent, $agentName, 
+                        'not_define','not_define',$partner_id);*/
+                echo "Mapping has been $v";
+            }
+            else{
+                echo "Something Went Wrong Please Try Again";
+            }
+        }
     }
     
     function process_booking_internal_conversation_email() {
@@ -7372,7 +7480,7 @@ class Partner extends CI_Controller {
        if(!empty($search['value'])){
            $post['search_value'] = trim($search['value']); 
         }
-        $post['where']['is_active'] = 1;
+        $post['where']['partners.is_active'] = 1;
         if(!empty($this->input->post("group_by"))){
             $post['group_by'] = $this->input->post("group_by");
         }
@@ -7387,8 +7495,8 @@ class Partner extends CI_Controller {
     function get_partners_searched_data(){
         log_message("info", __METHOD__);
         $post = $this->getPartnerDataTablePost();
-        $post['column_order'] = array(NULL, 'employee.full_name','partners.public_name');
-        $post['column_search'] = array('employee.full_name','partners.public_name');
+        $post['column_order'] = array(NULL, 'employee.full_name','partners.public_name','agent_filters.state');
+        $post['column_search'] = array('employee.full_name','partners.public_name','agent_filters.state');
         $data = array();
         
         switch ($this->input->post('request_type')){
@@ -7419,7 +7527,7 @@ class Partner extends CI_Controller {
     function getPartnersManagedByAccountManagerData($post){
         $select = "partners.id as partner_id, partners.company_name, partners.public_name, partners.company_type, partners.address, partners.district, partners.state, partners.pincode,"
                 . " partners.primary_contact_name, partners.primary_contact_email, partners.customer_care_contact, partners.pan, partners.gst_number, employee.full_name, employee.phone, "
-                . "employee.official_email";
+                . "employee.official_email, agent_filters.state as am_state";
         $list = $this->partner_model->searchPartnersListData($select, $post);
         $no = $post['start'];
         $data = array();
@@ -7442,6 +7550,7 @@ class Partner extends CI_Controller {
          $row[] = $no;
          $row[] = $partners_list->full_name;
          $row[] = $partners_list->public_name;
+         $row[] = $partners_list->am_state;
         return $row;
     }
     

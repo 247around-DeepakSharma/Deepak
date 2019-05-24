@@ -282,9 +282,12 @@ class Paytm_gateway extends CI_Controller {
         $partner_email = '';
         $payer_name = '';
         if(!empty($partner_id)){
-            $partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
+            //$partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
+            $partner_details = $this->partner_model->getpartner_data("public_name,owner_email,primary_contact_email,group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
             if (!empty($partner_details[0]['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
+                //$am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($partner_details[0]['account_manager_id'])[0]['official_email'];
             }
             
             $partner_email = $partner_details[0]['owner_email'];

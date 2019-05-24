@@ -253,6 +253,7 @@
                     if ($('#appliance').length){d.appliance =  $('#appliance').val();}else{ d.appliance = ""; }
                     if ($('#request_type_booking').length){d.request_type_booking =  $('#request_type_booking').val();}else{ d.request_type_booking = ""; }
                     if ($('#completed_booking').length){d.completed_booking =  $('#completed_booking').val();}else{ d.completed_booking = ""; }
+                    if ($('#state').length){d.state =  $('#state').val();}else{ d.state = ""; }
                  }
             },
             "deferRender": true,

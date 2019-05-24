@@ -1139,7 +1139,7 @@ class Spare_parts extends CI_Controller {
                 }
 
                 if (!empty($parts_stock_not_found)) {
-                    $this->send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data);
+                    $this->send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data, $booking_id);
                 }
 
                 if (isset($spare_parts_list[0]['is_micro_wh']) && $spare_parts_list[0]['is_micro_wh'] == 1 && $spare_parts_list[0]['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
@@ -1199,36 +1199,44 @@ class Spare_parts extends CI_Controller {
      * @param Array $value1
      * @param Array $data
      */
-    function send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data) {
         
-        if (!empty($parts_stock_not_found)) {
+    function send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data, $booking_id) {
+        if (!empty($parts_stock_not_found) && !empty($booking_id)) {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
             if (!empty($email_template)) {
+                $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+                $JoinTypeTableArray['service_centres'] = 'left';
+                $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+                
+                //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $partner_id));
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                if(!empty($get_partner_details)) {
+                    $am_email = "";
+                    if (!empty($get_partner_details[0]['account_manager_id'])) {
+                        //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                        $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    }
 
-                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $partner_id));
-                $am_email = "";
-                if (!empty($get_partner_details[0]['account_manager_id'])) {
-                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    $this->load->library('table');
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+
+                    $this->table->set_template($template);
+
+                    $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
+                    foreach ($parts_stock_not_found as $value) {
+                        $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
+                    }
+                    $body_msg = $this->table->generate();
+                    $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+                    $cc = $email_template[3] . "," . $am_email;
+                    $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
+                    $emailBody = vsprintf($email_template[0], $body_msg);
+                    $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
                 }
-
-                $this->load->library('table');
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
-
-                $this->table->set_template($template);
-
-                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                foreach ($parts_stock_not_found as $value) {
-                    $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
-                }
-                $body_msg = $this->table->generate();
-                $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-                $cc = $email_template[3] . "," . $am_email;
-                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                $emailBody = vsprintf($email_template[0], $body_msg);
-                $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
             }
         }
     }
@@ -1904,14 +1912,19 @@ class Spare_parts extends CI_Controller {
                 
                $vendor_details = $this->vendor_model->getVendorDetails('service_centres.name, service_centres.phone_1, service_centres.email', array('service_centres.id' => $service_center_id) ,'name',array());
                 
-                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $data['partner_id']));
+                $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+                $JoinTypeTableArray['service_centres'] = 'left';
+                $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $data['booking_id']),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+                
+                //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $data['partner_id']));
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $data['partner_id'], 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
                 
                 $am_email = "";
                 if (!empty($get_partner_details[0]['account_manager_id'])) {
-                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 }
-                
-
                 $to = $vendor_details[0]['email'];
                 $cc = $email_template[3] . "," . $am_email;
                 $subject = vsprintf($email_template[4], array($data['parts_requested_type'], $data['booking_id']));
