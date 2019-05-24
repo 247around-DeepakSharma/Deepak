@@ -152,6 +152,52 @@
                         </table>
                     </div>
 
+
+
+                           <div id="appliance_model_details_dataeditmodeldiv" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="modal_title_action2"> </h4>
+                                </div>
+                                <div class="modal-body">
+
+                                    <form class="form-horizontal" id="applince_model_list_details_edit_model">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
+                                                    <div class="col-md-7 col-md-offset-1">
+                                                        <select class="form-control" onchange="get_partner_brands();"  id="service_id2" name="service_id"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" for="model_numbernew">Model Number *</label>
+                                                    <div class="col-md-7 col-md-offset-1">
+                                                        <input type="text" class="form-control" id="mapping_model_numbernew2" name="model_number">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+ 
+                                        <div class="modal-footer">
+                                            <input type="hidden"  id="entity_id2" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
+                                            <input type="hidden" id="entity_type2" name='entity_type' value="partner">
+                                            <input type="hidden" id="model_id2" name='model_id' value="">
+                                            <button type="submit"  class="btn btn-success"  id="model_submit_btn2"   name='submit_type' value="">Submit</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                            <p class="pull-left text-danger">* These fields are required</p>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                     <!--Modal start-->
                     <div id="appliance_model_details_data" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-lg">
@@ -447,36 +493,72 @@
         $('#map_appliance_model').modal('toggle');
     });
     
-    $(document).on("click", "#edit_appliance_model_details", function () {  
+    $(document).on("click", "#appliance_model_details_dataeditmodel", function () {  
         var form_data = $(this).data('id');
         if(form_data.service){
             // Set the value, creating a new option if necessary
-                if ($('#service_id').find("option[value='" + form_data.service + "']").length) {
-                $('#service_id').val(form_data.service).trigger('change');
+                if ($('#service_id2').find("option[value='" + form_data.service + "']").length) {
+                $('#service_id2').val(form_data.service).trigger('change');
                 } else { 
                  // Create a DOM Option and pre-select by default
                     var newOption = new Option(form_data.services, form_data.service, true, true);
                     // Append it to the select
-                    $('#service_id').append(newOption).trigger('change');
+                    $('#service_id2').append(newOption).trigger('change');
                 } 
         }else{
-            get_services('service_id');
+            get_services('service_id2');
         }
         
         if(form_data.entity_id){
             var entity_id_options = "<option value='"+form_data.entity_id+"' selected='' >"+form_data.entity_id+"</option>";
-            $('#entity_id').html(entity_id_options);
+            $('#entity_id2').html(entity_id_options);
         }
         
-        $('#model_number').val(form_data.model_number);
-        $('#model_id').val(form_data.id);
-        $('#model_submit_btn').val('Edit');
-        $('#modal_title_action').html("Edit Details");
-        $('#appliance_model_details_data').modal('toggle');
+        $('#mapping_model_numbernew2').val(form_data.model_number);
+        $('#model_id2').val(form_data.model);
+        $('#model_submit_btn2').val('Edit');
+        $('#model_submit_btn2').text('Edit');
+        $('#modal_title_action2').html("Edit Details");
+        $('#appliance_model_details_dataeditmodeldiv').modal('toggle');
            
     });
     
- 
+    $("#model_submit_btn2").click(function(){
+        event.preventDefault();
+        var arr = {};
+        var form_data = $("#applince_model_list_details_edit_model").serializeArray();
+        if(!$('#service_id2').val()){
+            alert("Please Select Appliance");
+        }else if($('#mapping_model_numbernew2').val().trim() === "" || $('#mapping_model_numbernew2').val().trim() === ""){
+            alert("Please Enter Model Number");
+        }else{
+            $('#model_submit_btn2').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            arr.name = 'submit_type';
+            arr.value = $('#model_submit_btn2').val();
+            form_data.push(arr);
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/process_appliance_model_list_data',
+                data : form_data,
+                success:function(response){
+                    $('#appliance_model_details_dataeditmodel').modal('toggle');
+                    var data = JSON.parse(response);
+                    if(data.response === 'success'){
+                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+                        $('#success_msg').html(data.msg);
+                        appliance_model_details_table.ajax.reload();
+                    }else if(data.response === 'error'){
+                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+                        $('#error_msg').html(data.msg);
+                        appliance_model_details_table.ajax.reload();
+                    }
+                    $('#model_submit_btn2').attr('disabled',false).html('Add');
+                }
+            });
+        }
+
+    });
+    
     var oldExportAction = function (self, e, appliance_model_details_table, button, config) {
         if (button[0].className.indexOf('buttons-excel') >= 0) {
             if ($.fn.dataTable.ext.buttons.excelHtml5.available(appliance_model_details_table, config)) {

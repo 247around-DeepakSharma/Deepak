@@ -5939,7 +5939,7 @@ class Inventory extends CI_Controller {
             $row[] = $model_list->model_number; 
             } else {
              $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
-             padding-left: 10px;' id='edit_appliance_model_details' data-id='$json' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
            }  
         }else{
            $row[] = "<span>Not Available</span>"; 
