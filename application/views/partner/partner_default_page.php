@@ -83,6 +83,7 @@
                                                         <th class="text-center">Appliance</th>
                                                         <th class="text-center">Spare Part</th>
                                                         <th class="text-center">Parts Number</th>
+                                                        <th class="text-center">Quantity</th>
                                                         <th class="text-center">Age Of Requested</th>
                                                         <th class="text-center">Model No</th>
                                                         <th class="text-center">Serial No</th>
@@ -404,7 +405,7 @@
          var column_order = <?php echo json_encode($column);?>;
          var obj = '<?php echo json_encode($data); ?>';
          var select = '<?php echo "services.services, spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, assigned_vendor_id, "
-         . "amount_due, spare_parts_details.id, spare_parts_details.booking_id, defective_parts_pic, serial_number_pic,booking_details.partner_id ,inventory_master_list.part_number"; ?>';
+         . "amount_due, spare_parts_details.id, spare_parts_details.quantity,spare_parts_details.booking_id, defective_parts_pic, serial_number_pic,booking_details.partner_id ,inventory_master_list.part_number"; ?>';
          oow_spare = $('#datatable1').DataTable({
             "processing": true, //Feature control the processing indicator.
             "serverSide": true, //Feature control DataTables' server-side processing mode.
@@ -418,7 +419,6 @@
               data : {requestType:'<?php echo SPARE_OOW_EST_REQUESTED;?>', 'crmType': 'Partner',
                   'select':select,'where':obj, column_order:column_order},
               url: "<?php echo base_url();?>apiDataRequest"
-    
             },
             
             //Set column definition initialisation properties.

@@ -30,6 +30,7 @@
                                 <th class="text-center">Name</th>
                                 <th class="text-center">Received Spare Parts</th>
                                 <th class="text-center">Parts Number</th>
+                                <th class="text-center">Quantity</th>
                                 <th class="text-center">Received Date</th>
                                 <th class="text-center">AWB</th>
                                 <th class="text-center">Courier Name</th>

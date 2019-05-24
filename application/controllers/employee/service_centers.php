@@ -876,17 +876,19 @@ class Service_centers extends CI_Controller {
             $city = $this->input->post('city');
             $booking_pincode = $this->input->post('booking_pincode');
             
+            
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
             }
             
-            
+           
             switch ($cancellation_reason){
                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
                     //Called when sc choose Product not delivered to customer 
                     $this->convert_booking_to_query($booking_id,$partner_id);
                     
                     break;
+
                 default :
                     if($cancellation_reason == _247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON){  
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city,$booking_pincode,WRONG_CALL_AREA_TEMPLATE);
@@ -913,6 +915,7 @@ class Service_centers extends CI_Controller {
                          break;
                     }
 
+
                     $data['current_status'] = "InProcess";
                     $data['internal_status'] = "Cancelled";
                     $data['service_center_remarks'] = date("F j") . ":- " .$cancellation_text;
@@ -920,7 +923,6 @@ class Service_centers extends CI_Controller {
                     $data['cancellation_reason'] = $cancellation_reason;
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
-
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                    //Update Service Center Closed Date in booking Details Table, 
                   //if current date time is before 12PM then take completion date before a day, 
@@ -965,14 +967,12 @@ class Service_centers extends CI_Controller {
     function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id,$city="",$pincode="",$templet="",$correctpin="") {
          $email_template = $this->booking_model->get_booking_email_template($templet);
         if (!empty($email_template)) {
-
             $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
             $get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
                 $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
-
             $to = $rm_email.",".$am_email;
             $cc = $email_template[3];
             $bcc = $email_template[5];
@@ -4748,6 +4748,8 @@ function update_defective_parts($sp_id) {
                 . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . " spare_parts_details.quantity,"
+                . " spare_parts_details.shipped_quantity,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
 
@@ -4919,7 +4921,9 @@ function update_defective_parts($sp_id) {
 
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
-                            $data['challan_approx_value'] = $part_details['approx_value'];
+                            $data['quantity'] = $part_details['quantity'];
+                            $data['shipped_quantity'] = $part_details['shipped_quantity'];
+                            $data['challan_approx_value'] = $part_details['approx_value']*$part_details['shipped_quantity'];
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
 
                             /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty 
@@ -4961,13 +4965,12 @@ function update_defective_parts($sp_id) {
                                 } else {
                                     $data['parts_requested_type'] = $part_details['shipped_parts_name'];
                                 }
-
                                 $data['parts_requested'] = $part_details['shipped_parts_name'];
-                                                       
+                                $data['quantity'] = $part_details['quantity'];
+                                $data['shipped_quantity'] = $part_details['shipped_quantity'];                  
                                 $response = $this->service_centers_model->insert_data_into_spare_parts($data);                           
                                 $spare_id = $response;
                                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
-
                                 if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                                     $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $data['requested_inventory_id']));
@@ -6370,8 +6373,7 @@ function update_defective_parts($sp_id) {
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
     
-    
-    
+ 
     /**
      * @desc function change password of service center entity.
      * @author Ankit Rajvanshi
@@ -6405,4 +6407,5 @@ function update_defective_parts($sp_id) {
         $this->load->view('service_centers/change_password');
     }
     
+ 
 }

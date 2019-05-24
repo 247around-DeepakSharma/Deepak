@@ -64,6 +64,8 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">SF Name</th>
                                     <th class="text-center">Age of Request(Days)</th>
                                     <th class="text-center">Parts Required</th>
+                                    <th class="text-center">Requested Quantity</th>
+                                    <th class="text-center">Shipped Quantity</th>
                                     <th class="text-center">Parts Code</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
@@ -101,6 +103,12 @@ if ($this->uri->segment(3)) {
                                         </td>
                                         <td style="word-break: break-all;">
                                             <?php echo $row['parts_requested']; ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $row['quantity']; ?>
+                                        </td>
+                                         <td>
+                                            <?php echo $row['shipped_quantity']; ?>
                                         </td>
                                          <td style="word-break: break-all;">
                                             <?php echo $row['part_number']; ?>
