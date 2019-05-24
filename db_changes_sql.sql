@@ -10921,7 +10921,6 @@ UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll
 UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
  
 
-
 --Ankit 20-May-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 

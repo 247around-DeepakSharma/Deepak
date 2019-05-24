@@ -1017,6 +1017,7 @@ class Spare_parts extends CI_Controller {
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
         $where = array('id' => $spare_parts_id);
+
         $row="";
         if ($entity_type == _247AROUND_PARTNER_STRING) {
             $new_state = REQUESTED_SPARED_REMAP;

@@ -1,3 +1,4 @@
+<?php if(!empty($booking_history)) { ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -282,9 +283,6 @@
                             </td>
                         </tr>
                     </table>
-                    <?php  } ?>
- 
- 
                     <table class="table  table-striped table-bordered" >
                         <tr>
                             <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
@@ -650,8 +648,6 @@
                                         <?php } else {?> 
                                            <td></td>   
                                          <?php } } ?>
-
-
 
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>

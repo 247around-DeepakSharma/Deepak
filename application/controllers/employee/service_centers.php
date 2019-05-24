@@ -1162,7 +1162,6 @@ class Service_centers extends CI_Controller {
                         array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-                 //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
  
@@ -6680,5 +6679,39 @@ class Service_centers extends CI_Controller {
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
     
-            
+
+    /**
+     * @desc function change password of service center entity.
+     * @author Ankit Rajvanshi
+     * @since 17-May-2019
+     */
+    function change_password() {
+        
+        if($_POST) :
+            // declaring variables.
+            $service_center_id = $this->session->userdata['service_center_id'];
+            $old_password = md5($_POST['old_password']);
+            // fetch record.
+            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
+        endif;
+        
+        if($this->input->is_ajax_request()) : // verify old password.
+            if(!empty($service_center_login)) :
+                echo '1';exit;
+            else :
+                echo'0';exit;
+            endif;
+        elseif($_POST) :
+            // Update password.
+            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+            // setting feedback message for user.
+            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
+            redirect(base_url() . "employee/service_centers/change_password");
+        endif;
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/change_password');
+    }
+    
+ 
 }

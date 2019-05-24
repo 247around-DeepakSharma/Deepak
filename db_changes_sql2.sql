@@ -24,4 +24,6 @@ values(247001, 'partner_on_state_appliance',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAM
 insert into agent_filters(entity_type,entity_id,contact_person_id,agent_id,state) 
 SELECT '247around',id, 0,account_manager_id,state FROM `partners` where account_manager_id is not NULL;
 --Kajal 23/5/2019 ending --
- 
+---ABhishek ----
+ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
+
