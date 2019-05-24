@@ -477,8 +477,9 @@ class Booking extends CI_Controller {
                     $booking_files['size'] = $_FILES['support_file']['size'][$i];
                     $booking_files['create_date'] = date("Y-m-d H:i:s");
                     $Status = $this->booking_model->insert_booking_file($booking_files);
-                    if(!$Status)
+                    if(!$Status) {
                         return false;
+                    }
                 }
                 else{
                     log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
@@ -1545,6 +1546,7 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['file_type'] = $this->booking_model->get_file_type();
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
             $engineer_action_not_exit = false;
@@ -5181,16 +5183,34 @@ class Booking extends CI_Controller {
     function upload_order_supporting_file(){
         $booking_id = $this->input->post('booking_id');
         $id = $this->input->post('id');
+        $file_description_id = $this->input->post('file_description_id');
         $booking_files = array();
         if(!empty($booking_id)){
-            $support_file = $this->upload_orderId_support_file($booking_id, $_FILES['support_file']['tmp_name'], $_FILES['support_file']['error'], $_FILES['support_file']['name']);
-            if(!empty($support_file)){
-                $booking_files['file_name'] = $support_file;
-                $booking_files['file_type'] = $_FILES['support_file']['type'];
-                $booking_files['size'] = $_FILES['support_file']['size'];
-                $this->booking_model->update_booking_file($booking_files, array('booking_id' => $booking_id, 'id' => $id));
-                echo json_encode(array('code' => "success", "name" => $support_file));
-            } else {
+            $checkValidation = $this->validate_upload_orderId_support_file();
+            if($checkValidation) {
+                $support_file = $this->upload_orderId_support_file($booking_id, $_FILES['support_file']['tmp_name'][0], $_FILES['support_file']['error'][0], $_FILES['support_file']['name'][0]);
+                if(!empty($support_file)){
+                    $booking_files['file_name'] = $support_file;
+                    $booking_files['file_type'] = $_FILES['support_file']['type'][0];
+                    $booking_files['size'] = $_FILES['support_file']['size'][0];
+                    if(!empty($id)) {
+                        $this->booking_model->update_booking_file($booking_files, array('booking_id' => $booking_id, 'id' => $id));
+                    }
+                    else {
+                        $booking_files['booking_id'] = $booking_id;
+                        $booking_files['file_description_id'] = $file_description_id;
+                        $booking_files['create_date'] = date("Y-m-d H:i:s");
+                        $Status = $this->booking_model->insert_booking_file($booking_files);
+                        if(!$Status) {
+                            echo json_encode(array('code' => "error", "message" => "Error while inserting support file!!"));
+                        }
+                    }
+                    echo json_encode(array('code' => "success", "name" => $support_file));
+                } else {
+                    echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
+                }
+            }
+            else {
                 echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
             }
         }
