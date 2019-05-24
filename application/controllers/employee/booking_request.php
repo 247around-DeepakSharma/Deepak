@@ -123,7 +123,9 @@ class Booking_request extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $request_type = $this->input->post('request_type');
         $b_symptom = $this->input->post('booking_request_symptom');
-        $data = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom_defect_solution_mapping.request_id, symptom', array('symptom.service_id' => $service_id, 'symptom.partner_id' => $partner_id), array('service_category' => $request_type));
+        if(!empty($request_type)) {
+            $data = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom_defect_solution_mapping.request_id, symptom', array('symptom.service_id' => $service_id, 'symptom.partner_id' => $partner_id), array('service_category' => $request_type));
+        }
         if (!empty($data)) {
 
             $option = "";
