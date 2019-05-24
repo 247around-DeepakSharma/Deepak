@@ -224,7 +224,7 @@ class Engineer_model extends CI_Model {
         $this->db->select($select, false);
         $this->db->from('engineer_booking_action');
         $this->db->where($where);
-        $this->db->join("booking_details", "booking_details.id = engineer_booking_action.booking_id");
+        $this->db->join("booking_details", "booking_details.booking_id = engineer_booking_action.booking_id");
         if($is_service){
             $this->db->join("services", "services.id = booking_details.service_id");
         }
@@ -241,6 +241,7 @@ class Engineer_model extends CI_Model {
             $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
         }
         $query = $this->db->get();
+        echo $this->db->last_query(); die();
         return $query->result_array();
     }
 }

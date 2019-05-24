@@ -57,7 +57,7 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"tommorowBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerHomeScreen\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -4591,6 +4591,7 @@ class Api extends CI_Controller {
             $missed_where = array(
                         "assigned_vendor_id" => $service_center_id,
                         "assigned_engineer_id" => $engineer_id,
+                        "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
                         "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                     );
             $missed_slots = $this->apis->getMissedBookingSlots();
@@ -4606,8 +4607,7 @@ class Api extends CI_Controller {
                 $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0)"] = NULL;
             }
             
-            $missed_bookings = $this->booking_model->get_booking_details($select, $missed_where, true, true, true, false, false);
-            
+            $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false);
             return $missed_bookings;
     }
     
@@ -4616,10 +4616,11 @@ class Api extends CI_Controller {
         $where = array(
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
+                    "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
                     "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = -1)" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
-        $tommorow_bookings = $this->booking_model->get_booking_details($select, $where, true, true, true, false, false);
+        $tommorow_bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
         return $tommorow_bookings;
     }
     
@@ -4629,10 +4630,11 @@ class Api extends CI_Controller {
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
                     "booking_timeslot" => $slot,
+                    "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
                     "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0)" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
-        $bookings = $this->booking_model->get_booking_details($select, $where, true, true, true, false, false);
+        $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
         return $bookings;
     }
     
@@ -4643,7 +4645,7 @@ class Api extends CI_Controller {
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, "._247AROUND_CALLCENTER_NUMBER." as tech_support_number";
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due";
             $response['missedBooking'] = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -4680,7 +4682,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("booking_id" => "PB-16565919051532");
         if (!empty($requestData["booking_id"])) {
-            $response['suppot_numbers'] = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
+            $response = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
             log_message("info", __METHOD__ . "Tech Support Numbers Founded Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
