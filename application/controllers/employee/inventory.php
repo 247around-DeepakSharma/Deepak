@@ -2817,7 +2817,7 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
 
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id', $where);
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity', $where);
 
         if ($this->input->post('is_option_selected')) {
             $option = '<option selected disabled>Select Part Name</option>';
@@ -2826,7 +2826,7 @@ class Inventory extends CI_Controller {
         }
 
         foreach ($inventory_type as $value) {
-            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
             $option .=" > ";
             $option .= $value['part_name'] . "</option>";
         }

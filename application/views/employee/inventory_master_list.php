@@ -596,14 +596,13 @@
         if(form_data.type){
             
             get_part_type(form_data.service_id,"part_type", form_data.type);
-            $('#part_type option[value="'+form_data.type+'"]').attr('selected','selected'); 
+            $('#part_type option[value="'+form_data.type.toUpperCase()+'"]').attr('selected','selected'); 
             //$('.inventory_part_type').attr("id","part_type");
            // $("#part_type").html("<option value='"+form_data.type+"' selected=''>"+form_data.type+"</option>"); 
         }
-               
+              
         $('#part_name').val(form_data.part_name);
         $('#part_number').val(form_data.part_number);
-       // $('#serial_number').val(form_data.serial_number);
         $('#entity_type').val(form_data.entity_type);
         $('#size').val(form_data.size);
         $('#price').val(JSON.parse(form_data.price));
