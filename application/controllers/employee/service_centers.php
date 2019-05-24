@@ -6014,6 +6014,10 @@ class Service_centers extends CI_Controller {
     }
     function get_booking_contacts($bookingID){
         $data = $this->miscelleneous->get_booking_contacts($bookingID);
+        if(empty($data)) {
+            $state_check = 0;
+            $data = $this->miscelleneous->get_booking_contacts($bookingID,$state_check);
+        }
         echo json_encode($data);
     }
     function process_booking_internal_conversation_email(){
