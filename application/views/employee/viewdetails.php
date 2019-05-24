@@ -584,7 +584,7 @@
                                         <th >Current Status</th>
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
-                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG) || ( $sp['part_warranty_status'] == 2)){ } else{ ?>
                                         <th>Copy Booking Id</th>
                                         <?php  } ?>
                                     </tr>
@@ -626,7 +626,7 @@
                                         <td><?php echo $sp['status']; ?></td>
 
 
-                                     <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                     <?php if($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
                                                 <form id="move_to_update_spare_parts">
@@ -643,9 +643,7 @@
                                            <td></td>   
                                          <?php } } ?>
 
-
-
-                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
+                                        <?php if($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
                                                 <form id="move_to_update_spare_parts">
@@ -660,7 +658,7 @@
                                            <td></td>   
                                          <?php } } ?>
                                        
-                                       <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2 )){ } else{ ?>
+                                       <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG )){ } else{ ?>
                                         <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
