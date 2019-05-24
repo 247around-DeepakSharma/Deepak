@@ -4924,6 +4924,9 @@ class Inventory extends CI_Controller {
             $row[] = "<a href='" . base_url() . "employee/inventory/get_inventory_by_model/" . urlencode($model_list->id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
         }
 
+
+         $row[] = "<button class='btn btn-primary btn-sm' data='" . $json_data . "' onclick='edit_mapped_model(this)'>Edit</button>";
+
         return $row;
     }
 
@@ -4984,6 +4987,7 @@ class Inventory extends CI_Controller {
             $response = $this->inventory_model->insert_appliance_model_data($data);
             if (!empty($response)) {
                 $res['response'] = 'success';
+                $res['id'] =$response;
                 $res['msg'] = 'Model Number Inserted Successfully';
                 log_message("info", __METHOD__ . ' Inventory added successfully');
             } else {
@@ -5895,10 +5899,14 @@ class Inventory extends CI_Controller {
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
         $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
-        $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'));
+     //   $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'));
+        if ($this->input->post('service_id') && $this->input->post('service_id') !== 'all') {
+            //$post['where']['appliance_model_details.service_id'] = $this->input->post('service_id');
+            $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'),'partner_appliance_details.service_id'=>$this->input->post('service_id'));
+        }
+
         $post['join'] = array(
-            "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model",
-            "services" => "services.id = partner_appliance_details.service_id"
+            "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model","services" => "services.id = partner_appliance_details.service_id"
         );
         $post['joinType'] = array("services" => "INNER", "appliance_model_details" => "LEFT");
         $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number, partner_appliance_details.active";
@@ -5922,15 +5930,23 @@ class Inventory extends CI_Controller {
 
     function get_partner_mapped_model_table($model_list, $no, $source) {
         $row = array();
-        $json = json_encode(array("map_id" => $model_list->tid, "model" => $model_list->model_id, "service" => $model_list->service_id, "brand" => $model_list->brand, "category" => $model_list->category, "capacity" => $model_list->capacity, "model_number" => $model_list->model_number));
+        $json = json_encode(array("map_id" => $model_list->tid, "model" => $model_list->model_id, "service" => $model_list->service_id, "brand" => $model_list->brand, "category" => $model_list->category, "capacity" => $model_list->capacity, "model_number" => $model_list->model_number,"services"=>$model_list->services));
         $row[] = $no;
-        $row[] = $model_list->model_number;
         $row[] = $model_list->services;
+        if(!empty($model_list->model_number)){
+            if ($this->session->userdata('userType') == 'service_center') {
+            $row[] = $model_list->model_number; 
+            } else {
+             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
+             padding-left: 10px;' id='edit_appliance_model_details' data-id='$json' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+           }  
+        }else{
+           $row[] = "<span>Not Available</span>"; 
+        }
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
         $row[] = $model_list->capacity;
-
-        if ($source == "admin_crm") {
+      if ($source == "admin_crm") {
             if ($model_list->active == 1) {
                 $row[] = "<button class='btn btn-warning btn-sm' onclick='update_mapping_status(" . $model_list->active . ", " . $model_list->tid . ")'>Active</button>";
             } else {
@@ -5946,6 +5962,17 @@ class Inventory extends CI_Controller {
             }
             $row[] = "<button class='btn btn-primary btn-sm' data='" . $json . "' onclick='edit_mapped_model(this)'>Edit</button>";
         }
+
+        if(!empty($model_list->model_id)){
+            if ($this->session->userdata('userType') == 'service_center') {
+            $row[] = "<a href='" . base_url() . "service_center/inventory/inventory_list_by_model/" . urlencode($model_list->model_id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+            } else {
+            $row[] = "<a href='" . base_url() . "employee/inventory/get_inventory_by_model/" . urlencode($model_list->model_id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+           }  
+        }else{
+           $row[] = "<span>Not Available</span>"; 
+        }
+
         return $row;
     }
 
@@ -5985,6 +6012,51 @@ class Inventory extends CI_Controller {
             $return['status'] = false;
             $return['message'] = "Model Number Mapping Already Exist";
         }
+        echo json_encode($return);
+    }
+
+
+
+       /**
+     *  @desc : This function is used to update mapping model number
+     *  @param : $service_id, $brand, $category, $capacity, $model
+     *  @return : array
+     */
+    function add_model_number_mapping() {
+        $return = array();
+
+            $aplliance_model_where = array(
+            'service_id' => $this->input->post("service_id"),
+            'model_number' => trim($this->input->post('model')),
+            'entity_type' => 'partner',
+            'entity_id' => $this->input->post('entity_id'),
+        );
+            $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+            if (empty($model_detail)) {
+
+            $data = array('service_id' => $this->input->post('service_id'),
+                'model_number' => trim($this->input->post('model')),
+                'entity_id' => $this->input->post('entity_id'),
+                'entity_type' => $this->input->post('entity_type')
+            );
+           $resp = $this->add_appliance_model_data($data);     
+           $details = array(
+           "partner_id" => $this->input->post("partner_id"),
+           "service_id" => $this->input->post("service_id"),
+           "brand" => $this->input->post("brand"),
+           "category" => $this->input->post("category"),
+           "capacity" => $this->input->post("capacity"),
+           "model" => $resp['id'],
+           );
+            $this->partner_model->insert_partner_appliance_detail($details);
+            $return['status'] = true;
+            $return['message'] = "Model Number Added And  Mapping Successfully";
+            }else{
+            $return['status'] = false;
+            $return['message'] = "Model Number Mapping Already Exist";
+            }
+
+      
         echo json_encode($return);
     }
 
