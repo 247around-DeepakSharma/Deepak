@@ -191,7 +191,8 @@
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Part Warranty Status</label>
                                         <div class="col-md-6">
-                                            <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
+                                            <input type="text" class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" readonly="readonly" >
+                                            <input type="hidden" class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo SPARE_PART_IN_WARRANTY_STATUS; } else { echo SPARE_PART_IN_OUT_OF_WARRANTY_STATUS; } ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
                                         </div>
                                     </div>
                                     <div class="form-group <?php
