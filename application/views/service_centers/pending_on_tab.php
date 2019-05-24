@@ -760,8 +760,12 @@
                             }
                             else{
                                 var result = JSON.parse(response);
+                                var am_email='';
+                                for(var i=0;i<result.length;i++) {
+                                    am_email += result[i].am_email+",";
+                                }
                                 $("#internal_email_booking_vendor").val(result[0].assigned_vendor_id);
-                                $("#internal_email_booking_to").val(result[0].am_email+",");
+                                $("#internal_email_booking_to").val(am_email);
                                 $("#internal_email_booking_cc").val(result[0].service_center_email);
                                 $("#internal_email_booking_subject").val(result[0].partner+"- Query From SF For - "+bookingID);
                             }
@@ -809,7 +813,7 @@
     function create_booking_contacts(response,partner_id){
         var data="";
         var result = JSON.parse(response);
-        if(partner_id == '<?php echo VIDEOCON_ID ?>'){
+        /*if(partner_id == '<?php echo VIDEOCON_ID ?>'){
             data =data +  "<tr><td>1) </td><td>247around Account Manager <br>(Gujarat, Rest of maharashtra)</td><td> Adil Akhtar</td><td>9205732247</td></tr>";
             data =data +  "<tr><td>2) </td><td>247around Account Manager <br>(Tamil Nadu, Andhra Pradesh, Uttar Pradesh, Uttarakhand, Kerala, Orissa, West Bengal, Jharkhand)</td><td> Amit Tyagi</td><td>7303653247</td></tr>";
             data =data +  "<tr><td>3) </td><td>247around Account Manager <br>(Delhi, Haryana, Punjab, J&K, Madhya Pradesh, Karnataka)</td><td> Sakshi</td><td>9810948247</td></tr>";
@@ -818,25 +822,32 @@
         else{
             data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
             data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }*/
+        if(result.length > 0) {
+            var j;
+            for(var i=0;i<result.length;i++) {j=i+1;
+                data =data +  "<tr><td>"+j+") </td><td>247around Account Manager <br>("+result[i].am_state+")</td><td>"+result[i].am+"</td><td>"+result[i].am_caontact+"</td></tr>";
+            }
+            data =data +  "<tr><td>"+(++j)+") </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+            var tb="<table class='table  table-bordered table-condensed ' >";
+            tb+='<thead>';
+            tb+='<tr>';
+            tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+            tb+='<th class="jumbotron col-md-6">Role</th>';
+            tb+='<th class="jumbotron  col-md-5">Name</th>';
+            tb+='<th class="jumbotron  col-md-5">Contact</th>';
+            tb+='</tr>';
+            tb+='</thead>';
+            tb+='<tbody>';
+            tb+=data;
+            tb+='</tbody>';
+            tb+='</table>';
+            $("#relevant_content_modal .modal-body").html(tb);
+            $('#relevant_content_table').DataTable();
+            $('#relevant_content_table  th').css("background-color","#ECEFF1");
+            $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+            $("#relevant_content_modal").modal("show");
         }
-        var tb="<table class='table  table-bordered table-condensed ' >";
-        tb+='<thead>';
-        tb+='<tr>';
-        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
-        tb+='<th class="jumbotron col-md-6">Role</th>';
-        tb+='<th class="jumbotron  col-md-5">Name</th>';
-        tb+='<th class="jumbotron  col-md-5">Contact</th>';
-        tb+='</tr>';
-        tb+='</thead>';
-        tb+='<tbody>';
-        tb+=data;
-        tb+='</tbody>';
-        tb+='</table>';
-        $("#relevant_content_modal .modal-body").html(tb);
-        $('#relevant_content_table').DataTable();
-        $('#relevant_content_table  th').css("background-color","#ECEFF1");
-        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
-        $("#relevant_content_modal").modal("show");
     }
     
     $(document).ready(function(){
