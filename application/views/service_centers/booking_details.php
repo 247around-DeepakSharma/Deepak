@@ -349,6 +349,8 @@
                                 <th >Original Requested Parts </th>
                                 <th >Final Requested Parts </th>
                                 <th >Requested Parts Type</th>
+                                <th >Requested Quantity</th>
+                                <th >Shipped Quantity</th>
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -367,6 +369,8 @@
                                 <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
+                                <td><?php echo $sp['quantity']; ?></td>
+                                 <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }

@@ -1,4 +1,3 @@
-<?php if(!empty($booking_history)) { ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -98,7 +97,7 @@
                             <td><?php echo $booking_history[0]['name']; ?></td>
                             <th>Mobile </th>
                             <td>
-                                <?php if($c2c){ ?>
+                                <?php if($c2c){   ?>
                                      <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>)"><?php echo $booking_history[0]['booking_primary_contact_no']; ?></a>
                                     <?php if(!empty($booking_history[0]['booking_alternate_contact_no'])) { ?> 
                                     / <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_alternate_contact_no'] ?>)"><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></a>   
@@ -172,7 +171,7 @@
                         </tr>
                         <tr>
                             <th>Rating Stars </th>
-                            <td><?php echo $booking_history[0]['rating_stars']; ?></td>
+                            <td><?php  echo $booking_history[0]['rating_stars']; ?></td>
                             <th >Rating Comments </th>
                             <td style="max-width:200px;"><?php echo $booking_history[0]['rating_comments']; ?></td>
                         </tr>
@@ -242,6 +241,7 @@
                             $count = count($booking_files);
                         foreach($booking_files as $key => $files) { ?>
                         <tr class="uploaded_support_file">
+ 
                             <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
@@ -282,6 +282,9 @@
                             </td>
                         </tr>
                     </table>
+                    <?php  } ?>
+ 
+ 
                     <table class="table  table-striped table-bordered" >
                         <tr>
                             <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
@@ -325,7 +328,7 @@
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
                             </tr>
-                            </thead
+                            </thead>
                         <tbody>
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
@@ -378,7 +381,7 @@
                                         <br/>
                                         <div id="dvMap" style=" height: 200px">
                                         </div>
-                                        </div
+                                        </div>
                                 </td>
                             </tr>
                            
@@ -540,7 +543,7 @@
                                             $sf_upcountry_charges);?>
                                     </td>
                                 </tr>
-                                    <?php } ?>
+                                    <?php   } ?>
                             </tbody>
                         </table>
                         <?php } ?>
@@ -572,7 +575,9 @@
                                         <th >Model Number </th>
                                         <th> Original Requested Parts </th>
                                         <th> Final Requested Parts </th>
-                                        <th> Parts Type </th>                                        
+                                        <th> Parts Type </th>    
+                                        <th>Requested Quantity </th>
+                                        <th>Shipped Quantity </th>
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
@@ -596,7 +601,9 @@
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>                                        
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
+                                        <td><?php echo $sp['quantity']; ?></td> 
+                                        <td><?php echo $sp['shipped_quantity']; ?></td> 
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -636,6 +643,7 @@
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
 
                                                     <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
+
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
                                                  </form>
                                             </td>
@@ -818,7 +826,7 @@
                                         }
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                            <span id="<?php echo "awb_loader_".$sp['awb_by_sf'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
@@ -1672,7 +1680,7 @@ function sf_tab_active(){
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
 //         $.ajax({
 //             method:'GET',
-//             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/<?php echo $booking_history[0]['dealer_id']?>',
+//             url:'<?php //echo base_url(); ?>employee/dealers/get_dealer_data/<?php //echo $booking_history[0]['dealer_id']?>',
 //             success:function(response){
 //                 obj = JSON.parse(response);
 //                 console.log(obj);

@@ -135,6 +135,14 @@
                                             <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
                                         </div>
                                     </div>
+                                    
+                                   <div class="form-group ">
+                                        <label for="parts_name" class="col-md-4">Requested Quantity</label>
+                                        <div class="col-md-6">
+                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"   value="<?php echo $value->quantity; ?>"   readonly="readonly" required /> 
+                                        </div>
+                                    </div>
+                                                                        
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
                                     <div class="form-group <?php
                                         if (form_error('incoming_invoice')) { echo 'has-error';} ?>">
@@ -215,6 +223,18 @@
                                         </div>
                                     </div>
                                     <?php } ?>
+                                    
+                                    
+                                    
+                                   <div class="form-group ">
+                                        <label for="parts_name" class="col-md-4">Shipped Quantity</label>
+                                        <div class="col-md-6">
+                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>" readonly="readonly"  required  />
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    
                                     <div class="form-group">
                                         <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
