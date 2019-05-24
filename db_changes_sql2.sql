@@ -13,3 +13,11 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer has  Wrong Pincode ', 'vendor', '1');
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
+
+--Kajal 23/5/2019 starting --
+insert into `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) 
+values(247001, 'partner_on_state_appliance',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+insert into agent_filters(entity_type,entity_id,contact_person_id,agent_id,state) 
+SELECT '247around',id, 0,account_manager_id,state FROM `partners` where account_manager_id is not NULL;
+--Kajal 23/5/2019 ending --

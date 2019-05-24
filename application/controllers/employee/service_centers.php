@@ -805,12 +805,19 @@ class Service_centers extends CI_Controller {
                     $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
                 }
             }
+            $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+            $JoinTypeTableArray['service_centres'] = 'left';
+            $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
             
-            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+            //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,0,1,"partners.id");
+            
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
 
-                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
 //        $sid = $this->session->userdata('service_center_id');
 //        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($sid);
@@ -1145,12 +1152,20 @@ class Service_centers extends CI_Controller {
         if (!empty($email_template)) {
 
             $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
-            $get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
+            $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+            $JoinTypeTableArray['service_centres'] = 'left';
+            $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+
+            //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
-            }
 
+                //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            }
+            
             $to = $rm_email.",".$am_email;
             $cc = $email_template[3];
             $bcc = $email_template[5];
@@ -1708,8 +1723,9 @@ class Service_centers extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $entity_type = $this->input->post('entity_type');
+        $booking_partner_id = $this->input->post('booking_partner_id');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
-        $current_inventory_id = $this->input->post('current_inventory_id');
+        $data['requested_inventory_id']= $current_inventory_id = $this->input->post('current_inventory_id');
         $booking_id = $this->input->post('booking_id');     
         
         $change_inventory_id = '';
@@ -2102,7 +2118,9 @@ class Service_centers extends CI_Controller {
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['challan_approx_value'] = $warehouse_details['estimate_cost'];
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
-                            $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                            }
                             if (!empty($warehouse_details['inventory_id'])) {
                                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             }
@@ -2300,11 +2318,18 @@ class Service_centers extends CI_Controller {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
             if (!empty($email_template)) {
+                $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+                $JoinTypeTableArray['service_centres'] = 'left';
+                $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $data['booking_id']),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
 
-                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $this->input->post('partner_id'), 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                
                 $am_email = "";
                 if (!empty($get_partner_details[0]['account_manager_id'])) {
-                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
                 }
 
                 $this->load->library('table');
@@ -4667,6 +4692,7 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post("partner_id");      
             if(!empty($sp_data)){
                 $flag = TRUE;
+                $next_action = '';
                 foreach ($sp_data as $key => $value){
                     if ($value->entity_type == _247AROUND_SF_STRING) {
                         $select = "(stock - pending_request_count) as actual_stock";                      
