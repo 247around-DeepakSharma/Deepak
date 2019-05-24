@@ -10908,7 +10908,7 @@ UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Ca
 
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. For Support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "upcountry_add_new_booking";
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
-
+ 
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
  
 --Kalyani 15-May-2019
@@ -10917,6 +10917,7 @@ UPDATE `sms_template` SET `template` = 'Request of your free %s for %s is placed
 UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_oow_spare_parts_customer_tag";
 UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
+ 
 UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
  
 

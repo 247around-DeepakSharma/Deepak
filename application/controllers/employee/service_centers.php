@@ -1162,10 +1162,9 @@ class Service_centers extends CI_Controller {
                         array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             }
-            
+ 
             $to = $rm_email.",".$am_email;
             $cc = $email_template[3];
             $bcc = $email_template[5];
@@ -6680,7 +6679,7 @@ class Service_centers extends CI_Controller {
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
     
- 
+
     /**
      * @desc function change password of service center entity.
      * @author Ankit Rajvanshi

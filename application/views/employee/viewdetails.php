@@ -242,6 +242,7 @@
                             $count = count($booking_files);
                         foreach($booking_files as $key => $files) { ?>
                         <tr class="uploaded_support_file">
+ 
                             <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
                             <td style="width: 50%;">
                                 <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
@@ -640,6 +641,7 @@
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
 
                                                     <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
+
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
                                                  </form>
                                             </td>
