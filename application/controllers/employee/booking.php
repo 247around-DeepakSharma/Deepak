@@ -5248,7 +5248,7 @@ class Booking extends CI_Controller {
         }
     }
     function review_rescheduled_bookings($is_tab = 0){
-      $whereIN = array();
+      $whereIN = $where = $join = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
