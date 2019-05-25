@@ -665,7 +665,7 @@ class Service_centers extends CI_Controller {
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
-                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contatct to 247Around Team");
+                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contact to 247Around Team");
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
