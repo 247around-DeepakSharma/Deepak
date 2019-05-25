@@ -124,3 +124,4 @@ define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
 define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
 //Pre Sale Repair Tag
 define('PRESALE_REPAIR_TAG', 'Presale Repair');
+define('WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS', "Warehouse acknowledged to receive MSL");
