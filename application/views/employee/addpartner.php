@@ -3439,7 +3439,7 @@
     
     $("button.remove1").on("click", remove1);
     
-    var cloneIndexMapping = $(".clonedInputMapping").length +1;console.log(cloneIndexMapping);
+    var cloneIndexMapping = $(".clonedInputMapping").length +1;
     
     function clone2(){
        $(this).parents(".clonedInputMapping").clone()
