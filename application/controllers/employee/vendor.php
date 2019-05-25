@@ -1851,7 +1851,8 @@ class vendor extends CI_Controller {
     function process_add_engineer() {
         $data = array();
         $data_identity = array();
-        $engineer_form_validation = $this->engineer_form_validation();
+        //$engineer_form_validation = $this->engineer_form_validation();
+        $engineer_form_validation = true;
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
@@ -1963,9 +1964,9 @@ class vendor extends CI_Controller {
      * 
      */
     function process_edit_engineer() { 
-        $engineer_form_validation = $this->engineer_form_validation();
+        //$engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
-        if ($engineer_form_validation) {
+        if ($engineer_id) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
                 $data['name'] = $this->input->post('name');
