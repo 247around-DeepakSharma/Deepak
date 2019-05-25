@@ -3354,9 +3354,21 @@ class Inventory extends CI_Controller {
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
+                
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
-                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                    $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                            
+                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                        }
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
@@ -3389,6 +3401,8 @@ class Inventory extends CI_Controller {
                                 $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
                                 $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
                                 $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                                $data['status'] = SPARE_PARTS_SHIPPED;
+                                $status = SPARE_PARTS_SHIPPED;
                             } else {
                                 $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                                 $data['defective_return_to_entity_id'] = $ledger['sender_entity_id'];
@@ -3400,9 +3414,22 @@ class Inventory extends CI_Controller {
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                 'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
+                            
+                            $status = SPARE_SHIPPED_TO_WAREHOUSE;
                         }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
-                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                        $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = $status;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                            
+                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                        }
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -3950,8 +3977,10 @@ class Inventory extends CI_Controller {
             'requested_inventory_id' => $data->inventory_id
         );
         $update['wh_ack_received_part'] = 1;
+        $status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
         if ($data->is_wh_micro == 2) {
             $update['status'] = SPARE_DELIVERED_TO_SF;
+            $status = SPARE_DELIVERED_TO_SF;
         }
         if (!empty($data->booking_id)) {
 
@@ -3959,13 +3988,25 @@ class Inventory extends CI_Controller {
             
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
+            
+            $actor = $next_action = NULL;
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $data->booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['internal_status'] = $status;
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+
+                $this->booking_model->update_booking($data->booking_id, $booking);
+            }
             log_message('info', __METHOD__ . " Booking ID updated " . $data->booking_id);
         } else {
             if ($data->is_wh_micro == 2) {
                 $where['service_center_id'] = $receiver_entity_id;
             }
 
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
             $qty = 1;
             if (!empty($spare)) {
                 foreach ($spare as $value) {
@@ -3974,6 +4015,18 @@ class Inventory extends CI_Controller {
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                         log_message('info', __METHOD__ . "Multi Booking Booking ID updated " . $data->booking_id . " requested inventory id " . $data->inventory_id);
                         $qty = $qty - 1;
+                        
+                        $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = $status;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+
+                            $this->booking_model->update_booking($data->booking_id, $booking);
+                        }
                     }
                 }
             }
@@ -3988,7 +4041,7 @@ class Inventory extends CI_Controller {
                 if ($data->is_wh_micro == 2) {
                     $where1['service_center_id'] = $receiver_entity_id;
                 }
-                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
                 if (!empty($spare)) {
                     $update['entity_type'] = _247AROUND_SF_STRING;
                     $update['partner_id'] = $receiver_entity_id;
@@ -3998,6 +4051,18 @@ class Inventory extends CI_Controller {
                             $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $update);
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                             $qty = $qty - 1;
+                            
+                            $actor = $next_action = NULL;
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['internal_status'] = $status;
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $actor = $booking['actor'] = $partner_status[2];
+                                $next_action = $booking['next_action'] = $partner_status[3];
+
+                                $this->booking_model->update_booking($data->booking_id, $booking);
+                            }
                         }
                     }
                 }

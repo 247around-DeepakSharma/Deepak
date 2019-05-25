@@ -664,7 +664,7 @@ class Service_centers extends CI_Controller {
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
-                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contatct to 247Around Team");
+                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contact to 247Around Team");
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
@@ -1947,16 +1947,16 @@ class Service_centers extends CI_Controller {
      * @return boolean
      */
     function checkvalidation_for_update_by_service_center() {
-	$this->checkUserSession();
-	$this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
-	$this->form_validation->set_rules('reason', 'Reason', 'trim|required');
-	$this->form_validation->set_rules('reason_text', 'reason_text', 'trim|');
-	if ($this->form_validation->run() == FALSE) {
+    $this->checkUserSession();
+    $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
+    $this->form_validation->set_rules('reason', 'Reason', 'trim|required');
+    $this->form_validation->set_rules('reason_text', 'reason_text', 'trim|');
+    if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__. " Service_center ID: ". $this->session->userdata('service_center_id'));
-	    return FALSE;
-	} else {
-	    return true;
-	}
+        return FALSE;
+    } else {
+        return true;
+    }
     }
     
     /**
@@ -3213,25 +3213,25 @@ function update_defective_parts($sp_id) {
     function show_brackets_list($page = "",$offset=""){
         $this->checkUserSession();
         if ($page == 0) {
-	    $page = 50;
-	}
-	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+        $page = 50;
+    }
+    // $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
    
-	$config['base_url'] = base_url() . 'employee/service_centers/show_brackets_list/'.$page;
-	$config['total_rows'] = $this->inventory_model->get_total_brackets_given_count($this->session->userdata('service_center_id'));
-	
-	if($offset != "All"){
-		$config['per_page'] = $page;
-	} else {
-		$config['per_page'] = $config['total_rows'];
-	}	
-	
-	$config['uri_segment'] = 5;
-	$config['first_link'] = 'First';
-	$config['last_link'] = 'Last';
+    $config['base_url'] = base_url() . 'employee/service_centers/show_brackets_list/'.$page;
+    $config['total_rows'] = $this->inventory_model->get_total_brackets_given_count($this->session->userdata('service_center_id'));
+    
+    if($offset != "All"){
+        $config['per_page'] = $page;
+    } else {
+        $config['per_page'] = $config['total_rows'];
+    }   
+    
+    $config['uri_segment'] = 5;
+    $config['first_link'] = 'First';
+    $config['last_link'] = 'Last';
 
-	$this->pagination->initialize($config);
-	$data['links'] = $this->pagination->create_links();
+    $this->pagination->initialize($config);
+    $data['links'] = $this->pagination->create_links();
         $data['Count'] = $config['total_rows'];        
         $data['brackets'] = $this->inventory_model->get_total_brackets_given($config['per_page'], $offset,$this->session->userdata('service_center_id'));
         //Getting name for order received from  to vendor
@@ -4322,13 +4322,13 @@ function update_defective_parts($sp_id) {
                 $select .= ", date(now()) As month";
             }else if ($i == 1) {
                 $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
+                AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+                AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
             }else if ($i == 2) {
                 $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
+                AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+                AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
             }
             
@@ -4352,11 +4352,11 @@ function update_defective_parts($sp_id) {
                 $select_in_transit .= ", date(now()) As month";
             }else if ($i == 1) {
                 $in_transit_date = "bb_order_details.order_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND bb_order_details.order_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                AND bb_order_details.order_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
                 $select_in_transit .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
             }else if ($i == 2) {
                 $in_transit_date = "bb_order_details.order_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND bb_order_details.order_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                AND bb_order_details.order_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
                 $select_in_transit .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
             }
             
