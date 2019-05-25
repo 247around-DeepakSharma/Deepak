@@ -56,6 +56,7 @@
                                     <th class="text-center">Part Request Age(Days)</th>
                                     <th class="text-center">Required Parts</th>
                                     <th class="text-center">Parts Number</th>
+                                    <th class="text-center">Quantity</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
@@ -304,7 +305,11 @@
                 data: {},
                 success: function (response) {
                      var result = JSON.parse(response);
-                    $("#internal_email_booking_to").val(result[0].am_email+",");
+                     var am_email='';
+                     for(var i=0;i<result.length;i++) {
+                         am_email += result[i].am_email+",";
+                     }
+                    $("#internal_email_booking_to").val(am_email);
                     $("#internal_email_booking_cc").val(result[0].rm_email+","+result[0].service_center_email);
                     $("#internal_email_booking_subject").val(result[0].partner+"- Query From Partner For - "+bookingID);
                }

@@ -106,21 +106,21 @@
     </div>
 </div>
 <script>
-    var time = moment().format('D-MMM-YYYY-H-i-s');
+    var time = moment().format('D-MMM-YYYY-H-mm-A');
     var model_name = $('#model_name').text();
     $('#inventory_part_and_model_mapping_table').DataTable({
         "dom": 'lBfrtip',
-        "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
+        "lengthMenu": [[50,100, -1], [50, 100,"All"]],
         "buttons": [
                 {
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0,1,2,3,4,5,6,7,8]
+                        columns: [ 0,1,2,3,4,5,6,7,8,9,10,11]
                     },
                     title: 'parts_used_in_model_'+model_name+time,
                          exportOptions: { 
-                         columns: [0,1,2,3,4,5,6,7,8],
+                         columns: [0,1,2,3,4,5,6,7,8,9,10,11],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -132,3 +132,9 @@
             ],
     });
 </script>
+<style>
+    .dataTables_length {
+    width: 100% !important;
+    float: left;
+}
+</style>

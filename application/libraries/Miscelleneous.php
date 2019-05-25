@@ -2035,13 +2035,18 @@ class Miscelleneous {
     /**
      * @desc Return Account Manager ID
      * @param int $partner_id
-     * @return Array
+     * @return Email ID
      */
     function get_am_data($partner_id) {
         $data = [];
-        $am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
+        /*$am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
         if (!empty($am_id)) {
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
+        }*/
+        $am_id = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                    array('partners.id' => trim($partner_id), 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+        if (!empty($am_id[0]['account_manager_id'])) {
+            $data = $this->My_CI->employee_model->getemployeeMailFromID($am_id[0]['account_manager_id']);
         }
         return $data;
     }
@@ -3085,16 +3090,24 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         if($bookingID){
+            $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+            $JoinTypeTableArray['service_centres'] = 'left';
+            $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+            
             $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
-            $partnerJoin["partners"] = "partners.id=booking_details.partner_id";
+            $partnerJoin["agent_filters"] = "agent_filters.entity_id=booking_details.partner_id";
             $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
             $join["employee"] = "employee.id=employee_relation.agent_id";
             $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
             $join["services"] = "services.id=booking_details.service_id";
-            $partnerJoin["employee"] = "employee.id=partners.account_manager_id";
+            $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
-            $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","employee.official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
+            
+            $where['agent_filters.entity_type'] = "247around";
+            $where['agent_filters.state'] = $booking_state[0]['state'];
+            
+            $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
             if(!empty($bookingData[0]['emp_id'])) {
                 $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups' => 'regionalmanager'));
             }
@@ -3160,11 +3173,13 @@ function generate_image($base64, $image_name,$directory){
      */
     function inform_partner_for_serial_no($booking_id, $sid, $partner_id, $serial_number, $pic_name) {
         log_message('info', __METHOD__ . " Enterring..");
-        $get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+        //$get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
+        $get_partner_details = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
-
-            $am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            //$am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+            $am_email = $this->My_CI->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
         }
 
         $email_template = $this->My_CI->booking_model->get_booking_email_template(INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
@@ -3293,17 +3308,30 @@ function generate_image($base64, $image_name,$directory){
         $data['email_from'] = $from;
         return $this->My_CI->reusable_model->insert_into_table("booking_internal_conversation",$data);
     }
-    function get_booking_contacts($bookingID){
+    function get_booking_contacts($bookingID,$state_check=1){
+        $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+        $JoinTypeTableArray['service_centres'] = 'left';
+        $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
         $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
+        $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-        $join['employee e'] = "e.id = partners.account_manager_id";
+        $join['employee e'] = "e.id = agent_filters.agent_id";
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
-        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        $where['agent_filters.entity_type'] = "247around";
+        if($state_check) {
+            $limitArray = array();
+            $where['agent_filters.state'] = $booking_state[0]['state'];
+        } else {
+            $limitArray['length'] = 1;
+            $limitArray['start'] = "";
+        }
+        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,$limitArray,NULL,NULL,NULL,"agent_filters.agent_id");
         return $data;
     }
     
@@ -4160,8 +4188,9 @@ function generate_image($base64, $image_name,$directory){
      * @param array $data
      * @param array $wh_on_of_data
      */
-    function create_micro_warehouse($data,$wh_on_of_data){
-        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id']), '*');
+    function create_micro_warehouse($data, $wh_on_of_data) {
+        $select = 'partners.id,micro_warehouse_state_mapping.state, micro_warehouse_state_mapping.micro_warehouse_charges';
+        $micro_wh_mapping_list = $this->My_CI->inventory_model->get_micro_wh_mapping_list(array('micro_warehouse_state_mapping.vendor_id' => $data['vendor_id'], 'partners.id' => $data['partner_id']), $select);
         if (empty($micro_wh_mapping_list)) {
             $this->My_CI->inventory_model->insert_query('micro_warehouse_state_mapping', $data);
             $this->My_CI->inventory_model->insert_query('warehouse_on_of_status', $wh_on_of_data);
@@ -4169,7 +4198,7 @@ function generate_image($base64, $image_name,$directory){
             $this->My_CI->vendor_model->edit_vendor($service_center, $data['vendor_id']);
         }
     }
-    
+
     /**
      * @desc: This is method return index key, if service caregory matches with given price tags
      * @param: Price tag and Array
@@ -4182,6 +4211,61 @@ function generate_image($base64, $image_name,$directory){
             }
         }
         return null;
+    }
+    /**
+     * @desc: This funtion is used to review bookings (All selected checkbox) which are
+     * completed/cancelled by our vendors.
+     * It completes/cancels these bookings in the background and returns immediately.
+     * @param : void
+     * @return : void
+     */
+    function checked_complete_review_booking($record) {
+        $requested_bookings = $record['approved_booking'];
+        
+        $agent_id = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $agent_name = !empty($this->My_CI->session->userdata('employee_id')) ? $this->My_CI->session->userdata('employee_id') : _247AROUND_DEFAULT_AGENT_NAME;
+        
+        if($requested_bookings){
+            $state_change_bookings = array();
+            $where['is_in_process'] = 0;
+            $whereIN['booking_id'] = $requested_bookings; 
+            $tempArray = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+            foreach($tempArray as $values){
+                $approved_booking[] = $values['booking_id'];
+                /* If bookings came from completion approval than we add extra state change in booking state change for closure team peformane graph*/
+                $booking_status = $this->My_CI->booking_model->getbooking_charges($values['booking_id']);
+                if(!empty($booking_status)){
+                    $actor = $next_action = 'NULL';
+                    if($booking_status[0]['internal_status'] == _247AROUND_COMPLETED){
+                       $new_state = _247AROUND_COMPLETED_APPROVED;
+                       $closing_remarks = "Booking completed approved by 247around";
+                       $this->My_CI->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $agent_id, $agent_name, $actor,$next_action,$record['approved_by']);
+                    }
+                    else{
+                        $new_state = _247AROUND_CANCELED_APPROVED;
+                        $closing_remarks = "Booking cancelled approved by 247around";
+                        $this->My_CI->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $agent_id, $agent_name, $actor,$next_action,$record['approved_by']);
+                    }
+                }
+                /*end*/
+            }
+            $inProcessBookings = array_diff($requested_bookings,$approved_booking);
+
+            $url = base_url() . "employee/do_background_process/complete_booking";
+            if (!empty($approved_booking)) {
+                $this->My_CI->booking_model->mark_booking_in_process($approved_booking);
+                $data['booking_id'] = $approved_booking;
+                $data['agent_id'] = $agent_id;
+                $data['agent_name'] = $agent_name;
+                $data['partner_id'] = $record['partner_id'];
+                $data['approved_by'] = $record['approved_by']; 
+                $this->My_CI->asynchronous_lib->do_background_process($url, $data);
+                $this->My_CI->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
+            } else {
+                //Logging
+                log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+            }
+        }
     }
     
 }

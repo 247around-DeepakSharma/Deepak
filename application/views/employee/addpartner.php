@@ -125,6 +125,7 @@
                         <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
+                        <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Partner AM Mapping</span></a></li>
                         <?php
                             }
                             else{
@@ -144,6 +145,7 @@
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
+                        <li><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Partner AM Mapping</span></a></li>
                         <?php
                             }
                         ?>
@@ -248,6 +250,107 @@
                                             <?php echo form_error('partner_type'); ?>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div style="margin-bottom: 25px;" class="form-group <?php if (form_error('state')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="state" class="col-md-4">State *</label>
+                                        <div class="col-md-8">
+                                            <select class="micro_warehouse_state form-control" name ="state" id="state" onChange="getDistrict()" >
+                                                <option disabled="disabled" selected="selected"> Select State</option>
+                                                <?php
+                                                    foreach ($results['select_state'] as $state) {
+                                                        ?>
+                                                <option value = "<?php echo $state['state'] ?>"
+                                                    <?php
+                                                        if (isset($query[0]['state'])) {
+                                                            if (strtolower(trim($query[0]['state'])) == strtolower(trim($state['state']))) {
+                                                                echo "selected";
+                                                            }
+                                                        }
+                                                        ?>
+                                                    >
+                                                    <?php echo $state['state']; ?>
+                                                </option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('state'); ?>
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom: 25px;" class="form-group <?php if (form_error('district')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="state" class="col-md-4">District *</label>
+                                        <div class="col-md-8">
+                                            <select class="district form-control" name ="district" id="district" onChange="getPincode()">
+                                                <option <?php if (isset($query[0]['district'])) {
+                                                    echo "selected";
+                                                    } ?>><?php if (isset($query[0]['district'])) {
+                                                    echo $query[0]['district'];
+                                                    } ?></option>
+                                            </select>
+                                            <?php echo form_error('district'); ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group " style="margin-bottom: 20px;">
+                                        <label for="state" class="col-md-4">Pincode</label>
+                                        <div class="col-md-8">
+                                            <select class="pincode form-control" name ="pincode"  id="pincode">
+                                                <option <?php if (isset($query[0]['pincode'])) {
+                                                    echo "selected";
+                                                    } ?>><?php if (isset($query[0]['pincode'])) {
+                                                    echo $query[0]['pincode'];
+                                                    } ?></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label for="partner_code" class="col-md-4">Partner Code</label>
+                                        <div class="col-md-8">
+                                            <select class="form-control" name ="partner_code"  id="partner_code">
+                                                <option value=""  selected="">Select Partner Code</option>
+                                                <?php
+                                                    //Checking for Edit Parnter
+                                                    if (isset($query[0]['id'])) {
+                                                        
+                                                        foreach ($results['all_partner_code'] as $code) {
+                                                            if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) { ?>
+                                                <option value="<?php echo $code; ?>" <?php
+                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                                                        echo "selected=''";
+                                                    }
+                                                    ?>><?php echo $code; ?></option>
+                                                <?php
+                                                    }
+                                                    }
+                                                    } else {// New Partner Addition
+                                                    foreach ($results['all_partner_code'] as $code) {
+                                                    if (!in_array($code, $results['partner_code'])) {
+                                                    ?>
+                                                <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
+                                                <?php
+                                                    }
+                                                    }
+                                                    }
+                                                    ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--<div style="margin-bottom: 31px;" class="form-group <?php if (form_error('account_manager_id')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label  for="account_manager" class="col-md-4">Account Managers </label>
+                                        <div class="col-md-8">
+                                            <select name="account_manager_id" class="form-control" id="account_manager" <?php echo ((strtolower($this->session->userdata('user_group')) !== 'admin')? 'disabled' :''); ?> >
+                                                <option selected disabled>Select Account Managers</option>
+                                                <?php foreach($employee_list as $employee){ ?>
+                                                <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('account_manager_id'); ?>
+                                        </div>
+                                    </div>-->
                                     <div class="form-group <?php
                                         if (form_error('company_type')) {
                                             echo 'has-error';
@@ -287,107 +390,6 @@
                                                     ?>>Private Ltd Company</option>
                                             </select>
                                             <?php echo form_error('company_type'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('state')) {
-                                        echo 'has-error';
-                                        } ?>">
-                                        <label for="state" class="col-md-4">State *</label>
-                                        <div class="col-md-8">
-                                            <select class="micro_warehouse_state form-control" name ="state" id="state" onChange="getDistrict()" >
-                                                <option disabled="disabled" selected="selected"> Select State</option>
-                                                <?php
-                                                    foreach ($results['select_state'] as $state) {
-                                                        ?>
-                                                <option value = "<?php echo $state['state'] ?>"
-                                                    <?php
-                                                        if (isset($query[0]['state'])) {
-                                                            if (strtolower(trim($query[0]['state'])) == strtolower(trim($state['state']))) {
-                                                                echo "selected";
-                                                            }
-                                                        }
-                                                        ?>
-                                                    >
-                                                    <?php echo $state['state']; ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('state'); ?>
-                                        </div>
-                                    </div>
-                                    <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('district')) {
-                                        echo 'has-error';
-                                        } ?>">
-                                        <label for="state" class="col-md-4">District *</label>
-                                        <div class="col-md-8">
-                                            <select class="district form-control" name ="district" id="district" onChange="getPincode()">
-                                                <option <?php if (isset($query[0]['district'])) {
-                                                    echo "selected";
-                                                    } ?>><?php if (isset($query[0]['district'])) {
-                                                    echo $query[0]['district'];
-                                                    } ?></option>
-                                            </select>
-                                            <?php echo form_error('district'); ?>
-                                        </div>
-                                    </div>
-                                    <div class="form-group " style="margin-bottom: 31px;">
-                                        <label for="state" class="col-md-4">Pincode</label>
-                                        <div class="col-md-8">
-                                            <select class="pincode form-control" name ="pincode"  id="pincode">
-                                                <option <?php if (isset($query[0]['pincode'])) {
-                                                    echo "selected";
-                                                    } ?>><?php if (isset($query[0]['pincode'])) {
-                                                    echo $query[0]['pincode'];
-                                                    } ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group " style="margin-bottom: 31px;">
-                                        <label for="partner_code" class="col-md-4">Partner Code</label>
-                                        <div class="col-md-8">
-                                            <select class="form-control" name ="partner_code"  id="partner_code">
-                                                <option value=""  selected="">Select Partner Code</option>
-                                                <?php
-                                                    //Checking for Edit Parnter
-                                                    if (isset($query[0]['id'])) {
-                                                        
-                                                        foreach ($results['all_partner_code'] as $code) {
-                                                            if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) { ?>
-                                                <option value="<?php echo $code; ?>" <?php
-                                                    if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
-                                                        echo "selected=''";
-                                                    }
-                                                    ?>><?php echo $code; ?></option>
-                                                <?php
-                                                    }
-                                                    }
-                                                    } else {// New Partner Addition
-                                                    foreach ($results['all_partner_code'] as $code) {
-                                                    if (!in_array($code, $results['partner_code'])) {
-                                                    ?>
-                                                <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
-                                                <?php
-                                                    }
-                                                    }
-                                                    }
-                                                    ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div style="margin-bottom: 31px;" class="form-group <?php if (form_error('account_manager_id')) {
-                                        echo 'has-error';
-                                        } ?>">
-                                        <label  for="account_manager" class="col-md-4">Account Managers </label>
-                                        <div class="col-md-8">
-                                            <select name="account_manager_id" class="form-control" id="account_manager" <?php echo ((strtolower($this->session->userdata('user_group')) !== 'admin')? 'disabled' :''); ?> >
-                                                <option selected disabled>Select Account Managers</option>
-                                                <?php foreach($employee_list as $employee){ ?>
-                                                <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['account_manager_id']) && ($query[0]['account_manager_id'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('account_manager_id'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -2723,7 +2725,134 @@
                         </div>
                     </div>
                 </div>
-        </div> 
+        </div>
+        <div class="clear"></div>
+            <div id="container_16" style="display:none;margin: 30px 10px;" class="form_container">
+                <button class="btn" onclick="show_partner_am_mapping()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Partner AM Mapping</button>
+                <form name="partner_am_mapping_form" class="form-horizontal" id ="partner_am_mapping_form" action="<?php echo base_url() ?>employee/partner/process_partner_am_mapping" method="POST" enctype="multipart/form-data" onsubmit="return process_partner_am_mapping_validations()" style="display:none;">
+                    <!--<input type="hidden" id="final_checkbox_value_holder" name="final_checkbox_value_holder" value="">-->
+                        <?php
+                        if(isset($query[0]['id'])){
+                            if($query[0]['id']){
+                            ?>
+                            <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                            <?php
+                            }
+                        }
+                        ?>
+
+                <div class="clonedInputMapping panel panel-info " id="clonedInput16">                      
+                    <div class="panel-heading" style=" background-color: #f5f5f5;">
+                        <p style="color: #000;"><b>Add Partner AM Mapping</b></p>
+                        <div class="clone_button_holder1" style="float:right;margin-top: -31px;">
+                            <button class="clone2 btn btn-sm btn-info">Add</button>
+                            <button class="remove2 btn btn-sm btn-info">Remove</button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group ">
+                                    <div class="col-md-6 form-group <?php if (form_error('am')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="am" class="col-md-4">Account Manager *</label>
+                                        <div class="col-md-6">
+                                            <div class="am_holder" id="am_holder_1">
+                                                <select class="form-control am" name="am[0]" id="am_1">
+                                                    <option selected disabled value="option_holder">Select Account Manager</option>
+                                                    <?php foreach($employee_list as $employee){ ?>
+                                                    <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['am']) && ($query[0]['am'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <?php echo form_error('am'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 form-group <?php if (form_error('am_state')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="state" class="col-md-4">State *</label>
+                                        <div class="col-md-6">
+                                            <div class="state_holder" id="state_holder_1">
+                                                <select class="form-control am_state" name="am_state[0][]" id="am_state_1" multiple="">
+                                                    <option value="all">All States</option>
+                                                    <?php
+                                                        foreach ($results['select_state'] as $state) {
+                                                            ?>
+                                                    <option value = "<?php echo $state['state'] ?>"
+                                                        <?php
+                                                            if (isset($query[0]['am_state'])) {
+                                                                if (strtolower(trim($query[0]['am_state'])) == strtolower(trim($state['state']))) {
+                                                                    echo "selected";
+                                                                }
+                                                            }
+                                                            ?>
+                                                        >
+                                                        <?php echo $state['state']; ?>
+                                                    </option>
+                                                    <?php } ?>
+                                                </select>
+                                                <?php echo form_error('am_state'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>   
+                </div>
+                <div class="cloned2"></div>
+                
+                <div class="form-group " style="text-align:center">
+                    <input type="submit" class="btn btn-primary" id="save_mapping" value="Submit">
+                </div>
+            </form>
+            <hr>
+            <?php
+                if(!empty($results['partner_am_mapping'])){
+                    ?>
+            <div id="exist_documents">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Account Manager</th>
+                            <th>State</th>
+                            <th>Active / Inactive <br>Mapping</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $index = 0;
+                                foreach($results['partner_am_mapping'] as $value){
+                                    $index ++;
+                                ?>
+                        <tr>
+                            <td><?php echo $index; ?></td>
+                            <td><?php echo $value['full_name'] ?></td>
+                            <td><?php echo $value['state'] ?></td>
+                            <td><?php if($value['is_active']) { ?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_mapping('<?php echo $value['id'] ?>','0','Deactivate')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
+                           <?php } else {?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_mapping('<?php echo $value['id'] ?>','1','Activate')"  value='' style="background: #468245;border: #468245; width: 79px;">Activate</button>
+                           <?php } ?>
+                            </td>
+                                <td>
+                                    <button type="button" class="btn btn-info btn-sm" onclick="create_edit_mapping_form('<?=$value['state']?>','<?=$value['full_name']?>',<?=$value['agent_id']?>,<?=$value['id']?>)" data-toggle="modal"  id="edit_button"><i class="fa fa-edit"></i></button>
+                                    </td>
+                        </tr>
+                        <tr>
+                            <?php
+                                }
+                                ?>
+                </table>
+            </div>
+            <?php
+                }
+                ?>
+        </div>
         <div class="clear"></div>
       </div>   
     </div>
@@ -2859,6 +2988,57 @@
     </div>
 </div>
 <!--Modal ends-->
+<!--Partner AM Mapping Modal -->
+<div id="myMappingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;margin: 0px;">
+                <button type="button" class="close btn-primary well" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Partner AM Mapping</h4>
+            </div>
+            <div class="modal-body">
+                <form name="edit_partner_am_mapping_form" action="<?php echo base_url().'employee/partner/edit_partner_am_mapping'?>" class="form-horizontal" id ="edit_partner_am_mapping_form" method="POST" enctype="multipart/form-data" onsubmit="return edit_partner_am_mapping_validations()">
+                    <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  ((isset($query[0]['id']))?$query[0]['id']:'')?> >
+                    <input type="hidden" id="mapping_id" name="mapping_id" >
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <div class="col-md-6">
+                                    <label for="am" class="col-md-4">Account&nbsp;Manager&nbsp;*</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" name="am1" id="am1">
+                                            <option selected disabled value="option_holder">Select Account Manager</option>
+                                            <?php foreach($employee_list as $employee){ ?>
+                                            <option value="<?php echo $employee['id']; ?>" ><?php echo $employee['full_name']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="state" class="col-md-4">State *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" name="state1" id="state1">
+                                            <option selected disabled value="option_holder">Select State</option>
+                                            <?php foreach ($results['select_state'] as $state) {    ?>
+                                            <option value = "<?php echo $state['state'] ?>"    ><?php echo $state['state']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class=" btn btn-success">Update</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Partner AM Mapping Modal ends-->
 <!-- warehouse modal start-->
 <div id="wh_edit_form_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -3258,6 +3438,49 @@
     $("button.clone1").on("click", clone1);
     
     $("button.remove1").on("click", remove1);
+    
+    var cloneIndexMapping = $(".clonedInputMapping").length +1;console.log(cloneIndexMapping);
+    
+    function clone2(){
+       $(this).parents(".clonedInputMapping").clone()
+           .appendTo(".cloned2")
+           .attr("id", "mapping" +  cloneIndexMapping)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndexMapping);
+               }
+           })
+            .on('click', 'button.clone2', clone2)
+            .on('click', 'button.remove2', remove2);
+            $('#state_holder_'+cloneIndexMapping+' .select2').hide();
+            $('#am_holder_'+cloneIndexMapping+' .select2').hide();
+            $('#am_state_'+cloneIndexMapping).select2({
+                 placeholder: "Select State",
+                 allowClear: true,
+             });
+            $('#am_'+cloneIndexMapping).select2({
+                 placeholder: "Select Account Manager",
+                 allowClear: true,
+             });
+             $('#am_'+cloneIndexMapping).attr('name','am['+(cloneIndexMapping-1)+']');
+             $('#am_state_'+cloneIndexMapping).attr('name','am_state['+(cloneIndexMapping-1)+'][]');
+             $("#select2-am_state_"+cloneIndexMapping+"-container").val("");
+             $("#select2-am_"+cloneIndexMapping+"-container").val("");
+       cloneIndexMapping++;
+       return false;
+    }  
+    function remove2(){
+       $(this).parents(".clonedInputMapping").remove();
+       return false;
+    }
+    $("button.clone2").on("click", clone2);
+    
+    $("button.remove2").on("click", remove2);
+    
      $(document).ready(function () {
     $('#contact_form').hide();
     $('#warehouse_form').hide();
@@ -3321,7 +3544,14 @@
     });
     $('#account_manager').select2({
         placeholder: "Select Account Managers"
-    }); 
+    });
+    $('.am, #am1').select2({
+        placeholder: "Select Account Manager"
+    });
+    $('.am_state, #state1').select2({
+        placeholder: "Select State",
+        allowClear: true
+    });
     $('#l_c_brands').select2({
         placeholder: "Select Brand",
         allowClear: true,
@@ -3972,6 +4202,32 @@
        }
        return true;
     }
+    function process_partner_am_mapping_validations (){
+        $('.am_state').each(function() {
+            var id = (this.id).split("_")[2];
+            am_state = $("#am_state_"+id).val();
+            am = $("#am_"+id).val();
+            if(am_state && am){ 
+               return true;
+            }
+            else{
+                alert('Please add all mandatory fields!!');
+                return false;
+            }
+        });
+        return true;
+    }
+    function edit_partner_am_mapping_validations(){
+        state1 = $("#state1").val();
+        am1 = $("#am1").val();
+        if(state1 && am1){ 
+             return true;
+        }
+        else{
+            alert('Please add all mandatory fields!');
+            return false;
+        }
+    }
     function edit_contact_persons_validations(){
            name = $("#contact_person_name").val();
            email = $("#contact_person_email").val();
@@ -4027,6 +4283,9 @@
     }
      function show_add_samplepic_form(){
        $('#sample_no_pic_form').toggle();
+    }
+    function show_partner_am_mapping(){
+       $('#partner_am_mapping_form').toggle();
     }
     $(".remove_add_bank").click(function(){
        $("#bank_name, #account_type, #account_number, #ifsc_code, #beneficiary_name, #BD_action").val(null);
@@ -4270,6 +4529,15 @@
             $("#login_checkbox_holder").val(false);
         }
         $("#myModal").modal("show");
+    }
+    
+    function create_edit_mapping_form(state,am,am_id,id){
+        $('#state1').find('option[value="'+state+'"]').attr("selected",true);
+        $('#select2-state1-container').text(state);
+        $('#am1').find('option[value="'+am_id+'"]').attr("selected",true);
+        $('#select2-am1-container').text(am);
+        $('#mapping_id').val(id);
+        $("#myMappingModal").modal("show");
     }
     
     function update_bank_detail(button, id){
@@ -4663,6 +4931,22 @@
                 success: function (data) {
                     alert(data);
                      location.reload();
+                }
+            });
+        }
+    }
+    function activate_deactive_mapping(id,action,status){
+        var cnfrm = confirm("Are you sure, you want to "+status+" this mapping ?");
+        if(!cnfrm){
+            return false;
+        }
+        if(id){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/activate_deactivate_mapping/'+id+'/'+action,
+                success: function (data) {
+                    alert(data);
+                    location.reload();
                 }
             });
         }

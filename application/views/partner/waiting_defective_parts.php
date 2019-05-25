@@ -42,7 +42,8 @@
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Customer Name</th>
                             <th class="text-center">Parts Shipped</th>
-                             <th class="text-center">Parts Number</th>
+                            <th class="text-center">Parts Number</th>
+                            <th class="text-center">Quantity</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">SF Challan</th>
@@ -167,7 +168,11 @@ function confirm_received(){
                 data: {},
                 success: function (response) {
                      var result = JSON.parse(response);
-                    $("#internal_email_booking_to").val(result[0].am_email+",");
+                     var am_email='';
+                     for(var i=0;i<result.length;i++) {
+                         am_email += result[i].am_email+",";
+                     }
+                    $("#internal_email_booking_to").val(am_email);
                     $("#internal_email_booking_cc").val(result[0].rm_email+","+result[0].service_center_email);
                     $("#internal_email_booking_subject").val(result[0].partner+"- Query From Partner For - "+bookingID);
                }

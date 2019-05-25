@@ -156,17 +156,41 @@
                                             <?php echo form_error('shipped_model_number'); ?>
                                         </div>
                                     </div>
-                                    <div class="form-group <?php
-                                        if (form_error('shipped_parts_name')) {
+                                    
+                                   <div class="form-group <?php
+                                        if (form_error('quantity')) {
                                             echo 'has-error';
                                         } ?>">
-                                        <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
+                                        <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="">
-                                                <!--                                        <option selected disabled >Select Part Name</option>-->
-                                            </select>
+                                            <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "quantity_".$skey;?>" name="part[<?php echo $skey;?>][quantity]" readonly="readonly" required />
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
-                                            <?php echo form_error('shipped_parts_name'); ?>
+                                            <?php echo form_error('quantity'); ?>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    
+                                    <div class="form-group <?php
+                                        if (form_error('shipped_part_type')) {
+                                            echo 'has-error';
+                                        } ?>">
+                                        <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
+                                        <div class="col-md-6">
+                                            <select onchange="change_shipped_part_type('<?php echo $skey;?>')" class="form-control spare_parts shipped_part_type" id="<?php echo "shippedparttype_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_part_type]" required="">
+                                                <option selected disabled>Select Part Type</option>
+                                            </select>
+                                            <?php echo form_error('shipped_part_type'); ?>
+                                        </div>
+                                    </div>
+
+ 
+                                    <div class="form-group <?php
+                                        if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
+                                        <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
+                                        <div class="col-md-6">
+                                            <textarea class="form-control" rows="3" id="<?php echo "remarks_".$skey; ?>" name="part[<?php echo $skey;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
+                                            <?php echo form_error('remarks_by_partner'); ?>
                                         </div>
                                     </div>
 
@@ -194,27 +218,35 @@
                                             <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
                                         </div>
                                     </div>
-                                    <div class="form-group <?php
-                                        if (form_error('shipped_part_type')) {
+                                    
+                                    
+                                   <div class="form-group <?php
+                                        if (form_error('quantity')) {
                                             echo 'has-error';
                                         } ?>">
-                                        <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
+                                        <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
-                                            <select onchange="change_shipped_part_type('<?php echo $skey;?>')" class="form-control spare_parts shipped_part_type" id="<?php echo "shippedparttype_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_part_type]" required="">
-                                                <option selected disabled>Select Part Type</option>
-                                            </select>
-                                            <?php echo form_error('shipped_part_type'); ?>
+                                            <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="readonly" required />
+                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
+                                            <?php echo form_error('quantity'); ?>
                                         </div>
                                     </div>
                                     
+                                                                        
                                     <div class="form-group <?php
-                                        if (form_error('remarks_by_partner')) { echo 'has-error'; } ?>">
-                                        <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
+                                        if (form_error('shipped_parts_name')) {
+                                            echo 'has-error';
+                                        } ?>">
+                                        <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
-                                            <textarea class="form-control" rows="3" id="<?php echo "remarks_".$skey; ?>" name="part[<?php echo $skey;?>][remarks_by_partner]" placeholder="Please Enter Remarks"  required></textarea>
-                                            <?php echo form_error('remarks_by_partner'); ?>
+                                            <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="">
+                                                <!--                                        <option selected disabled >Select Part Name</option>-->
+                                            </select>
+                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
+                                            <?php echo form_error('shipped_parts_name'); ?>
                                         </div>
                                     </div>
+ 
                                 </div>
                             </div>
                         </div>
@@ -260,6 +292,16 @@
                                             </div>
                                         </div>
                                         
+                                        
+                                        <div class="form-group ">
+                                            <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
+                                            <div class="col-md-6">
+                                                <input  class="form-control shippedquantity "  id="shippedquantity"  />
+                                              
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
+                                        </div>
+               
                                         <div class="form-group">
                                         <label for="shipped_parts_name" class="col-md-4"> Part In Warranty *</label>
                                         <div class="col-md-6">
@@ -271,6 +313,7 @@
                                         </div>
                                     </div>
                                         
+                                                                                                                                                           
                                     </div>
                                     <div class="col-md-5">
                                         <div class="form-group ">
@@ -284,12 +327,26 @@
                                                 <button type="button" class="btn btn-default pull-right removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
                                         </div>
+                                        
+                                        
+                                                                              
                                         <div class="form-group ">
+                                            <label for="quantity" class="col-md-4">Requested  Quantity *</label>
+                                            <div class="col-md-6">
+                                                <input  class="form-control quantity "  id="quantity"  />
+                                              
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
+                                        </div>.
+                                        
+                                        
+                                          <div class="form-group ">
                                             <label for="remarks_by_partner" class="col-md-4">Remarks *</label>
                                             <div class="col-md-6">
                                                 <textarea class="form-control" rows="3" id="remarks"  placeholder="Please Enter Remarks"  required></textarea>
                                             </div>
                                         </div>
+       
                                     </div>
                                 </div>
                             </div>
@@ -555,7 +612,9 @@
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
-                .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
+                .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','quantity'+partIndex).end()
+                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity'+partIndex).end()
+                .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','shippedquantity'+partIndex).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end()
                 .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id','part_warranty_status_'+partIndex).end();
         

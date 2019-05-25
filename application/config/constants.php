@@ -630,22 +630,26 @@ define("IFSC_CODE_VALIDATION_API_URL", "https://ifsc.razorpay.com/");
 define('INVENTORY_USER_GROUP', 'inventory_manager');
 
 define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Qualified Engineers on "247AROUND" App / On Phone - 9555000247 / On Website - www.247around.com');
-define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B2');
+define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
-define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'N27');
+define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
+
 
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'Wrong Pincode Entered');
-define('_247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON', 'Not Servicable in Your Area');
+define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
+
 
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
 define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
+//247around engineer string
+define('_247AROUND_ENGINEER_STRING','engineer');
 
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

@@ -29,7 +29,7 @@
                                         <?php } ?>
                                        <th class="text-center" data-orderable="false">Send Email</th> 
                                        <th class="text-center" data-orderable="false">Contacts</th> 
-                                       <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                       <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -146,7 +146,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -218,7 +218,7 @@
                                         <?php } ?>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
-                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -326,7 +326,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -394,7 +394,7 @@
                                         <th  class="text-center" >Escalation</th>
                                         <th class="text-center" data-orderable="false">Send Email</th> 
                                         <th class="text-center" data-orderable="false">Contacts</th>
-                                        <th class="text-center" data-orderable="false">Serviceable BOM</th>
+                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -498,7 +498,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -759,8 +759,12 @@
                             }
                             else{
                                 var result = JSON.parse(response);
+                                var am_email='';
+                                for(var i=0;i<result.length;i++) {
+                                    am_email += result[i].am_email+",";
+                                }
                                 $("#internal_email_booking_vendor").val(result[0].assigned_vendor_id);
-                                $("#internal_email_booking_to").val(result[0].am_email+",");
+                                $("#internal_email_booking_to").val(am_email);
                                 $("#internal_email_booking_cc").val(result[0].service_center_email);
                                 $("#internal_email_booking_subject").val(result[0].partner+"- Query From SF For - "+bookingID);
                             }
@@ -808,7 +812,7 @@
     function create_booking_contacts(response,partner_id){
         var data="";
         var result = JSON.parse(response);
-        if(partner_id == '<?php echo VIDEOCON_ID ?>'){
+        /*if(partner_id == '<?php echo VIDEOCON_ID ?>'){
             data =data +  "<tr><td>1) </td><td>247around Account Manager <br>(Gujarat, Rest of maharashtra)</td><td> Adil Akhtar</td><td>9205732247</td></tr>";
             data =data +  "<tr><td>2) </td><td>247around Account Manager <br>(Tamil Nadu, Andhra Pradesh, Uttar Pradesh, Uttarakhand, Kerala, Orissa, West Bengal, Jharkhand)</td><td> Amit Tyagi</td><td>7303653247</td></tr>";
             data =data +  "<tr><td>3) </td><td>247around Account Manager <br>(Delhi, Haryana, Punjab, J&K, Madhya Pradesh, Karnataka)</td><td> Sakshi</td><td>9810948247</td></tr>";
@@ -817,25 +821,32 @@
         else{
             data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
             data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+        }*/
+        if(result.length > 0) {
+            var j;
+            for(var i=0;i<result.length;i++) {j=i+1;
+                data =data +  "<tr><td>"+j+") </td><td>247around Account Manager <br>("+result[i].am_state+")</td><td>"+result[i].am+"</td><td>"+result[i].am_caontact+"</td></tr>";
+            }
+            data =data +  "<tr><td>"+(++j)+") </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+            var tb="<table class='table  table-bordered table-condensed ' >";
+            tb+='<thead>';
+            tb+='<tr>';
+            tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+            tb+='<th class="jumbotron col-md-6">Role</th>';
+            tb+='<th class="jumbotron  col-md-5">Name</th>';
+            tb+='<th class="jumbotron  col-md-5">Contact</th>';
+            tb+='</tr>';
+            tb+='</thead>';
+            tb+='<tbody>';
+            tb+=data;
+            tb+='</tbody>';
+            tb+='</table>';
+            $("#relevant_content_modal .modal-body").html(tb);
+            $('#relevant_content_table').DataTable();
+            $('#relevant_content_table  th').css("background-color","#ECEFF1");
+            $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+            $("#relevant_content_modal").modal("show");
         }
-        var tb="<table class='table  table-bordered table-condensed ' >";
-        tb+='<thead>';
-        tb+='<tr>';
-        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
-        tb+='<th class="jumbotron col-md-6">Role</th>';
-        tb+='<th class="jumbotron  col-md-5">Name</th>';
-        tb+='<th class="jumbotron  col-md-5">Contact</th>';
-        tb+='</tr>';
-        tb+='</thead>';
-        tb+='<tbody>';
-        tb+=data;
-        tb+='</tbody>';
-        tb+='</table>';
-        $("#relevant_content_modal .modal-body").html(tb);
-        $('#relevant_content_table').DataTable();
-        $('#relevant_content_table  th').css("background-color","#ECEFF1");
-        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
-        $("#relevant_content_modal").modal("show");
     }
     
     function getBookingEngineers(){

@@ -238,14 +238,22 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="quantity" class="col-md-4">Quantity *</label>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">                                
+                                   <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" >
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -326,14 +334,24 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
+                                                <label for="quantity" class="col-md-4">Quantity *</label>
+                                                <div class="col-md-6">
+                                                    <input type="text" class="form-control  spare_parts" id="quantity" >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        
+                                        
+                                     <div class="col-md-6">
+                                            <div class="form-group">
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -795,7 +813,7 @@ function alpha(e) {
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
-                        //.find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Part Wrranty Status'}).end()
+                        .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).select2({placeholder:'Enter Quantity'}).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
                 
@@ -806,7 +824,7 @@ function alpha(e) {
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
-                   //.find('[id="spare_request_symptom"]').attr('name', 'part[' + partIndex + '][spare_request_symptom]').addClass('spare_request_symptom').attr('id','spare_request_symptom_'+partIndex).attr("required", true).end()
+                   .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                    .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
@@ -822,7 +840,6 @@ function alpha(e) {
                 $("#remove_section_"+partIndex).show();
             $row.remove();
         });
-        
     function get_inventory_id(id){       
         var inventory_id =$("#"+id).find('option:selected').attr("data-inventory"); 
         var str_arr =id.split("_");
@@ -841,6 +858,21 @@ function alpha(e) {
         }
         
     }
+    
+
+     $(document).on('keyup', ".quantity", function()
+       {
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        indexId = str_arr[2]; 
+        var val = $(this).val();
+        var max = $("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity");
+        if(val>max){
+         $(this).val("1");
+         alert("Please enter less than or equal to  " +max);
+        } 
+       });
+    
     
     $(document).ready(function(){
         var service_id = "<?php echo $bookinghistory[0]['service_id']; ?>";

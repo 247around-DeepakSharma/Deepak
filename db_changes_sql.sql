@@ -10908,17 +10908,18 @@ UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. Ca
 
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed and will be completed in 3 working days. ID %s. For Support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "upcountry_add_new_booking";
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
-
+ 
 UPDATE `sms_template` SET `template` = 'Your %s %s is confirmed on %s, ID %s. For support call %s. 247Around, %s Service Partner. Download Jobcard %s' WHERE `sms_template`.`tag` = "add_new_booking";
-
+ 
 --Kalyani 15-May-2019
 UPDATE `sms_template` SET `template` = 'Your booking is assigned to 247around service center. Engineer will visit in the time slot. Queries? Call %s.' WHERE `sms_template`.`tag` = "service_centre_assigned";
 UPDATE `sms_template` SET `template` = 'Request of your free %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_in_warranty_spare_parts_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of your payable %s for %s is placed. You will get SMS on delivery. 247around, %s.' WHERE `sms_template`.`tag` = "sms_oow_spare_parts_customer_tag";
 UPDATE `sms_template` SET `template` = 'Expected delivery of %s, %s is today. Engineer will visit in time slot. 247around %s.' WHERE `sms_template`.`tag` = "sms_delivered_customer_tag";
 UPDATE `sms_template` SET `template` = 'Request of %s for %s is placed. You’ll get SMS on delivery. Thanks, 247around, %s.' WHERE `sms_template`.`tag` = "sms_requested_customer_tag";
+ 
 UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
-
+ 
 
 --Ankit 20-May-2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
@@ -10932,16 +10933,28 @@ ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable
 --Abhay 08-04-2018
 INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`, `update_date`) VALUES (NULL, '247001', 'auto_approve_defective_parts_courier_charges', NULL, NULL, '0', '2019-05-08 12:54:01', '2019-05-08 12:54:01');
  
-('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40'); 
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> pincode is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
  
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40'); 
+ 
+('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
+ 
+ 
+UPDATE `sms_template` SET `template` = 'Reschedule request received for %s(%s) to %s. If reschedule is fake, give missed call @ 01140849136.' WHERE `sms_template`.`tag` = "rescheduled_confirmation_sms"; 
+
+ 
+ 
+----  Abhishek 10-05-2019
+
+ALTER TABLE `inventory_model_mapping` ADD `max_quantity` INT(11) NOT NULL DEFAULT '1' AFTER `model_number_id`;
+ALTER TABLE `spare_parts_details` ADD `quantity` INT(11) NOT NULL DEFAULT '1' AFTER `spare_request_symptom`;
+ALTER TABLE `spare_parts_details` ADD `shipped_quantity` INT(11) NOT NULL AFTER `quantity`;
+
+
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'wrong_pincode_enter','Customer Enter Incorrect Pincode %s', 'SF has marked wrong call area, Please reasign correct SF for booking ID %s, <br/>city is %s, <br/> Wrong pincode is %s,<br/>Correct Pincode  is %s', 'noreply@247around.com', '', '', '', '1', '2018-10-30 10:48:05');
 
 
 
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Wrong Pincode Entered', 'vendor', '1');
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'The Custoner has given wrong pincode', 'vendor', '1');
 
 ('247Around', 'Change Password', NULL, 'employee/user/change_password', 1, NULL, 'admin,callcenter,closure,developer,regionalmanager', 'right_nav', 1, '2019-05-17 08:03:40');
 
@@ -11027,3 +11040,7 @@ ALTER TABLE `booking_files`
 
 insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
 
+-- Ankit 25-May-2019
+INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES (NULL, 'SF Purchase Invoice', NULL, NULL, '1', CURRENT_TIMESTAMP);
+ALTER TABLE `service_centre_charges` ADD COLUMN purchase_invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
+ALTER TABLE service_center_booking_action ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;

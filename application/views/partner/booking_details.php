@@ -135,7 +135,6 @@
                                 <?php if(isset($booking_files) && !empty($booking_files)) { ?>
                                 <table class="table  table-striped table-bordered" >
                                     <tr>
- 
                                         <th colspan="2" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
                                     </tr>
                                     <tr>
@@ -146,15 +145,6 @@
                                     <tr>
                                         <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
                                         <td style="width: 50%;">
- 
-                                        <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
-                                    </tr>
-                                    <?php foreach($booking_files as $key => $files) { ?>
-                                    <tr>
-                                        <td style="width: 23%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
-                                        <th style="width: 21%;">File</th>
-                                        <td>
- 
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
                                             if (isset($files['file_name']) && !empty($files['file_name'])) {
@@ -319,6 +309,8 @@
                                                             <th >Original Requested Parts </th>
                                                             <th >Final Requested Parts </th>
                                                             <th >Requested Parts type </th>
+                                                            <th>Requested Quantity</th>
+                                                            <th>Shipped Quantity</th>
                                                             <th >Requested Date</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
@@ -337,7 +329,9 @@
                                                                 <td><?php echo $sp['model_number']; ?></td>
                                                                 <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
-                                                                <td><?php echo $sp['parts_requested_type']; ?></td>                                                                
+                                                                <td><?php echo $sp['parts_requested_type']; ?></td>       
+                                                                <td><?php echo $sp['quantity']; ?></td>  
+                                                                <td><?php echo $sp['shipped_quantity']; ?></td> 
                                                                 <td><?php echo $sp['create_date']; ?></td>
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {

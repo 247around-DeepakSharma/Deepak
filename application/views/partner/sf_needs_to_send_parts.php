@@ -42,7 +42,8 @@
                             <th class="text-center">Booking ID</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Spare Details</th>
-                            <th class="text-center">Parts Number</th>                            
+                            <th class="text-center">Parts Number</th>   
+                             <th class="text-center">Quantity</th> 
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Challan</th>

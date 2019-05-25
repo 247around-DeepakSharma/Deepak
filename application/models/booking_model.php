@@ -217,7 +217,7 @@ class Booking_model extends CI_Model {
      *  @return : array()
      */
     function get_missed_call_rating_not_taken_booking_data(){
-        $sql = "SELECT DISTINCT  u.name,rp.from_number,
+         $sql = "SELECT DISTINCT  u.name,rp.from_number,rp.create_date,
                  CASE rp.To WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'good_rating' WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'bad_rating' ELSE NULL END as "
@@ -231,8 +231,9 @@ class Booking_model extends CI_Model {
                 . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
                 . " AND rp.from_number = bd.booking_primary_contact_no "
                 . " AND u.user_id = bd.user_id "
-                . " AND rp.create_date >= bd.closed_date AND rating_unreachable_count < 3";
-        
+                . " AND rp.create_date >= bd.closed_date "
+                . "AND rating_unreachable_count < 3 "
+                 . "AND rp.To IN ('".GOOD_MISSED_CALL_RATING_NUMBER."','".POOR_MISSED_CALL_RATING_NUMBER."')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -1377,7 +1378,7 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: void
      */
-    function review_reschedule_bookings_request($whereIN=array()){
+    function review_reschedule_bookings_request($whereIN=array(), $where=array(), $join=array()){
         $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
@@ -1389,11 +1390,19 @@ class Booking_model extends CI_Model {
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->where('service_center_booking_action.internal_status', "Reschedule");
-         if(!empty($whereIN)){
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
                      $this->db->where_in($fieldName, $conditionArray);
              }
-         }
+        }
+        if (!empty($join)) {
+            foreach($join as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
         $query = $this->db->get();
         $result = $query->result_array();
         return $result;
@@ -2128,7 +2137,7 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$partnerIDArray = array(),$is_download=0,$is_spare=NULL) {
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2136,10 +2145,10 @@ class Booking_model extends CI_Model {
         if($sfIDArray){
             $this->db->where_in('booking_details.assigned_vendor_id', $sfIDArray);
         }
-        if($partnerIDArray){
+        /*if($partnerIDArray){
             $this->db->where_in('booking_details.partner_id', $partnerIDArray);
             $this->db->where_not_in('booking_details.internal_status', array('InProcess_Cancelled','InProcess_Completed'));
-        }
+        }*/
         if($is_download){
             if($is_download == 2){
                

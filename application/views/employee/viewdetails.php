@@ -98,7 +98,7 @@
                             <td><?php echo $booking_history[0]['name']; ?></td>
                             <th>Mobile </th>
                             <td>
-                                <?php if($c2c){ ?>
+                                <?php if($c2c){   ?>
                                      <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>)"><?php echo $booking_history[0]['booking_primary_contact_no']; ?></a>
                                     <?php if(!empty($booking_history[0]['booking_alternate_contact_no'])) { ?> 
                                     / <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_alternate_contact_no'] ?>)"><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></a>   
@@ -172,7 +172,7 @@
                         </tr>
                         <tr>
                             <th>Rating Stars </th>
-                            <td><?php echo $booking_history[0]['rating_stars']; ?></td>
+                            <td><?php  echo $booking_history[0]['rating_stars']; ?></td>
                             <th >Rating Comments </th>
                             <td style="max-width:200px;"><?php echo $booking_history[0]['rating_comments']; ?></td>
                         </tr>
@@ -223,29 +223,29 @@
                         </tr>
                         
                     </table>
-                    <?php if(isset($booking_files) && !empty($booking_files)) { ?>
-                    <table class="table  table-striped table-bordered" >
+
+                    <table class="table  table-striped table-bordered cloned" >
                         <tr>
- 
-                            <th colspan="2" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
+                            <th colspan="2" style="font-size: 16px; color: #2c9d9c;">
+                                Support Files
+                                <?php if(isset($booking_files) && !empty($booking_files)) { ?>
+                                <button class="btn btn-sm btn-primary" id="btn_addSupportFile" style="float:right;margin-right:5px;">Add Support File</button>
+                                <?php } ?>
+                            </th>
                         </tr>
                         <tr>
                             <th style="width: 50%;">File Type </th>
                             <th style="width: 50%;">File</th>
                         </tr>
-                        <?php foreach($booking_files as $key => $files) { ?>
-                        <tr>
+                        <?php $count=0;
+                        if(isset($booking_files) && !empty($booking_files)) {
+                            $count = count($booking_files);
+                        foreach($booking_files as $key => $files) { ?>
+                        <tr class="uploaded_support_file">
+ 
                             <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
                             <td style="width: 50%;">
-                            <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Support Files</th>
-                        </tr>
-                        <?php foreach($booking_files as $key => $files) { ?>
-                        <tr>
-
-                            <td style="width: 23%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
-                            <th style="width: 21%;">File</th>
- 
-                                <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(<?=$key?>,'<?=$files['id']?>')" style="display:none" />
+                                <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
                                 <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%">0%</div>
                                 <?php $src = base_url() . 'images/no_image.png';
                                 $image_src = $src;
@@ -256,12 +256,33 @@
                                 }
                                 ?>
                                 <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
-                                &nbsp;&nbsp;<i id="supporting_file_<?=$key?>" class="fa fa-pencil fa-lg" onclick="upload_supporting_file('supportfileLoader_<?=$key?>');"></i>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-pencil fa-lg" title="Update File" id="supporting_file_<?=$key?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
                             </td>
                         </tr>
-                        <?php } ?>
+                        <?php } } ?>
+                        <tr class="clonedInput" id="cat<?=$count?>">
+                            <td style="width: 50%;">
+                                <select class="form-control" id="file_description_<?=$count?>"  name="file_description" style="width:40%" >
+                                    <option selected disabled>Select File Type</option>
+                                    <?php if(!empty($file_type)) {
+                                        foreach($file_type as $val) { ?>
+                                    <option value="<?=$val['id']?>" ><?=$val['file_type']?></option>
+                                    <?php  }
+                                    } ?>
+                                </select>
+                            </td>
+                            <td style="width: 50%;">
+                                <input type="file" id="supportfileLoader_<?=$count?>" name="files[]" onchange="uploadsupportingfile(this.id)" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="myprogress_supproting_file_<?=$count?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php $src = base_url() . 'images/no_image.png';
+                                $image_src = $src;    ?>
+                                <a id="a_order_support_file_<?=$count?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$count?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary fa fa-plus fa-lg" title="Add File" id="supporting_file_<?=$count?>" onclick="upload_supporting_file(this.id);" style="width:35px;height:35px;"></button>
+                                &nbsp;&nbsp;<button type="button" class="btn btn-sm btn-primary" title="Remove Row" id="remove_row_<?=$count?>" onclick="remove(this.id)" style="float:right;margin-right:7px;">Remove</button>
+                                &nbsp;&nbsp;<button type="button" class="clone btn btn-sm btn-primary" title="Add Row" id="add_row_<?=$count?>" style="float:right;margin-right:5px;">Add</button>
+                            </td>
+                        </tr>
                     </table>
-                    <?php } ?>
                     <table class="table  table-striped table-bordered" >
                         <tr>
                             <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
@@ -305,7 +326,7 @@
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
                             </tr>
-                            </thead
+                            </thead>
                         <tbody>
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
@@ -358,7 +379,7 @@
                                         <br/>
                                         <div id="dvMap" style=" height: 200px">
                                         </div>
-                                        </div
+                                        </div>
                                 </td>
                             </tr>
                            
@@ -520,7 +541,7 @@
                                             $sf_upcountry_charges);?>
                                     </td>
                                 </tr>
-                                    <?php } ?>
+                                    <?php   } ?>
                             </tbody>
                         </table>
                         <?php } ?>
@@ -552,7 +573,9 @@
                                         <th >Model Number </th>
                                         <th> Original Requested Parts </th>
                                         <th> Final Requested Parts </th>
-                                        <th> Parts Type </th>                                        
+                                        <th> Parts Type </th>    
+                                        <th>Requested Quantity </th>
+                                        <th>Shipped Quantity </th>
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
@@ -576,7 +599,9 @@
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>                                        
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
+                                        <td><?php echo $sp['quantity']; ?></td> 
+                                        <td><?php echo $sp['shipped_quantity']; ?></td> 
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -616,14 +641,13 @@
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
 
                                                     <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
+
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
                                                  </form>
                                             </td>
                                         <?php } else {?> 
                                            <td></td>   
                                          <?php } } ?>
-
-
 
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
@@ -798,7 +822,7 @@
                                         }
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                            <span id="<?php echo "awb_loader_".$sp['awb_by_sf'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                         <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
@@ -1300,6 +1324,41 @@
 <!-- end Invoice Payment History Modal -->
 
 <script>
+    var regex = /^(.+?)(\d+)$/i;
+    var cloneIndex = "<?=((isset($booking_files) && !empty($booking_files))?(count($booking_files)+1):1);?>";//$(".clonedInput").length;
+    
+    function clone(){
+        var len = $(".clonedInput").length;
+        var row_id = $(".clonedInput")[len-1].id.substr(3);
+        $("#cat"+row_id).clone()
+           .appendTo(".cloned")
+           .attr("id", "cat" +  cloneIndex)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndex);
+               }
+           })
+           .on('click', 'button.clone', clone)
+           
+        cloneIndex++;
+        return false;
+    }
+    function remove(id){
+        if($('.clonedInput').length > 1) {
+            $("#cat"+id.split("_")[2]).remove();
+        }
+        return false;
+    }
+    $("button.clone").on("click", clone);
+    
+    $("#btn_addSupportFile").click(function() {
+        $('tr.clonedInput').toggle();
+    });
+    
 function sf_tab_active(){
   <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
    setTimeout(function(){ GetRoute(); }, 1000);
@@ -1385,6 +1444,9 @@ function sf_tab_active(){
                     // $(".tab").addClass("active"); // instead of this do the below 
                     $(this).removeClass("btn-default").addClass("btn-primary");
                 });
+                if($('tr.uploaded_support_file').length >= 1) {
+                    $("#btn_addSupportFile").click();
+                }
             });
 </script>
  
@@ -1614,7 +1676,7 @@ function sf_tab_active(){
     <?php if(!empty($booking_history[0]['dealer_id'])) { ?>
 //         $.ajax({
 //             method:'GET',
-//             url:'<?php echo base_url(); ?>employee/dealers/get_dealer_data/<?php echo $booking_history[0]['dealer_id']?>',
+//             url:'<?php //echo base_url(); ?>employee/dealers/get_dealer_data/<?php //echo $booking_history[0]['dealer_id']?>',
 //             success:function(response){
 //                 obj = JSON.parse(response);
 //                 console.log(obj);
@@ -1697,19 +1759,26 @@ function openfileDialog(spare_id, column_name) {
     $("#fileLoader").click();
 }
 
-function upload_supporting_file(supportfileLoader){
-    $("#"+supportfileLoader).click();
+function upload_supporting_file(id){
+    var key = id.split("_")[2];
+    $("#supportfileLoader_"+key).click();
 }
 
-function uploadsupportingfile(key, id){
+function uploadsupportingfile(id, file_id=''){
+    var key = id.split("_")[1];
      var file = $("#supportfileLoader_"+key).val();
      if (file === '') {
         alert('Please select file');
         return;
     } else {
         var formData = new FormData();
-        formData.append('support_file', $("#supportfileLoader_"+key)[0].files[0]);
-        formData.append('id', id);
+        formData.append('support_file[]', $("#supportfileLoader_"+key)[0].files[0]);
+        if(file_id !== '') {
+            formData.append('id', file_id);
+        }
+        else {
+            formData.append('file_description_id', $("#file_description_"+key).val());
+        }
         formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
         
         $.ajax({
@@ -1739,6 +1808,9 @@ function uploadsupportingfile(key, id){
                     if(obj.code === "success"){
                         $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
                         $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        if(file_id === '') {
+                            location.reload();
+                        }
                     } else {
                         alert(obj.message);
                     }

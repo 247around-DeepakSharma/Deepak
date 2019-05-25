@@ -338,6 +338,8 @@ class Inventory_model extends CI_Model {
         $this->db->from('spare_parts_details');
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
+                . "spare_parts_details.quantity,"
+                . "spare_parts_details.shipped_quantity,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
@@ -947,7 +949,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_alternate_inventory_master_list($post){
-        $this->_get_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -1584,7 +1586,9 @@ class Inventory_model extends CI_Model {
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('employee','partners.account_manager_id = employee.id');
+        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state");
+        $this->db->join('employee',"employee.id = agent_filters.agent_id");
+        //$this->db->join('employee','partners.account_manager_id = employee.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->where($where,false);
         $query = $this->db->get();

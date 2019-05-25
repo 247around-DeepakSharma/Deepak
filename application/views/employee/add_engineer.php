@@ -267,7 +267,7 @@
             </div>-->
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
                 <center>
-            <input type="submit" class="btn btn-primary"  onclick="return validate_bank_ac()" value="<?php echo isset($data)?'Update Engineer':'Save Engineer'?>" />
+            <input type="submit" class="btn btn-primary"  onclick="" value="<?php echo isset($data)?'Update Engineer':'Save Engineer'?>" />
             <a href='<?php echo base_url()?>employee/vendor/get_engineers' class='btn btn-primary' >Cancel</a></center>
             </div>
 

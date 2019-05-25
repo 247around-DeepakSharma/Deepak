@@ -927,16 +927,20 @@ class Around_scheduler extends CI_Controller {
      */
     function send_notification_for_low_balance() {
         log_message("info", __METHOD__ . " Entering...");
-        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
-                . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id", array('is_prepaid' => 1, 'is_active' => 1));
+        //$partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+        //        . "is_active,invoice_email_to, invoice_email_cc, owner_phone_1 ,account_manager_id", array('is_prepaid' => 1, 'is_active' => 1));
+        $partner_details = $this->partner_model->getpartner_data("partners.id, public_name, "
+                . "partners.is_active,invoice_email_to, invoice_email_cc, owner_phone_1 , group_concat(distinct agent_filters.agent_id) as account_manager_id", array('is_prepaid' => 1, 'partners.is_active' => 1, 'agent_filters.entity_type' => "247around"),"",NULL,1,1, "partners.id");
+        
         log_message("info", __METHOD__ . " All Active Prepaid Partner " . print_r($partner_details, true));
 
         foreach ($partner_details as $value) {
             log_message("info", __METHOD__ . " Active Prepaid Partner ID" . $value['id']);
             $am_email = "";
             if (!empty($value['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeefromid($value['account_manager_id'])[0]['official_email'];
+                $am_email = $this->employee_model->getemployeeMailFromID($value['account_manager_id'])[0]['official_email'];
             }
+
             $final_amount = $this->miscelleneous->get_partner_prepaid_amount($value['id']);
             if ($final_amount['is_notification']) {
 
@@ -1911,8 +1915,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
     function send_notifiction_to_review_bookings() {
         log_message('info', __FUNCTION__ . ' Start');
-        $partnerArray = $this->reusable_model->get_search_result_data("partners", "partners.*,employee.official_email as am_email", array("booking_review_for IS NOT NULL" => NULL), 
-                array("employee"=>"employee.id = partners.account_manager_id"), NULL, NULL, NULL, NULL, array());
+        //$partnerArray = $this->reusable_model->get_search_result_data("partners", "partners.*,employee.official_email as am_email", array("booking_review_for IS NOT NULL" => NULL), 
+        //        array("employee"=>"employee.id = partners.account_manager_id"), NULL, NULL, NULL, NULL, array());
+        $partnerArray = $this->partner_model->getpartner_data("partners.*,group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                array("booking_review_for IS NOT NULL" => NULL, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
         foreach ($partnerArray as $partner) {
             $tempData = array();
             $tempData = $this->miscelleneous->get_review_bookings_for_partner($partner['id'], NULL, 1,REVIEW_NOTIFICATION_TO_PARTNER_DAYS);
@@ -1924,7 +1930,11 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $message = $this->load->view('employee/partner_review_booking_email_template',$data,true);
                 $to =  $partner['primary_contact_email'];
                 $bcc = $template[5];
-                $cc = $partner['am_email'];
+                $cc = "";
+                if (!empty($partner['account_manager_id'])) {
+                    $cc = $this->employee_model->getemployeeMailFromID($partner['account_manager_id'])[0]['official_email'];
+                }
+                //$cc = $partner['am_email'];
                 $from = $template[2];
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "", "notify_partner_to_review_bookings");
                 log_message('info', __FUNCTION__ . " END  " . $partner['id'] . $message);
@@ -2256,6 +2266,28 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $agent_id = _247AROUND_DEFAULT_AGENT;
             
             $this->miscelleneous->approved_rescheduled_bookings($reschedule_booking_id,$reschedule_booking_date,$reschedule_reason,$partner_id_array,$agent_id,$employeeID);
+            echo "Success";
+        }
+    }
+    /**
+     * @desc this function is used to auto approve completed bookings by SF
+     * It is called from CRON
+     */
+    function auto_approve_SF_bookings() {
+        $whereIN = $where = $join = array();
+        $where['sc.is_sn_correct=1'] = NULL;
+        $where['booking_details.request_type LIKE "%Installation%" '] = NULL;
+        $total_rows = $this->service_centers_model->get_admin_review_bookings(NULL,"Completed",$whereIN,0,NULL,-1,$where,0,NULL,NULL,0,$join);
+
+        $data = array();
+        if(!empty($total_rows)) {
+            foreach($total_rows as $key=> $value) {
+                $data['booking_id'][] = $value['booking_id'];
+                $data['approved_by'] = _247AROUND;
+                $data['partner_id'][$value['booking_id']] = $value['partner_id'];
+                $data['approved_booking'][] = $value['booking_id'];
+            }
+            $this->miscelleneous->checked_complete_review_booking($data);
             echo "Success";
         }
     }
