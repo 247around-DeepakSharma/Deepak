@@ -504,28 +504,33 @@ datatable1.ajax.reload();
                  function create_booking_contacts(response){
         var data="";
         var result = JSON.parse(response);
-        data =data +  "<tr><td>1) </td><td>247around Account Manager</td><td>"+result[0].am+"</td><td>"+result[0].am_caontact+"</td></tr>";
-        data =data +  "<tr><td>2) </td><td>247around Regional Manager</td><td>"+result[0].rm+"</td><td>"+result[0].rm_contact+"</td></tr>";
-        data =data +  "<tr><td>2) </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
-        var tb="<table class='table  table-bordered table-condensed ' >";
-        tb+='<thead>';
-        tb+='<tr>';
-        tb+='<th class="jumbotron col-md-1">SNo.</th> ';
-        tb+='<th class="jumbotron col-md-6">Role</th>';
-        tb+='<th class="jumbotron  col-md-5">Name</th>';
-        tb+='<th class="jumbotron  col-md-5">Contact</th>';
-        tb+='</tr>';
-        tb+='</thead>';
-        tb+='<tbody>';
-        tb+=data;
-        tb+='</tbody>';
-        tb+='</table>';
-        $("#loader_gif_contact").hide();
-        $("#relevant_content_modal .modal-body").html(tb);
-        $('#relevant_content_table').DataTable();
-        $('#relevant_content_table  th').css("background-color","#ECEFF1");
-        $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
-        $("#relevant_content_modal").modal("show");
+        if(result.length > 0) {
+            var j;
+            for(var i=0;i<result.length;i++) {j=i+1;
+                data =data +  "<tr><td>"+j+") </td><td>247around Account Manager <br>("+result[i].am_state+")</td><td>"+result[i].am+"</td><td>"+result[i].am_caontact+"</td></tr>";
+            }
+            data =data +  "<tr><td>"+(++j)+") </td><td>247around Regional Manager</td><td>"+result[0].rm+"</td><td>"+result[0].rm_contact+"</td></tr>";
+            data =data +  "<tr><td>"+(++j)+") </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
+            var tb="<table class='table  table-bordered table-condensed ' >";
+            tb+='<thead>';
+            tb+='<tr>';
+            tb+='<th class="jumbotron col-md-1">SNo.</th> ';
+            tb+='<th class="jumbotron col-md-6">Role</th>';
+            tb+='<th class="jumbotron  col-md-5">Name</th>';
+            tb+='<th class="jumbotron  col-md-5">Contact</th>';
+            tb+='</tr>';
+            tb+='</thead>';
+            tb+='<tbody>';
+            tb+=data;
+            tb+='</tbody>';
+            tb+='</table>';
+            $("#loader_gif_contact").hide();
+            $("#relevant_content_modal .modal-body").html(tb);
+            $('#relevant_content_table').DataTable();
+            $('#relevant_content_table  th').css("background-color","#ECEFF1");
+            $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+            $("#relevant_content_modal").modal("show");
+        }
     }
     
     function  get_brand_collateral(booking_id){
