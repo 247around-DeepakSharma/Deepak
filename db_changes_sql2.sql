@@ -28,21 +28,6 @@ SELECT '247around',id, 0,account_manager_id,state FROM `partners` where account_
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
 
 --Kalyani 25-05-2019---
-ALTER TABLE `engineer_details`
-  DROP `appliance_id`,
-  DROP `phone_type`,
-  DROP `address`,
-  DROP `bank_name`,
-  DROP `bank_ac_no`,
-  DROP `bank_ifsc_code`,
-  DROP `bank_holder_name`,
-  DROP `bank_proof_pic`;
-
-ALTER TABLE `engineer_details`
-  DROP `identity_proof`,
-  DROP `identity_proof_number`,
-  DROP `identity_proof_pic`;
-
 
 CREATE TABLE `entity_identity_proof` (
   `id` int(11) NOT NULL,
