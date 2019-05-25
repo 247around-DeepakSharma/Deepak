@@ -2261,4 +2261,26 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             echo "Success";
         }
     }
+    /**
+     * @desc this function is used to auto approve completed bookings by SF
+     * It is called from CRON
+     */
+    function auto_approve_SF_bookings() {
+        $whereIN = $where = $join = array();
+        $where['sc.is_sn_correct=1'] = NULL;
+        $where['booking_details.request_type LIKE "%Installation%" '] = NULL;
+        $total_rows = $this->service_centers_model->get_admin_review_bookings(NULL,"Completed",$whereIN,0,NULL,-1,$where,0,NULL,NULL,0,$join);
+
+        $data = array();
+        if(!empty($total_rows)) {
+            foreach($total_rows as $key=> $value) {
+                $data['booking_id'][] = $value['booking_id'];
+                $data['approved_by'] = _247AROUND;
+                $data['partner_id'][$value['booking_id']] = $value['partner_id'];
+                $data['approved_booking'][] = $value['booking_id'];
+            }
+            $this->miscelleneous->checked_complete_review_booking($data);
+            echo "Success";
+        }
+    }
 }

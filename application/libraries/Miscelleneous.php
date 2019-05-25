@@ -4187,5 +4187,60 @@ function generate_image($base64, $image_name,$directory){
         }
         return null;
     }
+    /**
+     * @desc: This funtion is used to review bookings (All selected checkbox) which are
+     * completed/cancelled by our vendors.
+     * It completes/cancels these bookings in the background and returns immediately.
+     * @param : void
+     * @return : void
+     */
+    function checked_complete_review_booking($record) {
+        $requested_bookings = $record['approved_booking'];
+        
+        $agent_id = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $agent_name = !empty($this->My_CI->session->userdata('employee_id')) ? $this->My_CI->session->userdata('employee_id') : _247AROUND_DEFAULT_AGENT_NAME;
+        
+        if($requested_bookings){
+            $state_change_bookings = array();
+            $where['is_in_process'] = 0;
+            $whereIN['booking_id'] = $requested_bookings; 
+            $tempArray = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
+            foreach($tempArray as $values){
+                $approved_booking[] = $values['booking_id'];
+                /* If bookings came from completion approval than we add extra state change in booking state change for closure team peformane graph*/
+                $booking_status = $this->My_CI->booking_model->getbooking_charges($values['booking_id']);
+                if(!empty($booking_status)){
+                    $actor = $next_action = 'NULL';
+                    if($booking_status[0]['internal_status'] == _247AROUND_COMPLETED){
+                       $new_state = _247AROUND_COMPLETED_APPROVED;
+                       $closing_remarks = "Booking completed approved by 247around";
+                       $this->My_CI->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $agent_id, $agent_name, $actor,$next_action,$record['approved_by']);
+                    }
+                    else{
+                        $new_state = _247AROUND_CANCELED_APPROVED;
+                        $closing_remarks = "Booking cancelled approved by 247around";
+                        $this->My_CI->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $agent_id, $agent_name, $actor,$next_action,$record['approved_by']);
+                    }
+                }
+                /*end*/
+            }
+            $inProcessBookings = array_diff($requested_bookings,$approved_booking);
+
+            $url = base_url() . "employee/do_background_process/complete_booking";
+            if (!empty($approved_booking)) {
+                $this->My_CI->booking_model->mark_booking_in_process($approved_booking);
+                $data['booking_id'] = $approved_booking;
+                $data['agent_id'] = $agent_id;
+                $data['agent_name'] = $agent_name;
+                $data['partner_id'] = $record['partner_id'];
+                $data['approved_by'] = $record['approved_by']; 
+                $this->My_CI->asynchronous_lib->do_background_process($url, $data);
+                $this->My_CI->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
+            } else {
+                //Logging
+                log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
+            }
+        }
+    }
     
 }
