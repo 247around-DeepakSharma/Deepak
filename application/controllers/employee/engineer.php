@@ -218,8 +218,9 @@ class Engineer extends CI_Controller {
         $post['column_search'] = array("engineer_details.name", "service_centres.name", "engineer_details.phone", "engineer_details.alternate_phone");
         $post['join'] = array(
             "service_centres" => "service_centres.id = engineer_details.service_center_id",
+            'entity_identity_proof' => 'entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = "engineer"',
         );
-        $post['joinType'] = array("service_centres" => "LEFT");
+        $post['joinType'] = array("service_centres" => "LEFT", "entity_identity_proof", "LEFT");
         $post['where'] = array('delete' => 0);
         if($service_center_id){
             $post['where']['service_center_id'] = $service_center_id;
@@ -228,7 +229,7 @@ class Engineer extends CI_Controller {
         $data = array();
         $no = $post['start'];
         
-        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, engineer_details.identity_proof, service_centres.name as company_name", $post);
+        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, service_centres.name as company_name", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
            $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value->id, "is_active"=>1), "service_id");

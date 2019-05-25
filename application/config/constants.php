@@ -648,5 +648,8 @@ define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
 define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 
+//247around engineer string
+define('_247AROUND_ENGINEER_STRING','engineer');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
