@@ -5411,10 +5411,22 @@ class Partner extends CI_Controller {
             $company_name = $get_partner_details[0]['company_name'];
             $public_name = $get_partner_details[0]['public_name'];
             $partner_type = $get_partner_details[0]['partner_type'];
+            $states_arr = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+            foreach($states_arr as $value) {
+                $states[] = $value['state'];
+            }
             $data = array();
             foreach($this->input->post('am') as $index=>$am){
-                $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $this->input->post('am_state')[$index]);
-                $id = $this->reusable_model->insert_into_table("agent_filters",$data);
+                $arr_states = $this->input->post('am_state')[$index];
+                foreach($this->input->post('am_state')[$index] as $key=>$state){
+                    if(strtolower($state) === 'all') {
+                        $arr_states = $states;
+                    }
+                }
+                foreach($arr_states as $key=>$state){
+                    $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $state);
+                    $id = $this->reusable_model->insert_into_table("agent_filters",$data);
+                }
             }
             if($id){
                 $msg =  "Partner AM Mapping has been Added successfully ";

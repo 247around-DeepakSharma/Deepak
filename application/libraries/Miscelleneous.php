@@ -3308,14 +3308,14 @@ function generate_image($base64, $image_name,$directory){
         $data['email_from'] = $from;
         return $this->My_CI->reusable_model->insert_into_table("booking_internal_conversation",$data);
     }
-    function get_booking_contacts($bookingID){
+    function get_booking_contacts($bookingID,$state_check=1){
         $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
         $JoinTypeTableArray['service_centres'] = 'left';
         $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
 
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
         $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
@@ -3324,8 +3324,14 @@ function generate_image($base64, $image_name,$directory){
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = "247around";
-        $where['agent_filters.state'] = $booking_state[0]['state'];
-        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
+        if($state_check) {
+            $limitArray = array();
+            $where['agent_filters.state'] = $booking_state[0]['state'];
+        } else {
+            $limitArray['length'] = 1;
+            $limitArray['start'] = "";
+        }
+        $data = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,$limitArray,NULL,NULL,NULL,"agent_filters.agent_id");
         return $data;
     }
     

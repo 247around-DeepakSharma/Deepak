@@ -219,6 +219,7 @@ class Service_centers extends CI_Controller {
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id, 'file_description_id' => SF_PURCHASE_INVOICE_FILE_TYPE));
         if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
@@ -360,7 +361,10 @@ class Service_centers extends CI_Controller {
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
-        
+        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
+            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
+        endif;
         $where = array(
                 "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
                 'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
@@ -452,6 +456,8 @@ class Service_centers extends CI_Controller {
         if(count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
+        
+        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('service_centre_charges', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'purchase_invoice_pod' => 1], null, null, null, null, null)->result_array();
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -593,6 +599,17 @@ class Service_centers extends CI_Controller {
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
                                 $i++;
                                 print_r($data);
+                                
+                                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+                                if(!empty($isSparePartExist[0]['invoice_pic'])) :
+                                    $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
+                                else :
+                                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
+                                        $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
+                                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                                    endif;  
+                                endif;
+                                                                
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
                         }
@@ -675,6 +692,38 @@ class Service_centers extends CI_Controller {
         }
     }
 
+    /**
+     *  @desc : This function is used to upload the support file for order id to s3 and save into database
+     *  @param : string $booking_primary_contact_no
+     *  @return : boolean/string
+     */
+    function upload_sf_purchase_invoice_file($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "misc-images/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
+                return False;
+            }
+
+        }
+
+        
+    }        
     /**
      * @desc This function is used to change appliance category, capacity and also change prices according to it
      * @return boolean
@@ -6014,6 +6063,10 @@ class Service_centers extends CI_Controller {
     }
     function get_booking_contacts($bookingID){
         $data = $this->miscelleneous->get_booking_contacts($bookingID);
+        if(empty($data)) {
+            $state_check = 0;
+            $data = $this->miscelleneous->get_booking_contacts($bookingID,$state_check);
+        }
         echo json_encode($data);
     }
     function process_booking_internal_conversation_email(){
@@ -6685,33 +6738,33 @@ class Service_centers extends CI_Controller {
      * @author Ankit Rajvanshi
      * @since 17-May-2019
      */
-    function change_password() {
-        
-        if($_POST) :
-            // declaring variables.
-            $service_center_id = $this->session->userdata['service_center_id'];
-            $old_password = md5($_POST['old_password']);
-            // fetch record.
-            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
-        endif;
-        
-        if($this->input->is_ajax_request()) : // verify old password.
-            if(!empty($service_center_login)) :
-                echo '1';exit;
-            else :
-                echo'0';exit;
-            endif;
-        elseif($_POST) :
-            // Update password.
-            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
-            // setting feedback message for user.
-            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
-            redirect(base_url() . "employee/service_centers/change_password");
-        endif;
-        
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/change_password');
-    }
+//    function change_password() {
+//        
+//        if($_POST) :
+//            // declaring variables.
+//            $service_center_id = $this->session->userdata['service_center_id'];
+//            $old_password = md5($_POST['old_password']);
+//            // fetch record.
+//            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
+//        endif;
+//        
+//        if($this->input->is_ajax_request()) : // verify old password.
+//            if(!empty($service_center_login)) :
+//                echo '1';exit;
+//            else :
+//                echo'0';exit;
+//            endif;
+//        elseif($_POST) :
+//            // Update password.
+//            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+//            // setting feedback message for user.
+//            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
+//            redirect(base_url() . "employee/service_centers/change_password");
+//        endif;
+//        
+//        $this->load->view('service_centers/header');
+//        $this->load->view('service_centers/change_password');
+//    }
     
  
 }
