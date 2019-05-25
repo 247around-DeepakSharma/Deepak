@@ -192,8 +192,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
      *  @return: void
      */
     function _get_datatable_data_list($table, $select, $post){
-        
+        $this->db->_protect_identifiers=false;
         $this->db->select($select);
+        $this->db->_protect_identifiers=true;
         $this->db->from($table);
         if(!empty($post['join'])){
             foreach ($post['join'] as $tableName=>$joinCondition){

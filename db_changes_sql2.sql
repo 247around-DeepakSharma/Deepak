@@ -12,3 +12,38 @@ INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_o
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
 
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
+
+--Kalyani 25-05-2019---
+ALTER TABLE `engineer_details`
+  DROP `appliance_id`,
+  DROP `phone_type`,
+  DROP `address`,
+  DROP `bank_name`,
+  DROP `bank_ac_no`,
+  DROP `bank_ifsc_code`,
+  DROP `bank_holder_name`,
+  DROP `bank_proof_pic`;
+
+ALTER TABLE `engineer_details`
+  DROP `identity_proof`,
+  DROP `identity_proof_number`,
+  DROP `identity_proof_pic`;
+
+
+CREATE TABLE `entity_identity_proof` (
+  `id` int(11) NOT NULL,
+  `entity_type` varchar(255) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `identity_proof_type` varchar(255) NOT NULL,
+  `identity_proof_number` varchar(255) NOT NULL,
+  `identity_proof_pic` varchar(255) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `entity_identity_proof`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `entity_identity_proof`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
