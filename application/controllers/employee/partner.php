@@ -1025,7 +1025,7 @@ class Partner extends CI_Controller {
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, NULL, NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
-        $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
+        $employee_list = $this->employee_model->get_employee_by_group(array("groups IN ('accountmanager') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
         $results['contact_persons'] =  $this->reusable_model->get_search_result_data("contact_person",  "contact_person.*,entity_role.role,entity_role.id as  role_id,entity_role.department,"
                 . "GROUP_CONCAT(agent_filters.state) as  state,entity_login_table.agent_id as login_agent_id,contact_person.is_active,"
@@ -5381,7 +5381,8 @@ class Partner extends CI_Controller {
             foreach($states_arr as $value) {
                 $states[] = $value['state'];
             }
-            $data = array();
+            $id = $count = 0;
+            $data = $am_record = array();
             foreach($this->input->post('am') as $index=>$am){
                 $arr_states = $this->input->post('am_state')[$index];
                 foreach($this->input->post('am_state')[$index] as $key=>$state){
@@ -5391,43 +5392,59 @@ class Partner extends CI_Controller {
                 }
                 foreach($arr_states as $key=>$state){
                     $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $state);
-                    $id = $this->reusable_model->insert_into_table("agent_filters",$data);
+                    $am_data = $this->partner_model->get_am_data("*", $data);
+                    if(empty($am_data)) {
+                        $am_record[] = array('am' => $am, 'state' => $state);
+                        $id = $this->reusable_model->insert_into_table("agent_filters",$data);
+                    } else {
+                        ++$count;
+                    }
                 }
             }
             if($id){
                 $msg =  "Partner AM Mapping has been Added successfully ";
+                $this->session->set_userdata('success', $msg);
+                
+                $am_id='';
+                // Send new brand onboard notification email to all employee
+                $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+
+                if(!empty($email_template)){
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                    );
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager', 'State'));
+                    foreach($am_record as $value){
+                        if($am_id !== $value['am']) {
+                            $account_manager_name = $this->employee_model->getemployeefromid($value['am'])[0]['full_name'];
+                        }
+                        $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name, $value['state']));
+                        $am_id = $value['am'];
+                    }
+                    $html_table = $this->table->generate();
+
+                    $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+
+                    $cc = $email_template[3];
+                    $subject = vsprintf($email_template[4], array($public_name));
+                    $message = vsprintf($email_template[0], array($html_table));
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                }
+            }
+            else if($count > 0) {
+                $msg =  "AM already added!!";
+                $this->session->set_userdata('error', $msg);
             }
             else{
                 $msg =  "Something went Wrong Please try again or contact to admin";
-            }
-
-            // Send new brand onboard notification email to all employee
-            $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
-
-            if(!empty($email_template)){
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
-                );
-                $this->table->set_template($template);
-                $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager', 'State'));
-                foreach($this->input->post('am') as $index=>$am){
-                    $account_manager_name = $this->employee_model->getemployeefromid($am)[0]['full_name'];
-                    $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name, $this->input->post('am_state')[$index]));
-                }
-                $html_table = $this->table->generate();
-
-                $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-
-                $cc = $email_template[3];
-                $subject = vsprintf($email_template[4], array($public_name));
-                $message = vsprintf($email_template[0], array($html_table));
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                $this->session->set_userdata('error', $msg);
             }
         }
         else{
-            $msg =  "Something went Wrong Please try again or contact to admin";
+            $msg =  "Something went Wrong Please try again or contact to admin!!";
+            $this->session->set_userdata('error', $msg);
         }
-        $this->session->set_userdata('success', $msg);
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
@@ -5436,22 +5453,31 @@ class Partner extends CI_Controller {
     function edit_partner_am_mapping(){
        if($this->input->post('partner_id')){
             $partnerID = $this->input->post('partner_id');
-            $id = $this->input->post('mapping_id');
-            $data['state'] = $this->input->post('state1');
-            $data['agent_id'] = $this->input->post('am1');
-            $where = array('id' => $id);
-            $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
-            if($update_data){
-                $msg =  "Partner AM Mapping has been Updated successfully ";
-            }
-            else{
-                $msg =  "No update done";
+            
+            $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $this->input->post('state1'), 'agent_id' => $this->input->post('am1')));
+            if(empty($am_data)) {
+                $data['state'] = $this->input->post('state1');
+                $data['agent_id'] = $this->input->post('am1');
+                $where = array('id' => $this->input->post('mapping_id'));
+                
+                $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
+                if($update_data){
+                    $msg =  "Partner AM Mapping has been updated successfully ";
+                    $this->session->set_userdata('success', $msg);
+                }
+                else{
+                    $msg =  "No update done";
+                    $this->session->set_userdata('error', $msg);
+                }
+            } else {
+                $msg =  "AM already added to this state!!";
+                $this->session->set_userdata('error', $msg);
             }
         }
         else{
-            $msg =  "Something went Wrong Please try again or contact to admin";
+            $msg =  "Something went Wrong Please try again or contact to admin!";
+            $this->session->set_userdata('error', $msg);
         }
-        $this->session->set_userdata('success', $msg);
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
@@ -5467,18 +5493,6 @@ class Partner extends CI_Controller {
                 if($action){
                     $v = "Activated";
                 }
-                /*if($this->session->userdata('userType') == 'employee'){
-                    $agent = $this->session->userdata('id');
-                    $agentName = $this->session->userdata('emp_name');
-                    $partner_id = _247AROUND;
-                }
-                else{
-                    $agent = $this->session->userdata('agent_id');
-                    $agentName = $this->session->userdata('partner_name');
-                    $partner_id = $this->session->userdata('partner_id');
-                }
-                $this->notify->insert_state_change($id, "Contact Person - ".$v,"Contact Person", $id." has been ".$v, $agent, $agentName, 
-                        'not_define','not_define',$partner_id);*/
                 echo "Mapping has been $v";
             }
             else{
