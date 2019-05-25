@@ -11040,3 +11040,7 @@ ALTER TABLE `booking_files`
 
 insert into booking_files(booking_id, file_description_id, file_name) select booking_id, 1, support_file from booking_details where support_file<>'';
 
+-- Ankit 25-May-2019
+INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES (NULL, 'SF Purchase Invoice', NULL, NULL, '1', CURRENT_TIMESTAMP);
+ALTER TABLE `service_centre_charges` ADD COLUMN purchase_invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
+ALTER TABLE service_center_booking_action ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;

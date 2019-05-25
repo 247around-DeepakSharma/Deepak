@@ -887,6 +887,12 @@ class Booking extends CI_Controller {
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
+
+        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
+            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
+        endif;          
+        
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -979,6 +985,8 @@ class Booking extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
+        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('service_centre_charges', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'purchase_invoice_pod' => 1], null, null, null, null, null)->result_array();
+
         $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
@@ -2379,6 +2387,15 @@ class Booking extends CI_Controller {
                 }
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
+                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+                if(!empty($isSparePartExist[0]['invoice_pic'])) :
+                    $service_center['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
+                else :
+                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
+                        $service_center['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
+                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                    endif;  
+                endif;        
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
             }
             $this->miscelleneous->update_appliance_details($unit_id);
@@ -2508,6 +2525,40 @@ class Booking extends CI_Controller {
         }
         }
     }
+    
+/**
+     *  @desc : This function is used to upload the support file for order id to s3 and save into database
+     *  @param : string $booking_primary_contact_no
+     *  @return : boolean/string
+     */
+    function upload_sf_purchase_invoice_file($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "misc-images/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
+                return False;
+            }
+
+        }
+
+        
+    }    
+        
     /**
      * @desc: this is used to validate duplicate serial no from Ajax
      */

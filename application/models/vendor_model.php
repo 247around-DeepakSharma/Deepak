@@ -994,6 +994,9 @@ class vendor_model extends CI_Model {
            $this->db->where('unit_details_id', $data['unit_details_id']);
         }
         $this->db->where('booking_id', $booking_id);
+       
+       
+        
         $this->db->update('service_center_booking_action', $data);
         log_message('info', __METHOD__ . "=> Update SQL: " . $this->db->last_query() );
     }
