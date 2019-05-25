@@ -145,7 +145,7 @@
                                     <th>Capacity</th>
                                     <th>Status</th>
                                     <th>Edit</th>
-                                    <th>BOM</th>
+                                    <th>Servicable BOM</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -186,6 +186,7 @@
                                             <input type="hidden"  id="entity_id2" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
                                             <input type="hidden" id="entity_type2" name='entity_type' value="partner">
                                             <input type="hidden" id="model_id2" name='model_id' value="">
+                                             <input type="hidden" id="" name='status' value="1">
                                             <button type="submit"  class="btn btn-success"  id="model_submit_btn2"   name='submit_type' value="">Submit</button>
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                             <p class="pull-left text-danger">* These fields are required</p>
