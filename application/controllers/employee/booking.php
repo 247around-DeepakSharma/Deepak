@@ -5488,4 +5488,94 @@ class Booking extends CI_Controller {
         $sms['smsData']['partner_brand'] = $brand;
         $this->notify->send_sms_msg91($sms);
     }
+    /**
+    * @Desc - This is used to show file type list
+    */
+    function show_file_type_list() {
+        $data['file_type'] = $this->booking_model->get_file_type();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_file_type_list', $data);
+    }
+    /*
+     * This function is used to add file type
+     */
+    function process_file_type(){
+        $id = $count = 0;
+        $data = array();
+        foreach($this->input->post('file_type') as $index=>$type){
+            $data=array("file_type" => $type, "max_allowed_size" => $this->input->post('max_allowed_size')[$index], "allowed_type" => $this->input->post('allowed_type')[$index]);
+            $record = $this->booking_model->get_file_type(array("file_type" => $type));
+            if(empty($record)) {
+                $id = $this->reusable_model->insert_into_table("file_type",$data);
+            } else {
+                ++$count;
+            }
+        }
+        if($id){
+            $msg =  "File Type has been Added successfully ";
+            $this->session->set_userdata('success', $msg);
+        }
+        else if($count > 0) {
+            $msg =  "File Type has already been added!!";
+            $this->session->set_userdata('error', $msg);
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+            $this->session->set_userdata('error', $msg);
+        }
+        redirect(base_url() . 'employee/booking/show_file_type_list');
+    }
+    /*
+     * This function is used to edit file type
+     */
+    function edit_file_type(){        
+        if($this->input->post('file_type_id')){
+            $data['file_type'] = $this->input->post('file_type1');
+            $data['max_allowed_size'] = $this->input->post('max_allowed_size1');
+            $data['allowed_type'] = $this->input->post('allowed_type1');
+            $where = array('id' => $this->input->post('file_type_id'));
+            
+            $record = $this->booking_model->get_file_type($data);
+            
+            if(empty($record)) {
+                $update_data = $this->reusable_model->update_table("file_type",$data,$where);
+                if($update_data){
+                    $msg =  "File Type has been updated successfully ";
+                    $this->session->set_userdata('success', $msg);
+                }
+                else{
+                    $msg =  "No update done";
+                    $this->session->set_userdata('error', $msg);
+                }
+            } else {
+                $msg =  "File Type has already been added!";
+                $this->session->set_userdata('error', $msg);
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin!";
+            $this->session->set_userdata('error', $msg);
+        }
+        redirect(base_url() . 'employee/booking/show_file_type_list');
+    }
+    /*
+     * This function is used to activate / deactivate file type
+     */
+    function activate_deactivate_type($id,$action){
+        if($id){
+            $data['is_active'] = $action;
+            $where = array('id' => $id);
+            $affected_rows =  $this->reusable_model->update_table("file_type",$data,$where);
+            if($affected_rows){
+                $v = "Deactivated";
+                if($action){
+                    $v = "Activated";
+                }
+                echo "File Type has been $v";
+            }
+            else{
+                echo "Something Went Wrong Please Try Again";
+            }
+        }
+    }
 }
