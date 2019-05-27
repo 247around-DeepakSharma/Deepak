@@ -7634,5 +7634,18 @@ class Partner extends CI_Controller {
         
         echo json_encode($res);
     }
+
+
+    /**
+     * @desc: This function is used to show  history for parts send by partner to Sfs
+
+     */
+    function spare_shipped_history(){
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/parts_send_by-partner_to_sf');
+        $this->load->view('partner/partner_footer');
+
+    }
+
     
 }
