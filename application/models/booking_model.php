@@ -1313,8 +1313,8 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL) {
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage);
+    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL, $cancellation_reason = '') {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage, $cancellation_reason);
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
@@ -1470,7 +1470,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,pod,invoice_pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();

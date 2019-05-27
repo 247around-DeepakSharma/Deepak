@@ -208,7 +208,7 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array()){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array(), $cancellation_reason = ''){
         $limit = "";
         $where_in = "";
         $userSelect = $join = $groupBy = "";
@@ -226,7 +226,7 @@ class Service_centers_model extends CI_Model {
              $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status IN ('Completed', 'Cancelled') LIMIT 1) ";
         }
         
-        if ($booking_id != "") {
+        if ($booking_id != "" || $booking_id != '0') {
             $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
         if($perPage !=-1){
@@ -266,6 +266,10 @@ class Service_centers_model extends CI_Model {
          }
          $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
+        
+        if(!empty($cancellation_reason)) :
+            $where_sc .= " AND sc.cancellation_reason = '".urldecode($cancellation_reason)."'";
+        endif;
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
@@ -281,13 +285,16 @@ class Service_centers_model extends CI_Model {
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
                 . " $groupBy  $orderBY  $limit";
+       // echo $sql;exit;
         $query = $this->db->query($sql);
         $booking = $query->result_array();
+       // echo"<pre>";print_r($booking);exit;
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $cancellation_reason = '') {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [], $cancellation_reason);
+        
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
@@ -307,6 +314,8 @@ class Service_centers_model extends CI_Model {
             $result = $query2->result_array();
             $booking[$key]['unit_details'] = $result;
         }
+        
+       
         return $booking;
     }
 
