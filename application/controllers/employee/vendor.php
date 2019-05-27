@@ -873,6 +873,7 @@ class vendor extends CI_Controller {
         if (!empty($id)) {
             $vendor['active'] = $is_active;
             $vendor['agent_id'] = $this->session->userdata("id");
+            $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
             
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
@@ -898,6 +899,7 @@ class vendor extends CI_Controller {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
                     }
+                    $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
                     $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_permanent_on_off');
@@ -3153,6 +3155,7 @@ class vendor extends CI_Controller {
         $vendor['on_off'] = $on_off;
         $vendor['agent_id'] = $agentID;
         $this->vendor_model->edit_vendor($vendor, $id);
+        $agent_name = $this->session->userdata('emp_name');
         
         //Check on off
         if($on_off == 1){
@@ -3180,6 +3183,7 @@ class vendor extends CI_Controller {
                 $email['rm_name'] = $employee_relation[0]['full_name'];
                 $email['sf_name'] = ucfirst($sf_name);
                 $email['on_off'] = $on_off_value;
+                $email['action_by'] = $agent_name;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
                 $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
