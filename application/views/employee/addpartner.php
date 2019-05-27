@@ -2753,14 +2753,30 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group ">
+                                    <div class="col-md-6 form-group <?php if (form_error('am')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="am" class="col-md-4">Account Manager *</label>
+                                        <div class="col-md-6">
+                                            <div class="am_holder" id="am_holder_1">
+                                                <select class="form-control am" name="am[0]" id="am_1">
+                                                    <option selected disabled value="option_holder">Select Account Manager</option>
+                                                    <?php foreach($employee_list as $employee){ ?>
+                                                    <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['am']) && ($query[0]['am'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <?php echo form_error('am'); ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-md-6 form-group <?php if (form_error('am_state')) {
                                         echo 'has-error';
                                         } ?>">
                                         <label for="state" class="col-md-4">State *</label>
                                         <div class="col-md-6">
                                             <div class="state_holder" id="state_holder_1">
-                                                <select class="form-control am_state" name="am_state[]" id="am_state_1">
-                                                    <option selected disabled value="option_holder">Select State</option>
+                                                <select class="form-control am_state" name="am_state[0][]" id="am_state_1" multiple="">
+                                                    <option value="all">All States</option>
                                                     <?php
                                                         foreach ($results['select_state'] as $state) {
                                                             ?>
@@ -2778,22 +2794,6 @@
                                                     <?php } ?>
                                                 </select>
                                                 <?php echo form_error('am_state'); ?>
-                                            </div>
-                                        </div>
-                                    </div>                                       
-                                    <div class="col-md-6 form-group <?php if (form_error('am')) {
-                                        echo 'has-error';
-                                        } ?>">
-                                        <label for="am" class="col-md-4">Account Manager *</label>
-                                        <div class="col-md-6">
-                                            <div class="am_holder" id="am_holder_1">
-                                                <select class="form-control am" name="am[]" id="am_1">
-                                                    <option selected disabled value="option_holder">Select Account Manager</option>
-                                                    <?php foreach($employee_list as $employee){ ?>
-                                                    <option value="<?php echo $employee['id']; ?>" <?php if(isset($query[0]['am']) && ($query[0]['am'] === $employee['id'] )){ echo "selected";}?>><?php echo $employee['full_name']; ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                                <?php echo form_error('am'); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -2817,8 +2817,8 @@
                     <thead>
                         <tr>
                             <th>S.N</th>
-                            <th>State</th>
                             <th>Account Manager</th>
+                            <th>State</th>
                             <th>Active / Inactive <br>Mapping</th>
                             <th>Edit</th>
                         </tr>
@@ -2831,8 +2831,8 @@
                                 ?>
                         <tr>
                             <td><?php echo $index; ?></td>
-                            <td><?php echo $value['state'] ?></td>
                             <td><?php echo $value['full_name'] ?></td>
+                            <td><?php echo $value['state'] ?></td>
                             <td><?php if($value['is_active']) { ?>
                                 <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_mapping('<?php echo $value['id'] ?>','0','Deactivate')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
                            <?php } else {?>
@@ -3005,23 +3005,23 @@
                         <div class="col-md-12">
                             <div class="form-group ">
                                 <div class="col-md-6">
-                                    <label for="state" class="col-md-4">State *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" name="state1" id="state1">
-                                            <option selected disabled value="option_holder">Select State</option>
-                                            <?php foreach ($results['select_state'] as $state) {    ?>
-                                            <option value = "<?php echo $state['state'] ?>"    ><?php echo $state['state']; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>                                       
-                                <div class="col-md-6">
                                     <label for="am" class="col-md-4">Account&nbsp;Manager&nbsp;*</label>
                                     <div class="col-md-8">
                                         <select class="form-control" name="am1" id="am1">
                                             <option selected disabled value="option_holder">Select Account Manager</option>
                                             <?php foreach($employee_list as $employee){ ?>
                                             <option value="<?php echo $employee['id']; ?>" ><?php echo $employee['full_name']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="state" class="col-md-4">State *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" name="state1" id="state1">
+                                            <option selected disabled value="option_holder">Select State</option>
+                                            <?php foreach ($results['select_state'] as $state) {    ?>
+                                            <option value = "<?php echo $state['state'] ?>"    ><?php echo $state['state']; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -3439,7 +3439,7 @@
     
     $("button.remove1").on("click", remove1);
     
-    var cloneIndexMapping = $(".clonedInputMapping").length +1;console.log(cloneIndexMapping);
+    var cloneIndexMapping = $(".clonedInputMapping").length +1;
     
     function clone2(){
        $(this).parents(".clonedInputMapping").clone()
@@ -3466,6 +3466,8 @@
                  placeholder: "Select Account Manager",
                  allowClear: true,
              });
+             $('#am_'+cloneIndexMapping).attr('name','am['+(cloneIndexMapping-1)+']');
+             $('#am_state_'+cloneIndexMapping).attr('name','am_state['+(cloneIndexMapping-1)+'][]');
              $("#select2-am_state_"+cloneIndexMapping+"-container").val("");
              $("#select2-am_"+cloneIndexMapping+"-container").val("");
        cloneIndexMapping++;
@@ -4201,19 +4203,19 @@
        return true;
     }
     function process_partner_am_mapping_validations (){
-       var div_count = $('.am_state').length;
-       for(var i=1;i<=div_count;i++){
-           am_state = $("#am_state_"+i).val();
-           am = $("#am_"+i).val();
-           if(am_state && am){ 
-              return true;
-           }
-           else{
-               alert('Please add all mandatory fields!!');
-               return false;
-           }
-       }
-       return true;
+        $('.am_state').each(function() {
+            var id = (this.id).split("_")[2];
+            am_state = $("#am_state_"+id).val();
+            am = $("#am_"+id).val();
+            if(am_state && am){ 
+               return true;
+            }
+            else{
+                alert('Please add all mandatory fields!!');
+                return false;
+            }
+        });
+        return true;
     }
     function edit_partner_am_mapping_validations(){
         state1 = $("#state1").val();

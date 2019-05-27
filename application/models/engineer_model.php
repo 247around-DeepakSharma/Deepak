@@ -241,7 +241,7 @@ class Engineer_model extends CI_Model {
             $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
         }
         $query = $this->db->get();
-        echo $this->db->last_query(); die();
+        //echo $this->db->last_query(); die();
         return $query->result_array();
     }
 }

@@ -2093,4 +2093,30 @@ class vendor_model extends CI_Model {
         
         return $response;
     }
+    
+     /**
+     * @Desc: This function is used to insert entity identity proof details
+     * @params: $data Array
+     * @return: $last insert id
+     * 
+     */
+    function add_entity_identity_proof($data) {
+        $this->db->insert('entity_identity_proof', $data);
+        return $this->db->insert_id();
+    }
+    
+    function update_entity_identity_proof($where, $data){
+        $this->db->where($where);
+        $this->db->update('entity_identity_proof', $data);
+        log_message('info', __METHOD__ . "=> Update Engineer " . $this->db->last_query() );
+    }
+    
+    function get_engg_full_detail($select="*", $where= array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->join("entity_identity_proof", "entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type='engineer'");
+        $query = $this->db->get('engineer_details');
+        return $query->result_array();
+    }
 }
+

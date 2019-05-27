@@ -3355,9 +3355,21 @@ class Inventory extends CI_Controller {
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
+                
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
-                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                    $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                            
+                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                        }
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
@@ -3390,6 +3402,8 @@ class Inventory extends CI_Controller {
                                 $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
                                 $data['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
                                 $data['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                                $data['status'] = SPARE_PARTS_SHIPPED;
+                                $status = SPARE_PARTS_SHIPPED;
                             } else {
                                 $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                                 $data['defective_return_to_entity_id'] = $ledger['sender_entity_id'];
@@ -3401,9 +3415,22 @@ class Inventory extends CI_Controller {
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                 'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
+                            
+                            $status = SPARE_SHIPPED_TO_WAREHOUSE;
                         }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
-                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
+                        $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = $status;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                            
+                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                        }
+                        $this->notify->insert_state_change($value['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                         $qty = $qty + 1;
                     }
                 }
@@ -3951,8 +3978,10 @@ class Inventory extends CI_Controller {
             'requested_inventory_id' => $data->inventory_id
         );
         $update['wh_ack_received_part'] = 1;
+        $status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
         if ($data->is_wh_micro == 2) {
             $update['status'] = SPARE_DELIVERED_TO_SF;
+            $status = SPARE_DELIVERED_TO_SF;
         }
         if (!empty($data->booking_id)) {
 
@@ -3960,13 +3989,25 @@ class Inventory extends CI_Controller {
             
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
+            
+            $actor = $next_action = NULL;
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $data->booking_id);
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['internal_status'] = $status;
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+
+                $this->booking_model->update_booking($data->booking_id, $booking);
+            }
             log_message('info', __METHOD__ . " Booking ID updated " . $data->booking_id);
         } else {
             if ($data->is_wh_micro == 2) {
                 $where['service_center_id'] = $receiver_entity_id;
             }
 
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
             $qty = 1;
             if (!empty($spare)) {
                 foreach ($spare as $value) {
@@ -3975,6 +4016,18 @@ class Inventory extends CI_Controller {
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                         log_message('info', __METHOD__ . "Multi Booking Booking ID updated " . $data->booking_id . " requested inventory id " . $data->inventory_id);
                         $qty = $qty - 1;
+                        
+                        $actor = $next_action = NULL;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['internal_status'] = $status;
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+
+                            $this->booking_model->update_booking($data->booking_id, $booking);
+                        }
                     }
                 }
             }
@@ -3989,7 +4042,7 @@ class Inventory extends CI_Controller {
                 if ($data->is_wh_micro == 2) {
                     $where1['service_center_id'] = $receiver_entity_id;
                 }
-                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
+                $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", $where1, false);
                 if (!empty($spare)) {
                     $update['entity_type'] = _247AROUND_SF_STRING;
                     $update['partner_id'] = $receiver_entity_id;
@@ -3999,6 +4052,18 @@ class Inventory extends CI_Controller {
                             $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $update);
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $receiver_entity_id, $data->inventory_id, 1);
                             $qty = $qty - 1;
+                            
+                            $actor = $next_action = NULL;
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $status, _247AROUND, $value['booking_id']);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['internal_status'] = $status;
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $actor = $booking['actor'] = $partner_status[2];
+                                $next_action = $booking['next_action'] = $partner_status[3];
+
+                                $this->booking_model->update_booking($data->booking_id, $booking);
+                            }
                         }
                     }
                 }
@@ -4925,6 +4990,9 @@ class Inventory extends CI_Controller {
             $row[] = "<a href='" . base_url() . "employee/inventory/get_inventory_by_model/" . urlencode($model_list->id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
         }
 
+
+         $row[] = "<button class='btn btn-primary btn-sm' data='" . $json_data . "' onclick='edit_mapped_model(this)'>Edit</button>";
+
         return $row;
     }
 
@@ -4985,6 +5053,7 @@ class Inventory extends CI_Controller {
             $response = $this->inventory_model->insert_appliance_model_data($data);
             if (!empty($response)) {
                 $res['response'] = 'success';
+                $res['id'] =$response;
                 $res['msg'] = 'Model Number Inserted Successfully';
                 log_message("info", __METHOD__ . ' Inventory added successfully');
             } else {
@@ -5896,10 +5965,15 @@ class Inventory extends CI_Controller {
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
         $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
-        $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'));
+
+        if ($this->input->post('service_id') && $this->input->post('service_id') !== 'all') {
+            $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'),'partner_appliance_details.service_id'=>$this->input->post('service_id'));
+        }else{
+           $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id')); 
+        }
+
         $post['join'] = array(
-            "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model",
-            "services" => "services.id = partner_appliance_details.service_id"
+            "appliance_model_details" => "appliance_model_details.id = partner_appliance_details.model","services" => "services.id = partner_appliance_details.service_id"
         );
         $post['joinType'] = array("services" => "INNER", "appliance_model_details" => "LEFT");
         $select = "partner_appliance_details.id as tid, partner_appliance_details.model as model_id, partner_appliance_details.service_id, services.services, partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity, appliance_model_details.model_number, partner_appliance_details.active";
@@ -5923,15 +5997,23 @@ class Inventory extends CI_Controller {
 
     function get_partner_mapped_model_table($model_list, $no, $source) {
         $row = array();
-        $json = json_encode(array("map_id" => $model_list->tid, "model" => $model_list->model_id, "service" => $model_list->service_id, "brand" => $model_list->brand, "category" => $model_list->category, "capacity" => $model_list->capacity, "model_number" => $model_list->model_number));
+        $json = json_encode(array("map_id" => $model_list->tid, "model" => $model_list->model_id, "service" => $model_list->service_id, "brand" => $model_list->brand, "category" => $model_list->category, "capacity" => $model_list->capacity, "model_number" => $model_list->model_number,"services"=>$model_list->services));
         $row[] = $no;
-        $row[] = $model_list->model_number;
         $row[] = $model_list->services;
+        if(!empty($model_list->model_number)){
+            if ($this->session->userdata('userType') == 'service_center') {
+            $row[] = $model_list->model_number; 
+            } else {
+             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
+             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
+           }  
+        }else{
+           $row[] = "<span>Not Available</span>"; 
+        }
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
         $row[] = $model_list->capacity;
-
-        if ($source == "admin_crm") {
+      if ($source == "admin_crm") {
             if ($model_list->active == 1) {
                 $row[] = "<button class='btn btn-warning btn-sm' onclick='update_mapping_status(" . $model_list->active . ", " . $model_list->tid . ")'>Active</button>";
             } else {
@@ -5947,6 +6029,17 @@ class Inventory extends CI_Controller {
             }
             $row[] = "<button class='btn btn-primary btn-sm' data='" . $json . "' onclick='edit_mapped_model(this)'>Edit</button>";
         }
+
+        if(!empty($model_list->model_id)){
+            if ($this->session->userdata('userType') == 'service_center') {
+            $row[] = "<a href='" . base_url() . "service_center/inventory/inventory_list_by_model/" . urlencode($model_list->model_id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+            } else {
+            $row[] = "<a href='" . base_url() . "employee/inventory/get_inventory_by_model/" . urlencode($model_list->model_id) . "' class ='btn btn-primary' title='Get Part Details' target='_blank'><i class = 'fa fa-eye'></i></a>";
+           }  
+        }else{
+           $row[] = "<span>Not Available</span>"; 
+        }
+
         return $row;
     }
 
@@ -5986,6 +6079,51 @@ class Inventory extends CI_Controller {
             $return['status'] = false;
             $return['message'] = "Model Number Mapping Already Exist";
         }
+        echo json_encode($return);
+    }
+
+
+
+       /**
+     *  @desc : This function is used to update mapping model number
+     *  @param : $service_id, $brand, $category, $capacity, $model
+     *  @return : array
+     */
+    function add_model_number_mapping() {
+        $return = array();
+
+            $aplliance_model_where = array(
+            'service_id' => $this->input->post("service_id"),
+            'model_number' => trim($this->input->post('model')),
+            'entity_type' => 'partner',
+            'entity_id' => $this->input->post('entity_id'),
+        );
+            $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+            if (empty($model_detail)) {
+
+            $data = array('service_id' => $this->input->post('service_id'),
+                'model_number' => trim($this->input->post('model')),
+                'entity_id' => $this->input->post('entity_id'),
+                'entity_type' => $this->input->post('entity_type')
+            );
+           $resp = $this->add_appliance_model_data($data);     
+           $details = array(
+           "partner_id" => $this->input->post("partner_id"),
+           "service_id" => $this->input->post("service_id"),
+           "brand" => $this->input->post("brand"),
+           "category" => $this->input->post("category"),
+           "capacity" => $this->input->post("capacity"),
+           "model" => $resp['id'],
+           );
+            $this->partner_model->insert_partner_appliance_detail($details);
+            $return['status'] = true;
+            $return['message'] = "Model Number Added And  Mapping Successfully";
+            }else{
+            $return['status'] = false;
+            $return['message'] = "Model Number Mapping Already Exist";
+            }
+
+      
         echo json_encode($return);
     }
 
@@ -6091,6 +6229,24 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
+    
+    function send_msl_to_micro_from_warehouse(){
+        $partner_id = $this->input->post('partner_id');
+        $mwh_id = $this->input->post('wh_id');
+        $is_wh_micro = $this->input->post('is_wh_micro');
+        $awb_number = $this->input->post('awb_number');
+        $courier_name = $this->input->post('courier_name');
+        $courier_shipment_date = $this->input->post('courier_shipment_date');
+        $partner_name = trim($this->input->post('partner_name'));
+        $wh_name = trim($this->input->post('wh_name'));
+        $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
+        if (!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($invoice_amount) && !empty($awb_number) && !empty($courier_name)) {
+            $parts_details = $this->input->post('part');
+            if (!empty($parts_details)) {
+                
+            }
+        }
     }
 
 }
