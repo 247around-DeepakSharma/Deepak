@@ -1243,7 +1243,17 @@
     });
     
     function uncheckedPickupScheduleCheckbox(sequence_id){
-  
+    
+         var len = $(".pickup_request:checked").length;
+         
+         if(len > 0){
+            $("#request_pickup").attr('disabled',false);    
+         }else{
+             $("#request_pickup").attr('disabled',true);   
+         }
+         
+         $("#schedule_pickup").attr('disabled',true);
+          
          $('.pickup_schedule').prop('checked', false);
          
         var service_center_id_arr = [];         
@@ -1268,7 +1278,18 @@
     }
     
     function uncheckedPickupRequest(sequence_id){
-         $('.pickup_request').prop('checked', false);
+        
+        var len = $(".pickup_schedule:checked").length;
+
+        if(len > 0){
+          $("#schedule_pickup").attr('disabled',false);    
+        }else{
+           $("#schedule_pickup").attr('disabled',true);   
+        }
+
+        $("#request_pickup").attr('disabled',true);
+
+        $('.pickup_request').prop('checked', false);
           
         var service_center_id_arr = [];         
         $(".pickup_schedule:checked").each(function(i){
