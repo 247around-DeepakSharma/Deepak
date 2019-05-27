@@ -1185,9 +1185,17 @@ class vendor extends CI_Controller {
             $sp['service_center_id'] = $service_center_id;
             $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
 
+           $default_id =_247AROUND_DEFAULT_AGENT;
+           $defaultagent_name =_247AROUND_DEFAULT_AGENT_NAME ; 
+           if (!empty($this->session->userdata('id'))  &&  !empty($this->session->userdata('employee_id'))) {
+                $default_id =$this->session->userdata('id');
+                $defaultagent_name =$this->session->userdata('employee_id') ; 
+           }
+
             //Mark Upcountry & Create Job Card
-            $url = base_url() . "employee/vendor/mark_upcountry_booking/" . $booking_id . "/" . $this->session->userdata('id')
-                    . "/" . $this->session->userdata('employee_id');
+            $url = base_url() . "employee/vendor/mark_upcountry_booking/" . $booking_id . "/" . $default_id
+                    . "/" . $defaultagent_name;
+
             $async_data['data'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
 
