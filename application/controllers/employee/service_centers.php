@@ -3202,7 +3202,7 @@ class Service_centers extends CI_Controller {
 
         if (!empty($generate_challan)) {
             $post = array();
-            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan);
+            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED);
             $post['is_inventory'] = true;
             $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);

@@ -686,7 +686,7 @@
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
-                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,nits@247around.com,".ACCOUNTANT_EMAILID; }
+                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,".ACCOUNTANT_EMAILID; }
                                             ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
                                     </div>
