@@ -457,8 +457,8 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('service_centre_charges', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'purchase_invoice_pod' => 1], null, null, null, null, null)->result_array();
-        
+        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
+         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
