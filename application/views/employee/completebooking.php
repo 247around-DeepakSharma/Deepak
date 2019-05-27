@@ -638,7 +638,7 @@
 </script>
 <script>
     
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'service_category') : [])); ?>
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
 
     
     $("#service_id").select2();

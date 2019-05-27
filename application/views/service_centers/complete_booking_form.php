@@ -412,7 +412,7 @@
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($value['product_or_services'] == "Product"
                                                                 && $value['customer_net_payable'] > 0){ echo "text"; } 
                                                                 else { echo "hidden";}?>" class="form-control cost" 
-                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0">
                                                             <?php } ?>
                                                             <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($value['product_or_services'] != "Service"){ 
                                                                 if ($value['product_or_services'] == "Product" && $value['customer_net_payable'] == 0) { 
@@ -601,8 +601,8 @@
 </div>
 <script>
     
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'service_category') : [])); ?>
-    
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
+      
     $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
