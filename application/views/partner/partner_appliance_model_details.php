@@ -470,6 +470,8 @@
             success:function(response){
                 if(response){
                    $('#mapping_service_id').html(response); 
+                    $('#mapping_service_id').find("#allappliance").remove(); 
+
                 }
             }
         });
