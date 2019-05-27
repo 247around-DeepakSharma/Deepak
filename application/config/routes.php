@@ -145,6 +145,7 @@ $route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';
+$route['partner/spare_shipped_history'] = 'employee/partner/spare_shipped_history';
 $route['partner/home'] = 'employee/partner/partner_default_page';
 $route['partner/dashboard'] = 'employee/partner/partner_dashboard';
 $route['partner/search'] = 'employee/partner/search';

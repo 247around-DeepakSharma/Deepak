@@ -2716,7 +2716,124 @@ class Spare_parts extends CI_Controller {
     
     }
     
-    
-    
+
+    function update_spare_parts_on_approval($code){
+        log_message('info', __FUNCTION__ . " Spare Parts ID: " . base64_decode(urldecode($code)));
+       // $this->checkUserSession();
+        $spare_id = base64_decode(urldecode($code));       
+        $where = array('spare_parts_details.id'=>$spare_id);
+        $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+                . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
+                . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
+                . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
+        $data['spare_parts_details'] = $spare_parts_details[0];       
+        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/update_spare_parts_form_on_approval', $data);
+    }
+
+
+    /**
+     *  @desc : This function is used to get the post data for booking by status
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    private function get_post_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+
+     /**
+     *  @desc : This function is used to show all the spare list which was send by partner to warehouse 
+     *  @param : void
+     *  @return : $res JSON
+     */
+    function get_spare_send_by_partner_to_wh() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $post = $this->get_post_data();
+        $post['is_courier_details_required'] = TRUE;
+        $post['column_order'] = array();
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['where'] = array(
+            'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
+            'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
+            'i.sender_entity_type' => trim($this->input->post('sender_entity_type')));
+            // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+
+        $select = "services.services,sc1.name as sname,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                    WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                    WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                    CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                    WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+        $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
+        // print_r($this->db->last_query());
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_spare_send_by_partner_to_wh_table($inventory_list, $no);
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_spare_need_to_acknowledge($post),
+            "recordsFiltered" => $this->inventory_model->count_filtered_spare_need_to_acknowledge($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+
+     /**
+     *  @desc : This function is used to generate data for the spare which send by partner to wh
+     *  @param : $inventory_list array()
+     *  @param : $no string
+     *  @return :void
+     */
+    function get_spare_send_by_partner_to_wh_table($inventory_list, $no) {
+        $row = array();
+
+        $row[] = $no;
+        if ($this->session->userdata('partner_id')) {
+            $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        } else if ($this->session->userdata('id')) {
+            $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        }
+        $row[] = $inventory_list->services;
+        $row[] = $inventory_list->invoice_id;
+        $row[] = $inventory_list->sname;
+        $row[] = $inventory_list->type;
+        $row[] = $inventory_list->part_name;
+        $row[] = "<span style='word-break: break-all;'>" . $inventory_list->part_number . "</span>";
+        $row[] = $inventory_list->quantity;
+        $row[] = $inventory_list->description;
+        $row[] = $inventory_list->courier_name;
+        $a = "<a href='javascript:void(0);' onclick='";
+        $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
+        $a .= ', "' . $inventory_list->AWB_no . '"';
+        $a .= ', "' . $inventory_list->status . '"';
+        $a .= ', "msl_awb_loader_' . $no . '"';
+        $a .= ")'>" . $inventory_list->AWB_no . "</a>";
+        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $row[] = $a;
+        $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='" . $inventory_list->inventory_id . "' data-is_wh_micro='" . $inventory_list->is_wh_micro . "' data-quantity='" . $inventory_list->quantity . "' data-ledger_id = '" . $inventory_list->id . "' data-part_name = '" . $inventory_list->part_name . "' data-booking_id = '" . $inventory_list->booking_id . "' data-invoice_id = '" . $inventory_list->invoice_id . "' data-part_number = '" . $inventory_list->part_number . "'>";
+        
+        return $row;
+    }
+
+
+
 
 }
