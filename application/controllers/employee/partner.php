@@ -701,6 +701,7 @@ class Partner extends CI_Controller {
                     // $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : ' . $partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                     //Sending Mail for Updated details
                     /* This is old template for email */
+                    $cc="";
                     $html = "<p>Following Partner has been Added :</p><ul>";
                     foreach ($return_data['partner'] as $key => $value) {
                         $html .= "<li><b>" . $key . '</b> =>';
@@ -714,6 +715,25 @@ class Partner extends CI_Controller {
                     }
                     $subject = "New Partner Added " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "", NEW_PARTNER_ADDED_EMAIL_TAG);
+                     
+                    // Send new brand onboard notification email to all employee
+                    $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+                    if(!empty($email_template)){
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                        );
+                        $this->table->set_template($template);
+                        $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type'));
+                        $this->table->add_row(array($this->input->post('company_name'),$this->input->post('public_name'), $this->input->post('partner_type')));
+                        $html_table = $this->table->generate();
+                        
+                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                    }
                     
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
@@ -5406,21 +5426,24 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata('success', $msg);
                 
                 $am_id='';
-                // Send new brand onboard notification email to all employee
-                $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+                // Send new brand am notification email to all employee
+                $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_AM_NOTIFICATION);
 
                 if(!empty($email_template)){
                     $template = array(
                         'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
                     );
                     $this->table->set_template($template);
-                    $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager', 'State'));
-                    foreach($am_record as $value){
-                        if($am_id !== $value['am']) {
-                            $account_manager_name = $this->employee_model->getemployeefromid($value['am'])[0]['full_name'];
+                    $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager'));
+                    foreach($this->input->post('am') as $index=>$am){
+                        if($am_id !== $am) {
+                            $account_manager_name = $this->employee_model->getemployeefromid($am)[0]['full_name'];
                         }
-                        $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name, $value['state']));
-                        $am_id = $value['am'];
+                        foreach($this->input->post('am_state')[$index] as $key=>$state){
+                            $state_str = ((strtolower($state) !== 'all') ? (" - ".$state) : '');
+                            $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name.$state_str));
+                        }
+                        $am_id = $am;
                     }
                     $html_table = $this->table->generate();
 
@@ -5429,7 +5452,7 @@ class Partner extends CI_Controller {
                     $cc = $email_template[3];
                     $subject = vsprintf($email_template[4], array($public_name));
                     $message = vsprintf($email_template[0], array($html_table));
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_AM_NOTIFICATION);
                 }
             }
             else if($count > 0) {
@@ -5453,6 +5476,11 @@ class Partner extends CI_Controller {
     function edit_partner_am_mapping(){
        if($this->input->post('partner_id')){
             $partnerID = $this->input->post('partner_id');
+            $get_partner_details = $this->partner_model->getpartner_data("company_name, public_name, partner_type", 
+                    array('partners.id' => $partnerID),"",0,1);
+            $company_name = $get_partner_details[0]['company_name'];
+            $public_name = $get_partner_details[0]['public_name'];
+            $partner_type = $get_partner_details[0]['partner_type'];
             
             $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $this->input->post('state1'), 'agent_id' => $this->input->post('am1')));
             if(empty($am_data)) {
@@ -5464,6 +5492,31 @@ class Partner extends CI_Controller {
                 if($update_data){
                     $msg =  "Partner AM Mapping has been updated successfully ";
                     $this->session->set_userdata('success', $msg);
+                    
+                    // Send updated brand am notification email to all employee
+                    $email_template = $this->booking_model->get_booking_email_template(UPDATE_PARTNER_AM_NOTIFICATION);
+                    
+                    if(!empty($email_template)){
+                        $template = array(
+                            'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                        );
+                        $this->table->set_template($template);
+                        $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type', 'Account Manager'));
+
+                        $account_manager_name = $this->employee_model->getemployeefromid($data['agent_id'])[0]['full_name'];
+
+                        $state_str = ((strtolower($data['state']) !== 'all') ? (" - ".$data['state']) : '');
+                        $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name.$state_str));
+
+                        $html_table = $this->table->generate();
+
+                        $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($public_name));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", UPDATE_PARTNER_AM_NOTIFICATION);
+                    }
                 }
                 else{
                     $msg =  "No update done";

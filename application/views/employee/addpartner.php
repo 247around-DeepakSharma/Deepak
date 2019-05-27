@@ -3476,8 +3476,10 @@
        return false;
     }  
     function remove2(){
-       $(this).parents(".clonedInputMapping").remove();
-       return false;
+        if($('div.clonedInputMapping').length > 1) {
+            $(this).parents(".clonedInputMapping").remove();
+        }
+        return false;
     }
     $("button.clone2").on("click", clone2);
     

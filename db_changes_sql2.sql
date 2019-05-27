@@ -56,4 +56,11 @@ VALUES ('247Around', 'File Type List', NULL, 'employee/booking/show_file_type_li
 UPDATE `email_template` SET `template` = 'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 19;
 
 UPDATE `email_template` SET `template` = 'Dear %s,<br><br> <b> %s </b> Service Franchise is Temporarily <b> %s </b> now by %s. <br><br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 18;
- 
+
+ --Kajal 27-05-2019---
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
+(NULL, 'new_partner_am_notification', 'New AM added for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
+(NULL, 'update_partner_am_notification', 'AM updated for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP); 
