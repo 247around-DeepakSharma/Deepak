@@ -759,6 +759,7 @@ class Service_centers extends CI_Controller {
                         }
 
                         if (!empty($result1)) {
+                            $result1[0]['appliance_brand'] = $unit[0]['appliance_brand'];
                             // Free from Paid
                             if ($result1[0]['customer_net_payable'] == 0) {
                                 if ($unit[0]['customer_net_payable'] > 0) {
@@ -821,6 +822,7 @@ class Service_centers extends CI_Controller {
                             'unit_details_id' => $k);
 
                         $this->service_centers_model->insert_update_applaince_by_sf($array1);
+                        $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'],$model_details[0]['capacity'],$v['appliance_brand'],$v['price_tags'],$booking_id);
                     } else {
                         return FALSE;
                     }
@@ -833,6 +835,24 @@ class Service_centers extends CI_Controller {
             }
         } else {
             return true;
+        }
+    }
+
+    /**
+     * @desc This function is used to send email for insert appliance by sf
+
+     */
+    function send_mail_for_insert_applaince_by_sf($category,$capacity="",$brand="",$service_category="",$booking_id) {
+         $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
+        if (!empty($email_template)) {
+
+            $to =$email_template[5];
+            $cc = $email_template[3];
+            $bcc = $email_template[5];
+            $subject = vsprintf($email_template[4], array());
+            $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",UPDATE_APPLIANCE_BY_SF, "",$booking_id);
         }
     }
 
