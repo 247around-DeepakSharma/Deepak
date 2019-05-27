@@ -214,7 +214,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label col-md-4" for="service_id">Appliance*</label>
                                                     <div class="col-md-7 col-md-offset-1">
-                                                        <select class="form-control" onchange="get_partner_brands();"  id="service_id" name="service_id"></select>
+                                                        <select class="form-control addservices" onchange="get_partner_brands();"  id="service_id" name="service_id"></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -452,7 +452,7 @@
             url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id: '<?php echo $this->session->userdata('partner_id')?>'},
             success:function(response){
-                $('#'+div_to_update).html(response);
+                $('#'+div_to_update).html(response).find("#allappliance").remove();  
                 $('#'+div_to_update).select2({
                     allowClear: true,
                     placeholder: 'Select Appliance'
