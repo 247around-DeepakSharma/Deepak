@@ -5964,10 +5964,11 @@ class Inventory extends CI_Controller {
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
         $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
-     //   $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'));
+
         if ($this->input->post('service_id') && $this->input->post('service_id') !== 'all') {
-            //$post['where']['appliance_model_details.service_id'] = $this->input->post('service_id');
             $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'),'partner_appliance_details.service_id'=>$this->input->post('service_id'));
+        }else{
+           $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id')); 
         }
 
         $post['join'] = array(

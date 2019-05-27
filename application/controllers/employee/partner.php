@@ -5248,6 +5248,7 @@ class Partner extends CI_Controller {
             $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
             if($this->input->get('is_option_selected')){
                 $option = '<option  selected="" disabled="">Select Appliance</option>';
+                $option = $option.'<option value="all" >All</option>';
             }else{
                 $option = '';
             }
