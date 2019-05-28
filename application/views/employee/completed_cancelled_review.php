@@ -3,13 +3,17 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <div class="" style="margin-top: 30px;">
          <div class="row">
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+               
+                <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
+            </div>
               <?php if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
                 <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
-                    <option value=""> Select reason </option>
+                    <option value=""> </option>
                     <?php foreach($cancellation_reason as $reason) { ?>
                     <option value="<?= $reason['reason']; ?>"><?= $reason['reason']; ?></option>
                   
@@ -19,10 +23,7 @@
                 
             </div>
              <?php } ?>
-            <div class="col-md-3 pull-right" style="margin-top:20px;">
-               
-                <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
-            </div>
+            
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
                </h2>
@@ -223,6 +224,9 @@
    </div>
 
 <script>
+     $("#cancellation_reason").select2({
+        placeholder : 'Cancellation Reason'
+    });
    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
