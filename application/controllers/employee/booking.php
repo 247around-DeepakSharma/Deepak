@@ -2025,49 +2025,7 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function checked_complete_review_booking() {
-        $requested_bookings = $this->input->post('approved_booking');
-        
-        if($requested_bookings){
-            $state_change_bookings = array();
-            $where['is_in_process'] = 0;
-            $whereIN['booking_id'] = $requested_bookings; 
-            $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
-            foreach($tempArray as $values){
-                $approved_booking[] = $values['booking_id'];
-                /* If bookings came from completion approval than we add extra state change in booking state change for closure team peformane graph*/
-                $booking_status = $this->booking_model->getbooking_charges($values['booking_id']);
-                if(!empty($booking_status)){
-                    $actor = $next_action = 'NULL';
-                    if($booking_status[0]['internal_status'] == _247AROUND_COMPLETED){
-                       $new_state = _247AROUND_COMPLETED_APPROVED;
-                       $closing_remarks = "Booking completed approved by 247around";
-                       $this->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,$this->input->post('approved_by'));
-                    }
-                    else{
-                        $new_state = _247AROUND_CANCELED_APPROVED;
-                        $closing_remarks = "Booking cancelled approved by 247around";
-                        $this->notify->insert_state_change($values['booking_id'], $new_state, _247AROUND_PENDING, $closing_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,$this->input->post('approved_by'));
-                    }
-                }
-                /*end*/
-            }
-            $inProcessBookings = array_diff($requested_bookings,$approved_booking);
-            $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
-            $url = base_url() . "employee/do_background_process/complete_booking";
-            if (!empty($approved_booking)) {
-                $this->booking_model->mark_booking_in_process($approved_booking);
-                $data['booking_id'] = $approved_booking;
-                $data['agent_id'] = $this->session->userdata('id');
-                $data['agent_name'] = $this->session->userdata('employee_id');
-                $data['partner_id'] = $this->input->post('partner_id');
-                $data['approved_by'] = $this->input->post('approved_by'); 
-                $this->asynchronous_lib->do_background_process($url, $data);
-                $this->push_notification_lib->send_booking_completion_notification_to_partner($approved_booking);
-            } else {
-                //Logging
-                log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
-            }
-        }
+        $this->miscelleneous->checked_complete_review_booking($this->input->post());
         redirect(base_url() . 'employee/booking/review_bookings');
     }
 
