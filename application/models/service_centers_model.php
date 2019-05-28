@@ -208,7 +208,7 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array()){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array(), $cancellation_reason = ''){
         $limit = "";
         $where_in = "";
         $userSelect = $join = $groupBy = "";
@@ -266,7 +266,10 @@ class Service_centers_model extends CI_Model {
          }
          $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
-       
+        
+        if(!empty($cancellation_reason)) :
+            $where_sc .= " AND sc.cancellation_reason = '".urldecode($cancellation_reason)."'";
+        endif;
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
