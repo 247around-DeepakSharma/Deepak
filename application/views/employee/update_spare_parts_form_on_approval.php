@@ -129,7 +129,6 @@
                                                 </select>
                                             </div>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                         </div>                              
                                     </div>
                                 </div>
