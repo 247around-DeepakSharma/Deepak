@@ -171,7 +171,7 @@
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review() style=" background-color: #2C9D9C;
+                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
                      <?php } ?>
