@@ -1121,8 +1121,9 @@
         <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important; padding-left: 0px !important;">
             <div class="x_panel">
                 <div class="x_title">
-                    <div class="col-md-5"><h2>Review Completed Booking Status<small></small></h2></div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" style="padding: 0px;"><h2>Review Completed Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Completed Bookings = Rejected Bookings + Direct Approved Bookings + Approved with Edit Bookings">?</button></h2></div>
+                    <div class="col-md-5">
                         <small>
                         <div class="nav navbar-right panel_toolbox">
                             <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
@@ -1146,8 +1147,9 @@
         <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important;">
             <div class="x_panel">
                 <div class="x_title">
-                    <div class="col-md-5"><h2>Review Cancelled Booking Status<small></small></h2></div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" style="padding: 0px;"><h2>Review Cancelled Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Cancelled Bookings = Rejected Bookings + Direct Approved Bookings + Cancelled to Completed Bookings">?</button></h2></div>
+                    <div class="col-md-5">
                         <small>
                         <div class="nav navbar-right panel_toolbox">
                             <div id="reportrange6" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
@@ -1487,6 +1489,7 @@
             placement : 'top',
             trigger : 'hover'
         });
+        
         //top count data
         get_query_data();
         //missing pincode data
@@ -2283,14 +2286,14 @@ function initiate_escalation_data(){
             },
             series: [
                 {
-                    name: 'Reject Bookings',
+                    name: 'Rejected Bookings',
                     data: reject
                 }, {
-                    name: 'Approved Bookings',
+                    name: 'Directly Approved Bookings',
                     data: approved
                 },
                 {
-                    name: 'Complete With Edit Bookings',
+                    name: 'Approved With Edit Bookings',
                     data: edit_complete
                 }, {
                     name: 'Total Completed Bookings',
@@ -2362,14 +2365,14 @@ function initiate_escalation_data(){
             },
             series: [
                 {
-                    name: 'Reject Bookings',
+                    name: 'Rejected Bookings',
                     data: reject
                 }, {
-                    name: 'Approved Bookings',
+                    name: 'Directly Approved Bookings',
                     data: approved
                 },
                 {
-                    name: 'Cancelled With Edit Bookings',
+                    name: 'Cancelled to Completed Bookings',
                     data: edit_complete
                 }, {
                     name: 'Total Cancelled Bookings',

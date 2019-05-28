@@ -362,6 +362,7 @@ class Dashboard extends CI_Controller {
      * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
      * @param $startDate, $endDate
      * @return json
+     * Note - Correct Data will be shown by 28th May 2019, before that all data will be mapped to completed with edit
      */
     function completed_booking_by_closure_graph_data($startDate, $endDate, $status){
         $graph_data = array();
@@ -377,45 +378,47 @@ class Dashboard extends CI_Controller {
             $graph_data = $this->dashboard_model->get_cancelled_booking_graph_data($startDate, $endDate);
         }
         if(!empty($graph_data)){
-            foreach ($graph_data[0] as $key => $value) {
-                switch ($key) {
-                    case 'full_name':
-                        if (!empty($value)) {
-                            array_push($closureName, $value);
-                        } else {
-                            array_push($closureName, '0');
-                        }
-                        break;
-                    case 'completed_rejected':
-                        if (!empty($value)) {
-                            array_push($rejectCompleted, $value);
-                        } else {
-                            array_push($rejectCompleted, '0');
-                        }
-                        break;
-                    case 'completed_approved':
-                        if (!empty($value)) {
-                            array_push($approveComplted, $value);
-                        } else {
-                            array_push($approveComplted, '0');
-                        }
-                        break;
-                    case 'edit_completed':
-                        if (!empty($value)) {
-                            array_push($editCompleted, $value);
-                        } else {
-                            array_push($editCompleted, '0');
-                        }
-                        break;
-                    case 'total_bookings':
-                        if (!empty($value)) {
-                            array_push($totalCompleted, $value);
-                        } else {
-                            array_push($totalCompleted, '0');
-                        }
-                        break;
-                }
             
+            foreach ($graph_data as $data) {
+                foreach ($data as $key => $value) {
+                    switch ($key) {
+                        case 'full_name':
+                            if (!empty($value)) {
+                                array_push($closureName, $value);
+                            } else {
+                                array_push($closureName, '0');
+                            }
+                            break;
+                        case 'completed_rejected':
+                            if (!empty($value)) {
+                                array_push($rejectCompleted, $value);
+                            } else {
+                                array_push($rejectCompleted, '0');
+                            }
+                            break;
+                        case 'completed_approved':
+                            if (!empty($value)) {
+                                array_push($approveComplted, $value);
+                            } else {
+                                array_push($approveComplted, '0');
+                            }
+                            break;
+                        case 'edit_completed':
+                            if (!empty($value)) {
+                                array_push($editCompleted, $value);
+                            } else {
+                                array_push($editCompleted, '0');
+                            }
+                            break;
+                        case 'total_bookings':
+                            if (!empty($value)) {
+                                array_push($totalCompleted, $value);
+                            } else {
+                                array_push($totalCompleted, '0');
+                            }
+                            break;
+                    }
+                }
             }
             $json_data['closures'] = implode(",", $closureName);
             $json_data['reject'] = implode(",", $rejectCompleted);
