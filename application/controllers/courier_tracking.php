@@ -325,7 +325,7 @@ class Courier_tracking extends CI_Controller {
                 }
             }
         }
-        print_r($data_to_insert);
+       
         //insert data into database
         if (!empty($data_to_insert)) {
             $insert_data = $this->inventory_model->insert_courier_api_data($data_to_insert);

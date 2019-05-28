@@ -2580,14 +2580,14 @@ class Spare_parts extends CI_Controller {
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id','sc.name','i.invoice_id');
         $post['where'] = array(
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
             'i.sender_entity_type' => trim($this->input->post('sender_entity_type')));
             // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
 
-        $select = "services.services,sc1.name as sname,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+        $select = "services.services,sc.name as sname,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
                     CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
@@ -2625,9 +2625,9 @@ class Spare_parts extends CI_Controller {
 
         $row[] = $no;
         if ($this->session->userdata('partner_id')) {
-            $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+            $row[] = "<a href='" . base_url() . "partner/booking_details/" .$inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
         } else if ($this->session->userdata('id')) {
-            $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+            $row[] = "<a href='" . base_url() . "partner/booking_details/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
         }
         $row[] = $inventory_list->services;
         $row[] = $inventory_list->invoice_id;
@@ -2646,7 +2646,7 @@ class Spare_parts extends CI_Controller {
         $a .= ")'>" . $inventory_list->AWB_no . "</a>";
         $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
         $row[] = $a;
-        $row[] = "<input type='checkbox' class= 'check_single_row' id='ack_spare_$inventory_list->inventory_id' data-inventory_id='" . $inventory_list->inventory_id . "' data-is_wh_micro='" . $inventory_list->is_wh_micro . "' data-quantity='" . $inventory_list->quantity . "' data-ledger_id = '" . $inventory_list->id . "' data-part_name = '" . $inventory_list->part_name . "' data-booking_id = '" . $inventory_list->booking_id . "' data-invoice_id = '" . $inventory_list->invoice_id . "' data-part_number = '" . $inventory_list->part_number . "'>";
+
         
         return $row;
     }
