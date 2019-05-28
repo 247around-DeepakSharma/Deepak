@@ -26,7 +26,7 @@
                                                                     <th>Spare Part Name</th>
                                                                     <th>Spare Part Number</th>
                                                                     <th>Spare Quantity</th>
-                                                                    <th>Desciption</th>
+                                                                    <th>Description</th>
                                                                     <th>Courier Name</th>
                                                                     <th>Courier AWB Number</th>
 
