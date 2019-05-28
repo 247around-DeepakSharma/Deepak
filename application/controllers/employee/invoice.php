@@ -4099,8 +4099,10 @@ class Invoice extends CI_Controller {
             $spare = $this->partner_model->get_spare_parts_by_any("booking_details.partner_id AS booking_partner_id, "
                     . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                     . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
-                    . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
-                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, FALSE);
+                    . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id, service_centres.sc_code,"
+                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, TRUE);
+            
+           
             if(!empty($spare)){
                 $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
                 if(!empty($partner_details)){
