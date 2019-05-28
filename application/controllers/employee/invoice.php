@@ -4099,19 +4099,19 @@ class Invoice extends CI_Controller {
             $spare = $this->partner_model->get_spare_parts_by_any("booking_details.partner_id AS booking_partner_id, "
                     . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                     . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
-                    . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id, service_centres.sc_code,"
-                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, TRUE);
+                    . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
+                    . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, FALSE);
             
            
             if(!empty($spare)){
                 $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
                 if(!empty($partner_details)){
-                    if ($spare[0]['is_micro_wh'] == 1 && empty($spare[0]['reverse_purchase_invoice_id'])) {
+                    if ($spare[0]['is_micro_wh'] == 1 && empty($spare[0]['reverse_purchase_invoice_id'])) { 
                         if (!empty($spare[0]['shipped_inventory_id'])) {
                             if (empty($spare[0]['gst_number'])) {
                                 $spare[0]['gst_number'] = TRUE;
                             }
-                            $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                            $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id("Around");
                             $spare[0]['spare_id'] = $spare_id;
                             $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                             $spare[0]['booking_partner_id'] = $spare[0]['partner_id'];
