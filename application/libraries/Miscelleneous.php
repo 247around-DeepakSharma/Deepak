@@ -3418,6 +3418,11 @@ function generate_image($base64, $image_name,$directory){
         return $response;
     }
 
+    
+    
+    
+
+    
     function get_247aroud_warehouse_in_sf_state($state){
         $select = "contact_person.entity_id, contact_person.entity_type";
         $where1 = array('warehouse_state_relationship.state' => $state,'warehouse_details.entity_id' => _247AROUND, 
