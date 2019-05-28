@@ -385,7 +385,7 @@
                                                                 <div class="col-md-10">
                                                                     <div class="radio">
                                                                         <label>
-                                                                        <input type="radio" class="<?php echo "completed_".$count."_".$keys;?>" id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+                                                                        <input type="radio" class="<?php echo "completed_".$count."_".$keys;?>" onclick="return change_status('<?php echo $count;?>');" id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
                                                                             if ($price['booking_status'] == "Completed") {
                                                                                 echo "checked";
                                                                             }
@@ -396,7 +396,7 @@
                                                                                echo " Completed";
                                                                             }
                                                                             ?><br/>
-                                                                        <input type="radio" class="<?php echo "cancelled_".$count."_".$keys;?>" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+                                                                        <input type="radio" class="<?php echo "cancelled_".$count."_".$keys;?>" onclick="return change_status('<?php echo $count;?>');" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                             if ($price['booking_status'] == "Cancelled") {
                                                                                 echo "checked";
                                                                             }
@@ -432,10 +432,10 @@
                                                 <td> <?php echo $value['service_category']; ?> </td>
                                                 <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                 <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
-                                                <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
-                                                <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">
+                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "basic_charge".$count; ?>"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
+                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "extra_charge".$count; ?>"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">
                                                 </td>
-                                                <td>  <input  type="text" class="form-control cost"   name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo "0.00"; ?>"></td>
+                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "parts_cost".$count; ?>"   name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo "0.00"; ?>"></td>
                                                 <td>
                                                     <div class="row">
                                                         <div class="col-md-12">
@@ -443,8 +443,8 @@
                                                                 <div class="col-md-10">
                                                                     <div class="radio">
                                                                         <label>
-                                                                        <input <?php echo "completed_".$count."_".$keys;?> type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
-                                                                        <input <?php echo "Cancelled_".$count."_".$keys;?> type="radio" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
+                                                                        <input class="<?php echo "completed_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
+                                                                        <input class="<?php echo "cancelled_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
                                                                         </label>
                                                                     </div>
                                                                 </div>
@@ -520,7 +520,7 @@
                                         <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php if(isset($technical_problem)) {
                                             foreach ($technical_problem as $value) { 
-                                                $selected=(($value['id'] == 0) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time']))) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
                                             <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                         <?php } } ?>
@@ -533,7 +533,7 @@
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
                                         <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { 
-                                            $selected=(($value['defect_id'] == 0) ? 'selected' :''); ?>
+                                            $selected=((($value['defect_id'] == 0) || (!empty($booking_symptom) && ($value['defect_id'] == $booking_symptom[0]['defect_id_completion']))) ? 'selected' :''); ?>
                                         <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
                                     <?php }?>
                                     </select>
@@ -548,7 +548,7 @@
                                 <div class="col-md-8" >
                                     <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Solution</option>
-                                        <?php if($technical_problem[0]['id'] == 0) { ?>
+                                        <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
                                         <option value="0" selected>Default</option>
                                         <?php } ?>
                                     </select>
@@ -626,7 +626,7 @@
     var categoryForServiceUrl = '<?php echo base_url();?>/employee/booking/getCategoryForService/';
     var CapacityForCategoryUrl = '<?php echo base_url();?>/employee/booking/getCapacityForCategory/';
     
-    
+    var solution_id = "";
     $(document).ready(function () {
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
@@ -637,8 +637,19 @@
     return false;
      }
     });
-    if($('#technical_solution').val() == 0)
+    
+    solution_id = "<?php echo ((!empty($booking_symptom) && ($technical_problem[count($technical_problem)-1]['id'] != 0))?$booking_symptom[0]['solution_id']:"");?>";
+    if((solution_id !== "") && (solution_id != 0)) {
+        update_solution();
+    }
+    
+    if($('#technical_solution').val() == 0) {
         $('#technical_solution').removeAttr('disabled');
+    }
+    
+        $(":radio").each(function() {
+            $("#"+this.id).prop("checked",false);
+        });
     });
     
     
@@ -687,17 +698,26 @@
             type: 'POST',
             url: '<?php echo base_url() ?>employee/service_centers/get_solution_on_symptom_defect',
             data:{technical_symptom:technical_symptom,technical_defect:technical_defect},
+            async: false,
             success: function (response) {
                 $('#technical_solution').removeAttr('disabled');
                 $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
                 var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
+                
+                var selected;
                 if(response.length>0)
                 {
                     for(var i=0;i<response.length;i++)
                     {
-                        str+="<option value="+response[i]['solution_id']+" >"+response[i]['technical_solution']+"</option>";
+                        selected="";
+                        if(response[i]['solution_id'] === solution_id)
+                        {
+                            selected = "selected";
+                            $('#select2-technical_solution-container').text(response[i]['technical_solution']);
+                        }
+                        str+="<option value="+response[i]['solution_id']+" "+selected+" >"+response[i]['technical_solution']+"</option>";
                     }
                 }
                 $('#technical_solution').append(str);
@@ -1008,6 +1028,29 @@
     });
     
     })(jQuery, window, document);
+    
+    function change_status(div) {
+        $("#basic_charge"+div).prop("readonly",false);
+        $("#extra_charge"+div).prop("readonly",false);
+        $("#parts_cost"+div).prop("readonly",false);
+        
+        var total = parseInt($("#basic_charge"+div).val())+parseInt($("#extra_charge"+div).val())+parseInt($("#parts_cost"+div).val());
+        if($(".cancelled_"+div+"_0").is(":checked")) {
+            if(total > 0) {
+                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed ? ");
+                if(!cnfrm){
+                    return false;
+                }
+                $("#basic_charge"+div).val('0');
+                $("#extra_charge"+div).val('0');
+                $("#parts_cost"+div).val('0');
+                $("#grand_total_price").val(parseInt($("#grand_total_price").val())-parseInt(total));
+            }
+            $("#basic_charge"+div).prop("readonly",true);
+            $("#extra_charge"+div).prop("readonly",true);
+            $("#parts_cost"+div).prop("readonly",true);
+        }
+    }
     
     function update_brand_details() {
     if (document.getElementById('enable_change_unit').checked) {

@@ -291,7 +291,7 @@
                                                                     <div class="form-group ">
                                                                         <div class="col-md-12">
                                                                             <div class="radio">
-                                                                                <label><input onclick="check_broken('<?php echo $key1;?>')" class="<?php echo "completed_".$key."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+                                                                                <label><input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key1;?>');" class="<?php echo "completed_".$key."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
                                                                                     if ($price['booking_status'] == "Completed") {
                                                                                     echo "checked";
                                                                                     }
@@ -302,7 +302,7 @@
                                                                                     echo " Completed";
                                                                                     }
                                                                                     ?><br/>
-                                                                                <input onclick="check_broken('<?php echo $key1;?>')" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+                                                                                <input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key1;?>');" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                                     if ($price['booking_status'] == "Cancelled") {
                                                                                     echo "checked";
                                                                                     }
@@ -498,6 +498,10 @@
         });
         if($('#technical_solution').val() == 0)
             $('#technical_solution').removeAttr('disabled');
+        
+        $(":radio").each(function() {
+            $("#"+this.id).prop("checked",false);
+        });
     });
     
     
@@ -902,6 +906,29 @@
                    
                no++;
             }
+        }
+    }
+    
+    function change_status(div) {
+        $("#basic_charge"+div).prop("readonly",false);
+        $("#extra_charge"+div).prop("readonly",false);
+        $("#parts_cost"+div).prop("readonly",false);
+        
+        var total = parseInt($("#basic_charge"+div).val())+parseInt($("#extra_charge"+div).val())+parseInt($("#parts_cost"+div).val());
+        if($(".cancelled_"+div+"_0").is(":checked")) {
+            if(total > 0) {
+                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed ? ");
+                if(!cnfrm){
+                    return false;
+                }
+                $("#basic_charge"+div).val('0');
+                $("#extra_charge"+div).val('0');
+                $("#parts_cost"+div).val('0');
+                $("#grand_total_price").val(parseInt($("#grand_total_price").val())-parseInt(total));
+            }
+            $("#basic_charge"+div).prop("readonly",true);
+            $("#extra_charge"+div).prop("readonly",true);
+            $("#parts_cost"+div).prop("readonly",true);
         }
     }
     
