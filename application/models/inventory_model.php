@@ -340,6 +340,7 @@ class Inventory_model extends CI_Model {
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
                 . "spare_parts_details.quantity,"
                 . "spare_parts_details.shipped_quantity,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.spare_cancelled_date, '%Y-%m-%d')) AS spare_cancelled_date,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
