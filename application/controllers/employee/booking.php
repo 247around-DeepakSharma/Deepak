@@ -5333,12 +5333,12 @@ class Booking extends CI_Controller {
             $where['agent_filters.entity_type = "247around"'] = NULL;
             $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
         }
+        
+        if(!is_null($cancellation_reason)){
+           $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+        }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
 
-        if(!is_null($cancellation_reason)) {
-            $whereIN['sc.cancellation_reason'] = array(urldecode($cancellation_reason));
-        }
-        
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;

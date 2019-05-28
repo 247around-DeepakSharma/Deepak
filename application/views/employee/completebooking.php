@@ -1081,7 +1081,7 @@
         var total = parseInt($("#basic_charge"+div).val())+parseInt($("#extra_charge"+div).val())+parseInt($("#parts_cost"+div).val());
         if($(".cancelled_"+div+"_0").is(":checked")) {
             if(total > 0) {
-                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed ? ");
+                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed/Delivered ? ");
                 if(!cnfrm){
                     return false;
                 }

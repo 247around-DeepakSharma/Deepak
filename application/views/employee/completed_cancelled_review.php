@@ -13,7 +13,7 @@
               
                 
                 <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
-                    <option value=""> </option>
+                    <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
                     <option value="<?= $reason['reason']; ?>"><?= $reason['reason']; ?></option>
                   
@@ -224,9 +224,10 @@
    </div>
 
 <script>
-     $("#cancellation_reason").select2({
-        placeholder : 'Cancellation Reason'
-    });
+   $('#cancellation_reason').select2({
+       placeholder: 'Cancellation Reason'
+   }); 
+    
    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;

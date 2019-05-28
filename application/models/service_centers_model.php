@@ -266,7 +266,7 @@ class Service_centers_model extends CI_Model {
          }
          $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
-       
+        
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
@@ -289,8 +289,8 @@ class Service_centers_model extends CI_Model {
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $cancellation_reason = '') {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [], $cancellation_reason);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, []);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
