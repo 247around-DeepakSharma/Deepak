@@ -29,10 +29,7 @@
                                                                     <th>Desciption</th>
                                                                     <th>Courier Name</th>
                                                                     <th>Courier AWB Number</th>
-                                                                    <th>
-                                                                        Acknowledge
-                                                                       
-                                                                    </th>
+
                                                                    
                                                                 </tr>
                                                             </thead>
@@ -157,7 +154,7 @@
                     exportOptions: {
                         columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10 ]
                     },
-                    title: 'inventory_spare_table_'+time                    
+                    title: 'shipped history'+time                    
                 },
             ],
             "language": {
