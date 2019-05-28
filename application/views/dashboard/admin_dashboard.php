@@ -1051,6 +1051,66 @@
     </div>
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
+    
+    
+     <!-- Closure Team Graph -->
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important; padding-left: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-6" style="padding: 0px;"><h2>Review Completed Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Bookings = Rejected Bookings + Direct Approved Bookings + Approved with Edit Bookings">?</button></h2></div>
+                    <div class="col-md-5">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#completed_booking_closure_chart_div" data-toggle="collapse" onclick="get_completed_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif7" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="completed_booking_closure_chart_div">
+                    <div id="completed_booking_closure_chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important;">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-6" style="padding: 0px;"><h2>Review Cancelled Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
+    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Bookings = Rejected Bookings + Direct Approved Bookings + Cancelled to Completed Bookings">?</button></h2></div>
+                    <div class="col-md-5">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange6" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#cancelled_booking_closure_chart_div" data-toggle="collapse" onclick="get_cancelled_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif8" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="cancelled_booking_closure_chart_div">
+                    <div id="cancelled_booking_closure_chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Closure Team Graph -->
+    
+    
     <div class="row" style="margin-top:10px;">
         <!-- Logged In Users -->
         <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
@@ -1116,64 +1176,7 @@
     </div>
     <!-- Agent Graph -->
     
-    <!-- Closure Team Graph -->
-    <div class="row" style="margin-top:10px;">
-        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important; padding-left: 0px !important;">
-            <div class="x_panel">
-                <div class="x_title">
-                    <div class="col-md-6" style="padding: 0px;"><h2>Review Completed Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Completed Bookings = Rejected Bookings + Direct Approved Bookings + Approved with Edit Bookings">?</button></h2></div>
-                    <div class="col-md-5">
-                        <small>
-                        <div class="nav navbar-right panel_toolbox">
-                            <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
-                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                <span></span> <b class="caret"></b>
-                            </div>
-                        </div>
-                        </small>
-                    </div>
-                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#completed_booking_closure_chart_div" data-toggle="collapse" onclick="get_completed_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="col-md-12">
-                    <center><img id="loader_gif7" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                </div>
-                <div class="x_content collapse" id="completed_booking_closure_chart_div">
-                    <div id="completed_booking_closure_chart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important;">
-            <div class="x_panel">
-                <div class="x_title">
-                    <div class="col-md-6" style="padding: 0px;"><h2>Review Cancelled Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
-    color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Cancelled Bookings = Rejected Bookings + Direct Approved Bookings + Cancelled to Completed Bookings">?</button></h2></div>
-                    <div class="col-md-5">
-                        <small>
-                        <div class="nav navbar-right panel_toolbox">
-                            <div id="reportrange6" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
-                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                <span></span> <b class="caret"></b>
-                            </div>
-                        </div>
-                        </small>
-                    </div>
-                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#cancelled_booking_closure_chart_div" data-toggle="collapse" onclick="get_cancelled_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="col-md-12">
-                    <center><img id="loader_gif8" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                </div>
-                <div class="x_content collapse" id="cancelled_booking_closure_chart_div">
-                    <div id="cancelled_booking_closure_chart"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Closure Team Graph -->
-    
-    <!-- show more content -->
+   <!-- show more content -->
     <div class="row"  style="margin-top:20px;">
         <div id="show_more" style="display:none;"> 
             <div class="col-md-6 col-sm-12 col-xs-12">
@@ -2296,7 +2299,7 @@ function initiate_escalation_data(){
                     name: 'Approved With Edit Bookings',
                     data: edit_complete
                 }, {
-                    name: 'Total Completed Bookings',
+                    name: 'Total Bookings',
                     data: total_bookings
                 }]
         });
@@ -2375,7 +2378,7 @@ function initiate_escalation_data(){
                     name: 'Cancelled to Completed Bookings',
                     data: edit_complete
                 }, {
-                    name: 'Total Cancelled Bookings',
+                    name: 'Total Bookings',
                     data: total_bookings
                 }]
         });
