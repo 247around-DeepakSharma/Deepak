@@ -128,5 +128,11 @@ define("SF_ADDITION_MAIL_TO_BRAND", "sf_addition_mail_to_brand");
 define('BUYBACK_DISPUTED_ORDERS_SUMMARY','buyback_disputed_orders_summary');
 define('SEND_MSL_FILE','send_msl_file');
 define('CHANGE_PASSWORD','change_password');
+ 
+define('UPDATE_APPLIANCE_BY_SF','send_mail_for_insert_update_applaince_by_sf');
+
+
+ 
 define('NEW_PARTNER_AM_NOTIFICATION', 'new_partner_am_notification');
 define('UPDATE_PARTNER_AM_NOTIFICATION', 'update_partner_am_notification');
+ 
