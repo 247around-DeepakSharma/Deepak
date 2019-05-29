@@ -888,10 +888,7 @@ class Booking extends CI_Controller {
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
 
-        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
-            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
-        endif;          
+        
         
         //Define Blank Price array
         $data['prices'] = array();
@@ -2345,15 +2342,7 @@ class Booking extends CI_Controller {
                 }
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                if(!empty($isSparePartExist[0]['invoice_pic'])) :
-                    $service_center['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
-                else :
-                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-                        $service_center['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                    endif;  
-                endif;        
+                  
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
             }
             $this->miscelleneous->update_appliance_details($unit_id);
