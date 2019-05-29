@@ -122,7 +122,7 @@ function send_remarks() {
 }
 function review_search(status,is_partner){
     bookingID = $('#search').val();
-<<<<<<< HEAD
+
     if(bookingID == '') {
         bookingID = 0;
     }
@@ -131,8 +131,6 @@ function review_search(status,is_partner){
 	cancellation_reason = $('#cancellation_reason').val();
     }
    
-=======
->>>>>>> parent of e419d07ba... cancellation filter added on Review Bookings (Cancelled Bookings by SF) and invoice pod column in booking details table
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
@@ -140,12 +138,10 @@ function review_search(status,is_partner){
     if(is_partner){
         var tab = "#tabs-4";
     }
-<<<<<<< HEAD
+
  
      load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+cancellation_reason, tab,0);
-=======
-     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID, tab,0);
->>>>>>> parent of e419d07ba... cancellation filter added on Review Bookings (Cancelled Bookings by SF) and invoice pod column in booking details table
+
 }
 
 

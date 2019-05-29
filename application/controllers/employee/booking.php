@@ -5281,6 +5281,7 @@ class Booking extends CI_Controller {
             $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
         }
         
+        
         if(!is_null($cancellation_reason)){
            $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
         }
