@@ -85,7 +85,7 @@
                 }).fail(function(data) {
                     alert('Internal server error.');
                 }).done(function(data) {
-                    if(data == '0') {
+                    if($.trim(data) == '0') {
                         alert('Incorrect old password');
                         $('#new_password').attr('disabled','disabled');
                         $('#retype_new_password').attr('disabled','disabled');
