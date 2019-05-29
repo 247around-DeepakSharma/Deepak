@@ -226,7 +226,7 @@ class Service_centers_model extends CI_Model {
              $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status IN ('Completed', 'Cancelled') LIMIT 1) ";
         }
         
-        if ($booking_id != "" || $booking_id != '0') {
+        if ($booking_id != "") {
             $where_sc =$where_sc. ' AND sc.booking_id LIKE "%'.trim($booking_id).'%"' ;
         }
         if($perPage !=-1){
@@ -282,10 +282,8 @@ class Service_centers_model extends CI_Model {
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
                 . " $groupBy  $orderBY  $limit";
-       // echo $sql;exit;
         $query = $this->db->query($sql);
         $booking = $query->result_array();
-       // echo"<pre>";print_r($booking);exit;
          return $booking;
     }
 
@@ -311,8 +309,6 @@ class Service_centers_model extends CI_Model {
             $result = $query2->result_array();
             $booking[$key]['unit_details'] = $result;
         }
-        
-       
         return $booking;
     }
 
