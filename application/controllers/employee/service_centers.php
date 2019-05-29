@@ -590,17 +590,7 @@ class Service_centers extends CI_Controller {
                                     }
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
-                                $i++;
-                                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                                if(!empty($isSparePartExist[0]['invoice_pic'])) :
-                                    $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
-                                else :
-                                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-                                        $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                                    endif;  
-                                endif;
-                                                                
+                                $i++;                                
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
                         }
