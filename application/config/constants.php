@@ -646,5 +646,6 @@ define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 define('_247AROUND_ENGINEER_STRING','engineer');
 
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
