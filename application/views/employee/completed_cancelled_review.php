@@ -3,8 +3,7 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <div class="" style="margin-top: 30px;">
          <div class="row">
-            <div class="col-md-3 pull-right" style="margin-top:20px;">
-+               
+            <div class="col-md-3 pull-right" style="margin-top:20px;">              
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
              </div>
               <?php if($status == 'Cancelled') { 

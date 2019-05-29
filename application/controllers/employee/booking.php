@@ -5191,6 +5191,7 @@ class Booking extends CI_Controller {
          if(!is_null($cancellation_reason)){
             $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
          }
+        $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
