@@ -614,24 +614,11 @@ class User extends CI_Controller {
      */
     function change_password() {
         
-        if($_POST) :
-            // declaring variables.
-            $id = $this->session->userdata['id'];
-            $employee_id = $this->session->userdata['employee_id'];
-            $old_password = md5($_POST['old_password']);
-            // fetch record.
-            $employee = $this->reusable_model->get_search_result_data('employee', '*', ['id' => $id, 'employee_password' => $old_password],null,null,null,null,null,[]);
-        endif;
-        
-        if($this->input->is_ajax_request()) : // verify old password.
-            if(!empty($employee)) :
-                echo '1';exit;
-            else :
-                echo'0';exit;
-            endif;
-        elseif($_POST) :
+        if($this->input->is_ajax_request()) { // verify old password.
+            echo $this->user_model->verify_entity_password(_247AROUND_EMPLOYEE_STRING, $this->session->userdata['id'], $this->input->post('old_password'));exit;
+        } elseif($this->input->post()) {
             // Update password.
-            $affected_rows = $this->reusable_model->update_table('employee', ['employee_password' => md5($_POST['new_password']), 'clear_password'=> $_POST['new_password']], ['id' => $id]);
+            $this->user_model->change_entity_password(_247AROUND_EMPLOYEE_STRING, $this->session->userdata['id'], $this->input->post('new_password'));
             // send change password mail.
             $to = (!empty($employee[0]['official_email']) ? $employee[0]['official_email'] : (!empty($employee[0]['personal_email']) ? $employee[0]['personal_email'] : NULL));
             if(!empty($to)) :
@@ -642,7 +629,7 @@ class User extends CI_Controller {
             // setting feedback message for user.
             $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
             redirect(base_url() . "employee/user/change_password");
-        endif;
+        }
         
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/change_password');
