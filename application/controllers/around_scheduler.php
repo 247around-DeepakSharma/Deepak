@@ -2276,7 +2276,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function auto_approve_SF_bookings() {
         $whereIN = $where = $join = array();
         $where['sc.is_sn_correct=1'] = NULL;
-        $where['booking_details.request_type = "Installation & Demo (Free)" '] = NULL;
+        $where['booking_details.request_type = "'.FREE_INSTALLATION_REQUEST.'" '] = NULL;
         $total_rows = $this->service_centers_model->get_admin_review_bookings(NULL,"Completed",$whereIN,0,NULL,-1,$where,0,NULL,NULL,0,$join);
 
         $data = array();
