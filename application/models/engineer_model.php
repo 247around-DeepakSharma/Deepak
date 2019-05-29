@@ -210,15 +210,15 @@ class Engineer_model extends CI_Model {
         }
     }
     
-    function get_service_based_engineer($where, $select = "*"){
-        $this->db->select($select);
-        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
-        if($where){
-           $this->db->where($where);  
-        }
-        $query = $this->db->get("engineer_details");
-        return $query->result_array();
-    }
+//    function get_service_based_engineer($where, $select = "*"){
+//        $this->db->select($select);
+//        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
+//        if($where){
+//           $this->db->where($where);  
+//        }
+//        $query = $this->db->get("engineer_details");
+//        return $query->result_array();
+//    }
     
     function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
         $this->db->select($select, false);
@@ -244,4 +244,17 @@ class Engineer_model extends CI_Model {
         //echo $this->db->last_query(); die();
         return $query->result_array();
     }
+    
+    function engineer_profile_data($enginner_id){
+        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services), entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
+                FROM engineer_details 
+                JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
+                JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
+                JOIN services on services.id = engineer_appliance_mapping.service_id
+                WHERE engineer_details.id = '".$enginner_id."' GROUP BY engineer_appliance_mapping.engineer_id";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+        
+        
 }
