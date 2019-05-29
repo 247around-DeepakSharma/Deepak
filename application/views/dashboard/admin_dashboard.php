@@ -1110,9 +1110,8 @@
     </div>
     <!-- Closure Team Graph -->
     
-    
-    <div class="row" style="margin-top:10px;">
-        <!-- Logged In Users -->
+    <!-- Logged In Users -->
+    <!-- <div class="row" style="margin-top:10px;">
         <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="x_panel">
@@ -1141,8 +1140,8 @@
                 </div>
             </div>
         </div>
-        <!-- Logged In Users -->
-    </div>
+    </div> -->
+    <!-- Logged In Users -->
     <!-- Agent Graph -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
