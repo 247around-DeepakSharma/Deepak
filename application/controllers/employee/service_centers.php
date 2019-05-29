@@ -598,8 +598,7 @@ class Service_centers extends CI_Controller {
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
                                 $i++;
-                                print_r($data);
-                                
+
                                 $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
                                 if(!empty($isSparePartExist[0]['invoice_pic'])) :
                                     $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
@@ -662,7 +661,6 @@ class Service_centers extends CI_Controller {
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
                     $partner_id = $this->input->post("partner_id");
-
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
@@ -675,7 +673,20 @@ class Service_centers extends CI_Controller {
                         }
 
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
+ 
+                    //This is used to cancel those spare parts who has not shipped by partner.        
+                    $this->cancel_spare_parts($partner_id, $booking_id);
 
+                    if ($is_update_spare_parts) {
+                        foreach ($sp_required_id as $sp_id) {
+
+                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
+                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
+                        }
+
+                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
+ 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
                         $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
@@ -690,8 +701,9 @@ class Service_centers extends CI_Controller {
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
-    }
-
+    }       
+ 
+ 
     /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
      *  @param : string $booking_primary_contact_no
@@ -846,9 +858,9 @@ class Service_centers extends CI_Controller {
          $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
         if (!empty($email_template)) {
 
-            $to =$email_template[5];
+            $to =$email_template[1];
             $cc = $email_template[3];
-            $bcc = $email_template[5];
+            $bcc = $email_template[4];
             $subject = vsprintf($email_template[4], array());
             $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
 

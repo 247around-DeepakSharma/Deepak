@@ -633,16 +633,11 @@ define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Q
 define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
 define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
-
-
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
-
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
 define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
-
-
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
@@ -651,5 +646,6 @@ define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 define('_247AROUND_ENGINEER_STRING','engineer');
 
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
