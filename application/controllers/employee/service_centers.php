@@ -858,9 +858,9 @@ class Service_centers extends CI_Controller {
          $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
         if (!empty($email_template)) {
 
-            $to =$email_template[5];
+            $to =$email_template[1];
             $cc = $email_template[3];
-            $bcc = $email_template[5];
+            $bcc = $email_template[4];
             $subject = vsprintf($email_template[4], array());
             $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
 
