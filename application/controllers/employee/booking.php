@@ -5193,7 +5193,7 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL){
+    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
         $this->checkUserSession();
         $whereIN = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -5201,6 +5201,9 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
+        if(!is_null($cancellation_reason)){
+            $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+         }
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
