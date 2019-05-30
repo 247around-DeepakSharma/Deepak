@@ -178,7 +178,6 @@
             button_txt = 'Move To Required';
         }else{
             button_txt = 'Move To Not Required';
-            $("#charges").css("display","block");
         }
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
@@ -214,7 +213,7 @@
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
-        $button_text = $(this).text();
+        $button_text = $(this).attr("data-text");
         if($button_text === "Approve Invoice"){
             $("#charges").css("display","block");
              var charge = $(this).data('charge');
@@ -242,15 +241,16 @@
                  
       if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
+      var charges =  $('#charges').val();
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks,part_warranty_status:warranty_status},
+            data:{remarks:remarks,part_warranty_status:warranty_status,charge:charges},
             success: function(data){
-                 //var obj = JSON.parse(data); 
+                 var obj = JSON.parse(data); 
                 $('#reject_btn').attr('disabled',false);
-                if(data=="Success"){
+                if(obj['status']){
                   //  $("#"+booking_id+"_1").hide()
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
