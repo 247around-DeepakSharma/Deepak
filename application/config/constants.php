@@ -649,6 +649,6 @@ define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 //constant to define Installation & Demo (Free) Request Type
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
-
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

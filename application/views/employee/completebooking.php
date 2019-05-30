@@ -94,6 +94,7 @@
                                         <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                                         <input type="hidden" id="sp_required_id" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                                         <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
+                                        <input type="hidden" name="is_sf_purchase_invoice_required" id="is_sf_purchase_invoice_required" value="<?= (!empty($is_sf_purchase_invoice_required) ? 1 : 0); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -265,6 +266,21 @@
                                                 <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                            <input type="file" name="sf_purchase_invoice" id="sf_purchase_invoice" value="<?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?>">
+                                             <?php $src = base_url() . 'images/no_image.png';
+                                            $image_src = $src;
+                                            if (!empty($sf_purchase_invoice)) {
+                                                //Path to be changed
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sf_purchase_invoice;
+                                                //$image_src = base_url().'images/view_image.png';
+                                            }
+                                            ?>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?></small></a>
+                                            
+                                       </div>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
@@ -620,6 +636,9 @@
     $(".model_number").select2();
 </script>
 <script>
+    
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
+
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -739,6 +758,17 @@
         var div_no = this.id.split('_');
         is_completed_checkbox[i] = div_no[0];
         if (div_no[0] === "completed") {
+            if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
+                var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
+                if(is_sf_purchase_invoice_required == '1') {
+                    var sf_purchase_invoice = $('#sf_purchase_invoice').val();
+                    if(sf_purchase_invoice == '') {
+                        alert("Please upload sf purchase invoice document.");
+                        flag = 1;
+                        return false;
+                    }
+                }
+            }
             //if POD is also 1, only then check for serial number.
             if (div_no[1] === "1") {
                 

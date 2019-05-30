@@ -220,6 +220,8 @@ class Service_centers extends CI_Controller {
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id, 'file_description_id' => SF_PURCHASE_INVOICE_FILE_TYPE));
+
         if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
@@ -342,6 +344,10 @@ class Service_centers extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $bookng_unit_details = $this->booking_model->getunit_details($booking_id);
         $price_tags = array();
+        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
+            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
+        endif;
         foreach ($bookng_unit_details as $key1 => $b) {
             $broken = 0;
             foreach ($b['quantity'] as $key2 => $u) {
@@ -557,15 +563,17 @@ class Service_centers extends CI_Controller {
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
                                 $i++;
-                                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                                if(!empty($isSparePartExist[0]['invoice_pic'])) :
+                                // fetch existing purchase invoice document.
+                                $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
+                                if(!empty($is_spare_part_exist[0]['invoice_pic'])) {
                                     $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
-                                else :
-                                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-                                        $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                                    endif;  
-                                endif;
+                                }
+                                // upload new purchase invoice document.
+                                if(!empty($_FILES['sf_purchase_invoice']['name'])) {
+                                    $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
+                                    $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                                }
+
                                                                 
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
