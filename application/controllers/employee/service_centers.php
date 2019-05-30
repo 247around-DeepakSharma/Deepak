@@ -648,7 +648,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-    }
+    
  
  
  
