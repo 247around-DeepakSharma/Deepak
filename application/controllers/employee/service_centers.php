@@ -581,9 +581,11 @@ class Service_centers extends CI_Controller {
                                     }
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
+
                                 if(!empty($purchase_invoice_file_name)) {
                                     $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
                                 }
+                              
 
                                 $i++;
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
