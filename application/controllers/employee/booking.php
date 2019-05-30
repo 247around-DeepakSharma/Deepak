@@ -970,6 +970,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                  $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1017,6 +1018,13 @@ class Booking extends CI_Controller {
         $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
 
         $data['upcountry_charges'] = $upcountry_price;
+        $data['is_sf_purchase_invoice_required'] = [];
+        if(!empty($data['booking_unit_details'][0]['quantity'])) {
+            $data['is_sf_purchase_invoice_required'] = array_filter($data['booking_unit_details'][0]['quantity'], function ($quantity) {
+                return ($quantity['invoice_pod'] == 1);
+            });
+        }
+        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -2120,6 +2128,9 @@ class Booking extends CI_Controller {
             $b_unit_details = $this->booking_model->get_unit_details(array('booking_id'=>$booking_id));
         }
         $k = 0;
+        if(!empty($_FILES['sf_purchase_invoice']['name'])) {
+            $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+        }  
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
             $data = array();
@@ -2142,6 +2153,10 @@ class Booking extends CI_Controller {
             $data['sf_purchase_date'] = NULL;
             if (isset($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
+            }
+            $data['sf_purchase_invoice'] = NULL;
+            if (isset($purchase_invoice[$unit_id]) && !empty($purchase_invoice_file_name)) {
+                $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
             }
             if(!empty($data['serial_number_pic'])){
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));

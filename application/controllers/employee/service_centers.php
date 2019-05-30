@@ -204,8 +204,8 @@ class Service_centers extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id, 'file_description_id' => SF_PURCHASE_INVOICE_FILE_TYPE));
 
-        if ($data['booking_history'][0]['dealer_id']) {
-            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id' => $data['booking_history'][0]['dealer_id']));
+       if($data['booking_history'][0]['dealer_id']){ 
+            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
             $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
         }
@@ -433,7 +433,12 @@ class Service_centers extends CI_Controller {
         if (count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
-        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
+        $data['is_sf_purchase_invoice_required'] = [];
+        if(!empty($data['bookng_unit_details'][0]['quantity'])) {
+            $data['is_sf_purchase_invoice_required'] = array_filter($data['bookng_unit_details'][0]['quantity'], function ($quantity) {
+                return ($quantity['invoice_pod'] == 1);
+            });
+        }         
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -504,6 +509,10 @@ class Service_centers extends CI_Controller {
                     $getremarks = $this->booking_model->getbooking_charges($booking_id);
                     $approval = $this->input->post("approval");
                     $i = 0;
+                    if(!empty($_FILES['sf_purchase_invoice']['name'])) {
+                        $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                    }   
+                    
                     foreach ($customer_basic_charge as $unit_id => $value) {
 
                         //Check unit id exist in the sc action table.
@@ -572,18 +581,11 @@ class Service_centers extends CI_Controller {
                                     }
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
+                                if(!empty($purchase_invoice_file_name)) {
+                                    $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
+                                }
+
                                 $i++;
-
-                                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                                if (!empty($isSparePartExist[0]['invoice_pic'])) :
-                                    $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
-                                else :
-                                    if (!empty($_FILES['sf_purchase_invoice']['name'])) :
-                                        $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                                    endif;
-                                endif;
-
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
                         }

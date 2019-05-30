@@ -262,12 +262,14 @@
                                     </div>
                                     <?php } ?>
                                      <div class="form-group">
+                                         <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
                                                 <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
                                     <div class="form-group">
+                                        <label style="margin-left:8%;">Purchase Invoice</label>
                                         <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
                                             <input type="file" name="sf_purchase_invoice" id="sf_purchase_invoice" value="<?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?>">
                                              <?php $src = base_url() . 'images/no_image.png';
@@ -642,9 +644,7 @@
 </script>
 <script>
     
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'service_category') : [])); ?>
-
-    
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
