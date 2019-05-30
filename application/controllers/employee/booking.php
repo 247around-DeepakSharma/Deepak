@@ -1605,6 +1605,12 @@ class Booking extends CI_Controller {
             
 
         }
+            if(!empty($data['booking_history'][0]['account_manager_id'])){
+                $account_manager = $this->employee_model->get_employee_by_group(array("id" => $data['booking_history'][0]['account_manager_id']));
+                if(!empty($account_manager)){
+                    $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
+                }
+            }
         }else{
             $data['booking_history'] = array();
         }
@@ -1661,9 +1667,11 @@ class Booking extends CI_Controller {
             }
             
         }
+         
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
+        
         $this->load->view('employee/viewdetails', $data);
     }
 

@@ -709,7 +709,7 @@ class Booking_model extends CI_Model {
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
 	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
-            $partner_name = ", partners.public_name  ";
+            $partner_name = ", partners.public_name, partners.account_manager_id ";
             $partner = ", partners  ";
             $condition .= " and booking_details.partner_id =  partners.id";
         }
