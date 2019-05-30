@@ -764,23 +764,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-    /**
-     * @desc This function is used to send email for insert appliance by sf
-
-     */
-    function send_mail_for_insert_applaince_by_sf($category,$capacity="",$brand="",$service_category="",$booking_id) {
-         $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
-        if (!empty($email_template)) {
-
-            $to =$email_template[5];
-            $cc = $email_template[3];
-            $bcc = $email_template[5];
-            $subject = vsprintf($email_template[4], array());
-            $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
-
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",UPDATE_APPLIANCE_BY_SF, "",$booking_id);
-        }
-    }
+ 
 
     /**
      * @desc This function is used to send email for insert appliance by sf
