@@ -157,8 +157,8 @@
                                             </div>
                                         </div>
                                         <input type="hidden" id="<?php echo "count_line_item_".$key1;?>" value="<?php echo count($unit_details['quantity']);?>"/>
-                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:22.6%;
-                                            <?php } else {?> width:22.6%;<?php }?>">
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:16.95%;
+                                            <?php } else {?> width:16.95%;<?php }?>">
                                             <div class="col-md-12 ">
                                                  <label> Brand</label>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
@@ -166,7 +166,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3" style="width:22.6%">
+                                        <div class="form-group col-md-3" style="width:16.95%">
                                             <div class="col-md-12 ">
                                                 <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
@@ -174,7 +174,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:22.6%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -185,7 +185,7 @@
                                                 
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:21.6%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:16.95%;margin-left:6px !important;" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
@@ -209,6 +209,7 @@
                                             
                                             
                                         </div>
+
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
                                                 <tr>

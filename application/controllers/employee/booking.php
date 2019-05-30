@@ -2319,8 +2319,8 @@ class Booking extends CI_Controller {
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                 $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                if(!empty($isSparePartExist[0]['invoice_pic'])) {
-                    $service_center['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
+                if(!empty($is_spare_part_exist[0]['invoice_pic'])) {
+                    $service_center['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
                 }
                 
                 if(!empty($_FILES['sf_purchase_invoice']['name'])) :

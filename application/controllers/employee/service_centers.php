@@ -566,7 +566,7 @@ class Service_centers extends CI_Controller {
                                 // fetch existing purchase invoice document.
                                 $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
                                 if(!empty($is_spare_part_exist[0]['invoice_pic'])) {
-                                    $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
+                                    $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
                                 }
                                 // upload new purchase invoice document.
                                 if(!empty($_FILES['sf_purchase_invoice']['name'])) {
