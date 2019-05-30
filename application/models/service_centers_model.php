@@ -217,7 +217,9 @@ class Service_centers_model extends CI_Model {
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
         }
         if($status == "Cancelled"){
-            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
+                    . "AND (sc_sub.internal_status ='Completed' OR sc_sub.internal_status ='Defective Part To Be Shipped By SF' OR sc_sub.internal_status ='Defective Part Received By Partner'"
+                    . "OR sc_sub.internal_status ='Defective Part Shipped By SF') LIMIT 1) ";
         }
         else if($status == "Completed"){
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
