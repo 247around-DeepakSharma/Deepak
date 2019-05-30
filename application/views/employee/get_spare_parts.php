@@ -249,9 +249,9 @@
             url:url,
             data:{remarks:remarks,part_warranty_status:warranty_status,charge:charges},
             success: function(data){
-                 var obj = JSON.parse(data); 
+                 //var obj = JSON.parse(data); 
                 $('#reject_btn').attr('disabled',false);
-                if(obj['status']){
+                if(data=="Success"){
                   //  $("#"+booking_id+"_1").hide()
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
