@@ -4846,6 +4846,12 @@ class Inventory extends CI_Controller {
         $row[] = $no;
         $row[] = $model_list->model_number;
         $row[] = $model_list->services;
+        if($model_list->active == 0){
+            $row[] = "Inactive";
+        }
+        else{
+            $row[] = "Active";
+        }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_appliance_model_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         return $row;
     }
