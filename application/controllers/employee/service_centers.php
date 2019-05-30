@@ -619,19 +619,7 @@ class Service_centers extends CI_Controller {
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
                     $partner_id = $this->input->post("partner_id");
-                    //This is used to cancel those spare parts who has not shipped by partner.        
-                    $this->cancel_spare_parts($partner_id, $booking_id);
-
-                    if ($is_update_spare_parts) {
-                        foreach ($sp_required_id as $sp_id) {
-
-                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
-                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
-                        }
-
-                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
- 
+  
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
