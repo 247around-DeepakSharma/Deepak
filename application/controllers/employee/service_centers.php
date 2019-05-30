@@ -647,7 +647,8 @@ class Service_centers extends CI_Controller {
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
-    }       
+    }
+    }
  
  
  
