@@ -122,6 +122,12 @@ function send_remarks() {
 }
 function review_search(status,is_partner){
     bookingID = $('#search').val();
+   
+    if(bookingID == '') {
+        bookingID = 0;
+    }
+    cancellation_reason = $('#cancellation_reason').val();
+    
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
@@ -129,7 +135,7 @@ function review_search(status,is_partner){
     if(is_partner){
         var tab = "#tabs-4";
     }
-     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID, tab,0);
+     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+cancellation_reason, tab,0);
 }
 
 
