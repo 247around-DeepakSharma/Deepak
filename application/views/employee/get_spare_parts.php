@@ -178,6 +178,7 @@
             button_txt = 'Move To Required';
         }else{
             button_txt = 'Move To Not Required';
+            $("#charges").css("display","block");
         }
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
