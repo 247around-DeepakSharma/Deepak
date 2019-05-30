@@ -178,11 +178,22 @@
             button_txt = 'Move To Required';
         }else{
             button_txt = 'Move To Not Required';
-            $("#charges").css("display","block");
+           
         }
-         if(!isNaN(keys)){              
-             $("#reject_btn").html("Approve");             
-             $("#reject_btn").attr("onclick","approve_spare_part()");
+        $button_text = $(this).attr("data-text");
+        if ($button_text=="Approve") {
+           $("#reject_btn").html("Approve"); 
+           $("#reject_btn").attr("onclick","approve_spare_part()");    
+        }else{
+           $("#reject_btn").html("Reject");  
+           $("#reject_btn").attr("onclick","reject_parts()");     
+
+        }
+       // alert(keys);
+         if(isNaN(keys)){  
+                     
+                    
+             
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
                  HTML+= '<option selected="" disabled="">Select warranty status</option>';
                  HTML+= '<option value="1"> In-Warranty </option>';
@@ -214,8 +225,9 @@
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
-        $button_text = $(this).text();
-        if($button_text === "Approve Invoice"){
+        
+       // alert( $button_text);
+        if($button_text === "Approve Invoice" || $button_text === "Approve" ){
             $("#charges").css("display","block");
              var charge = $(this).data('charge');
             $("#charges").val(charge);
@@ -242,15 +254,18 @@
                  
       if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
+       var charge =$("#charges").val();
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks,part_warranty_status:warranty_status},
+            data:{remarks:remarks,part_warranty_status:warranty_status,charge:charge},
             success: function(data){
-                 var obj = JSON.parse(data); 
+               //  var obj = JSON.parse(data); 
+                 console.log(data);
+               //  console.log(obj);
                 $('#reject_btn').attr('disabled',false);
-                if(obj['status']){
+                if(data=="Success"){
                   //  $("#"+booking_id+"_1").hide()
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
@@ -284,6 +299,7 @@
             url:url,
             data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
             success: function(data){
+              console.log(data);
                 $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){
                   //  $("#"+booking_id+"_1").hide()
