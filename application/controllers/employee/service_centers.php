@@ -598,8 +598,7 @@ class Service_centers extends CI_Controller {
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
                                 $i++;
-                                print_r($data);
-                                
+
                                 $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
                                 if(!empty($isSparePartExist[0]['invoice_pic'])) :
                                     $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
@@ -662,7 +661,7 @@ class Service_centers extends CI_Controller {
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
                     $partner_id = $this->input->post("partner_id");
-
+  
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
@@ -675,7 +674,7 @@ class Service_centers extends CI_Controller {
                         }
 
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
-
+ 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
                         $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
@@ -691,7 +690,9 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+    
+ 
+ 
     /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
      *  @param : string $booking_primary_contact_no
@@ -777,61 +778,69 @@ class Service_centers extends CI_Controller {
                                 $array[$unit_id] = $result1[0];
                             }
                         } else {
+                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit['appliance_brand'], $unit['price_tags'], $booking_id);
                             return FALSE;
                         }
                     }
                 }
             }
-            if (!empty($array)) {
-                foreach ($array as $k => $v) {
-                    $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
-                    if (!empty($data)) {
-                        $result = $data[0];
 
-                        if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
-                            if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
-                                $result['customer_total'] = $unit[0]['customer_total'];
-                                $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
+            if ($return) {
+                if (!empty($array)) {
+                    foreach ($array as $k => $v) {
+                        $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
+                        if (!empty($data)) {
+                            $result = $data[0];
+
+                            if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                                if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                                    $result['customer_total'] = $unit[0]['customer_total'];
+                                    $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
+                                }
                             }
+                            unset($result['id']);
+                            $result['appliance_category'] = $model_details[0]['category'];
+                            $result['appliance_capacity'] = $model_details[0]['capacity'];
+                            $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
+                            $result['around_paid_basic_charges'] = $unit[0]['around_net_payable'];
+
+                            $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+                            $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
+
+
+                            $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
+                            $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
+                            $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+
+                            $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
+                            $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
+
+                            $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+                            $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+
+                            $a = $this->booking_model->update_booking_unit_details_by_any(array('id' => $k), $result);
+
+                            $array1 = array('booking_id' => $booking_id,
+                                'category' => $model_details[0]['category'],
+                                'capacity' => $model_details[0]['capacity'],
+                                'unit_details_id' => $k);
+
+                            $this->service_centers_model->insert_update_applaince_by_sf($array1);
+                          
+                        } else {
+                            $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'], $model_details[0]['capacity'], $v['appliance_brand'], $v['price_tags'], $booking_id);
+                            return FALSE;
                         }
-                        unset($result['id']);
-                        $result['appliance_category'] = $model_details[0]['category'];
-                        $result['appliance_capacity'] = $model_details[0]['capacity'];
-                        $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
-                        $result['around_paid_basic_charges'] = $unit[0]['around_net_payable'];
-
-                        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-                        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
-
-
-                        $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
-                        $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
-                        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
-
-                        $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
-                        $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
-
-                        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
-                        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
-
-                        $a = $this->booking_model->update_booking_unit_details_by_any(array('id' => $k), $result);
-
-                        $array1 = array('booking_id' => $booking_id,
-                            'category' => $model_details[0]['category'],
-                            'capacity' => $model_details[0]['capacity'],
-                            'unit_details_id' => $k);
-
-                        $this->service_centers_model->insert_update_applaince_by_sf($array1);
-                        $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'],$model_details[0]['capacity'],$v['appliance_brand'],$v['price_tags'],$booking_id);
-                    } else {
-                        return FALSE;
                     }
+
+                    return true;
+                } else {
+
+                    return TRUE;
                 }
-
-                return true;
             } else {
-
-                return TRUE;
+              $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
+              return FALSE;
             }
         } else {
             return true;
@@ -846,9 +855,9 @@ class Service_centers extends CI_Controller {
          $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
         if (!empty($email_template)) {
 
-            $to =$email_template[5];
+            $to =$email_template[1];
             $cc = $email_template[3];
-            $bcc = $email_template[5];
+            $bcc = $email_template[4];
             $subject = vsprintf($email_template[4], array());
             $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
 
