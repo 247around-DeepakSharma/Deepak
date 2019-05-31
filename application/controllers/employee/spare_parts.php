@@ -2831,7 +2831,7 @@ class Spare_parts extends CI_Controller {
       $where = array(
           'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,
           'spare_parts_details.entity_type'=>_247AROUND_SF_STRING,
-          'spare_parts_details.entity_id'=>$this->session->userdata('id'),
+          'spare_parts_details.entity_id'=>$this->session->userdata('service_center_id'),
           'spare_parts_details.requested_inventory_id IS NOT NULL '=> NULL
        );
        $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state, requested_inventory_id";
