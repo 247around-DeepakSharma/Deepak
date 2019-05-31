@@ -280,7 +280,7 @@ function addBookingDialog(chanel = '') {
         var count1=0;
         $(".appliance_capacity").each(function(){
             var capacity_value = document.getElementById(this.id).innerHTML;
-            if((capacity_value !== '<option></option>') && ($("#"+this.id).val() === '')) {
+            if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
                 alert("Please Select Capacity");
                 $("#"+this.id).focus();
                 ++count1;
