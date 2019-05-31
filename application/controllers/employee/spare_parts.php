@@ -2642,12 +2642,11 @@ class Spare_parts extends CI_Controller {
           'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING,
           'spare_parts_details.requested_inventory_id IS NOT NULL '=> NULL
        );
-       $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state";
+       $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state, requested_inventory_id";
        $post['where_in']= array('spare_parts_details.booking_id' => $bookingids);
        $bookings_spare =$this->partner_model->get_spare_parts_by_any($select,$where,TRUE,FALSE,false, $post );
        foreach ($bookings_spare as $booking){
-           $spareid=$booking['id'];
-           $wherebooking=array('booking_id'=>$booking['booking_id']);
+           $spareid = $booking['id'];
            $state = $booking['state'];
            $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('state'=>$state),true,false,true);
            $warehouseid=0;
@@ -2661,6 +2660,7 @@ class Spare_parts extends CI_Controller {
                'defective_return_to_entity_type'=>_247AROUND_SF_STRING
            );
            $this->inventory_model->update_spare_courier_details($spareid,$dataupdate);
+           $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $booking['requested_inventory_id'], 1);
            }
           }   /// for loop ends
           $this->session->set_flashdata('success','Spare Transfer Successfully');
