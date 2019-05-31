@@ -1251,10 +1251,10 @@ class Inventory extends CI_Controller {
             }
 
 
-            echo "Success";
+            echo json_encode(array('status'=>TRUE));
             //redirect(base_url()."employee/inventory/get_spare_parts");
         } else {
-            echo "Error";
+            echo json_encode(array('status'=>FALSE));
         }
     }
 

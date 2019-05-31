@@ -249,9 +249,9 @@
             url:url,
             data:{remarks:remarks,part_warranty_status:warranty_status,charge:charges},
             success: function(data){
-                 //var obj = JSON.parse(data); 
+                var obj = JSON.parse(data); 
                 $('#reject_btn').attr('disabled',false);
-                if(data=="Success"){
+                if(obj['status']){
                   //  $("#"+booking_id+"_1").hide()
                     $("#reject_btn").html("Send");             
                     $("#reject_btn").attr("onclick","reject_parts()");
@@ -285,8 +285,9 @@
             url:url,
             data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
             success: function(data){
+              var obj = JSON.parse(data);
                 $('#reject_btn').attr('disabled',false);
-                if(data === "Success"){
+                if(obj['status']){
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
