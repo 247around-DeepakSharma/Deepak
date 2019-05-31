@@ -647,5 +647,6 @@ define('_247AROUND_ENGINEER_STRING','engineer');
 
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
+define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
