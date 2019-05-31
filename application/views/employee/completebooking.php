@@ -268,17 +268,19 @@
                                          </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                            <input type="file" name="sf_purchase_invoice" id="sf_purchase_invoice" value="<?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?>">
+                                        <div class="input-group input-append" style="width: 150px;margin-left: 14px;">
+                                            <input type="file" name="sf_purchase_invoice" class="form-control purchase-invoice"
+                                                   onchange="update_purchase_invoice_for_unit('<?php echo $keys?>')"
+                                                   id="<?php echo "purchase_invoice_".$keys?>" value="<?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?>">
                                              <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
-                                            if (!empty($sf_purchase_invoice)) {
+                                            if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sf_purchase_invoice;
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?></small></a>
                                             
                                        </div>
                                     </div>
@@ -298,12 +300,14 @@
                                             <?php
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
-                                                    <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
+                                                    <input type="hidden" value="<?php echo count($unit_details['quantity']) ?>" id="count_line_item_<?php echo $keys; ?>">
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
                                                                                                         <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
+                                                       <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_purchase_invoice_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_invoice'])){  echo $unit_details['quantity'][0]['sf_purchase_invoice']; } ?>" />
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
@@ -758,10 +762,11 @@
         var div_no = this.id.split('_');
         is_completed_checkbox[i] = div_no[0];
         if (div_no[0] === "completed") {
-            if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
+            var price_tag_row_number = parseInt(i)+1;
+            if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
                 var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
                 if(is_sf_purchase_invoice_required == '1') {
-                    var sf_purchase_invoice = $('#sf_purchase_invoice').val();
+                    var sf_purchase_invoice = $('.purchase-invoice').val();
                     if(sf_purchase_invoice == '') {
                         alert("Please upload sf purchase invoice document.");
                         flag = 1;
@@ -1219,6 +1224,14 @@
           var dopValue = $("#dop_"+div).val();
             for(i = 0; i < Number(div_item_count); i++ ){
                 $(".unit_dop_"+div+"_"+i).val(dopValue);
+         }
+    }
+    function update_purchase_invoice_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var purchase_invoice_value = $("#purchase_invoice_"+div).val();
+        
+            for(i = 0; i < Number(div_item_count); i++ ){
+                $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
          }
     }
       function dop_calendar(id){

@@ -84,3 +84,4 @@ ALTER TABLE `service_centre_charges` ADD COLUMN invoice_pod tinyint(1) NOT NULL 
 ALTER TABLE service_center_booking_action ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;
 --- Ankit 27-05-2019
 ALTER TABLE booking_unit_details ADD COLUMN invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
+ALTER TABLE booking_unit_details ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;

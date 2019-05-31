@@ -879,6 +879,7 @@ class Booking extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
+        
         //Get Partner Details Like source and partner Type
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
@@ -886,11 +887,6 @@ class Booking extends CI_Controller {
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
       
-        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
-            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
-        endif;            
-        
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -940,6 +936,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -977,6 +974,8 @@ class Booking extends CI_Controller {
         }
         
         $data['upcountry_charges'] = $upcountry_price;
+        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -1671,7 +1670,6 @@ class Booking extends CI_Controller {
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
-        
         $this->load->view('employee/viewdetails', $data);
     }
 
@@ -2122,6 +2120,7 @@ class Booking extends CI_Controller {
         if($change_appliance_details == 1){
             $this->update_completed_unit_applinace_details($booking_id);
         }
+        
         // customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -2139,6 +2138,7 @@ class Booking extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $purchase_date = $this->input->post('appliance_dop');
+        $purchase_invoice = $this->input->post('appliance_purchase_invoice');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2159,6 +2159,11 @@ class Booking extends CI_Controller {
             $b_unit_details = $this->booking_model->get_unit_details(array('booking_id'=>$booking_id));
         }
         $k = 0;
+        
+        if(!empty($_FILES['sf_purchase_invoice']['name'])) :
+            $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+        endif;   
+        
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
             $data = array();
@@ -2184,6 +2189,10 @@ class Booking extends CI_Controller {
             $data['sf_purchase_date'] = NULL;
             if (isset($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
+            }
+            $data['sf_purchase_invoice'] = NULL;
+            if (isset($purchase_invoice[$unit_id]) && !empty($purchase_invoice_file_name)) {
+                $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
             }
             if(!empty($data['serial_number_pic'])){
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
@@ -2326,15 +2335,6 @@ class Booking extends CI_Controller {
                 }
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-                $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                if(!empty($is_spare_part_exist[0]['invoice_pic'])) {
-                    $service_center['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
-                }
-                
-                if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-                    $service_center['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                    $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                endif;                  
                 
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
                 $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
@@ -2458,6 +2458,40 @@ class Booking extends CI_Controller {
         }
         }
     }
+
+    /**
+     *  @desc : This function is used to upload the purchase invoice to s3 and save into database
+     *  @param : string $booking_primary_contact_no
+     *  @return : boolean/string
+     */
+    function upload_sf_purchase_invoice_file($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_sf_purchase_invoice_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "misc-images/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
+                return False;
+            }
+
+        }
+
+        
+    }        
+    
     /**
      * @desc: this is used to validate duplicate serial no from Ajax
      */
