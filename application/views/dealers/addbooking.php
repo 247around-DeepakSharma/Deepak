@@ -379,6 +379,24 @@
         } else {
               display_message("appliance_category_1","error_category","green","");
         }
+        if($('.appliance_capacity').length > 0) {
+            var count1=0;
+            $(".appliance_capacity").each(function(){
+                var capacity_value = document.getElementById(this.id).innerHTML;
+                if((capacity_value !== '<option selected="" disabled="">Select Capacity</option><option selected="" value=""></option>') && ($("#"+this.id).val() === null)) {
+                    display_message("appliance_capacity_1","error_capacity","red","Please Select Capacity");
+                    $("#"+this.id).focus();
+                    ++count1;
+                    return false;
+                }
+            });
+            if(count1 > 0) {
+                return false;
+            }
+            else {
+                display_message("appliance_capacity_1","error_capacity","green","");
+            }
+        }
          if(purchase_date == ""){
             display_message("purchase_d","error_purchase","red","Please Select Purchase Date");
              return false;
@@ -545,6 +563,12 @@
                         //First Resetting Options values present if any
                         $("#appliance_capacity_1 option[value !='option1']").remove();
                         $('#appliance_capacity_1').html(data.capacity).change();
+                        if((data.capacity !== "") && (data.capacity !== "<option selected disabled>Select Capacity</option><option   selected  value = '' ></option>")) {
+                            $("#appliance_capacity_1").attr("required",true);
+                        }
+                        else{
+                            $("#appliance_capacity_1").removeAttr("required");
+                        }
                     }
                     
                     get_models();
@@ -568,6 +592,7 @@
         $("#partner_id").val(partner_id);
         if(capacity === null && capacity === ""){
             capacity = '';
+            $("#appliance_capacity_1").removeAttr("required");
         }
         
         if(service_id !== null && brand !== 'option1' && brand !== ''){
@@ -615,6 +640,7 @@
         capacity = $("#appliance_capacity_1").val();
         if(capacity === null && capacity === ""){
             postData['capacity'] = "";
+            $("#appliance_capacity_1").removeAttr("required");
             
         } else {
             postData['capacity'] = capacity;
