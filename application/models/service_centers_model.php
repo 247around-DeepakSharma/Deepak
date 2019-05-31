@@ -98,7 +98,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.internal_status, "
                 . " bd.booking_remarks, bd.service_id,"
-                . " services,"
+                . " services, booking_files.file_name as booking_files_purchase_invoice, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -122,7 +122,8 @@ class Service_centers_model extends CI_Model {
                         WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s "
+                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s"
+                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = sc.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . " AND bd.booking_id =  sc.booking_id "
@@ -134,6 +135,7 @@ class Service_centers_model extends CI_Model {
                 . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
              
             $query1 = $this->db->query($sql);
+            //echo $this->db->last_query(); die();
             
             $result[$i] = $query1->result();
            
