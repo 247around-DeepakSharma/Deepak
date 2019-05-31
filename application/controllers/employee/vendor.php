@@ -5641,4 +5641,31 @@ class vendor extends CI_Controller {
     }
     
     
+    
+        /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_all_service_center_with_micro_wh() {
+
+            $option = '<option selected="" disabled="">Select Warehouse</option>';
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
+            $where = array('is_wh' => 1, 'active' => 1,'id !='=>$this->session->userdata('service_center_id'));
+
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+
+            foreach ($data as $value) {
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
+                $option .= " > ";
+
+                    $option .=  $value['name']. " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                    
+            }
+       
+        echo $option;
+    }
+    
+    
 }

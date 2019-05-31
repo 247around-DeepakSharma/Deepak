@@ -778,7 +778,7 @@ class Service_centers extends CI_Controller {
                                 $array[$unit_id] = $result1[0];
                             }
                         } else {
-                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit['appliance_brand'], $unit['price_tags'], $booking_id);
+                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
                             return FALSE;
                         }
                     }

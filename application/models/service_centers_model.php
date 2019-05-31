@@ -210,10 +210,10 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array()){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array(),$having_arr=array()){
         $limit = "";
         $where_in = "";
-        $userSelect = $join = $groupBy = "";
+        $userSelect = $join = $groupBy = $having = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
@@ -251,6 +251,12 @@ class Service_centers_model extends CI_Model {
                 $join = $join." JOIN ".$key." ON ".$values;
             }
         }
+        if(!empty($having_arr)){
+            foreach ($having_arr as $fieldName=>$conditionArray){
+                $having = $having. $fieldName." AND ";
+            }
+            $having = " having ".trim($having," AND ");
+        }
 
          if($userInfo){
              $join = "JOIN users ON booking_details.user_id = users.user_id";
@@ -285,14 +291,14 @@ class Service_centers_model extends CI_Model {
                 . $where_sc . $where_in
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
-                . " $groupBy  $orderBY  $limit";
+                . " $groupBy  $orderBY $having $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, []);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array()) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [],$having_arr);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id

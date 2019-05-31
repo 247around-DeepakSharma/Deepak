@@ -5276,10 +5276,13 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
         
         $this->checkUserSession();
-        $whereIN = $where = $join = array();
+        $whereIN = $where = $join = $having = array();
+        if(!$booking_id) {
+            $booking_id  = NULL;
+        }
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -5293,18 +5296,28 @@ class Booking extends CI_Controller {
             $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
         }
         
+        $status=$review_status;
+        if($review_status === "Completed") {
+            $having['count(sc.booking_id)=sum(if(sc.added_by_SF=0,1,0))'] = NULL;
+        }
+        if($review_status === "Completed_By_SF") {
+            $status="Completed";
+            $whereIN['sc.added_by_SF'] = [1];
+        }
         
         if(!is_null($cancellation_reason)){
            $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
+        $data['cancellation_reason_selected'] = $cancellation_reason;
+        
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page']);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having);
             $data['status'] = $status;
+            $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
             $data['total_pages'] = $data['total_rows']/$data['per_page'];
             $data['is_partner'] = $is_partner;
