@@ -913,6 +913,7 @@ class Booking extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
+        
         //Get Partner Details Like source and partner Type
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
@@ -920,8 +921,6 @@ class Booking extends CI_Controller {
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
 
-        
-        
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -2087,6 +2086,7 @@ class Booking extends CI_Controller {
         if($change_appliance_details == 1){
             $this->update_completed_unit_applinace_details($booking_id);
         }
+        
         // customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -2104,6 +2104,7 @@ class Booking extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $purchase_date = $this->input->post('appliance_dop');
+        $purchase_invoice = $this->input->post('appliance_purchase_invoice');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2128,9 +2129,11 @@ class Booking extends CI_Controller {
             $b_unit_details = $this->booking_model->get_unit_details(array('booking_id'=>$booking_id));
         }
         $k = 0;
-        if(!empty($_FILES['sf_purchase_invoice']['name'])) {
+
+        
+        if(!empty($_FILES['sf_purchase_invoice']['name'])) :
             $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-        }  
+        endif;   
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
             $data = array();
@@ -2299,7 +2302,6 @@ class Booking extends CI_Controller {
                 }
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
             }
             $this->miscelleneous->update_appliance_details($unit_id);
@@ -2429,9 +2431,10 @@ class Booking extends CI_Controller {
         }
         }
     }
-    
-/**
-     *  @desc : This function is used to upload the support file for order id to s3 and save into database
+
+
+    /**
+     *  @desc : This function is used to upload the purchase invoice to s3 and save into database
      *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
@@ -2442,7 +2445,7 @@ class Booking extends CI_Controller {
         if (($error != 4) && !empty($tmp_name)) {
 
             $tmpFile = $tmp_name;
-            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            $support_file_name = $booking_id . '_sf_purchase_invoice_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
@@ -2450,7 +2453,7 @@ class Booking extends CI_Controller {
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: '.$booking_id);
                 return $support_file_name;
             }else{
                 //Logging success for file uppload
@@ -2461,8 +2464,9 @@ class Booking extends CI_Controller {
         }
 
         
-    }    
-        
+
+    }        
+    
     /**
      * @desc: this is used to validate duplicate serial no from Ajax
      */

@@ -433,6 +433,7 @@ class Service_centers extends CI_Controller {
         if (count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
+        
         $data['is_sf_purchase_invoice_required'] = [];
         if(!empty($data['bookng_unit_details'][0]['quantity'])) {
             $data['is_sf_purchase_invoice_required'] = array_filter($data['bookng_unit_details'][0]['quantity'], function ($quantity) {
@@ -509,10 +510,10 @@ class Service_centers extends CI_Controller {
                     $getremarks = $this->booking_model->getbooking_charges($booking_id);
                     $approval = $this->input->post("approval");
                     $i = 0;
-                    if(!empty($_FILES['sf_purchase_invoice']['name'])) {
-                        $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                    }   
                     
+                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
+                        $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                    endif;   
                     foreach ($customer_basic_charge as $unit_id => $value) {
 
                         //Check unit id exist in the sc action table.
@@ -585,7 +586,6 @@ class Service_centers extends CI_Controller {
                                 if(!empty($purchase_invoice_file_name)) {
                                     $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
                                 }
-                              
 
                                 $i++;
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
@@ -672,18 +672,18 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+        
     /**
      *  @desc : This function is used to upload the purchase invoice to s3 and save into database
      *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
     function upload_sf_purchase_invoice_file($booking_id, $tmp_name, $error, $name) {
-
+ 
         $support_file_name = false;
-
+ 
         if (($error != 4) && !empty($tmp_name)) {
-
+ 
             $tmpFile = $tmp_name;
             $support_file_name = $booking_id . '_sf_purchase_invoice_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
@@ -691,18 +691,22 @@ class Service_centers extends CI_Controller {
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "misc-images/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            if ($upload_file_status) {
+
+            if($upload_file_status){
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: ' . $booking_id);
+                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: '.$booking_id);
                 return $support_file_name;
-            } else {
+            }else{
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: ' . $booking_id);
+                log_message('info', __METHOD__ . 'Error In uploading support file for booking_id: '.$booking_id);
                 return False;
             }
-        }
-    }
 
+        }
+
+        
+    }        
+ 
     /**
      * @desc This function is used to change appliance category, capacity and also change prices according to it
      * @return boolean

@@ -193,20 +193,24 @@
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
+                                          <?php //echo"<pre>";print_r($booking_history);exit; ?>
                                         <div class="form-group col-md-3"style="width:16.95%;margin-left:15px !important;">
                                             <label>SF Purchase Invoice</label>
                                            
-                                            <input type="file" name="sf_purchase_invoice" id="sf_purchase_invoice" value="<?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?>">
+                                            <input type="file" name="sf_purchase_invoice" 
+                                                   onchange="update_purchase_invoice_for_unit('<?php echo $key1?>')"  id="<?php echo "purchase_invoice_".$key1?>" class="form-control purchase-invoice"
+                                                   value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
+                                            >
                                             
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
-                                            if (!empty($sf_purchase_invoice)) {
+                                            if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sf_purchase_invoice;
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? $booking_history['spare_parts'][0]['invoice_pic'] : ""); ?></small></a>
                                             
                                             
                                         </div>
@@ -252,6 +256,8 @@
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
+                                                            <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_purchase_invoice_".$key1."_".$key;?>" value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>" />
                                                         </td>
                                                                
                                                         <td>
@@ -627,8 +633,7 @@
 </div>
 <script>
 
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
-
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])).';'; ?>
     $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
@@ -762,7 +767,7 @@
                 if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
                     var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
                     if(is_sf_purchase_invoice_required == '1') {
-                        var sf_purchase_invoice = $('#sf_purchase_invoice').val();
+                        var sf_purchase_invoice = $('.purchase-invoice').val();
                         if(sf_purchase_invoice == '') {
                             alert("Please upload sf purchase invoice document.");
                             flag = 1;
@@ -1134,6 +1139,14 @@
                 $(".unit_dop_"+div+"_"+i).val(dopValue);
          }
     }
+    function update_purchase_invoice_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var purchase_invoice_value = $("#purchase_invoice_"+div).val();
+         
+        for(i = 0; i < Number(div_item_count); i++ ){
+            $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
+        }
+    }
     function check_broken(div){
         
         var broken = Number($("#broken_"+ div).val());
@@ -1190,6 +1203,9 @@
     function validateSerialNo(index){
        var model_number = '';
        var temp = $("#serial_number" +index).val();
+       if($.trim(temp) === ''){
+           return;
+       }
        var serialNo =  temp.toUpperCase();
        $("#serial_number" +index).val(serialNo);
        var price_tags = $("#price_tags"+index).text();
