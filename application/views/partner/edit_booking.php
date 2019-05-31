@@ -498,7 +498,7 @@
             var count1=0;
             $(".appliance_capacity").each(function(){
                 var capacity_value = document.getElementById(this.id).innerHTML;
-                if((capacity_value !== '<option selected="" value=""></option>') && ($("#"+this.id).val() === '')) {
+                if(($.trim(capacity_value) !== '<option selected="" value=""></option>') && ($("#"+this.id).val() === '')) {
                     display_message("appliance_capacity_1","error_capacity","red","Please Select Capacity");
                     $("#"+this.id).focus();
                     ++count1;
@@ -716,7 +716,7 @@
                     //$("#appliance_capacity_1 option[value !='option1']").remove();
                     //$('#appliance_capacity_1').append(data).change();
                     $('#appliance_capacity_1').html(data).change();
-                    if((data !== "") && (data !== "<option  selected  value=''></option>")) {
+                    if(($.trim(data) !== "") && ($.trim(data) !== "<option  selected  value=''></option>")) {
                         $("#appliance_capacity_1").attr("required",true);
                     }
                     else{

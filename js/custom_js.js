@@ -128,7 +128,6 @@ function getCapacityForCategory(category, div_id, add_booking) {
                 getModelForServiceCategoryCapacity(div_id);
                 getPricesForCategoryCapacity(div_id);
             }
-            $("#appliance_capacity_" + div_no[2]).attr("required",true);
 
         } else {
             $("#priceList_" + div_no[2]).html("");
@@ -137,8 +136,14 @@ function getCapacityForCategory(category, div_id, add_booking) {
                 getModelForServiceCategoryCapacity(div_id,);
                 getPricesForCategoryCapacity(div_id,add_booking);
             }
-            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
 
+        }
+        
+        if($.trim(data) !== "<option></option>") {
+            $("#appliance_capacity_" + div_no[2]).attr("required",true);
+        }
+        else {
+            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
         }
 
     });
@@ -170,6 +175,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         } else {
 
             postData['capacity'] = "";
+            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
         }
         if(postData['category']){
             //  $("#priceList_" + div_no[2]).html("Loading......");
@@ -281,7 +287,7 @@ function addBookingDialog(chanel = '') {
         var count1=0;
         $(".appliance_capacity").each(function(){
             var capacity_value = document.getElementById(this.id).innerHTML;
-            if((capacity_value !== '<option></option>') && ($("#"+this.id).val() === '')) {
+            if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
                 alert("Please Select Capacity");
                 $("#"+this.id).focus();
                 ++count1;
