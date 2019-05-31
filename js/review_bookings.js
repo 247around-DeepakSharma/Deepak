@@ -121,7 +121,7 @@ function send_remarks() {
 
 }
 function review_search(status,is_partner){
-    bookingID = $('#search').val();
+    var bookingID = $('#search_'+status+'_'+is_partner).val();
 
     if(bookingID == '') {
         bookingID = 0;
@@ -134,6 +134,9 @@ function review_search(status,is_partner){
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
+    }
+    else if(status == "Completed_By_SF"){
+       var tab = "#tabs-5";
     }
     if(is_partner){
         var tab = "#tabs-4";
