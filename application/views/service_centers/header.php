@@ -293,8 +293,7 @@
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer To Warehouse</strong></a></li> 
                                 <li class="divider"></li>
-                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh"><strong>Bulk Spare Transfer from Warehouse to Warehouse</strong></a></li> 
-                                <li class="divider"></li>
+
                                 <?php   }
                                     ?>
                             </ul>
