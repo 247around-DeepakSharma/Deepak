@@ -2851,6 +2851,73 @@ class Spare_parts extends CI_Controller {
         return $row;
     }
 
+    
+    
+    
+     /**
+     * @desc function for display view of bulk transfer from warehouse to warehouse
+     * @author Abhishek 
+     * @since 31-May-2019
+     */   
+    
+    function spare_transfer_from_wh_to_wh(){
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/spare_part_transfer_from_wh_to_wh');  
+    }
+    
+   
+           /**
+     * @desc function to process  bulk transfer from warehouse to warehouse
+     * @author Abhishek 
+     * @since 31-May-2019
+     */    
+    function spare_transfer_from_wh_to_wh_process(){
+        
+      log_message('info', __METHOD__);
+      $bookingidbulk =  trim($this->input->post('bulk_input')); 
+      $service_center =  trim($this->input->post('service_center')); 
+      $bookingidbulk1 =  str_replace("\r","",$bookingidbulk);
+      $bookingids =  explode("\n", $bookingidbulk1); 
+      $bookigs=array();
+      foreach($bookingids as $bbok){
+        $bookigs[]= str_replace("\r","",$bbok);
+      }
+      $where = array(
+          'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,
+          'spare_parts_details.entity_type'=>_247AROUND_SF_STRING,
+          'spare_parts_details.entity_id'=>$this->session->userdata('id'),
+          'spare_parts_details.requested_inventory_id IS NOT NULL '=> NULL
+       );
+       $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state, requested_inventory_id";
+       $post['where_in']= array('spare_parts_details.booking_id' => $bookingids);
+       $bookings_spare =$this->partner_model->get_spare_parts_by_any($select,$where,TRUE,FALSE,false, $post );
+       foreach ($bookings_spare as $booking){
+           $spareid = $booking['id'];
+           $state = $booking['state'];
+           $data = $this->inventory_model->get_warehouse_details("service_centres.id",array('warehouse_state_relationship.state'=>$state),true,false,true);
+           $warehouseid=0;
+           if(!empty($data)){
+                $warehouseid = $data[0]['id'];
+                $dataupdate  = array(
+               'is_micro_wh'=>2,
+               'entity_type'=>_247AROUND_SF_STRING,
+               'entity_id'=>$service_center,
+               'defective_return_to_entity_id'=>$service_center,
+               'defective_return_to_entity_type'=>_247AROUND_SF_STRING
+           );
+           $this->inventory_model->update_spare_courier_details($spareid,$dataupdate);
+           $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $booking['requested_inventory_id'], 1);
+           }
+          }   /// for loop ends
+          $this->session->set_flashdata('success','Spare Transfer Successfully');
+         if($this->session->userdata('userType') == 'service_center'){
+               redirect('service_center/spare_transfer_from_wh_to_wh');
+          }else{
+             redirect('employee/spare_parts/spare_transfer_from_wh_to_wh');
+          }
+         
+    }
 
 
 
