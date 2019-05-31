@@ -5195,7 +5195,10 @@ class Booking extends CI_Controller {
     }
     function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
         $this->checkUserSession();
-        $whereIN = array();
+        $whereIN = $where = $join = array();
+        if($booking_id == 0) {
+            $booking_id  = NULL;
+        }
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -5206,6 +5209,8 @@ class Booking extends CI_Controller {
          }
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['cancellation_reason_selected'] = $cancellation_reason;
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
