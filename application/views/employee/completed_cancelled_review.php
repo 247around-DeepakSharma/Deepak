@@ -4,14 +4,14 @@
 <div class="" style="margin-top: 30px;">
          <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">              
-                 <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
+                <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
              </div>
               <?php if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
                     <option value="<?= $reason['reason']; ?>"><?= $reason['reason']; ?></option>
@@ -186,14 +186,17 @@
              }
              else{
                     $tab = "#tabs-3";
-                    if($status == "Completed"){
+                    if($review_status == "Completed"){
                         $tab = "#tabs-2";
+                    }
+                    else if($review_status == "Completed_By_SF"){
+                        $tab = "#tabs-5";
                     }
              }
              for($i=0;$i<=$total_pages;$i++){
                  $offset = $per_page*$i;
                  ?>
-    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $status?>/<?php echo $offset;?>/0/0/<?php echo $cancellation_reason_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/0/0/<?php echo $cancellation_reason_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
              }
              ?>
