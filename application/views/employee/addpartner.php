@@ -2705,8 +2705,8 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th>Model Number</th>
                                                 <th>Service</th>
+                                                <th>Model Number</th>
                                                 <th>Brand</th>
                                                 <th>Category</th>
                                                 <th>Capacity</th>
@@ -5274,3 +5274,8 @@
         }
     }
 </script>
+<style type="text/css">
+    .fa-edit{
+        display: none !important;
+    }
+</style>
