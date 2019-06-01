@@ -820,6 +820,7 @@
         if(pr === false){
             alert('Not Allow to Complete/Delivered multiple type of Service category');
             flag = 1;
+            return false;
         }
 
         if (Number(number_of_div) > Number(div_count)) {

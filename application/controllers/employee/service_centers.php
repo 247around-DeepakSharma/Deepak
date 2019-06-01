@@ -655,23 +655,13 @@ class Service_centers extends CI_Controller {
                         }
 
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
- 
-                    //This is used to cancel those spare parts who has not shipped by partner.        
-                    $this->cancel_spare_parts($partner_id, $booking_id);
 
-                    if ($is_update_spare_parts) {
-                        foreach ($sp_required_id as $sp_id) {
+                        $this->session->set_userdata('success', "Updated Successfully!!");
 
-                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
-                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
-                        }
-
-                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
- 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
                         $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
+                        $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
@@ -684,7 +674,6 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-  }
     /**
      * @desc This function is used to change appliance category, capacity and also change prices according to it
      * @return boolean
@@ -722,21 +711,7 @@ class Service_centers extends CI_Controller {
                         if (!empty($result1)) {
                             $result1[0]['appliance_brand'] = $unit[0]['appliance_brand'];
                             // Free from Paid
-                            if ($result1[0]['customer_net_payable'] == 0) {
-                                if ($unit[0]['customer_net_payable'] > 0) {
-                                    $return = false;
-                                } else {
-                                    $array[$unit_id] = $result1[0];
-                                }
-                            } else if ($result1[0]['customer_net_payable'] > 0) {
-                                if ($unit[0]['customer_net_payable'] == 0) {
-                                    $return = false;
-                                } else {
-                                    $array[$unit_id] = $result1[0];
-                                }
-                            } else {
-                                $array[$unit_id] = $result1[0];
-                            }
+                            $array[$unit_id] = $result1[0];
                         } else {
                             $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
                             return FALSE;
@@ -745,7 +720,6 @@ class Service_centers extends CI_Controller {
                 }
             }
 
-            if ($return) {
                 if (!empty($array)) {
                     foreach ($array as $k => $v) {
                         $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
@@ -798,10 +772,7 @@ class Service_centers extends CI_Controller {
 
                     return TRUE;
                 }
-            } else {
-              $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
-              return FALSE;
-            }
+
         } else {
             return true;
         }
