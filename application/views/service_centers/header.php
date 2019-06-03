@@ -204,9 +204,13 @@
                                 if ($this->session->userdata('is_wh') == 1) { ?> 
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li>
                                 <li class="divider"></li>
-                              
+                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion">Bulk Spare Transfer</a></li> 
+                                <li class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh">Bulk Spare Transfer from Warehouse to Warehouse</a></li> 
+                                <li class="divider"></li>
                                 <?php   }
-                                    ?>
+                                ?>
+
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -288,14 +292,9 @@
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
                                 
                                 <?php }?>  
-                                <?php  
-                                if ($this->session->userdata('is_wh') == 1) { ?> 
-                                <li class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer To Warehouse</strong></a></li> 
-                                <li class="divider"></li>
+                                <li class="divider" style="height: 1.5px;"></li>
+                                <?php }?>  
 
-                                <?php   }
-                                    ?>
                             </ul>
                         </li>
 
