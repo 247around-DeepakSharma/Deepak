@@ -2911,7 +2911,7 @@ class Spare_parts extends CI_Controller {
           }   /// for loop ends
           
           if($tcount>0 && empty($bookings_flash_data)){
-            $this->session->set_flashdata('success',$tcount. ' - Spares Transfered Successfully'.'  Click for details  ');
+            $this->session->set_flashdata('success',$tcount. ' - Spares Transfered Successfully');
              if($this->session->userdata('userType') == 'service_center'){
                redirect('service_center/spare_transfer_from_wh_to_wh');
              }else{
