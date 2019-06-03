@@ -936,7 +936,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
-                $id = $this->search_for_key($price_tag['price_tags'], $prices);
+                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
                 unset($prices[$id]);
                 if ($keys == 0) {
@@ -946,6 +946,7 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
+        
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
@@ -989,7 +990,7 @@ class Booking extends CI_Controller {
      */
     function search_for_key($price_tag, $array) {
         
-        $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
+        return $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
         
     }
 
