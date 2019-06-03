@@ -2925,7 +2925,7 @@ class Spare_parts extends CI_Controller {
                 $dataupdate  = array(
                'is_micro_wh'=>2,
                'entity_type'=>_247AROUND_SF_STRING,
-               'entity_id'=>$service_center,
+               'partner_id'=>$service_center,
                'defective_return_to_entity_id'=>$service_center,
                'defective_return_to_entity_type'=>_247AROUND_SF_STRING
            );

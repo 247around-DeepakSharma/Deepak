@@ -180,8 +180,12 @@
                                             <div class="col-md-6">
                                                 <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> 
                                                     <option selected disabled>Select Part Warranty Status</option>
-                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
-                                                    <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
+                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if($bookinghistory[0]['request_type'] == REPAIR_IN_WARRANTY_TAG  || 
+                                                            $bookinghistory[0]['request_type'] == EXTENDED_WARRANTY_TAG || $bookinghistory['request_type'] == GAS_RECHARGE_IN_WARRANTY
+                                                            || $bookinghistory['request_type'] == PRESALE_REPAIR_TAG) { echo "SELECTED";}?>> In Warranty </option>
+                                                    <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>" 
+                                                            <?php if($bookinghistory[0]['request_type'] == REPAIR_OOW_TAG  || 
+                                                                    $bookinghistory['request_type'] == GAS_RECHARGE_OUT_OF_WARRANTY) { echo "SELECTED";}?>> Out Of Warranty </option>
                                                 </select>
                                             </div>
                                         </div>
