@@ -2700,4 +2700,19 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    /**
+     * @Desc: This function is used to get AM detail by Booking Id
+     * @params: array $booking_id
+     * @return: array account manager detail
+     * 
+     */
+    function get_am_by_booking($booking_id, $select="*"){
+        $this->db->select($select);
+        $this->db->from("booking_details");
+        $this->db->where("booking_id", $booking_id);
+        $this->db->join("agent_filters", "agent_filters.entity_type = '247around' and agent_filters.entity_id = booking_details.partner_id and agent_filters.state = booking_details.state and agent_filters.is_active=1");
+        $this->db->join("employee", "employee.id = agent_filters.agent_id");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
    }
