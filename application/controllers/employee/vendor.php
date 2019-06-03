@@ -5656,7 +5656,7 @@ class vendor extends CI_Controller {
      */
     function get_all_service_center_with_micro_wh() {
 
-            $option = '<option selected="" disabled="">Select Warehouse</option>';
+            $option = '<option selected="" value="" disabled="">Select Warehouse</option>';
             $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1,'id !='=>$this->session->userdata('service_center_id'));
 

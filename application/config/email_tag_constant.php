@@ -133,4 +133,4 @@ define('UPDATE_PARTNER_AM_NOTIFICATION', 'update_partner_am_notification');
  
 define('CHANGE_PASSWORD','change_password');
 define('UPDATE_APPLIANCE_BY_SF','send_mail_for_insert_update_applaince_by_sf');
- 
+define('TRANSFER_SPARE_FROM_WH_TO_WH','spare_not_transfer_from_wh_to_wh');
