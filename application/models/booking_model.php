@@ -231,7 +231,7 @@ class Booking_model extends CI_Model {
                 . " AND u.user_id = bd.user_id "
                 . " AND rp.create_date >= bd.closed_date "
                 . "AND rating_unreachable_count < 3 "
-                 . "AND rp.To IN ('".GOOD_MISSED_CALL_RATING_NUMBER."','".POOR_MISSED_CALL_RATING_NUMBER."')";
+                 . "AND rp.To IN ('".GOOD_MISSED_CALL_RATING_NUMBER."','".POOR_MISSED_CALL_RATING_NUMBER."') GROUP BY bd.user_id";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
