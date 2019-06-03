@@ -1414,7 +1414,7 @@ class User_invoice extends CI_Controller {
                 //create data for generating invoices
                 $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                 $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
-                $data[$key]['taxable_value'] = ($around_total  - $tax_charge);
+                $data[$key]['taxable_value'] = sprintf("%.2f", ($around_total  - $tax_charge));
                 $data[$key]['product_or_services'] = "Product";
                 if(!empty($vendor_data['gst_no'])){
                     $data[$key]['gst_number'] = $vendor_data['gst_no'];
