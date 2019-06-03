@@ -996,7 +996,7 @@ class Booking extends CI_Controller {
      */
     function search_for_key($price_tag, $array) {
         
-        $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
+        return $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
         
     }
 
