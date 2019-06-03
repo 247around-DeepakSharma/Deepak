@@ -2817,7 +2817,7 @@ class Spare_parts extends CI_Controller {
      * @author Abhishek 
      * @since 31-May-2019
      */    
-    function spare_transfer_from_wh_to_wh_process(){
+ function spare_transfer_from_wh_to_wh_process(){
      
       if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
            
@@ -2861,7 +2861,7 @@ class Spare_parts extends CI_Controller {
               $dataupdate  = array(
                'is_micro_wh'=>2,
                'entity_type'=>_247AROUND_SF_STRING,
-               'entity_id'=>$service_center,
+               'partner_id'=>$service_center,
                'defective_return_to_entity_id'=>$service_center,
                'defective_return_to_entity_type'=>_247AROUND_SF_STRING
                );
@@ -2929,6 +2929,7 @@ class Spare_parts extends CI_Controller {
 
          
     }
+
 
 
 
