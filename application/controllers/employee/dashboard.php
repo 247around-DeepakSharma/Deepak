@@ -363,6 +363,7 @@ class Dashboard extends CI_Controller {
      * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
      * @param $startDate, $endDate
      * @return json
+     * Note - Correct Data will be shown by 28th May 2019, before that all data will be mapped to completed with edit
      */
     function completed_booking_by_closure_graph_data($startDate, $endDate, $status){
         $graph_data = array();
@@ -378,45 +379,47 @@ class Dashboard extends CI_Controller {
             $graph_data = $this->dashboard_model->get_cancelled_booking_graph_data($startDate, $endDate);
         }
         if(!empty($graph_data)){
-            foreach ($graph_data[0] as $key => $value) {
-                switch ($key) {
-                    case 'full_name':
-                        if (!empty($value)) {
-                            array_push($closureName, $value);
-                        } else {
-                            array_push($closureName, '0');
-                        }
-                        break;
-                    case 'completed_rejected':
-                        if (!empty($value)) {
-                            array_push($rejectCompleted, $value);
-                        } else {
-                            array_push($rejectCompleted, '0');
-                        }
-                        break;
-                    case 'completed_approved':
-                        if (!empty($value)) {
-                            array_push($approveComplted, $value);
-                        } else {
-                            array_push($approveComplted, '0');
-                        }
-                        break;
-                    case 'edit_completed':
-                        if (!empty($value)) {
-                            array_push($editCompleted, $value);
-                        } else {
-                            array_push($editCompleted, '0');
-                        }
-                        break;
-                    case 'total_bookings':
-                        if (!empty($value)) {
-                            array_push($totalCompleted, $value);
-                        } else {
-                            array_push($totalCompleted, '0');
-                        }
-                        break;
-                }
             
+            foreach ($graph_data as $data) {
+                foreach ($data as $key => $value) {
+                    switch ($key) {
+                        case 'full_name':
+                            if (!empty($value)) {
+                                array_push($closureName, $value);
+                            } else {
+                                array_push($closureName, '0');
+                            }
+                            break;
+                        case 'completed_rejected':
+                            if (!empty($value)) {
+                                array_push($rejectCompleted, $value);
+                            } else {
+                                array_push($rejectCompleted, '0');
+                            }
+                            break;
+                        case 'completed_approved':
+                            if (!empty($value)) {
+                                array_push($approveComplted, $value);
+                            } else {
+                                array_push($approveComplted, '0');
+                            }
+                            break;
+                        case 'edit_completed':
+                            if (!empty($value)) {
+                                array_push($editCompleted, $value);
+                            } else {
+                                array_push($editCompleted, '0');
+                            }
+                            break;
+                        case 'total_bookings':
+                            if (!empty($value)) {
+                                array_push($totalCompleted, $value);
+                            } else {
+                                array_push($totalCompleted, '0');
+                            }
+                            break;
+                    }
+                }
             }
             $json_data['closures'] = implode(",", $closureName);
             $json_data['reject'] = implode(",", $rejectCompleted);
@@ -1988,20 +1991,20 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
             if($is_pending){
-                    $select = "employee.full_name as entity,partners.account_manager_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
+                    $select = "employee.full_name as entity,agent_filters.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
                             . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
                 else{
                     if($request_type == 'Repair_with_part'){
-                        $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_tat.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                     }
                     else{
-                        $select = "employee.full_name as entity,partners.account_manager_id as id,booking_tat.booking_id,"
+                        $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_tat.booking_id,"
                                 . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
                     }
                 }
-            $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
-            $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type){
@@ -2091,11 +2094,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
             if($rmID != "00"){
-              $conditionsArray['where']["partners.account_manager_id"] = $rmID;
+             $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
             }
             $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-            $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
-            $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
         }
         if($this->session->userdata('userType') == 'service_center'){
             $conditionsArray['where']["service_centres.id"] = $this->session->userdata('service_center_id');
@@ -2133,10 +2136,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
             if($rmID != "00"){
-                $conditionsArray['where']["partners.account_manager_id"] = $rmID;
+                 $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
             }
-            $conditionsArray['join']['partners'] = "partners.id = booking_details.partner_id";
-            $conditionsArray['join']['employee'] = "partners.account_manager_id = employee.id";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
         }
         //Get Data Group by State
         $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);

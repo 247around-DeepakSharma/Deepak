@@ -873,6 +873,7 @@ class vendor extends CI_Controller {
         if (!empty($id)) {
             $vendor['active'] = $is_active;
             $vendor['agent_id'] = $this->session->userdata("id");
+            $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
             
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
@@ -898,6 +899,7 @@ class vendor extends CI_Controller {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
                     }
+                    $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
                     $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_permanent_on_off');
@@ -3146,6 +3148,7 @@ class vendor extends CI_Controller {
         $vendor['on_off'] = $on_off;
         $vendor['agent_id'] = $agentID;
         $this->vendor_model->edit_vendor($vendor, $id);
+        $agent_name = $this->session->userdata('emp_name');
         
         //Check on off
         if($on_off == 1){
@@ -3173,6 +3176,7 @@ class vendor extends CI_Controller {
                 $email['rm_name'] = $employee_relation[0]['full_name'];
                 $email['sf_name'] = ucfirst($sf_name);
                 $email['on_off'] = $on_off_value;
+                $email['action_by'] = $agent_name;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
                 $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
@@ -5634,6 +5638,33 @@ class vendor extends CI_Controller {
         }
         
         
+    }
+    
+    
+    
+        /**
+     * @Desc: This function is used to get the service center for filtered brackets list
+     * @param void
+     * @return: string
+     * 
+     */
+    function get_all_service_center_with_micro_wh() {
+
+            $option = '<option selected="" disabled="">Select Warehouse</option>';
+            $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
+            $where = array('is_wh' => 1, 'active' => 1,'id !='=>$this->session->userdata('service_center_id'));
+
+            $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
+
+            foreach ($data as $value) {
+                $option .= "<option data-warehose='1' value='" . $value['id'] . "'";
+                $option .= " > ";
+
+                    $option .=  $value['name']. " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+                    
+            }
+       
+        echo $option;
     }
     
     

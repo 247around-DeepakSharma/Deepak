@@ -457,8 +457,8 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('service_centre_charges', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'purchase_invoice_pod' => 1], null, null, null, null, null)->result_array();
-        
+        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
+         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -598,8 +598,7 @@ class Service_centers extends CI_Controller {
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
                                 $i++;
-                                print_r($data);
-                                
+
                                 $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
                                 if(!empty($isSparePartExist[0]['invoice_pic'])) :
                                     $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
@@ -662,7 +661,7 @@ class Service_centers extends CI_Controller {
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
                     $partner_id = $this->input->post("partner_id");
-
+  
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
@@ -675,7 +674,7 @@ class Service_centers extends CI_Controller {
                         }
 
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
-
+ 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
                         $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
@@ -691,7 +690,9 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+    
+ 
+ 
     /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
      *  @param : string $booking_primary_contact_no
@@ -759,6 +760,7 @@ class Service_centers extends CI_Controller {
                         }
 
                         if (!empty($result1)) {
+                            $result1[0]['appliance_brand'] = $unit[0]['appliance_brand'];
                             // Free from Paid
                             if ($result1[0]['customer_net_payable'] == 0) {
                                 if ($unit[0]['customer_net_payable'] > 0) {
@@ -776,63 +778,90 @@ class Service_centers extends CI_Controller {
                                 $array[$unit_id] = $result1[0];
                             }
                         } else {
+                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
                             return FALSE;
                         }
                     }
                 }
             }
-            if (!empty($array)) {
-                foreach ($array as $k => $v) {
-                    $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
-                    if (!empty($data)) {
-                        $result = $data[0];
 
-                        if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
-                            if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
-                                $result['customer_total'] = $unit[0]['customer_total'];
-                                $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
+            if ($return) {
+                if (!empty($array)) {
+                    foreach ($array as $k => $v) {
+                        $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
+                        if (!empty($data)) {
+                            $result = $data[0];
+
+                            if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                                if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                                    $result['customer_total'] = $unit[0]['customer_total'];
+                                    $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
+                                }
                             }
+                            unset($result['id']);
+                            $result['appliance_category'] = $model_details[0]['category'];
+                            $result['appliance_capacity'] = $model_details[0]['capacity'];
+                            $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
+                            $result['around_paid_basic_charges'] = $unit[0]['around_net_payable'];
+
+                            $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+                            $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
+
+
+                            $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
+                            $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
+                            $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+
+                            $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
+                            $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
+
+                            $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+                            $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+
+                            $a = $this->booking_model->update_booking_unit_details_by_any(array('id' => $k), $result);
+
+                            $array1 = array('booking_id' => $booking_id,
+                                'category' => $model_details[0]['category'],
+                                'capacity' => $model_details[0]['capacity'],
+                                'unit_details_id' => $k);
+
+                            $this->service_centers_model->insert_update_applaince_by_sf($array1);
+                          
+                        } else {
+                            $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'], $model_details[0]['capacity'], $v['appliance_brand'], $v['price_tags'], $booking_id);
+                            return FALSE;
                         }
-                        unset($result['id']);
-                        $result['appliance_category'] = $model_details[0]['category'];
-                        $result['appliance_capacity'] = $model_details[0]['capacity'];
-                        $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
-                        $result['around_paid_basic_charges'] = $unit[0]['around_net_payable'];
-
-                        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-                        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
-
-
-                        $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
-                        $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
-                        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
-
-                        $result['around_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
-                        $result['vendor_st_or_vat_basic_charges'] = $this->booking_model->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
-
-                        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
-                        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
-
-                        $a = $this->booking_model->update_booking_unit_details_by_any(array('id' => $k), $result);
-
-                        $array1 = array('booking_id' => $booking_id,
-                            'category' => $model_details[0]['category'],
-                            'capacity' => $model_details[0]['capacity'],
-                            'unit_details_id' => $k);
-
-                        $this->service_centers_model->insert_update_applaince_by_sf($array1);
-                    } else {
-                        return FALSE;
                     }
+
+                    return true;
+                } else {
+
+                    return TRUE;
                 }
-
-                return true;
             } else {
-
-                return TRUE;
+              $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
+              return FALSE;
             }
         } else {
             return true;
+        }
+    }
+
+    /**
+     * @desc This function is used to send email for insert appliance by sf
+
+     */
+    function send_mail_for_insert_applaince_by_sf($category,$capacity="",$brand="",$service_category="",$booking_id) {
+         $email_template = $this->booking_model->get_booking_email_template(UPDATE_APPLIANCE_BY_SF);
+        if (!empty($email_template)) {
+
+            $to =$email_template[1];
+            $cc = $email_template[3];
+            $bcc = $email_template[4];
+            $subject = vsprintf($email_template[4], array());
+            $emailBody = vsprintf($email_template[0], array($brand,$category,$capacity,$service_category));
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "",UPDATE_APPLIANCE_BY_SF, "",$booking_id);
         }
     }
 
@@ -6553,52 +6582,39 @@ class Service_centers extends CI_Controller {
      */
     function change_password() {
         
-        if($_POST) :
-            // declaring variables.
-            $service_center_id = $this->session->userdata['service_center_id'];
-            $service_center_name = $this->session->userdata['service_center_name'];
-            $old_password = md5($_POST['old_password']);
-            // fetch record.
-            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
-        endif;
-        
-        if($this->input->is_ajax_request()) : // verify old password.
-            if(!empty($service_center_login)) :
-                echo '1';exit;
-            else :
-                echo'0';exit;
-            endif;
-        elseif($_POST) :
+        if($this->input->is_ajax_request()) { // verify old password.
+            echo $this->user_model->verify_entity_password(_247AROUND_SF_STRING, $this->session->userdata['service_center_id'], $this->input->post('old_password'));exit;
+        } elseif($this->input->post()) {
             
             // Update password.
-            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
+            $this->user_model->change_entity_password(_247AROUND_SF_STRING, $this->session->userdata['service_center_id'], $this->input->post('new_password'));
             // Send mail.
-            $vendor = $this->vendor_model->getVendorContact($service_center_id);
+            $vendor = $this->vendor_model->getVendorContact($this->session->userdata['service_center_id']);
             // set To.
             //$to_email = (!empty($service_center[0]['email']) ? $service_center[0]['email'] : NULL);
             $to = (!empty($vendor[0]['primary_contact_email']) ? $vendor[0]['primary_contact_email'] : NULL); //POC
             // set CC.
             $cc = [];
             // owner
-            if(!empty($vendor[0]['owner_email'])) : 
+            if(!empty($vendor[0]['owner_email'])) { 
                 $cc[] =  $vendor[0]['owner_email'];
-            endif;
+            }
             // RM
-            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($service_center_id); 
-            if(!empty($rm[0]['official_email'])) :
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata['service_center_id']); 
+            if(!empty($rm[0]['official_email'])) {
                 $cc[] =  $rm[0]['official_email'];
-            endif;
+            }
             // subject
-            $subject = "Password changed for : {$service_center_name}";
-            if(!empty($to)) :
+            $subject = "Password changed for : {$this->session->userdata['service_center_name']}";
+            if(!empty($to)) {
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, "Password has been changed successfully.", "", CHANGE_PASSWORD);
                 log_message('info', __FUNCTION__ . 'Change password mail sent.');
-            endif;            
+            }            
         
             // setting feedback message for user.
             $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
             redirect(base_url() . "employee/service_centers/change_password");
-        endif;
+        }
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/change_password');

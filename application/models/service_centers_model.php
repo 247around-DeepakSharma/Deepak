@@ -98,7 +98,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.internal_status, "
                 . " bd.booking_remarks, bd.service_id,"
-                . " services,"
+                . " services, booking_files.file_name as booking_files_purchase_invoice, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -122,7 +122,8 @@ class Service_centers_model extends CI_Model {
                         WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s "
+                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s"
+                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = sc.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . " AND bd.booking_id =  sc.booking_id "
@@ -134,6 +135,7 @@ class Service_centers_model extends CI_Model {
                 . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
              
             $query1 = $this->db->query($sql);
+            //echo $this->db->last_query(); die();
             
             $result[$i] = $query1->result();
            
@@ -208,16 +210,18 @@ class Service_centers_model extends CI_Model {
     /**
      *
      */
-    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array()){
+    function get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage = -1,$where=array(),$userInfo=0,$orderBY = NULL,$select=NULL,$state=0,$join_arr=array(),$having_arr=array()){
         $limit = "";
         $where_in = "";
-        $userSelect = $join = $groupBy = "";
+        $userSelect = $join = $groupBy = $having = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
         }
         if($status == "Cancelled"){
-            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
+            $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
+                    . "AND (sc_sub.internal_status ='Completed' OR sc_sub.internal_status ='Defective Part To Be Shipped By SF' OR sc_sub.internal_status ='Defective Part Received By Partner'"
+                    . "OR sc_sub.internal_status ='Defective Part Shipped By SF') LIMIT 1) ";
         }
         else if($status == "Completed"){
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
@@ -247,6 +251,12 @@ class Service_centers_model extends CI_Model {
                 $join = $join." JOIN ".$key." ON ".$values;
             }
         }
+        if(!empty($having_arr)){
+            foreach ($having_arr as $fieldName=>$conditionArray){
+                $having = $having. $fieldName." AND ";
+            }
+            $having = " having ".trim($having," AND ");
+        }
 
          if($userInfo){
              $join = "JOIN users ON booking_details.user_id = users.user_id";
@@ -266,6 +276,7 @@ class Service_centers_model extends CI_Model {
          }
          $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
+        
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
@@ -280,14 +291,15 @@ class Service_centers_model extends CI_Model {
                 . $where_sc . $where_in
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
-                . " $groupBy  $orderBY  $limit";
+                . " $groupBy  $orderBY $having $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array()) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [],$having_arr);
+        
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'

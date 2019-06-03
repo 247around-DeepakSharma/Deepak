@@ -101,6 +101,8 @@ $route['service_center/inventory'] = 'employee/service_centers/warehouse_default
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';
 
+$route['service_center/spare_transfer_from_wh_to_wh'] = 'employee/spare_parts/spare_transfer_from_wh_to_wh';
+$route['service_center/spare_transfer_from_wh_to_wh_process'] = 'employee/spare_parts/spare_transfer_from_wh_to_wh_process';
 
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
 $route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/service_centers/alternate_inventory_stock_list/$1/$2/$3';
@@ -145,6 +147,7 @@ $route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';
+$route['partner/spare_shipped_history'] = 'employee/partner/spare_shipped_history';
 $route['partner/home'] = 'employee/partner/partner_default_page';
 $route['partner/dashboard'] = 'employee/partner/partner_dashboard';
 $route['partner/search'] = 'employee/partner/search';

@@ -2614,6 +2614,7 @@
                                                     <th>S.No.</th>
                                                     <th>Model Number</th>
                                                     <th>Appliance</th>
+                                                    <th>Status</th>
                                                     <th>Edit</th>
 <!--                                                    <th>Activate</th>-->
                                                 </tr>
@@ -3474,8 +3475,10 @@
        return false;
     }  
     function remove2(){
-       $(this).parents(".clonedInputMapping").remove();
-       return false;
+        if($('div.clonedInputMapping').length > 1) {
+            $(this).parents(".clonedInputMapping").remove();
+        }
+        return false;
     }
     $("button.clone2").on("click", clone2);
     
@@ -5166,7 +5169,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2 ]
+                        columns: [ 1, 2, 3 ]
                     },
                     title: 'model_number',
                 },
@@ -5183,6 +5186,7 @@
                 style: 'multi'
             },
             "order": [], 
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             "pageLength": 10,
             "ordering": false,
             "ajax": {
@@ -5308,7 +5312,7 @@
                         extend: 'excel',
                         text: 'Export',
                         exportOptions: {
-                            columns: [ 0, 1, 2 ]
+                            columns: [1, 2, 3, 4, 5, 6]
                         },
                         title: 'model_mapping_list',
                     },
@@ -5324,7 +5328,8 @@
                 select: {
                     style: 'multi'
                 },
-                "order": [], 
+                "order": [],
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 "pageLength": 10,
                 "ordering": false,
                 "ajax": {

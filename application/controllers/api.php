@@ -57,7 +57,7 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerCancelledBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"techSupport\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -484,7 +484,15 @@ class Api extends CI_Controller {
             case 'engineerCancelledBookings':
                 $this->getEngineerCancelledBookings();
                 break;
-                
+            
+            case 'engineerHeplingDocuments':
+                $this->getEngineerHeplingDocuments();
+                break;
+            
+            case 'engineerProfile':
+                $this->getEngineerProfile();
+                break;
+            
             default:
                 break;
             
@@ -4713,14 +4721,93 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("booking_id" => "PB-16565919051532");
         if (!empty($requestData["booking_id"])) {
-            $response = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
-            log_message("info", __METHOD__ . "Tech Support Numbers Founded Successfully");
+            $tech_support = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
+            if(!empty($tech_support)){
+                $response = $tech_support[0];
+                log_message("info", __METHOD__ . "Tech Support Numbers Founded Successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
+            $this->sendJsonResponse(array('0025', 'Service Center id or Booking id not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
+            $this->sendJsonResponse(array('0026', 'Service Center id or Booking id not found'));
+        }
+    }
+    
+    function getEngineerHeplingDocuments(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $pdf_docs = array();
+        $video_docs = array();
+        $other_docs = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("booking_id" => "SP-2502017111426");
+        if (!empty($requestData["booking_id"])) {
+            $documets =  $this->service_centers_model->get_collateral_for_service_center_bookings($requestData["booking_id"]);
+            $i = 0;
+            foreach ($documets as $key => $value) {
+                if($value['document_type'] == "pdf"){
+                    $pdf['document_type'] = $value['document_type'];
+                    $pdf['document_description'] = $value['document_description'];
+                    $pdf['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    array_push($pdf_docs, $pdf);
+                }
+                else if($value['document_type'] == "video"){
+                    $video['document_type'] = $value['document_type'];
+                    $video['document_description'] = $value['document_description'];
+                    $video['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    array_push($video_docs, $video);
+                }
+                else{
+                    $others['document_type'] = $value['document_type'];
+                    $others['document_description'] = $value['document_description'];
+                    $others['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    array_push($other_docs, $others);
+                }
+                $i++;
+            }
+            
+            $response['pdf'] = $pdf_docs;
+            $response['video'] = $video_docs;
+            $response['others'] = $other_docs;
+            
+            log_message("info", __METHOD__ . "Helping Documents Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
         }
         else{
-            log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
-            $this->sendJsonResponse(array('0025', 'Service Center id or Booking id not found'));
+            log_message("info", __METHOD__ . "Partner Id not found - ".$requestData["partner_id"]);
+            $this->sendJsonResponse(array('0027', 'Partner Id not found'));
+        }
+    }
+    
+    function getEngineerProfile(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = array("engineer_id" => "1");
+        if (!empty($requestData["engineer_id"])) {
+            $eng_profile =  $this->engineer_model->engineer_profile_data($requestData['engineer_id']);
+            if(!empty($eng_profile)){
+                $response = $eng_profile[0];
+                log_message("info", __METHOD__ . "Enngineer Profile Found Successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Engineer Profile not found - ".$requestData["engineer_id"]);
+                $this->sendJsonResponse(array('0028', 'Engineer Profile not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Engineer id not found - ".$requestData["engineer_id"]);
+            $this->sendJsonResponse(array('0029', 'Engineer Id not found'));
         }
     }
 }

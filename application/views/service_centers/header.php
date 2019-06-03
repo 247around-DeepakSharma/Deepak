@@ -295,6 +295,7 @@
                                 if ($this->session->userdata('is_wh') == 1) { ?> 
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer</strong></a></li> 
                                 <li class="divider"></li>
+
                                 <?php   }
                                     ?>
                                 <?php }?>  

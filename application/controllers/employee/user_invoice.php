@@ -1407,9 +1407,7 @@ class User_invoice extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, array('amount_due'=>$amount_due));
                 
                 // Send OOW invoice to Inventory Manager
-                $url = base_url() . "employee/miscelleneous/check_unit_in_sc/".$booking_id;
-                $async_data = array();
-                $this->asynchronous_lib->do_background_process($url, $async_data);
+                $this->miscelleneous->check_unit_in_sc($booking_id);
                 
                 //create data for generating invoices
                 $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";

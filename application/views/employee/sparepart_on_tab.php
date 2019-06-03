@@ -32,7 +32,7 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,7 +112,7 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
-                                   
+                                
                                 </tr>
                             </thead>
                             <tbody>
@@ -194,10 +194,9 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -232,10 +231,8 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Rejection</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -727,7 +724,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '10', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -811,7 +808,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '11', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1247,7 +1244,17 @@
     });
     
     function uncheckedPickupScheduleCheckbox(sequence_id){
-  
+    
+         var len = $(".pickup_request:checked").length;
+         
+         if(len > 0){
+            $("#request_pickup").attr('disabled',false);    
+         }else{
+             $("#request_pickup").attr('disabled',true);   
+         }
+         
+         $("#schedule_pickup").attr('disabled',true);
+          
          $('.pickup_schedule').prop('checked', false);
          
         var service_center_id_arr = [];         
@@ -1272,7 +1279,18 @@
     }
     
     function uncheckedPickupRequest(sequence_id){
-         $('.pickup_request').prop('checked', false);
+        
+        var len = $(".pickup_schedule:checked").length;
+
+        if(len > 0){
+          $("#schedule_pickup").attr('disabled',false);    
+        }else{
+           $("#schedule_pickup").attr('disabled',true);   
+        }
+
+        $("#request_pickup").attr('disabled',true);
+
+        $('.pickup_request').prop('checked', false);
           
         var service_center_id_arr = [];         
         $(".pickup_schedule:checked").each(function(i){
