@@ -6009,7 +6009,7 @@ class Partner extends CI_Controller {
         $finalArray = array();
         $partner_id = $this->session->userdata('partner_id');
         $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
-                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation ";
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
         $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
         $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
         $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
@@ -6026,7 +6026,12 @@ class Partner extends CI_Controller {
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
              $tempArray[] = $sn_no . $upcountryString;
-             $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
+            if($row->booking_files_purchase_inv){
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Varified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
+            }
+            else{
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
+            }
             $requestType =  $row->request_type;
             if (strpos($row->request_type, 'Installation') !== false) {
                 $requestType =  "Installation";

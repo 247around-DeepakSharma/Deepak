@@ -185,6 +185,7 @@ function get_data_for_partner_callback($booking_id) {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             ".$join."
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
+            LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )
             WHERE  $where AND booking_details.upcountry_partner_approved ='1'  "
                   . "$orderSubQuery $limitSuubQuery"
         );
