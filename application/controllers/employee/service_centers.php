@@ -386,7 +386,7 @@ class Service_centers extends CI_Controller {
                 $isWbrand = "";
                 $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['booking_history'][0]['partner_id'], "brand" => $b['brand'],"service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
                 if(!empty($whiteListBrand)){
-                    $isWbrand = $value['brand'];
+                    $isWbrand = $b['brand'];
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $partner_id, $isWbrand);
             }
@@ -1643,7 +1643,9 @@ class Service_centers extends CI_Controller {
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
                             || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
-                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)) {
+                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
+                            || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
+                            || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
@@ -3204,7 +3206,7 @@ class Service_centers extends CI_Controller {
             $post = array();
             $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED);
             $post['is_inventory'] = true;
-            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
             if (!empty($part_details)) {
@@ -3221,7 +3223,7 @@ class Service_centers extends CI_Controller {
                     }
                     $spare_details[] = $spare_parts;
                 }
-                $assigned_vendor_id = $part_details[0]['assigned_vendor_id'];
+                $assigned_vendor_id = $part_details[0]['partner_id'];
                 $service_center_id = $part_details[0]['service_center_id'];
             }
 
