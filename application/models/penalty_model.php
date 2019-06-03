@@ -453,5 +453,11 @@ class Penalty_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
+    
+    function get_panelty_details_data() {
+        $this->db->select('penalty_details.*');
+        $query = $this->db->get('penalty_details');
+        return $query->result_array();        
+    }
+    
 }
