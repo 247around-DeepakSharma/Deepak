@@ -122,14 +122,14 @@ class Service_centers_model extends CI_Model {
                         WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s"
-                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = sc.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
+                . " FROM service_center_booking_action as sc "
+                . " JOIN booking_details as bd ON bd.booking_id =  sc.booking_id "
+                . " JOIN users ON bd.user_id = users.user_id "
+                . " JOIN services ON bd.service_id = services.id "
+                . " JOIN service_centres AS s ON s.id = bd.assigned_vendor_id "
+                . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = bd.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
-                . " AND bd.booking_id =  sc.booking_id "
-                . " AND bd.user_id = users.user_id "
-                . " AND s.id = bd.assigned_vendor_id "
-                . " AND bd.service_id = services.id "
                 . $status
                 . "  ".$day . $booking
                 . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";

@@ -3742,7 +3742,7 @@ class Invoice extends CI_Controller {
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
             $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
-            $data[0]['taxable_value'] = ($amount - $tax_charge);
+            $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
             $data[0]['product_or_services'] = "Product";
             if(!empty($vendor_details[0]['gst_no'])){
                 $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
