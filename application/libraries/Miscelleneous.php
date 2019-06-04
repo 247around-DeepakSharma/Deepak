@@ -4116,7 +4116,7 @@ function generate_image($base64, $image_name,$directory){
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
-                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
                 }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
@@ -4160,7 +4160,7 @@ function generate_image($base64, $image_name,$directory){
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
-                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
                 }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
