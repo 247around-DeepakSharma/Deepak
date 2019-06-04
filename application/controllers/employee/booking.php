@@ -911,8 +911,7 @@ class Booking extends CI_Controller {
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $isWbrand);
             }
-            $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
-            if(in_array($partner_id,$serialNumberMandatoryArray )){
+
                 $where = array(
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
@@ -923,7 +922,7 @@ class Booking extends CI_Controller {
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
-            }
+            
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
                 $price_tags1 = str_replace('(Free)', '', $price_tag['price_tags']);
