@@ -648,5 +648,7 @@ define('_247AROUND_ENGINEER_STRING','engineer');
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+//define('TMP_FOLDER', "C:/xampp/htdocs/247around_tmp/");
+define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom-Defect_Solution_Mapping_File');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
