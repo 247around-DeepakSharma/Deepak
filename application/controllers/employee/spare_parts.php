@@ -1285,13 +1285,13 @@ class Spare_parts extends CI_Controller {
                'defective_return_to_entity_id'=>$warehouseid,
                'defective_return_to_entity_type'=>_247AROUND_SF_STRING
                );
-                $remarks=_247AROUND_TRANSFERED_TO_WAREHOUSE;
+                $remarks=_247AROUND_TRANSFERED_TO_VENDOR;
                 $next_action=_247AROUND_TRANSFERED_TO_NEXT_ACTION;
                 $actor='';
                 $new_state='Spare Part Transferred to '.$warehouseid;
                 $old_state='Spare Part Transferred from '.$partner_id;
                 $this->inventory_model->update_spare_courier_details($spare_parts_id,$dataupdate);
-                $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $requested_inventory, 1);  
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);  
                 $tcount++;
@@ -1312,13 +1312,13 @@ class Spare_parts extends CI_Controller {
                'parts_requested' => $inventory_part_number[0]['part_number'],
                'challan_approx_value'=>round($estimate_cost * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0)
                 );
-                $remarks=_247AROUND_TRANSFERED_TO_WAREHOUSE;
+                $remarks=_247AROUND_TRANSFERED_TO_VENDOR;
                 $next_action=_247AROUND_TRANSFERED_TO_NEXT_ACTION;
                 $actor='';
                 $new_state='Spare Part Transferred to '.$warehouseid;
                 $old_state='Spare Part Transferred from '.$partner_id;
                 $this->inventory_model->update_spare_courier_details($spare_parts_id,$dataupdate);
-                $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $inventory_stock_details[0]['inventory_id'], 1);  
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING,$partner_id, $inventory_stock_details[0]['inventory_id'], -1);  
                 $tcount++;
@@ -2823,8 +2823,13 @@ class Spare_parts extends CI_Controller {
                             'parts_requested' => $inventory_part_number[0]['part_number'],
                             'challan_approx_value' => round($estimate_cost * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0)
                         );
-
+                        $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
+                        $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+                        $actor = 'Warehouse';
+                        $new_state = 'Spare Part Transferred to ' . $warehouseid;
+                        $old_state = 'Spare Part Transferred from ' . $partner_id;
                         $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
+                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $inventory_stock_details[0]['inventory_id'], 1);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $inventory_stock_details[0]['inventory_id'], -1);
                         $tcount++;
