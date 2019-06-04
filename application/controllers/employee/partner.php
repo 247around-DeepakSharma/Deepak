@@ -2745,7 +2745,7 @@ class Partner extends CI_Controller {
                 $capacity .= " selected ";
             }
             else{
-                if($is_repeat){
+                if($is_repeat && (trim($appliance_capacity) !== '')){
                     $capacity .= " disabled ";
                 }
             }
