@@ -3357,7 +3357,7 @@ class Partner extends CI_Controller {
                     $sms['type'] = "user";
                     $sms['type_id'] = $data[0]['user_id'];
                     if($data[0]['partner_id'] == VIDEOCON_ID){
-                        $sms['smsData']['cc_number'] = "with capital city STD code 39404040";
+                        $sms['smsData']['cc_number'] = "0120-4500600";
                     }
                     else{
                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
