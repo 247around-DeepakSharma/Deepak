@@ -2892,12 +2892,13 @@ class Spare_parts extends CI_Controller {
       $where = array(
           'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,
           'spare_parts_details.entity_type'=>_247AROUND_SF_STRING,
-          'spare_parts_details.partner_id'=> $this->session->userdata('service_center_id'),
           'spare_parts_details.requested_inventory_id IS NOT NULL '=> NULL
        );
-       $select="spare_parts_details.id,spare_parts_details.booking_id, booking_details.state, requested_inventory_id";
+       $select="spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.booking_id, booking_details.state, requested_inventory_id";
        $post['where_in']= array('spare_parts_details.booking_id' => $bookingids);
        $bookings_spare =$this->partner_model->get_spare_parts_by_any($select,$where,TRUE,FALSE,false, $post );
+
+       if(!empty($bookings_spare)){ 
        $tcount=0;
        $bookings_flash_meassage = array();
        foreach ($bookings_spare as $booking){
@@ -2922,7 +2923,7 @@ class Spare_parts extends CI_Controller {
                );
                 $this->inventory_model->update_spare_courier_details($spareid,$dataupdate);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $booking['requested_inventory_id'], 1);  
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $this->session->userdata('service_center_id'), $booking['requested_inventory_id'], -1);  
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);  
                 $tcount++;
             }else{
               $alternate_inventory_stock_details = $this->inventory_model->get_alternate_inventory_stock_list($requested_inventory, $service_center);
@@ -2944,7 +2945,7 @@ class Spare_parts extends CI_Controller {
                
                 $this->inventory_model->update_spare_courier_details($spareid,$dataupdate);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $inventory_stock_details[0]['inventory_id'], 1);  
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $this->session->userdata('service_center_id'), $inventory_stock_details[0]['inventory_id'], -1);  
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $inventory_stock_details[0]['inventory_id'], -1);  
                 $tcount++;
             }else{
                 
@@ -2964,7 +2965,7 @@ class Spare_parts extends CI_Controller {
             }
 
           }   /// for loop ends
-          
+          }
           if($tcount>0 && empty($bookings_flash_data)){
             $this->session->set_flashdata('success',$tcount. ' - Spares Transfered Successfully');
              if($this->session->userdata('userType') == 'service_center'){
