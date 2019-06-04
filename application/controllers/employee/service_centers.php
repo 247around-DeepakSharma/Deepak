@@ -3238,14 +3238,15 @@ class Service_centers extends CI_Controller {
                     $spare_details[] = $spare_parts;
                 }
                 $assigned_vendor_id = $part_details[0]['partner_id'];
-                $service_center_id = $part_details[0]['service_center_id'];
+                $service_center_id = $part_details[0]['assigned_vendor_id'];
             }
 
-            $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $sf_details = $this->vendor_model->getVendorDetails('name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
             $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,state,district,pincode,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
             $data = array();
             if (!empty($sf_details)) {
                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+                $sf_details[0]['address'] = $sf_details[0]['address']. ", ".$sf_details[0]['district']. ", Pincode -".$sf_details[0]['pincode'].", ".$sf_details[0]['state'];
             }
 
             if (!empty($spare_details)) {
