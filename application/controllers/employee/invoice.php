@@ -1985,7 +1985,9 @@ class Invoice extends CI_Controller {
             if($status){
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-               
+                unset($invoices['meta']['main_company_logo_cell']);
+                unset($invoices['meta']['main_company_seal_cell']);
+                unset($invoices['meta']['main_company_sign_cell']);
                 //unset($invoices['booking']);
                 $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
