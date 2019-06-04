@@ -2790,7 +2790,7 @@ class Spare_parts extends CI_Controller {
                 $tcount++;
             }else{
                 
-                             $alternate_inventory_stock_details = $this->inventory_model->get_alternate_inventory_stock_list($requested_inventory, $warehouseid);
+             $alternate_inventory_stock_details = $this->inventory_model->get_alternate_inventory_stock_list($requested_inventory, $warehouseid);
               if (!empty($alternate_inventory_stock_details) && $alternate_inventory_stock_details[0]['stocks']>0 && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
                     $inventory_part_number = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
                             . 'inventory_master_list.inventory_id, price, gst_rate,oow_vendor_margin, oow_around_margin', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
@@ -2817,6 +2817,7 @@ class Spare_parts extends CI_Controller {
                  $bookings_flash_data['booking'] = $booking['booking_id'];
                  $bookings_flash_data['spare_id'] = $booking['id'];
                  $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
+                 if(!empty($template)){
                  $emailBody = vsprintf($template[0], array($booking['booking_id'],$booking['id']));
                  $subject =vsprintf($template[4], $booking['booking_id']); 
                  $wh_details = $this->vendor_model->getVendorContact($this->session->userdata('service_center_id'));
@@ -2825,6 +2826,7 @@ class Spare_parts extends CI_Controller {
                  $to = $template[1];
                  }
                  $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
+                 }
             }
             }
  
@@ -3078,6 +3080,7 @@ class Spare_parts extends CI_Controller {
                         $bookings_flash_data['booking'] = $booking['booking_id'];
                         $bookings_flash_data['spare_id'] = $booking['id'];
                         $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
+                        if(!empty($template)){
                         $emailBody = vsprintf($template[0], array($booking['booking_id'], $booking['id']));
                         $subject = vsprintf($template[4], $booking['booking_id']);
                         $wh_details = $this->vendor_model->getVendorContact($this->session->userdata('service_center_id'));
@@ -3086,6 +3089,8 @@ class Spare_parts extends CI_Controller {
                             $to = $template[1];
                         }
                         $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
+                        }
+                        
                     }
                 }
             }   /// for loop ends
