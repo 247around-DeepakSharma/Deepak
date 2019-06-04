@@ -293,7 +293,6 @@
                                 
                                 <?php }?>  
                                 <li class="divider" style="height: 1.5px;"></li>
-                                <?php }?>  
 
                             </ul>
                         </li>
