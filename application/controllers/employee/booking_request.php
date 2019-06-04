@@ -19,15 +19,14 @@ class Booking_request extends CI_Controller {
      */
     function __Construct() {
         parent::__Construct();
-        
-            $this->load->model("booking_request_model");
-        
-            $this->load->helper(array('form', 'url','array'));
-            $this->load->library('form_validation');
-            $this->load->library("miscelleneous");
-            
-            $this->load->dbutil();
-           
+
+        $this->load->model("booking_request_model");
+        $this->load->model("reusable_model");
+        $this->load->helper(array('form', 'url', 'array'));
+        $this->load->library('form_validation');
+        $this->load->library("miscelleneous");
+
+        $this->load->dbutil();
     }
     /**
      * @desc This function is used to load view to add new booking request symptom
