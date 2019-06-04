@@ -584,7 +584,7 @@ class Notify {
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         $cc_number = ""; 
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
-                            $cc_number = "with capital city STD code 39404040";
+                            $cc_number = "0120-4500600";
                         }
                         else{
                             $cc_number = _247AROUND_CALLCENTER_NUMBER;
