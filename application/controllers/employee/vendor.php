@@ -5648,7 +5648,7 @@ class vendor extends CI_Controller {
 
             $option = '<option selected="" value="" disabled="">Select Warehouse</option>';
             $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
-            $where = array('is_wh' => 1, 'active' => 1,'id !='=>$this->session->userdata('service_center_id'));
+            $where = array('is_wh' => 1, 'active' => 1);
 
             $data = $this->reusable_model->get_search_result_data("service_centres", $select, $where, NULL, NULL, NULL, array(), NULL, array());
 
