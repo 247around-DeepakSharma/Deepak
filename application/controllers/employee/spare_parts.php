@@ -1291,7 +1291,7 @@ class Spare_parts extends CI_Controller {
                 $new_state='Spare Part Transferred to '.$warehouseid;
                 $old_state='Spare Part Transferred from '.$partner_id;
                 $this->inventory_model->update_spare_courier_details($spare_parts_id,$dataupdate);
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+                $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_name'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $requested_inventory, 1);  
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);  
                 $tcount++;
@@ -1318,7 +1318,7 @@ class Spare_parts extends CI_Controller {
                 $new_state='Spare Part Transferred to '.$warehouseid;
                 $old_state='Spare Part Transferred from '.$partner_id;
                 $this->inventory_model->update_spare_courier_details($spare_parts_id,$dataupdate);
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+                $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_name'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $inventory_stock_details[0]['inventory_id'], 1);  
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING,$partner_id, $inventory_stock_details[0]['inventory_id'], -1);  
                 $tcount++;
@@ -2801,7 +2801,7 @@ class Spare_parts extends CI_Controller {
                     $new_state = 'Spare Part Transferred to ' . $warehouseid;
                     $old_state = 'Spare Part Transferred from ' . $partner_id;
                     $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                    $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
+                    $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_name'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $requested_inventory, 1);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
                     $tcount++;
@@ -2829,7 +2829,7 @@ class Spare_parts extends CI_Controller {
                         $new_state = 'Spare Part Transferred to ' . $warehouseid;
                         $old_state = 'Spare Part Transferred from ' . $partner_id;
                         $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
+                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_name'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $inventory_stock_details[0]['inventory_id'], 1);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $inventory_stock_details[0]['inventory_id'], -1);
                         $tcount++;
@@ -3070,7 +3070,7 @@ class Spare_parts extends CI_Controller {
                     $new_state = 'Spare Part Transferred to ' . $service_center_to;
                     $old_state = 'Spare Part Transferred from ' . $service_center; 
                     $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                    $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
+                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('service_center_id'), $actor, $next_action, NULL,$service_center_to);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $booking['requested_inventory_id'], 1);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $booking['requested_inventory_id'], -1);
                     $tcount++;
@@ -3097,7 +3097,7 @@ class Spare_parts extends CI_Controller {
                         $new_state = 'Spare Part Transferred to ' . $service_center_to;
                         $old_state = 'Spare Part Transferred from ' . $service_center;
                         $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
+                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('service_center_id'), $actor, $next_action, NULL,$service_center_to);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $inventory_stock_details[0]['inventory_id'], 1);
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $inventory_stock_details[0]['inventory_id'], -1);
                         $tcount++;
