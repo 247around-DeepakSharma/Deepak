@@ -3048,7 +3048,7 @@ class Spare_parts extends CI_Controller {
                 $spareid = $booking['id'];
                 $requested_inventory = $booking['requested_inventory_id'];
                 $select_inventory = "id,entity_id,entity_type,stock,inventory_id, pending_request_count";
-                $where_inventory = array('inventory_id' => $requested_inventory, 'entity_id' => $service_center, 'entity_type' => _247AROUND_SF_STRING);
+                $where_inventory = array('inventory_id' => $requested_inventory, 'entity_id' => $service_center_to, 'entity_type' => _247AROUND_SF_STRING);
                 $inventory_stocks = $this->inventory_model->get_inventory_stock_count_details($select_inventory, $where_inventory);
                 if (!empty($inventory_stocks)) {
                     $total_stock = ($inventory_stocks[0]['stock'] - $inventory_stocks[0]['pending_request_count']);
@@ -3060,22 +3060,22 @@ class Spare_parts extends CI_Controller {
                     $dataupdate = array(
                         'is_micro_wh' => 2,
                         'entity_type' => _247AROUND_SF_STRING,
-                        'partner_id' => $service_center,
-                        'defective_return_to_entity_id' => $service_center,
+                        'partner_id' => $service_center_to,
+                        'defective_return_to_entity_id' => $service_center_to,
                         'defective_return_to_entity_type' => _247AROUND_SF_STRING
                     );
                     $remarks = _247AROUND_TRANSFERED_TO_WAREHOUSE;
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = '';
                     $new_state = 'Spare Part Transferred to ' . $service_center_to;
-                    $old_state = 'Spare Part Transferred from ' . $service_center;
+                    $old_state = 'Spare Part Transferred from ' . $service_center; 
                     $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $booking['requested_inventory_id'], 1);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center, $booking['requested_inventory_id'], -1);
                     $tcount++;
                 } else {
-                    $alternate_inventory_stock_details = $this->inventory_model->get_alternate_inventory_stock_list($requested_inventory, $service_center);
+                    $alternate_inventory_stock_details = $this->inventory_model->get_alternate_inventory_stock_list($requested_inventory, $service_center_to);
                     if (!empty($alternate_inventory_stock_details) && $alternate_inventory_stock_details[0]['stocks'] > 0 && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
                         $inventory_part_number = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
                                 . 'inventory_master_list.inventory_id, price, gst_rate,oow_vendor_margin, oow_around_margin', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
@@ -3084,8 +3084,8 @@ class Spare_parts extends CI_Controller {
                         $dataupdate = array(
                             'is_micro_wh' => 2,
                             'entity_type' => _247AROUND_SF_STRING,
-                            'partner_id' => $service_center,
-                            'defective_return_to_entity_id' => $service_center,
+                            'partner_id' => $service_center_to,
+                            'defective_return_to_entity_id' => $service_center_to,
                             'defective_return_to_entity_type' => _247AROUND_SF_STRING,
                             'requested_inventory_id' => $inventory_stock_details[0]['inventory_id'],
                             'parts_requested' => $inventory_part_number[0]['part_number'],
