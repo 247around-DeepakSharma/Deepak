@@ -648,6 +648,13 @@ define('_247AROUND_ENGINEER_STRING','engineer');
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+// Abhishek ///
+define('_247AROUND_TRANSFERED_TO_WAREHOUSE', 'Spare transfer from one warehouse to another warehouse');  //
+define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  warehouse to vendor');
+define('_247AROUND_TRANSFERED_TO_NEXT_ACTION', 'Spare Part to be shipped');
+
 //define('TMP_FOLDER', "C:/xampp/htdocs/247around_tmp/");
 define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom-Defect_Solution_Mapping_File');
 /* End of file constants.php */
