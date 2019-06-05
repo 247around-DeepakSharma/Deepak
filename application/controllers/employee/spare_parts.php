@@ -2816,7 +2816,7 @@ class Spare_parts extends CI_Controller {
                     $new_state = 'Spare Part Transferred to ' . $warehouseid;
                     $old_state = 'Spare Part Transferred from ' . $partner_id;
                     $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid)
+                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$warehouseid);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouseid, $requested_inventory, 1);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
                     $tcount++;
