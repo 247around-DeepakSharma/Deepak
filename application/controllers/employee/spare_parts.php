@@ -2251,7 +2251,10 @@ class Spare_parts extends CI_Controller {
                 
 
                 $to = $vendor_details[0]['email'];
-                $cc = $email_template[3] . "," . $am_email;
+                $cc = $am_email;
+                if(!empty($email_template[3])){
+                    $cc = $email_template[3] . "," . $am_email;
+                }            
                 $subject = vsprintf($email_template[4], array($data['parts_requested_type'], $data['booking_id']));
                 
                 $emailBody = vsprintf($email_template[0], array($data['parts_requested'],$data['booking_id']));
