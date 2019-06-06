@@ -2935,7 +2935,6 @@ class Spare_parts extends CI_Controller {
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
     }
 
-
     /**
      *  @desc : This function is used to get the post data for booking by status
      *  @param : void()
