@@ -1256,6 +1256,7 @@ class Spare_parts extends CI_Controller {
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
         $requested_inventory = $this->input->post('requested_spare_id');
+        $parts_requested=$this->input->post('parts_requested');
         $where = array('id' => $spare_parts_id);
         $row = "";
         if ($entity_type == _247AROUND_PARTNER_STRING) {
@@ -1358,24 +1359,25 @@ class Spare_parts extends CI_Controller {
                     $tcount++;
                     echo 'success';
                 } else {
-
                     /// MAIL for NOT assigned Bookings Spares
                     $bookings_flash_data['booking'] = $booking_id;
                     $bookings_flash_data['spare_id'] = $spare_parts_id;
+                    $requested_part_number = $parts_requested;
                     $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
-                    $emailBody = vsprintf($template[0], array($booking_id, $spare_parts_id));
+                    $emailBody = vsprintf($template[0], array($booking_id, $spare_parts_id,$requested_part_number));
                     $subject = vsprintf($template[4], $booking_id);
                     $wh_details = $this->vendor_model->getVendorContact($this->session->userdata('service_center_id'));
-                    $to = '';
-                    if (!empty($wh_details)) {
-                        $wh_details[0]['email'];
-                    }
-                    if (empty($to)) {
-                        $to = $template[1];
-                    }
-                    if ($this->session->userdata('userType') == 'employee' && empty($wh_details)) {
-                        $to = $this->session->userdata('official_email');
-                    }
+                    $to ='';
+                    if ($this->session->userdata('userType') == 'employee') {
+                         $to = $this->session->userdata('official_email');
+                    }else if($this->session->userdata('userType') == 'service_center'){
+                        $to = $this->session->userdata('poc_email'); 
+                    }else if(!empty ($wh_details) && empty ($to)){
+                        $to = $wh_details[0]['email'];
+                    }else{
+                        $to = $template[1]; 
+                    }                    
+                    
                     $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
                     echo 'fail_mail';
                 }
@@ -2903,12 +2905,18 @@ class Spare_parts extends CI_Controller {
                         array_push($booking_error_array,$bookings_flash_data );
                         $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
                         if (!empty($template)) {
-                            $emailBody = vsprintf($template[0], array($booking['booking_id'], $booking['id']));
+                            $emailBody = vsprintf($template[0], array($booking['booking_id'], $booking['id'],$requested_part_number));
                             $subject = vsprintf($template[4], $booking['booking_id']);
                             $wh_details = $this->vendor_model->getVendorContact($this->session->userdata('service_center_id'));
-                            $to = $wh_details[0]['email'];
-                            if (empty($to)) {
-                                $to = $template[1];
+                            $to ='';
+                            if ($this->session->userdata('userType') == 'employee') {
+                              $to = $this->session->userdata('official_email');
+                            }else if($this->session->userdata('userType') == 'service_center'){
+                              $to = $this->session->userdata('poc_email'); 
+                            }else if(!empty ($wh_details) && empty ($to)){
+                              $to = $wh_details[0]['email'];
+                            }else{
+                              $to = $template[1]; 
                             }
                             $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
                         }
@@ -3189,13 +3197,18 @@ class Spare_parts extends CI_Controller {
                         array_push($booking_error_array,$bookings_flash_data );
                         $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
                         if (!empty($template)) {
-                            $emailBody = vsprintf($template[0], array($booking['booking_id'], $booking['id']));
+                            $emailBody = vsprintf($template[0], array($booking['booking_id'], $booking['id'],$requested_part_number));
                             $subject = vsprintf($template[4], $booking['booking_id']);
                             $wh_details = $this->vendor_model->getVendorContact($service_center);
-                            $to = $wh_details[0]['email'];
-                            if (empty($to)) {
-                                $to = $template[1];
-                            }
+                            if ($this->session->userdata('userType') == 'employee') {
+                              $to = $this->session->userdata('official_email');
+                            }else if($this->session->userdata('userType') == 'service_center'){
+                              $to = $this->session->userdata('poc_email'); 
+                            }else if(!empty ($wh_details) && empty ($to)){
+                              $to = $wh_details[0]['email'];
+                            }else{
+                              $to = $template[1]; 
+                            }                            
                             $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
                         }
                     }
