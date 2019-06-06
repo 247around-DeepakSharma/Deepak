@@ -582,7 +582,7 @@ class Notify {
                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
                         $cc_number = ""; 
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
-                            $cc_number = "with capital city STD code 39404040";
+                            $cc_number = "0120-4500600";
                         }
                         else{
                             $cc_number = _247AROUND_CALLCENTER_NUMBER;
@@ -752,11 +752,11 @@ class Notify {
                 $to = $vendor_details[0]['primary_contact_email'] . "," . $vendor_details[0]['owner_email'];
 
                 $sid = $query[0]['assigned_vendor_id'];
-                $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+                //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
                 $rm_email = "";
-                if (!empty($rm)) {
-                    $rm_email = ", " . $rm[0]['official_email'];
-                }
+//                if (!empty($rm)) {
+//                    $rm_email = ", " . $rm[0]['official_email'];
+//                }
 
                 $bcc = $email_template[5];
                 $subject = vsprintf($email_template[4], array($query[0]['booking_id']));

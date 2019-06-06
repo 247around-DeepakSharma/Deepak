@@ -112,3 +112,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 --Chhavi 31th -05 -2019 - 
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'is_fake_cancellation', 'Cancellation request received for %s(%s). If cancellation is fake, give missed call @ 01140849136.', NULL, '1', '0', '2019-05-31 22:11:24');
 ALTER TABLE `service_center_booking_action`  ADD `cancellation_count` INT(11) NOT NULL DEFAULT '0'  AFTER `sf_purchase_date`;
+  ---Abhishek ---
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
+

@@ -479,6 +479,25 @@
         } else {
               display_message("appliance_category_1","error_category","green","");
         }
+        if($('.appliance_capacity').length > 0) {
+            var count1=0;
+            $(".appliance_capacity").each(function(){
+                var capacity_value = document.getElementById(this.id).innerHTML;
+                if(($.trim(capacity_value) !== '<option selected="" value=""></option>') && ($("#"+this.id).val() === '')) {
+                    display_message("appliance_capacity_1","error_capacity","red","Please Select Capacity");
+                    $("#"+this.id).focus();
+                    ++count1;
+                    return false;
+                }
+            });
+            if(count1 > 0) {
+                return false;
+            }
+            else {
+                display_message("appliance_capacity_1","error_capacity","green","");
+            }
+        }
+        
     //        if(model_value === ""){
     //            display_message("model_number_1","error_model","red","Please Select Model");
     //             return false;
@@ -757,6 +776,12 @@
         //                    $('#appliance_capacity_1').append(data).change();
 
                     $('#appliance_capacity_1').html(data).change();
+                    if(($.trim(data) !== "") && ($.trim(data) !== "<option  selected  value=''></option>")) {
+                        $("#appliance_capacity_1").attr("required",true);
+                    }
+                    else{
+                        $("#appliance_capacity_1").removeAttr("required");
+                    }
                     get_models();
                     getPrice();
                 },
@@ -778,6 +803,7 @@
         partner_type = $("#partner_type").val();
         if(capacity === null && capacity === ""){
             capacity = '';
+            $("#appliance_capacity_1").removeAttr("required");
         }
         if(service_id && brand && category){
         $.ajax({
@@ -818,7 +844,7 @@
         capacity = $("#appliance_capacity_1").val();
         if(capacity === null && capacity === ""){
             postData['capacity'] = "";
-            
+            $("#appliance_capacity_1").removeAttr("required");
         } else {
             postData['capacity'] = capacity;
         }

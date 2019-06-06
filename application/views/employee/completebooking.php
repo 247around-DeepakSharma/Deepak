@@ -329,11 +329,15 @@
                                                                             <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
-                                                                    <?php } 
+                                                                        <?php }  else { 
+                                                                            $isModelMandatory =1 ;
+                                                                        ?>
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value=" <?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "Enter Model Number" >
+                                                                        <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
                                                                             $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/engineer-uploads/'.$price['serial_number_pic']; ?>
-                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if($price['is_sn_correct'] == IS_SN_CORRECT){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
+                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
                                                                              <?php
                                                                         }
                                                                      ?>
@@ -812,6 +816,7 @@
                                 alert('Please Attach Serial Number image');
                                 document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                                 flag = 1;
+                                return false;
                             }
                          }
                     //}
@@ -832,7 +837,18 @@
                         var modelNumber = $('#model_number_'+div_no[2]).val();
                         if(modelNumber == null){
                             alert("Please Select Model number");
+                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            return false;
+                        }
+                    }
+                    else{
+                        var model_text_value = $("#model_number_text_" + div_no[2]).val();
+                        if(model_text_value ===""){
+                            alert("Model Number is blank");
+                            document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                            return false;
                         }
                     }
                     <?php

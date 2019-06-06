@@ -383,10 +383,12 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
-            
+            //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+            /*
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
+            */
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
@@ -911,8 +913,7 @@ class Booking extends CI_Controller {
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $isWbrand);
             }
-            $serialNumberMandatoryArray = explode(",",SERIAL_NUMBER_MENDATORY);
-            if(in_array($partner_id,$serialNumberMandatoryArray )){
+
                 $where = array(
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
@@ -923,7 +924,7 @@ class Booking extends CI_Controller {
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
-            }
+            
               //Process booking Unit Details Data Through loop
             foreach ($value['quantity'] as $key => $price_tag) {
                 $price_tags1 = str_replace('(Free)', '', $price_tag['price_tags']);
@@ -996,7 +997,7 @@ class Booking extends CI_Controller {
      */
     function search_for_key($price_tag, $array) {
         
-        $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
+        return $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
         
     }
 
@@ -1614,6 +1615,12 @@ class Booking extends CI_Controller {
             }
             
 
+        }
+        if(!empty($data['booking_history'][0]['account_manager_id'])){
+            $account_manager = $this->booking_model->get_am_by_booking($booking_id, "employee.full_name");
+            if(!empty($account_manager)){
+                $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
+            }
         }
         }else{
             $data['booking_history'] = array();
@@ -3418,11 +3425,11 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status,$sfIDArray) {
+    private function get_bookings_data_by_status($booking_status,$sfIDArray) { 
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
+             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -3432,7 +3439,7 @@ class Booking extends CI_Controller {
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,
+             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -4157,7 +4164,13 @@ class Booking extends CI_Controller {
             }
          }
         $row[] = $no.$sn;
-        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+        if($order_list->booking_files_bookings){
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src='http://localhost/247around-adminp-aws/images/varified.png' style='width:20px; height: 20px;'></a></p>";
+        }
+        else{
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+        }
+       
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->appliance_brand;
@@ -5264,10 +5277,13 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
         
         $this->checkUserSession();
-        $whereIN = $where = $join = array();
+        $whereIN = $where = $join = $having = array();
+        if(!$booking_id) {
+            $booking_id  = NULL;
+        }
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -5281,18 +5297,28 @@ class Booking extends CI_Controller {
             $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
         }
         
+        $status=$review_status;
+        if($review_status === "Completed") {
+            $having['count(sc.booking_id)=sum(if(sc.added_by_SF=0,1,0))'] = NULL;
+        }
+        if($review_status === "Completed_By_SF") {
+            $status="Completed";
+            $whereIN['sc.added_by_SF'] = [1];
+        }
         
         if(!is_null($cancellation_reason)){
            $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
+        $data['cancellation_reason_selected'] = $cancellation_reason;
+        
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page']);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having);
             $data['status'] = $status;
+            $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
             $data['total_pages'] = $data['total_rows']/$data['per_page'];
             $data['is_partner'] = $is_partner;

@@ -131,11 +131,14 @@ class Invoice_lib {
           if($meta['main_company_logo']){ 
             $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
             if($this->remote_file_exists($main_logo_path)){ 
-                $logo_cell = $meta['main_company_logo_cell'];
-                copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
-                $logo_path = TMP_FOLDER . $meta['main_company_logo'];
-                $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
-                array_push($imagePath, $logo_detail);
+                if(copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo'])){
+                    $logo_cell = $meta['main_company_logo_cell'];
+                    $logo_path = TMP_FOLDER . $meta['main_company_logo'];
+                    $res1 = 0;
+                    system(" chmod 777 " . $logo_path, $res1);
+                    $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
+                    array_push($imagePath, $logo_detail);
+                }
             }
           }
         }
@@ -144,11 +147,14 @@ class Invoice_lib {
           if($meta['main_company_seal']){
             $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
             if($this->remote_file_exists($main_seal_path)){
-                $seal_cell = $meta['main_company_seal_cell'];
-                copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
-                $seal_path = TMP_FOLDER . $meta['main_company_seal'];
-                $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
-                array_push($imagePath, $seal_detail);
+                if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
+                    $seal_cell = $meta['main_company_seal_cell'];
+                    $seal_path = TMP_FOLDER . $meta['main_company_seal'];
+                    $res1 = 0;
+                    system(" chmod 777 " . $seal_path, $res1);
+                    $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
+                    array_push($imagePath, $seal_detail);
+                }
             }
           }
         }
@@ -157,11 +163,14 @@ class Invoice_lib {
             if($meta['main_company_seal']){
                 $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
                 if($this->remote_file_exists($main_sign_path)){
-                    $sign_cell = $meta['main_company_sign_cell'];
-                    copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
-                    $sign_path = TMP_FOLDER . $meta['main_company_signature'];
-                    $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
-                    array_push($imagePath, $sign_detail);
+                    if(copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature'])){
+                        $sign_cell = $meta['main_company_sign_cell'];
+                        $sign_path = TMP_FOLDER . $meta['main_company_signature'];
+                        $res1 = 0;
+                        system(" chmod 777 " . $sign_path, $res1);
+                        $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
+                        array_push($imagePath, $sign_detail);
+                    }
                 }
             }
         }

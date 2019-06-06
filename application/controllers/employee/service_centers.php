@@ -387,7 +387,7 @@ class Service_centers extends CI_Controller {
                 $isWbrand = "";
                 $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $data['booking_history'][0]['partner_id'], "brand" => $b['brand'],"service_id" => $data['booking_history'][0]['service_id'], "whitelist" => 1), "*");
                 if(!empty($whiteListBrand)){
-                    $isWbrand = $value['brand'];
+                    $isWbrand = $b['brand'];
                 }
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $partner_id, $isWbrand);
             }
@@ -665,23 +665,24 @@ class Service_centers extends CI_Controller {
   
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
-
                     if ($is_update_spare_parts) {
                         foreach ($sp_required_id as $sp_id) {
-
                             $sp['status'] = DEFECTIVE_PARTS_PENDING;
                             $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
                             $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
                         }
 
                         $this->cancellation->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
- 
+
+                        $this->session->set_userdata('success', "Updated Successfully!!");
+
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
                         $this->cancellation->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
+                        $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }
-                } else {
+                     } else {
                     $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contact to 247Around Team");
                     redirect(base_url() . "service_center/pending_booking");
                 }
@@ -763,30 +764,15 @@ class Service_centers extends CI_Controller {
                         if (!empty($result1)) {
                             $result1[0]['appliance_brand'] = $unit[0]['appliance_brand'];
                             // Free from Paid
-                            if ($result1[0]['customer_net_payable'] == 0) {
-                                if ($unit[0]['customer_net_payable'] > 0) {
-                                    $return = false;
-                                } else {
-                                    $array[$unit_id] = $result1[0];
-                                }
-                            } else if ($result1[0]['customer_net_payable'] > 0) {
-                                if ($unit[0]['customer_net_payable'] == 0) {
-                                    $return = false;
-                                } else {
-                                    $array[$unit_id] = $result1[0];
-                                }
-                            } else {
-                                $array[$unit_id] = $result1[0];
-                            }
+                            $array[$unit_id] = $result1[0];
                         } else {
-                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit['appliance_brand'], $unit['price_tags'], $booking_id);
+                            $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
                             return FALSE;
                         }
                     }
                 }
             }
 
-            if ($return) {
                 if (!empty($array)) {
                     foreach ($array as $k => $v) {
                         $data = $this->booking_model->getpricesdetails_with_tax($v['id'], "");
@@ -839,10 +825,7 @@ class Service_centers extends CI_Controller {
 
                     return TRUE;
                 }
-            } else {
-              $this->send_mail_for_insert_applaince_by_sf($unit[0]['appliance_category'], $unit[0]['appliance_capacity'], $unit[0]['appliance_brand'], $unit[0]['price_tags'], $booking_id);
-              return FALSE;
-            }
+
         } else {
             return true;
         }
@@ -1495,7 +1478,9 @@ class Service_centers extends CI_Controller {
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
                             || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
-                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)) {
+                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
+                            || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
+                            || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
@@ -3020,9 +3005,9 @@ class Service_centers extends CI_Controller {
 
         if (!empty($generate_challan)) {
             $post = array();
-            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED);
+            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
             $post['is_inventory'] = true;
-            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.service_center_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
             if (!empty($part_details)) {
@@ -3039,15 +3024,16 @@ class Service_centers extends CI_Controller {
                     }
                     $spare_details[] = $spare_parts;
                 }
-                $assigned_vendor_id = $part_details[0]['assigned_vendor_id'];
-                $service_center_id = $part_details[0]['service_center_id'];
+                $assigned_vendor_id = $part_details[0]['partner_id'];
+                $service_center_id = $part_details[0]['assigned_vendor_id'];
             }
 
-            $sf_details = $this->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $sf_details = $this->vendor_model->getVendorDetails('name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
             $assigned_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,state,district,pincode,owner_name,gst_no as gst_number,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $assigned_vendor_id));
             $data = array();
             if (!empty($sf_details)) {
                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+                $sf_details[0]['address'] = $sf_details[0]['address']. ", ".$sf_details[0]['district']. ", Pincode -".$sf_details[0]['pincode'].", ".$sf_details[0]['state'];
             }
 
             if (!empty($spare_details)) {

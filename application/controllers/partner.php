@@ -399,6 +399,8 @@ class Partner extends CI_Controller {
                                         $requestData['partnerName'],$actor,$next_action, $this->partner['id']);
                                 
                                 //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+                                /*
                                 if($booking['partner_id'] == VIDEOCON_ID){
                                     if((stripos($booking['request_type'], 'In Warranty') !== false) || stripos($booking['request_type'], 'Extended Warranty') !== false){
                                         $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -407,7 +409,7 @@ class Partner extends CI_Controller {
                                         $this->asynchronous_lib->do_background_process($url1, $send1);
                                     }
                                 }
-                                
+                                */
                                 // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
                                 //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
@@ -1645,10 +1647,13 @@ class Partner extends CI_Controller {
                         $is_price['customer_net_payable'] = $customer_net_payable;
                         $is_price['is_upcountry'] = $booking['is_upcountry'];
                         
+                        //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+                        /*
                         $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                         $send1['booking_id'] = $booking['booking_id'];
                         $send1['state'] = "SendWhatsAppNo";
                         $this->asynchronous_lib->do_background_process($url1, $send1);
+                        */
 
                         if ($requestData['product_type'] == "Shipped") {
                             $this->initialized_variable->fetch_partner_data($this->partner['id']);
@@ -1810,7 +1815,7 @@ class Partner extends CI_Controller {
         //be used to insert multiple bookings
         if (!empty($request['orderID'])) {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
-            if (!is_null($lead)) {
+            if (!is_null($lead) && !isset($request['repeat_reason'])) {
                 log_message('info', "Lead details: " . print_r($lead, true));
                 if($lead['current_status'] != _247AROUND_CANCELLED){
                     

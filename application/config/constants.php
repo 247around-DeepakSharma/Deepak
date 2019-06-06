@@ -444,7 +444,7 @@ define("NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON", -3);
 define("AUTO_ACK_ADMIN_REMARKS", "Auto Acknowledge");
 
 //missing_pincode_email
-define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
+//define("MISSING_PINCODE_EMAIL_TO",NITS_ANUJ_EMAIL_ID);
 
 //sales email_id
 define('_247AROUND_SALES_EMAIL','sales@247around.com');
@@ -649,5 +649,15 @@ define('_247AROUND_ENGINEER_STRING','engineer');
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 define('OPEN_CANCELLATION_BOOKING_ON_FAKE_CANCELLATION_MISSED_CALL_DAYS','10');
+define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+//define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+//define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+// Abhishek ///
+define('_247AROUND_TRANSFERED_TO_WAREHOUSE', 'Spare transfer from one warehouse to another warehouse');  //
+define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  warehouse to vendor');
+define('_247AROUND_TRANSFERED_TO_NEXT_ACTION', 'Spare Part to be shipped');
+
+//define('TMP_FOLDER', "C:/xampp/htdocs/247around_tmp/");
+define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom-Defect_Solution_Mapping_File');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

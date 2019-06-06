@@ -265,11 +265,11 @@ class Miscelleneous {
         $partner_am_email = "";
         $return_status = TRUE;
         
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
         $rm_email = "";
-        if (!empty($rm)) {
-            $rm_email = ", " . $rm[0]['official_email'];
-        }
+//        if (!empty($rm)) {
+//            $rm_email = ", " . $rm[0]['official_email'];
+//        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -443,12 +443,12 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$rm_email;
-                            $cc = $partner_am_email;
+                            $to = ANUJ_EMAIL_ID.$partner_am_email;
+                            $cc = "";
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = $partner_am_email.$rm_email;
+                            $cc = $partner_am_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -4123,7 +4123,7 @@ function generate_image($base64, $image_name,$directory){
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
-                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
                 }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
@@ -4167,7 +4167,7 @@ function generate_image($base64, $image_name,$directory){
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
-                    $sms['smsData']['cc_number'] = "Call with capital city STD code 39404040";
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
                 }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
