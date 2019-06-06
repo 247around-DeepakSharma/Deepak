@@ -158,15 +158,15 @@
             return false;
         }
         
-//        if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
-//            alert("Please Select Spare Part"); 
-//            return false;
-//        }
-//
-//        if(spare_parts_type == '' || spare_parts_type == null){
-//            alert("Please Select Spare Part Type"); 
-//            return false;
-//        }
+        if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
+            alert("Please Select Spare Part"); 
+            return false;
+        }
+
+        if(spare_parts_type == '' || spare_parts_type == null){
+            alert("Please Select Spare Part Type"); 
+            return false;
+        }
         
         
 
@@ -247,9 +247,6 @@
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2();
-                if($('#partner_id').val()) {
-                    get_services('inventory_service_id',$('#partner_id').val());
-                }
             }
         });
     }

@@ -2054,24 +2054,48 @@ background-color: #f5f5f5;
         });
        
        $(".move_to_update").on('click', function () { 
-       var confirm_staus = confirm("Are you sure you want to Move ?");
-       if(confirm_staus){
-            $.ajax({
-                type: "POST",
-                url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
-                data: $("#move_to_update_spare_parts").serialize(),
-                success: function (data) {
-                    if (data != '') {               
+                
+                swal({
+                title: "Are you sure?",
+                text: "You are going to transfer the spare part!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, Transfer it!",
+                cancelButtonText: "No, cancel !",
+                closeOnConfirm: false,
+                closeOnCancel: false
+               },
+                 function(isConfirm) {
+                    if (isConfirm) {
+                        
+                        $.ajax({
+                        type: "POST",
+                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                        data: $("#move_to_update_spare_parts").serialize(),
+                        success: function (data) {
+                        console.log(data);
+                       if (data != '') {               
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
-                        $("#move_to_vendor").hide();
+                        if(data=='success'){
+                          swal("Transferred!", "Your spare has been transferred !.", "success");
+                          $("#move_to_vendor").hide();
+                        //  location.reload();
+                        }else if(data='fail_mail'){
+                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
+                        }else{
+                           swal("Failed", "Your Transferred has been failed. Either some network error occured or Warehouse data not found !", "error");  
+                        }
                     }
-                },
-                error: function () {
-                    alert("error");
-                }
-
-            });
-           }
+                    },
+                    error: function () {
+                     swal("Error Occured", "Some error occured data not found", "error");
+                    }
+                  });
+                    } else {
+                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+                   }
+                });
 
         });
        
