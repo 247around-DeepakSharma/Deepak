@@ -636,8 +636,6 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                     
                     //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
-                    //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
-                    /*
                     if($booking['partner_id'] == VIDEOCON_ID){
                         if((stripos($booking['request_type'], 'In Warranty') !== false) || stripos($booking['request_type'], 'Extended Warranty') !== false){
                             $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -646,7 +644,7 @@ class Do_background_upload_excel extends CI_Controller {
                             $this->asynchronous_lib->do_background_process($url1, $send1);
                         }
                     }
-                    */
+                    
                     if (empty($booking['state'])) {
                         log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " .
                                 $booking['booking_id']);
