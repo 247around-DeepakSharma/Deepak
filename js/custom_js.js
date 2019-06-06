@@ -166,6 +166,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
         postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
         postData['add_booking'] = add_booking;
+        postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
         $('#submitform').attr('disabled', true);
 
         if ($("#appliance_capacity_" + div_no[2]).val() !== "") {
