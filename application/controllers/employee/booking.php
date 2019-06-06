@@ -381,10 +381,12 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
-            
+            //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+            /*
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
+            */
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
