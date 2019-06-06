@@ -2651,9 +2651,10 @@ class Partner extends CI_Controller {
         }
 
         $option = "";
+        $brand_count = count($data);
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name']) {
+            if ($appliace_brand == $value['brand_name'] || $brand_count == 1) {
                 $option .= " selected ";
             }
             else{
@@ -4477,10 +4478,10 @@ class Partner extends CI_Controller {
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
-
+        $partners_count = count($partner_list);
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            $option .= " ".($partners_count == 1 ? 'selected' : '')." > ";
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
