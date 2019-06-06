@@ -41,6 +41,7 @@ class Api extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
+        $this->load->library('cancellation');
     }
 
     /**
@@ -4809,5 +4810,59 @@ class Api extends CI_Controller {
             log_message("info", __METHOD__ . "Engineer id not found - ".$requestData["engineer_id"]);
             $this->sendJsonResponse(array('0029', 'Engineer Id not found'));
         }
+    }
+    /*
+ * This function is used to handle missed call for fake cancellation
+ */
+    public function pass_through_fake_cancellation_call(){
+          $this->cancellation->fake_cancellation_missed_call_handling('8448217808',_247AROUND_DEFAULT_AGENT,_247AROUND_DEFAULT_AGENT_NAME,"Fake Rescheduled Miss Call");
+        exit();
+        //Get Data and save into log_table 
+        if($this->input->post()){
+            $responseData = $this->input->post();
+        }
+        else{
+            $responseData = $this->input->get();
+            $activity = array('activity' => 'process exotel request', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
+        }
+        //$responseData = json_decode('{"CallSid":"de642f94743e8bf2a65e280c848f25d0","CallFrom":"9058523795","CallTo":"01139595200","Direction":"incoming","Created":"Wed, 03 Jan 2018 11:31:33","DialCallDuration":"242","RecordingUrl":"https:\/\/s3-ap-southeast-1.amazonaws.com\/exotelrecordings\/aroundhomz\/de642f94743e8bf2a65e280c848f25d0.mp3","StartTime":"2018-01-03 11:31:33","EndTime":"1970-01-01 05:30:00","DialCallStatus":"completed","CallType":"completed","DialWhomNumber":"08010155247","flow_id":"45714","tenant_id":"20524","From":"9058523795","To":"01139595200","RecordingAvailableBy":"Wed, 03 Jan 2018 11:40:52","CurrentTime":"2018-01-03 11:35:52","Legs":[{"Number":"08010155247","Type":"single","OnCallDuration":"229","CauseCode":"NORMAL_CLEARING","Cause":"16"}]}',TRUE);
+        //Define Blank DataArray
+        $dataArray['callSid'] = $dataArray['from_number']= $responseData['to_number'] = $responseData['StartTime'] = $responseData['EndTime'] = NULL;
+        //Insert Value in DataArray
+        if(isset($responseData['CallSid'])){
+            $dataArray['callSid'] = $responseData['CallSid'];
+        }
+        if(isset($responseData['callSid'])){
+            $dataArray['callSid'] = $responseData['callSid'];
+        }
+        if(isset($responseData['From'])){
+            $dataArray['from_number'] =  ltrim($responseData['From'],'0');
+        }
+        if(isset($responseData['from_number'])){
+            $dataArray['from_number'] =  ltrim($responseData['from_number'],'0');
+        }
+         if(isset($responseData['CallTo'])){
+            $dataArray['to_number'] = $responseData['CallTo'];
+        }
+        if(isset($responseData['To'])){
+            $dataArray['to_number'] = $responseData['To'];
+        }
+         if(isset($responseData['StartTime'])){
+            $dataArray['StartTime'] = $responseData['StartTime'];
+        }
+         if(isset($responseData['EndTime'])){
+            $dataArray['EndTime'] = $responseData['EndTime'];
+        }
+        //insert in fake_cancellation_missed_call
+        $insert_id = $this->apis->insertFakeCancellationPassthruCall($dataArray);
+        if($insert_id){
+            log_message('info', __METHOD__.'Call Details Added');
+            //Process Fake Cancellation handling
+             $this->cancellation->fake_cancellation_missed_call_handling($dataArray['from_number'],_247AROUND_DEFAULT_AGENT,_247AROUND_DEFAULT_AGENT_NAME,"Fake Rescheduled Miss Call");
+        }else{
+            log_message('info', __METHOD__.'Error In Adding Call Details');
+        }
+        $this->output->set_header("HTTP/1.1 200 OK");
     }
 }

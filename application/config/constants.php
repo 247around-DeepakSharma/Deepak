@@ -18,6 +18,7 @@ include('invoice_constant.php');
 include('buyback_constant.php');
 include('sms_constant.php');
 include('partner_permission_constant.php');
+include('flag_constant.php');
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes
@@ -647,5 +648,6 @@ define('_247AROUND_ENGINEER_STRING','engineer');
 
 define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
+define('OPEN_CANCELLATION_BOOKING_ON_FAKE_CANCELLATION_MISSED_CALL_DAYS','10');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

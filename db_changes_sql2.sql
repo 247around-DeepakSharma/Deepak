@@ -109,3 +109,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
  
  UPDATE `email_template` SET `template` = 'Hi ,<br> Charges Not add for below category <br> Brand -%s , <br>Category - %s <br> Capacity - %s <br> Service Category - %s  <br> . Please add the charges . <br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 158;
  
+--Chhavi 31th -05 -2019 - 
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'is_fake_cancellation', 'Cancellation request received for %s(%s). If cancellation is fake, give missed call @ 01140849136.', NULL, '1', '0', '2019-05-31 22:11:24');
+ALTER TABLE `service_center_booking_action`  ADD `cancellation_count` INT(11) NOT NULL DEFAULT '0'  AFTER `sf_purchase_date`;
