@@ -3328,7 +3328,7 @@ class Inventory extends CI_Controller {
             }
         } else {
             $res['status'] = false;
-            $res['message'] = 'All fields are requried';
+            $res['message'] = 'All fields are required';
         }
 
         echo json_encode($res);
