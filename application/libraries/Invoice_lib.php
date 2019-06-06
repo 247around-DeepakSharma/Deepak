@@ -689,32 +689,11 @@ class Invoice_lib {
             $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
             $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
         }
-                
+                               
         if(!empty($partner_details)){
-            
-            $partner_address = '';
-            if (!empty($partner_details[0]['address'])) {
-                $address = $partner_details[0]['address'];
-                $partner_address = $address;
-            }
-
-            if (!empty($partner_details[0]['state']) && !empty($partner_address)) {
-                $address_state = $partner_address . ", " . $partner_details[0]['state'];
-                $partner_address = $address_state;
-            }
-
-            if (!empty($partner_details[0]['district']) && !empty($partner_address)) {
-                $address_city = $partner_address . ", " . $partner_details[0]['district'];
-                $partner_address = $address_city;
-            }
-
-            if (!empty($partner_details[0]['pincode']) && !empty($partner_address)) {
-                $address_pincode = $partner_address . ", pin code - " . $partner_details[0]['pincode'];
-                $partner_address = $address_pincode;
-            }
-            
+                        
             $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
-            $excel_data['excel_data']['partner_address'] = $partner_address;
+            $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
             $excel_data['excel_data']['partner_contact_person_name'] = $partner_details[0]['contact_person_name'];
             $excel_data['excel_data']['partner_contact_number'] = $partner_details[0]['contact_number'];
             $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];  
@@ -723,7 +702,7 @@ class Invoice_lib {
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
         $excel_data['excel_data']['date'] = "";
-
+        
         $booking_id = $spare_details[0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
 
