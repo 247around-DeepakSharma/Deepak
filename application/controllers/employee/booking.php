@@ -1344,6 +1344,7 @@ class Booking extends CI_Controller {
      */
     function getPricesForCategoryCapacity() {
         $add_booking = NULL;
+        $is_repeat = 0;
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
@@ -1356,6 +1357,9 @@ class Booking extends CI_Controller {
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
         if($this->input->post('add_booking')){
             $add_booking = $this->input->post('add_booking');
+        }
+        if($this->input->post('is_repeat')){
+            $is_repeat = $this->input->post('is_repeat');
         }
         if (empty($assigned_vendor_id)) {
             $assigned_vendor_id = FALSE;
@@ -1401,17 +1405,22 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
-
+                if($is_repeat) {
+                    if($prices['service_category'] == REPEAT_BOOKING_TAG) {
+                        $html .= " checked ";
+                    }
+                    $html .= " style= 'pointer-events: none;'";
+                }
                 $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
                 if($prices['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS ){
                     $html .= " onclick='return false;' ";
                 }
-                $html .= "name='prices[$brand_id][$clone_number][]'";
+                $html .= " name='prices[$brand_id][$clone_number][]'";
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 else{
-                    $html .= "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'" . "value=" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number." data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 $i++;
             }
@@ -5351,7 +5360,7 @@ class Booking extends CI_Controller {
             $this->get_edit_booking_form($booking_id,"","Repeat");
         }
         else{
-            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
     function get_booking_relatives($booking_id){
