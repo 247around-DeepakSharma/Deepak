@@ -265,11 +265,11 @@ class Miscelleneous {
         $partner_am_email = "";
         $return_status = TRUE;
         
-        //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
         $rm_email = "";
-//        if (!empty($rm)) {
-//            $rm_email = ", " . $rm[0]['official_email'];
-//        }
+        if (!empty($rm)) {
+            $rm_email = ", " . $rm[0]['official_email'];
+        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -443,12 +443,12 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$partner_am_email;
-                            $cc = "";
+                            $to = ANUJ_EMAIL_ID.$rm_email;
+                            $cc = $partner_am_email;
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = $partner_am_email;
+                            $cc = $partner_am_email.$rm_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -2408,7 +2408,7 @@ class Miscelleneous {
         }
         //get Booking id
         $bookingDetails = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,booking_details.booking_date,booking_details.assigned_vendor_id,"
-                . "booking_details.booking_timeslot,booking_details.partner_id,",
+                . "booking_details.booking_timeslot,booking_details.assigned_vendor_id",
                 $whereArray,array("users"=>"users.user_id=booking_details.user_id","service_center_booking_action"=>"service_center_booking_action.booking_id=booking_details.booking_id"),
                 NULL,NULL,NULL,NULL,array("booking_details.booking_id"));
         return $bookingDetails;
@@ -3859,12 +3859,9 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
-    function reopen_booking($booking_id, $status,$dataArray = NULL){
-            if($this->My_CI->input->post('booking_date')){
-                $dataArray = $this->My_CI->input->post();
-            }
-            $data['booking_date'] = date('d-m-Y', strtotime($dataArray['booking_date']));
-            $data['booking_timeslot'] = $dataArray['booking_timeslot'];
+    function reopen_booking($booking_id, $status){
+            $data['booking_date'] = date('d-m-Y', strtotime($this->My_CI->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->My_CI->input->post('booking_timeslot');
             $data['current_status'] = _247AROUND_PENDING;
             $data['internal_status'] = "Booking Opened From " . $status;
             $data['update_date'] = date("Y-m-d H:i:s");
@@ -3881,7 +3878,7 @@ function generate_image($base64, $image_name,$directory){
             $data['service_center_closed_date'] = NULL;
             //$data['booking_remarks'] = $this->input->post('reason');
             //check partner status from partner_booking_status_mapping table  
-            $partner_id = $dataArray['partner_id'];
+            $partner_id = $this->My_CI->input->post('partner_id');
             $actor = $next_action = 'not_define';
             $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
@@ -3896,7 +3893,7 @@ function generate_image($base64, $image_name,$directory){
             } else {
                 log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
                 $this->My_CI->booking_model->update_booking($booking_id, $data);
-                $assigned_vendor_id = $dataArray["assigned_vendor_id"];
+                $assigned_vendor_id = $this->My_CI->input->post("assigned_vendor_id");
                 if (!empty($assigned_vendor_id)) {
                     $service_center_data['internal_status'] = _247AROUND_PENDING;
                     $service_center_data['current_status'] = _247AROUND_PENDING;
@@ -3909,8 +3906,8 @@ function generate_image($base64, $image_name,$directory){
                     $service_center_data['closed_date'] = NULL;
                     $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
                     
-                    if($dataArray['admin_remarks']){
-                        $service_center_data['admin_remarks'] = $remarks = $dataArray['admin_remarks'];
+                    if($this->My_CI->input->post('admin_remarks')){
+                        $service_center_data['admin_remarks'] = $remarks = $this->My_CI->input->post('admin_remarks');
                     }else{
                         $service_center_data['admin_remarks'] = $remarks = NULL;
                     }
@@ -4009,10 +4006,6 @@ function generate_image($base64, $image_name,$directory){
                 else{
                      $agentID = _247AROUND_DEFAULT_AGENT;
                      $agentName = _247AROUND_DEFAULT_AGENT_NAME;
-                }
-                if(!$this->My_CI->input->post('booking_date')){
-                    $remarks = $remarks."Fake Cancellation Missed Call";
-                    $this->My_CI->notify->insert_state_change($booking_id, "Fake_Cancellation", $status, $remarks, $agentID, $agentName,$actor,$next_action, _247AROUND);
                 }
                 //Log this state change as well for this booking          
                 $this->My_CI->notify->insert_state_change($booking_id, _247AROUND_PENDING, $status, $remarks, $agentID, $agentName,$actor,$next_action, _247AROUND);
@@ -4280,47 +4273,5 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
-        /**
-     * @desc: This is used to convert booking into Query.
-     * @param String $booking_id
-     */
-    function convert_booking_to_query($booking_id,$partner_id){
-        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id. ' Partner_id: '.$partner_id);
-        $booking['booking_id'] = "Q-".$booking_id;
-        $booking['current_status'] = "FollowUp";
-        $booking['type'] = "Query";
-        $booking['internal_status'] = PRODUCT_NOT_DELIVERED_TO_CUSTOMER;
-        $booking['assigned_vendor_id'] = NULL;
-        $booking['assigned_engineer_id'] = NULL;
-        $booking['mail_to_vendor'] = '0';
-        $booking['booking_date'] = date('d-m-Y');
-        
-        //Get Partner 
-        $actor = $next_action = 'not_define';
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking['booking_id']);
-        if(!empty($partner_status)){
-            $booking['partner_current_status'] = $partner_status[0];
-            $booking['partner_internal_status'] = $partner_status[1];
-            $actor = $booking['actor'] = $partner_status[2];
-            $next_action = $booking['next_action'] = $partner_status[3];
-        }                
-        //Update Booking unit details
-        $this->My_CI->booking_model->update_booking($booking_id, $booking);
-        
-        $unit_details['booking_id'] = "Q-".$booking_id;
-        $unit_details['booking_status'] = "FollowUp";
-        //update unit details
-        $this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
-        // Delete booking from sc action table
-        $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-        //Insert Data into Booking state change
-        $this->My_CI->cancellation->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query",$actor,$next_action);
-        
-        
-        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$booking_id;
-        $pcb = array();
-        $this->My_CI->asynchronous_lib->do_background_process($cb_url, $pcb);
-        
-        redirect(base_url() . "service_center/pending_booking");  
-    }
+    
 }
