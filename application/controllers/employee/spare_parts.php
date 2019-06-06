@@ -2673,22 +2673,20 @@ class Spare_parts extends CI_Controller {
     /**
      * @desc This function is used to send MSL data to inventory manager
      */
-    function get_msl_data($icwh = 1) {
+    function get_msl_data($imwh = 1) {
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
         
-        if($icwh == 1){
-            $tmp_subject =  "CWH ";
+        if($imwh == 1){
             $temp_function = 'get_msl_data';
              $template = "msl_data.xlsx";
         } else {
-            $tmp_subject =  "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
             $template = "mwh_msl_data.xlsx";
         }
         $data = $this->inventory_model->$temp_function($date_45);
-
+        //print_r($data); 
         if (!empty($data)) {
             foreach ($data as $key => $value) {
                 
@@ -2764,7 +2762,7 @@ class Spare_parts extends CI_Controller {
 
         $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
         if (!empty($email_template)) {
-            $subject = $tmp_subject.$email_template[4];
+            $subject = $email_template[4];
             $message = $email_template[0];
             $email_from = $email_template[2];
 
@@ -2935,15 +2933,6 @@ class Spare_parts extends CI_Controller {
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
-    }
-    
-    function get_dispatch_msl_form(){
-        log_message('info', __METHOD__);
-        $this->load->view('service_centers/header');
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');                     
-        $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);                
-        $this->load->view("service_centers/tag_spare_invoice_send_by_warehouse", $data);
-        
     }
 
 
