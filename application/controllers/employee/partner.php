@@ -6992,7 +6992,7 @@ class Partner extends CI_Controller {
             $this->get_editbooking_form($booking_id,"Repeat");
         }
         else{
-            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
     function get_booking_relatives($booking_id){

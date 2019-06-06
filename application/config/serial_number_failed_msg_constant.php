@@ -49,7 +49,7 @@ define('BRAND_POSIBLE_VALUES', 'W,O,B,E,BL');
 define('FAILURE_MSG', 'Please Enter Correct Serial Number');
 
 //Repeat Booking Failure Massege
-define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Untill Repeat Booking Will not have correcct Serial Number');
+define('REPEAT_BOOKING_FAILURE_MSG', 'For Repeat Booking Serial Number Should be Similar to Parent Booking. Booking Will not be Complete Until Repeat Booking Will not have correcct Serial Number');
 
 //Borly SErial Number Possible Constant
 define('BURLY_CODE','29');
