@@ -69,7 +69,7 @@
                                                 <?php }?>
 
                                                 <br/>
-                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:30%"/></a>
+                                                <a href="javascript:void(0)" > <img id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
                                                 
                                                 });
