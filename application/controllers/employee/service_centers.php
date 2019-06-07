@@ -3175,10 +3175,9 @@ function update_defective_parts($sp_id) {
 
         if (!empty($generate_challan)) {
             $post = array();
-            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED);
+            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
             $post['is_inventory'] = true;
-
-            $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
+            $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
             if (!empty($part_details)) {
                 $spare_details = array();
@@ -3194,10 +3193,9 @@ function update_defective_parts($sp_id) {
                     }
                     $spare_details[] = $spare_parts;
                 }
-                $assigned_vendor_id = $part_details[0]['assigned_vendor_id'];
-                $service_center_id = $part_details[0]['service_center_id'];
+                $assigned_vendor_id = $part_details[0]['partner_id'];
+                $service_center_id = $part_details[0]['assigned_vendor_id'];
             }
-
 
             $sf_details = $this->vendor_model->getVendorDetails('name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
                         
@@ -3223,10 +3221,11 @@ function update_defective_parts($sp_id) {
                 }
             }
             
-
+           
             $data = array();
             if (!empty($sf_details)) {
                 $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+                $sf_details[0]['address'] = $sf_details[0]['address']. ", ".$sf_details[0]['district']. ", Pincode -".$sf_details[0]['pincode'].", ".$sf_details[0]['state'];
             }
 
             if (!empty($spare_details)) {
