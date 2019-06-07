@@ -146,3 +146,5 @@ ALTER TABLE `fake_cancellation_missed_call_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
+--Kalyani 07-June-2019
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);

@@ -5667,5 +5667,29 @@ class vendor extends CI_Controller {
         echo $option;
     }
     
+    /*
+     @Desc - This function is used to load view for download SF penalty summary
+     */
+    function penalty_summary(){
+        $this->checkUserSession();
+        $data = array();
+        $where['is_sf'] = 1;
+        $where['active'] = 1;
+        $data['vendor'] = $this->vendor_model->getVendorDetails("service_centres.name, service_centres.id", $where);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/vendor_penalty_summary', $data);
+    }
     
+    /*
+     @Desc - This function is used to download SF penalty summary csv
+     */
+    function download_vendor_penalty_summary(){
+        $vendors = $this->input->post("service_center");
+        $daterange = explode("-", $this->input->post("daterange"));
+        $startDate = trim($daterange[0]);
+        $endDate = trim($daterange[1]);
+        $list = $this->vendor_model->sf_panalty_summary($vendors, $startDate, $endDate);
+        $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
+        $this->miscelleneous->downloadCSV($list, $headings,"booking_search_summary");
+    }
 }
