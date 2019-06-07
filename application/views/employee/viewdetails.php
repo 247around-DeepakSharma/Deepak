@@ -642,8 +642,8 @@
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
-                                                    <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
-
+                                                    <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>"> 
+                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
                                                  </form>
                                             </td>
@@ -660,6 +660,7 @@
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
+                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
                                                  </form>
                                             </td>
@@ -2054,24 +2055,48 @@ background-color: #f5f5f5;
         });
        
        $(".move_to_update").on('click', function () { 
-       var confirm_staus = confirm("Are you sure you want to Move ?");
-       if(confirm_staus){
-            $.ajax({
-                type: "POST",
-                url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
-                data: $("#move_to_update_spare_parts").serialize(),
-                success: function (data) {
-                    if (data != '') {               
+                
+                swal({
+                title: "Are you sure?",
+                text: "You are going to transfer the spare part!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, Transfer it!",
+                cancelButtonText: "No, cancel !",
+                closeOnConfirm: false,
+                closeOnCancel: false
+               },
+                 function(isConfirm) {
+                    if (isConfirm) {
+                        
+                        $.ajax({
+                        type: "POST",
+                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                        data: $("#move_to_update_spare_parts").serialize(),
+                        success: function (data) {
+                        console.log(data);
+                       if (data != '') {               
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
-                        $("#move_to_vendor").hide();
+                        if(data=='success'){
+                          swal("Transferred!", "Your spare has been transferred !.", "success");
+                          $("#move_to_vendor").hide();
+                        //  location.reload();
+                        }else if(data='fail_mail'){
+                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
+                        }else{
+                           swal("Failed", "Your Transferred has been failed. Either some network error occured or Warehouse data not found !", "error");  
+                        }
                     }
-                },
-                error: function () {
-                    alert("error");
-                }
-
-            });
-           }
+                    },
+                    error: function () {
+                     swal("Error Occured", "Some error occured data not found", "error");
+                    }
+                  });
+                    } else {
+                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+                   }
+                });
 
         });
        

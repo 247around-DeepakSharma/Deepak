@@ -2651,10 +2651,9 @@ class Partner extends CI_Controller {
         }
 
         $option = "";
-        $brand_count = count($data);
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name'] || $brand_count == 1) {
+            if ($appliace_brand == $value['brand_name']) {
                 $option .= " selected ";
             }
             else{
@@ -4478,10 +4477,10 @@ class Partner extends CI_Controller {
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
-        $partners_count = count($partner_list);
+
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " ".($partners_count == 1 ? 'selected' : '')." > ";
+            $option .= " > ";
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
@@ -7028,7 +7027,7 @@ class Partner extends CI_Controller {
             $this->get_editbooking_form($booking_id,"Repeat");
         }
         else{
-            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Untill repeat booking is not closed you can not create new repeat booking</p>";
+            echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
     function get_booking_relatives($booking_id){
