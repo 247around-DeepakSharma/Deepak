@@ -164,14 +164,13 @@ class Spare_parts extends CI_Controller {
      */
     function get_defective_part_shipped_by_sf($post){
 
-        $post['select'] = "service_centres.district,spare_parts_details.booking_id, spare_parts_details.quantity,spare_parts_details.shipped_quantity,users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "service_centres.district,spare_parts_details.booking_id, spare_parts_details.part_warranty_status,spare_parts_details.quantity,spare_parts_details.shipped_quantity,users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.is_micro_wh,"
                 . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.defective_part_shipped_date, "
                 . "remarks_defective_part_by_sf, defective_courier_receipt,sf_challan_file, defective_part_required, spare_parts_details.id, inventory_master_list.part_number ";
 
         $post['column_order'] = array();
        
-        
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'defective_part_shipped',
             'courier_name_by_sf', 'awb_by_sf', 'remarks_defective_part_by_sf', 'remarks_defective_part_by_partner');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -649,7 +648,7 @@ class Spare_parts extends CI_Controller {
             if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>'; $cl ="btn-primary";} else{ $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>'; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
             $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
             $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'"   data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/REJECT_COURIER_INVOICE" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"> <i class="fa fa-truck" style="font-size:16px;"></i></button>';
-            $row[] = '<button type="button" data-text="Approve Invoice"  data-keys="1"   data-charge="'.$spare_list->courier_charges_by_sf.'" data-booking_id="'.$spare_list->booking_id.'"   data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/APPROVE_COURIER_INVOICE" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-file" style="font-size:16px;"></i></button>';
+            $row[] = '<button type="button" data-text="Approve Invoice"  data-keys="'.$spare_list->part_warranty_status.'"   data-charge="'.$spare_list->courier_charges_by_sf.'" data-booking_id="'.$spare_list->booking_id.'"   data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/APPROVE_COURIER_INVOICE" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-file" style="font-size:16px;"></i></button>';
         } else {
             $row[] = "";
             $row[] = "";
