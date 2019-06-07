@@ -101,7 +101,7 @@
                 </div>
             </div>
         </div>
-    <h2 ></h2
+    <h2 ></h2>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
 
@@ -138,7 +138,7 @@
                         <div class="col-md-6">
                        <div class="form-group">
                         <label>Enter Booking Ids</label>
-                        <textarea class="form-control" rows="5" required="" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
+                        <textarea style="resize: none;" class="form-control" rows="5" required="" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
                     </div>
                         </div>
                     </div>

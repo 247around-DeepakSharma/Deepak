@@ -19,10 +19,10 @@
                 <strong>Warning !</strong>  <?php echo $this->session->flashdata('error');  ?> <button id="modalauto" style="padding:0px !important;" class="btn btn-small btn-danger"  data-toggle="modal" data-target="#myModal" >Details</button>
            </div> 
             
-           <?php  }  ?>   ?> 
+           <?php  }  ?>   
                 <form method="POST" id="idForm" action="<?php echo base_url();?>employee/spare_parts/bulkConversion_process">
                     <div class="form-group">
-                        <textarea class="form-control"  required="" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
+                        <textarea style="resize: none;" class="form-control"  required="" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
                     </div>
 
                     <div class="form-group">
