@@ -1418,6 +1418,8 @@ class Spare_parts extends CI_Controller {
                     $bookings_flash_data['booking'] = $booking_id;
                     $bookings_flash_data['spare_id'] = $spare_parts_id;
                     $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");
+
+                    if(!empty($template)){
                     $emailBody = vsprintf($template[0], array($booking_id, $spare_parts_id));
                     $subject = vsprintf($template[4], $booking_id);
                     $wh_details = $this->vendor_model->getVendorContact($this->session->userdata('service_center_id'));
@@ -1432,7 +1434,8 @@ class Spare_parts extends CI_Controller {
                         $to = $this->session->userdata('official_email');
                     }
                     $response = $this->notify->sendEmail($template[2], $to, '', '', $subject, $emailBody, "", 'spare_not_transfer_from_wh_to_wh', '');
-                    echo 'fail_mail';
+                  }
+                  echo 'fail_mail';
                 }
             }
         }
