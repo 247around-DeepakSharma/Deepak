@@ -52,7 +52,7 @@
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
-                                        <td style="vertical-align: middle;">
+                                        <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" 
                                                 <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                 href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -67,6 +67,14 @@
                                                 <?php if($row->is_bracket == 1){ ?>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
                                                 <?php }?>
+
+                                                <br/>
+                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:30%"/></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
+                                                
+                                                });
+                                                
+                                                </script>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -252,6 +260,15 @@
                                                 <?php if($row->is_bracket == 1){ ?>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
                                                 <?php }?>
+                                                
+                                                <br/>
+                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:30%"/></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
+                                                
+                                                });
+                                                
+                                                </script>
+                                                
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -429,6 +446,13 @@
                                                 <?php if($row->is_bracket == 1){ ?>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
                                                 <?php }?>
+                                                <br/>
+                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:30%"/></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
+                                                
+                                                });
+                                                
+                                                </script>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -744,6 +768,7 @@
             }
           });
     }
+    
 </script>
 
 <?php } ?>
@@ -889,4 +914,6 @@
     });
     
     setInterval(function(){ getBookingEngineers(); }, 30000);
+    
+   
     </script>

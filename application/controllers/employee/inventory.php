@@ -6230,4 +6230,16 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
+    
+    function get_spare_cancelled_status($booking_id){
+        log_message('info', __METHOD__. " Booking ID ".$booking_id);
+        
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id', array('spare_parts_details.booking_id' => $booking_id, 'status' => _247AROUND_CANCELLED));
+        if(!empty($spare)){
+            echo "success";
+        } else {
+            echo "Not Exist";
+        }
+        
+    }
 }
