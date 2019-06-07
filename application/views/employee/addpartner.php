@@ -3402,8 +3402,10 @@
        return false;
     }  
     function remove(){
-       $(this).parents(".clonedInput").remove();
-       final_price();
+        if($('div.clonedInput').length > 1) {
+            $(this).parents(".clonedInput").remove();
+            final_price();
+        }
        return false;
     }
     $("button.clone").on("click", clone);
