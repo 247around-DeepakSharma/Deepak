@@ -1808,7 +1808,7 @@ class Partner extends CI_Controller {
         //be used to insert multiple bookings
         if (!empty($request['orderID'])) {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
-            if (!is_null($lead)) {
+            if (!is_null($lead) && !isset($request['repeat_reason'])) {
                 log_message('info', "Lead details: " . print_r($lead, true));
                 if($lead['current_status'] != _247AROUND_CANCELLED){
                     

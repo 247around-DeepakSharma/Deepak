@@ -633,20 +633,27 @@ define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Q
 define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B2');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
 define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'N27');
-
-
+ 
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
-
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'Wrong Pincode Entered');
+ 
 define('_247AROUND_WRONG_NOT_SERVICABLE_CANCEL_REASON', 'Not Servicable in Your Area');
-
+ 
+define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
+ 
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
 define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
-
+//constant to define Installation & Demo (Free) Request Type
+define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
+// Abhishek ///
+define('_247AROUND_TRANSFERED_TO_WAREHOUSE', 'Spare transfer from one warehouse to another warehouse');  //
+define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  warehouse to vendor');
+define('_247AROUND_TRANSFERED_TO_NEXT_ACTION', 'Spare Part to be shipped');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

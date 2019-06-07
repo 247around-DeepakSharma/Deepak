@@ -709,7 +709,7 @@ class Booking_model extends CI_Model {
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
 	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
-            $partner_name = ", partners.public_name  ";
+            $partner_name = ", partners.public_name, partners.account_manager_id ";
             $partner = ", partners  ";
             $condition .= " and booking_details.partner_id =  partners.id";
         }
@@ -1310,8 +1310,8 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL) {
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage);
+    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL,$having_arr=array()) {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage,$having_arr);
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
@@ -1467,7 +1467,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,pod,invoice_pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -2071,7 +2071,7 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        $this->db->_reserved_identifiers = array('*',"'%d-%m-%Y')");
+        $this->db->_reserved_identifiers = array('*',"'%d-%m-%Y')", "SELECT");
         if (empty($select)) {
             $select = '*';
         }
@@ -2082,6 +2082,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
+        $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
         if(!isset($post['unit_not_required'])){
             $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         }
@@ -2696,6 +2697,21 @@ class Booking_model extends CI_Model {
         if(!empty($where)){
             $this->db->where($where);
         }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @Desc: This function is used to get AM detail by Booking Id
+     * @params: array $booking_id
+     * @return: array account manager detail
+     * 
+     */
+    function get_am_by_booking($booking_id, $select="*"){
+        $this->db->select($select);
+        $this->db->from("booking_details");
+        $this->db->where("booking_id", $booking_id);
+        $this->db->join("agent_filters", "agent_filters.entity_type = '247around' and agent_filters.entity_id = booking_details.partner_id and agent_filters.state = booking_details.state and agent_filters.is_active=1");
+        $this->db->join("employee", "employee.id = agent_filters.agent_id");
         $query = $this->db->get();
         return $query->result_array();
     }

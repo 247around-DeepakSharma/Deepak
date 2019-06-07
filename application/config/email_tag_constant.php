@@ -127,11 +127,10 @@ define("BUYBACK_REIMBURESE_PO_UPLOADED", "buyback_reimburese_po_uploaded");
 define("SF_ADDITION_MAIL_TO_BRAND", "sf_addition_mail_to_brand");
 define('BUYBACK_DISPUTED_ORDERS_SUMMARY','buyback_disputed_orders_summary');
 define('SEND_MSL_FILE','send_msl_file');
-
+ 
 define('NEW_PARTNER_AM_NOTIFICATION', 'new_partner_am_notification');
 define('UPDATE_PARTNER_AM_NOTIFICATION', 'update_partner_am_notification');
-
+ 
 define('CHANGE_PASSWORD','change_password');
 define('UPDATE_APPLIANCE_BY_SF','send_mail_for_insert_update_applaince_by_sf');
-
-
+define('TRANSFER_SPARE_FROM_WH_TO_WH','spare_not_transfer_from_wh_to_wh');

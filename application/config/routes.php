@@ -99,6 +99,8 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 
+$route['service_center/spare_transfer_from_wh_to_wh'] = 'employee/spare_parts/spare_transfer_from_wh_to_wh';
+$route['service_center/spare_transfer_from_wh_to_wh_process'] = 'employee/spare_parts/spare_transfer_from_wh_to_wh_process';
 
 $route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
 $route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/service_centers/alternate_inventory_stock_list/$1/$2/$3';

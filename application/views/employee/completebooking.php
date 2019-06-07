@@ -94,6 +94,7 @@
                                         <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                                         <input type="hidden" id="sp_required_id" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                                         <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
+                                        <input type="hidden" name="is_sf_purchase_invoice_required" id="is_sf_purchase_invoice_required" value="<?= (!empty($is_sf_purchase_invoice_required) ? 1 : 0); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -266,6 +267,23 @@
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-append" style="width: 150px;margin-left: 14px;">
+                                            <input type="file" name="sf_purchase_invoice" class="form-control purchase-invoice"
+                                                   onchange="update_purchase_invoice_for_unit('<?php echo $keys?>')"
+                                                   id="<?php echo "purchase_invoice_".$keys?>" value="<?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?>">
+                                             <?php $src = base_url() . 'images/no_image.png';
+                                            $image_src = $src;
+                                            if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
+                                                //Path to be changed
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
+                                                //$image_src = base_url().'images/view_image.png';
+                                            }
+                                            ?>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?></small></a>
+                                            
+                                       </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-9">
                                     <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -282,12 +300,14 @@
                                             <?php
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
-                                                    <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
+                                                    <input type="hidden" value="<?php echo count($unit_details['quantity']) ?>" id="count_line_item_<?php echo $keys; ?>">
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
                                                                                                         <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
+                                                       <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
+                                                            class="<?php echo "unit_purchase_invoice_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_invoice'])){  echo $unit_details['quantity'][0]['sf_purchase_invoice']; } ?>" />
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
@@ -312,11 +332,15 @@
                                                                             <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
-                                                                    <?php } 
+                                                                        <?php }  else { 
+                                                                            $isModelMandatory =1 ;
+                                                                        ?>
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value=" <?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "Enter Model Number" >
+                                                                        <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
                                                                             $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/engineer-uploads/'.$price['serial_number_pic']; ?>
-                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if($price['is_sn_correct'] == IS_SN_CORRECT){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
+                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
                                                                              <?php
                                                                         }
                                                                      ?>
@@ -620,6 +644,9 @@
     $(".model_number").select2();
 </script>
 <script>
+    
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
+
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -739,6 +766,18 @@
         var div_no = this.id.split('_');
         is_completed_checkbox[i] = div_no[0];
         if (div_no[0] === "completed") {
+            var price_tag_row_number = parseInt(i)+1;
+            if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
+                var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
+                if(is_sf_purchase_invoice_required == '1') {
+                    var sf_purchase_invoice = $('.purchase-invoice').val();
+                    if(sf_purchase_invoice == '') {
+                        alert("Please upload sf purchase invoice document.");
+                        flag = 1;
+                        return false;
+                    }
+                }
+            }
             //if POD is also 1, only then check for serial number.
             if (div_no[1] === "1") {
                 
@@ -779,6 +818,7 @@
                                 alert('Please Attach Serial Number image');
                                 document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                                 flag = 1;
+                                return false;
                             }
                          }
                     //}
@@ -799,7 +839,18 @@
                         var modelNumber = $('#model_number_'+div_no[2]).val();
                         if(modelNumber == null){
                             alert("Please Select Model number");
+                            document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            return false;
+                        }
+                    }
+                    else{
+                        var model_text_value = $("#model_number_text_" + div_no[2]).val();
+                        if(model_text_value ===""){
+                            alert("Model Number is blank");
+                            document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
+                            flag = 1;
+                            return false;
                         }
                     }
                     <?php
@@ -1189,6 +1240,14 @@
           var dopValue = $("#dop_"+div).val();
             for(i = 0; i < Number(div_item_count); i++ ){
                 $(".unit_dop_"+div+"_"+i).val(dopValue);
+         }
+    }
+    function update_purchase_invoice_for_unit(div){
+          var div_item_count = $("#count_line_item_"+div).val();
+          var purchase_invoice_value = $("#purchase_invoice_"+div).val();
+        
+            for(i = 0; i < Number(div_item_count); i++ ){
+                $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
          }
     }
       function dop_calendar(id){

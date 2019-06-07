@@ -213,7 +213,7 @@
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
-        $button_text = $(this).text();
+        $button_text = $(this).attr("data-text");
         if($button_text === "Approve Invoice"){
             $("#charges").css("display","block");
              var charge = $(this).data('charge');
@@ -241,11 +241,12 @@
                  
       if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
+      var charges =  $('#charges').val();
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks,part_warranty_status:warranty_status},
+            data:{remarks:remarks,part_warranty_status:warranty_status,charge:charges},
             success: function(data){
                  var obj = JSON.parse(data); 
                 $('#reject_btn').attr('disabled',false);

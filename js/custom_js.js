@@ -95,6 +95,7 @@ function getCategoryForService(div_id) {
             $("#appliance_category_" + div_no[2]).html(data).change();
             var data2 = "<option disabled></option>";
             $("#appliance_capacity_" + div_no[2]).html(data2).change();
+            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
             $("#priceList_" + div_no[2]).html("");
 
         }
@@ -125,9 +126,8 @@ function getCapacityForCategory(category, div_id, add_booking) {
             $("#priceList_" + div_no[2]).html("");
             if(category){
                 getModelForServiceCategoryCapacity(div_id);
-                getPricesForCategoryCapacity(div_id);
+                getPricesForCategoryCapacity(div_id,add_booking);
             }
-
 
         } else {
             $("#priceList_" + div_no[2]).html("");
@@ -136,15 +136,21 @@ function getCapacityForCategory(category, div_id, add_booking) {
                 getModelForServiceCategoryCapacity(div_id,);
                 getPricesForCategoryCapacity(div_id,add_booking);
             }
-            
 
+        }
+        
+        if($.trim(data) !== "<option></option>") {
+            $("#appliance_capacity_" + div_no[2]).attr("required",true);
+        }
+        else {
+            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
         }
 
     });
 }
 
 function getPricesForCategoryCapacity(div_id,add_booking) {
-    add_booking = add_booking || false;
+    add_booking = add_booking || 0;
     var postData = {};
     var div_no = div_id.split('_');
     $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
@@ -169,6 +175,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         } else {
 
             postData['capacity'] = "";
+            $("#appliance_capacity_" + div_no[2]).removeAttr("required");
         }
         if(postData['category']){
             //  $("#priceList_" + div_no[2]).html("Loading......");
@@ -274,6 +281,23 @@ function addBookingDialog(chanel = '') {
     var isServiceChecked = $('.Service:checkbox:checked').length;
     var symptom = $('#booking_request_symptom option:selected').text();
    // var customer_paid = $("#grand_total_price").val()
+    
+    if($('.appliance_capacity').length > 0) {
+        var count1=0;
+        $(".appliance_capacity").each(function(){
+            var capacity_value = document.getElementById(this.id).innerHTML;
+            if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
+                alert("Please Select Capacity");
+                $("#"+this.id).focus();
+                ++count1;
+                return false;
+            }
+        });
+        if(count1 > 0) {
+            return false;
+        }
+    }
+   
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");

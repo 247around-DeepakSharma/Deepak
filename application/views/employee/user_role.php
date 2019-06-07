@@ -74,7 +74,7 @@
                 if(in_array($groupTitle['groups'], $groupIDArray)){
                     $selected = "Selected";
                 }
-                $groupIDString .= '<option '.$selected.' value ='.$groupTitle['groups'].'>'.$groupTitle['groups'].'</option>';
+                $groupIDString .= '<option '.$selected.' value ="'.$groupTitle['groups'].'">'.$groupTitle['groups'].'</option>';
             }
             $groupIDString  .= '</select>';
          }

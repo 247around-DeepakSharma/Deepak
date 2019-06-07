@@ -28,6 +28,11 @@
                                    Cancelled Bookings Under Partner Review
                                 </a>
                             </li>
+                            <li role="presentation">
+                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed_By_SF/0">
+                                   Service Category Changed By SF(Completed)
+                                </a>
+                            </li>
 <!--                            <li role="presentation">
                                 <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed/0/1">
                                    Completed Bookings Under Partner Review
@@ -39,6 +44,7 @@
                             <div class="tab-pane" id="tabs-2"></div>
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
+                            <div class="tab-pane" id="tabs-5"></div>
                         </div>
                     </div>
                 </div>

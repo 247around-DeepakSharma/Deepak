@@ -1,3 +1,4 @@
+<?php  if(!empty($booking_history)){ ?>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -290,6 +291,7 @@
                         <thead>
                             <tr>
                                 <th>SF Name </th>
+                                <th>AM Name </th>
                                 <th>Engineer Name </th>
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
@@ -299,6 +301,7 @@
                         <tbody>
                             <tr>
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
+                                <td><?php if(isset($booking_history[0]['account_manager_name'])){echo $booking_history[0]['account_manager_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['assigned_engineer_name'])){echo $booking_history[0]['assigned_engineer_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
@@ -607,7 +610,7 @@
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
-
+                                                    <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
                                                     <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
 
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
@@ -626,7 +629,8 @@
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
                                                     <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
-                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                    <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
+                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
                                                  </form>
                                             </td>
                                         <?php } else {?> 
@@ -1953,24 +1957,48 @@ background-color: #f5f5f5;
         });
        
        $(".move_to_update").on('click', function () { 
-       var confirm_staus = confirm("Are you sure you want to Move ?");
-       if(confirm_staus){
-            $.ajax({
-                type: "POST",
-                url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
-                data: $("#move_to_update_spare_parts").serialize(),
-                success: function (data) {
-                    if (data != '') {               
+                
+                swal({
+                title: "Are you sure?",
+                text: "You are going to transfer the spare part!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, Transfer it!",
+                cancelButtonText: "No, cancel !",
+                closeOnConfirm: false,
+                closeOnCancel: false
+               },
+                 function(isConfirm) {
+                    if (isConfirm) {
+                        
+                        $.ajax({
+                        type: "POST",
+                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                        data: $("#move_to_update_spare_parts").serialize(),
+                        success: function (data) {
+                        console.log(data);
+                       if (data != '') {               
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
-                        $("#move_to_vendor").hide();
+                        if(data=='success'){
+                          swal("Transferred!", "Your spare has been transferred !.", "success");
+                          $("#move_to_vendor").hide();
+                        //  location.reload();
+                        }else if(data='fail_mail'){
+                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
+                        }else{
+                           swal("Failed", "Your Transferred has been failed. Either some network error occured or Warehouse data not found !", "error");  
+                        }
                     }
-                },
-                error: function () {
-                    alert("error");
-                }
-
-            });
-           }
+                    },
+                    error: function () {
+                     swal("Error Occured", "Some error occured data not found", "error");
+                    }
+                  });
+                    } else {
+                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+                   }
+                });
 
         });
        

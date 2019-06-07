@@ -3,9 +3,25 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <div class="" style="margin-top: 30px;">
          <div class="row">
-            <div class="col-md-3 pull-right" style="margin-top:20px;">
-                <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
+            <div class="col-md-3 pull-right" style="margin-top:20px;">              
+                <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+             </div>
+              <?php if($status == 'Cancelled') { 
+              ?>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($cancellation_reason as $reason) { ?>
+                    <option value="<?= $reason['reason']; ?>"><?= $reason['reason']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
             </div>
+             <?php } ?>
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
                </h2>
@@ -42,7 +58,7 @@
 
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
 
-                              <td style="text-align: left;white-space: inherit; <?php if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";}?>">
+                            <td style="text-align: left;white-space: inherit; <?php if(isset($value['unit_details'][0]['mismatch_pincode'])){ if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";} }?>">
                                  <table  class="table table-condensed">
                                     <thead>
                                         <th class="jumbotron" >Brand</th>
@@ -115,7 +131,7 @@
                                  </table>
                               </td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['booking'][0]['amount_due']; ?></strong></td>
-                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value1['amount_paid']; ?></strong></td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
                               <?php
                                 $now = time();
                                 $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
@@ -153,7 +169,7 @@
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review() style=" background-color: #2C9D9C;
+                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
                      <?php } ?>
@@ -170,14 +186,17 @@
              }
              else{
                     $tab = "#tabs-3";
-                    if($status == "Completed"){
+                    if($review_status == "Completed"){
                         $tab = "#tabs-2";
+                    }
+                    else if($review_status == "Completed_By_SF"){
+                        $tab = "#tabs-5";
                     }
              }
              for($i=0;$i<=$total_pages;$i++){
                  $offset = $per_page*$i;
                  ?>
-    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $status?>/<?php echo $offset;?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/0/0/<?php echo $cancellation_reason_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
              }
              ?>
@@ -206,7 +225,10 @@
    </div>
 
 <script>
-   $(document).ready(function(){
+    $('#cancellation_reason').select2({
+       placeholder: 'Cancellation Reason'
+   }); 
+    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
             $(".checkbox1").prop('checked', $(this).prop("checked"));
