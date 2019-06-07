@@ -350,9 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if(isset($post['is_inventory'])){
-            
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
-            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
