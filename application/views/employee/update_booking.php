@@ -425,10 +425,10 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } else{  if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo "disabled"; }} } ?>
                                                         ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -475,7 +475,7 @@
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && ($unit_details[0]['purchase_date'] != '0000-00-00')){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                                <input <?php if($is_repeat && (isset($unit_details[0]['purchase_date']) && ($unit_details[0]['purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
