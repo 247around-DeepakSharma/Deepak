@@ -6237,22 +6237,15 @@ class Inventory extends CI_Controller {
         echo json_encode($res);
     }
     
-    function send_msl_to_micro_from_warehouse(){
-        $partner_id = $this->input->post('partner_id');
-        $mwh_id = $this->input->post('wh_id');
-        $is_wh_micro = $this->input->post('is_wh_micro');
-        $awb_number = $this->input->post('awb_number');
-        $courier_name = $this->input->post('courier_name');
-        $courier_shipment_date = $this->input->post('courier_shipment_date');
-        $partner_name = trim($this->input->post('partner_name'));
-        $wh_name = trim($this->input->post('wh_name'));
-        $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
-        if (!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($invoice_amount) && !empty($awb_number) && !empty($courier_name)) {
-            $parts_details = $this->input->post('part');
-            if (!empty($parts_details)) {
-                
-            }
+    function get_spare_cancelled_status($booking_id){
+        log_message('info', __METHOD__. " Booking ID ".$booking_id);
+        
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id', array('spare_parts_details.booking_id' => $booking_id, 'status' => _247AROUND_CANCELLED));
+        if(!empty($spare)){
+            echo "success";
+        } else {
+            echo "Not Exist";
         }
+        
     }
-
 }
