@@ -1295,7 +1295,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $this->table->set_template($template1);
                 $html_table = $this->table->generate();
 
-                $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
+                //$rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
                 $to = $value['sf_email'];
                 $bcc = "";
 
@@ -1303,7 +1303,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 $body = vsprintf($template[0], $html_table);
 
                 $from = $template[2];
-                $cc = $template[3] . ", " . $rm_details[0]['official_email'];
+                $cc = $template[3];
                 $subject = vsprintf($template[4], $value['name']);
 
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $body, "",'notification_to_send_defective_parts');
