@@ -286,10 +286,11 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Status</th>
@@ -363,11 +364,13 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
+
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
-                                        <th class="text-center" data-orderable="false"> Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -405,10 +408,12 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
@@ -445,11 +450,12 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                          <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Number </th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
@@ -487,9 +493,10 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -934,11 +941,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,8,14], //first column / numbering column
+                    "targets": [1,5,8], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,12,15,16], //first column / numbering column
+                    "targets": [0,12,16,17], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -960,7 +967,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12 ]
                     },
                     title: 'defective_part_rejected'
                 }
@@ -1052,7 +1059,7 @@
                     "orderable": false //set not orderable
                 },
                 {
-                    "targets": [13], //first column / numbering column
+                    "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],
