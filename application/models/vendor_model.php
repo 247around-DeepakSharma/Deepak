@@ -2118,5 +2118,33 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('engineer_details');
         return $query->result_array();
     }
+    
+    /*
+    *@Desc - This function is used to get data for vendor penalty summary
+    */
+    function sf_panalty_summary($vendors, $start_date, $end_date){
+        $vendor_ids = "";
+        if(!in_array("All", $vendors)){
+            $vendor_ids = "service_centres.id IN (";
+            foreach ($vendors as $value) {
+                $vendor_ids .= "'".$value."',";
+            }
+            $vendor_ids = rtrim($vendor_ids, ",");
+            $vendor_ids .= ") AND";
+        }
+       
+        $sql = "select service_centres.name, penalty_details.criteria, "
+            . "count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, "
+            . "count(penalty_on_booking.id) as total_penalty_count, "
+            . "SUM(penalty_on_booking.penalty_amount) as penalty_amount "
+            . "from penalty_on_booking join service_centres on service_centres.id = penalty_on_booking.service_center_id "
+            . "join penalty_details on penalty_details.id = penalty_on_booking.criteria_id "
+            . "WHERE ".$vendor_ids." penalty_remove_reason IS NULL AND "
+            . "penalty_on_booking.create_date >= '$start_date' AND penalty_on_booking.create_date <= '$end_date' "
+            . "group by criteria_id, service_centres.id ORDER BY service_centres.id ASC";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
 
