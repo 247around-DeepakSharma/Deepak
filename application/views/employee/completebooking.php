@@ -332,7 +332,7 @@
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value=" <?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "Enter Model Number" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
