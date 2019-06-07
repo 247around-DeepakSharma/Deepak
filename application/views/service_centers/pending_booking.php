@@ -488,8 +488,30 @@ span.stars span {
             }
         );
     }); 
+     
+
 </script>
 <?php } ?>
+<script>
+ function load_cancelled_status(booking_id, key, block){
+       $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id,
+           success: function (response) {
+               
+               if(response === "success"){
+                   
+                   document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
+               }  else {
+                    
+                    $("#spare_"+block + key).css("display", "none");
+               }
+               console.log(response);
+
+          }
+       });
+   }
+</script>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
