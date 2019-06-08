@@ -173,13 +173,13 @@
                                 <div class="form-group ">
                                     <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
-                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
+                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -413,10 +413,10 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category[0] as $key => $appliance_category) { ?>
-                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; }  } ?>
                                                         ><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -818,7 +818,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea <?php if($is_repeat) { echo "readonly='true'" ;} ?> class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
+                                    <textarea  class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
                                 </div>
                             </div>
                              <div class="form-group ">
@@ -890,7 +890,7 @@
                             </div>
                           
                             <div class="form-group " style="display:none;" id="repeat_reason_holder">
-                                <label for="type" class="col-md-4">Repeat Reason</label>
+                                <label for="type" class="col-md-4">Repeat Reason * </label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" rows="4" name="repeat_reason"  id="repeat_reason" placeholder="Enter Reason to Repeat Booking" ><?php if (isset($booking_history[0]['repeat_reason'])) {
                                         echo$booking_history[0]['repeat_reason'];
@@ -1099,18 +1099,25 @@
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
-    $('#submitform').attr('disabled',true);
+    if($("#is_repeat").val() && ($.trim(postData['category']) !== '')) {
+        $("#appliance_category_1").attr("readonly","true");
+        $("#appliance_category_1 option").attr("disabled","true");
+        getCapacityForCategory(postData['category'], "appliance_category_1");
+    }
+    else {
+        $('#submitform').attr('disabled',true);
 
-    sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-        console.log(data);
-        var data1 = jQuery.parseJSON(data);
-        
-        $("#upcountry_data").val(data1.upcountry_data);
-        final_price();
-        $('#submitform').attr('disabled',false);
-        set_upcountry();
-       
-    });
+        sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
+            console.log(data);
+            var data1 = jQuery.parseJSON(data);
+
+            $("#upcountry_data").val(data1.upcountry_data);
+            final_price();
+            $('#submitform').attr('disabled',false);
+            set_upcountry();
+
+        });
+    }
    
 });
   $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
