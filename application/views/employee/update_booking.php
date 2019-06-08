@@ -1101,7 +1101,7 @@
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
     if($("#is_repeat").val() && ($.trim(postData['category']) !== '')) {
         $("#appliance_category_1").attr("readonly","true");
-        $("#appliance_category_1 option").attr("disabled","true");
+        //$("#appliance_category_1 option").attr("disabled","true");
         getCapacityForCategory(postData['category'], "appliance_category_1");
     }
     else {
