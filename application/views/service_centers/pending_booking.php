@@ -511,6 +511,25 @@ span.stars span {
           }
        });
    }
+   
+   function load_delivered_status(booking_id, key, block){
+     $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_delivered_status/' + booking_id,
+           success: function (response) {
+               
+               if(response === "success"){
+                   
+                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
+               }  else {
+                    
+                    $("#spare_delivered_"+block + key).css("display", "none");
+               }
+               console.log(response);
+
+          }
+       });
+   }
 </script>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
