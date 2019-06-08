@@ -55,7 +55,7 @@ if ($this->uri->segment(3)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>service_center/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped">
+                        <table id="datatable1" class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -207,6 +207,8 @@ if ($this->uri->segment(3)) {
                 hide: 100
             }
         });
+
+        $("#datatable1").dataTable();
     });
     
     function downloadSpare(){
