@@ -2505,7 +2505,7 @@ class Booking extends CI_Controller {
      */
     function validate_serial_no_from_ajax(){
         log_message('info', __METHOD__);
-        $serial_number = $this->input->post('serial_number');
+        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
         $price_tags = $this->input->post('price_tags');
         $user_id = $this->input->post('user_id');
         $booking_id = $this->input->post('booking_id');
@@ -2521,7 +2521,7 @@ class Booking extends CI_Controller {
     }
     
     function validate_serial_no() {
-        $serial_number = $this->input->post('serial_number');
+        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
         $upload_serial_number_pic = array();
         if(isset($_FILES['upload_serial_number_pic'])){
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];

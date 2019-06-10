@@ -1037,7 +1037,7 @@ class Service_centers extends CI_Controller {
      function validate_booking_serial_number(){
         
         log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
-        $serial_number = $this->input->post('serial_number');
+        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
         $price_tags = $this->input->post("price_tags");
