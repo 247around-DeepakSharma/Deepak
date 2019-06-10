@@ -143,42 +143,55 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <div class="col-md-3 col-sm-3 col-xs-12">
-                        <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
-                                 <div class="left col-xs-12">
-                                     <h2><b>Mr. Sachin Sharma</b></h2>
-                                     <p><strong>About: </strong> Inventory </p>
-                                     <ul class="list-unstyled">
-                                        <li><i class="fa fa-phone"></i> Phone: 9810558247 /  9910368974</li>
-                                        <li><i class="fa fa-envelope"></i> Email: warehouse_noida@247around.com </li>
-                                     </ul>
-                                 </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                             <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
+                                <div class="left col-xs-12">
+                                    <h2><b>Ghaziabad Warehouse</b></h2>
+                                    <ul class="list-unstyled">
+                                       <li><i class="fa fa-newspaper-o"></i> Address: 56, Anand Industrial Estate, Mohan Nagar , Ghaziabad – Uttar Pradesh - 201007</li>
+                                       <li><i class="fa fa-envelope"></i> Email: warehouse_noida@247around.com </li>
+                                    </ul>
+                                </div>
+                             </div>
                         </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                             <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
+                                <div class="left col-xs-12">
+                                    <h2><b>Aurangabad Warehouse</b></h2>
+                                    <ul class="list-unstyled">
+                                       <li><i class="fa fa-address-card-o"></i> Address: Dhade No-1 Plot 13, Phase 3 Near Ekdant Udyog Mitra Coprative Estate Chitegaon, Ta Paithan, Dist Aurangabad</li>
+                                       <li><i class="fa fa-envelope"></i> Email: warehouse_aurangabad@247around.com </li>
+                                    </ul>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                             <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
+                                <div class="left col-xs-12">
+                                    <h2><b>Mr. Chandan Singh</b></h2>
+                                    <p><strong>About: </strong> Escalation </p>
+                                    <ul class="list-unstyled">
+                                       <li><i class="fa fa-envelope"></i> Email: warehouse@247around.com </li>
+                                    </ul>
+                                </div>
+                             </div>
+                         </div>
                     </div>
-                    <div class="col-md-3 col-sm-3 col-xs-12">
-                         <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
-                                 <div class="left col-xs-12">
-                                     <h2><b>Mr. Chandan Singh</b></h2>
-                                     <p><strong>About: </strong> Inventory </p>
-                                     <ul class="list-unstyled">
-                                        <li><i class="fa fa-phone"></i> Phone: 8448965247 /  8949687620</li>
-                                        <li><i class="fa fa-envelope"></i> Email: warehouse_noida@247around.com </li>
-                                     </ul>
-                                 </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                             <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
+                                <div class="left col-xs-12">
+                                    <h2><b>Mr. Aditya Gupta</b></h2>
+                                    <p><strong>About: </strong> Spare Part Reconciliation </p>
+                                    <ul class="list-unstyled">
+                                       <li><i class="fa fa-phone"></i> Phone: 8745050887</li>
+                                       <li><i class="fa fa-envelope"></i> Email: adityag@247around.com </li>
+                                    </ul>
+                                </div>
+                             </div>
                          </div>
-                     </div>
-                    <div class="col-md-3 col-sm-3 col-xs-12">
-                         <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
-                                 <div class="left col-xs-12">
-                                     <h2><b>Mr. Aditya Gupta</b></h2>
-                                     <p><strong>About: </strong> Spare Part Reconciliation </p>
-                                     <ul class="list-unstyled">
-                                        <li><i class="fa fa-phone"></i> Phone: 8745050887</li>
-                                        <li><i class="fa fa-envelope"></i> Email: adityag@247around.com </li>
-                                     </ul>
-                                 </div>
-                         </div>
-                     </div>
+                    </div>
                 </div>
             </div>
         </div>
