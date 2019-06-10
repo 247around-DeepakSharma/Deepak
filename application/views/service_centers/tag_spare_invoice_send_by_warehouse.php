@@ -19,16 +19,17 @@
     }
 </style>
 <!-- page content -->
-<div id="page-wrapper" role="main">
+<div id="page-wrapper"  role="main">
+    <div class="panel panel-default">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-                <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>
+<!--                <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>-->
             </ul>
         </div>
     </div>
-    <div class="tab-content" id="tab-content">
+    <div class="tab-content panel-body" id="tab-content">
         <div role="tabpanel" class="tab-pane active" id="onMsl">
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -76,29 +77,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">                                            
-                                                                                        
-                                            <label class="col-xs-4 col-sm-2 control-label">Invoice Date *</label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <input placeholder="Select Date" type="text" class="form-control"  readonly=""  onkeydown="return false;"  name="dated" id="dated" autocomplete="off"/>
-                                                <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
-                                                <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
-                                            </div>
-                                             <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <input type="text" placeholder="Enter Invoice Number" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id)"/>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">               
-                                            <label class="col-xs-2 control-label">Invoice Amount * </label>
-                                            <div class="col-xs-4">
-                                                <input placeholder="Enter Invoice Value" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
-                                            </div>
-                                            <label class="col-xs-4 col-sm-2 control-label">Invoice File *  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <input type="file" class="form-control" name="file" id="invoice_file" required="" accept="application/pdf"/>
-                                            </div>
-                                        </div>
+                                        
                                         <div class="form-group">                                            
                                             
                                             <label class="col-xs-2 control-label">AWB Number *</label>
@@ -122,7 +101,7 @@
                                            
                                             <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Select Courier Shipment Date" readonly=""  onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                                <input placeholder="Select Courier Shipment Date" readonly=""  style="background-color:#FFF;" onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                             </div>
                                             <label class="col-xs-2 control-label">Courier File</label>
                                             <div class="col-xs-4">
@@ -196,10 +175,10 @@
                                                 <input type="hidden" id="shippingStatus" value="1">
                                                 <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_number"></select>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -240,6 +219,11 @@
                                                 <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
+                                                <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('Y-m-d');?>"/>
+                                                <input type="hidden" name="sender_entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
+                                                <input type="hidden" name="sender_entity_id" value="<?php echo $this->session->userdata('service_center_id'); ?>">
+                                                <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                                <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_WAREHOUSE; ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -251,170 +235,7 @@
             </div>
         </div>
         
-        
-        <div role="tabpanel" class="tab-pane" id="onBooking">
-        <form novalidate="novalidate" id="onBookingspareForm" method="post" class="form-horizontal"  action="javascript:void(0)" >
-            <div class="row">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel" style="margin-top: 0px;">
-                        <div class="x_content">
-                            <div class="form-box">
-                                <div class="static-form-box">
-                                    <div class="form-group">
-                                            <label class="col-xs-4 col-sm-2 control-label">Partner *</label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="partner_id" class="partner_id" id="on_partner_id" required=""></select>
-                                            </div>
-                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around <?php } ?>Warehouses *</label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" class="wh_id" id="on_wh_id">
-                                                    <option value="" disabled="">Select Warehouse</option>
-                                                </select>
-                                            </div>
-                                    </div>
-                                    
-                                      <div class="form-group">                       
-                                                                                    
-                                        <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Select Invoice Date" type="text" readonly=""  onkeydown="return false;" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
-                                        </div>
-                                        <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="on_invoice_number" required="" onblur="check_invoice_id(this.id, true)"/>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">                                        
-                                       
-                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
-                                        <div class="col-xs-4">
-                                            <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
-                                        </div>
-                                         
-                                        <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 2 MB."><i class="fa fa-info"></i></span></label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
-                                            <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
-                                            <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="form-group">
-                                       <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
-                                        <label class="col-xs-2 control-label">Courier Name *</label>
-                                        <div class="col-xs-4">
-<!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="on_courier_name" required=""/>-->
-                                                <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
-                                                    <option selected="" disabled="" value="">Select Courier Name</option>
-                                                    <?php foreach ($courier_details as $value1) { ?> 
-                                                        <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            <?php echo form_error('courier_name'); ?>
-                                        </div>
-                                        <label class="col-xs-2 control-label">AWB Number *</label>
-                                        <div class="col-xs-4">
-                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required=""/>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        
-                                        
-                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
-                                        <div class="col-xs-4">
-                                            <input placeholder="Select Courier Shipment Date" readonly=""  onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
-                                        </div>
-                                         <label class="col-xs-2 control-label">Courier File</label>
-                                        <div class="col-xs-4">
-                                            <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 col-sm-12 col-xs-12" id="booking_duplicate">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <h2>Enter Booking ID</h2>
-                            
-                            <div class="clearfix"></div>
-                        </div>
-                        <div class="x_content">
-                            <div class="form-box">
-                                <div class="static-form-box">
-                                    <div class="form-group">
-                                        <label class="col-xs-4 col-sm-2 control-label">Booking ID *</label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <input  placeholder="Enter Booking ID" onblur="bookingBlur('0')"  type="text" class="form-control searchbooking_id" id="onbookingid_0" required="" autocomplete="off"/>
-                                        </div>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <button type="button" onclick="search_booking_details('0')"  id="searchbookingid_0" class="btn btn-default searchbooking" >Search</button>
-                                        </div>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br/>
-                            <div id="sparelineitem_0" class="sparelinetem">
-                        </div>
-                    </div>
-                </div>
-            </div>
-                <div class="dynamic-form-box hide" id="template">
-                    <div class="clone">
-                        <div class="col-md-12 col-sm-12 col-xs-12" >
-                            <div class="x_panel">
-                                <div class="x_title">
-                                    <h2>Enter Booking ID</h2>
-                                    <div class="col-xs-4 col-sm-4 pull-right">
-                                        <button type="button" class="btn btn-default pull-right onremoveButton"><i class="fa fa-minus"></i></button>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                                <div class="x_content">
-                                    <div class="form-box">
-                                        <div class="static-form-box">
-                                            <div class="form-group">
-                                                <label class="col-xs-4 col-sm-2 control-label">Booking ID *</label>
-                                                <div class="col-xs-8 col-sm-4">
-                                                    <input placeholder="Enter Booking ID" type="text" class="form-control searchbooking_id" id="onbookingid" required="" autocomplete="off"/>
-                                                </div>
-                                                <div class="col-xs-8 col-sm-4">
-                                                    <button type="button"  id="searchbookingid" class="btn btn-default searchbooking" >Search</button>
-                                                </div>
-                                                <div class="clearfix"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br/>
-                                    <div id="sparelineitem">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            
-            <div class="form-group">
-                <div class="row">
-                    <div class="col-xs-12 col-md-4 col-md-offset-4">
-                        
-                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
-                         <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value=""/>
-                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
-                        <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
-                    </div>
-                </div>
-            </div>
-        </form>
     </div>
-</div>
     </div>
 </div>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
@@ -461,10 +282,10 @@
         });
         
         
-         $("#on_partner_id").on('change',function(){
-            var partner_id = $("#partner_id").val();              ;   
-              get_vendor_by_booking('1',partner_id);
-        });
+//         $("#on_partner_id").on('change',function(){
+//            var partner_id = $("#partner_id").val();              ;   
+//              get_vendor_by_booking('1',partner_id);
+//        });
         
         
         
@@ -917,43 +738,43 @@
     }
     
    //Inventory On Booking
-     $('#on_invoice_date').daterangepicker({
-            autoUpdateInput: false,
-            singleDatePicker: true,
-            showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
-            locale:{
-                format: 'YYYY-MM-DD'
-            }
-        });
+//     $('#on_invoice_date').daterangepicker({
+//            autoUpdateInput: false,
+//            singleDatePicker: true,
+//            showDropdowns: true,
+//            minDate: date_before_15_days,
+//            maxDate:'today',
+//            locale:{
+//                format: 'YYYY-MM-DD'
+//            }
+//        });
         
-    $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
-     });
-    
-    $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
-    
-    $('#on_courier_shipment_date').daterangepicker({
-            autoUpdateInput: false,
-            singleDatePicker: true,
-            showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
-            locale:{
-                format: 'YYYY-MM-DD'
-            }
-        });
-    
-    $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
-    });
-
-    $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
+//    $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
+//            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+//     });
+//    
+//    $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
+//        $(this).val('');
+//    });
+//    
+//    $('#on_courier_shipment_date').daterangepicker({
+//            autoUpdateInput: false,
+//            singleDatePicker: true,
+//            showDropdowns: true,
+//            minDate: date_before_15_days,
+//            maxDate:'today',
+//            locale:{
+//                format: 'YYYY-MM-DD'
+//            }
+//        });
+//    
+//    $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
+//        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+//    });
+//
+//    $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+//        $(this).val('');
+//    });
     
     function search_booking_details(count){
         var booking_id = $("#onbookingid_" + count).val();
