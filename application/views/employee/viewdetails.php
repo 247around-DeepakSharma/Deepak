@@ -646,7 +646,7 @@
                                          <?php } } ?>
 
                                         <?php if($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){ } else{ ?>
-                                        <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
+                                        <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED && empty($sp['purchase_invoice_id'])){?>
                                             <td>
                                                 <form id="move_to_update_spare_parts">
                                                     <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
@@ -657,9 +657,9 @@
                                                     <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
                                                  </form>
                                             </td>
-                                        <?php } else {?> 
-                                           <td></td>   
-                                         <?php } } ?>
+                                        <?php } else if(!empty($sp['purchase_invoice_id'])) {?> 
+                                           <td> Parts Sent From Invoice </td>   
+                                         <?php }else{?>  <td></td>  <?php  } } ?>
                                        
                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG )){ } else{ ?>
                                         <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
