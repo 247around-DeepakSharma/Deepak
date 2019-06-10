@@ -156,7 +156,7 @@ if ($this->uri->segment(3)) {
                                         </td>-->
                                         
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
 
                                     </tr>
@@ -312,6 +312,7 @@ if ($this->uri->segment(3)) {
     
        var sf_id = $("#generate_challan_0").data("service_center_id");
        var flag = false;
+
        $('.checkbox_challan:checked').each(function(i) {
           var service_center_id = $(this).data("service_center_id");
           if(service_center_id != sf_id){
@@ -454,25 +455,7 @@ if ($this->uri->segment(3)) {
             return false;
         }
    }
-   $(document).on("click", ".checkbox_challan", function (i) {
-        var service_center_id_arr = [];
-        generate_challan_id = $(this).attr('id');
-        $('.checkbox_challan:checked').each(function(i) {
-           var service_center_id = $(this).data("service_center_id");
-            
-            if(i === 0){
-                 service_center_id_arr.push(service_center_id);
-            } else {
-                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
-                  service_center_id_arr.push(service_center_id);
-              } else {                  
-                  $("#"+generate_challan_id).prop('checked', false);
-                  alert("Do not allow to tick different vendor booking");
-                  return false;
-              }
-            }
-        });
-   });
+
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
