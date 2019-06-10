@@ -5672,6 +5672,11 @@ class vendor extends CI_Controller {
        
         echo $option;
     }
+
+    function get_warehouse_data($id){
+        $wh_details = $this->vendor_model->getVendorContact($id);
+        echo json_encode($wh_details);
+    }
     
     /*
      @Desc - This function is used to load view for download SF penalty summary
