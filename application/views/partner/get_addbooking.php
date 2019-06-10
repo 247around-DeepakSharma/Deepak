@@ -231,7 +231,7 @@
                 <div class="form-group col-md-12    <?php if (form_error('order_id')) {
                     echo 'has-error';
                     } ?>">
-                    <label for="order_id">Order ID <span id="error_order_id" style="color:red"></span></label>
+                    <label for="order_id">Reference / Invoice / Order Number <span id="error_order_id" style="color:red"></span></label>
                     <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id" />
                 </div>
             </div>
@@ -343,12 +343,7 @@
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if (form_error('booking_address')) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if (isset($user[0]['home_address'])) {
-                                    echo $user[0]['home_address'];
-                                    } else {
-                                        echo set_value('booking_address');
-                                    } ?>
-                                </textarea>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if (isset($user[0]['home_address'])) { echo $user[0]['home_address']; } else { echo set_value('booking_address');} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -458,6 +453,9 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
+    
+    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
+    
     function check_validation(){ 
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var user_name  = $("#name").val();
@@ -994,6 +992,13 @@
                           $("#priceList").html(data1.table);
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
+                          
+                        if(blDisableAcCategoryOptions == '1') {
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+                        }
                      }
                 }
             });
@@ -1006,6 +1011,32 @@
     
     
     }
+    
+    // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
+    function disableCheckbox(obj) {
+        $(obj).on('change', function(){
+            if($(obj).prop("checked") == true) {
+                var price_tag = $(this).attr('data-price_tag');
+                if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
+                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', true).css('pointer-events', 'none');
+                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', true).css('pointer-events', 'none');
+                } else {
+                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
+                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
+                }
+            } else {
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+                $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
+            }
+        });
+    }
+    
+    
+    
+    
     
     $("#booking_pincode").keyup(function(event) {
         get_city();

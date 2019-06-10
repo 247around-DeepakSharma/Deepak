@@ -2624,7 +2624,7 @@ class Partner extends CI_Controller {
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name']) {
+            if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
                 $option .= " selected ";
             }
             else{
@@ -3166,7 +3166,7 @@ class Partner extends CI_Controller {
                 }
                 $checkboxClass = $prices['product_or_services'];
                 $ch  = "check_active_paid('".$i."')";
-                $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), get_symptom()"';
+               $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), disableCheckbox(this), get_symptom()"';
                 $tempHelperString = "";
                if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -3181,7 +3181,7 @@ class Partner extends CI_Controller {
                         if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                             $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,true";
-                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -3189,7 +3189,7 @@ class Partner extends CI_Controller {
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
-                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -6062,12 +6062,12 @@ class Partner extends CI_Controller {
             if($row->actor != 'Partner' && $days>=0){
                $helperText_2 =  'data-target="#myModal"';
             } 
-            else if($days<0){  
-              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
+           else if($days<0){  
+              $helperText_2 =  'onclick="alert(\''.$futureBookingDateMsg.'\')"' ;
             }
             else{
-              $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
-              }
+              $helperText_2 = 'onclick="alert(\''.$partnerDependencyMsg.'\')"'; 
+            }
               
             $disable = "";
             $toggle = "modal";
