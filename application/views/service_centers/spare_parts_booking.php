@@ -208,7 +208,10 @@ if ($this->uri->segment(3)) {
             }
         });
 
-        $("#datatable1").dataTable();
+        $("#datatable1").dataTable({
+            "pageLength": 200,
+            "lengthMenu": [[200, 500,-1], [200, 500, "All"]],
+        });
     });
     
     function downloadSpare(){

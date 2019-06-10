@@ -183,7 +183,7 @@
                            <td>{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
