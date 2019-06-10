@@ -5100,7 +5100,7 @@ class Partner extends CI_Controller {
             "Part Partner Shipped Date",
             "Partner Challan Number",
             "SF Challan Number",
-            "Part Shipped By SF",
+            "Defective Part Shipped By SF",
             "Part Type",
             "Parts Charge",
             "New Spare Part Received Date",
