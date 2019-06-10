@@ -722,8 +722,8 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result = $query->result_array();
-   
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('booking_id' => $booking_id));//, symptom_spare_request.spare_request_symptom
+        $post['is_inventory']=1;
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,im.part_number as shipped_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
