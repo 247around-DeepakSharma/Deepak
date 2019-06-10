@@ -314,10 +314,7 @@ if ($this->uri->segment(3)) {
        var flag = false;
 
        $('.checkbox_challan:checked').each(function(i) {
-          var service_center_id = $(this).data("service_center_id");
-          if(service_center_id != sf_id){
-              flag = true;
-          }
+
         });
         
         if(flag){
@@ -325,8 +322,14 @@ if ($this->uri->segment(3)) {
             $('#selectall_challan').prop('checked', false);
             alert("Not allow to select all option.");
         }
-        
-        
+    });
+
+    $(".checkbox_challan").change(function(){
+             if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
+                   $('#selectall_challan').prop('checked', true);
+              }else{
+                $('#selectall_challan').removeAttr('checked');
+              }
     });
 
 
