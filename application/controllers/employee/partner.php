@@ -4485,6 +4485,26 @@ class Partner extends CI_Controller {
         }
         echo $option;
     }
+
+
+
+        function get_partner_list_warehouse(){
+
+        $where = array('warehouse_details.entity_type'=>_247AROUND_PARTNER_STRING);
+ 
+        $partner_list = $this->partner_model->get_all_partner_warehouse($where);
+        $option = '<option selected="" disabled="">Select Partner Warehouse Hub</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name']. ' ( '. $value['city'] . ' ) ' . "</option>";  //address
+        }
+        echo $option;
+    }
+
+
+
     
      /**
      * @desc: This function is used to upload the challan file when partner shipped spare parts
