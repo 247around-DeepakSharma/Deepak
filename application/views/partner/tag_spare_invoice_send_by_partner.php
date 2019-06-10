@@ -252,6 +252,7 @@
                                             <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                                             <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                             <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                            <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                             <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
                                             <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                         </div>
@@ -407,6 +408,7 @@
                         <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name'); ?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
                         <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
+                        <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                     </div>

@@ -5487,9 +5487,10 @@ class Service_centers extends CI_Controller {
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
                         'status' => DEFECTIVE_PARTS_RECEIVED,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
+                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
             if(!empty($is_oow_return)){
+                sleep(30);
                 $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$spare_id;
                 $async_data['booking_id'] = $booking_id;
                 $this->asynchronous_lib->do_background_process($url, $async_data);
