@@ -2692,7 +2692,7 @@ class Partner extends CI_Controller {
                 $option .= " selected ";
             }
             else{
-                if($is_repeat){
+                if($is_repeat && (trim($category) !== '')){
                     $option .= " disabled ";
                 }
             }
