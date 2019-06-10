@@ -990,16 +990,18 @@ class PHPReport {
         
         if(!empty($imagePath)){
             foreach ($imagePath as $key => $value) {
-                $objDrawing = new PHPExcel_Worksheet_Drawing();
-                $objDrawing->setName('Image');
-                $objDrawing->setDescription('Image');
-                $objDrawing->setPath($value['image_path']);
-                $objDrawing->setOffsetX(100);                     //setOffsetX works properly
-                $objDrawing->setOffsetY(1);                     //setOffsetY works properly
-                $objDrawing->setCoordinates($value['cell']);
-                $objDrawing->setWidth(110);  
-                $objDrawing->setHeight(65);  
-                $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
+                if(file_exists($value['image_path'])){
+                    $objDrawing = new PHPExcel_Worksheet_Drawing();
+                    $objDrawing->setName('Image');
+                    $objDrawing->setDescription('Image');
+                    $objDrawing->setPath($value['image_path']);
+                    $objDrawing->setOffsetX(100);                     //setOffsetX works properly
+                    $objDrawing->setOffsetY(1);                     //setOffsetY works properly
+                    $objDrawing->setCoordinates($value['cell']);
+                    $objDrawing->setWidth(110);  
+                    $objDrawing->setHeight(65);  
+                    $objDrawing->setWorksheet($this->objPHPExcel->getActiveSheet());
+                }
             }
         }
 
