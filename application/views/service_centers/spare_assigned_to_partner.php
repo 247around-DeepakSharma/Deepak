@@ -44,10 +44,10 @@ if ($this->uri->segment(3)) {
             <div class="x_panel">
                 <div class="x_title">
                     <div class="col-md-6">
-                        <h2>Pending Spares </h2>
+                        <h2>Spares Assigned To Partner</h2>
                     </div>
                     <div class="col-md-6">
-                        <button id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary pull-right" style="margin-top: 28px;">Download Spare</button>
+                        <button id="spareDownload" onclick="downloadList()" class="btn btn-sm btn-primary pull-right" style="margin-top: 28px;">Download List</button>
                         <span style="color:#337ab7" id="messageSpare"></span>
                     </div>
                     <div class="clearfix"></div>
@@ -55,7 +55,7 @@ if ($this->uri->segment(3)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>service_center/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table id="datatable1" class="table table-bordered table-hover table-striped">
+                        <table class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -71,13 +71,7 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Inventory Stock</th>
-                                    <th class="text-center">Update</th>
-                                    <th class="text-center">Reject</th>
-                                    <th class="text-center">SF GST Declaration</th>
-                                    <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
-                                    <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
-                                   <!-- <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>-->
-                                    <th class="text-center"> Generate Challan<input type="checkbox" id="selectall_challan" ></th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,36 +122,7 @@ if ($this->uri->segment(3)) {
                                             <?php echo $row['stock']; ?>
                                         </td>
 
-                                        <td>
-                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
-                                        </td>
-                                        <td>
-                                            <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
-                                            <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            <?php if(!empty($row['gst_no']) && empty($row['signature_file'])){ ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else if(empty ($row['signature_file'])) { ?> 
-                                                <a class="btn btn-sm btn-success" href="#" title="Signature file is not available" style="background-color:#2C9D9C; border-color: #2C9D9C;cursor: not-allowed;"><i class="fa fa-close"></i></a>
-                                            <?php }else{ ?>
-                                                <a class="btn btn-sm btn-success" href="<?php echo base_url();?>service_center/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
-<!--                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
-                                        </td>-->
                                         
-                                        <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
-                                        </td>
 
                                     </tr>
                                     <?php
@@ -215,11 +180,6 @@ if ($this->uri->segment(3)) {
                 hide: 100
             }
         });
-
-        $("#datatable1").dataTable({
-            "pageLength": 200,
-            "lengthMenu": [[200, 500,-1], [200, 500, "All"]],
-        });
     });
     
     function downloadSpare(){
@@ -227,7 +187,7 @@ if ($this->uri->segment(3)) {
         //$("#messageSpare").text("");
          $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("service_center_id");?> + '/' + '<?php echo _247AROUND_SF_STRING; ?>',
+            url: '<?php echo base_url(); ?>file_process/downloadSpareAssignedToPartner/',
             contentType: false,
             cache: false,
             processData: false,
@@ -317,7 +277,6 @@ if ($this->uri->segment(3)) {
     
        var sf_id = $("#generate_challan_0").data("service_center_id");
        var flag = false;
-
        $('.checkbox_challan:checked').each(function(i) {
           var service_center_id = $(this).data("service_center_id");
           if(service_center_id != sf_id){
@@ -460,7 +419,25 @@ if ($this->uri->segment(3)) {
             return false;
         }
    }
-
+   $(document).on("click", ".checkbox_challan", function (i) {
+        var service_center_id_arr = [];
+        generate_challan_id = $(this).attr('id');
+        $('.checkbox_challan:checked').each(function(i) {
+           var service_center_id = $(this).data("service_center_id");
+            
+            if(i === 0){
+                 service_center_id_arr.push(service_center_id);
+            } else {
+                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
+                  service_center_id_arr.push(service_center_id);
+              } else {                  
+                  $("#"+generate_challan_id).prop('checked', false);
+                  alert("Do not allow to tick different vendor booking");
+                  return false;
+              }
+            }
+        });
+   });
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
