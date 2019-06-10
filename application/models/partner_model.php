@@ -1466,6 +1466,7 @@ function get_data_for_partner_callback($booking_id) {
         
         if(!empty($post['is_inventory'])){
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.requested_inventory_id', "left");
         }
         
         if($group_by){
