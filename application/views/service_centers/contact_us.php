@@ -55,31 +55,38 @@
 </div>
 <div class="modal-body">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card" style="padding: 10px 16px; height: 182px;">
                 <div class="container">
-<!--                    <h5><b>Mr. Sachin Sharma</b></h5> 
+<!--                    <h5><b>Pickup & Dispatch</b></h5> 
                     <p>Delhi Office</p>
-                    <p>‭+91 9810558247</p>
-                    <p>sachins@247around.com</p>-->
-                    <h5><b>Pickup & Dispatch</b></h5> 
-                    <p>Delhi Office</p>
+                    <p>warehouse_noida@247around.com</p>-->
+                    <h5><b>Ghaziabad Warehouse</b></h5> 
+                    <p>56, Anand Industrial Estate, Mohan <br>Nagar , Ghaziabad – Uttar <br>Pradesh - 201007</p>
                     <p>warehouse_noida@247around.com</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card" style="padding: 10px 16px;">
+        <div class="col-md-4">
+            <div class="card" style="padding: 10px 16px; height: 182px;">
                 <div class="container">
-<!--                    <h5><b>Mr. Chandan Singh</b></h5> 
-                    <p>Delhi Office</p>
-                    <p>‭+91 8448965247</p>
-                    <p>chandans@247around.com</p>-->
-                    <h5><b>Escalation</b></h5> 
+                    <h5><b>Aurangabad Warehouse</b></h5> 
+                    <p>Dhade No-1 Plot 13, Phase 3 Near <br>Ekdant Udyog Mitra Coprative <br>Estate Chitegaon, Ta Paithan, <br>Dist Aurangabad</li></p>
+                    <p>warehouse_aurangabad@247around<br>.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card" style="padding: 10px 16px; height: 182px;">
+                <div class="container">
+<!--                <h5><b>Escalation</b></h5> 
                     <p><b>Mr. Sachin Sharma</b></p>
                     <p>Delhi Office</p>
                     <p>‭+91 9810558247</p>
-                    <p>sachins@247around.com</p>
+                    <p>sachins@247around.com</p>-->
+                    <h5><b>Escalation</b></h5>
+                    <p><b>Mr. Chandan Singh</b></p>
+                    <p>warehouse@247around.com</p>
                 </div>
             </div>
         </div>
