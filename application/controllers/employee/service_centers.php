@@ -1037,21 +1037,28 @@ class Service_centers extends CI_Controller {
      function validate_booking_serial_number(){
         
         log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
-        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
+        $serial_number = $this->input->post('serial_number');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
         $price_tags = $this->input->post("price_tags");
         $booking_id = $this->input->post("booking_id");
         $appliance_id = $this->input->post("appliance_id");
         $model_number = $this->input->post("model_number");
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
-        if (!empty($status)) {
-            $status['notdefine']=0;
-            log_message('info', __METHOD__.'Status '. print_r($status, true));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
             echo json_encode($status, true);
-        } else {
-            log_message('info',__METHOD__. 'Partner serial no validation is not define');
-            echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+            if (!empty($status)) {
+                $status['notdefine']=0;
+                log_message('info', __METHOD__.'Status '. print_r($status, true));
+                echo json_encode($status, true);
+            } else {
+                log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
+            }
         }
     }
 

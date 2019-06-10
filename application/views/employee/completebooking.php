@@ -1189,7 +1189,7 @@
     postData['booking_id'] = $("#booking_id").val();
     postData['partner_id'] = $("#partner_id").val();
     postData['appliance_id'] = '<?php echo $booking_history[0]['service_id'];?>';
-    
+    $("#submitform").attr("disabled",false);
     if(postData['serial_number'] !== ''){
         $.ajax({
                 type: 'POST',
@@ -1220,13 +1220,14 @@
                         $("#duplicate_sno_required"+count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         $('body').loadingModal('destroy');
-
+                        $("#submitform").attr("disabled",true);
                     } else {
                         $("#sno_required"+count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         //$("#upload_serial_number_pic"+count).css('display', "block");
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
+                        $("#submitform").attr("disabled",true);
                     }
                 }
             });

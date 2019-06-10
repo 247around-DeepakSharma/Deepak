@@ -2562,7 +2562,6 @@ class Booking_model extends CI_Model {
         return $result;
     }
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
-          $serialNumber = preg_replace('/[^A-Za-z0-9]/', '', $serialNumber);
           $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags != 'Repeat Booking' AND booking_id != '".$booking_id."'"
                 . " UNION "
                 . "SELECT booking_unit_details.* FROM service_center_booking_action JOIN booking_unit_details ON booking_unit_details.id = service_center_booking_action.unit_details_id WHERE "
