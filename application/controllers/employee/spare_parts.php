@@ -2956,7 +2956,7 @@ class Spare_parts extends CI_Controller {
             }
         }   /// for loop ends
 
-        if ($tcount > 0 && empty($bookings_flash_data)) {
+        if ($tcount > 0 && empty($booking_error_array)) {
             $this->session->set_flashdata('success', $tcount . ' - Spares Transferred Successfully');
             if ($this->session->userdata('userType') == 'service_center') {
                 redirect('service_center/bulkConversion');
@@ -3234,7 +3234,7 @@ class Spare_parts extends CI_Controller {
                 }
             }   /// for loop ends
         }
-        if ($tcount > 0 && empty($bookings_flash_data)) {
+        if ($tcount > 0 && empty($booking_error_array)) {
             $this->session->set_flashdata('success', $tcount . ' - Spares Transferred Successfully');
             if ($this->session->userdata('userType') == 'service_center') {
                 redirect('service_center/spare_transfer_from_wh_to_wh');
