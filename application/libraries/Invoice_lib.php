@@ -752,7 +752,7 @@ class Invoice_lib {
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
             $output_pdf_file_name = $output_file . ".pdf";
-            $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
+             $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
             $pdf_response = json_decode($json_result, TRUE);
 

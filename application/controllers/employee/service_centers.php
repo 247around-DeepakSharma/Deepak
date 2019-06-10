@@ -3216,9 +3216,11 @@ class Service_centers extends CI_Controller {
     
     function generate_sf_challan($generate_challan) {
 
+        $delivery_challan_file_name_array=array();
+        foreach ($generate_challan as $key => $value) {
         if (!empty($generate_challan)) {
             $post = array();
-            $post['where_in'] = array('spare_parts_details.booking_id' => $generate_challan,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
+            $post['where_in'] = array('spare_parts_details.booking_id' => $value,'spare_parts_details.status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
             $post['is_inventory'] = true;
             $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
             $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
@@ -3273,38 +3275,46 @@ class Service_centers extends CI_Controller {
 
             if (!empty($spare_details)) {
                 $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details);
+                array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                 if(!empty($data['partner_challan_file'])){
                     if(!empty($spare_details)){
                         foreach ($spare_details as $val){
                             $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                         }
                     }
-                    
-                    $challan_file = 'challan_file' . date('dmYHis');
-                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-                        unlink(TMP_FOLDER . $challan_file . '.zip');
-                    }
-
-                    $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
-                    $zip .= TMP_FOLDER . $data['partner_challan_file'] . " ";
-                    $challan_file_zip = $challan_file . ".zip";
-                    $res = 0;
-                    system($zip, $res);
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
-
-                    $res2 = 0;
-                    system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
-                    readfile(TMP_FOLDER . $challan_file . '.zip');
-                    if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-                        unlink(TMP_FOLDER . $challan_file . '.zip');
-                         unlink(TMP_FOLDER . $data['partner_challan_file'] );
-                    }
                 }
                 
             }
         }
+
+     }  //// for end 
+     ////  ZIP The Challan files ///
+   $challan_file = 'challan_file' . date('dmYHis');
+   if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+   unlink(TMP_FOLDER . $challan_file . '.zip');
+   }
+    $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+    foreach ($delivery_challan_file_name_array as  $value1) {
+       $zip .= " ".TMP_FOLDER . $value1 . " ";
+    }
+    $challan_file_zip = $challan_file . ".zip";
+    $res = 0;
+    system($zip, $res);
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+
+     $res2 = 0;
+     system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+     readfile(TMP_FOLDER . $challan_file . '.zip');
+     if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+     unlink(TMP_FOLDER . $challan_file . '.zip');
+     foreach ($delivery_challan_file_name_array as  $value_unlink) {
+     unlink(TMP_FOLDER . $value_unlink);
+     }
+
+     }
+
     }
 
     /**
