@@ -1315,7 +1315,7 @@ function get_data_for_partner_callback($booking_id) {
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
       
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id,date(closed_date) as closed_date "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
