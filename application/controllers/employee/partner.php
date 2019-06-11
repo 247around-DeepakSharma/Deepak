@@ -644,10 +644,11 @@ class Partner extends CI_Controller {
                 //$am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
                 $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
                         array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
+               
                 if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                     $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 }
-                if(!empty($am_email)){
+                if(!empty($am_email)){ 
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Updated :</p><ul>";
                     foreach ($updated_fields as $key => $value) {
@@ -662,7 +663,7 @@ class Partner extends CI_Controller {
                     */
                     $html .= "</ul>";
                     $to = $am_email. ",". $this->session->userdata("official_email");
-                    $cc = ANUJ_EMAIL_ID;
+                    $cc = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
                     $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
