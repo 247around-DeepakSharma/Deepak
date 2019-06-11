@@ -1511,6 +1511,7 @@
         var installation_flag = false;
         var pdi = false;
         var extended_warranty = false;
+        var pre_sales = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1532,6 +1533,11 @@
          if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
              extended_warranty = true;
              array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
          }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
