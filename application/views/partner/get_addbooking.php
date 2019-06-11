@@ -419,7 +419,7 @@
                     <div class="col-md-6 ">
                         <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
                             <label for="city">City * <span id="error_city1" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
-                            <select class="form-control"  id="city" name="city" required>
+                            <select class="form-control"  id="city" name="city" required style="width: 404px;">
                                 <option selected="selected" disabled="disabled">Select City</option>
                                 <?php if(isset($user[0]['city'])){ ?>
                                 <option selected><?php echo $user[0]['city']; ?></option>
@@ -681,7 +681,7 @@
         $("#booking_appliance").val($.trim($("#service_name option:selected").text()));
         $("#service_id").val(appliance);
         $("#pincode").val(pincode);
-        $("#pincode").change();
+        $("#pincode").keyup();
         $('#city option[value="'+city+'"]').prop("selected",true);
         $('#select2-city-container').text(city);
         $("#address").val(booking_address);
@@ -811,7 +811,7 @@
         $(this).val('');
     });
     
-    $("#pincode").change(function() {
+    $("#pincode").keyup(function(event) {
         enablePincode();
         get_city($("#pincode").val(),$("#service_id").val());
     });
@@ -963,7 +963,7 @@
         }
     }
     
-    function getPrice() {
+    function getPrice(pincode = '', city = '') {
         
         var postData = {};
         appliance_name = $("#service_name").find(':selected').attr('data-id');
@@ -982,8 +982,10 @@
         }
         postData['service_category'] = "";
         postData['booking_id'] = "";
-        postData['pincode'] = $("#booking_pincode").val();
-        postData['city'] = $("#booking_city").val();
+        var pincode_id = ((pincode == '') ? "booking_pincode" : pincode);
+        var city_id = ((city == '') ? "booking_city" : city);
+        postData['pincode'] = $("#"+pincode_id).val();
+        postData['city'] = $("#"+city_id).val();
         
         postData['partner_type'] = $('#partner_type').val();
         postData['assigned_vendor_id'] = "";
@@ -1106,7 +1108,8 @@
                             getPrice();
                          }
                          else {
-                             $('#city').html(data);
+                             $('#city').select2().html(data).change();
+                             getPrice("pincode","city");
                          }
                          $('#'+btn_submit).prop('disabled', false);
                          $("#not_visible").val('1');
