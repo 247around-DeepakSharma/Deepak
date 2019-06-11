@@ -692,10 +692,11 @@ class Invoice_lib {
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         if(!empty($sf_details)){
-            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['company_name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
             $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
-            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
+            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['contact_number'];
+            $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
                                
         if(!empty($partner_details)){
@@ -804,7 +805,7 @@ class Invoice_lib {
             $spare_parts_details[0]['part_number']='-';    
             }
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $service_center_id));
 
             $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
 
@@ -839,7 +840,7 @@ class Invoice_lib {
             }
 
             
-            $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
 
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
