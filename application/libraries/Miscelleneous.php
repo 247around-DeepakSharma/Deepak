@@ -3446,7 +3446,7 @@ function generate_image($base64, $image_name,$directory){
             if (!empty($alternate_inventory_stock_details)) {
                 if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
                     $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
+                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
 
                     $inventory_stock_details = $alternate_inventory_stock_details;
                 }
@@ -3464,6 +3464,7 @@ function generate_image($base64, $image_name,$directory){
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                 $response['is_micro_wh'] = 1;
+                $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                 
             } else {
                 foreach($inventory_stock_details as $value){                    
@@ -3480,6 +3481,7 @@ function generate_image($base64, $image_name,$directory){
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         $response['is_micro_wh'] = 2;
+                        $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                     }
                 }
             }
