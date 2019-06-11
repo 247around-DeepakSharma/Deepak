@@ -1636,7 +1636,13 @@ class Miscelleneous {
         if (array_key_exists('partner_id', $booking)) {
             $notFoundSfArray['partner_id'] = $booking['partner_id'];
         }
-        $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+        if(isset($notFoundSfArray['state']) && !is_null($notFoundSfArray['state'])) {
+            $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+        }
+        else {
+            //Logging Error Message
+            log_message('info', " Error while Insertion into table sf_not_exist_booking_details");
+        }
     }
 
     /**
