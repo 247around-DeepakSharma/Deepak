@@ -186,7 +186,7 @@
     function get_partners(){
         $.ajax({
             type: 'POST',
-            url: 'http://247around-adminp-aws/employee/partner/get_partner_list',
+            url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success: function (response) {
                 $("#partners").html(response);

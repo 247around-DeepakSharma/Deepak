@@ -1181,6 +1181,26 @@ function get_data_for_partner_callback($booking_id) {
 
         return $query->result_array();
     }
+
+
+    /*
+     * @desc: This is used to get active partner id  details and warehouse  details
+     *           
+     */
+    function get_all_partner_warehouse(){
+
+        $this->db->select('warehouse_details.id,warehouse_details.entity_id as partner_id,warehouse_details.warehouse_address_line1 as address,partners.public_name as name,warehouse_details.warehouse_city as city');
+
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        $this->db->order_by("public_name", "asc"); 
+        $this->db->join('warehouse_details','warehouse_details.entity_id = partners.id');        
+        $query = $this->db->get('partners');
+        return $query->result_array();
+
+    }
+
     
     /**
      * @Desc: This function is used to insert value in partner_missed_calls table
@@ -1317,7 +1337,7 @@ function get_data_for_partner_callback($booking_id) {
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
       
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, current_status, assigned_engineer_id,date(closed_date) as closed_date "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "

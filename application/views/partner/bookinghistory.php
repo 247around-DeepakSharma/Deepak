@@ -36,7 +36,7 @@
                                     <td><?= $row['customername']; ?></td>
                                     <td><?= $row['services']; ?></td>
                                     <td><?= $row['booking_date']; ?></td>
-                                    <td><?php echo $row['current_status']; ?></td>
+                                    <td><?php echo $row['partner_internal_status']; ?></td>
                                     <td>
                                         <?php
                                             echo "<a class='btn btn-sm btn-primary' "
@@ -45,7 +45,7 @@
                                     </td>
                                     <td>
                                         <?php
-                                            switch ($row['current_status']) {
+                                            switch ($row['partner_internal_status']) {
                                                 case 'Pending':
                                                 case 'Rescheduled':
                                                     $view = 'partner/pending_booking/' . $row['booking_id'];
@@ -67,7 +67,7 @@
                                         <a href="<?php echo base_url() . $view; ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
                                     </td>
                                     <?php
-                                    if($row['current_status'] == _247AROUND_COMPLETED){
+                                    if($row['partner_internal_status'] == _247AROUND_COMPLETED){
                                         $today = strtotime(date("Y-m-d"));
                                         $closed_date = strtotime($row['closed_date']);
                                         $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
