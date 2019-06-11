@@ -571,7 +571,7 @@
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
-                                            <?php if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP) { ?>
+                                            <?php if($this->session->userdata('user_group') != PARTNER_CALL_CENTER_USER_GROUP) { ?>
                                             <th>Mobile</th>
                                             <?php } ?>
                                             <th>Email</th>
@@ -580,7 +580,7 @@
                                         <tbody>
                                             <tr>
                                                 <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
-                                                <?php if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP) { ?>
+                                                <?php if($this->session->userdata('user_group') != PARTNER_CALL_CENTER_USER_GROUP) { ?>
                                                 <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
                                                 <?php } ?>
                                                 <td><?php echo $booking_history[0]['primary_contact_email'];?></td>
