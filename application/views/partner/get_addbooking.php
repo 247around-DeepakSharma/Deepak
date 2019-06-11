@@ -399,7 +399,7 @@
         <div class="modal-content">
             <div class="modal-header" style="text-align: center;margin: 0px;">
                 <button type="button" id="close_modal" class="close btn-primary well" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Verify Address Details</h4>
+                <h4 class="modal-title">Verify Booking Details</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
