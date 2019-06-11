@@ -730,7 +730,7 @@ class Invoice_lib {
         
         if ($sf_details[0]['is_gst_doc'] == 1) {
             $template = 'delivery_challan_template';
-            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_number'];
             $signature_file = FALSE;
         } else {
             $template = "delivery_challan_without_gst";
@@ -829,7 +829,8 @@ class Invoice_lib {
             
             }
             
-            
+            $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
+            $partner_details[0]['owner_name'] = $sf_details[0]['owner_name'];
             
             log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
 
