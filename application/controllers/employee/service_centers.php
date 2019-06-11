@@ -1066,21 +1066,28 @@ class Service_centers extends CI_Controller {
     function validate_booking_serial_number(){
         
         log_message('info', __METHOD__. " Enterring .. POST DATA " .json_encode($this->input->post(), true). " SF ID ". $this->session->userdata('service_center_id'));
-        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
+        $serial_number = $this->input->post('serial_number');
         $partner_id = $this->input->post('partner_id');
         $user_id = $this->input->post('user_id');
         $price_tags = $this->input->post("price_tags");
         $booking_id = $this->input->post("booking_id");
         $appliance_id = $this->input->post("appliance_id");
         $model_number = $this->input->post("model_number");
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
-        if (!empty($status)) {
-            $status['notdefine']=0;
-            log_message('info', __METHOD__.'Status '. print_r($status, true));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
             echo json_encode($status, true);
-        } else {
-            log_message('info',__METHOD__. 'Partner serial no validation is not define');
-            echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+            if (!empty($status)) {
+                $status['notdefine']=0;
+                log_message('info', __METHOD__.'Status '. print_r($status, true));
+                echo json_encode($status, true);
+            } else {
+                log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                echo json_encode(array('code' => SUCCESS_CODE,'notdefine'=>1), true);
+            }
         }
     }
 
@@ -3242,7 +3249,7 @@ class Service_centers extends CI_Controller {
                 $service_center_id = $part_details[0]['assigned_vendor_id'];
             }
 
-            $sf_details = $this->vendor_model->getVendorDetails('name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
                         
             if (!empty($part_details)) {
                 $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";

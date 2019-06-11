@@ -598,7 +598,10 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
-                                        <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                        <td class="  <?php if($sp['entity_type']==_247AROUND_SF_STRING) echo 'warehouse_name';  ?> "  data-warehouse="<?php echo $sp['partner_id'];  ?>" ><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else {
+                                              echo "Warehouse";
+                                          } 
+                                         ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
@@ -2143,7 +2146,18 @@ background-color: #f5f5f5;
                   });
     }
     
-   
+   $(document).ready(function(){
+    $(".warehouse_name").each(function(){
+        var warehouse_id = $(this).attr("data-warehouse");
+        if (warehouse_id>0) {
+              $.ajax({url: "<?php echo base_url(); ?>employee/vendor/get_warehouse_data/"+warehouse_id, success: function(result){
+              var obj =  JSON.parse(result);
+              console.log(obj[0].district);
+              $(".warehouse_name").html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
+           }});
+        }
+    });
+   });
     </script>
     
    

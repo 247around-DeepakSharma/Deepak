@@ -2527,23 +2527,29 @@ class Booking extends CI_Controller {
      */
     function validate_serial_no_from_ajax(){
         log_message('info', __METHOD__);
-        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
+        $serial_number = $this->input->post('serial_number');
         $price_tags = $this->input->post('price_tags');
         $user_id = $this->input->post('user_id');
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
-        if(!empty($status)){
-            echo json_encode($status);
-        } else {
-            echo json_encode(array('code' => 247));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            echo json_encode($status, true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
+            if(!empty($status)){
+                echo json_encode($status);
+            } else {
+                echo json_encode(array('code' => 247));
+            }
         }
     }
     
     function validate_serial_no() {
-        $serial_number = preg_replace('/[^A-Za-z0-9]/', '', $this->input->post('serial_number'));
+        $serial_number = $this->input->post('serial_number');
         $upload_serial_number_pic = array();
         if(isset($_FILES['upload_serial_number_pic'])){
             $upload_serial_number_pic = $_FILES['upload_serial_number_pic'];
@@ -2561,6 +2567,11 @@ class Booking extends CI_Controller {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    if (!ctype_alnum($serial_number[$unit_id])) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        return FALSE;
+                    }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
