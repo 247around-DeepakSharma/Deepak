@@ -6124,10 +6124,10 @@ class Partner extends CI_Controller {
                $helperText_2 =  'data-target="#myModal"';
             } 
            else if($days<0){  
-              $helperText_2 =  'onclick="alert(\''.$futureBookingDateMsg.'\')"' ;
+              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
             }
             else{
-              $helperText_2 = 'onclick="alert(\''.$partnerDependencyMsg.'\')"'; 
+              $helperText_2 = 'onclick="alert('.$partnerDependencyMsg.')"'; 
             }
               
             $disable = "";
