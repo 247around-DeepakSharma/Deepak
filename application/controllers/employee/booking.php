@@ -1,3 +1,4 @@
+
 <?php
 
 if (!defined('BASEPATH')) {
@@ -52,12 +53,16 @@ class Booking extends CI_Controller {
         $this->load->library('paytmlib/encdec_paytm');
         $this->load->library('validate_serial_no');
         $this->load->library("invoice_lib");
+        $this->load->library("booking_creation_lib");
         $this->load->helper('file');
         $this->load->dbutil();
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-        } else {
-            redirect(base_url() . "employee/login");
+        $functionName = $this->uri->segment(2);  
+        if($functionName != 'update_booking_by_sf'){
+            if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+                return TRUE;
+            } else {
+                redirect(base_url() . "employee/login");
+            } 
         }
     }
 
@@ -82,7 +87,7 @@ class Booking extends CI_Controller {
             $user_id = $this->input->post("user_id");
             
             //Check Validation
-            $checkValidation = $this->validate_booking();
+            $checkValidation = $this->booking_creation_lib->validate_booking();
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
@@ -132,7 +137,11 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
-        
+        // Get Existing Price Tags
+        $whereOldPrice['booking_id'] = $booking_id;
+        $groupBY  = array('appliance_id');
+        $oldPriceTags = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereOldPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
+        // End
         $user['user_id'] = $user_id = $booking['user_id'];
         
         if ($booking) {
@@ -288,8 +297,14 @@ class Booking extends CI_Controller {
                         default:
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
-                            $agent_details['agent_id'] = $this->session->userdata('id');
-                            $agent_details['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+                            if(!empty($this->session->userdata('id'))){
+                                $agent_details['agent_id'] = $id =  $this->session->userdata('id');
+                                $agent_details['agent_type'] = $agentType = _247AROUND_EMPLOYEE_STRING;
+                            }
+                            else{
+                                    $agent_details['agent_id'] = $id =  $this->session->userdata('service_center_agent_id');
+                                    $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
+                            }
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
 
                             array_push($updated_unit_id, $result['unit_id']);
@@ -298,7 +313,7 @@ class Booking extends CI_Controller {
                             if(count($booking_symptom)>0)
                             {
                                 $bookingSymptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
-                                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
                             }
                             else {
                                 $bookingSymptom['booking_id'] = $booking_id;
@@ -318,8 +333,8 @@ class Booking extends CI_Controller {
                     $inventory_details = array('receiver_entity_id' => $sf_id[0]['assigned_vendor_id'],
                         'receiver_entity_type' => _247AROUND_SF_STRING,
                         'stock' => 1,
-                        'agent_id' => $this->session->userdata('id'),
-                        'agent_type' => _247AROUND_EMPLOYEE_STRING,
+                        'agent_id' => $id,
+                        'agent_type' => $agentType,
                     );
                 }else{
                     $inventory_details = array();
@@ -382,7 +397,7 @@ class Booking extends CI_Controller {
                 ));
             }
 
-            $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
+            $this->booking_model->update_request_type($booking['booking_id'], $price_tag,$oldPriceTags);
             
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
@@ -465,23 +480,26 @@ class Booking extends CI_Controller {
         }
         $file_description_arr = $this->input->post('file_description');
         //add support file for booking id if it is uploaded
-        for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
-            if(!empty($_FILES['support_file']['tmp_name'][$i])) {
-                $booking_files = array();
-                $support_file = $this->upload_orderId_support_file($booking['booking_id'], $_FILES['support_file']['tmp_name'][$i], $_FILES['support_file']['error'][$i], $_FILES['support_file']['name'][$i]);
-                if ($support_file) {
-                    $booking_files['booking_id'] = $booking['booking_id'];
-                    $booking_files['file_description_id'] = $file_description_arr[$i];
-                    $booking_files['file_name'] = $support_file;
-                    $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
-                    $booking_files['size'] = $_FILES['support_file']['size'][$i];
-                    $booking_files['create_date'] = date("Y-m-d H:i:s");
-                    $Status = $this->booking_model->insert_booking_file($booking_files);
-                    if(!$Status)
-                        return false;
-                }
-                else{
-                    log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
+        if(!empty($_FILES['support_file']['tmp_name'])){
+            for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+                if(!empty($_FILES['support_file']['tmp_name'][$i])) {
+                    $booking_files = array();
+                    $support_file = $this->upload_orderId_support_file($booking['booking_id'], $_FILES['support_file']['tmp_name'][$i], $_FILES['support_file']['error'][$i], $_FILES['support_file']['name'][$i]);
+                    if ($support_file) {
+                        $booking_files['booking_id'] = $booking['booking_id'];
+                        $booking_files['file_description_id'] = $file_description_arr[$i];
+                        $booking_files['file_name'] = $support_file;
+                        $booking_files['file_type'] = $_FILES['support_file']['type'][$i];
+                        $booking_files['size'] = $_FILES['support_file']['size'][$i];
+                        $booking_files['create_date'] = date("Y-m-d H:i:s");
+                        $Status = $this->booking_model->insert_booking_file($booking_files);
+                        if(!$Status) {
+                            return false;
+                        }
+                    }
+                    else{
+                        log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
+                    }
                 }
             }
         }
@@ -550,6 +568,10 @@ class Booking extends CI_Controller {
                 
                     $status = $this->booking_model->addbooking($booking);
                     $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if(!$symptomStatus)
+                        return false;
+
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
                         if ($booking['is_send_sms'] == 1) {
@@ -567,9 +589,6 @@ class Booking extends CI_Controller {
                         return false;
                     }
                     
-                    if(!$symptomStatus)
-                        return false;
-
                     break;
 
                 default :
@@ -581,15 +600,26 @@ class Booking extends CI_Controller {
                     }
                     break;
             }
-
-            $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    $actor,$next_action,_247AROUND);
+            if(!empty($this->session->userdata('service_center_id'))){
+                $e_id = $this->session->userdata('service_center_agent_id');
+                $employeeId = $this->session->userdata('service_center_name');
+                $stateChangePartnerID = NULL;
+                $stateChangeSFID  = $this->session->userdata('service_center_id');
+            }
+            else{
+                $id = $this->session->userdata('id');
+                $employeeId = $this->session->userdata('employee_id');
+                $stateChangePartnerID = _247AROUND;
+                $stateChangeSFID  = NULL;
+            }
+            
+            $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $e_id,  $employeeId,$actor,$next_action,$stateChangePartnerID,$stateChangeSFID);
             if($booking['parent_booking']){
-            $this->notify->insert_state_change($booking['booking_id'], "Repeat Booking", $new_state, "Parent ID - ".$booking['parent_booking'].", Repeat Reason - ".$booking['repeat_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    $actor,$next_action,_247AROUND);
+            $this->notify->insert_state_change($booking['booking_id'], "Repeat Booking", $new_state, "Parent ID - ".$booking['parent_booking'].", Repeat Reason - ".$booking['repeat_reason'], $e_id, $employeeId,
+                    $actor,$next_action,$stateChangePartnerID,$stateChangeSFID);
             }
             if($booking_update_flag == 1){
-                $this->notify->insert_state_change($booking['booking_id'], BOOKING_DETAILS_UPDATED, "", $this->input->post("query_remarks"), $this->session->userdata('id'), $this->session->userdata('id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
+                $this->notify->insert_state_change($booking['booking_id'], BOOKING_DETAILS_UPDATED, "", $this->input->post("query_remarks"), $e_id,$employeeId, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $stateChangePartnerID,$stateChangeSFID);
             }
             return $booking;
         } else {
@@ -879,14 +909,15 @@ class Booking extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         //Get Booking Unit Details Data
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
-        
         //Get Partner Details Like source and partner Type
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
-      
+
+        
+        
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -935,7 +966,6 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
-                    $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -955,26 +985,33 @@ class Booking extends CI_Controller {
             }
         }
         
-        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
+        $data['technical_problem'] = $data['technical_defect'] = array();
         
-        if(count($data['technical_problem']) <= 0) {
-            $data['technical_problem'][0] = array('id' => 0, 'symptom' => 'Default');
+        $symptom_id = "";
+        if(count($data['booking_symptom'])>0) {
+            $symptom_id = ((!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $data['booking_symptom'][0]['symptom_id_booking_completion_time'] : $data['booking_symptom'][0]['symptom_id_booking_creation_time']);
+        }
+        
+        if(!empty($unit_price_tags)) {
+            $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
+                    array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $partner_id), array('request_type.service_category' => $unit_price_tags));
+        }
+        if((count($data['technical_problem']) <= 0) || ($symptom_id == 0)) {
+            $data['technical_problem'][] = array('id' => 0, 'symptom' => 'Default');
         }
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         
-        $data['technical_defect'] = array();
-        if(count($data['booking_symptom'])>0 && !is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+        if($symptom_id !== "") {
             $data['technical_defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', 
-                    array('symptom_id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time'], 'partner_id' => $partner_id));
+                    array('symptom_id' => $symptom_id, 'partner_id' => $partner_id));
         }
         if(count($data['technical_defect'])<=0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-        $data['upcountry_charges'] = $upcountry_price;
         $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
 
+        $data['upcountry_charges'] = $upcountry_price;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -985,12 +1022,9 @@ class Booking extends CI_Controller {
      * @return: key
      */
     function search_for_key($price_tag, $array) {
-        foreach ($array as $key => $val) {
-            if ($val['service_category'] === $price_tag) {
-                return $key;
-            }
-        }
-        return null;
+        
+        return $this->miscelleneous->search_for_pice_tag_key($price_tag, $array);
+        
     }
 
     /**
@@ -1177,8 +1211,12 @@ class Booking extends CI_Controller {
             // Partner Call back
             $this->partner_cb->partner_callback($booking_id);
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
-
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+             if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+                redirect(base_url() . 'partner/dashboard');
+            }
+            else{
+               redirect(base_url() . DEFAULT_SEARCH_PAGE);
+            }
         }
     }
 
@@ -1215,7 +1253,7 @@ class Booking extends CI_Controller {
     /**
      * @desc: This is used to get appliance list its called by Ajax
      */
- function get_appliances($selected_service_id) {
+    function get_appliances($selected_service_id) {
         $partner_id = $this->input->post('partner_id');
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
@@ -1549,6 +1587,7 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['file_type'] = $this->booking_model->get_file_type();
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
             $engineer_action_not_exit = false;
@@ -1612,12 +1651,12 @@ class Booking extends CI_Controller {
             
 
         }
-            if(!empty($data['booking_history'][0]['account_manager_id'])){
-                $account_manager = $this->booking_model->get_am_by_booking($booking_id, "employee.full_name");
-                if(!empty($account_manager)){
-                    $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
-                }
+        if(!empty($data['booking_history'][0]['account_manager_id'])){
+            $account_manager = $this->booking_model->get_am_by_booking($booking_id, "employee.full_name");
+            if(!empty($account_manager)){
+                $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
             }
+        }
         }else{
             $data['booking_history'] = array();
         }
@@ -1630,21 +1669,33 @@ class Booking extends CI_Controller {
         if(count($data['booking_symptom'])>0) {
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-
+                
+                if(count($data['symptom'])<=0) {
+                    $data['symptom'][0] = array("symptom" => "Default");
+                }
             }
 
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
                 $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-
+                
+                if(count($data['completion_symptom'])<=0) {
+                    $data['completion_symptom'][0] = array("symptom" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
                 $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
                 $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-
+                
+                if(count($data['technical_defect'])<=0) {
+                    $data['technical_defect'][0] = array("defect" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['solution_id'])){
                 $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-
+                
+                if(count($data['technical_solution'])<=0) {
+                    $data['technical_solution'][0] = array("technical_solution" => "Default");
+                }
             }
         }
         
@@ -1663,8 +1714,8 @@ class Booking extends CI_Controller {
         if (!empty($spare_parts_list)) {
             $data['booking_history']['spare_parts'] = $spare_parts_list;
         }
-        
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+
         if (!empty($spare_parts_details)) {
             $awb = $spare_parts_details[0]['awb_by_sf'];
              $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
@@ -1674,7 +1725,6 @@ class Booking extends CI_Controller {
             }
             
         }
-         
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
@@ -1736,6 +1786,7 @@ class Booking extends CI_Controller {
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By " . $this->session->userdata('employee_id');
+//             <h3>New Brands added By  " . $this->session->userdata('employee_id') . "</h3>    
             $message = "
         <html>
         <head></head>
@@ -1775,117 +1826,12 @@ class Booking extends CI_Controller {
      */
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
-
-        if ($booking_id != "") {
-            $booking_history = $this->booking_model->getbooking_history($booking_id);
-        } else {
-            $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
-        }
-        if (!empty($booking_history)) {
-            $booking = $this->booking_model->get_city_source();
-            $booking['booking_history'] = $booking_history;
-            $booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
-            if(!empty($booking_history[0]['dealer_id'])){
-                $condition = array(
-                "where" => array('dealer_details.dealer_id' => $booking_history[0]['dealer_id']));
-                $select = " dealer_details.dealer_id, dealer_name, dealer_phone_number_1";
-                $condition['length'] = -1;
-               
-                 $dealer_details = $this->dealer_model->get_dealer_mapping_details($condition, $select);
-                 if($dealer_details){
-                      $booking['booking_history'][0]['dealer_phone_number'] = $dealer_details[0]['dealer_phone_number_1'];
-                      $booking['booking_history'][0]['dealer_name'] = $dealer_details[0]['dealer_name'];
-                 }
-            }
-            
-            $prepaid = $this->miscelleneous->get_partner_prepaid_amount($booking_history[0]['partner_id']);
-            $booking['active'] = $prepaid['active'];
-            
-            $booking['partner_type'] = $prepaid["partner_type"];
-            if ($booking['partner_type'] == OEM) {
-                $booking['services'] = $this->partner_model->get_partner_specific_services($booking_history[0]['partner_id']);
-            } else {
-                $booking['services'] = $this->booking_model->selectservice();
-            }
-
-            $service_category = array();
-            $booking['capacity'] = array();
-            $booking['category'] = array();
-            $booking['brand'] = array();
-            $booking['prices'] = array();
-            $booking['model'] = array();
-            $booking['appliance_id'] = $appliance_id;
-            $where_internal_status = array("page" => "FollowUp", "active" => '1');
-            $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-            foreach ($booking['unit_details'] as $key => $value) {     
-                 $isWbrand = "";           
-                if ($booking['partner_type'] == OEM) {
-                    $isWbrand = $value['brand'];
-                    $where = array("partner_appliance_details.service_id" => $booking_history[0]['service_id'],
-                        'partner_id' => $booking_history[0]['partner_id'], "active" => 1);
-                    $select = 'brand As brand_name';
-                    $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
-                    $where['brand'] = $value['brand'];
-                    $model_where = array(
-                       "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
-                       "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
-                       "appliance_model_details.service_id" => $booking_history[0]['service_id'],
-                       "appliance_model_details.active" => 1,
-                       "partner_appliance_details.brand" => $value['brand']
-                    );
-                    $model = $this->partner_model->get_model_number('appliance_model_details.model_number as model', $model_where);
-                } else {
-
-                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $value['partner_id'], "brand" => $value['brand'],
-            "service_id" => $booking_history[0]['service_id'], "whitelist" => 1), "*");
-                    if(!empty($whiteListBrand)){
-                        $isWbrand = $value['brand'];
-                    }
-                    
-                    $brand = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
-                    $model = array();
-                }
-                
-                $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $isWbrand);
-                $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $isWbrand, $value['partner_id']);
-                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand);
-                $where1 = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
-                $brand_id_array = $this->booking_model->get_brand($where1);
-                if (!empty($brand_id_array)) {
-
-                    $booking['unit_details'][$key]['brand_id'] = $brand_id_array[0]['id'];
-                } else {
-                    $booking['unit_details'][$key]['brand_id'] = "";
-                }
-                array_push($booking['category'], $category);
-                array_push($booking['brand'], $brand);
-                array_push($booking['capacity'], $capacity);
-                array_push($booking['prices'], $prices);
-                array_push($booking['model'], $model);
-                foreach ($value['quantity'] as $key => $price_tag) {
-                    $price_tags1 = str_replace('(Free)', '', $price_tag['price_tags']);
-                    $price_tags2 = str_replace('(Paid)', '', $price_tags1);
-                    array_push($service_category, $price_tags2);
-                }
-            }
-            $booking['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-            $booking['file_type'] = $this->booking_model->get_file_type();
-            $booking['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
-        
-            $booking['symptom'] = array();
-            if(!empty($service_category)) {
-                $booking['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom',
-                        array('symptom.service_id' => $booking_history[0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $booking_history[0]['partner_id']), array('request_type.service_category' => $service_category));
-            }
-            if(count($booking['symptom']) <= 0) {
-                $booking['symptom'][0] = array('id' => 0, 'symptom' => 'Default');
-            }
-            
-            $booking['is_repeat'] = $is_repeat;
-            $booking['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
+        if($booking){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
-        } else {
+        }
+        else{
             echo "Booking Id Not Exist";
         }
     }
@@ -1900,7 +1846,7 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             if ($this->input->post()) {
-                $checkValidation = $this->validate_booking();
+                $checkValidation = $this->booking_creation_lib->validate_booking();
 
                 if ($checkValidation) {
                     log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
@@ -2128,7 +2074,6 @@ class Booking extends CI_Controller {
         if($change_appliance_details == 1){
             $this->update_completed_unit_applinace_details($booking_id);
         }
-        
         // customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -2146,7 +2091,6 @@ class Booking extends CI_Controller {
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
         $purchase_date = $this->input->post('appliance_dop');
-        $purchase_invoice = $this->input->post('appliance_purchase_invoice');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
         $pincode = $this->input->post('booking_pincode');
@@ -2160,27 +2104,23 @@ class Booking extends CI_Controller {
         $technical_symptom = $this->input->post('closing_symptom');
         $technical_defect = $this->input->post('closing_defect');
         $technical_solution = $this->input->post('technical_solution');
-
+        
+        $booking_symptom['solution_id'] = $technical_solution;
+        $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
+        $booking_symptom['defect_id_completion'] = $technical_defect; 
+        
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
             $b_unit_details = $this->booking_model->get_unit_details(array('booking_id'=>$booking_id));
         }
         $k = 0;
-        
-        if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-            $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-        endif;   
-        
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
             $data = array();
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
             $data['customer_paid_parts'] = $parts_cost[$unit_id];
-            $booking_symptom['solution_id'] = $technical_solution;
-            $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
-            $booking_symptom['defect_id_completion'] = $technical_defect;
             if (isset($serial_number[$unit_id])) {
                 $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                 $data['serial_number'] =  $trimSno;
@@ -2197,10 +2137,6 @@ class Booking extends CI_Controller {
             $data['sf_purchase_date'] = NULL;
             if (isset($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
-            }
-            $data['sf_purchase_invoice'] = NULL;
-            if (isset($purchase_invoice[$unit_id]) && !empty($purchase_invoice_file_name)) {
-                $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
             }
             if(!empty($data['serial_number_pic'])){
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
@@ -2343,12 +2279,19 @@ class Booking extends CI_Controller {
                 }
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-                
+                  
                 $this->vendor_model->update_service_center_action($booking_id, $service_center);
-                $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             }
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
+        }
+        $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+        if(!$rowsStatus)
+        {
+            $booking_symptom['booking_id'] = $booking_id;
+            $booking_symptom['symptom_id_booking_creation_time'] = 0;
+            $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->addBookingSymptom($booking_symptom);
         }
         
         if($spare_parts_required == 1){
@@ -2466,9 +2409,9 @@ class Booking extends CI_Controller {
         }
         }
     }
-
-    /**
-     *  @desc : This function is used to upload the purchase invoice to s3 and save into database
+    
+/**
+     *  @desc : This function is used to upload the support file for order id to s3 and save into database
      *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
@@ -2479,7 +2422,7 @@ class Booking extends CI_Controller {
         if (($error != 4) && !empty($tmp_name)) {
 
             $tmpFile = $tmp_name;
-            $support_file_name = $booking_id . '_sf_purchase_invoice_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
@@ -2487,7 +2430,7 @@ class Booking extends CI_Controller {
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: '.$booking_id);
+                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
                 return $support_file_name;
             }else{
                 //Logging success for file uppload
@@ -2498,8 +2441,8 @@ class Booking extends CI_Controller {
         }
 
         
-    }        
-    
+    }    
+        
     /**
      * @desc: this is used to validate duplicate serial no from Ajax
      */
@@ -2511,18 +2454,12 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        if (!ctype_alnum($serial_number)) {
-            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
-            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
-            echo json_encode($status, true);
-        }
-        else {
-            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
-            if(!empty($status)){
-                echo json_encode($status);
-            } else {
-                echo json_encode(array('code' => 247));
-            }
+        
+        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
+        if(!empty($status)){
+            echo json_encode($status);
+        } else {
+            echo json_encode(array('code' => 247));
         }
     }
     
@@ -2545,11 +2482,6 @@ class Booking extends CI_Controller {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                    if (!ctype_alnum($serial_number[$unit_id])) {
-                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                        return FALSE;
-                    }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
@@ -2830,32 +2762,6 @@ class Booking extends CI_Controller {
         } else {
             echo "error";
         }
-    }
-
-
-    /**
-     * @desc: This function is used to validate Bookings New/Update
-     * 
-     * params: Array of inputs
-     * return: void
-     */
-    function validate_booking() {
-        $this->form_validation->set_rules('service_id', 'Appliance', 'required');
-        $this->form_validation->set_rules('source_code', 'Source Code', 'required');
-        $this->form_validation->set_rules('type', 'Booking Type', 'required');
-        $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
-        $this->form_validation->set_rules('city', 'City', 'required');
-        $this->form_validation->set_rules('booking_date', 'Date', 'required');
-        $this->form_validation->set_rules('appliance_brand', 'Appliance Brand', 'required');
-        $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
-
-        $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
-        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
-        $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required');
-        $this->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
-
-        return $this->form_validation->run();
     }
 
     /**
@@ -3215,20 +3121,22 @@ class Booking extends CI_Controller {
      *  @return : boolean
      */
     function validate_upload_orderId_support_file() {
-        for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
-            if (!empty($_FILES['support_file']['tmp_name'][$i])) {
-                $MB = 1048576;
-                if ($_FILES['support_file']['size'][$i] < 5 * $MB) {
+        if(!empty($_FILES['support_file'])){
+            for($i=0; $i< count($_FILES['support_file']['tmp_name']); $i++) {
+                if (!empty($_FILES['support_file']['tmp_name'][$i])) {
+                    $MB = 1048576;
+                    if ($_FILES['support_file']['size'][$i] < 5 * $MB) {
+                        //return true;
+                        continue;
+                    } else {
+                        $this->form_validation->set_message('validate_upload_orderId_support_file', 'Uploaded File Size Must be Less than 5MB');
+                        return false;
+                    }
+                } else if(count($_FILES['support_file']['tmp_name']) > 1) {
                     //return true;
-                    continue;
-                } else {
-                    $this->form_validation->set_message('validate_upload_orderId_support_file', 'Uploaded File Size Must be Less than 5MB');
+                    $this->form_validation->set_message('validate_upload_orderId_support_file', 'No File Selected!! ');
                     return false;
                 }
-            } else if(count($_FILES['support_file']['tmp_name']) > 1) {
-                //return true;
-                $this->form_validation->set_message('validate_upload_orderId_support_file', 'No File Selected!! ');
-                return false;
             }
         }
         return true;
@@ -3423,11 +3331,11 @@ class Booking extends CI_Controller {
      *  @param : $booking_status string
      *  @return : $output Array()
      */
-    private function get_bookings_data_by_status($booking_status,$sfIDArray) {
+    private function get_bookings_data_by_status($booking_status,$sfIDArray) { 
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,  booking_files.file_name as booking_files_bookings,
+             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -3437,7 +3345,7 @@ class Booking extends CI_Controller {
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active,  booking_files.file_name as booking_files_bookings,
+             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -4164,9 +4072,11 @@ class Booking extends CI_Controller {
         $row[] = $no.$sn;
         if($order_list->booking_files_bookings){
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src='http://localhost/247around-adminp-aws/images/varified.png' style='width:20px; height: 20px;'></a></p>";
-        }else{
+        }
+        else{
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         }
+       
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = "<b>".$order_list->services."</b>"."<br>".$order_list->request_type;
         $row[] = $order_list->appliance_brand;
@@ -4190,6 +4100,7 @@ class Booking extends CI_Controller {
         $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
+        
         return $row;
     }
     /**
@@ -5189,16 +5100,34 @@ class Booking extends CI_Controller {
     function upload_order_supporting_file(){
         $booking_id = $this->input->post('booking_id');
         $id = $this->input->post('id');
+        $file_description_id = $this->input->post('file_description_id');
         $booking_files = array();
         if(!empty($booking_id)){
-            $support_file = $this->upload_orderId_support_file($booking_id, $_FILES['support_file']['tmp_name'], $_FILES['support_file']['error'], $_FILES['support_file']['name']);
-            if(!empty($support_file)){
-                $booking_files['file_name'] = $support_file;
-                $booking_files['file_type'] = $_FILES['support_file']['type'];
-                $booking_files['size'] = $_FILES['support_file']['size'];
-                $this->booking_model->update_booking_file($booking_files, array('booking_id' => $booking_id, 'id' => $id));
-                echo json_encode(array('code' => "success", "name" => $support_file));
-            } else {
+            $checkValidation = $this->validate_upload_orderId_support_file();
+            if($checkValidation) {
+                $support_file = $this->upload_orderId_support_file($booking_id, $_FILES['support_file']['tmp_name'][0], $_FILES['support_file']['error'][0], $_FILES['support_file']['name'][0]);
+                if(!empty($support_file)){
+                    $booking_files['file_name'] = $support_file;
+                    $booking_files['file_type'] = $_FILES['support_file']['type'][0];
+                    $booking_files['size'] = $_FILES['support_file']['size'][0];
+                    if(!empty($id)) {
+                        $this->booking_model->update_booking_file($booking_files, array('booking_id' => $booking_id, 'id' => $id));
+                    }
+                    else {
+                        $booking_files['booking_id'] = $booking_id;
+                        $booking_files['file_description_id'] = $file_description_id;
+                        $booking_files['create_date'] = date("Y-m-d H:i:s");
+                        $Status = $this->booking_model->insert_booking_file($booking_files);
+                        if(!$Status) {
+                            echo json_encode(array('code' => "error", "message" => "Error while inserting support file!!"));
+                        }
+                    }
+                    echo json_encode(array('code' => "success", "name" => $support_file));
+                } else {
+                    echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
+                }
+            }
+            else {
                 echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
             }
         }
@@ -5325,7 +5254,7 @@ class Booking extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_edit_booking_form($booking_id,"","Repeat");
         }
@@ -5446,4 +5375,138 @@ class Booking extends CI_Controller {
         $sms['smsData']['partner_brand'] = $brand;
         $this->notify->send_sms_msg91($sms);
     }
+    /**
+    * @Desc - This is used to show file type list
+    */
+    function show_file_type_list() {
+        $data['file_type'] = $this->booking_model->get_file_type();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_file_type_list', $data);
+    }
+    /*
+     * This function is used to add file type
+     */
+    function process_file_type(){
+        $id = $count = 0;
+        $data = array();
+        foreach($this->input->post('file_type') as $index=>$type){
+            $data=array("file_type" => $type, "max_allowed_size" => $this->input->post('max_allowed_size')[$index], "allowed_type" => $this->input->post('allowed_type')[$index]);
+            $record = $this->booking_model->get_file_type(array("file_type" => $type));
+            if(empty($record)) {
+                $id = $this->reusable_model->insert_into_table("file_type",$data);
+            } else {
+                ++$count;
+            }
+        }
+        if($id){
+            $msg =  "File Type has been Added successfully ";
+            $this->session->set_userdata('success', $msg);
+        }
+        else if($count > 0) {
+            $msg =  "File Type has already been added!!";
+            $this->session->set_userdata('error', $msg);
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin";
+            $this->session->set_userdata('error', $msg);
+        }
+        redirect(base_url() . 'employee/booking/show_file_type_list');
+    }
+    /*
+     * This function is used to edit file type
+     */
+    function edit_file_type(){        
+        if($this->input->post('file_type_id')){
+            $data['file_type'] = $this->input->post('file_type1');
+            $data['max_allowed_size'] = $this->input->post('max_allowed_size1');
+            $data['allowed_type'] = $this->input->post('allowed_type1');
+            $where = array('id' => $this->input->post('file_type_id'));
+            
+            $record = $this->booking_model->get_file_type($data);
+            
+            if(empty($record)) {
+                $update_data = $this->reusable_model->update_table("file_type",$data,$where);
+                if($update_data){
+                    $msg =  "File Type has been updated successfully ";
+                    $this->session->set_userdata('success', $msg);
+                }
+                else{
+                    $msg =  "No update done";
+                    $this->session->set_userdata('error', $msg);
+                }
+            } else {
+                $msg =  "File Type has already been added!";
+                $this->session->set_userdata('error', $msg);
+            }
+        }
+        else{
+            $msg =  "Something went Wrong Please try again or contact to admin!";
+            $this->session->set_userdata('error', $msg);
+        }
+        redirect(base_url() . 'employee/booking/show_file_type_list');
+    }
+    /*
+     * This function is used to activate / deactivate file type
+     */
+    function activate_deactivate_type($id,$action){
+        if($id){
+            $data['is_active'] = $action;
+            $where = array('id' => $id);
+            $affected_rows =  $this->reusable_model->update_table("file_type",$data,$where);
+            if($affected_rows){
+                $v = "Deactivated";
+                if($action){
+                    $v = "Activated";
+                }
+                echo "File Type has been $v";
+            }
+            else{
+                echo "Something Went Wrong Please Try Again";
+            }
+        }
+    }
+            /**
+     * @desc: This function is used to update both Bookings and Queries.
+     */
+    function update_booking_by_sf($user_id, $booking_id) {
+        $bookings = array($booking_id);
+        if($booking_id != INSERT_NEW_BOOKING){
+            $bookings = $this->booking_model->getbooking_history($booking_id);
+        }
+        if (!empty($bookings)) {
+            if ($this->input->post()) {
+                $checkValidation = $this->booking_creation_lib->validate_booking();
+
+                if ($checkValidation) {
+                    log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
+
+                    $status = $this->getAllBookingInput($user_id, $booking_id);
+                    if ($status) {
+                        log_message('info', __FUNCTION__ . " Update Booking ID" . $status['booking_id']);
+                        
+                        $this->partner_cb->partner_callback($booking_id);
+
+                        //Redirect to Default Search Page
+                        redirect(base_url() . 'employee/service_centers/pending_booking');
+                    } else {
+                        //Redirect to edit booking page if validation err occurs
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
+                    }
+                } else {
+                    //Redirect to edit booking page if validation err occurs
+                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
+                }
+            } else {
+                //Logging error if No input is provided
+                log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error = & load_class('Exceptions', 'core');
+                echo $error->show_error($heading, $message, 'custom_error');
+            }
+        } else {
+            echo "Booking Id Not Exist...\n Already Updated.";
+        }
+    }
+  
 }

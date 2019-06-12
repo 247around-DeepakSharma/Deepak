@@ -1650,9 +1650,67 @@ class Booking_model extends CI_Model {
         $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
     }
-    function update_request_type($booking_id, $price_tag) {
+    function get_old_request_type($booking_id){
+        $where['booking_id'] = $booking_id;
+        $this->db->select('request_type');
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        $query = $this->db->get();
+        $requesstDataArray = $query->result_array();
+        $requestType = NULL;
+        if(!empty($requesstDataArray)){
+            $requestType =  $requesstDataArray[0]['request_type'];
+        }
+        return $requestType;
+    }
+    function update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest){
+            log_message('info', __METHOD__ . " Booking ID " . $booking_id . "Old Price Tags " . print_r($oldPriceTag, true));
+            $whereNewPrice['booking_id'] = $booking_id;
+            $groupBY  = array('appliance_id');
+            $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
+            foreach($newPriceTag as $values ){
+                $finalNewPrice[$values['appliance_id']] = $values['price_tag'];
+            }
+            foreach($oldPriceTag as $values2 ){
+                $finalOldPrice[$values2['appliance_id']] = $values2['price_tag'];
+            }
+            $shouldChange = false;
+            foreach($finalOldPrice as $key => $values3){
+                if(array_key_exists($key, $finalNewPrice)){
+                    if($values3 != $finalNewPrice[$key]){
+                        $shouldChange = true;
+                    }
+                }
+               else{
+                   $shouldChange = true;
+                }
+            }
+             if($shouldChange){
+                $data['booking_id'] = $booking_id;
+                $data['old_request_type'] = $oldRequestType;
+                $data['new_request_type'] = $newRequest;
+                $data['new_price_tag'] = json_encode($finalNewPrice);
+                $data['old_price_tag'] = json_encode($finalOldPrice);
+                if(!empty($this->session->userdata('service_center_id'))){
+                    $entity_type = "Vendor";
+                    $entity_id = $this->session->userdata('service_center_id');
+                    $agentID = $this->session->userdata('service_center_agent_id');
+                }
+                else{
+                    $entity_type = "247around";
+                    $entity_id = _247AROUND;
+                    $agentID = $this->session->userdata('id');
+                }
+                $data['entity_type']  = $entity_type;
+                $data['entity_id'] = $entity_id;
+                $data['agent_id'] = $agentID;
+                $this->reusable_model->insert_into_table('booking_request_type_state_change',$data);
+                log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Updated Data Array " . print_r($data, true));
+            }
+    }
+    function update_request_type($booking_id, $price_tag,$oldPriceTag = array()) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Price Tags " . print_r($price_tag, true));
-
+        $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
             $results = array_filter($price_tag, function($value) {
                 if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
@@ -1665,12 +1723,13 @@ class Booking_model extends CI_Model {
             });
 
             if (!empty($results)) {
-
-                $this->update_booking($booking_id, array('request_type' => array_values($results)[0]));
+                $newRequest = array_values($results)[0];
             } else {
-                $this->update_booking($booking_id, array('request_type' => $price_tag[0]));
+                $newRequest = $price_tag[0];
             }
+            $this->update_booking($booking_id, array('request_type' => $newRequest));
         }
+        $this->update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest);
     }
 
     /**
