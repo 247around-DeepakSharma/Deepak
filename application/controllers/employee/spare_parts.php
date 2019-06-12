@@ -2842,7 +2842,7 @@ class Spare_parts extends CI_Controller {
                 $requested_part_number = '-';
             }
             $requested_inventory = $booking['requested_inventory_id'];
-            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, $booking['service_center_id']);
+            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
             $warehouseid = 0;
             if (!empty($data)) {
                 if ($data['stock'] > 0) {
