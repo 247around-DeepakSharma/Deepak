@@ -5327,7 +5327,7 @@ class Booking extends CI_Controller {
         }
         
         if(!is_null($cancellation_reason)){
-           $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+           $whereIN['sc.cancellation_reason'] = [urldecode(str_replace("__","/",$cancellation_reason))];
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason;
