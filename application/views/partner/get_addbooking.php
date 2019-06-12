@@ -963,7 +963,7 @@
         }
     }
     
-    function getPrice(pincode = '', city = '') {
+    function getPrice() {
         
         var postData = {};
         appliance_name = $("#service_name").find(':selected').attr('data-id');
@@ -982,10 +982,8 @@
         }
         postData['service_category'] = "";
         postData['booking_id'] = "";
-        var pincode_id = ((pincode == '') ? "booking_pincode" : pincode);
-        var city_id = ((city == '') ? "booking_city" : city);
-        postData['pincode'] = $("#"+pincode_id).val();
-        postData['city'] = $("#"+city_id).val();
+        postData['pincode'] = $("#booking_pincode").val();
+        postData['city'] = $("#booking_city").val();
         
         postData['partner_type'] = $('#partner_type').val();
         postData['assigned_vendor_id'] = "";
@@ -1033,6 +1031,62 @@
     });
     
     
+    }
+    
+    function getVendorData() {
+    
+        var postData = {};
+        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        $("#appliance_name").val(appliance_name);
+        
+        postData['service_id'] = $("#service_name").val();
+        postData['brand'] = $('#appliance_brand_1').val();
+        postData['category'] = $("#appliance_category_1").val();
+        capacity = $("#appliance_capacity_1").val();
+        if(capacity === null && capacity === ""){
+            postData['capacity'] = "";
+            $("#appliance_capacity_1").removeAttr("required");
+        } else {
+            postData['capacity'] = capacity;
+        }
+        postData['service_category'] = "";
+        postData['booking_id'] = "";
+        postData['pincode'] = $("#pincode").val();
+        postData['city'] = $("#city").val();
+        
+        postData['partner_type'] = $('#partner_type').val();
+        postData['assigned_vendor_id'] = "";
+        postData['add_booking'] = "add_booking";
+        
+        if(postData['brand'] !== null 
+                && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
+          
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                  
+                  $('#btn_submit').attr('disabled',true);
+                  
+                },
+                url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
+                data: postData,
+                success: function (data) {
+                    //console.log(data);
+                     if(data === "ERROR"){
+                        
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+    
+                     } else { 
+                          var data1 = jQuery.parseJSON(data);
+                         
+                          $("#upcountry_data").val(data1.upcountry_data);
+                          $('#btn_submit').attr('disabled',false);
+                     }
+                }
+            });
+        } else {
+          //console.log("error");
+        }
     }
     
     // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
@@ -1109,7 +1163,7 @@
                          }
                          else {
                              $('#city').select2().html(data).change();
-                             getPrice("pincode","city");
+                             getVendorData();
                          }
                          $('#'+btn_submit).prop('disabled', false);
                          $("#not_visible").val('1');
