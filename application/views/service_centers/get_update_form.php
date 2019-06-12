@@ -3,7 +3,8 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-                    Update Booking                    
+                    Update Booking      
+                       <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">

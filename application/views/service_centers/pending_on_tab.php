@@ -27,6 +27,7 @@
                                         <?php if($is_engineer_app){ ?>
                                         <th  class="text-center" >Assign Engineer</th>
                                         <?php } ?>
+                                      <th class="text-center" data-orderable="false">Edit Request Type</th> 
                                        <th class="text-center" data-orderable="false">Send Email</th> 
                                        <th class="text-center" data-orderable="false">Contacts</th> 
                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
@@ -146,6 +147,9 @@
                                         <?php if($is_engineer_app){ ?>
                                         <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select></td>
                                         <?php } ?>
+                                        <td style="vertical-align: middle;">
+                                            <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                        </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
                                         </td>

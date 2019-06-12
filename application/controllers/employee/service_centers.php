@@ -6654,14 +6654,73 @@ function update_defective_parts($sp_id) {
     }
     
     function get_sf_edit_booking_form($booking_id){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking_id = base64_decode(urldecode($booking_id));
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
         if($booking){
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/update_booking', $booking);
+            if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
+                $is_spare_requested = $this->is_spare_requested($booking);
+                if(!$is_spare_requested){
+                   $this->load->view('service_centers/header');
+                   $this->load->view('service_centers/update_booking', $booking);
+                }
+                else{
+                    echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Spare is already requested, You can not Edit this Booking</p>";
+                }
+            }
+            else{
+                echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+            }
         }
         else{
-            echo "Booking Id Not Exist";
+            echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+        }
+    }
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
+    }
+    function spare_assigned_to_partner() {
+        log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
+        $this->check_WH_UserSession();
+        $sf_id = $this->session->userdata('service_center_id');
+        
+        $sf_states = $this->service_centers_model->get_warehouse_state($sf_id);
+        //echo"<pre>";print_r($sf_states);exit;
+        $where = "spare_parts_details.entity_type =  '"._247AROUND_PARTNER_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+                . " AND wh_ack_received_part != 0 "
+                . (!empty($sf_states)? " AND booking_details.state IN ('".implode("','",$sf_states)."')" : "");
+        
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
+                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
+                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+                . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . " spare_parts_details.quantity,"
+                . " spare_parts_details.shipped_quantity,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+
+        $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id);
+
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/spare_assigned_to_partner', $data);
+        }else{
+            $this->load->view('service_centers/spare_assigned_to_partner', $data);
         }
     }
 }

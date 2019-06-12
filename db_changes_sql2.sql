@@ -122,4 +122,38 @@ ALTER TABLE `fake_cancellation_missed_call_log`
 COMMIT;
  
 --Kalyani 07-June-2019
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 12-June-2019
+CREATE TABLE `booking_request_type_state_change` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(256) NOT NULL,
+  `old_request_type` varchar(256) NOT NULL,
+  `new_request_type` varchar(256) NOT NULL,
+  `old_price_tag` text NOT NULL,
+  `new_price_tag` text NOT NULL,
+  `entity_type` varchar(164) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_request_type_state_change`
+--
+ALTER TABLE `booking_request_type_state_change`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_id` (`booking_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_request_type_state_change`
+--
+ALTER TABLE `booking_request_type_state_change`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
