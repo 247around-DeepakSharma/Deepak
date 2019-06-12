@@ -901,24 +901,18 @@
     
     // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
     function disableCheckbox(obj) {
-        $(obj).on('change', function(){
-            if($(obj).prop("checked") == true) {
-                var price_tag = $(this).attr('data-price_tag');
-                if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
-                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
-                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', true).css('pointer-events', 'none');
-                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', true).css('pointer-events', 'none');
-                } else {
-                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
-                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
-                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
-                }
-            } else {
-                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
-                $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
-                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
-            }
-        });
+        if($(obj).prop("checked") == true) {
+            var price_tag = $(obj).attr('data-price_tag');
+            if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            } 
+        } else {
+            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', false).css('pointer-events', 'auto');
+        }
     }
     
     
