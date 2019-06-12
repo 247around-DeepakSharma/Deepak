@@ -332,7 +332,7 @@
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value=" <?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "Enter Model Number" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
@@ -1198,7 +1198,7 @@
     postData['booking_id'] = $("#booking_id").val();
     postData['partner_id'] = $("#partner_id").val();
     postData['appliance_id'] = '<?php echo $booking_history[0]['service_id'];?>';
-    
+    $("#submitform").attr("disabled",false);
     if(postData['serial_number'] !== ''){
         $.ajax({
                 type: 'POST',
@@ -1229,13 +1229,14 @@
                         $("#duplicate_sno_required"+count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         $('body').loadingModal('destroy');
-
+                        $("#submitform").attr("disabled",true);
                     } else {
                         $("#sno_required"+count).val('1');
                         $("#error_serial_no" +count).html(data.message);
                         //$("#upload_serial_number_pic"+count).css('display', "block");
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
+                        $("#submitform").attr("disabled",true);
                     }
                 }
             });

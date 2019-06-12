@@ -190,7 +190,7 @@
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group "  id="repeat_reason_holder" style="display:none;">
-                                <label for="type" class="col-md-12">Repeat Reason</label>
+                                <label for="type" class="col-md-12">Repeat Reason * </label>
                                 <div class="col-md-12">
                                     <input class="form-control"  name="repeat_reason"  id="repeat_reason" placeholder=" Repeat Reason" ><?php if (isset($booking_history[0]['repeat_reason'])) {
                                         echo$booking_history[0]['repeat_reason'];
@@ -344,28 +344,28 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                 <label for="booking_alternate_contact_no">Alternate Mobile</label>
-                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
                                 <?php echo form_error('alternate_phone_number'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <label for="booking_user_email">Email </label>
-                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" >
                                 <?php echo form_error('user_email'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                 <label for="landmark">Landmark </label>
-                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" >
                                 <?php echo form_error('landmark'); ?>
                             </div>
                         </div>
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -1086,6 +1086,7 @@
         var installation_flag = false;
         var pdi = false;
         var extended_warranty = false;
+        var pre_sales = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1107,6 +1108,11 @@
          if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
              extended_warranty = true;
              array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
          }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 

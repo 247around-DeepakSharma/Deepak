@@ -644,10 +644,11 @@ class Partner extends CI_Controller {
                 //$am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
                 $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
                         array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
+               
                 if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                     $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 }
-                if(!empty($am_email)){
+                if(!empty($am_email)){ 
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Updated :</p><ul>";
                     foreach ($updated_fields as $key => $value) {
@@ -662,7 +663,7 @@ class Partner extends CI_Controller {
                     */
                     $html .= "</ul>";
                     $to = $am_email. ",". $this->session->userdata("official_email");
-                    $cc = ANUJ_EMAIL_ID;
+                    $cc = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
                     $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
                     
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
@@ -2658,7 +2659,7 @@ class Partner extends CI_Controller {
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name']) {
+            if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
                 $option .= " selected ";
             }
             else{
@@ -2712,7 +2713,7 @@ class Partner extends CI_Controller {
                 $option .= " selected ";
             }
             else{
-                if($is_repeat){
+                if($is_repeat && (trim($category) !== '')){
                     $option .= " disabled ";
                 }
             }
@@ -3200,7 +3201,7 @@ class Partner extends CI_Controller {
                 }
                 $checkboxClass = $prices['product_or_services'];
                 $ch  = "check_active_paid('".$i."')";
-                $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), get_symptom()"';
+               $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), disableCheckbox(this), get_symptom()"';
                 $tempHelperString = "";
                if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -3215,7 +3216,7 @@ class Partner extends CI_Controller {
                         if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                             $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,true";
-                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -3223,7 +3224,7 @@ class Partner extends CI_Controller {
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
-                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -4490,6 +4491,26 @@ class Partner extends CI_Controller {
         }
         echo $option;
     }
+
+
+
+        function get_partner_list_warehouse(){
+
+        $where = array('warehouse_details.entity_type'=>_247AROUND_PARTNER_STRING);
+ 
+        $partner_list = $this->partner_model->get_all_partner_warehouse($where);
+        $option = '<option selected="" disabled="">Select Partner Warehouse Hub</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name']. ' ( '. $value['city'] . ' ) ' . "</option>";  //address
+        }
+        echo $option;
+    }
+
+
+
     
      /**
      * @desc: This function is used to upload the challan file when partner shipped spare parts
@@ -5105,7 +5126,7 @@ class Partner extends CI_Controller {
             "Part Partner Shipped Date",
             "Partner Challan Number",
             "SF Challan Number",
-            "Part Shipped By SF",
+            "Defective Part Shipped By SF",
             "Part Type",
             "Parts Charge",
             "New Spare Part Received Date",
@@ -6102,12 +6123,12 @@ class Partner extends CI_Controller {
             if($row->actor != 'Partner' && $days>=0){
                $helperText_2 =  'data-target="#myModal"';
             } 
-            else if($days<0){  
-              $helperText_2 =  'onclick="alert('.$futureBookingDateMsg.')"' ;
+           else if($days<0){  
+              $helperText_2 =  'onclick="alert(\''.$futureBookingDateMsg.'\')"' ;
             }
             else{
-              $helperText_2 = 'onclick="alert("'.$partnerDependencyMsg.'")"'; 
-              }
+              $helperText_2 = 'onclick="alert(\''.$partnerDependencyMsg.'\')"'; 
+            }
               
             $disable = "";
             $toggle = "modal";
@@ -7027,7 +7048,7 @@ class Partner extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_editbooking_form($booking_id,"Repeat");
         }

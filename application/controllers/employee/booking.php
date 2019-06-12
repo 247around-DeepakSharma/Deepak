@@ -1425,13 +1425,13 @@ class Booking extends CI_Controller {
             $i = 0;
 
             foreach ($result as $prices) {
-
+                $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
-                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
+                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
                     if($prices['service_category'] == REPEAT_BOOKING_TAG) {
                         $html .= " checked ";
@@ -2453,12 +2453,18 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
-        if(!empty($status)){
-            echo json_encode($status);
-        } else {
-            echo json_encode(array('code' => 247));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            echo json_encode($status, true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
+            if(!empty($status)){
+                echo json_encode($status);
+            } else {
+                echo json_encode(array('code' => 247));
+            }
         }
     }
     
@@ -2481,6 +2487,11 @@ class Booking extends CI_Controller {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    if (!ctype_alnum($serial_number[$unit_id])) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        return FALSE;
+                    }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
@@ -5212,7 +5223,7 @@ class Booking extends CI_Controller {
         }
         
         if(!is_null($cancellation_reason)){
-           $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+           $whereIN['sc.cancellation_reason'] = [urldecode(str_replace("__","/",$cancellation_reason))];
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason;
@@ -5253,7 +5264,7 @@ class Booking extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_edit_booking_form($booking_id,"","Repeat");
         }

@@ -351,7 +351,9 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if(isset($post['is_inventory'])){
+            
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
@@ -661,7 +663,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('max(inventory_stocks.stock) as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
                 }
             }
         }
@@ -2475,6 +2477,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        $this->db->order_by('inventory_stocks.stock', 'desc');
                 
         $query = $this->db->get();
         return $query->result_array();
@@ -2554,5 +2557,18 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+        /**
+     * @Desc: This function is used to inser gst data data  
+     * @params: $select string
+     * @return: $id  
+     * 
+     */
+    
+    function  insert_entity_gst_data($data){
+        $this->db->insert('entity_gst_details',$data);
+        return $this->db->insert_id();
+
+    }
+
 
 }

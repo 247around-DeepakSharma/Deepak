@@ -231,7 +231,7 @@
                 <div class="form-group col-md-12    <?php if (form_error('order_id')) {
                     echo 'has-error';
                     } ?>">
-                    <label for="order_id">Order ID <span id="error_order_id" style="color:red"></span></label>
+                    <label for="order_id">Reference / Invoice / Order Number <span id="error_order_id" style="color:red"></span></label>
                     <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id" />
                 </div>
             </div>
@@ -343,12 +343,7 @@
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if (form_error('booking_address')) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if (isset($user[0]['home_address'])) {
-                                    echo $user[0]['home_address'];
-                                    } else {
-                                        echo set_value('booking_address');
-                                    } ?>
-                                </textarea>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if (isset($user[0]['home_address'])) { echo $user[0]['home_address']; } else { echo set_value('booking_address');} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -370,7 +365,7 @@
                         <div class="row">
                             <div class="form-group  col-md-12" >
                                 <center>
-                                    <input type="submit" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit Booking">
+                                    <input type="button" id="submitform" class="btn btn-primary " onclick="return check_validation()" value="Submit">
                                     <p id="error_not_visible" style="color: red"></p>
                                 </center>
                             </div>
@@ -393,9 +388,75 @@
 </div>
 </form>
 </div>
+<!--Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;margin: 0px;">
+                <button type="button" id="close_modal" class="close btn-primary well" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Verify Booking Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group col-md-12  <?php if( form_error('booking_appliance') ) { echo 'has-error';} ?> ">
+                            <label for="service_name">Appliance * <span id="error_booking_appliance" style="color: red;"></span></label>
+                            <input type="text" class="form-control" id="booking_appliance" name="booking_appliance" placeholder="Enter Appliance" required readonly>
+                            <input type="hidden" id="service_id" name="service_id">
+                            <?php echo form_error('booking_appliance'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group col-md-12  <?php if( form_error('pincode') ) { echo 'has-error';} ?> ">
+                            <label for="pincode">Pincode * <span id="error_pincode1" style="color: red;"></span></label>
+                            <input type="text" class="form-control" id="pincode" name="booking_pincode" placeholder="Enter Area Pin" required>
+                            <?php echo form_error('pincode'); ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 ">
+                        <div class="form-group col-md-12  <?php if( form_error('city') ) { echo 'has-error';} ?>">
+                            <label for="city">City * <span id="error_city1" style="color: red;"></span><span style="color:grey;display:none" id="city_loading">Loading ...</span></label>
+                            <select class="form-control"  id="city" name="city" required style="width: 404px;">
+                                <option selected="selected" disabled="disabled">Select City</option>
+                                <?php if(isset($user[0]['city'])){ ?>
+                                <option selected><?php echo $user[0]['city']; ?></option>
+                                <?php  }
+                                    ?>
+                            </select>
+                            <?php echo form_error('city'); ?>
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group col-md-12  <?php if (form_error('address')) { echo 'has-error';} ?>">
+                            <label for="address">Booking Address *  <span id="error_address1" style="color: red;"></label>
+                            <textarea class="form-control" rows="2" id="address" name="booking_address" placeholder="Please Enter Address"  required ><?php if (isset($user[0]['home_address'])) {
+                                echo $user[0]['home_address'];
+                                } else {
+                                    echo set_value('booking_address');
+                                } ?>
+                            </textarea>
+                            <?php echo form_error('address'); ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btn_submit" onclick="return check_address_validation()" class=" btn btn-success">Submit Booking</button>
+                    <button type="button" id="btn_cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal ends-->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
+    
+    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
+    
     function check_validation(){ 
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var user_name  = $("#name").val();
@@ -457,7 +518,7 @@
            display_message("booking_pincode","error_pincode","green","");
             
         }
-        if(city === null){
+        if((city === null) || ($.trim(city) === '')){
             
              display_message("booking_city","error_city","red","Please Enter City");
              return false;
@@ -617,11 +678,70 @@
                
        <?php } ?>
         
-        $('#submitform').val("Please wait.....");
+        $("#booking_appliance").val($.trim($("#service_name option:selected").text()));
+        $("#service_id").val(appliance);
+        $("#pincode").val(pincode);
+        $("#pincode").keyup();
+        $('#city option[value="'+city+'"]').prop("selected",true);
+        $('#select2-city-container').text(city);
+        $("#address").val(booking_address);
+        $("#myModal").modal("show");
+        EnableDisableFields('booking_form',true);
         
         return true;
     }
     
+    function EnableDisableFields(id,status)
+    {
+        var form = document.getElementById(id);
+        var elements = form.elements;
+        for (var i = 0, len = elements.length; i < len; ++i) {
+            if (elements[i].id !== 'close_modal') {
+                elements[i].readonly  = status;
+            }
+        }
+    }
+    
+    function check_address_validation() {
+        var booking_address = $('#address').val();
+        var city = $('#city').val();
+        var pincode = $('#pincode').val();
+        var appliance = $("#booking_appliance").val();
+        
+        if((appliance === null) || ($.trim(appliance) === '')){
+            display_message("booking_appliance","error_booking_appliance","red","Please Enter Appliance");
+             return false;
+        } else {
+            display_message("booking_appliance","error_booking_appliance","green","");
+        }
+        if($.trim(pincode) === ""){
+              display_message("pincode","error_pincode1","red","Please Enter Pincode");
+             return false;
+        } else {
+           display_message("pincode","error_pincode1","green","");
+            
+        }
+        if((city === null) || ($.trim(city) === '')){
+            
+             display_message("city","error_city1","red","Please Select City");
+             return false;
+        } else {
+             display_message("city","error_city1","green","");
+            
+        }
+        if(booking_address.trim().length < 1){
+             display_message("address","error_address1","red","Please Enter Booking Address");
+             return false;
+        } else {
+            display_message("address","error_address1","green","");
+        }
+        
+        $('#btn_submit').val("Please wait.....");
+        document.getElementById('btn_submit').disabled=true;
+        document.getElementById('booking_form').submit();
+        
+        return true;
+    }
     
     function display_message(input_id, error_id, color,message){
     
@@ -638,6 +758,10 @@
     }
     $("#booking_city").select2({
          tags: true
+    });
+    $("#city").select2({
+         tags: true,
+         width:"404px"
     });
     $("#booking_request_symptom").select2();
     $("#model_number_1").select2();
@@ -687,6 +811,14 @@
         $(this).val('');
     });
     
+    $("#pincode").keyup(function(event) {
+        enablePincode();
+        get_city($("#pincode").val(),$("#service_id").val());
+    });
+    
+    $('.close,#btn_cancel').click(function() {
+        EnableDisableFields('booking_form',false);
+    });
     get_city();
     get_brands();
     
@@ -881,6 +1013,13 @@
                           $("#priceList").html(data1.table);
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
+                          
+                        if(blDisableAcCategoryOptions == '1') {
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+                        }
                      }
                 }
             });
@@ -894,42 +1033,140 @@
     
     }
     
+    function getVendorData() {
+    
+        var postData = {};
+        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        $("#appliance_name").val(appliance_name);
+        
+        postData['service_id'] = $("#service_name").val();
+        postData['brand'] = $('#appliance_brand_1').val();
+        postData['category'] = $("#appliance_category_1").val();
+        capacity = $("#appliance_capacity_1").val();
+        if(capacity === null && capacity === ""){
+            postData['capacity'] = "";
+            $("#appliance_capacity_1").removeAttr("required");
+        } else {
+            postData['capacity'] = capacity;
+        }
+        postData['service_category'] = "";
+        postData['booking_id'] = "";
+        postData['pincode'] = $("#pincode").val();
+        postData['city'] = $("#city").val();
+        
+        postData['partner_type'] = $('#partner_type').val();
+        postData['assigned_vendor_id'] = "";
+        postData['add_booking'] = "add_booking";
+        
+        if(postData['brand'] !== null 
+                && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
+          
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                  
+                  $('#btn_submit').attr('disabled',true);
+                  
+                },
+                url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
+                data: postData,
+                success: function (data) {
+                    //console.log(data);
+                     if(data === "ERROR"){
+                        
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+    
+                     } else { 
+                          var data1 = jQuery.parseJSON(data);
+                         
+                          $("#upcountry_data").val(data1.upcountry_data);
+                          $('#btn_submit').attr('disabled',false);
+                     }
+                }
+            });
+        } else {
+          //console.log("error");
+        }
+    }
+    
+    // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
+    function disableCheckbox(obj) {
+        $(obj).on('change', function(){
+            if($(obj).prop("checked") == true) {
+                var price_tag = $(this).attr('data-price_tag');
+                if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
+                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', true).css('pointer-events', 'none');
+                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', true).css('pointer-events', 'none');
+                } else {
+                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
+                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
+                }
+            } else {
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+                $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
+            }
+        });
+    }
+    
+    
+    
+    
+    
     $("#booking_pincode").keyup(function(event) {
         get_city();
         
     });
     
-    function get_city(){
-        var pincode = $("#booking_pincode").val();
-        var service_id =  $("#service_name").val();
+    function get_city(pincode1 = '', service_id1 = ''){
+        var pincode = pincode1;
+        var service_id = service_id1;
+        var btn_submit = 'btn_submit';
+        if(pincode1 == '') {
+            pincode = $("#booking_pincode").val();
+            btn_submit = 'submitform';
+        }
+        if(service_id1 == '') {
+            service_id =  $("#service_name").val();
+            btn_submit = 'submitform';
+        }
         if(pincode.length === 6 && service_id != null){
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
                   
                     $('#city_loading').css("display", "-webkit-inline-box");
-                    $('#submitform').prop('disabled', true);
+                    $('#'+btn_submit).prop('disabled', true);
                 },
-                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,          
+                url: '<?php echo base_url(); ?>employee/partner/get_district_by_pincode/'+ pincode+"/"+service_id,
+                async: false,
                 success: function (data) {
                     if(data.includes("ERROR")){
                         alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
-                        $('#submitform').prop('disabled', true);
+                        $('#'+btn_submit).prop('disabled', true);
                         $("#not_visible").val('0');
                     }
                     else if(data.includes("Not_Serve")){
                         alert("This PINCODE is not in your Serviceable Area associated with us!");
-                         $('#submitform').prop('disabled', true);
+                         $('#'+btn_submit).prop('disabled', true);
                          $("#not_visible").val('0');
                     }
                     else {
-                        $('#booking_city').select2().html(data).change();
                         //                        $("#booking_city").select2({
                         //                           tags: true
                         //                        });
-                         $('#submitform').prop('disabled', false);
+                         if(pincode1 == '') {
+                            $('#booking_city').select2().html(data).change();
+                            getPrice();
+                         }
+                         else {
+                             $('#city').select2().html(data).change();
+                             getVendorData();
+                         }
+                         $('#'+btn_submit).prop('disabled', false);
                          $("#not_visible").val('1');
-                        getPrice();
                     }
                 },
                 complete: function(){
@@ -1331,6 +1568,7 @@
         var installation_flag = false;
         var pdi = false;
         var extended_warranty = false;
+        var pre_sales = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1352,6 +1590,11 @@
          if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
              extended_warranty = true;
              array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
          }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 

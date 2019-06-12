@@ -47,11 +47,11 @@ class service_centre_charges extends CI_Controller {
         $this->load->model('reporting_utils');
         $this->load->model('service_centre_charges_model');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-        } else {
-            redirect(base_url() . "employee/login");
-        }
+//        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+//            return TRUE;
+//        } else {
+//            redirect(base_url() . "employee/login");
+//        }
     }
 
     /**
