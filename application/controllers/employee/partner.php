@@ -1697,6 +1697,11 @@ class Partner extends CI_Controller {
             $unit_details['purchase_date'] = $appliance_details['purchase_date'] = $post['purchase_date'];
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
+            // Get Existing Price Tags
+            $whereOldPrice['booking_id'] = $booking_id;
+            $groupBY  = array('appliance_id');
+            $oldPriceTags = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereOldPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
+            // End
             if ($post['product_type'] == "Delivered") {
 //                $booking_details['current_status'] = _247AROUND_PENDING;
 //                $booking_details['internal_status'] = _247AROUND_PENDING;
@@ -1783,7 +1788,7 @@ class Partner extends CI_Controller {
                 $this->booking_model->check_price_tags_status($booking_id, $updated_unit_id,$inventory_details);
             }
             
-            $this->booking_model->update_request_type($booking_id, $price_tag);
+            $this->booking_model->update_request_type($booking_id, $price_tag,$oldPriceTags);
 
             $booking_details['amount_due'] = $post['amount_due'];
             if (!empty($upcountry_data)) {

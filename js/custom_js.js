@@ -265,6 +265,9 @@ function addBookingDialog(chanel = '') {
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
     var address = $('#booking_address').val();
     var service = $("#service_id option:selected").text();
+    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+         var service = $("#service_id").val();
+    }
     var pincode = $("#booking_pincode").val();
     var city = $("#booking_city").val();
     var booking_date = $("#booking_date").val();
@@ -277,11 +280,17 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
+   if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+         var service = $("#source_code").val();
+    }
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
     var symptom = $('#booking_request_symptom option:selected').text();
+    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+       symptom =  $('#booking_request_symptom').val();
+    }
    // var customer_paid = $("#grand_total_price").val()
     
     if($('.appliance_capacity').length > 0) {
@@ -299,7 +308,17 @@ function addBookingDialog(chanel = '') {
             return false;
         }
     }
-   
+      var delivered_price_tags = [];
+   $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
+    });
+    alert(delivered_price_tags);
+    var pr = checkPriceTagValidation(delivered_price_tags);
+     if(pr === false){
+        alert('Not Allow to select multiple different type of service category');
+        return false;
+    }
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
@@ -599,7 +618,69 @@ function setAppliances(i) {
     }
 
 }
+function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var repair_out_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+        var extended_warranty = false;
+        var pre_sales = false;
+        var array =[];
 
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+                }
+                
+         if(array.length > 1){
+             return false;
+         } else {
+             return true;
+         }
+    }
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
+    }
 function cloned_model(regex1, indexClone) {
 
     $("#preview_booking1").clone()

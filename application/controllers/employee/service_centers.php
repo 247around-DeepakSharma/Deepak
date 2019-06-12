@@ -47,6 +47,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("paytm_payment_lib");
         $this->load->library("validate_serial_no");
         $this->load->library("invoice_lib");
+        $this->load->library("booking_creation_lib");
     }
 
     /**
@@ -6758,39 +6759,15 @@ class Service_centers extends CI_Controller {
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
     
-
-    /**
-     * @desc function change password of service center entity.
-     * @author Ankit Rajvanshi
-     * @since 17-May-2019
-     */
-//    function change_password() {
-//        
-//        if($_POST) :
-//            // declaring variables.
-//            $service_center_id = $this->session->userdata['service_center_id'];
-//            $old_password = md5($_POST['old_password']);
-//            // fetch record.
-//            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
-//        endif;
-//        
-//        if($this->input->is_ajax_request()) : // verify old password.
-//            if(!empty($service_center_login)) :
-//                echo '1';exit;
-//            else :
-//                echo'0';exit;
-//            endif;
-//        elseif($_POST) :
-//            // Update password.
-//            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
-//            // setting feedback message for user.
-//            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
-//            redirect(base_url() . "employee/service_centers/change_password");
-//        endif;
-//        
-//        $this->load->view('service_centers/header');
-//        $this->load->view('service_centers/change_password');
-//    }
-    
- 
+    function get_sf_edit_booking_form($booking_id){
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        if($booking){
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/update_booking', $booking);
+        }
+        else{
+            echo "Booking Id Not Exist";
+        }
+    }
 }

@@ -268,5 +268,7 @@ $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_center
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
 
+$route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';
+$route['service_center/get_sf_edit_booking_form/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -2174,7 +2174,7 @@ class Api extends CI_Controller {
         //log_message('info', "Unit Inserted: " . $id_returned);
         }
         
-         $this->booking_model->update_request_type($booking_id, $price_tag);
+         $this->booking_model->update_request_type($booking_id, $price_tag,array());
 
 //        log_message('info', "No of Units: " . $count);
         return $count;
