@@ -6779,17 +6779,39 @@ class Service_centers extends CI_Controller {
     }
     
     function get_sf_edit_booking_form($booking_id){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking_id = base64_decode(urldecode($booking_id));
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
         if($booking){
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/update_booking', $booking);
+            if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
+                $is_spare_requested = $this->is_spare_requested($booking);
+                if(!$is_spare_requested){
+                   $this->load->view('service_centers/header');
+                   $this->load->view('service_centers/update_booking', $booking);
+                }
+                else{
+                    echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Spare is already requested, You can not Edit this Booking</p>";
+                }
+            }
+            else{
+                echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+            }
         }
         else{
-            echo "Booking Id Not Exist";
+            echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
         }
     }
-    
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
+    }
     function spare_assigned_to_partner() {
         log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
