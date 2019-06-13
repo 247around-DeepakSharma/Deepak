@@ -405,6 +405,9 @@
     </div>
 </div>
 <script type="text/javascript">
+    
+    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
+    
     function check_validation(){
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
@@ -816,6 +819,15 @@
                           $("#priceList").html(data1.table);
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
+                          
+                        if(blDisableAcCategoryOptions == '1') {
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+                        }
+
+
                           final_price();
                           set_upcountry();
                           //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:''); ?>');
