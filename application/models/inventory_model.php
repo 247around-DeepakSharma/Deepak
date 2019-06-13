@@ -663,7 +663,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('max(inventory_stocks.stock) as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
                 }
             }
         }
@@ -2477,6 +2477,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        $this->db->order_by('inventory_stocks.stock', 'desc');
                 
         $query = $this->db->get();
         return $query->result_array();

@@ -47,6 +47,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("paytm_payment_lib");
         $this->load->library("validate_serial_no");
         $this->load->library("invoice_lib");
+        $this->load->library("booking_creation_lib");
     }
 
     /**
@@ -6777,6 +6778,40 @@ class Service_centers extends CI_Controller {
            $this->load->view('service_centers/defective_part_shipped_by_sf', $data);
     }
     
+    function get_sf_edit_booking_form($booking_id){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking_id = base64_decode(urldecode($booking_id));
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        if($booking){
+            if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
+                $is_spare_requested = $this->is_spare_requested($booking);
+                if(!$is_spare_requested){
+                   $this->load->view('service_centers/header');
+                   $this->load->view('service_centers/update_booking', $booking);
+                }
+                else{
+                    echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Spare is already requested, You can not Edit this Booking</p>";
+                }
+            }
+            else{
+                echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+            }
+        }
+        else{
+            echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+        }
+    }
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
+    }
     function spare_assigned_to_partner() {
         log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
@@ -6813,39 +6848,4 @@ class Service_centers extends CI_Controller {
             $this->load->view('service_centers/spare_assigned_to_partner', $data);
         }
     }
-    
-    /**
-     * @desc function change password of service center entity.
-     * @author Ankit Rajvanshi
-     * @since 17-May-2019
-     */
-//    function change_password() {
-//        
-//        if($_POST) :
-//            // declaring variables.
-//            $service_center_id = $this->session->userdata['service_center_id'];
-//            $old_password = md5($_POST['old_password']);
-//            // fetch record.
-//            $service_center_login = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $service_center_id, 'password' => $old_password],null,null,null,null,null,[]);
-//        endif;
-//        
-//        if($this->input->is_ajax_request()) : // verify old password.
-//            if(!empty($service_center_login)) :
-//                echo '1';exit;
-//            else :
-//                echo'0';exit;
-//            endif;
-//        elseif($_POST) :
-//            // Update password.
-//            $affected_rows = $this->reusable_model->update_table('service_centers_login', ['password' => md5($_POST['new_password'])], ['service_center_id' => $service_center_id]);
-//            // setting feedback message for user.
-//            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
-//            redirect(base_url() . "employee/service_centers/change_password");
-//        endif;
-//        
-//        $this->load->view('service_centers/header');
-//        $this->load->view('service_centers/change_password');
-//    }
-    
- 
 }

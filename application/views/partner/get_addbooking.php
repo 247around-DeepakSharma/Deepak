@@ -963,7 +963,7 @@
         }
     }
     
-    function getPrice(pincode = '', city = '') {
+    function getPrice() {
         
         var postData = {};
         appliance_name = $("#service_name").find(':selected').attr('data-id');
@@ -982,10 +982,8 @@
         }
         postData['service_category'] = "";
         postData['booking_id'] = "";
-        var pincode_id = ((pincode == '') ? "booking_pincode" : pincode);
-        var city_id = ((city == '') ? "booking_city" : city);
-        postData['pincode'] = $("#"+pincode_id).val();
-        postData['city'] = $("#"+city_id).val();
+        postData['pincode'] = $("#booking_pincode").val();
+        postData['city'] = $("#booking_city").val();
         
         postData['partner_type'] = $('#partner_type').val();
         postData['assigned_vendor_id'] = "";
@@ -1035,26 +1033,76 @@
     
     }
     
+    function getVendorData() {
+    
+        var postData = {};
+        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        $("#appliance_name").val(appliance_name);
+        
+        postData['service_id'] = $("#service_name").val();
+        postData['brand'] = $('#appliance_brand_1').val();
+        postData['category'] = $("#appliance_category_1").val();
+        capacity = $("#appliance_capacity_1").val();
+        if(capacity === null && capacity === ""){
+            postData['capacity'] = "";
+            $("#appliance_capacity_1").removeAttr("required");
+        } else {
+            postData['capacity'] = capacity;
+        }
+        postData['service_category'] = "";
+        postData['booking_id'] = "";
+        postData['pincode'] = $("#pincode").val();
+        postData['city'] = $("#city").val();
+        
+        postData['partner_type'] = $('#partner_type').val();
+        postData['assigned_vendor_id'] = "";
+        postData['add_booking'] = "add_booking";
+        
+        if(postData['brand'] !== null 
+                && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
+          
+            $.ajax({
+                type: 'POST',
+                beforeSend: function(){
+                  
+                  $('#btn_submit').attr('disabled',true);
+                  
+                },
+                url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
+                data: postData,
+                success: function (data) {
+                    //console.log(data);
+                     if(data === "ERROR"){
+                        
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+    
+                     } else { 
+                          var data1 = jQuery.parseJSON(data);
+                         
+                          $("#upcountry_data").val(data1.upcountry_data);
+                          $('#btn_submit').attr('disabled',false);
+                     }
+                }
+            });
+        } else {
+          //console.log("error");
+        }
+    }
+    
     // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
     function disableCheckbox(obj) {
-        $(obj).on('change', function(){
-            if($(obj).prop("checked") == true) {
-                var price_tag = $(this).attr('data-price_tag');
-                if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
-                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
-                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', true).css('pointer-events', 'none');
-                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', true).css('pointer-events', 'none');
-                } else {
-                    $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
-                    $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
-                    $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
-                }
-            } else {
-                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
-                $('.price_checkbox[data-price_tag="Small Stand"]').attr('checked', false).css('pointer-events', 'auto');
-                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').attr('checked', false).css('pointer-events', 'auto');
-            }
-        });
+        if($(obj).prop("checked") == true) {
+            var price_tag = $(obj).attr('data-price_tag');
+            if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            } 
+        } else {
+            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', false).css('pointer-events', 'auto');
+        }
     }
     
     
@@ -1109,7 +1157,7 @@
                          }
                          else {
                              $('#city').select2().html(data).change();
-                             getPrice("pincode","city");
+                             getVendorData();
                          }
                          $('#'+btn_submit).prop('disabled', false);
                          $("#not_visible").val('1');
@@ -1514,6 +1562,7 @@
         var installation_flag = false;
         var pdi = false;
         var extended_warranty = false;
+        var pre_sales = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1535,6 +1584,11 @@
          if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
              extended_warranty = true;
              array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
          }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
