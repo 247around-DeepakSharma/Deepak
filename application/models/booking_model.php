@@ -1696,10 +1696,20 @@ class Booking_model extends CI_Model {
                     $entity_id = $this->session->userdata('service_center_id');
                     $agentID = $this->session->userdata('service_center_agent_id');
                 }
-                else{
+                else if(!empty($this->session->userdata('partner_id'))){
+                    $entity_type = "Partner";
+                    $entity_id = $this->session->userdata('partner_id');
+                    $agentID = $this->session->userdata('agent_id');
+                }
+                else if(!empty($this->session->userdata('id'))){
                     $entity_type = "247around";
                     $entity_id = _247AROUND;
                     $agentID = $this->session->userdata('id');
+                }
+                else{
+                    $entity_type = "247around";
+                    $entity_id = _247AROUND;
+                    $agentID = _247AROUND_DEFAULT_AGENT;
                 }
                 $data['entity_type']  = $entity_type;
                 $data['entity_id'] = $entity_id;
