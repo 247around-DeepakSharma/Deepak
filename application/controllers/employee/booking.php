@@ -5223,7 +5223,7 @@ class Booking extends CI_Controller {
          }
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-        $data['cancellation_reason_selected'] = str_replace("__","/",str_replace("__","/",$cancellation_reason));
+        $data['cancellation_reason_selected'] = str_replace("/","__",str_replace("/","__",$cancellation_reason));
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
