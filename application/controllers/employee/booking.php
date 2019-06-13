@@ -591,6 +591,9 @@ class Booking extends CI_Controller {
                     break;
 
                 default :
+                     if(!empty($this->session->userdata('service_center_id'))){
+                         $booking['edit_by_sf'] = 1;
+                     }
                     $status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
