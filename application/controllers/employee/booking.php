@@ -381,10 +381,12 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag);
-            
+            //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+            /*
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
+            */
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
@@ -5217,11 +5219,11 @@ class Booking extends CI_Controller {
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
         if(!is_null($cancellation_reason)){
-            $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+            $whereIN['sc.cancellation_reason'] = [urldecode(str_replace("__","/",str_replace("__","/",$cancellation_reason)))];
          }
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-        $data['cancellation_reason_selected'] = $cancellation_reason;
+        $data['cancellation_reason_selected'] = str_replace("__","/",str_replace("__","/",$cancellation_reason));
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
