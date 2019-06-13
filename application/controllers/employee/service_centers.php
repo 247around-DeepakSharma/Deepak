@@ -1825,11 +1825,10 @@ class Service_centers extends CI_Controller {
                 $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                 $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                 $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
-                $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
-
-                if (!empty($warehouse_details['inventory_id'])) {
-                    $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-                }
+                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                $data['parts_requested'] = $warehouse_details['part_name'];
+                $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                
             } else {
                 $data['partner_id'] = $partner_id;
                 $data['entity_type'] = _247AROUND_PARTNER_STRING;
