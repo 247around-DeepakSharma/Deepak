@@ -2668,6 +2668,7 @@ class Booking extends CI_Controller {
      */
     function get_booking_life_cycle($booking_id) { 
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['request_type'] = $this->miscelleneous->get_request_type_life_cycle($booking_id);
         //Checking for 247Around user
         // $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         // $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);

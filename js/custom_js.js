@@ -266,7 +266,6 @@ function addBookingDialog(chanel = '') {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);
      });
-     alert(delivered_price_tags);
      var pr = checkPriceTagValidation(delivered_price_tags);
       if(pr === false){
          alert('Not Allow to select multiple different type of service category');

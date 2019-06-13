@@ -4288,5 +4288,10 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
-    
+    function get_request_type_life_cycle($bookingID) {
+        $where['booking_id'] = $bookingID;
+        $orderBYArray['date'] = 'ASC';
+        return $this->My_CI->reusable_model->get_search_result_data("booking_request_type_state_change","*",$where,NULL,NULL,$orderBYArray,NULL,NULL,NULL,array());
+        
+    }
 }
