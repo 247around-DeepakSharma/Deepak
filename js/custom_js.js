@@ -261,7 +261,17 @@ function check_prepaid_balance(type) {
 }
 
 function addBookingDialog(chanel = '') {
-
+    var delivered_price_tags = [];
+    $(".price_checkbox:checked").each(function (i) {
+             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+             delivered_price_tags.push(price_tags);
+     });
+     alert(delivered_price_tags);
+     var pr = checkPriceTagValidation(delivered_price_tags);
+      if(pr === false){
+         alert('Not Allow to select multiple different type of service category');
+         return false;
+     }
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
 
@@ -297,33 +307,23 @@ function addBookingDialog(chanel = '') {
        symptom =  $('#booking_request_symptom').val();
     }
    // var customer_paid = $("#grand_total_price").val()
-    
-    if($('.appliance_capacity').length > 0) {
-        var count1=0;
-        $(".appliance_capacity").each(function(){
-            var capacity_value = document.getElementById(this.id).innerHTML;
-            if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
-                alert("Please Select Capacity");
-                $("#"+this.id).focus();
-                ++count1;
+     if(chanel != SF_UPDATE_FORM_VALIDATION_TEXT){
+        if($('.appliance_capacity').length > 0) {
+            var count1=0;
+            $(".appliance_capacity").each(function(){
+                var capacity_value = document.getElementById(this.id).innerHTML;
+                if(($.trim(capacity_value) !== '<option></option>') && ($("#"+this.id).val() === '')) {
+                    alert("Please Select Capacity");
+                    $("#"+this.id).focus();
+                    ++count1;
+                    return false;
+                }
+            });
+            if(count1 > 0) {
                 return false;
             }
-        });
-        if(count1 > 0) {
-            return false;
         }
-    }
-      var delivered_price_tags = [];
-   $(".price_checkbox:checked").each(function (i) {
-            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
-            delivered_price_tags.push(price_tags);
-    });
-    alert(delivered_price_tags);
-    var pr = checkPriceTagValidation(delivered_price_tags);
-     if(pr === false){
-        alert('Not Allow to select multiple different type of service category');
-        return false;
-    }
+     }
     if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
