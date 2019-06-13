@@ -243,12 +243,12 @@
                     <div class="x_content">
                         <div class="col-md-3 ">
                             <div class="form-group col-md-12    <?php if (form_error('order_id')) {echo 'has-error';} ?>">
-                                <label for="order_id">Order ID * <span id="error_order_id" style="color:red"></span></label>
+                                <label for="order_id">Reference / Invoice / Order Number * <span id="error_order_id" style="color:red"></span></label>
                                 <input class="form-control" name= "order_id" value="<?php if (!empty(set_value('order_id'))) {
                                     echo set_value('order_id');
                                     } else {
                                     echo $booking_history[0]['order_id'];
-                                    } ?>" placeholder ="Please Enter Order ID" id="order_id" <?php if($is_repeat){echo 'readonly';} ?>/>
+                                    } ?>" placeholder ="Please Enter Reference / Invoice / Order Number" id="order_id" <?php if($is_repeat){echo 'readonly';} ?>/>
                             </div>
                         </div>
                         <div class="col-md-3 ">
@@ -319,12 +319,7 @@
                         <div class="col-md-6">
                             <div class="form-group col-md-12  <?php if (form_error('query_remarks')) {echo 'has-error';} ?>">
                                 <label for="remarks">Remarks  <span id="error_remarks" style="color: red;"></label>
-                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {
-                                    echo set_value('query_remarks');
-                                    } else {
-                                    echo $booking_history[0]['booking_remarks'];
-                                    } ?>
-                                </textarea>
+                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {  echo set_value('query_remarks'); } else { echo $booking_history[0]['booking_remarks']; } ?></textarea>
                                 <?php echo form_error('query_remarks'); ?>
                             </div>
                         </div>
@@ -819,6 +814,23 @@
     });
     
     
+    }
+    
+    
+    // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
+    function disableCheckbox(obj) {
+        if($(obj).prop("checked") == true) {
+            var price_tag = $(obj).attr('data-price_tag');
+            if(price_tag.indexOf('Installation') != -1 && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            } 
+        } else {
+            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', false).css('pointer-events', 'auto');
+        }
     }
     
     $("#booking_pincode").keyup(function(event) {

@@ -232,7 +232,7 @@
                     echo 'has-error';
                     } ?>">
                     <label for="order_id">Reference / Invoice / Order Number <span id="error_order_id" style="color:red"></span></label>
-                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id" />
+                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Reference / Invoice / Order Number" id="order_id" />
                 </div>
             </div>
             <div class="col-md-3 ">
@@ -1072,7 +1072,7 @@
     function disableCheckbox(obj) {
         if($(obj).prop("checked") == true) {
             var price_tag = $(obj).attr('data-price_tag');
-            if(price_tag == 'Installation & Demo (Paid)' && $("#service_name").val() == '50') {
+            if(price_tag.indexOf('Installation') != -1 && $("#service_name").val() == '50') {
                 $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
                 $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
                 $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
