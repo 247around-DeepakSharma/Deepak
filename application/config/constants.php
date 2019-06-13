@@ -651,9 +651,10 @@ define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
 
 // Abhishek ///
 define('_247AROUND_TRANSFERED_TO_WAREHOUSE', 'Spare transfer from one warehouse to another warehouse');  //
-define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  warehouse to vendor');
+define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  partner to vendor');
 define('_247AROUND_TRANSFERED_TO_NEXT_ACTION', 'Spare Part to be shipped');
 define('SF_UPDATE_FORM_VALIDATION_TEXT', 'sf_update');
+define('_247AROUND_TRANSFERED_TO_PARTNER', 'Spare transfer from  warehouse to partner');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

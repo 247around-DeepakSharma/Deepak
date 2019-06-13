@@ -3355,10 +3355,11 @@ function generate_image($base64, $image_name,$directory){
           $is_partner_wh = $partner_details[0]['is_wh'];
           $is_micro_wh = $partner_details[0]['is_micro_wh'];  
         }
-      
+
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+
                 //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
                 if (!empty($response)) {
@@ -3390,15 +3391,17 @@ function generate_image($base64, $image_name,$directory){
                 } 
                 
             } else if ($is_partner_wh == 1) {
-
+                
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
                 if(!empty($response)){
+
                     $response['defective_return_to_entity_type'] = $response['entity_type'];
                     $response['defective_return_to_entity_id'] = $response['entity_id'];
                 }
             }
 
         } else {
+
             return false;
         }
 
@@ -3437,7 +3440,7 @@ function generate_image($base64, $image_name,$directory){
         return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
     }
 
-    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
+     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
                
@@ -3450,21 +3453,21 @@ function generate_image($base64, $image_name,$directory){
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
-        
+       
         if (empty($inventory_stock_details)) {
             $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
            
             if (!empty($alternate_inventory_stock_details)) {
                 if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
                     $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
+                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
 
                     $inventory_stock_details = $alternate_inventory_stock_details;
                 }
             }
             
         }
-                
+        
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 $response = array();
@@ -3475,14 +3478,14 @@ function generate_image($base64, $image_name,$directory){
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                 $response['is_micro_wh'] = 1;
+                $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                 
             } else {
-                foreach($inventory_stock_details as $value){
+
+                foreach($inventory_stock_details as $value){                    
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true, true);
-
-                    
                     if(!empty($warehouse_details)){
                         $response = array();
                         $response['stock'] = TRUE;
@@ -3492,6 +3495,8 @@ function generate_image($base64, $image_name,$directory){
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         $response['is_micro_wh'] = 2;
+
+                        $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                         break;
                     }
                 }
