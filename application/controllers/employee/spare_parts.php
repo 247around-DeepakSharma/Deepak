@@ -3142,9 +3142,4 @@ class Spare_parts extends CI_Controller {
   
     }
 
-
-
-=======
-    }
->>>>>>> e938e137c... CRM-3199 - Change Spare transfer logic from partner to vendor and vendor to partner
 }
