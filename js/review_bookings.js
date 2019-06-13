@@ -126,7 +126,10 @@ function review_search(status,is_partner){
     if(bookingID == '') {
         bookingID = 0;
     }
-    cancellation_reason = $('#cancellation_reason').val();
+    var cancellation_reason = '';
+    if($('#cancellation_reason').length){
+	cancellation_reason = $('#cancellation_reason').val().replace("/", "__").replace("/", "__");
+    }
     
     var tab = "#tabs-3";
     if(status == "Completed"){
