@@ -998,6 +998,10 @@
                             $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
                             $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
                             $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
+                            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
+                            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
+                            
                         }
                      }
                 }
@@ -1082,6 +1086,14 @@
             $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', false).css('pointer-events', 'auto');
             $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', false).css('pointer-events', 'auto');
         }
+        
+        $('#priceList').children('tbody').children('tr').each(function(index) {
+            if($('#checkbox_'+index).prop("checked") == true && $('#checkbox_'+index).attr('data-price_tag').indexOf('Installation') != -1 && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            }
+        });
     }
     
     
