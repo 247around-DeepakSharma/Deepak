@@ -121,7 +121,7 @@ function send_remarks() {
 
 }
 function review_search(status,is_partner){
-    bookingID = $('#search').val();
+    var bookingID = $('#search_'+status+'_'+is_partner).val();
    
     if(bookingID == '') {
         bookingID = 0;

@@ -5210,7 +5210,7 @@ class Booking extends CI_Controller {
     function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
         $this->checkUserSession();
         $whereIN = $where = $join = array();
-        if($booking_id == 0) {
+        if(!$booking_id) {
             $booking_id  = NULL;
         }
         if($this->session->userdata('user_group') == 'regionalmanager'){

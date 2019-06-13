@@ -4,7 +4,7 @@
 <div class="" style="margin-top: 30px;">
          <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">              
-                 <input type="search" class="form-control pull-right"  id="search" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
+                 <input type="search" class="form-control pull-right"  id="search_<?=$status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
              </div>
               <?php if($status == 'Cancelled') { 
               ?>
