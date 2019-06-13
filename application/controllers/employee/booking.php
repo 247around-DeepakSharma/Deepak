@@ -606,7 +606,7 @@ class Booking extends CI_Controller {
                 $stateChangeSFID  = $this->session->userdata('service_center_id');
             }
             else{
-                $id = $this->session->userdata('id');
+                $e_id = $this->session->userdata('id');
                 $employeeId = $this->session->userdata('employee_id');
                 $stateChangePartnerID = _247AROUND;
                 $stateChangeSFID  = NULL;
