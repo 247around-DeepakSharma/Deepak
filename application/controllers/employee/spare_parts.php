@@ -3026,7 +3026,7 @@ class Spare_parts extends CI_Controller {
                 }else{
                  $requested_part_number = '-';  
                 }
-                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, $booking['service_center_id']);
+                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
                 if (!empty($data)) {
                     if($data['stock']){
                         $dataupdate = array(
