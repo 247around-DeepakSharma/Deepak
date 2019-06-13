@@ -661,7 +661,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
                 }
             }
         }

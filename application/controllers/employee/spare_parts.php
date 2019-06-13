@@ -2788,6 +2788,7 @@ class Spare_parts extends CI_Controller {
                         'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
+                        'parts_requested' => $data['part_name']
                     );
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
@@ -3037,6 +3038,7 @@ class Spare_parts extends CI_Controller {
                         'defective_return_to_entity_type' =>_247AROUND_SF_STRING,
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
+                        'parts_requested' => $data['part_name']
                     );
                     $remarks = _247AROUND_TRANSFERED_TO_WAREHOUSE;
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
