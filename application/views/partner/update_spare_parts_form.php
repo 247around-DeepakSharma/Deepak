@@ -133,6 +133,7 @@
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
                                         <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
+                                            <input type="hidden" name="part[<?php echo $key; ?>][requested_inventory_id]" id="<?php echo "requested_inventory_id_".$key;?>" value="<?php echo $value->requested_inventory_id; ?>" />
                                         </div>
                                     </div>
                                     <?php if(!is_null($value->estimate_cost_given_date) || $value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  $purchase_price += $value->purchase_price; ?>
@@ -573,25 +574,28 @@
     function change_shipped_part_type(key){
         var model_number_id = $('#shippedmodelnumberid_' + key).val();
         var part_type = $('#shippedparttype_'+ key).val();
+       
         $('#spinner_'+key).addClass('fa fa-spinner').show();
-        if(model_number_id){
+        if(model_number_id && part_type){
+            var requested_inventory_id = $("#requested_inventory_id_"+key).val();
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number_id:model_number_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
+                    console.log(data);
                     $('#shippedpartsname_'+key).val('val', "");
                     $('#shippedpartsname_' +key).val('Select Part Name').change();
-                    $('#shippedpartsname_' + key).html(data);
+                    $('#shippedpartsname_' + key).html(data).change();
                     $('#spinner_' + key).removeClass('fa fa-spinner').hide();
-                    var request_part_type = $("#partsname_"+key).val();
-                    if(request_part_type){
-                        $('#shippedpartsname_' +key).val(request_part_type).change(); 
-                    }
+//                    var request_part_type = $("#partsname_"+key).val();
+//                    if(request_part_type){
+//                        $('#shippedpartsname_' +key).val(request_part_type).change(); 
+//                    }
                 }
             });
         }else{
-            alert("Please Select Model Number");
+          //  alert("Please Select Model Number");
         }
     }
     
