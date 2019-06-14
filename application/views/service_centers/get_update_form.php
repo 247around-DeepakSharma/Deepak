@@ -244,7 +244,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"  readonly="" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text"  readonly="" value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -340,7 +340,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text"  readonly="" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text"  readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>
