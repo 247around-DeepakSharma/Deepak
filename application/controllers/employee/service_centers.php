@@ -4958,7 +4958,9 @@ function update_defective_parts($sp_id) {
     function inventory_stock_list(){
         //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/inventory_stock_list');
+        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_micro_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $data['wh'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $this->load->view('service_centers/inventory_stock_list',$data);
     }
       
     /**
