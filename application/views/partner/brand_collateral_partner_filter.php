@@ -151,6 +151,7 @@
                 response=JSON.parse(response);
                 if(response.services){
                     $('#service_id').html(response.services);
+                    $('#service_id').trigger("change");
                 }
             }
         });
@@ -169,6 +170,7 @@
                 //First Resetting Options values present if any
                 $('#brand').html("<option selected disabled  >Select Brand</option>");
                 $('#brand').append(data);
+                $('#brand').trigger("change");
             }
         });
     }

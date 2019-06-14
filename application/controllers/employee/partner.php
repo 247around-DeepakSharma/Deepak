@@ -7734,4 +7734,29 @@ class Partner extends CI_Controller {
     }
 
     
+    /**
+     * @Desc: This function is used to get  Model for Partner for particular service_id  
+     * This is being called from AJAX
+     * @params: partner_id, service_name
+     * $return: Json
+     * 
+     */
+    function get_model_for_partner_service_wise() {
+        $appliace_model = "";
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $where = array('entity_type' => 'partner', 'entity_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
+        $data = $this->partner_model->get_model_number_partner_service_wise($where);
+
+        $option = "";
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($appliace_model == $value['model_number'] || count($data) == 1) {
+                $option .= " selected ";
+            }
+            $option .= " value='" . $value['id'] . "'>" . $value['model_number'] . "</option>";
+        }
+
+        echo $option;
+    }
 }

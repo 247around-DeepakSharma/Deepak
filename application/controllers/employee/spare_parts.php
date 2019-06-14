@@ -1197,7 +1197,14 @@ class Spare_parts extends CI_Controller {
         if( isset($post['where']['status']) && $post['where']['status'] == DEFECTIVE_PARTS_SHIPPED){
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
-                
+        
+        if(!empty($this->input->post('partner_wise_parts_requested'))){
+            $post['where']['booking_details.partner_id'] = $this->input->post('partner_wise_parts_requested');
+        }
+        
+        if(!empty($this->input->post('appliance_wise_parts_requested'))){
+            $post['where']['booking_details.service_id'] = $this->input->post('appliance_wise_parts_requested');
+        }   
         return $post;
     }
     
