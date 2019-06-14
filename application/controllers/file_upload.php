@@ -902,7 +902,21 @@ class File_upload extends CI_Controller {
     function process_upload_alternate_spare_parts($data) {
         log_message("info", __METHOD__);
         $response = array();
+        $insert_data = array();
         $partner_id = trim($this->input->post('partner_id'));
+        
+        $agentid='';
+        if ($this->session->userdata('userType') == 'employee') {
+            $agentid=$this->session->userdata('id');
+            $agent_name =$this->session->userdata('emp_name');
+            $login_partner_id = _247AROUND;
+            $login_service_center_id =NULL;
+        }else if($this->session->userdata('userType') == 'service_center'){
+            $agentid=$this->session->userdata('agent_id');
+            $agent_name =$this->session->userdata('service_center_name');
+            $login_service_center_id = $this->session->userdata('service_center_id');
+            $login_partner_id =NULL;
+        }
         
         if ($partner_id) {
             //get file data to process
@@ -987,7 +1001,19 @@ class File_upload extends CI_Controller {
                         $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
                         
                       }
-                      
+                    
+                    $where = array(
+                        'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
+                        'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                        'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
+                    );
+                    $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                            . " requested_inventory_id";
+                    $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
+                    $post['is_inventory'] = true;
+                    $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+
+                    $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
                  }
                  
             }

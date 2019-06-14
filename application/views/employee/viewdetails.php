@@ -603,7 +603,7 @@
                                           } 
                                          ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
