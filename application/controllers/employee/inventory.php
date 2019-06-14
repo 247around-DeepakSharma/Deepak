@@ -2059,7 +2059,7 @@ class Inventory extends CI_Controller {
             'inventory_master_list.inventory_id' => $inventory_id,
             'inventory_master_list.service_id' => $service_id,
         );
-
+        
         $inventory_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.part_name', $where, array());
         $data = array();
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -2280,9 +2280,14 @@ class Inventory extends CI_Controller {
 
     function get_alternate_master_list_data() {
         $post = $this->get_post_data();
-
+        $where_type = ""; 
         $inventory_id = $this->input->post('inventory_id');
         $part_type = trim($this->input->post('part_type'));
+        if(isset($part_type) && !empty($part_type)){
+         $where_type =  "AND inventory_master_list.type=".$part_type;   
+        }else{
+         $where_type = "";    
+        }
         $entity_type = trim($this->input->post('entity_type'));
         $entity_id = trim($this->input->post('entity_id'));
         $service_id = trim($this->input->post('service_id'));
@@ -2297,14 +2302,16 @@ class Inventory extends CI_Controller {
                         return $entry['inventory_id'];
                     }, $group_inventory_id));
         }
-
+        
+     
+        
         $data = array();
         $group_id = '';
         if (!empty($group_inventory_id)) {
             $group_id = $group_inventory_id[0]['group_id'];
             $post['column_order'] = array();
             $post['column_search'] = array('part_name', 'part_number', 'services.services', 'services.id','appliance_model_details.model_number');
-            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids) AND inventory_master_list.type='".$part_type ."'";
+            $post['where'] = "inventory_master_list.entity_id = $entity_id AND inventory_master_list.entity_type ='" . $entity_type . "' AND  inventory_master_list.service_id = $service_id AND inventory_master_list.inventory_id IN($inventory_ids)".$where_type;
             $select = "inventory_master_list.*,services.services,alternate_inventory_set.status,appliance_model_details.model_number";
             $list = $this->inventory_model->get_alternate_inventory_master_list($post, $select);
             $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');

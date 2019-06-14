@@ -2268,6 +2268,7 @@ class Partner extends CI_Controller {
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
 
+        $data['request_type'] = $this->miscelleneous->get_request_type_life_cycle($booking_id);
         //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
@@ -5812,7 +5813,8 @@ class Partner extends CI_Controller {
         $serviceWhere['isBookingActive'] =1;
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
          if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
-            $this->load->view('partner/partner_default_page_cc');
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+            $this->load->view('partner/partner_default_page_cc', $data);
         }
         else{
             $this->load->view('partner/partner_dashboard',array('services'=>$services));

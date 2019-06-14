@@ -63,6 +63,15 @@ class Booking extends CI_Controller {
                 redirect(base_url() . "employee/login");
             } 
         }
+        else{
+             if (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        }
     }
 
     /**
@@ -591,6 +600,9 @@ class Booking extends CI_Controller {
                     break;
 
                 default :
+                     if(!empty($this->session->userdata('service_center_id'))){
+                         $booking['edit_by_sf'] = 1;
+                     }
                     $status = $this->booking_model->update_booking($booking_id, $booking);
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
@@ -606,7 +618,7 @@ class Booking extends CI_Controller {
                 $stateChangeSFID  = $this->session->userdata('service_center_id');
             }
             else{
-                $id = $this->session->userdata('id');
+                $e_id = $this->session->userdata('id');
                 $employeeId = $this->session->userdata('employee_id');
                 $stateChangePartnerID = _247AROUND;
                 $stateChangeSFID  = NULL;
@@ -2668,6 +2680,7 @@ class Booking extends CI_Controller {
      */
     function get_booking_life_cycle($booking_id) { 
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['request_type'] = $this->miscelleneous->get_request_type_life_cycle($booking_id);
         //Checking for 247Around user
         // $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         // $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
