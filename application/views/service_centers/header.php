@@ -204,12 +204,10 @@
                                 if ($this->session->userdata('is_wh') == 1) { ?> 
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li>
                                 <li class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion">Bulk Spare Transfer</a></li> 
-                                <li class="divider"></li>
-                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh">Bulk Spare Transfer from Warehouse to Warehouse</a></li> 
-                                <li class="divider"></li>
                                 <?php   }
                                 ?>
+                                <li><a href="<?php echo base_url(); ?>service_center/delivered_spare_transfer">Delivered Spare Transfer</a></li>
+                                <li class="divider"></li>
 
                             </ul>
                         </li>
@@ -291,8 +289,14 @@
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
                                 <li class="divider" style="height: 1.5px;"></li>
-
                                 <?php }?>  
+                                
+                                 <?php if($this->session->userdata('is_wh') == 1){ ?>
+                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer</strong></a></li> 
+                                <li class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh"><strong>Bulk Spare Transfer from Warehouse to Warehouse</strong></a></li> 
+                                <li class="divider"></li>
+                                  <?php }?>  
                             </ul>
                         </li>
 
