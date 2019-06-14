@@ -2284,7 +2284,7 @@ class Inventory extends CI_Controller {
         $inventory_id = $this->input->post('inventory_id');
         $part_type = trim($this->input->post('part_type'));
         if(isset($part_type) && !empty($part_type)){
-         $where_type =  "AND inventory_master_list.type=".$part_type;   
+         $where_type =  "AND inventory_master_list.type='".$part_type."'";   
         }else{
          $where_type = "";    
         }
