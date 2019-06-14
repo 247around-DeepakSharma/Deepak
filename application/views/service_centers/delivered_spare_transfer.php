@@ -119,8 +119,7 @@
         ?>
 
 
-            <div   >
-
+            <div>
             <form action="<?php echo base_url(); ?>service_center/delivered_spare_transfer" method="POST" >
                 <div class="row">
                     <div class="col-md-5">
@@ -139,7 +138,7 @@
                         <div class="form-group">
                             <label class="control-label col-md-4" for="tobooking">To Booking*</label> 
                             <div class="col-md-7  ">                                        
-                                <input type="text" class="form-control" required="" placeholder="TO Booking ID" id="tobooking"   value="<?php
+                                <input type="text" class="form-control" required="" placeholder="To Booking ID" id="tobooking"   value="<?php
                                 if (!empty($tobooking)) {
                                     echo $tobooking;
                                 }
