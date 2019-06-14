@@ -40,7 +40,7 @@
    </div>
     <hr>
       <?php if (!empty($request_type)) { ?>
-    <h1 style='font-size:24px;'>Booking Request Type Change History</h1>
+    <h1 style='font-size:24px;'>Booking Request Type History</h1>
     <table  class="table table-striped table-bordered table-hover">
         <tr>
             <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>

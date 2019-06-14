@@ -2268,6 +2268,7 @@ class Partner extends CI_Controller {
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
 
+        $data['request_type'] = $this->miscelleneous->get_request_type_life_cycle($booking_id);
         //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);

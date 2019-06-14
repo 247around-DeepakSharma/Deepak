@@ -63,6 +63,15 @@ class Booking extends CI_Controller {
                 redirect(base_url() . "employee/login");
             } 
         }
+        else{
+             if (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "service_center/login");
+        }
+        }
     }
 
     /**

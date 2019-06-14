@@ -1699,7 +1699,7 @@ class Booking_model extends CI_Model {
                     $entity_id = $this->session->userdata('service_center_id');
                     $agentID = $this->session->userdata('service_center_agent_id');
                     $entity_name = $this->session->userdata('service_center_name');
-                    $agent_name = $this->session->userdata('emp_name');
+                    $agent_name = $this->session->userdata('agent_name');
                 }
                 else if(!empty($this->session->userdata('partner_id'))){
                     $entity_type = "Partner";
