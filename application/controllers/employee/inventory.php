@@ -1056,7 +1056,9 @@ class Inventory extends CI_Controller {
         log_message('info', __FUNCTION__ . "Entering... ");
         $this->checkUserSession();
 
-        $data['partner_id'] = $this->input->post('partner_id');
+        $data['partner_id'] = $this->input->post('partner_id');        
+        $data['services'] = $this->booking_model->selectservice();		
+        $data['partners'] = $this->partner_model->getpartner();
         $this->load->view('employee/sparepart_on_tab', $data);
     }
 
