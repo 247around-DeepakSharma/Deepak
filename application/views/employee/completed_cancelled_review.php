@@ -14,7 +14,7 @@
                 <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
-                    <option value="<?= $reason['reason']; ?>"><?= $reason['reason']; ?></option>
+                    <option value="<?= $reason['id']; ?>"><?= $reason['reason']; ?></option>
                   
                     <?php } ?>
                 </select>

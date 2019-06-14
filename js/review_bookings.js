@@ -126,9 +126,9 @@ function review_search(status,is_partner){
     if(bookingID == '') {
         bookingID = 0;
     }
-    var cancellation_reason = '';
+    var cancellation_reason_id = '';
     if($('#cancellation_reason').length){
-	cancellation_reason = $('#cancellation_reason').val().replace("/", "__").replace("/", "__");
+	cancellation_reason_id = $('#cancellation_reason').val();
     }
     
     var tab = "#tabs-3";
@@ -138,7 +138,7 @@ function review_search(status,is_partner){
     if(is_partner){
         var tab = "#tabs-4";
     }
-     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+cancellation_reason, tab,0);
+     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+cancellation_reason_id, tab,0);
 }
 
 
