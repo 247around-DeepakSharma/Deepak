@@ -135,12 +135,9 @@ $route['service_center/inventory/appliance_model_list'] = 'employee/service_cent
 $route['service_center/booking_spare_list'] = 'employee/service_centers/booking_spare_list';
 $route['service_center/spare_transfer'] = 'employee/service_centers/spare_transfer';
 $route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_transfer';
-//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
-
-
-
-
-
+$route['service_center/delivered_spare_transfer'] = 'employee/service_centers/delivered_spare_transfer';
+$route['service_center/do_delivered_spare_transfer'] = 'employee/service_centers/do_delivered_spare_transfer';
+//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';  delivered_spare_transfer_list
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
