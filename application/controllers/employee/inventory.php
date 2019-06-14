@@ -2806,6 +2806,7 @@ class Inventory extends CI_Controller {
 
         $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
+        $requested_inventory_id = $this->input->post('requested_inventory_id');
         $where = array();
         if (!empty($model_number_id)) {
             $where['model_number_id'] = $model_number_id;
@@ -2834,6 +2835,9 @@ class Inventory extends CI_Controller {
 
         foreach ($inventory_type as $value) {
             $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            if($requested_inventory_id == $value['inventory_id']){
+                $option .= " selected ";
+            }
             $option .=" > ";
             $option .= $value['part_name'] . "</option>";
         }
