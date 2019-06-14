@@ -499,6 +499,7 @@
                     $('#shippedpartsname_' + sp_id).val('Select Part Name').change();
                     $('#shippedpartsname_' +sp_id).html(data).change();
                     $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
+                    
                     }
             });
         }else{
@@ -508,12 +509,12 @@
     
     function change_parts_name(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
-        var inventory_id = $('#shippedpartsname_' +sp_id).find(':selected').attr('data-inventory_id');
-        if(inventory_id){
+        var part_name = $('#shippedpartsname_' +sp_id).val();
+        if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_price',
-                data: { inventory_id:inventory_id },
+                data: { part_name:part_name,model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>' },
                 success:function(data){
                     //console.log(data);
                     var obj = JSON.parse(data);
