@@ -2545,5 +2545,27 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get data from the inventory_model_mapping
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_model_data($select, $where = array(), $where_in = array()) {
+        $this->db->distinct();
+        $this->db->select($select);
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        
+        if (!empty($where_in)) {
+            $this->db->where('inventory_model_mapping.inventory_id IN (' . $where_in . ') ', NULL);
+        }
+        $this->db->from('inventory_model_mapping');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
