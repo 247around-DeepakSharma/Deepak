@@ -2759,61 +2759,12 @@ class Spare_parts extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
 
-        foreach ($bookings_spare as $booking) {
-            $spareid = $booking['id'];
-            $partner_id = $booking['partner_id'];
-            $state = $booking['state'];
-            $requested_part_number = '';
-            if (!empty($booking['part_number'])) {
-                $requested_part_number = $booking['part_number'];
-            } else {
-                $requested_part_number = '-';
-            }
-            $requested_inventory = $booking['requested_inventory_id'];
+        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
 
-            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
-            if (!empty($data)) {
-                 
-                if ($data['stock']) {
-                    $dataupdate = array(
-                        'is_micro_wh' => $data['is_micro_wh'],
-                        'entity_type' => $data['entity_type'],
-                        'defective_return_to_entity_id' => $data['defective_return_to_entity_id'],
-                        'partner_id' => $data['entity_id'],
-                        'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
-                        'challan_approx_value' => $data['challan_approx_value'],
-                        'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name']
-                    );
-                    $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
-                    $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
-                    $old_state = 'Spare Part Transferred from ' . $partner_id;
-                    $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
-                    if ($data['entity_type'] == _247AROUND_SF_STRING) {
-                        $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
-                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
-                    } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
-                        $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
-                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
-                    }
-                    $tcount++;
-                } else {
-
-                    $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
-                    array_push($booking_error_array, $booking['booking_id']);
-                    
-                }
-            } else {
-                $this->table->add_row($booking['booking_id'], $booking['part_number'],$spareid);
-                array_push($booking_error_array, $booking['booking_id']);
-                                    
-            }
-        }   /// for loop ends
-
+        foreach($add_row as $row_values) {
+            $this->table->add_row($row_values);
+        }
+        
         if (!empty($booking_error_array)) {
             $body_msg = $this->table->generate();
             $template = $this->booking_model->get_booking_email_template("spare_not_transfer_from_wh_to_wh");

@@ -193,7 +193,7 @@
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">
-                                            <input required="" type="text" class="form-control spare_parts" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
+                                            <input required="" type="text" class="form-control spare_parts" onchange="change_parts_name('<?php echo $key;?>')" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -617,15 +617,15 @@
         }
     }
     
-    $('#shipped_parts_name').on('change', function() {
-        change_parts_name();
-        
-    });
+//    $('#shipped_parts_name').on('change', function() {
+//        change_parts_name();
+//        
+//    });
      
-    function change_parts_name(){
+    function change_parts_name(key){
         var model_number_id = $('#shipped_model_number_id').val();
-        var part_name = $('#shipped_parts_name').val();
-        
+        var part_name = $('#shippedpartsname_' + key).val();
+        var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -635,7 +635,7 @@
                     //console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.inventory_id){
-                        $('#inventory_id').val(obj.inventory_id);
+                        $('#inventory_id').val(inventory);
                         $('#submit_form').attr('disabled',false);
                     }else{
                         alert("Inventory Details not found for the selected combination.");

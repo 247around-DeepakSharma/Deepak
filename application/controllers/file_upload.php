@@ -902,7 +902,21 @@ class File_upload extends CI_Controller {
     function process_upload_alternate_spare_parts($data) {
         log_message("info", __METHOD__);
         $response = array();
+        $insert_data = array();
         $partner_id = trim($this->input->post('partner_id'));
+        
+        $agentid='';
+        if ($this->session->userdata('userType') == 'employee') {
+            $agentid=$this->session->userdata('id');
+            $agent_name =$this->session->userdata('emp_name');
+            $login_partner_id = _247AROUND;
+            $login_service_center_id =NULL;
+        }else if($this->session->userdata('userType') == 'service_center'){
+            $agentid=$this->session->userdata('agent_id');
+            $agent_name =$this->session->userdata('service_center_name');
+            $login_service_center_id = $this->session->userdata('service_center_id');
+            $login_partner_id =NULL;
+        }
         
         if ($partner_id) {
             //get file data to process
@@ -987,7 +1001,32 @@ class File_upload extends CI_Controller {
                         $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
                         
                       }
-                      
+                    
+                    $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
+                    $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['inventory_id']));
+                    
+                    if ($insert_inventory && $insert_alt_inventory) {
+                        log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
+                        $response['status'] = TRUE;
+                        $response['message'] = "Details inserted successfully.";
+                    } else {
+                        log_message("info", __METHOD__ . " error in creating inventory model mapping");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Something went wrong in inserting data.";
+                    }
+                    
+                    $where = array(
+                        'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
+                        'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                        'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
+                    );
+                    $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                            . " requested_inventory_id";
+                    $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
+                    $post['is_inventory'] = true;
+                    $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+
+                    $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
                  }
                  
             }
@@ -1503,6 +1542,32 @@ class File_upload extends CI_Controller {
                 $returnData['message'] = "File upload Failed. Empty file has been uploaded";
             }
             echo json_encode($returnData);
+    }
+    
+    /**
+     * @desc - This function is used to insert model mapping data for uploaded alternate parts
+     * @param $inventory_id, $alt_inventory_id
+     * @return $insert_id
+     */
+    function insert_Inventory_Model_Data($inventory_id, $alt_inventory_id) {
+        $data_model_mapping = array();
+        $insert_id = 0;
+        $where = array('inventory_model_mapping.inventory_id' => trim($inventory_id));
+        $inventory_details = $this->inventory_model->get_inventory_model_data("*", $where);
+        if(!empty($inventory_details)) {
+            foreach($inventory_details as $inventory) {
+                $tmp = array();
+                $tmp['inventory_id'] = trim($alt_inventory_id);
+                $tmp['model_number_id'] = $inventory['model_number_id'];
+                array_push($data_model_mapping, $tmp);
+            }
+        }
+        
+        if(!empty($data_model_mapping)) {
+            $insert_id = $this->inventory_model->insert_batch_inventory_model_mapping($data_model_mapping);
+        }
+        
+        return $insert_id;
     }
 
 }
