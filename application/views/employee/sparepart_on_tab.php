@@ -11,7 +11,7 @@
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-body" >
+                    <div class="panel-body" >                         
                         <table id="estimate_cost_given_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr>
@@ -130,6 +130,29 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
+                        <div class="row">		
+                            <div class="col-md-1 pull-right">		
+                                <a class="btn btn-success" id="show_spare_list">Show</a><span class="badge" title="show spare data"></span>		
+                            </div>		
+                            <div class="col-md-4 pull-right">		
+                                <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested">		
+                                    <option value="" selected="selected" disabled="">Select Services</option>		
+                                    <?php foreach($services as $val){ ?>		
+                                    <option value="<?php echo $val->id?>"><?php echo $val->services?></option>		
+                                    <?php } ?>		
+                                </select>		
+                            </div> 		
+                            <div class="col-md-4 pull-right">		
+                                <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested">		
+                                    <option value="" selected="selected" disabled="">Select Partners</option>		
+                                    <?php 		
+                                        foreach($partners as $val){ ?>		
+                                            <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>		
+                                    <?php } ?>		
+                                </select>		
+                            </div>		
+                        </div>		
+                        <hr/>
                         <table id="spare_parts_requested_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr>
@@ -734,7 +757,13 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '10', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: function(d){
+                    d.type =  '10';		
+                    d.status =  '<?php echo SPARE_PART_ON_APPROVAL; ?>';		
+                    d.partner_id =  '<?php echo $partner_id; ?>';		
+                    d.partner_wise_parts_requested =  $('#partner_wise_parts_requested').val();		
+                    d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested').val();		
+                 }
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1321,12 +1350,8 @@
                   return false;
               }
             }
-        });         
-        
+        });                 	
     }
-    
-    
-    
     $(document).on('click', '.open_spare_part', function(){
 
      var spare_id = $(this).data('spareid');
@@ -1372,5 +1397,17 @@
  
 });
 
-    
+    $('#partner_wise_parts_requested').select2({		
+       placeholder:'Select Partner',		
+       allowClear: true		
+    });		
+
+    $('#appliance_wise_parts_requested').select2({		
+           placeholder:'Select Appliance',		
+           allowClear: true		
+    });		
+
+    $('#show_spare_list').click(function(){		
+        spare_parts_requested_table.ajax.reload(null, false); 		
+    }); 
 </script>

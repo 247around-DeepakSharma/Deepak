@@ -497,7 +497,7 @@ class Login extends CI_Controller {
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
                     $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
-                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent['full_name']);
+                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent[0]['full_name']);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/dashboard";
