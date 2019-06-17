@@ -587,6 +587,7 @@
                                 <tr >
                                     <th class="text-center" data-orderable="false">No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Partner/Warehouse</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Serial Number</th>
                                     <th class="text-center" data-orderable="false">Parts</th>                                
@@ -610,6 +611,9 @@
                                     </td>
                                     <td>
                                         <?php echo $row['booking_id']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['entity_type']; ?>
                                     </td>
                                     <td>
                                         <?php echo $row['model_number']; ?>
