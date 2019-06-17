@@ -1489,6 +1489,10 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
         
+        if(!empty($post['is_original_inventory'])){
+            $this->db->join('inventory_master_list as original_im','original_im.inventory_id = spare_parts_details.original_inventory_id', "left");
+        }
+        
         if($group_by){
             
             $this->db->group_by($group_by);
@@ -2363,6 +2367,22 @@ function get_data_for_partner_callback($booking_id) {
         }
         $this->db->order_by('partners.public_name', "ASC");
         $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This is used to return Partner & Service Specific Model details
+     * @param Array $where
+     * @return Array
+     */
+    function get_model_number_partner_service_wise($where=array(), $select = '*'){
+        $this->db->distinct();
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('appliance_model_details.model_number', 'asc');        
+        $query = $this->db->get('appliance_model_details');
         return $query->result_array();
     }
 }

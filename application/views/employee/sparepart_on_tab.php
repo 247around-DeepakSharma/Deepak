@@ -11,7 +11,7 @@
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-body" >
+                    <div class="panel-body" >                         
                         <table id="estimate_cost_given_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr>
@@ -130,6 +130,29 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
+                        <div class="row">		
+                            <div class="col-md-1 pull-right">		
+                                <a class="btn btn-success" id="show_spare_list">Show</a><span class="badge" title="show spare data"></span>		
+                            </div>		
+                            <div class="col-md-4 pull-right">		
+                                <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested">		
+                                    <option value="" selected="selected" disabled="">Select Services</option>		
+                                    <?php foreach($services as $val){ ?>		
+                                    <option value="<?php echo $val->id?>"><?php echo $val->services?></option>		
+                                    <?php } ?>		
+                                </select>		
+                            </div> 		
+                            <div class="col-md-4 pull-right">		
+                                <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested">		
+                                    <option value="" selected="selected" disabled="">Select Partners</option>		
+                                    <?php 		
+                                        foreach($partners as $val){ ?>		
+                                            <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>		
+                                    <?php } ?>		
+                                </select>		
+                            </div>		
+                        </div>		
+                        <hr/>
                         <table id="spare_parts_requested_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr>
@@ -232,6 +255,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Age Of Rejection</th>
+                                    <th class="text-center" data-orderable="false">Open</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                 </tr>
                             </thead>
@@ -733,7 +757,13 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '10', status: '<?php echo SPARE_PART_ON_APPROVAL; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: function(d){
+                    d.type =  '10';		
+                    d.status =  '<?php echo SPARE_PART_ON_APPROVAL; ?>';		
+                    d.partner_id =  '<?php echo $partner_id; ?>';		
+                    d.partner_wise_parts_requested =  $('#partner_wise_parts_requested').val();		
+                    d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested').val();		
+                 }
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -826,7 +856,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1320,8 +1350,64 @@
                   return false;
               }
             }
-        });         
-        
+        });                 	
     }
-    
+    $(document).on('click', '.open_spare_part', function(){
+
+     var spare_id = $(this).data('spareid');
+        console.log(spare_id);
+        var status = '<?php echo SPARE_PARTS_REQUESTED;  ?>';
+        var new_booking_id = $(this).data('bookingid');
+        swal({
+        title: "Are you sure?",
+        text: "Your rejected spare will be opened again!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, open it!",
+        closeOnConfirm: false
+    }, function (isConfirm) {
+        if (!isConfirm) return;
+        $.ajax({
+            url: "<?php  echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id",
+            type: "POST",
+            data: {
+                spare_parts_id: spare_id,
+                status:status,
+                new_booking_id:new_booking_id,
+                spare_update:true
+            },
+            success: function (response) {
+                console.log(response);
+                if (response=='success') {
+                  swal("Done!", "It was succesfully opened!", "success");  
+                }else{
+                  swal("Error Occured!", "Error in opening the spare request", "error");
+                }
+                
+                spare_parts_requested_table_reject.ajax.reload(null, false);  
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                swal("Network Error!", "This is caused due to network problem . Please try again !", "error");
+            }
+        });
+    });
+
+ 
+});
+
+    $('#partner_wise_parts_requested').select2({		
+       placeholder:'Select Partner',		
+       allowClear: true		
+    });		
+
+    $('#appliance_wise_parts_requested').select2({		
+           placeholder:'Select Appliance',		
+           allowClear: true		
+    });		
+
+    $('#show_spare_list').click(function(){		
+        spare_parts_requested_table.ajax.reload(null, false); 		
+    }); 
 </script>
