@@ -5510,13 +5510,19 @@ class Booking extends CI_Controller {
                         $this->partner_cb->partner_callback($booking_id);
 
                         //Redirect to Default Search Page
+                        $userSession = array('success' => 'Booking Request type for '.$booking_id.' hase been updated successfully');
+                        $this->session->set_userdata($userSession);
                         redirect(base_url() . 'employee/service_centers/pending_booking');
                     } else {
                         //Redirect to edit booking page if validation err occurs
+                        $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
+                        $this->session->set_userdata($userSession);
                         redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
+                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
+                    $this->session->set_userdata($userSession);
                     redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
                 }
             } else {
