@@ -255,6 +255,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Age Of Rejection</th>
+                                    <th class="text-center" data-orderable="false">Open</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                 </tr>
                             </thead>
@@ -855,7 +856,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1351,7 +1352,51 @@
             }
         });                 	
     }
-     
+    $(document).on('click', '.open_spare_part', function(){
+
+     var spare_id = $(this).data('spareid');
+        console.log(spare_id);
+        var status = '<?php echo SPARE_PARTS_REQUESTED;  ?>';
+        var new_booking_id = $(this).data('bookingid');
+        swal({
+        title: "Are you sure?",
+        text: "Your rejected spare will be opened again!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, open it!",
+        closeOnConfirm: false
+    }, function (isConfirm) {
+        if (!isConfirm) return;
+        $.ajax({
+            url: "<?php  echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id",
+            type: "POST",
+            data: {
+                spare_parts_id: spare_id,
+                status:status,
+                new_booking_id:new_booking_id,
+                spare_update:true
+            },
+            success: function (response) {
+                console.log(response);
+                if (response=='success') {
+                  swal("Done!", "It was succesfully opened!", "success");  
+                }else{
+                  swal("Error Occured!", "Error in opening the spare request", "error");
+                }
+                
+                spare_parts_requested_table_reject.ajax.reload(null, false);  
+                
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                swal("Network Error!", "This is caused due to network problem . Please try again !", "error");
+            }
+        });
+    });
+
+ 
+});
+
     $('#partner_wise_parts_requested').select2({		
        placeholder:'Select Partner',		
        allowClear: true		

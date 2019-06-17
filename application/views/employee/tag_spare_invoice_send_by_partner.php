@@ -129,7 +129,20 @@
                                                 <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                             </div>
                                         </div>
-                                        
+                                        <div class="form-group">
+                                            <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
+                                                    <option value="" disabled="">Select From GST Number</option>
+                                                </select>
+                                            </div>
+                                            <label class="col-xs-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <div class="col-xs-8 col-sm-4">
+                                                <select class="form-control" name="to_gst_number" id="to_gst_number" required="">
+                                                    <option value="" disabled="">Select To GST Number</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <hr>
                                     <div class="dynamic-form-box">
@@ -452,12 +465,23 @@
         $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
+        
+        $('#from_gst_number').select2({
+            placeholder:'Select From GST Number'
+        });
+        
+        $('#to_gst_number').select2({
+            placeholder:'Select To GST Number'
+        });
             
         get_partner_list();
+       
        // get_vendor('','');        
         $("#partner_id").on('change',function(){
             var partner_id = $("#partner_id").val();
-              get_vendor('1',partner_id);              
+               get_vendor('1',partner_id);
+               get_partner_gst_number();
+               get_247around_wh_gst_number();
         });
         
         
@@ -1288,4 +1312,26 @@
             }
         });
     }
+    
+    function get_partner_gst_number(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_partner_gst_number',
+            data:{partner_id:$("#partner_id").val()},
+            success: function (response) {
+                $("#from_gst_number").html(response);
+            }
+        });
+    }
+
+   function get_247around_wh_gst_number(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
+            data:{partner_id:$("#partner_id").val()},
+            success: function (response) {
+                $("#to_gst_number").html(response);
+            }
+        });
+   }
 </script>

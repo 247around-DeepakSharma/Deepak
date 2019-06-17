@@ -860,17 +860,17 @@ class Invoice_lib {
      * @param String $invoice_id
      * @return boolean
      */
-    function settle_inventory_invoice_annexure($postData, $invoice_id) {
+    function settle_inventory_invoice_annexure($postData, $invoice_id) { 
         $processPostData = array();
         $not_updated = array();
-       
         foreach ($postData as $value) {
-            if (!empty($value['inventory_id'])) {
+            if (!empty($value['inventory_id'])) { 
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
-
+                
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+               
                 if (!empty($unsettle)) {
                     $qty = 1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
@@ -963,7 +963,10 @@ class Invoice_lib {
             "booking_partner_id" => $value['booking_partner_id'],
             "inventory_id" => $value['inventory_id'],
             "hsn_code" => $inventory_details[0]['hsn_code'],
-            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate'],
+            "from_gst_number" => $b['from_gst_number'],
+            "to_gst_number" => $b['to_gst_number']
+            );
     }
     
     /**
@@ -1036,6 +1039,9 @@ class Invoice_lib {
             }
             if(isset($value['spare_id'])){
                 $invoice['spare_id'] = $value['spare_id'];
+            }
+            if(isset($value['from_gst_number'])){
+                $invoice['from_gst_number'] = $value['from_gst_number'];
             }
             $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');

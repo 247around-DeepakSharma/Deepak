@@ -35,7 +35,17 @@
     .modal-title{
         color:#5bc0de;
     }
+        .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.80);
+  }
 </style>
+ <div class="loader hide"></div>
 <div class="page-wrapper" style="margin-top:35px;">
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
 <div class="btn-group" role="group">
@@ -667,7 +677,7 @@
                                                     <input type="hidden" name="bulk_input" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
                                                     <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
-  
+                                                    <input type="hidden" name="warehouse_id" id="booking_state" value="<?php echo $sp['partner_id']; ?>"> 
                                                     <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
 
                                                  </form>
@@ -2083,28 +2093,37 @@ background-color: #f5f5f5;
                },
                  function(isConfirm) {
                     if (isConfirm) {
+                        $(".loader").removeClass('hide');
                         $.ajax({
                         type: "POST",
                         url: "<?php echo base_url(); ?>employee/spare_parts/bulkConversion_process",
                         data: $("#move_to_update_spare_parts").serialize(),
                         success: function (data) {
                         console.log(data);
-                       if (data != '') {               
+                       if (data != '') {
+                        
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
                         if(data=='success'){
+                          $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred !.", "success");
                           $("#move_to_vendor").hide();
                         //  location.reload();
                         }else{
-                           swal("Failed", "Some spare  transferred has been failed. Check Your mail", "error");  
+                           $(".loader").addClass('hide');
+                           swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
                         }
+                    }else{
+                       $(".loader").addClass('hide');
+                       swal("Failed", "Spare  transferred has been failed. Requested inventory not found/mapped", "error");   
                     }
                     },
                     error: function () {
+                     $(".loader").addClass('hide');
                      swal("Error Occured", "Some error occured data not found", "error");
                     }
                   });
                     } else {
+                       $(".loader").addClass('hide');
                        swal("Cancelled", "Your Transferred has been cancelled !", "error");
                    }
                 });
@@ -2125,6 +2144,7 @@ background-color: #f5f5f5;
                },
                  function(isConfirm) {
                     if (isConfirm) {
+                        $(".loader").removeClass('hide');
                         $.ajax({
                         type: "POST",
                         url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
@@ -2134,21 +2154,26 @@ background-color: #f5f5f5;
                        if (data != '') {               
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
                         if(data=='success'){
+                          $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred to partner!.", "success");
                           $("#move_to_vendor").hide();
                         //  location.reload();
                         }else if(data='fail_mail'){
+                          $(".loader").addClass('hide');
                           swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
                         }else{
+                           $(".loader").addClass('hide');
                            swal("Failed", "Your Transferred has been failed. Either  network error occured !", "error");  
                         }
                     }
                     },
                     error: function () {
+                     $(".loader").addClass('hide');
                      swal("Error Occured", "Some error occured data not found", "error");
                     }
                   });
                     } else {
+                        $(".loader").addClass('hide');
                        swal("Cancelled", "Your Transferred has been cancelled !", "error");
                    }
                 });
