@@ -3125,6 +3125,9 @@ class Spare_parts extends CI_Controller {
         $bookingidbulk1 = str_replace("\r", "", $bookingidbulk);
         $bookingids = explode("\n", $bookingidbulk1);
         $bookigs = array();
+        $template = array(
+            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+        );
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
         foreach ($bookingids as $bbok) {
@@ -3143,7 +3146,6 @@ class Spare_parts extends CI_Controller {
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
         $tcount = 0;
         if (!empty($bookings_spare)) {
-            $bookings_flash_data = array();
             $booking_error_array = array();
             foreach ($bookings_spare as $booking) {
                 $spareid = $booking['id'];
