@@ -1022,38 +1022,12 @@ class Spare_parts extends CI_Controller {
         }
         $row[] = $part_status_text;
         $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";
-        if ($spare_list->defective_part_required == '0') {
-            $required_parts = 'REQUIRED_PARTS';
-            $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
-            $cl = "btn-primary";
-        } else {
-            $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
-            $required_parts = 'NOT_REQUIRED_PARTS';
-            $cl = "btn-danger";
-        }
 
-        if ($request_type != SPARE_PARTS_REQUESTED || $request_type != _247AROUND_CANCELLED) {
-            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
-        }
-
-
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
-            if ($request_type == SPARE_PARTS_REQUESTED || $request_type == SPARE_PART_ON_APPROVAL || $request_type == _247AROUND_CANCELLED) {
-                if ($spare_list->part_requested_on_approval == '0' && $spare_list->status == SPARE_PART_ON_APPROVAL) {
-                    $appvl_text = 'Approve';
-                    $cl = "btn-info";
-                    $row[] = '<a type="button"  class="btn btn-info" href="' . base_url() . 'employee/booking/get_edit_booking_form/' . $spare_list->booking_id . '" target="_blank">Edit Booking</a>';
-                    $row[] = '<button type="button" data-keys="' . $spare_list->part_warranty_status . '" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_list->id . '/' . $spare_list->booking_id . '" class="btn  ' . $cl . ' open-adminremarks" data-toggle="modal" id="approval_' . $no . '" data-target="#myModal2">' . $appvl_text . '</button>';
-                }
-            }
-        }
-
-        $c_tag = ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $spare_list->status != SPARE_PARTS_REQUESTED) ? "QUOTE_REQUEST_REJECTED" : "CANCEL_PARTS";
-        $row[] = '<button type="button" data-keys="spare_parts_cancel" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $c_tag . '" class="btn btn-danger btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-remove-sign" style="font-size: 17px;"></i></button>';
+        $row[] = '<button class="btn btn-success open_spare_part"  data-bookingid="'.$spare_list->booking_id.'"   data-spareid="'.$spare_list->id.'">Open</button>';
         return $row;
     }
 
-    /**
+        /**
      * @desc this function is used to create table row data for the spare parts ron approval
      * @param Array $spare_list
      * @param int $no
@@ -1452,8 +1426,9 @@ class Spare_parts extends CI_Controller {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
         $spare_parts_id = $this->input->post('spare_parts_id');
         $status = $this->input->post('status');
+        $spare_update_flag =$this->input->post('spare_update');
         $reason = 'Spare parts Copy By ' . $this->session->userdata('emp_name');
-
+        
         $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,spare_parts_details.date_of_request,'
                 . ', spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
@@ -1474,11 +1449,15 @@ class Spare_parts extends CI_Controller {
                 $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
                 $partner_id = $spare_parts_list[0]['booking_partner_id'];
 
-                if (!empty($spare_parts_list[0])) {
+                if (!empty($spare_parts_list[0]) && !$spare_update_flag) {
                     unset($spare_parts_list[0]['booking_partner_id']);
                     unset($spare_parts_list[0]['service_id']);
                     $insert_id = $this->service_centers_model->insert_data_into_spare_parts($spare_parts_list[0]);
                     $spare_parts_id = $insert_id;
+
+                }else  if (!empty($this->input->post('spare_update'))) {
+                    $spare_parts_id = $spare_parts_id;
+                    
                 }
 
                 $parts_stock_not_found = array();
@@ -1499,10 +1478,12 @@ class Spare_parts extends CI_Controller {
                 if (!empty($is_warehouse)) {
 
                     $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $spare_parts_list[0]['service_center_id']), $partner_id);
-
                     if (!empty($warehouse_details)) {
                         $data['partner_id'] = $warehouse_details['entity_id'];
                         $data['entity_type'] = $warehouse_details['entity_type'];
+                        if ($spare_update_flag) {
+                        $data['status'] = SPARE_PARTS_REQUESTED;
+                        }
                         $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                         $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                         $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
@@ -1514,11 +1495,15 @@ class Spare_parts extends CI_Controller {
 
                         if ($warehouse_details['entity_type'] == _247AROUND_PARTNER_STRING) {
                             array_push($parts_stock_not_found, array('model_number' => $spare_parts_list[0]['model_number'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'part_name' => $spare_parts_list[0]['parts_requested']));
+
                         }
                     } else {
                         $data['partner_id'] = $partner_id;
                         $data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['is_micro_wh'] = 0;
+                        if ($spare_update_flag) {
+                        $data['status'] = SPARE_PARTS_REQUESTED;
+                        }
                         $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['defective_return_to_entity_id'] = $partner_id;
                         array_push($parts_stock_not_found, array('model_number' => $spare_parts_list[0]['model_number'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'part_name' => $spare_parts_list[0]['parts_requested']));
@@ -1527,12 +1512,15 @@ class Spare_parts extends CI_Controller {
                     $data['partner_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
                     $data['is_micro_wh'] = 0;
+                    if ($spare_update_flag) {
+                    $data['status'] = SPARE_PARTS_REQUESTED;
+                    }
                     $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                     $data['defective_return_to_entity_id'] = $partner_id;
                 }
 
                 if (!empty($parts_stock_not_found)) {
-                    $this->send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data);
+                    $this->send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data,$booking_id);
                 }
 
                 if (isset($spare_parts_list[0]['is_micro_wh']) && $spare_parts_list[0]['is_micro_wh'] == 1 && $spare_parts_list[0]['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
@@ -1542,6 +1530,7 @@ class Spare_parts extends CI_Controller {
                 }
 
                 if (!empty($spare_parts_id)) {
+
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_parts_id), $data);
                 }
 
@@ -1570,6 +1559,7 @@ class Spare_parts extends CI_Controller {
         }
     }
 
+
     /**
      * @desc this function is used to get the warehouse details
      * @param array $data this array contains the data for which we want warehouse details;
@@ -1591,39 +1581,47 @@ class Spare_parts extends CI_Controller {
      * @param Array $value1
      * @param Array $data
      */
-    function send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data) {
-
-        if (!empty($parts_stock_not_found)) {
+   function send_out_of_stock_mail($parts_stock_not_found, $partner_id, $data, $booking_id) {
+        if (!empty($parts_stock_not_found) && !empty($booking_id)) {
             //Getting template from Database
             $email_template = $this->booking_model->get_booking_email_template("out_of_stock_inventory");
             if (!empty($email_template)) {
+                $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
+                $JoinTypeTableArray['service_centres'] = 'left';
+                $booking_state = $this->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $booking_id),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
+                
+                //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $partner_id));
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                if(!empty($get_partner_details)) {
+                    $am_email = "";
+                    if (!empty($get_partner_details[0]['account_manager_id'])) {
+                        //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                        $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    }
 
-                $get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $partner_id));
-                $am_email = "";
-                if (!empty($get_partner_details[0]['account_manager_id'])) {
-                    $am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                    $this->load->library('table');
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+
+                    $this->table->set_template($template);
+
+                    $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
+                    foreach ($parts_stock_not_found as $value) {
+                        $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
+                    }
+                    $body_msg = $this->table->generate();
+                    $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
+                    $cc = $email_template[3] . "," . $am_email;
+                    $subject = vsprintf($email_template[4], array($parts_stock_not_found[0]['model_number'], $parts_stock_not_found[0]['parts_requested']));
+                    $emailBody = vsprintf($email_template[0], $body_msg);
+                    $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
                 }
-
-                $this->load->library('table');
-                $template = array(
-                    'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                );
-
-                $this->table->set_template($template);
-
-                $this->table->set_heading(array('Model Number', 'Part Type', 'Part Name'));
-                foreach ($parts_stock_not_found as $value) {
-                    $this->table->add_row($value['model_number'], $value['part_type'], $value['part_name']);
-                }
-                $body_msg = $this->table->generate();
-                $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
-                $cc = $email_template[3] . "," . $am_email;
-                $subject = vsprintf($email_template[4], array($data['model_number'], $data['parts_requested']));
-                $emailBody = vsprintf($email_template[0], $body_msg);
-                $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
             }
         }
     }
+
 
     /**
      * @desc: This function is used to brackets data table.
