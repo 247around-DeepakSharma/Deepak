@@ -5528,11 +5528,11 @@ class Booking extends CI_Controller {
                         redirect(base_url() . 'employee/service_centers/pending_booking');
                     } else {
                         //Redirect to edit booking page if validation err occurs
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'. urlencode(base64_encode($bookinghistory[0]['booking_id'])));
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'. urlencode(base64_encode($booking_id)));
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'. urlencode(base64_encode($bookinghistory[0]['booking_id'])));
+                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                 }
             } else {
                 //Logging error if No input is provided
