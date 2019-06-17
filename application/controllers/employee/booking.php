@@ -401,7 +401,6 @@ class Booking extends CI_Controller {
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
-
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
