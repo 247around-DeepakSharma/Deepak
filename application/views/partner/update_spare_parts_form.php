@@ -133,6 +133,7 @@
                                         <label for="parts_name" class="col-md-4">Requested Parts</label>
                                         <div class="col-md-7">
                                             <textarea class="form-control" id="<?php echo "partsname_".$key; ?>" name="part[<?php echo $key; ?>][parts_name]" readonly="readonly" required><?php echo $value->parts_requested; ?></textarea>
+                                            <input type="hidden" name="part[<?php echo $key; ?>][requested_inventory_id]" id="<?php echo "requested_inventory_id_".$key;?>" value="<?php echo $value->requested_inventory_id; ?>" />
                                         </div>
                                     </div>
                                     
@@ -192,7 +193,7 @@
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">
-                                            <input required="" type="text" class="form-control spare_parts" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
+                                            <input required="" type="text" class="form-control spare_parts" onchange="change_parts_name('<?php echo $key;?>')" id="<?php echo "shippedpartsname_".$key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -591,37 +592,40 @@
     function change_shipped_part_type(key){
         var model_number_id = $('#shippedmodelnumberid_' + key).val();
         var part_type = $('#shippedparttype_'+ key).val();
+       
         $('#spinner_'+key).addClass('fa fa-spinner').show();
-        if(model_number_id){
+        if(model_number_id && part_type){
+            var requested_inventory_id = $("#requested_inventory_id_"+key).val();
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number_id:model_number_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
+                    console.log(data);
                     $('#shippedpartsname_'+key).val('val', "");
                     $('#shippedpartsname_' +key).val('Select Part Name').change();
-                    $('#shippedpartsname_' + key).html(data);
+                    $('#shippedpartsname_' + key).html(data).change();
                     $('#spinner_' + key).removeClass('fa fa-spinner').hide();
-                    var request_part_type = $("#partsname_"+key).val();
-                    if(request_part_type){
-                        $('#shippedpartsname_' +key).val(request_part_type).change(); 
-                    }
+//                    var request_part_type = $("#partsname_"+key).val();
+//                    if(request_part_type){
+//                        $('#shippedpartsname_' +key).val(request_part_type).change(); 
+//                    }
                 }
             });
         }else{
-            alert("Please Select Model Number");
+          //  alert("Please Select Model Number");
         }
     }
     
-    $('#shipped_parts_name').on('change', function() {
-        change_parts_name();
-        
-    });
+//    $('#shipped_parts_name').on('change', function() {
+//        change_parts_name();
+//        
+//    });
      
-    function change_parts_name(){
+    function change_parts_name(key){
         var model_number_id = $('#shipped_model_number_id').val();
-        var part_name = $('#shipped_parts_name').val();
-        
+        var part_name = $('#shippedpartsname_' + key).val();
+        var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -631,7 +635,7 @@
                     //console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.inventory_id){
-                        $('#inventory_id').val(obj.inventory_id);
+                        $('#inventory_id').val(inventory);
                         $('#submit_form').attr('disabled',false);
                     }else{
                         alert("Inventory Details not found for the selected combination.");

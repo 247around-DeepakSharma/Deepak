@@ -103,7 +103,7 @@
                 </div>
             </div>
         </div>
-    <h2 ></h2
+    <h2 ></h2>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
 
@@ -180,6 +180,7 @@
     height: 100%;
     z-index: 9999;
     background: url('https://lkp.dispendik.surabaya.go.id/assets/loading.gif') 50% 50% no-repeat rgb(249,249,249);
+}
 </style>
 <script>
     $(document).ready(function(){

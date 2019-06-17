@@ -5697,4 +5697,69 @@ class vendor extends CI_Controller {
         $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
         $this->miscelleneous->downloadCSV($list, $headings,"booking_search_summary");
     }
+    
+    function engineer_wise_calls() {
+        
+        $this->load->view('service_centers/header');
+        $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",[],NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $data['status'] = ['Pending', 'FollowUp', 'Completed', 'Rescheduled', 'Cancelled'];
+        $this->load->view('service_centers/view_engineer_vise_calls',$data);
+        
+    }
+    
+    function get_engineer_vise_call_details() {
+        $post = $this->get_post_data();
+        if ($this->input->post('engineer_id')) {
+            $post[''] = array();
+          
+            $list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
+           
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $call_list) {
+                
+                $no++;
+                $row = $this->get_engineer_vise_calls_table($call_list, $no);
+                $data[] = $row;
+            }
+            $post['length'] = -1;
+            //$countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
+
+
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => count($list),
+                "recordsFiltered" => count($list),
+                'stock' => 0,
+                "data" => $data,
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                'stock' => 0,
+                "data" => array(),
+            );
+        }
+        echo json_encode($output);
+
+    }
+    
+    private function get_engineer_vise_calls_table($call_list, $sn) {
+        $row = array();
+        
+        $row[] = $sn;
+        $row[] = '<span>' . $call_list['booking_id'] . '</span>';
+        $row[] = '<span>' . $call_list['username']."<br>".$call_list['booking_primary_contact_no'] . '</span>';
+        $row[] = '<span>' . $call_list['booking_address'] . '</span>';
+        $row[] = '<span><b>' . $call_list['request_type'] .'</b> '.$call_list['services'] . '</span>';
+        $row[] = '<span>' . $call_list['booking_date'] . '</span>';
+        $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
+        $row[] = '<span>' . $call_list['partner_name'] . '</span>';
+        $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
+        $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
+
+        return $row;
+    }
 }

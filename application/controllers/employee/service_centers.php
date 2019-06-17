@@ -1825,11 +1825,10 @@ class Service_centers extends CI_Controller {
                 $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                 $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                 $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
-                $data['challan_approx_value']=$warehouse_details['challan_approx_value'];
-
-                if (!empty($warehouse_details['inventory_id'])) {
-                    $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-                }
+                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                $data['parts_requested'] = $warehouse_details['part_name'];
+                $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                
             } else {
                 $data['partner_id'] = $partner_id;
                 $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -5002,7 +5001,9 @@ class Service_centers extends CI_Controller {
     function inventory_stock_list(){
         //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/inventory_stock_list');
+        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_micro_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $data['wh'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $this->load->view('service_centers/inventory_stock_list',$data);
     }
       
     /**
@@ -6848,4 +6849,139 @@ class Service_centers extends CI_Controller {
             $this->load->view('service_centers/spare_assigned_to_partner', $data);
         }
     }
+    
+    
+    /*  
+     * Delivered spare transfer view and list of inventories
+     * 
+     * 
+     */
+    
+    function delivered_spare_transfer() {
+        $data = array();
+        $from = trim($this->input->post('frombooking'));
+        $to = trim($this->input->post('tobooking'));
+        if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
+            $from_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' =>SPARE_DELIVERED_TO_SF));
+            $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
+            $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            if (empty($from_details) || empty($to_details)) {
+                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
+                redirect(base_url() .'service_center/delivered_spare_transfer');
+            } else {
+                $data['from_booking'] = $from_details;
+                $data['to_booking'] = $to_details;
+                $data['frombooking'] = $from_details[0]['booking_id'];
+                $data['tobooking'] = $to_details[0]['booking_id'];
+                $this->load->view('service_centers/header');
+                $this->load->view('service_centers/delivered_spare_transfer', $data);
+            }
+        } else {
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/delivered_spare_transfer', $data);
+        }
+    }
+
+    
+     /*  
+     * Delivered spare transfer process
+     * 
+     * 
+     */
+    
+    
+    function do_delivered_spare_transfer() {
+        $from_spare_id = $this->input->post('fromspareid');
+        $to_spare_id = $this->input->post('tospareid');
+        $frombooking = $this->input->post('frombooking');
+        $tobooking = $this->input->post('tobooking');
+        $inventory_id_from = $this->input->post('inventoryidfrom');
+        $inventory_id_to = $this->input->post('inventoryidto');
+        $data['frombooking'] = $frombooking;
+        $data['tobooking'] = $tobooking; 
+        $to_update=false;
+        $from_update=false;
+        if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
+            echo 'fail';   
+        } else {
+            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $from_spare_id));
+            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $to_spare_id));
+            if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
+                echo 'fail';
+            } else {
+                $to_details_array = array(
+                    'status' => $form_details[0]['status'],
+                    'entity_type' => $form_details[0]['entity_type'],
+                    'partner_id' => $form_details[0]['partner_id'],
+                    'is_micro_wh' => $form_details[0]['is_micro_wh'],
+                    'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
+                    'model_number_shipped'=>$form_details[0]['purchase_invoice_id'],
+                    'parts_shipped'=>$form_details[0]['parts_shipped'],
+                    'shipped_parts_type'=>$form_details[0]['shipped_parts_type'],
+                    'shipped_date'=>$form_details[0]['shipped_date'],
+                    'defective_part_shipped'=>$form_details[0]['defective_part_shipped'],
+                    'defective_part_shipped_date'=>$form_details[0]['defective_part_shipped_date'],
+                    'shipped_inventory_id'=>$form_details[0]['shipped_inventory_id'],
+                    'defective_return_to_entity_type'=>$form_details[0]['defective_return_to_entity_type'],
+                    'defective_return_to_entity_id'=>$form_details[0]['defective_return_to_entity_id'],
+                    'courier_name_by_partner'=>$form_details[0]['courier_name_by_partner'],
+                    'awb_by_partner'=>$form_details[0]['awb_by_partner'],
+                    'courier_price_by_partner'=>$form_details[0]['courier_price_by_partner'],
+                    'courier_pic_by_partner'=>$form_details[0]['courier_pic_by_partner'],
+                    'wh_ack_received_part'=>$form_details[0]['wh_ack_received_part'],
+                    'acknowledge_date'=>$form_details[0]['acknowledge_date'],
+                    'auto_acknowledeged'=>$form_details[0]['auto_acknowledeged'],
+                    'remarks_by_partner'=>$form_details[0]['remarks_by_partner'],
+                    'partner_challan_number'=>$form_details[0]['partner_challan_number'],
+                    'partner_challan_file'=>$form_details[0]['partner_challan_file'],
+                    'spare_request_symptom'=>$form_details[0]['spare_request_symptom'],
+                    
+                );
+
+                $from_details_array = array(
+                    'status' => $to_details[0]['status'],
+                    'entity_type' => $to_details[0]['entity_type'],
+                    'partner_id' => $to_details[0]['partner_id'],
+                    'is_micro_wh' => $to_details[0]['is_micro_wh'],
+                    'purchase_invoice_id' => $to_details[0]['purchase_invoice_id'],
+                    'model_number_shipped'=>$to_details[0]['purchase_invoice_id'],
+                    'parts_shipped'=>$to_details[0]['parts_shipped'],
+                    'shipped_parts_type'=>$to_details[0]['shipped_parts_type'],
+                    'shipped_date'=>$to_details[0]['shipped_date'],
+                    'defective_part_shipped'=>$to_details[0]['defective_part_shipped'],
+                    'defective_part_shipped_date'=>$to_details[0]['defective_part_shipped_date'],
+                    'shipped_inventory_id'=>$to_details[0]['shipped_inventory_id'],
+                    'defective_return_to_entity_type'=>$to_details[0]['defective_return_to_entity_type'],
+                    'defective_return_to_entity_id'=>$to_details[0]['defective_return_to_entity_id'],
+                    'courier_name_by_partner'=>$to_details[0]['courier_name_by_partner'],
+                    'awb_by_partner'=>$to_details[0]['awb_by_partner'],
+                    'courier_price_by_partner'=>$to_details[0]['courier_price_by_partner'],
+                    'courier_pic_by_partner'=>$to_details[0]['courier_pic_by_partner'],
+                    'wh_ack_received_part'=>$to_details[0]['wh_ack_received_part'],
+                    'acknowledge_date'=>$to_details[0]['acknowledge_date'],
+                    'auto_acknowledeged'=>$to_details[0]['auto_acknowledeged'],
+                    'remarks_by_partner'=>$to_details[0]['remarks_by_partner'],
+                    'partner_challan_number'=>$to_details[0]['partner_challan_number'],
+                    'partner_challan_file'=>$to_details[0]['partner_challan_file'],
+                    'spare_request_symptom'=>$to_details[0]['spare_request_symptom'],
+                );
+                $this->service_centers_model->update_spare_parts(array('id'=>$to_spare_id),$to_details_array);
+                if($this->db->affected_rows()>0){
+                    $to_update=true;
+                }
+                $this->service_centers_model->update_spare_parts(array('id'=>$from_spare_id),$from_details_array);
+                if($this->db->affected_rows()>0){
+                    $from_update=true; 
+                }
+                if($to_update && $from_update ){
+                   echo 'success';  
+                }else{
+                   echo 'fail';
+                }
+               
+            }
+        }
+    }
+
 }

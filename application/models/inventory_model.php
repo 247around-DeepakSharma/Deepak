@@ -663,7 +663,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
                 }
             }
         }
@@ -2570,10 +2570,31 @@ class Inventory_model extends CI_Model {
 
     }
     
+
     function get_entity_gst_data($select="*", $where){
         $this->db->select($select);
         $this->db->where($where);
         $this->db->from("entity_gst_details");
+    }
+    /**
+     * @Desc: This function is used to get data from the inventory_model_mapping
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_model_data($select, $where = array(), $where_in = array()) {
+        $this->db->distinct();
+        $this->db->select($select);
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        
+        if (!empty($where_in)) {
+            $this->db->where('inventory_model_mapping.inventory_id IN (' . $where_in . ') ', NULL);
+        }
+        $this->db->from('inventory_model_mapping');
+
         $query = $this->db->get();
         return $query->result_array();
     }

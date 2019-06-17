@@ -1945,7 +1945,7 @@ class Partner extends CI_Controller {
                 . "spare_parts_details.model_number, spare_parts_details.quantity,spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
-                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array();
@@ -2268,6 +2268,7 @@ class Partner extends CI_Controller {
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
 
+        $data['request_type'] = $this->miscelleneous->get_request_type_life_cycle($booking_id);
         //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
@@ -5812,7 +5813,8 @@ class Partner extends CI_Controller {
         $serviceWhere['isBookingActive'] =1;
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
          if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
-            $this->load->view('partner/partner_default_page_cc');
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+            $this->load->view('partner/partner_default_page_cc', $data);
         }
         else{
             $this->load->view('partner/partner_dashboard',array('services'=>$services));
@@ -7732,4 +7734,29 @@ class Partner extends CI_Controller {
     }
 
     
+    /**
+     * @Desc: This function is used to get  Model for Partner for particular service_id  
+     * This is being called from AJAX
+     * @params: partner_id, service_name
+     * $return: Json
+     * 
+     */
+    function get_model_for_partner_service_wise() {
+        $appliace_model = "";
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $where = array('entity_type' => 'partner', 'entity_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
+        $data = $this->partner_model->get_model_number_partner_service_wise($where);
+
+        $option = "";
+        foreach ($data as $value) {
+            $option .= "<option ";
+            if ($appliace_model == $value['model_number'] || count($data) == 1) {
+                $option .= " selected ";
+            }
+            $option .= " value='" . $value['id'] . "'>" . $value['model_number'] . "</option>";
+        }
+
+        echo $option;
+    }
 }

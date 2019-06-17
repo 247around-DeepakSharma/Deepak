@@ -726,7 +726,8 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         $result = $query->result_array();
         $post['is_inventory']=1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,im.part_number as shipped_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
+        $post['is_original_inventory']=1;
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -1695,18 +1696,38 @@ class Booking_model extends CI_Model {
                 $data['new_price_tag'] = json_encode($finalNewPrice);
                 $data['old_price_tag'] = json_encode($finalOldPrice);
                 if(!empty($this->session->userdata('service_center_id'))){
-                    $entity_type = "Vendor";
+                    $entity_type = "Service Center";
                     $entity_id = $this->session->userdata('service_center_id');
                     $agentID = $this->session->userdata('service_center_agent_id');
+                    $entity_name = $this->session->userdata('service_center_name');
+                    $agent_name = $this->session->userdata('agent_name');
+                }
+                else if(!empty($this->session->userdata('partner_id'))){
+                    $entity_type = "Partner";
+                    $entity_id = $this->session->userdata('partner_id');
+                    $agentID = $this->session->userdata('agent_id');
+                    $entity_name = $this->session->userdata('partner_name');
+                    $agent_name = $this->session->userdata('emp_name');
+                }
+                else if(!empty($this->session->userdata('id'))){
+                    $entity_type = "247around";
+                    $entity_id = _247AROUND;
+                    $agentID = $this->session->userdata('id');
+                    $entity_name = "247around";
+                    $agent_name = $this->session->userdata('employee_id');
                 }
                 else{
                     $entity_type = "247around";
                     $entity_id = _247AROUND;
-                    $agentID = $this->session->userdata('id');
+                    $agentID = _247AROUND_DEFAULT_AGENT;
+                    $entity_name = "247around";
+                    $agent_name = "Default Agent";
                 }
                 $data['entity_type']  = $entity_type;
                 $data['entity_id'] = $entity_id;
                 $data['agent_id'] = $agentID;
+                $data['entity_name'] = $entity_name;
+                $data['agent_name'] = $agent_name;
                 $this->reusable_model->insert_into_table('booking_request_type_state_change',$data);
                 log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Updated Data Array " . print_r($data, true));
             }

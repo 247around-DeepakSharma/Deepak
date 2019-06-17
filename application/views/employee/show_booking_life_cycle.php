@@ -39,6 +39,51 @@
         </table>
    </div>
     <hr>
+      <?php if (!empty($request_type)) { ?>
+    <h1 style='font-size:24px;'>Booking Request Type History</h1>
+    <table  class="table table-striped table-bordered table-hover">
+        <tr>
+            <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
+            <th class="jumbotron" style="text-align: center">Old Request Type</th>
+            <th class="jumbotron" style="text-align: center">New Request Type</th>
+            <th class="jumbotron" style="text-align: center">Old Price Tag</th>
+            <th class="jumbotron" style="text-align: center">New Price Tag</th>
+            <th class="jumbotron" style="text-align: center">Entity Type</th>
+            <th class="jumbotron" style="text-align: center">Entity Name</th>
+            <th class="jumbotron" style="text-align: center">Agent Name</th>
+            <th class="jumbotron" style="text-align: center">Date</th>
+        </tr>
+<?php foreach ($request_type as $key => $requestTypeData) { ?>
+        <tr>
+            <td><?php echo ($key + 1) . '.'; ?></td>
+            <td><?php echo $requestTypeData['old_request_type']; ?></td>
+            <td><?php echo $requestTypeData['new_request_type']; ?></td>
+<td><?php
+                $oldPriceTagArray = json_decode($requestTypeData['old_price_tag'],true);
+                $old_price_tag_string = "";
+                foreach($oldPriceTagArray as $unitt => $priceTagOld) { 
+                    $old_price_tag_string = $old_price_tag_string.$unitt.": <br>";
+                    $old_price_tag_string = $old_price_tag_string.$priceTagOld.": <br>";
+                }
+                echo $old_price_tag_string;
+                ?></td>
+            <td><?php
+                $newPriceTagArray = json_decode($requestTypeData['new_price_tag'],true);
+                $new_price_tag_string = "";
+                foreach($newPriceTagArray as $unit => $priceTag) { 
+                    $new_price_tag_string = $new_price_tag_string.$unit.": <br>";
+                    $new_price_tag_string = $new_price_tag_string.$priceTag."<br>";
+                }
+                echo $new_price_tag_string;
+                ?></td>
+            <td><?php echo $requestTypeData['entity_type']; ?></td>
+            <td><?php echo $requestTypeData['entity_name']; ?></td>
+            <td><?php echo $requestTypeData['agent_name']; ?></td>
+            <td><?php echo $requestTypeData['date']; ?></td>
+        </tr>
+        <?php } ?>
+</table>
+      <?php } ?>
     <?php if (!empty($sms_sent_details)) { ?>
     
    <h1 style='font-size:24px;'>Booking SMS</h1>
