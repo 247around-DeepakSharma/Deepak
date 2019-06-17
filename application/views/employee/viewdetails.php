@@ -2098,6 +2098,8 @@ background-color: #f5f5f5;
                         }else{
                            swal("Failed", "Some spare  transferred has been failed. Check Your mail", "error");  
                         }
+                    }else{
+                       swal("Failed", "Spare  transferred has been failed. Requested inventory not found/mapped", "error");   
                     }
                     },
                     error: function () {
