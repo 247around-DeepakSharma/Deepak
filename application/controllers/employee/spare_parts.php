@@ -1246,6 +1246,7 @@ class Spare_parts extends CI_Controller {
         $state = $this->input->post('state');
         $service_center_id = $this->input->post('service_center_id');
         $requested_inventory = $this->input->post('requested_spare_id');
+        $warehouse_id = $this->input->post('warehouse_id');
         $where = array('id' => $spare_parts_id);
         $row = "";
         if ($entity_type == _247AROUND_PARTNER_STRING) {
@@ -1261,9 +1262,11 @@ class Spare_parts extends CI_Controller {
                 if ($this->session->userdata('userType') == 'employee') {
                     $new_state = 'Spare Part Transferred to ' . $partner_id;
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $partner_id);
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouse_id, $requested_inventory, -1);
                     echo 'success';
                 } else {
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), '', '', NULL, $partner_id);
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouse_id, $requested_inventory, -1);
                     echo 'success';
                 }
             } else {
