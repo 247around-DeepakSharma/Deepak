@@ -510,6 +510,7 @@
     function change_parts_name(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_name = $('#shippedpartsname_' +sp_id).val();
+        var invetory_id=  $('#shippedpartsname_' +sp_id).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -521,7 +522,7 @@
                     if(obj.price){
                         $('#submit_form').attr('disabled',false);
                         $('#approx_value_'+ sp_id).val(obj.price);
-                        $('#inventory_id_' +sp_id).val(obj.inventory_id);
+                        $('#inventory_id_' +sp_id).val(invetory_id);
                     }else{
                         alert("Inventory Details not found for the selected combination.");
                         $('#submit_form').attr('disabled',true);
