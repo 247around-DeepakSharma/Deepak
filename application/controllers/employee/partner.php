@@ -5098,50 +5098,79 @@ class Partner extends CI_Controller {
                 . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
-            "SF City",
-            "Courier Name",
-            "Courier Price",
-            "Partner AWB Number",
-            "SF AWB Number",
-            "Part Shipped By Partner",
-            "Part Partner Shipped Date",
-            "Partner Challan Number",
-            "SF Challan Number",
-            "Part Shipped By SF",
-            "Part Type",
-            "Parts Charge",
-            "New Spare Part Received Date",
-            "Defective Spare Part Received Date",
-            "Booking Status",
+            "Product",
+            "Requested On Partner/Warehouse",
             "Spare Status",
-            "Is Spare Auto Acknowledge",
-            "Remarks");
+            "Booking Status Level 1",
+            "Booking Status Level 2",
+            "SF Name",
+            "SF City",
+            "SF State",
+            "SF Remarks",
+            "Requested Part Code",
+            "Requested Part Name",
+            "Requested Part Type",
+            "Requested Part Date",
+            "Parts Charge",
+            "Dispatched Part Code (To SF)",
+            "Dispatched Part Name (To SF)",
+            "Dispatched Part Type (To SF)",
+            "Dispatched Part Date (To SF)",
+            "Dispatched Invoice Number (To SF)",
+            "Dispatched Challan Number",
+            "Dispatched AWB Number (To SF)",
+            "Courier Name (Dispatched To SF)",
+            "Courier Price (Dispatched To SF)",
+            "Part Acknowledge Date By SF",
+            "Remarks by Partner/Warehouse",
+            "Defective Part Shipped By SF",
+            "Defective Received Date By Partner/Warehouse",
+            "Defective Part Shipped Date",
+            "Defective Part Remarks by SF",
+            "SF Challan Number",
+            "SF AWB Number (Defective Shipped)",
+            "Is Spare Auto Acknowledge By SF",
+            );
         
         foreach($data as $sparePartBookings){
             $tempArray = array();            
-            $tempArray[] = $sparePartBookings['booking_id'];            
+            $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = $sparePartBookings['services'];
+            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse" : "Warehouse"));
+            $tempArray[] = $sparePartBookings['status'];
+            $tempArray[] = $sparePartBookings['partner_current_status'];     
+            $tempArray[] = $sparePartBookings['partner_internal_status'];     
+            $tempArray[] = $sparePartBookings['vendor_name'];            
             $tempArray[] = $sparePartBookings['sf_city'];              
+            $tempArray[] = $sparePartBookings['sf_state'];
+            $tempArray[] = $sparePartBookings['remarks_by_sc'];
+            $tempArray[] = $sparePartBookings['part_number'];
+            $tempArray[] = $sparePartBookings['part_name'];
+            $tempArray[] = $sparePartBookings['type'];
+            $tempArray[] = $sparePartBookings['date_of_request'];
+            $tempArray[] = $sparePartBookings['challan_approx_value'];
+            $tempArray[] = $sparePartBookings['shipped_part_number'];
+            $tempArray[] = $sparePartBookings['shipped_part_name'];
+            $tempArray[] = $sparePartBookings['shipped_part_type'];
+            $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = $sparePartBookings['purchase_invoice_id'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
-            $tempArray[] = $sparePartBookings['awb_by_partner'];
-            $tempArray[] = $sparePartBookings['awb_by_sf'];
-            $tempArray[] = $sparePartBookings['parts_shipped'];    
-            $tempArray[] = $sparePartBookings['shipped_date'];
-            $tempArray[] = $sparePartBookings['partner_challan_number'];
-            $tempArray[] = $sparePartBookings['sf_challan_number'];            
-            $tempArray[] = $sparePartBookings['defective_part_shipped'];            
-            $tempArray[] = $sparePartBookings['shipped_parts_type'];
-            $tempArray[] = $sparePartBookings['challan_approx_value'];                   
-            $tempArray[] = $sparePartBookings['acknowledge_date'];
+            $tempArray[] = $sparePartBookings['acknowledge_date'];            
+            $tempArray[] = $sparePartBookings['remarks_by_partner'];
+            $tempArray[] = $sparePartBookings['defective_part_shipped'];
             $tempArray[] = $sparePartBookings['received_defective_part_date'];
-            $tempArray[] = $sparePartBookings['current_status'];     
-            $tempArray[] = $sparePartBookings['status'];
+            $tempArray[] = $sparePartBookings['defective_part_shipped_date'];
+            $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
+            $tempArray[] = $sparePartBookings['sf_challan_number'];
+            $tempArray[] = $sparePartBookings['awb_by_sf'];
             if($sparePartBookings['auto_acknowledeged']==1){
             $tempArray[] = "Yes";   
              }else{
             $tempArray[] = "No";   
-             }                        
-            $tempArray[] = $sparePartBookings['remarks_by_partner'];
+             }
             $CSVData[]  = $tempArray;            
         }  
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));

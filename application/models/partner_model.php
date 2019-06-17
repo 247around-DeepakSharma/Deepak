@@ -849,10 +849,10 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, i.part_number, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
-                    . "booking_details.amount_due,booking_details.state, booking_details.current_status,"
-                . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state, service_centres.gst_no, "
+                    . "booking_details.amount_due,booking_details.state, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             if($end){
@@ -876,8 +876,10 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
+                    . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
+                    . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -889,6 +891,8 @@ function get_data_for_partner_callback($booking_id) {
                 . ' JOIN users ON users.user_id = booking_details.user_id '
                 . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
+                . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
+                . ' LEFT JOIN services ON booking_details.service_id=services.id '
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
@@ -900,6 +904,8 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN users ON users.user_id = booking_details.user_id '
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
+                    . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
+                    . ' LEFT JOIN services ON booking_details.service_id=services.id '
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
