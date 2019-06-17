@@ -2569,6 +2569,13 @@ class Inventory_model extends CI_Model {
         return $this->db->insert_id();
 
     }
-
+    
+    function get_entity_gst_data($select="*", $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->from("entity_gst_details");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
